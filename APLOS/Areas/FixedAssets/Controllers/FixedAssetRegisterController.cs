@@ -792,9 +792,11 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetAUCCIExpenseData(GridParameter gridparameter, string faType)//, string ids
+        public ActionResult GetAUCCIExpenseData(string column, string value, string faType)
         {
-            return Json(_fixedAssetRegisterService.GetAUCCIExpenseData(gridparameter, faType), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(_fixedAssetRegisterService.GetAUCCIExpenseData(column, value, faType), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
 
         [HttpGet, Authorize]

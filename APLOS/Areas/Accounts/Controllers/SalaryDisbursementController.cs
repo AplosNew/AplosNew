@@ -748,8 +748,9 @@ namespace Aplos.Areas.Accounts.Controllers
                                     ,ISNULL(vl.VoucherNo,'') as DisbursementVoucherNo
                                     ,sl.IsDisbursed
                                     ,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
-                                  ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end 
-                                    ,0 NetPayment,SPM.SystemID SalaryProcId,SPM.AddedBy,AG.UserName AccountsGroup 
+                                    ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end 
+                                    ,0 NetPayment,SPM.SystemID SalaryProcId,SPM.AddedBy,AG.UserName AccountsGroup
+                                    ,FORMAT(ISNULL(sl.UpdatedDate,sl.AddedDate),'dd-MMM-yyyy') DisbursementDate
                                     from SalaryProcessLogDetail s
                                     JOIN SalaryProcMaster SPM ON SPM.SystemID = s.SalaryProcessId and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
                                     left join EmployeeInformation e on e.SystemId= s.EmpSystemId
@@ -866,8 +867,10 @@ Where HeadCategory='Net Payable' ";
                                     ,0 NetPayment
                                     , Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag
                                     ,ISNULL(s.BankAccNo,'') BankAccNo
-                                    ,ISNULL(s.IFSCCode,'') IFSCCode--,FORMAT(ISNULL(s.UpdatedDate,s.AddedDate),'dd-MMM-yyyy') DisbursmentDate
-                                    ,FORMAT(VL.PostingDate,'dd-MMM-yyyy') DisbursmentDate,S.Id,VL.VoucherNo
+                                    ,ISNULL(s.IFSCCode,'') IFSCCode
+                                    ,FORMAT(ISNULL(sl.UpdatedDate,sl.AddedDate),'dd-MMM-yyyy') DisbursementDate
+                                    --,FORMAT(VL.PostingDate,'dd-MMM-yyyy') DisbursementDate
+                                    ,S.Id,VL.VoucherNo
                                     from SalaryProcessLogDetail s
                                     JOIN SalaryProcMaster SPM ON SPM.SystemID = s.SalaryProcessId and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
                                     left join EmployeeInformation e on e.SystemId= s.EmpSystemId
@@ -1006,7 +1009,8 @@ Where HeadCategory='Net Payable' ";
                                     ,ISNULL(vl.VoucherNo,'') as DisbursementVoucherNo
                                     ,sl.IsDisbursed
                                     ,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
-                                  ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end 
+                                    ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end 
+                                    ,FORMAT(ISNULL(sl.UpdatedDate,sl.AddedDate),'dd-MMM-yyyy') DisbursementDate
                                     from SalaryProcessLogDetail s
                                     JOIN SalaryProcMaster SPM ON SPM.SystemID = s.SalaryProcessId and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
                                     left join EmployeeInformation e on e.SystemId= s.EmpSystemId
@@ -1907,7 +1911,7 @@ Where HeadCategory='Net Payable' ";
                 sheet[ROW, COL].Text = "BankAccNo"; sheet[ROW, COL].ColumnWidth = 16; int colBA = COL; COL++;
                 sheet[ROW, COL].Text = "IFSCCode"; sheet[ROW, COL].ColumnWidth = 16; int colIF = COL; COL++;
                 sheet[ROW, COL].Text = "DisbursmentId"; sheet[ROW, COL].ColumnWidth = 16; int colDI = COL; COL++;
-                sheet[ROW, COL].Text = "Disbursment Date"; sheet[ROW, COL].ColumnWidth = 16; int colDD = COL; COL++;
+                sheet[ROW, COL].Text = "Disbursement Date"; sheet[ROW, COL].ColumnWidth = 16; int colDD = COL; COL++;
                 sheet[ROW, COL].Text = "SalaryProcFlag"; sheet[ROW, COL].ColumnWidth = 16; int colSP = COL; COL++;
                 sheet[ROW, COL].Text = "VoucherNo"; sheet[ROW, COL].ColumnWidth = 16; int colVN = COL; COL++;
                 sheet[ROW, COL].Text = "Net Payment"; sheet[ROW, COL].ColumnWidth = 16; int colNP = COL;
@@ -1942,7 +1946,7 @@ Where HeadCategory='Net Payable' ";
                     sheet[ROW, colBA].Text = data.Rows[i]["BankAccNo"].ToString();
                     sheet[ROW, colIF].Text = data.Rows[i]["IFSCCode"].ToString();
                     sheet[ROW, colDI].Text = data.Rows[i]["Id"].ToString();
-                    sheet[ROW, colDD].Text = data.Rows[i]["DisbursmentDate"].ToString();
+                    sheet[ROW, colDD].Text = data.Rows[i]["DisbursementDate"].ToString();
                     sheet[ROW, colSP].Text = data.Rows[i]["SalaryProcFlag"].ToString();
                     sheet[ROW, colVN].Text = data.Rows[i]["VoucherNo"].ToString();
                     sheet[ROW, colNP].Number = clsStaticInfo.dbl(data.Rows[i]["NetPayment"].ToString());

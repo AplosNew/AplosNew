@@ -364,15 +364,15 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 $scope.employeeInformation.CitizenID = $scope.CountryId;
             });
 
-           
+
 
         })
     };
     $scope.GetPlantWiseHRMSSetting();
 
     $('.datepicker').datepicker({
-        startDate: '-' + $scope.DOJpastDays + 'd',
-        endDate: '+31d',
+        startDate: '-' + $scope.DOJpastDays + 1 + 'd',
+        endDate: '-' + $scope.DOJpastDays + 'd',
         datesDisabled: $scope.DisabledDates,
         format: 'dd-M-yyyy',
         todayHighlight: true,

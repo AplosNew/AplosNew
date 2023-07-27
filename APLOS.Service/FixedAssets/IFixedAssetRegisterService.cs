@@ -89,7 +89,7 @@ namespace Library.Service.FixedAssets
         IEnumerable<object> GetIssueInventoryAUCList(string plantId);
 
         GridModel GetCapitalizeAssetItem(GridParameter parameters, string faType);
-        GridModel GetAUCCIExpenseData(GridParameter parameters, string faType);
+        IEnumerable<object> GetAUCCIExpenseData(string column, string value, string faType);
         void InsertORUpdateCapitalizeAsset(FixedAssetRegister master, IEnumerable<SubFixedAssetRegister> subFixedAssetRegister, decimal NumberOfQuantity, string CompanyCurrencyCode
          , string CompanyGroupCurrencyCode, string HardCurrencyCode, out string masterid, IEnumerable<MaterialMasterMachineProcess> assetItemValue, IEnumerable<FixedAssetRegisterCharacteristicsValue> fixedAssetRegisterSkuValue
          , string fixedAssetMasterId, string assetGLId, string assetBudgetId, string assetActivityId, IEnumerable<FixedAssetRegisterDetail> fixedAssetRegisterDetail);
