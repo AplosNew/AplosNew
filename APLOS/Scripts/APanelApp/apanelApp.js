@@ -664,6 +664,15 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
             frame.attr('src', file_src);
             frame.appendTo('#iframe_div_for_report');
         };
+
+
+        $rootScope.MenuList = [
+            { Href: "legal-salary-report", Description: "Legal Salary" },
+            { Href: "compliance-Document-report", Description: "Compliance Document" },
+            { Href: "gl-report", Description: "GL" }
+        ];
+
+
     }])
     .filter("dateFilter", dateFilter)
     .filter("dateFiltering", dateFiltering)
