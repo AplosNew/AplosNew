@@ -1646,16 +1646,18 @@ left join EmployeeInformation EI on EI.SystemId = DM.DriverId";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        public JsonResult getemployeeDataList(string plantId)
+        public JsonResult getemployeeDataList(string headerid)
         {
             try
             {
                 //var Today = DateTime.Now;
                 //string FirstDayOfTheMonth = "01-" + Convert.ToDateTime(Today).ToString("MMM") + "-" + Convert.ToDateTime(Today).ToString("yyyy");
                 //string LastDayOfTheMonth = Convert.ToDateTime(FirstDayOfTheMonth).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
-
-                string CmdText = @"SELECT --isSelected=(CAST(0 as bit)), 
-                                   ''Id, Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode, Emp.EmployeeStatus, Emp.EmployeeCurrentStatus,
+                string CmdText = "";
+                if (headerid != null) {
+               
+                 CmdText = @"SELECT --isSelected=(CAST(0 as bit)), 
+                                  RP.IsActive isSelected, RP.Id, Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode, Emp.EmployeeStatus, Emp.EmployeeCurrentStatus,
                                     Emp.DOS,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
                                     
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
@@ -1663,6 +1665,7 @@ left join EmployeeInformation EI on EI.SystemId = DM.DriverId";
                                         ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric, RG.UserName ResidenceGroup, PR.PaymentLink Skill, EC.UserName EmployeeCategory
                                         ,RM.Location, RM.ResidenceCategory, EMP.GenderID
 										FROM EmployeeInformation EMP
+                                        left join TRN.VehiclePurposeResponsiblePerson RP on RP.ResponsiblePersonId = EMP.SystemId and RP.VehiclePurposeId = '" + headerid + @"'
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
@@ -1681,7 +1684,42 @@ left join EmployeeInformation EI on EI.SystemId = DM.DriverId";
 										LEFT JOIN HKP.EmployeeCategory EC on EC.Id = DM.EmployeeCategoryId
 										
                                         Where EMP.EmployeeStatus='Active' 
+                                        order by RP.IsActive DESC
                                         --ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
+                }
+                else
+                {
+                    CmdText = @"SELECT --isSelected=(CAST(0 as bit)), 
+                                  RP.IsActive isSelected, RP.Id, Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode, Emp.EmployeeStatus, Emp.EmployeeCurrentStatus,
+                                    Emp.DOS,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
+                                    
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(emp.DOS,'dd-MMM-yyyy') DOS
+                                        ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric, RG.UserName ResidenceGroup, PR.PaymentLink Skill, EC.UserName EmployeeCategory
+                                        ,RM.Location, RM.ResidenceCategory, EMP.GenderID
+										FROM EmployeeInformation EMP
+                                        left join TRN.VehiclePurposeResponsiblePerson RP on RP.ResponsiblePersonId = EMP.SystemId
+                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
+                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+                                        LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
+                                        LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
+                                        LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
+                                        LEFT JOIN ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId 
+										LEFT JOIN ResidenceAllocatedEmployees RAE on RAE.EmployeeSystemId = EMP.SystemId
+										LEFT JOIN ResidenceMaster RM on RM.Id = RAE.ResidenceId
+										LEFT JOIN MST.DesignationMaster DM on DM.DesignationId = D.Id
+										LEFT JOIN HKP.EmployeeCategory EC on EC.Id = DM.EmployeeCategoryId
+										
+                                        Where EMP.EmployeeStatus='Active' 
+                                        order by RP.IsActive DESC
+                                        --ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
+                }
 
                 return Json(_sqlRepository.GetDataCollection(CmdText), JsonRequestBehavior.AllowGet);
             }
