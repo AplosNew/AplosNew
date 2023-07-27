@@ -4618,9 +4618,9 @@ left join HKP.HRReportGroupMaster RGM on RGM.Id = BG.UserGroupId where RP.EmpSys
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select distinct format(WorkDate, 'dd-MMM-yyy') as Value ,
-case when DayStatus   is  null then InStatus
-else DayStatus end as Name
+                strSQL = @"select distinct format(WorkDate, 'dd-MMM-yyy') as Value,
+case when DayStatus is  null then InStatus
+else DayStatus end as Name 
 from AttdnProcessData
 where WorkDate between DATEADD(day, -7, CAST(GETDATE() AS date)) and GETDATE() and EmpSystemID = '" + Empcode + "'";
                 objCon = new clsConnectionManager();
@@ -5431,6 +5431,7 @@ where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
                         dr["Name"] = item.Name;
                         dr["EmpSystemId"] = item.EmpSystemId;
                         dr["NumberOfPassengers"] = item.NumberOfPassengers;
+                        dr["VehiclePurposeResponsiblePersonId"] = item.VehiclePurposeResponsiblePersonId;
                         dr["Remarks"] = item.Remarks;
 
                         dr["AddedBy"] = item.AddedBy;
@@ -5552,6 +5553,7 @@ where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
                         dr["Name"] = item.Name;
                         dr["EmpSystemId"] = item.EmpSystemId;
                         dr["NumberOfPassengers"] = item.NumberOfPassengers;
+                        dr["VehiclePurposeResponsiblePersonId"] = item.VehiclePurposeResponsiblePersonId;
                         dr["Remarks"] = item.Remarks;
 
 
@@ -5853,10 +5855,12 @@ left join EmployeeInformation EI on EI.SystemId = PR.ResponsiblePersonId where V
             try
             {
                 strSQL = @"Select VMR.Id,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial
-                     ,VMR.Name, VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.SystemId ResponsiblePersonCode, VMR.NumberOfPassengers
+                     ,VMR.Name, VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.SystemId ResponsiblePersonCode, VMR.NumberOfPassengers , EIM.EmployeeName SelectedApprovePerson, VPR.Id PurposeResponsibleId
                     from[TRN].[VehicleMovementRequisition] VMR
                     left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                     left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
+					left join TRN.VehiclePurposeResponsiblePerson VPR on VPR.VehiclePurposeId = VMR.PurposeId
+					left join EmployeeInformation EIM on EIM.SystemId = VPR.ResponsiblePersonId
 					where VMR.AppliedId is null  and VMR.IsReject is null and VMR.isCancel is null and VMR.AddedBy = '" + EmpsysId + "' order by VMR.FromDate asc";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -5879,6 +5883,8 @@ left join EmployeeInformation EI on EI.SystemId = PR.ResponsiblePersonId where V
                         EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
                         ResponsiblePersonCode = dsRef.Tables[0].Rows[i]["ResponsiblePersonCode"].ToString(),
                         NumberOfPassengers = dsRef.Tables[0].Rows[i]["NumberOfPassengers"].ToString(),
+                        SelectedApprovePerson = dsRef.Tables[0].Rows[i]["SelectedApprovePerson"].ToString(),
+                        PurposeResponsibleId = dsRef.Tables[0].Rows[i]["PurposeResponsibleId"].ToString(),
 
                     });
                 }
@@ -6219,7 +6225,7 @@ where  vr.AppliedId = '" + MasterId + "'";
             }
         }
 
-        public void GetVehicleApprove(out List<VehicleOutin> DataList)
+        public void GetVehicleApprove(out List<VehicleOutin> DataList, string EmpSystemId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -6241,7 +6247,9 @@ left join TRN.VehicleMovementRequisitionChild VRC on VRC.VehicleMovementRequisit
 left join EmployeeInformation Em on EM.SystemId = VMR.AddedBy
 left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId 
 left join ORG.Department DP on DP.Id = Em.DepartmentId 
-where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null and VRC.VehicleMovementRequisitionId = VMR.Id ";
+left join TRN.VehiclePurposeResponsiblePerson VPR on VPR.VehiclePurposeId = VMR.PurposeId
+where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null and VRC.VehicleMovementRequisitionId = VMR.Id
+and VPR.ResponsiblePersonId = ' " + EmpSystemId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -6352,7 +6360,7 @@ where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null an
                         // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
 
-                        dr["AppliedId"] = item.AppliedId;
+                        dr["isApprove"] = 1;
 
                         dr["UpdatedBy"] = item.UpdatedBy;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
@@ -6604,6 +6612,40 @@ where EI.SystemId = '" + Id + "'";
                 strSQL = @"select Top 1 EI.SystemId as Value  , EI.EmployeeName as Name from MST.ManpowerBudget MB 
 left join EmployeeInformation EI on EI.BudgetCode = MB.ROBudgetCode
 where MB.ROBudgetCode = '" + Id + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetIncidentTitle(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id as Value , UserName as Name from HKP.IncedentTitle";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -7371,6 +7413,8 @@ where MB.ROBudgetCode = '" + Id + "'";
         public string AppliedId { get; set; }
         public string IsReject { get; set; }
         public string isCancel { get; set; }
+        public string IsApprove { get; set; }
+        public string VehiclePurposeResponsiblePersonId { get; set; }
         public string AddedBy { get; set; }
         public string AddedDate { get; set; }
         public string AddedFromIP { get; set; }
@@ -7410,6 +7454,8 @@ where MB.ROBudgetCode = '" + Id + "'";
         public string EmployeeName { get; set; }
         public string ResponsiblePersonCode { get; set; }
         public string NumberOfPassengers { get; set; }
+        public string SelectedApprovePerson { get; set; }
+        public string PurposeResponsibleId { get; set; }
     }
 
     public class VehicleStatus
@@ -7549,6 +7595,17 @@ where MB.ROBudgetCode = '" + Id + "'";
         public string UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
     }
+
+
     #endregion vehicle
+
+    public class SevenDaysAttdn
+    {
+        public string Date { get; set; }
+        public string DayStatus { get; set; }
+        public string InTime { get; set; }
+        public string OutTime { get; set; }
+
+    }
 
 }

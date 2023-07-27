@@ -301,6 +301,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
         NationalID: null
     }
 
+
+    $scope.DOJpastDays = null;
     $scope.Operation = null;
     $scope.GetPlantWiseHRMSSetting = function () {
         $http({
@@ -309,6 +311,8 @@ function employeeInformationController(addressService, fileReader, cboService, c
         }).then(function successCallback(response) {
 
             $scope.CountryId = response.data[0].CountryId;
+            $scope.DOJpastDays = response.data[0].PastDOJDaysAllowed;
+
             if (response.data[0].DOCBaseON === "Month") {
                 $scope.showMonthInput = true;
                 $scope.showDayInput = false;
@@ -321,6 +325,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 $scope.employeeInformation.DOCIsMonth = true;
                 $scope.employeeInformation.DOCIsDay = false;
                 $scope.employeeInformation.DOCMonth = response.data[0].DOCCount;
+
 
                 $scope.ShowMonthIsDayInPut();
 
@@ -358,9 +363,25 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 $scope.employeeNew.CitizenID = $scope.CountryId;
                 $scope.employeeInformation.CitizenID = $scope.CountryId;
             });
+
+
+
         })
     };
     $scope.GetPlantWiseHRMSSetting();
+
+    $('.datepicker').datepicker({
+        startDate: '-' + $scope.DOJpastDays + 1 + 'd',
+        endDate: '-' + $scope.DOJpastDays + 'd',
+        datesDisabled: $scope.DisabledDates,
+        format: 'dd-M-yyyy',
+        todayHighlight: true,
+        autoclose: true,
+        inline: true,
+        changeMonth: true
+    });
+
+
 
     $scope.ShowDOCIsDayInPut = function () {
         if ($scope.employeeNew.DOCIsDay === true) {
@@ -491,7 +512,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $scope.employeeNew.PositionID = data.PositionId;
             $scope.employeeNew.IsDirect = data.IsDirect;
             $scope.GetOnRollByBudget(data.Id);
-           
+
         } catch (e) {
             ShowResult(e, 'failure');
         }
@@ -523,7 +544,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $http.get('employees/EmployeeInformation/GetOnRollByBudget?budgetId=' + budgetId)
                 .then(function (response) {
                     if (response.data[0].TotalNumber < response.data[0].OnRollManPwr || response.data[0].TotalNumber == response.data[0].OnRollManPwr) {
-                        ShowResult("On Roll Manpower is exceeding Budgeted Manpower.", 'failure', 'popUpId'); ;
+                        ShowResult("On Roll Manpower is exceeding Budgeted Manpower.", 'failure', 'popUpId');;
                     }
                     else {
                         angular.element(document.querySelector('#popUpId')).modal('hide');
@@ -1706,7 +1727,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $scope.employeeInformation.NumberOfKnownPerson = 1;
     };
 
-    $scope.NewEmpAddValidate  = function () {
+    $scope.NewEmpAddValidate = function () {
         if ($scope.IsEmployeeCodeOpenField == true && baseService.isUndefinedOrNull($scope.employeeNew.EmployeeCode)) {
             throw "Employee Code is required.";
         }
@@ -3844,7 +3865,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             ExcludeOT: false,
             IsOutSider: false,
             EmpCodeType: null,
-            EntryLevel:null
+            EntryLevel: null
         };
         $scope.employeeNew = Object.assign({}, $scope.model);
         $scope.employeeInformation = Object.assign({}, $scope.model);
@@ -3941,7 +3962,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.employeeInformation.VendorId = party.Id;
         $scope.employeeInformation.PartyCode = party.Code;
         $scope.employeeInformation.PartyName = party.UserName;
-        
+
         angular.element(document.querySelector('#VpartyPopUp')).modal('hide');
     };
 
@@ -3975,7 +3996,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $scope.partyList = response.data;
         });
         angular.element(document.querySelector('#VpartyPopUp')).modal('show');
-        
+
     };
 
     $scope.hideVPartyPopUp = function () {

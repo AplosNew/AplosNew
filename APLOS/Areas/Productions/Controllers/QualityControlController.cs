@@ -1672,6 +1672,148 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         }
 
         [HttpPost]
+        public ActionResult UpdateQIC(List<Dictionary<string, object>> DataList, string PId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "TRN.QualityControlDetails";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and QCId='" + PId + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "QCD" + _Id;
+                            item["QCID"] = PId;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult createRepeatQC(Dictionary<string, object> QualityControlData, List<Dictionary<string, object>> DataList, string QualityPlanId, string PlanType)
+        {
+            string TableName = "TRN.QualityControlDetails";
+            string contId = string.Empty;
+            string _QId = "", _QCId = "";
+            DataSet dsQualityControlData, dsProdBooked;
+
+            try
+            {
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from MST.QualityIssueItem where IssueId='" + QualityControlData["IssueId"] + "'", out DataSet dsItemIssueValidation, false, "1");
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[QualityControl] where Id='" + QualityControlData["Id"] + "'", out dsQualityControlData, false, "1");
+                string _Id = "", Id = string.Empty;
+
+                #region data update
+                if (dsQualityControlData.Tables[0].Rows.Count == 0)
+                {
+                    if (dsItemIssueValidation.Tables[0].Rows.Count == 0)
+                    {
+                        throw new Exception("Items are not exists for selected Issue.");
+                    }
+                    else
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("[TRN].[QualityControl]", out _Id);
+                        QualityControlData["Id"] = "QC" + _Id;
+                        QualityControlData["QualityPlanId"] = QualityPlanId;
+                        QualityControlData["PlanType"] = PlanType;
+                        QualityControlData["PlantId"] = identity.PlantId;
+                        _QCId = QualityControlData["Id"].ToString();
+                        AddNewRow(dsQualityControlData.Tables[0], QualityControlData);
+                        ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                        conC.BeginTransaction();
+                        if (PlanType == "GeneralIssue")
+                        {
+                            conC.executeQuery("Update TRN.QualityIssueControl set QCId='" + QualityControlData["Id"] + "' where Id='" + QualityPlanId + @"'");
+                        }
+                        if (PlanType == "POIssue")
+                        {
+                            conC.executeQuery("Update TRN.QualityPlanControl set QCId='" + QualityControlData["Id"] + "' where Id='" + QualityPlanId + @"'");
+                        }
+                        conC.CommitTransaction();
+                    }
+                }
+                else
+                {
+                    _Id = QualityControlData["Id"].ToString();
+                    _QCId = QualityControlData["Id"].ToString();
+                    QualityControlData["PlantId"] = identity.PlantId;
+                    EditRow(dsQualityControlData.Tables[0].Rows[0], QualityControlData);
+                }
+                #endregion data update
+
+                #region FUND 
+                conRack.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  QCID='" + _QCId + "'", out dsProdBooked, false, "1");
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _QId);
+                            item["Id"] = "QCD" + _QId;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsQualityControlData, dsProdBooked);
+
+                return Json(new { Error = true, Data = QualityControlData, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpPost]
         public JsonResult create(Dictionary<string, object> QualityControlDetailsData)
         {
             try
@@ -1691,7 +1833,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 if (dsQualityControlDetailsData.Tables[0].Rows.Count == 0)
                 {
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("[TRN].[QualityControlDetails]", out _Id);
+                        genid.GenID("TRN.QualityControlDetails", out _Id);
                         QualityControlDetailsData["Id"] = "QCD" + _Id;
                         QualityControlDetailsData["PlantId"] = identity.PlantId;
                         AddNewRow(dsQualityControlDetailsData.Tables[0], QualityControlDetailsData);
