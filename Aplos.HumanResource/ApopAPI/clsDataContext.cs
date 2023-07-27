@@ -4609,18 +4609,18 @@ left join HKP.HRReportGroupMaster RGM on RGM.Id = BG.UserGroupId where RP.EmpSys
             }
         }
 
-        public void GetSevenDaysAttendance(out List<SevenDaysAttdn> DataList, string Empcode)
+        public void GetSevenDaysAttendance(out List<Default2> DataList, string Empcode)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
-            DataList = new List<SevenDaysAttdn>();
+            DataList = new List<Default2>();
 
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select distinct format(WorkDate, 'dd-MMM-yyy') as Date,
+                strSQL = @"select distinct format(WorkDate, 'dd-MMM-yyy') as Value,
 case when DayStatus is  null then InStatus
-else DayStatus end as DayStatus , format(InTime,'dd-MMM-yyyy hh:mm tt') InTime ,format(OutTime,'dd-MMM-yyyy hh:mm tt') OutTime
+else DayStatus end as Name 
 from AttdnProcessData
 where WorkDate between DATEADD(day, -7, CAST(GETDATE() AS date)) and GETDATE() and EmpSystemID = '" + Empcode + "'";
                 objCon = new clsConnectionManager();
@@ -4629,12 +4629,10 @@ where WorkDate between DATEADD(day, -7, CAST(GETDATE() AS date)) and GETDATE() a
                 objCon.CommitTransaction();
                 for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
                 {
-                    DataList.Add(new SevenDaysAttdn
+                    DataList.Add(new Default2
                     {
-                        Date = dsRef.Tables[0].Rows[i]["Date"].ToString(),
-                        DayStatus = dsRef.Tables[0].Rows[i]["DayStatus"].ToString(),
-                        InTime = dsRef.Tables[0].Rows[i]["InTime"].ToString(),
-                        OutTime = dsRef.Tables[0].Rows[i]["OutTime"].ToString(),
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
 
                     });
                 }
