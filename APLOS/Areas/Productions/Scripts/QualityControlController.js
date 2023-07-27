@@ -1058,6 +1058,8 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
+                    $scope.ProcessGeneralIssue();
+                    $scope.ProcessQualityPlan();
                     ShowResult(response.data.Message, 'success');
                 }
                 $scope.QCId = response.data.Data.Id;
@@ -2131,6 +2133,8 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.productionSummaryNew.ProductionInCharge = $event.data.QPEmployee;
         $scope.productionSummaryNew.ProductionInChargeId = $event.data.QPEmployeeId;
         $scope.WorkCenterHeaderList = [];
+        $scope.QPId = null;
+        $scope.PlanType = null;
         $scope.QPId = $event.data.Id;
         $scope.PlanType = "POIssue"
         $scope.setTab(3);
@@ -2147,6 +2151,10 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
 
    
     $scope.SetQGISelectData = function ($event) {
+        if (baseService.isUndefinedOrNull($event.data.Id))
+        {
+            throw "Please save record and proceed";
+        }
         $scope.productionSummaryNew.EntityId = $event.data.EntityId;
         $scope.productionSummaryNew.ProcessId = $event.data.ProcessId;
         $scope.productionSummaryNew.ProductionDate = $event.data.QualityIssueDate;

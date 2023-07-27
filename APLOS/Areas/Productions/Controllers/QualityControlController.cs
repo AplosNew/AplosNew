@@ -1676,7 +1676,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsProdBooked;
-            string TableName = "TRN.QualityControlDetails";
+            string TableName = "[TRN].[QualityControlDetails]";
             string contId = string.Empty;
             string _Id, Id = string.Empty;
             try
@@ -1720,7 +1720,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         [HttpPost]
         public JsonResult createRepeatQC(Dictionary<string, object> QualityControlData, List<Dictionary<string, object>> DataList, string QualityPlanId, string PlanType)
         {
-            string TableName = "TRN.QualityControlDetails";
+            string TableName = "[TRN].[QualityControlDetails]";
             string contId = string.Empty;
             string _QId = "", _QCId = "";
             DataSet dsQualityControlData, dsProdBooked;
@@ -1751,6 +1751,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                         QualityControlData["PlanType"] = PlanType;
                         QualityControlData["PlantId"] = identity.PlantId;
                         _QCId = QualityControlData["Id"].ToString();
+                        QualityControlData["RepeatEntry"] = "Repeat";
                         AddNewRow(dsQualityControlData.Tables[0], QualityControlData);
                         ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                         conC.BeginTransaction();
@@ -1774,18 +1775,23 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 }
                 #endregion data update
 
-                #region FUND 
+                #region  
                 conRack.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  QCID='" + _QCId + "'", out dsProdBooked, false, "1");
                 if (DataList != null)
                 {
                     foreach (var item in DataList)
                     {
                         DataView dv = new DataView(dsProdBooked.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        item["QCID"] = _QCId;
                         if (dv.Count == 0)
                         {
                             bplib.clsGenID genid = new bplib.clsGenID();
                             genid.GenID(TableName, out _QId);
                             item["Id"] = "QCD" + _QId;
+                            item["QCID"] = _QCId;
+                            item["RepeatEntry"] = "Repeat";
                             AddNewRow(dsProdBooked.Tables[0], item);
                         }
                         else
@@ -1833,7 +1839,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 if (dsQualityControlDetailsData.Tables[0].Rows.Count == 0)
                 {
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("TRN.QualityControlDetails", out _Id);
+                        genid.GenID("[TRN].[QualityControlDetails]", out _Id);
                         QualityControlDetailsData["Id"] = "QCD" + _Id;
                         QualityControlDetailsData["PlantId"] = identity.PlantId;
                         AddNewRow(dsQualityControlDetailsData.Tables[0], QualityControlDetailsData);
