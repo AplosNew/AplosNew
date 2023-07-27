@@ -384,7 +384,6 @@ function restController(commonMessage, $scope, $rootScope, baseService, $routePa
         $scope.restNew.DepartmentId = null;
         $scope.restNew.IsOTEntitle = false;
     }
-
     
     $scope.DeleteDetail = function (obj) {
         $scope.deleteId = obj.data.Id;
