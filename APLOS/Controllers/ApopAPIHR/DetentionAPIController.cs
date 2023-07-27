@@ -596,10 +596,10 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
-        public List<SevenDaysAttdn> GetSevenDaysAttendanceDefault(string Empcode) 
+        public List<Default2> GetSevenDaysAttendanceDefault(string Empcode) 
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetSevenDaysAttendance(out List<SevenDaysAttdn> activelists, Empcode);
+            clsData.GetSevenDaysAttendance(out List<Default2> activelists, Empcode);
             return activelists;
         }
 
