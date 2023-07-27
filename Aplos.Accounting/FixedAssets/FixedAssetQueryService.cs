@@ -2408,7 +2408,12 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM HKP.AdditionalInfoItem) AS TEMP WHERE " + strkey + " order by sequence";
+            string sql = @"select top 100 * from (
+                                                SELECT AII.*,uom.UserName UoM 
+                                                ,Man = CASE WHEN aii.IsMandatory=1 THEN 'Yes' ELSE 'No' end
+                                                ,Act = CASE WHEN aii.ACTIVE=1 THEN 'Yes' ELSE 'No' end
+                                                FROM HKP.AdditionalInfoItem AII
+                                                LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=AII.UoMId) AS TEMP WHERE " + strkey + " order by sequence";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 

@@ -946,6 +946,13 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+        public List<Default2> GetIncidentTitle()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetIncidentTitle(out List<Default2> activelists);
+            return activelists;
+        }
+
         public string PostIncedentCreation([FromBody] IEnumerable<Incedent> DataToSave)
         {
             try
