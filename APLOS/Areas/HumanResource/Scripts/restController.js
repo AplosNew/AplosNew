@@ -41,7 +41,7 @@ function restController(commonMessage, $scope, $rootScope, baseService, $routePa
         AttendanceRestDate: null,
         Remarks: null,
         IsOTEntitle: false,
-        RestTypeId:null
+        RestTypeId: null
     };
     $scope.restDetails = {
         Id: null,
@@ -136,6 +136,81 @@ function restController(commonMessage, $scope, $rootScope, baseService, $routePa
             ShowResult(e, 'failure');
         }
     };
+
+    $scope.EmployeeList = [];
+    $scope.GetEmployeeInformation = function () {
+
+        try {
+
+            if (baseService.isUndefinedOrNull($scope.restNew.AttendanceRestDate)) {
+                throw 'Please Select Attendance Rest Date';
+            }
+
+            angular.element(document.querySelector('#empInfoGrid')).modal('show');
+
+            $scope.EmployeeList = [];
+            $http({
+                method: 'GET',
+                url: 'Attendances/ShiftAssignment/GetEmployeeInformation?EffectiveDate=' + $scope.restNew.AttendanceRestDate
+            }).then(function successCallback(response) {
+                $scope.EmployeeList = response.data;
+            });
+
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
+
+    function CheckBoxSelectAllEmolyeeWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+        var filtered = $("#empInfo").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.EmployeeList.length; i++) {
+                $scope.EmployeeList[i].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#empInfo").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.tempList = [];
+    $scope.OK = function () {
+
+        try {
+            for (var i = 0; i < $scope.EmployeeList.length; i++) {
+                if ($scope.EmployeeList[i].CheckBoxSelect == true) {
+                    if (checkDoubleEmployee($scope.tempList, $scope.EmployeeList[i].EmpSystemId) === false) {
+                        $scope.tempList.push($scope.EmployeeList[i]);
+                    }
+                }
+            }
+            angular.element(document.querySelector('#empInfoGrid')).modal('hide');
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    function checkDoubleEmployee(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].EmpSystemId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     $scope.valueData = '';
     $scope.selectSingleClick = function (data) {
@@ -310,16 +385,20 @@ function restController(commonMessage, $scope, $rootScope, baseService, $routePa
         $scope.restNew.IsOTEntitle = false;
     }
 
-    $scope.confirmDelete = function (Id, EmployeeCode, index) {
-        $scope.index = index;
-        $scope.deleteId = Id;
-        $scope.message_confirmation = "Are you sure to permanently delete [" + EmployeeCode + "]? ";
-    };
-
-    $scope.DeleteDetail = function () {
+    
+    $scope.DeleteDetail = function (obj) {
+        $scope.deleteId = obj.data.Id;
+        if ($scope.deleteId == undefined) {
+            $scope.deleteId = null;
+            $scope.empId = obj.data.EmpSystemId;
+        }
         if (baseService.isUndefinedOrNull($scope.deleteId)) {
-            $scope.tempList.splice($scope.index, 1);
-            $scope.index = -1;
+            for (var i = 0; i < $scope.tempList.length; i++) {
+                if ($scope.tempList[i].EmpSystemId === $scope.empId) {
+                    $scope.tempList.splice(i, 1);
+                    break;
+                }
+            }
         } else {
             $http({
                 method: 'POST',
@@ -333,6 +412,7 @@ function restController(commonMessage, $scope, $rootScope, baseService, $routePa
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.GetRestDetailsData($scope.restid);
+                    $scope.getData();
                 }
             }, function errorCallback(response) {
                 ShowResult(response.status.Message, 'failure');
