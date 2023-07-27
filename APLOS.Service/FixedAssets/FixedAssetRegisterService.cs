@@ -2927,14 +2927,19 @@ GROUP BY FAR.FABudgetMasterId
             }
         }
 
-        public GridModel GetAUCCIExpenseData(GridParameter parameters, string faType)
+        public IEnumerable<object> GetAUCCIExpenseData(string column, string value, string faType)
         {
             try
             {
+                string CmdText = "";
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+
                 if (faType == "AUC")
                 {
-                    parameters.CmdText = @"SELECT Flag=CAST(0 AS bit),IRD.Id InventoryReceiveDetailId,IR.VoucherId,IRD.VoucherDetailId VoucherDetailNo,v.VoucherNo,Round((IRD.TotalMaterialBooksCurrencyAmount),4) Amount
+                    CmdText = @"SELECT * FROM (SELECT Flag=CAST(0 AS bit),IRD.Id InventoryReceiveDetailId,IR.VoucherId,IRD.VoucherDetailId VoucherDetailNo,v.VoucherNo,Round((IRD.TotalMaterialBooksCurrencyAmount),4) Amount
                     ,Round((0),4) FABaseAmount,LC.LCANo,PO.PurchaseLCId,IR.CurrencyId, BM.GLGeneralInfoId, AGL.UserName AS AssetGLName, BM.GLGeneralInfoId AS AssetGLId
                                     ,TUoM.UserName AS BaseUoM,IRD.BaseQty,IR.Id GRNNo,IR.GateEntryNo,IR.DocRefNo InvoiceNo
 									,REPLACE(Convert(VARCHAR(11), IR.DocDate, 106), ' ', '-') AS InvoiceDate
@@ -2959,11 +2964,11 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= IR.EmployeeId
 									LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=IM.MaterialMasterId
 									LEFT JOIN [MST].[MaterialMasterArticle] MMA ON MMA.Id=IM.ArticleId
-                                    Where IRD.IsAsset=1 AND  IR.VoucherId<>'' AND V.IsPark=0  AND IRD.VoucherDetailId NOT IN (Select [VoucherDetailId] from [TRN].[CapitalizationMasterDetail])";
+                                    Where IRD.IsAsset=1 AND  IR.VoucherId<>'' AND V.IsPark=0  AND IRD.VoucherDetailId NOT IN (Select [VoucherDetailId] from [TRN].[CapitalizationMasterDetail])) AS TEMP WHERE " + strkey + "";
                 }
                 else if (faType == "CI")
                 {
-                    parameters.CmdText = @"SELECT Flag=CAST(0 AS bit),VD.VoucherId,VD.Id VoucherDetailNo,v.VoucherNo,IIH.Id InventoryIssueHistoryId,Round((IIH.TotalAmount),4) Amount
+                    CmdText = @"SELECT * FROM (SELECT Flag=CAST(0 AS bit),VD.VoucherId,VD.Id VoucherDetailNo,v.VoucherNo,IIH.Id InventoryIssueHistoryId,Round((IIH.TotalAmount),4) Amount
                     ,Round((IIH.TotalMaterialBooksCurrencyAmount),4) FABaseAmount,LC.LCANo,PO.PurchaseLCId,IR.CurrencyId,II.CurrencyId BaseCurrencyId
                     , BM.GLGeneralInfoId, AGL.UserName AS AssetGLName, BM.GLGeneralInfoId AS AssetGLId, VD.BudgetMasterId
                                     ,IIH.Qty,IR.Id GRNNo,IR.GateEntryNo,IR.DocRefNo InvoiceNo
@@ -2996,11 +3001,11 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= IR.EmployeeId
 									LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=IM.MaterialMasterId
 									LEFT JOIN [MST].[MaterialMasterArticle] MMA ON MMA.Id=IM.ArticleId
-                                    WHERE  II.IssueType='Capital' AND II.VoucherId<>'' AND V.IsPark=0 AND VD.Id NOT IN (Select [VoucherDetailId] from [TRN].[CapitalizationMasterDetail])";
+                                    WHERE  II.IssueType='Capital' AND II.VoucherId<>'' AND V.IsPark=0 AND VD.Id NOT IN (Select [VoucherDetailId] from [TRN].[CapitalizationMasterDetail])) AS TEMP WHERE " + strkey + "";
                 }
                 else
                 {
-                    parameters.CmdText = @"SELECT Flag=CAST(0 AS bit),VD.VoucherId,VD.Id VoucherDetailNo,v.VoucherNo,Round((VD.DrAmount),4) Amount
+                    CmdText = @"SELECT * FROM (SELECT Flag=CAST(0 AS bit),VD.VoucherId,VD.Id VoucherDetailNo,v.VoucherNo,Round((VD.DrAmount),4) Amount
                     ,Round((0),4) FABaseAmount,V.CurrencyId TransactionCurrencyId, BM.GLGeneralInfoId, AGL.UserName AS AssetGLName, BM.GLGeneralInfoId AS AssetGLId
                                     ,0 Qty,'' GRNNo,V.DocRefNo InvoiceNo
 									,REPLACE(Convert(VARCHAR(11), V.DocDate, 106), ' ', '-') AS InvoiceDate
@@ -3022,10 +3027,10 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN [HKP].[Party] AS P ON P.Id= VD.PartyId
 									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= VD.EmployeeId
                                    WHERE V.SourceType IN('VendorInvoice','JournalVoucher','EmployeePayable') AND V.IsPark=0 AND VD.DrAmount>0
-								   AND ATY.Id='Expense' AND VD.Id NOT IN (Select [VoucherDetailId] from [TRN].[CapitalizationMasterDetail])";
+								   AND ATY.Id='Expense' AND VD.Id NOT IN (Select [VoucherDetailId] from [TRN].[CapitalizationMasterDetail])) AS TEMP WHERE " + strkey + "";
                 }
 
-                return _sqlRepository.GetGridData(parameters);
+                return _sqlRepository.GetDataCollection(CmdText);
             }
             catch (Exception)
             {
