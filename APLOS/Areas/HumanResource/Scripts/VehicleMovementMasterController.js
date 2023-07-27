@@ -289,6 +289,7 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
     $scope.Get = function (args) {
 
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.GetemployeeDataList(args.data.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -797,10 +798,11 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
     // #endregion Employee popup
 
     $scope.PurposeEmployeeList = [];
-    $scope.GetemployeeDataList = function () {
+    $scope.GetemployeeDataList = function (x) {
         $http({
             method: 'POST',
             url: $scope.path + "getemployeeDataList",
+            data: { 'headerid': x },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.PurposeEmployeeList = response.data;
