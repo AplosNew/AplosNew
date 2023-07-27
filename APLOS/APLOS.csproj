@@ -2087,6 +2087,7 @@
     <Content Include="Areas\HumanResource\Scripts\VehicleMovementController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleMovementRequisitionController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleReqForApproveController.js" />
+    <Content Include="Areas\HumanResource\Scripts\VehicleTripController.js" />
     <Content Include="Areas\IE\Scripts\WorkcenterWiseDetentionController.js" />
     <Content Include="Areas\Materials\Scripts\LOTCreationController.js" />
     <Content Include="Areas\Materials\Scripts\QRCodeGeneratorController.js" />
@@ -4749,6 +4750,7 @@
     <Content Include="Areas\Materials\Views\LOTCreation\Aplos.cshtml" />
     <Content Include="Areas\FixedAssets\Views\CARApproval.cshtml" />
     <Content Include="Areas\FixedAssets\Views\CapitalizeAssetRegisterPosting.cshtml" />
+    <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\VehicleTrip.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -52,6 +52,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return View();
         }
+
+        public ActionResult VehicleTrip()
+        {
+            return View();
+        }
         #endregion Views
 
 
@@ -1019,7 +1024,32 @@ FromLocation = stuff((select ', ' + LM.UserName
                             left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                             left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
 							LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId							
-                            where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null and VMC.FromLocationId is not null and 
+                            where VMR.IsApprove is null and VMR.IsReject is null and VMR.isCancel is null and VMC.FromLocationId is not null and 
+							VMC.ToLocationId is not null
+							--order by VMR.Id Desc, FORMAT(VMR.AddedDate, 'dd-MMM-yyy') Desc";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetVehicleRequisitiontAproveddData()
+        {
+            string sql = @"Select distinct VMR.Id, VMR.AppliedId ,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial, VMR.NumberOfPassengers
+,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department,                         
+FromLocation = stuff((select ', ' + LM.UserName 
+							from TRN.VehicleMovementRequisitionChild VMC
+							left join HKP.LocationMaster LM on LM.Id = VMC.FromLocationId
+							where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''),
+
+							ToLocation =  stuff((select ', ' + TM.UserName 
+							from TRN.VehicleMovementRequisitionChild VMC
+							left join HKP.LocationMaster TM on TM.Id = VMC.ToLocationId
+							where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,'')
+
+                             from [TRN].[VehicleMovementRequisition] VMR	
+							left join TRN.VehicleMovementRequisitionChild VMC on VMC.VehicleMovementRequisitionId = VMR.Id
+                            left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
+                            left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
+							LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId							
+                            where VMR.IsApprove = 1  and VMC.FromLocationId is not null and 
 							VMC.ToLocationId is not null
 							--order by VMR.Id Desc, FORMAT(VMR.AddedDate, 'dd-MMM-yyy') Desc";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -1044,7 +1074,7 @@ FromLocation = stuff((select ', ' + LM.UserName
 
         public JsonResult GetMergedRequisition(string appliedid)
         {
-            string sql = @"Select Row_Number() OVER(PARTITION BY VMR.AppliedId Order by VMR.Id)Row_Num, VMR.Id, VMR.Id VehicleMovementRequisitionId ,VMR.AppliedId ,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm:ss tt') FromTime, Format(VMR.ToTime,'hh:mm:ss tt')ToTime, VMR.PersonalOfficial
+            string sql = @"Select Row_Number() OVER(PARTITION BY VMR.AppliedId Order by VMR.Id)Row_Num, VMR.Id, VMR.Id VehicleMovementRequisitionId ,VMR.IsApprove, VMR.AppliedId ,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm:ss tt') FromTime, Format(VMR.ToTime,'hh:mm:ss tt')ToTime, VMR.PersonalOfficial
                             ,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName ByWhom, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department
                             
                                     
@@ -1057,16 +1087,19 @@ FromLocation = stuff((select ', ' + LM.UserName
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult SaveVehicleAllocation(Dictionary<string, object> data, List<Dictionary<string, object>> reqdata) 
+        public ActionResult RequisitionApproved(List<Dictionary<string, object>> reqdata) 
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
                 #region Requisition
                 string ReqTable = "[TRN].[VehicleMovementRequisition]";
                 DataSet dsRequisition;
                 var id = "";
+               
+
                 foreach (var item in reqdata)
                 {
                     if (id == "")
@@ -1074,36 +1107,13 @@ FromLocation = stuff((select ', ' + LM.UserName
                     else
                         id = id + ",'" + item["Id"] + "'";
                 }
-                con.OpenDataSetThroughAdapter($"select * from [TRN].[VehicleMovementRequisition]  where Id in ({id})", out dsRequisition, false, "1");
-                
 
+                con.OpenDataSetThroughAdapter($"select * from  {ReqTable} where Id in ({id})", out dsRequisition, false, "1");
                 
                 #endregion Requisition
                 
 
-                string TableName = "TRN.VehicleTrip";
-                DataSet dsMaster;
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
-
-                string _Id = "";
-
-                #region data Master update
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(TableName, out _Id);
-                    data["Id"] = _Id;
-                    
-                    AddNewRow(dsMaster.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-                #endregion data update
+               
 
                 foreach (var item in reqdata)
                 {
@@ -1115,10 +1125,10 @@ FromLocation = stuff((select ', ' + LM.UserName
                     {
                         DataRow dr = dv[0].Row;
                         dr.BeginEdit();
-                        dr["AppliedId"] = _Id;
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = DateTime.Now.ToString();
-                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dr["IsApprove"] = item["isMerge"];
+                        //dr["UpdatedBy"] = identity.Name;
+                        //dr["UpdatedDate"] = DateTime.Now.ToString();
+                        //dr["UpdatedFromIP"] = identity.IPAddress;
 
                         dr.EndEdit();
 
@@ -1126,7 +1136,7 @@ FromLocation = stuff((select ', ' + LM.UserName
                 }
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsRequisition);
+                _info.SaveDataSets(dsRequisition);
                 return Json(new { Error = false,  Message = AplosMessage.Insert });
             }
             catch (Exception ex) {
@@ -1636,16 +1646,18 @@ left join EmployeeInformation EI on EI.SystemId = DM.DriverId";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        public JsonResult getemployeeDataList(string plantId)
+        public JsonResult getemployeeDataList(string headerid)
         {
             try
             {
                 //var Today = DateTime.Now;
                 //string FirstDayOfTheMonth = "01-" + Convert.ToDateTime(Today).ToString("MMM") + "-" + Convert.ToDateTime(Today).ToString("yyyy");
                 //string LastDayOfTheMonth = Convert.ToDateTime(FirstDayOfTheMonth).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
-
-                string CmdText = @"SELECT --isSelected=(CAST(0 as bit)), 
-                                   ''Id, Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode, Emp.EmployeeStatus, Emp.EmployeeCurrentStatus,
+                string CmdText = "";
+                if (headerid != null) {
+               
+                 CmdText = @"SELECT --isSelected=(CAST(0 as bit)), 
+                                  RP.IsActive isSelected, RP.Id, Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode, Emp.EmployeeStatus, Emp.EmployeeCurrentStatus,
                                     Emp.DOS,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
                                     
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
@@ -1653,6 +1665,7 @@ left join EmployeeInformation EI on EI.SystemId = DM.DriverId";
                                         ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric, RG.UserName ResidenceGroup, PR.PaymentLink Skill, EC.UserName EmployeeCategory
                                         ,RM.Location, RM.ResidenceCategory, EMP.GenderID
 										FROM EmployeeInformation EMP
+                                        left join TRN.VehiclePurposeResponsiblePerson RP on RP.ResponsiblePersonId = EMP.SystemId and RP.VehiclePurposeId = '" + headerid + @"'
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
@@ -1671,7 +1684,42 @@ left join EmployeeInformation EI on EI.SystemId = DM.DriverId";
 										LEFT JOIN HKP.EmployeeCategory EC on EC.Id = DM.EmployeeCategoryId
 										
                                         Where EMP.EmployeeStatus='Active' 
+                                        order by RP.IsActive DESC
                                         --ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
+                }
+                else
+                {
+                    CmdText = @"SELECT --isSelected=(CAST(0 as bit)), 
+                                  RP.IsActive isSelected, RP.Id, Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode, Emp.EmployeeStatus, Emp.EmployeeCurrentStatus,
+                                    Emp.DOS,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
+                                    
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(emp.DOS,'dd-MMM-yyyy') DOS
+                                        ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric, RG.UserName ResidenceGroup, PR.PaymentLink Skill, EC.UserName EmployeeCategory
+                                        ,RM.Location, RM.ResidenceCategory, EMP.GenderID
+										FROM EmployeeInformation EMP
+                                        left join TRN.VehiclePurposeResponsiblePerson RP on RP.ResponsiblePersonId = EMP.SystemId
+                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
+                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+                                        LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
+                                        LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
+                                        LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
+                                        LEFT JOIN ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId 
+										LEFT JOIN ResidenceAllocatedEmployees RAE on RAE.EmployeeSystemId = EMP.SystemId
+										LEFT JOIN ResidenceMaster RM on RM.Id = RAE.ResidenceId
+										LEFT JOIN MST.DesignationMaster DM on DM.DesignationId = D.Id
+										LEFT JOIN HKP.EmployeeCategory EC on EC.Id = DM.EmployeeCategoryId
+										
+                                        Where EMP.EmployeeStatus='Active' 
+                                        order by RP.IsActive DESC
+                                        --ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
+                }
 
                 return Json(_sqlRepository.GetDataCollection(CmdText), JsonRequestBehavior.AllowGet);
             }
@@ -1751,7 +1799,145 @@ where VMR.AppliedId is not null and VA.DriverMasterId is not null and VIO.InDate
         }
         #endregion Report
 
-        
+        #region Generate Trip
+
+        public JsonResult GetTripGenerated()
+        {
+            string sql = @"Select distinct VMR.Id, VMR.AppliedId ,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial, VMR.NumberOfPassengers
+,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department,   VMR.NumberOfPassengers                      
+,FromLocation = stuff((select ', ' + LM.UserName 
+							from TRN.VehicleMovementRequisitionChild VMC
+							left join HKP.LocationMaster LM on LM.Id = VMC.FromLocationId
+							where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''),
+
+							ToLocation =  stuff((select ', ' + TM.UserName 
+							from TRN.VehicleMovementRequisitionChild VMC
+							left join HKP.LocationMaster TM on TM.Id = VMC.ToLocationId
+							where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,'')
+
+                             from [TRN].[VehicleMovementRequisition] VMR	
+							left join TRN.VehicleMovementRequisitionChild VMC on VMC.VehicleMovementRequisitionId = VMR.Id
+                            left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
+                            left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
+							LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId							
+                            where VMR.IsApprove = 1 and VMR.AppliedId is not null and VMC.FromLocationId is not null and 
+							VMC.ToLocationId is not null
+							--order by VMR.Id Desc, FORMAT(VMR.AddedDate, 'dd-MMM-yyy') Desc";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult ApprovedRequisitionForMerged()
+        {
+            string sql = @"Select distinct VMR.Id, VMR.AppliedId ,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial, VMR.NumberOfPassengers
+,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department,   VMR.NumberOfPassengers                      
+,FromLocation = stuff((select ', ' + LM.UserName 
+							from TRN.VehicleMovementRequisitionChild VMC
+							left join HKP.LocationMaster LM on LM.Id = VMC.FromLocationId
+							where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''),
+
+							ToLocation =  stuff((select ', ' + TM.UserName 
+							from TRN.VehicleMovementRequisitionChild VMC
+							left join HKP.LocationMaster TM on TM.Id = VMC.ToLocationId
+							where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,'')
+
+                             from [TRN].[VehicleMovementRequisition] VMR	
+							left join TRN.VehicleMovementRequisitionChild VMC on VMC.VehicleMovementRequisitionId = VMR.Id
+                            left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
+                            left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
+							LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId							
+                            where VMR.IsApprove = 1 and VMR.AppliedId is null and VMC.FromLocationId is not null and 
+							VMC.ToLocationId is not null
+							--order by VMR.Id Desc, FORMAT(VMR.AddedDate, 'dd-MMM-yyy') Desc";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GenerateTripNumber(Dictionary<string, object> data, List<Dictionary<string, object>> reqdata)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                #region Requisition
+                string ReqTable = "[TRN].[VehicleMovementRequisition]";
+                DataSet dsRequisition;
+                var id = "";
+                foreach (var item in reqdata)
+                {
+                    if (id == "")
+                        id = "'" + item["Id"] + "'";
+                    else
+                        id = id + ",'" + item["Id"] + "'";
+                }
+                con.OpenDataSetThroughAdapter($"select * from [TRN].[VehicleMovementRequisition]  where Id in ({id})", out dsRequisition, false, "1");
+
+
+
+                #endregion Requisition
+
+
+                string TableName = "TRN.VehicleTrip";
+                DataSet dsMaster;
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    data["Id"] = _Id;
+
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                foreach (var item in reqdata)
+                {
+
+                    DataView dv = new DataView(dsRequisition.Tables[0]);
+
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+                    if (dv.Count > 0)
+                    {
+                        DataRow dr = dv[0].Row;
+                        dr.BeginEdit();
+                        dr["AppliedId"] = _Id;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dr.EndEdit();
+
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, dsRequisition);
+                return Json(new { Error = false, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+        #endregion Generate Trip
+
+        #region Trip Schedule
+        //public ActionResult PendingTripSchedule()
+        //{
+
+        //}
+        #endregion Trip Schedule
+
 
     }
 }
