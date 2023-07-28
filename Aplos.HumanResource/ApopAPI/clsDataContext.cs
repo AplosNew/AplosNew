@@ -5918,12 +5918,13 @@ left join EmployeeInformation EI on EI.SystemId = PR.ResponsiblePersonId where V
                      ,VMR.Name, VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, VMR.NumberOfPassengers
                     ,RequisitionStatus = case when VMR.IsApprove = 1 then 'Approved' 
                     when VMR.IsReject = 1 then 'Reject'
-                    end, ApprovedBy = case when VMR.IsApprove = 1 then VMR.UpdatedBy end
+                    end, ApprovedBy = case when VMR.IsApprove = 1 then EIM.EmployeeName end
                     , RejectBy = case when VMR.IsReject = 1 then VMR.UpdatedBy end
                     from[TRN].[VehicleMovementRequisition] VMR
                     left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                     left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
                     left join TRN.VehicleTrip VT on VT.Id = VMR.AppliedId 
+					left join EmployeeInformation EIM on EIM.SystemId = VMR.VehiclePurposeResponsiblePersonId
 					where (VMR.IsApprove = 1  or VMR.IsReject = 1 ) and VMR.isCancel is null and VMR.AddedBy = '" + EmpsysId + "'  order by FromDate Desc";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
