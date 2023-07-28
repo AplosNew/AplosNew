@@ -340,7 +340,8 @@ from [MST].[QualityIssueDetails] ID where ID.Id='" + IssueId + @"'";
         public ActionResult LoadReasonDetails()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select *,(select ID.IssueName from [MST].[QualityIssueDetails] ID where ID.Id=RD.IssueId) as IssueName from [MST].[QualityReasonDetails] RD";
+            string sql = @"select *,(select QMM.UserName from [MST].[QualityIssueDetails] ID 
+left join MST.QualityManagementMaster QMM on QMM.Id=ID.IssueNameId where ID.Id=RD.IssueId) as IssueName from [MST].[QualityReasonDetails] RD";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -348,7 +349,8 @@ from [MST].[QualityIssueDetails] ID where ID.Id='" + IssueId + @"'";
         public ActionResult LoadPOQualityDetails()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select *,(select ID.IssueName from [MST].[QualityIssueDetails] ID where ID.Id=QPD.IssueId) as IssueName,
+            string sql = @"select *,(select QMM.UserName from [MST].[QualityIssueDetails] ID 
+left join MST.QualityManagementMaster QMM on QMM.Id=ID.IssueNameId where ID.Id=QPD.IssueId) as IssueName,
 (select E.EmployeeName from EmployeeInformation E where E.SystemId=QPD.ResponsiblePersonId) as ResponsiblePerson,
 (select P.Code from ORG.Position P where P.Id=QPD.PositionCodeId) as PositionCode
 from [MST].[POQualityPlanDetails] QPD";
@@ -534,7 +536,8 @@ from [MST].[POQualityPlanDetails] QPD where QPD.Id='" + PQPId + @"'";
         public ActionResult LoadTimeDetails()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select *,(select ID.IssueName from [MST].[QualityIssueDetails] ID where ID.Id=TD.IssueId) as IssueName,format(TD.FromTime,'hh:mm tt') as FTime,format(TD.ToTime,'hh:mm tt') as TTime from [MST].[QualityTimeDetails] TD";
+            string sql = @"select *,(select QMM.UserName from [MST].[QualityIssueDetails] ID 
+left join MST.QualityManagementMaster QMM on QMM.Id=ID.IssueNameId where ID.Id=TD.IssueId) as IssueName,format(TD.FromTime,'hh:mm tt') as FTime,format(TD.ToTime,'hh:mm tt') as TTime from [MST].[QualityTimeDetails] TD";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
