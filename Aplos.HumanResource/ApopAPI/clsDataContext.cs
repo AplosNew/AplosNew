@@ -6246,7 +6246,7 @@ from TRN.VehicleMovementRequisitionChild VMC
 left join HKP.LocationMaster TM on TM.Id = VMC.ToLocationId
 where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,'') ,Concat(FORMAT(VMR.FromDate, 'dd-MMM-yyyy'),' ' ,FORMAT(VMR.FromTime, 'hh:mm tt')) as FromDate ,concat(FORMAT(VMR.ToDate, 'dd-MMM-yyyy'),' ',
 FORMAT(VMR.ToTime, 'hh:mm tt'))ToDate ,VMR.FromTime
-,VMR.ToTime , EM.EmployeeName as RequisitionBy ,PM.StandardName as Purpose , DP.UserName as Department ,VPR.ResponsiblePersonId
+,VMR.ToTime , EM.EmployeeName as RequisitionBy ,PM.StandardName as Purpose , DP.UserName as Department
 from TRN.VehicleMovementRequisition VMR
 left join TRN.VehicleMovementRequisitionChild VRC on VRC.VehicleMovementRequisitionId = VMR.Id
 left join EmployeeInformation Em on EM.SystemId = VMR.AddedBy
@@ -6254,7 +6254,7 @@ left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
 left join ORG.Department DP on DP.Id = Em.DepartmentId 
 left join TRN.VehiclePurposeResponsiblePerson VPR on VPR.Id = VMR.VehiclePurposeResponsiblePersonId
 where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null and VRC.VehicleMovementRequisitionId = VMR.Id and VMR.IsApprove is null
-and VPR.ResponsiblePersonId = ' " + EmpSystemId + "'";
+and VPR.ResponsiblePersonId = '" + EmpSystemId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
