@@ -1613,8 +1613,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
         private string MaterialMasterArticleType(string MaterialTypeId)
         {
 
-            return @" 
-	     				SELECT
+            return @"SELECT
 							T.Id as MaterialId,
 							T.UserName MaterialType,MGM.UserName MaterialGroup , M.Code,M.UserName Material,mma.Code ArticleCode,MMA.StandardName MaterialArticle
 							,MC.UserName MaterialCategory, uom.UserName BaseUOM
@@ -1624,9 +1623,14 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 							,A.Code ActivityCode,A.UserName AcitivtyName
 							,FM.UserName FixedAssetMaster
 ,MachineDefinition=CASE WHEN BB.BusinessProcessName='MachineDefinition' THEN 'Yes' ELSE 'No' END
-							,Active = case when M.Active=0 then 'No' else 'Yes' end
+							,Active = case when M.Active=0 then 'No' else 'Yes' end,HSN.Code HSNCode,HSNP.Percentage TaxPercentage 
 							FROM MST.MaterialMaster M
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.MaterialMasterId=M.Id
+							LEFT JOIN HKP.HSNCode HSN ON HSN.Id=MMA.HSNCodeId
+							LEFT JOIN (
+							SELECT P.Percentage,P.HSNCodeId,TC.Code FROM [MST].[HSNTaxPercentage] P 
+							LEFT JOIN [MST].[TaxCategory] TC ON TC.Id=P.TaxCategoryId 
+							) HSNP ON HSN.Id=HSNP.HSNCodeId AND HSNP.Code='IGST'
 							LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
 							LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
 							LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=M.MaterialCategoryId
@@ -1643,13 +1647,8 @@ LEFT JOIN (
 SELECT MBP.MaterialMasterId,BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
 LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 )BB ON BB.MaterialMasterId=M.Id
-							
-
-
-						where T.Id='" + MaterialTypeId + @"  '
-
-
-							ORDER BY M.UserName";
+							where T.Id='" + MaterialTypeId + @"'
+                            ORDER BY M.UserName";
 
         }
 
@@ -1727,6 +1726,8 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                 COL++;
                 int colArticleCode = 0;
                 int colArticleName = 0;
+                int colHSNCode = 0;
+                int colTaxPercentage = 0;
 
                 if (MaterialTypeId == null && Article == true)
                 {
@@ -1737,6 +1738,14 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                     sheet[ROW, COL].Text = "ArticleName";
                     sheet[ROW, COL].ColumnWidth = 20;
                     colArticleName = COL;
+                    COL++;
+                    sheet[ROW, COL].Text = "HSNCode";
+                    sheet[ROW, COL].ColumnWidth = 10;
+                    colHSNCode = COL;
+                    COL++;
+                    sheet[ROW, COL].Text = "Tax Percentage";
+                    sheet[ROW, COL].ColumnWidth = 12;
+                    colTaxPercentage = COL;
                     COL++;
 
                 }
@@ -1751,7 +1760,14 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                     sheet[ROW, COL].ColumnWidth = 20;
                     colArticleName = COL;
                     COL++;
-
+                    sheet[ROW, COL].Text = "HSNCode";
+                    sheet[ROW, COL].ColumnWidth = 10;
+                    colHSNCode = COL;
+                    COL++;
+                    sheet[ROW, COL].Text = "Tax Percentage";
+                    sheet[ROW, COL].ColumnWidth = 12;
+                    colTaxPercentage = COL;
+                    COL++;
                 }
 
                 sheet[ROW, COL].Text = "Material Category";
@@ -1845,11 +1861,18 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                     {
                         sheet[ROW, colArticleCode].Text = dtMaterialMaster.Rows[i]["ArticleCode"].ToString();
                         sheet[ROW, colArticleName].Text = dtMaterialMaster.Rows[i]["MaterialArticle"].ToString();
+
+                        sheet[ROW, colHSNCode].Text = dtMaterialMaster.Rows[i]["HSNCode"].ToString();
+                        sheet[ROW, colTaxPercentage].Number =clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["TaxPercentage"].ToString());
                     }
                     if (MaterialTypeId != null && Article == true)
                     {
                         sheet[ROW, colArticleCode].Text = dtMaterialMaster.Rows[i]["ArticleCode"].ToString();
                         sheet[ROW, colArticleName].Text = dtMaterialMaster.Rows[i]["MaterialArticle"].ToString();
+
+
+                        sheet[ROW, colHSNCode].Text = dtMaterialMaster.Rows[i]["HSNCode"].ToString();
+                        sheet[ROW, colTaxPercentage].Number = clsStaticInfo.dbl(dtMaterialMaster.Rows[i]["TaxPercentage"].ToString());
                     }
 
 
