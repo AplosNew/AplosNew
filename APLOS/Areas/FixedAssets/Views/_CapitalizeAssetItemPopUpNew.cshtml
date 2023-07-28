@@ -11,100 +11,67 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body text-center">
-                <div class="row text-right">
+                @*<div class="row text-right">
                     <div class="col-xs-12 col-sm-12 col-sm-12">
                         <div class="search-form">
                             <div class="row">
                                 <div class="col-xs-12 col-sm-3 col-md-3">
                                     <div class="select-style">
-                                        <select ng-model="searchMaterialMasterParameters.searchBy">
-                                            <option ng-repeat="option in searchByMaterialMasterModalList" value="{{option.value}}">{{option.name}}</option>
+                                        <select ng-model="searchBy">
+                                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchMaterialMasterParameters.search" ng-enter="loadMaterialMasterModalList()">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getSearchData()">
                                 </div>
                                 <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="loadMaterialMasterModalList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    <button type="button" ng-click="getSearchData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>*@
                 <div class="table-responsive modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <div class="checkbox-site text-center">
-                                        <input type="checkbox" ng-click="CheckAll($event);">
-                                    </div>
-                                </th>
-                                <th>Voucher No</th>
-                                <th>Material</th>
-                                <th>Article</th>
-                                <th>Asset Master</th>
-                                <th>GL</th>
-                                <th>Budget</th>
-                                <th>Activity</th>
-                                <th>Qty</th>
-                                <th>UoM</th>
-                                <th>Currency</th>
-                                <th>Amount</th>
-                                <th>Base Currency</th>
-                                <th>Base Amount</th>
-                                <th>RefNo</th>
-                                <th>GRN No</th>
-                                <th>Gate EntryNo</th>
-                                <th>Invoice No</th>
-                                <th>InvoiceDate</th>
-                                <th>Issue No</th>
-                                <th>Capitalize Date</th>
-                                <th>Vendor</th>
-                                <th>Employee</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr dir-paginate="x in materialMasterList |itemsPerPage:searchMaterialMasterParameters.pageSize"
-                                total-items="searchMaterialMasterParameters.total_count" pagination-id="metaData.name + 'materialMasterList'"
-                                ng-dblclick="checkIsRegisterApplyInMaterialMaster(x); pushInTempList(x, $event, activityFAMasterList);">
-                                <td class="text-right table-td">
-                                    <div class="checkbox-site">
-                                        <input type="checkbox" ng-model="x.Flag" ng-click="selectChValueId($event,x)">
-                                    </div>
-                                </td>
-                                <td>{{x.VoucherNo}}</td>
-                                <td>{{x.MaterialMasterName}}</td>
-                                <td>{{x.ArticleStandardName}}</td>
-                                <td>{{x.AssetMasterName}}</td>
-                                <td>{{x.AssetGLName}}</td>
-                                <td>{{x.AssetBudgetName}}</td>
-                                <td>{{x.ActivityName}}</td>
-                                <td>{{x.Qty}}</td>
-                                <td>{{x.TransactionUoM}}</td>
-                                <td>{{x.GRNCurrencyCode}}</td>
-                                <td>{{x.Amount}}</td>
-                                <td>{{x.CurrencyCode}}</td>
-                                <td>{{x.FABaseAmount}}</td>
-                                <td>{{x.RefNo}}</td>
-                                <td>{{x.GRNNo}}</td>
-                                <td>{{x.GateEntryNo}}</td>
-                                <td>{{x.InvoiceNo}}</td>
-                                <td>{{x.InvoiceDate}}</td>
-                                <td>{{x.IssueNo}}</td>
-                                <td>{{x.CapitalizeDate}}</td>
-                                <td>{{x.VendorName}}</td>
-                                <td>{{x.EmployeeName}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                    <div style="color:black;" id="Grid" ej-grid e-datasource="materialMasterList" e-templaterefresh="refreshTemplate" e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                        <div e-columns>
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                            <div e-column e-type="string" e-field="VoucherNo" e-headertext="VoucherNo" e-width="100"></div>
+                            <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="Material" e-width="100"></div>
+                            <div e-column e-type="string" e-field="ArticleStandardName" e-headertext="Article" e-width="100"></div>
+                            <div e-column e-type="string" e-field="AssetMasterName" e-headertext="Asset Master" e-width="80"></div>
+                            <div e-column e-type="string" e-field="AssetGLName" e-headertext="GL" e-width="80"></div>
+                            <div e-column e-type="string" e-field="AssetBudgetName" e-headertext="Budget" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ActivityName" e-headertext="Activity" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                            <div e-column e-type="string" e-field="TransactionUoM" e-headertext="UoM" e-width="30"></div>
+                            <div e-column e-type="string" e-field="GRNCurrencyCode" e-headertext="Currency" e-width="30"></div>
+                            <div e-column e-type="string" e-field="Amount" e-headertext="Amount" e-width="80"></div>
+                            <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Base Currency" e-width="30"></div>
+                            <div e-column e-type="string" e-field="FABaseAmount" e-headertext="Base Amount" e-width="80"></div>
+                            <div e-column e-type="string" e-field="RefNo" e-headertext="RefNo" e-width="60"></div>
+                            <div e-column e-type="string" e-field="GateEntryNo" e-headertext="GRNNo" e-width="80"></div>
+                            <div e-column e-type="string" e-field="InvoiceNo" e-headertext="Invoice No" e-width="80"></div>
+                            <div e-column e-type="string" e-field="InvoiceDate" e-headertext="Invoice Date" e-width="80"></div>
+                            <div e-column e-type="string" e-field="IssueNo" e-headertext="Issue No" e-width="30"></div>
+                            <div e-column e-type="string" e-field="CapitalizeDate" e-headertext="Capitalize Date" e-width="50"></div>
+                            <div e-column e-type="string" e-field="VendorName" e-headertext="Vendor" e-width="100"></div>
+                            <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee" e-width="60"></div>
+                        </div>
+
+                    </div>
+                    <script type="text/template" id="checkboxTemplate">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                    </script>
+                    <script type="text/x-jsrender" id="headerTemplate">
+                        <input type="checkbox" id="headchk" />
+                    </script>
                 </div>
-                <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'materialMasterList'" direction-links="true" boundary-links="true" on-page-change="loadMaterialMasterModalList(newPageNumber)"></dir-pagination-controls>
             </div>
             <div class="common-btn">
                 <ul class="list-inline text-right">
-                    <li> <button ng-click="CloseMMPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    <li> <button ng-click="CloseMMPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Apply</button></li>
                 </ul>
             </div>
         </div>

@@ -42,7 +42,7 @@
         <div class="form-group">
             <div class="common-btn">
                 <ul class="list-inline text-left">
-                    <li> <button ng-click="popUp('EmployeeInfo');" class="btn" style="margin-left:15px"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Add Employees</button></li>
+                    <li> <button ng-click="GetEmployeeInformation();" class="btn" style="margin-left:15px"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Add Employees</button></li>
                 </ul>
             </div>
         </div>
@@ -76,45 +76,40 @@
             </div>
         </div>
     </div>
+
+
     <div class="col-sm-12">
-        <div class="table-responsive modal-table">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Employee Code</th>
-                        <th>Employee Name</th>
-                        <th>Plant</th>
-                        <th>Department</th>
-                        <th>Section</th>
-                        <th>SubSection</th>
-                        <th>Designation</th>
-                        <th>Given Designation</th>
-                        <th>Delete</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="x in tempList">
-                        <td>{{x.EmployeeCode}}</td>
-                        <td>{{x.EmployeeName}}</td>
-                        <td>{{x.Plant}}</td>
-                        <td>{{x.Department}}</td>
-                        <td>{{x.Section}}</td>
-                        <td>{{x.SubSection}}</td>
-                        <td>{{x.Designation}}</td>
-                        <td>{{x.GivenDesignation}}</td>
-                        <td class="text-right table-td">
-                            <ul class="list-inline action-list">
-                                <li>
-                                    <button data-toggle="modal" data-target="#confirmDelete" ng-click="confirmDelete(x.Id,x.EmployeeCode,$index)"
-                                            class="btn btn-action tooltip-here" data-placement="top" title="Delete" tooltip>
-                                        <i class="glyphicon glyphicon-remove"></i>
-                                    </button>
-                                </li>
-                            </ul>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-6 col-md-12">
+                <div id="GridNew" ej-grid
+                     e-datasource="tempList"
+                     e-allowscrolling="true"
+                     e-pageSettings-pageSize="15"
+                     e-actioncomplete="actionCompleteSelected"
+                     e-templaterefresh="refreshTemplateemployee"
+                     e-allowfiltering="true"
+                     e-allowpaging="true"
+                     e-enabletouch="true"
+                     e-responsive="true"
+                     e-allowselection="true"
+                     e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="Plant" e-headertext="Plant" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-headertext="Actions" e-width="70" e-template="#GridNewDelete"></div>
+                    </div>
+                </div>
+
+            </div>
+            <script type="text/template" id="GridNewDelete"> 
+                <button style="color: #f3f3ec;background-color: #1c1f32;height: 28px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.DeleteDetail(this);" style="margin: -6px;"></i></button>
+            </script>
         </div>
     </div>
     <div class="clearfix"></div>
@@ -249,6 +244,64 @@
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="closePopUp();" class="btn">Done</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="empInfoGrid" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee Information
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-xs-12 col-sm-6 col-md-12">
+
+                    <div id="empInfo" ng-init="chkinit()" ej-grid e-datasource="EmployeeList" e-gridlines="vertical" e-templaterefresh="refreshTemplateemployee"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
+                            <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="80"></div>
+                            @*<div e-column e-field="Division" e-headertext="Division" e-allowediting="false" e-width="80"></div>*@
+                            @*<div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-allowediting="false" e-width="80"></div>*@
+                            <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-allowediting="false" e-width="80"></div>
+                            <div e-column e-field="Unit" e-headertext="Unit" e-allowediting="false" e-width="80"></div>
+                            <div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="80"></div>
+                            <div e-column e-field="DOS" e-headertext="DOS" e-allowediting="false" e-width="80"></div>
+                            @*<div e-column e-field="EmployeeStatus" e-headertext="EmployeeStatus" e-allowediting="false" e-width="80"></div>*@
+                            <div e-column e-field="EffectiveDate" e-headertext="Last EffectiveDate" e-allowediting="false" e-width="80"></div>
+                            <div e-column e-field="ShiftDefinationName" e-headertext="Shift Name" e-allowediting="false" e-width="80"></div>
+                            <div e-column e-field="SingleDayShift" e-headertext="Single Day Shift" e-allowediting="false" e-width="80"></div>
+
+                        </div>
+                    </div>
+
+                    <script type="text/template" id="checkboxTemplate">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                    </script>
+
+                    <script type="text/x-jsrender" id="headerTemplate">
+
+                        <input type="checkbox" id="headchk" />
+                    </script>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="OK();" class="btn">Done</button></li>
                     </ul>
                 </div>
             </div>
