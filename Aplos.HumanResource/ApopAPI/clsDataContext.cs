@@ -4609,18 +4609,18 @@ left join HKP.HRReportGroupMaster RGM on RGM.Id = BG.UserGroupId where RP.EmpSys
             }
         }
 
-        public void GetSevenDaysAttendance(out List<Default2> DataList, string Empcode)
+        public void GetSevenDaysAttendance(out List<SevenDaysAttdn> DataList, string Empcode)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
-            DataList = new List<Default2>();
+            DataList = new List<SevenDaysAttdn>();
 
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select distinct format(WorkDate, 'dd-MMM-yyy') as Value,
+                strSQL = @"select distinct format(WorkDate, 'dd-MMM-yyy') as Date,
 case when DayStatus is  null then InStatus
-else DayStatus end as Name 
+else DayStatus end as DayStatus , format(InTime,'dd-MMM-yyyy hh:mm tt') InTime ,format(OutTime,'dd-MMM-yyyy hh:mm tt') OutTime
 from AttdnProcessData
 where WorkDate between DATEADD(day, -7, CAST(GETDATE() AS date)) and GETDATE() and EmpSystemID = '" + Empcode + "'";
                 objCon = new clsConnectionManager();
@@ -4629,10 +4629,12 @@ where WorkDate between DATEADD(day, -7, CAST(GETDATE() AS date)) and GETDATE() a
                 objCon.CommitTransaction();
                 for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
                 {
-                    DataList.Add(new Default2
+                    DataList.Add(new SevenDaysAttdn
                     {
-                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
-                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+                        Date = dsRef.Tables[0].Rows[i]["Date"].ToString(),
+                        DayStatus = dsRef.Tables[0].Rows[i]["DayStatus"].ToString(),
+                        InTime = dsRef.Tables[0].Rows[i]["InTime"].ToString(),
+                        OutTime = dsRef.Tables[0].Rows[i]["OutTime"].ToString(),
 
                     });
                 }
@@ -4648,18 +4650,19 @@ where WorkDate between DATEADD(day, -7, CAST(GETDATE() AS date)) and GETDATE() a
         }
 
 
-        public void GetSevenDaysAttendanceDefault(out List<Default2> DataList, string Empcode)
+
+        public void GetSevenDaysAttendanceDefault(out List<SevenDaysAttdn> DataList, string Empcode)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
-            DataList = new List<Default2>();
+            DataList = new List<SevenDaysAttdn>();
 
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select distinct format(WorkDate, 'dd-MMM-yyy') as Value ,
-case when DayStatus   is  null then InStatus
-else DayStatus end as Name
+                strSQL = @"select distinct format(WorkDate, 'dd-MMM-yyy') as Date,
+case when DayStatus is  null then InStatus
+else DayStatus end as DayStatus , format(InTime,'dd-MMM-yyyy hh:mm tt') InTime ,format(OutTime,'dd-MMM-yyyy hh:mm tt') OutTime
 from AttdnProcessData
 where WorkDate between DATEADD(day, -7, CAST(GETDATE() AS date)) and GETDATE() and EmpSystemID = '" + Empcode + "'";
                 objCon = new clsConnectionManager();
@@ -4668,10 +4671,12 @@ where WorkDate between DATEADD(day, -7, CAST(GETDATE() AS date)) and GETDATE() a
                 objCon.CommitTransaction();
                 for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
                 {
-                    DataList.Add(new Default2
+                    DataList.Add(new SevenDaysAttdn
                     {
-                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
-                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+                        Date = dsRef.Tables[0].Rows[i]["Date"].ToString(),
+                        DayStatus = dsRef.Tables[0].Rows[i]["DayStatus"].ToString(),
+                        InTime = dsRef.Tables[0].Rows[i]["InTime"].ToString(),
+                        OutTime = dsRef.Tables[0].Rows[i]["OutTime"].ToString(),
 
                     });
                 }
@@ -5859,9 +5864,9 @@ left join EmployeeInformation EI on EI.SystemId = PR.ResponsiblePersonId where V
                     from[TRN].[VehicleMovementRequisition] VMR
                     left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                     left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
-					left join TRN.VehiclePurposeResponsiblePerson VPR on VPR.VehiclePurposeId = VMR.PurposeId
+					left join TRN.VehiclePurposeResponsiblePerson VPR on VPR.Id = VMR.VehiclePurposeResponsiblePersonId
 					left join EmployeeInformation EIM on EIM.SystemId = VPR.ResponsiblePersonId
-					where VMR.AppliedId is null  and VMR.IsReject is null and VMR.isCancel is null and VMR.AddedBy = '" + EmpsysId + "' order by VMR.FromDate asc";
+					where VMR.AppliedId is null  and VMR.IsReject is null and VMR.isCancel is null and VMR.IsApprove is null and VMR.AddedBy = '" + EmpsysId + "' order by VMR.FromDate asc";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -5920,7 +5925,7 @@ left join EmployeeInformation EI on EI.SystemId = PR.ResponsiblePersonId where V
                     left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                     left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
                     left join TRN.VehicleTrip VT on VT.Id = VMR.AppliedId 
-					where (VMR.AppliedId is not null  or VMR.IsReject = 1 ) and VMR.isCancel is null and VMR.AddedBy = '" + EmpsysId + "'  order by FromDate Desc";
+					where (VMR.IsApprove is not null  or VMR.IsReject = 1 ) and VMR.isCancel is null and VMR.AddedBy = '" + EmpsysId + "'  order by FromDate Desc";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -6247,9 +6252,9 @@ left join TRN.VehicleMovementRequisitionChild VRC on VRC.VehicleMovementRequisit
 left join EmployeeInformation Em on EM.SystemId = VMR.AddedBy
 left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId 
 left join ORG.Department DP on DP.Id = Em.DepartmentId 
-left join TRN.VehiclePurposeResponsiblePerson VPR on VPR.VehiclePurposeId = VMR.PurposeId
-where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null and VRC.VehicleMovementRequisitionId = VMR.Id
-and VPR.ResponsiblePersonId = ' " + EmpSystemId + "'";
+left join TRN.VehiclePurposeResponsiblePerson VPR on VPR.Id = VMR.VehiclePurposeResponsiblePersonId
+where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null and VRC.VehicleMovementRequisitionId = VMR.Id and VMR.IsApprove is null
+and VPR.ResponsiblePersonId = '" + EmpSystemId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);

@@ -337,7 +337,7 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
                         dr["VehiclePurposeId"] = headerid;
                         dr["ResponsiblePersonId"] = item["EmployeeCode"];
                         
-                        dr["IsActive"] = 0;
+                        dr["IsActive"] = item["isSelected"];
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = identity.IPAddress;
@@ -1657,7 +1657,7 @@ left join EmployeeInformation EI on EI.SystemId = DM.DriverId";
                 if (headerid != null) {
                
                  CmdText = @"SELECT --isSelected=(CAST(0 as bit)), 
-                                  RP.IsActive isSelected, RP.Id, Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode, Emp.EmployeeStatus, Emp.EmployeeCurrentStatus,
+                                  RP.IsActive isSelected, RP.IsActive ,RP.Id, Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode, Emp.EmployeeStatus, Emp.EmployeeCurrentStatus,
                                     Emp.DOS,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
                                     
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
