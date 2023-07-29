@@ -732,7 +732,7 @@ where QID.IssueType in ('Order','General') " + QCDate + " " + QCProcess + " " + 
                 QCDate = @"and (format(QCD.AddedDate,'dd-MMM-yyyy')  between '" + fromDate + "' and '" + todate + "'  or QII.ItemName is null)";
             }
             
-            var sql = @"select distinct
+            var sql = @"select distinct QC.Id QCHeaderId,QCD.Id QCDId,
 format(QCD.AddedDate,'dd-MMM-yyyy') as QCActualDate,
 format(QCD.AddedDate,'hh:mm tt') as QCActualTime,
 QII.CheckingInterval as QCInterval,
