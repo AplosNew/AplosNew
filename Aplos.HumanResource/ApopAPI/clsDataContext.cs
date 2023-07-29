@@ -5919,7 +5919,7 @@ left join EmployeeInformation EI on EI.SystemId = PR.ResponsiblePersonId where V
                     ,RequisitionStatus = case when VMR.IsApprove = 1 then 'Approved' 
                     when VMR.IsReject = 1 then 'Reject'
                     end, ApprovedBy = case when VMR.IsApprove = 1 then EIM.EmployeeName end
-                    , RejectBy = case when VMR.IsReject = 1 then VMR.UpdatedBy end
+                    , RejectBy = case when VMR.IsReject = 1 then EIM.EmployeeName end
                     from[TRN].[VehicleMovementRequisition] VMR
                     left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                     left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
