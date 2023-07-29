@@ -814,7 +814,11 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
     $scope.ckdPurposeEmployeeList = [];
     $scope.SavePurposeRP = function () {
         for (var i = 0; i < $scope.PurposeEmployeeList.length; i++) {
-            if ($scope.PurposeEmployeeList[i].isSelected) {
+            if ($scope.PurposeEmployeeList[i].isSelected == true && ($scope.PurposeEmployeeList[i].IsActive == null || $scope.PurposeEmployeeList[i].IsActive == false)) {
+                $scope.ckdPurposeEmployeeList.push($scope.PurposeEmployeeList[i]);
+            }
+            else if ($scope.PurposeEmployeeList[i].isSelected == false && $scope.PurposeEmployeeList[i].Id != null) {
+               
                 $scope.ckdPurposeEmployeeList.push($scope.PurposeEmployeeList[i]);
             }
         }
@@ -833,9 +837,10 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    for (var i = 0; i < $scope.ckdPurposeEmployeeList.length; i++) {
-                        $scope.PurposeEmployeeList[i].isSelected = false
-                    }
+                    
+                    $scope.ckdPurposeEmployeeList = []
+                    $scope.GetemployeeDataList($scope.ModelNew.Id);
+                    
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');

@@ -1635,11 +1635,11 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     }
                     else {
 
-                        if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.ProcessPlanQty) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
-                            throw "If Previous Process Booked Qty is less than  Process Plan Qty then Please enter remarks and inform to departmental head without fail!";
+                        if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
+                            throw "If Previous Process Booked Qty is less than  Produced and Booked Qty then Please enter remarks and inform to departmental head without fail!";
                         }
                         else {
-                            if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.ProcessPlanQty) && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
+                            if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
                                 $scope.productionSummaryNew.PPQFlag = true;
                             }
                             else {
@@ -1857,11 +1857,11 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     }
                     else {
 
-                        if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.ProcessPlanQty) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
-                            throw "If Previous Process Booked Qty is less than  Process Plan Qty then Please enter remarks and inform to departmental head without fail!";
+                        if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
+                            throw "If Previous Process Booked Qty is less than  Produced and Booked Qty then Please enter remarks and inform to departmental head without fail!";
                         }
                         else {
-                            if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.ProcessPlanQty) && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
+                            if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
                                 $scope.productionSummaryNew.PPQFlag = true;
                             }
                             else {

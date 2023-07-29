@@ -173,9 +173,9 @@ namespace Aplos.Areas.Employees.Controllers
             {
                 leaveApplication.AppliedDate = DateTime.Now;
             }
+            string yearId = null;
 
-
-            _leaveTransactionService.SaveData(leaveApplication);
+            _leaveTransactionService.SaveData(leaveApplication, yearId);
             return Json(new { LeaveApplication = leaveApplication, Message = AplosMessage.Success });
         }
 
@@ -198,7 +198,8 @@ namespace Aplos.Areas.Employees.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             leaveApplication.UpdatedBy = identity.Name;
-            _leaveTransactionService.SaveData(leaveApplication);
+             string yearId = null;
+            _leaveTransactionService.SaveData(leaveApplication, yearId);
             return Json(new { Message = AplosMessage.Updated });
         }
 

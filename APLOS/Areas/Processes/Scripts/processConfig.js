@@ -69,5 +69,9 @@ function ProcessConfig($routeProvider) {
             templateUrl: 'Processes/ProductionBookingProcessparameter',
             controller: 'ProductionBookingProcessparameterController'
         })
+        .when('/process-management', {
+            templateUrl: 'Processes/ProcessManagement/Aplos',
+            controller: 'ProcessManagementController'
+        })
         ;
 }
