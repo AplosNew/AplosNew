@@ -55,8 +55,11 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             return View();
         }
-
         public ActionResult MasterLC()
+        {
+            return View();
+        }
+        public ActionResult MasterLCAmendment()
         {
             return View();
         }
@@ -89,13 +92,13 @@ namespace Aplos.Areas.Commercial.Controllers
         [HttpGet, Authorize]
         public ActionResult GetContractDetail(string partyId, string contractId)
         {
-            return Json(clsCon.GetContractDetail(partyId,contractId), JsonRequestBehavior.AllowGet);
+            return Json(clsCon.GetContractDetail(partyId, contractId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
         public ActionResult GetContractListByCustomer(string customerId)
         {
-           
+
             return Json(clsCon.GetContractListByCustomer(customerId), JsonRequestBehavior.AllowGet);
         }
 
@@ -232,6 +235,116 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }
 
+        [HttpPost]
+        public JsonResult SaveMasterLCAmendment(MasterLCAmendment entity)
+        {
+            try
+            {
+                SaveMasterLCAmendmentData(entity, out string masterId);
+
+                return Json(new { Id = masterId, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+
+        }
+        private void SaveMasterLCAmendmentData(MasterLCAmendment data, out string masterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster, dsSeq;
+            string contractId = string.Empty;
+            string id = string.Empty;
+            try
+            {
+
+                GetAmandmentAutoSequence(data.Id, out dsSeq);
+                decimal seq = Convert.ToDecimal(dsSeq.Tables[0].Rows[0]["Version"].ToString());
+
+                string sql = "SELECT * FROM [dbo].[MasterLCHistory] WHERE Id='" + data.Id + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+
+                    dr["Id"] = "MLC" + GetMasterLCPK();
+                    dr["Version"] = seq;
+                    dr["CustomerId"] = data.CustomerId;
+                    dr["IsClose"] = data.IsClose;
+                    dr["BenificiaryBankId"] = data.BenificiaryBankId;
+                    dr["OpeningBank"] = data.OpeningBank;
+                    dr["OpeningDescription"] = data.OpeningDescription;
+                    dr["LeinBank"] = data.LeinBank;
+                    dr["LeinDescription"] = data.LeinDescription;
+                    dr["LCRef"] = data.LCRef;
+                    dr["LCDate"] = data.LCDate;
+                    dr["ExpiryDate"] = data.ExpiryDate;
+                    dr["AmendmentDate"] = data.AmendmentDate;
+                    dr["Amount"] = data.Amount;
+                    dr["Type"] = data.Type;
+                    dr["Tenure"] = data.Tenure;
+                    dr["FinalDestinationId"] = data.FinalDestinationId;
+                    dr["PortOfLandingId"] = data.PortOfLandingId;
+                    dr["CurrencyId"] = data.CurrencyId;
+                    dr["LCShipmentDate"] = data.LCShipmentDate;
+                    dr["ShipmentModeId"] = data.ShipmentModeId;
+                    dr["PortOfLoadingId"] = data.PortOfLoadingId;
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now;
+                    dr["AddedFromIP"] = identity.IPAddress;
+
+                    dsMaster.Tables[0].Rows.Add(dr);
+                }
+                else
+                {
+                    //edit
+                    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                    dr.BeginEdit();
+
+                    dr["Version"] = seq;
+                    dr["CustomerId"] = data.CustomerId;
+                    dr["IsClose"] = data.IsClose;
+                    dr["BenificiaryBankId"] = data.BenificiaryBankId;
+                    dr["OpeningBank"] = data.OpeningBank;
+                    dr["OpeningDescription"] = data.OpeningDescription;
+                    dr["LeinBank"] = data.LeinBank;
+                    dr["LeinDescription"] = data.LeinDescription;
+                    dr["LCRef"] = data.LCRef;
+                    dr["LCDate"] = data.LCDate;
+                    dr["ExpiryDate"] = data.ExpiryDate;
+                    dr["AmendmentDate"] = data.AmendmentDate;
+                    dr["Amount"] = data.Amount;
+                    dr["Type"] = data.Type;
+                    dr["Tenure"] = data.Tenure;
+                    dr["FinalDestinationId"] = data.FinalDestinationId;
+                    dr["PortOfLandingId"] = data.PortOfLandingId;
+                    dr["CurrencyId"] = data.CurrencyId;
+                    dr["LCShipmentDate"] = data.LCShipmentDate;
+                    dr["ShipmentModeId"] = data.ShipmentModeId;
+                    dr["PortOfLoadingId"] = data.PortOfLoadingId;
+
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+
+                    dr.EndEdit();
+                }
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+                masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
@@ -286,7 +399,7 @@ namespace Aplos.Areas.Commercial.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                return Json(clsCon.GetMasterOrderList(identity.CompanyId,identity.PlantId), JsonRequestBehavior.AllowGet);
+                return Json(clsCon.GetMasterOrderList(identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -325,7 +438,7 @@ namespace Aplos.Areas.Commercial.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                return Json(clsCon.GetMasterOrderListbyCustomer(identity.CompanyId,identity.PlantId,customerId), JsonRequestBehavior.AllowGet);
+                return Json(clsCon.GetMasterOrderListbyCustomer(identity.CompanyId, identity.PlantId, customerId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -382,7 +495,7 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }//End of function
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public ActionResult DeleteSO(string id)
         {
             DeleteSOData(id);
@@ -628,7 +741,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    data["Id"] = "C" + GetPK(); 
+                    data["Id"] = "C" + GetPK();
                     data["PlantId"] = identity.PlantId;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
@@ -814,11 +927,15 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMaster;
+            DataSet dsMaster, dsSeq;
             string contractId = string.Empty;
             string id = string.Empty;
             try
             {
+
+                GetAutoSequence(data.Id, out dsSeq);
+                decimal seq = Convert.ToDecimal(dsSeq.Tables[0].Rows[0]["Version"].ToString());
+
                 string sql = "SELECT * FROM [dbo].[MasterLC] WHERE Id='" + data.Id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
@@ -828,6 +945,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     DataRow dr = dsMaster.Tables[0].NewRow();
 
                     dr["Id"] = "MLC" + GetMasterLCPK();
+                    dr["Version"] = seq;
                     dr["CustomerId"] = data.CustomerId;
                     dr["IsClose"] = data.IsClose;
                     dr["BenificiaryBankId"] = data.BenificiaryBankId;
@@ -861,6 +979,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
                     dr.BeginEdit();
 
+                    dr["Version"] = seq;
                     dr["CustomerId"] = data.CustomerId;
                     dr["IsClose"] = data.IsClose;
                     dr["BenificiaryBankId"] = data.BenificiaryBankId;
@@ -894,6 +1013,38 @@ namespace Aplos.Areas.Commercial.Controllers
             catch (Exception ex)
             {
                 throw (ex);
+            }
+        }
+
+        public void GetAutoSequence(string Id, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager Obj;
+
+            try
+            {
+                string sql = @"SELECT (ISNULL((MAX(ISNULL(Version,0))),0)+1) Version FROM [dbo].[MasterLC] Where Id='" + Id + "'";
+                Obj = new ConnectionManager.DAL.ConManager("1");
+                Obj.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void GetAmandmentAutoSequence(string Id, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager Obj;
+
+            try
+            {
+                string sql = @"SELECT (ISNULL((MAX(ISNULL(Version,0))),0)+1) Version FROM [dbo].[MasterLCHistory] Where Id='" + Id + "'";
+                Obj = new ConnectionManager.DAL.ConManager("1");
+                Obj.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 
@@ -1147,6 +1298,45 @@ namespace Aplos.Areas.Commercial.Controllers
             finally
             {
 
+                objCon = null;
+            }
+        }//End of function
+
+        [HttpPost]
+        public ActionResult DeleteMasterLCAmandment(string id)
+        {
+            DeleteAmandmentData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        public void DeleteAmandmentData(string Id)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM dbo.MasterLCHistory WHERE Id = '" + Id + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    throw (ex);
+                }
+                catch (Exception exx)
+                {
+                    throw exx;
+                }
+            }
+            finally
+            {
+                objCon.CloseConnection();
                 objCon = null;
             }
         }//End of function
@@ -1540,7 +1730,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 DataTable dsOrderMaster;
                 DataTable dsTermsAndCondition;
 
-                dsOrderMaster =clsCon.ProformaInvoiceSQL(ContractId);
+                dsOrderMaster = clsCon.ProformaInvoiceSQL(ContractId);
                 dsTermsAndCondition = clsCon.TermsAndConditionSQL(ContractId);
 
                 Dictionary<string, string> columns = new Dictionary<string, string>();
@@ -1617,7 +1807,7 @@ namespace Aplos.Areas.Commercial.Controllers
             }
             catch (Exception ex)
             {
-                
+
 
             }
 
@@ -1718,7 +1908,7 @@ namespace Aplos.Areas.Commercial.Controllers
             }
             catch (Exception ex)
             {
-                
+
 
             }
 
@@ -2018,7 +2208,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
             return 0;
         }
-        
+
         private void DrawSOBreakdownData(DataTable dtData, IWorksheet sheet, ref int ROW, bool Matrix = true)
         {
 
@@ -2598,7 +2788,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
         }
 
-      
+
         #endregion
 
         #region ContractItem
@@ -2624,7 +2814,7 @@ namespace Aplos.Areas.Commercial.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                return Json(clsCon.GetMasterOrderDataList(identity.CompanyId,identity.PlantId), JsonRequestBehavior.AllowGet);
+                return Json(clsCon.GetMasterOrderDataList(identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -3308,7 +3498,8 @@ namespace Aplos.Areas.Commercial.Controllers
 
 
             return total;
-        }
+        }       
+
     }
 
 
@@ -3355,6 +3546,7 @@ namespace Aplos.Areas.Commercial.Controllers
     public class MasterLC : BaseModel
     {
         public string Id { get; set; }
+        public decimal Version { get; set; }
         public string CustomerId { get; set; }
         public bool IsClose { get; set; }
         public string BenificiaryBankId { get; set; }
@@ -3408,5 +3600,39 @@ namespace Aplos.Areas.Commercial.Controllers
         public string MasterOrderId { get; set; }
         public string SalesOrderId { get; set; }
     }
+
+    public class MasterLCAmendment : BaseModel
+    {
+        public string Id { get; set; }
+        public decimal Version { get; set; }
+        public string CustomerId { get; set; }
+        public bool IsClose { get; set; }
+        public string BenificiaryBankId { get; set; }
+        public string OpeningBank { get; set; }
+        public string OpeningDescription { get; set; }
+        public string LeinBank { get; set; }
+        public string LeinDescription { get; set; }
+        public string LCRef { get; set; }
+        public string LCDate { get; set; }
+        public string ExpiryDate { get; set; }
+        public string AmendmentDate { get; set; }
+        public string Amount { get; set; }
+        public string Type { get; set; }
+        public int Tenure { get; set; }
+        public string FinalDestinationId { get; set; }
+        public string PortOfLandingId { get; set; }
+        public string CurrencyId { get; set; }
+        public DateTime? LCShipmentDate { get; set; }
+        public string ShipmentModeId { get; set; }
+        public string PortOfLoadingId { get; set; }
+
+        public string AddedBy { get; set; }
+        public DateTime AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public DateTime UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+    }
+
     #endregion
 }

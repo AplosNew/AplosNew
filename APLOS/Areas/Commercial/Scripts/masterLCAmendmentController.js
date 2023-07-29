@@ -1,25 +1,27 @@
 ﻿'use strict';
-masterLCController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService', 'bankService', '$controller'];
-function masterLCController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, cboService, bankService, $controller) {
-    $rootScope.title = "MasterLC";
+masterLCAmendmentController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService', 'bankService', '$controller'];
+function masterLCAmendmentController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, cboService, bankService, $controller) {
+    $rootScope.title = "master LC Amendment";
     $scope.Action = 'Save';
     $scope.path = 'Commercial/contract/';
     $scope.getListUrl = $scope.path + 'getlist';
-    $scope.saveMasterLCUrl = $scope.path + 'SaveMasterLC';
-    $scope.deleteUrl = $scope.path + 'DeleteMasterLC/';
+    $scope.saveMasterLCAmendmentUrl = $scope.path + 'SaveMasterLCAmendment';
+    $scope.deleteUrl = $scope.path + 'DeleteMasterLCAmandment/';
     $scope.partyType = "Customer";
     $controller("partyBaseController", { $scope: $scope, $http: $http });
     $controller("currencyBaseController", { $scope: $scope, $http: $http });
 
-    $scope.masterLC = {
-        Id: null, Version: 0, CustomerId: null, ContractId: null, BenificiaryBankId: null, OpeningBankId: null, OpeningDescription: null, LeinBankId: null, LeinDescription: null, LCRef: null, LCDate: null, ExpiryDate: null, Amount: null, Type: null, Tenure: null, FinalDestinationId: null, PortOfLandingId: null, CurrencyId: null, IsClose: false
+    $scope.masterLCAmendment = {
+        Id: null, Version: 0, CustomerId: null, ContractId: null, BenificiaryBankId: null, OpeningBankId: null, OpeningDescription: null, LeinBankId: null,
+        LeinDescription: null, LCRef: null, LCDate: null, ExpiryDate: null, Amount: null, Type: null, Tenure: null, FinalDestinationId: null,
+        PortOfLandingId: null, CurrencyId: null, IsClose: false, AmendmentDate:null
     };
-    $scope.masterLCNew = Object.assign({}, $scope.masterLC);
+    $scope.masterLCAmendmentNew = Object.assign({}, $scope.masterLCAmendment);
 
     $scope.Get = function (obj) {
-        $scope.masterLC = obj.data;
-        $scope.masterLCNew = Object.assign({}, $scope.masterLC);
-        $scope.GetSavedContract($scope.masterLC.Id);
+        $scope.masterLCAmendment = obj.data;
+        $scope.masterLCAmendmentNew = Object.assign({}, $scope.masterLCAmendment);
+        $scope.GetSavedContract($scope.masterLCAmendment.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -29,9 +31,9 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
     $scope.closePartyPopUp = function () {
         if ($scope.partyIndex !== -1) {
             var party = $scope.partyList[$scope.partyIndex];
-            $scope.masterLC.CustomerId = party.Id;
-            $scope.masterLC.PartyCode = party.Code;
-            $scope.masterLC.PartyName = party.UserName;
+            $scope.masterLCAmendment.CustomerId = party.Id;
+            $scope.masterLCAmendment.PartyCode = party.Code;
+            $scope.masterLCAmendment.PartyName = party.UserName;
         }
         $scope.hidePartyPopUp();
     };
@@ -66,7 +68,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
     $scope.contractList = [];
     $scope.GetPopUpContract = function () {
         $scope.contractList = [];
-        $http.get("Commercial/Contract/GetContractListByCustomer?customerId=" + $scope.masterLC.CustomerId)
+        $http.get("Commercial/Contract/GetContractListByCustomer?customerId=" + $scope.masterLCAmendment.CustomerId)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
@@ -93,7 +95,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
                 method: 'POST',
                 url: 'Commercial/Contract/CreateContractWithMasterLC',
                 data: {
-                    models: $scope.SaveList, masterLcId: $scope.masterLC.Id
+                    models: $scope.SaveList, masterLcId: $scope.masterLCAmendment.Id
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -101,7 +103,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
                     ShowResult(response.data.Message, 'failure');
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.GetSavedContract($scope.masterLC.Id);
+                    $scope.GetSavedContract($scope.masterLCAmendment.Id);
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -139,13 +141,13 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
     };
 
     $scope.GetCurrencyExchangeRateList = function () {
-        if (!baseService.isUndefinedOrNull($scope.masterLCNew.CurrencyId)) {
+        if (!baseService.isUndefinedOrNull($scope.masterLCAmendmentNew.CurrencyId)) {
             $http({
                 method: "GET",
-                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $filter("dateFiltering")(Date.now()) + "&currencyId=" + $scope.masterLC.CurrencyId
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $filter("dateFiltering")(Date.now()) + "&currencyId=" + $scope.masterLCAmendment.CurrencyId
             }).then(function successCallback(response) {
                 $scope.currencyExchangeRate = response.data;
-                $scope.masterLC.Rate = $scope.currencyExchangeRate.ToCurrencyRate;
+                $scope.masterLCAmendment.Rate = $scope.currencyExchangeRate.ToCurrencyRate;
             });
         }
         else {
@@ -162,7 +164,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
     cboService.getCboTransactionCurrencyByCompany('', function (result) {
         $scope.currencyList = [];
         $scope.currencyList = result;
-        $scope.masterLC.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
+        $scope.masterLCAmendment.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
         $scope.GetCurrencyExchangeRateList();
     });
 
@@ -198,23 +200,24 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
     };
     $scope.getSavedData();
 
-    $scope.SaveMasterLC = function () {
+    $scope.SaveMasterLCAmendment = function () {
         try {
+
             $scope.$broadcast('show-errors-check-validity');
-            if ($scope.masterLC.Type === 'Usance') {
-                if ($scope.masterLC.Tenure === 0 || $scope.masterLC.Tenure < 0) {
+            if ($scope.masterLCAmendment.Type === 'Usance') {
+                if ($scope.masterLCAmendment.Tenure === 0 || $scope.masterLCAmendment.Tenure < 0) {
                     throw "Usance value must greater than 0.";
                 }
             } else {
-                $scope.masterLC.Tenure = 0;
+                $scope.masterLCAmendment.Tenure = 0;
             }
             if ($scope.MasterLCForm.$valid) {
 
                 $http({
                     method: 'POST',
-                    url: $scope.saveMasterLCUrl,
+                    url: $scope.saveMasterLCAmendmentUrl,
                     data: {
-                        'entity': $scope.masterLC
+                        'entity': $scope.masterLCAmendment
                     },
                     dataType: 'JSON'
                     , contentType: "application/json charset=utf-8"
@@ -224,7 +227,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.masterLC.Id = response.data.Id;
+                        $scope.masterLCAmendment.Id = response.data.Id;
                         $scope.getSavedData();
                     }
                 }), function errorCallBack(response) {
@@ -248,16 +251,16 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
     $scope.getBank();
 
     $scope.changeType = function () {
-        if ($scope.masterLCNew.Type === 'AtSight') {
-            $scope.masterLCNew.Tenure = 0;
+        if ($scope.masterLCAmendmentNew.Type === 'AtSight') {
+            $scope.masterLCAmendmentNew.Tenure = 0;
         }
     }
 
     $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.masterLCNew.Id)) {
+        if (!baseService.isUndefinedOrNull($scope.masterLCAmendmentNew.Id)) {
             $http({
                 method: 'POST',
-                url: $scope.deleteUrl + $scope.masterLCNew.Id,
+                url: $scope.deleteUrl + $scope.masterLCAmendmentNew.Id,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -296,7 +299,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
             else {
                 ShowResult(response.data.Message, 'success');
 
-                $scope.GetSavedContract($scope.masterLC.Id);
+                $scope.GetSavedContract($scope.masterLCAmendment.Id);
             }
         }, function () {
             ShowResult(commonMessage.NetworkError, 'failure');
@@ -309,10 +312,12 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
     }
 
     function ClearFields() {
-        $scope.masterLC = {
-            Id: null, CustomerId: null, ContractId: null, BenificiaryBankId: null, OpeningBankId: null, OpeningDescription: null, LeinBankId: null, LeinDescription: null, LCRef: null, LCDate: null, ExpiryDate: null, Amount: null, Type: null, Tenure: null, FinalDestinationId: null, PortOfLandingId: null, CurrencyId: null, IsClose: false
+        $scope.masterLCAmendment = {
+            Id: null, Version: 0, CustomerId: null, ContractId: null, BenificiaryBankId: null, OpeningBankId: null, OpeningDescription: null, LeinBankId: null,
+            LeinDescription: null, LCRef: null, LCDate: null, ExpiryDate: null, AmendmentDate: null, Amount: null, Type: null, Tenure: null, FinalDestinationId: null,
+            PortOfLandingId: null, CurrencyId: null, IsClose: false
         };
-        $scope.masterLCNew = {};
+        $scope.masterLCAmendmentNew = {};
         $scope.savedcontractList = [];
         $scope.contractList = [];
         $scope.Action = 'Save';
@@ -320,7 +325,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         cboService.getCboTransactionCurrencyByCompany('', function (result) {
             $scope.currencyList = [];
             $scope.currencyList = result;
-            $scope.masterLCNew.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
+            $scope.masterLCAmendmentNew.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
         });
     }
 

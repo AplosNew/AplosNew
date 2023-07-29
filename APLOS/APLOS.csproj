@@ -2017,6 +2017,7 @@
     <Content Include="Areas\Commercial\Scripts\LCReportsController.js" />
     <Content Include="Areas\Commercial\Scripts\InvoiceBudgetChargesSettingController.js" />
     <Content Include="Areas\Commercial\Scripts\CommercialAdditionalInfoController.js" />
+    <Content Include="Areas\Commercial\Scripts\masterLCAmendmentController.js" />
     <Content Include="Areas\Commercial\Scripts\PostSalesInvoiceController.js" />
     <Content Include="Areas\Commercial\Scripts\autoLoanController.js" />
     <Content Include="Areas\Commercial\Scripts\autoLoanPostController.js" />
@@ -4751,6 +4752,7 @@
     <Content Include="Areas\FixedAssets\Views\CARApproval.cshtml" />
     <Content Include="Areas\FixedAssets\Views\CapitalizeAssetRegisterPosting.cshtml" />
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\VehicleTrip.cshtml" />
+    <Content Include="Areas\Commercial\Views\Contract\MasterLCAmendment.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
