@@ -5860,12 +5860,11 @@ left join EmployeeInformation EI on EI.SystemId = PR.ResponsiblePersonId where V
             try
             {
                 strSQL = @"Select VMR.Id,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial
-                     ,VMR.Name, VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.SystemId ResponsiblePersonCode, VMR.NumberOfPassengers , EIM.EmployeeName SelectedApprovePerson, VPR.Id PurposeResponsibleId
+                     ,VMR.Name, VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.SystemId ResponsiblePersonCode, VMR.NumberOfPassengers , EIM.EmployeeName SelectedApprovePerson, VMR.VehiclePurposeResponsiblePersonId PurposeResponsibleId
                     from[TRN].[VehicleMovementRequisition] VMR
                     left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                     left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
-					left join TRN.VehiclePurposeResponsiblePerson VPR on VPR.Id = VMR.VehiclePurposeResponsiblePersonId
-					left join EmployeeInformation EIM on EIM.SystemId = VPR.ResponsiblePersonId
+					left join EmployeeInformation EIM on EIM.SystemId = VMR.VehiclePurposeResponsiblePersonId
 					where VMR.AppliedId is null  and VMR.IsReject is null and VMR.isCancel is null and VMR.IsApprove is null and VMR.AddedBy = '" + EmpsysId + "' order by VMR.FromDate asc";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -5917,15 +5916,16 @@ left join EmployeeInformation EI on EI.SystemId = PR.ResponsiblePersonId where V
             {
                 strSQL = @"Select VMR.Id,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial
                      ,VMR.Name, VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, VMR.NumberOfPassengers
-                    ,RequisitionStatus = case when VMR.AppliedId is not null then 'Approved' 
+                    ,RequisitionStatus = case when VMR.IsApprove = 1 then 'Approved' 
                     when VMR.IsReject = 1 then 'Reject'
-                    end, VT.AddedBy ApprovedBy
-                    , RejectBy = case when VMR.IsReject = 1 then VMR.UpdatedBy end
+                    end, ApprovedBy = case when VMR.IsApprove = 1 then EIM.EmployeeName end
+                    , RejectBy = case when VMR.IsReject = 1 then EIM.EmployeeName end
                     from[TRN].[VehicleMovementRequisition] VMR
                     left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                     left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
                     left join TRN.VehicleTrip VT on VT.Id = VMR.AppliedId 
-					where (VMR.IsApprove is not null  or VMR.IsReject = 1 ) and VMR.isCancel is null and VMR.AddedBy = '" + EmpsysId + "'  order by FromDate Desc";
+					left join EmployeeInformation EIM on EIM.SystemId = VMR.VehiclePurposeResponsiblePersonId
+					where (VMR.IsApprove = 1  or VMR.IsReject = 1 ) and VMR.isCancel is null and VMR.AddedBy = '" + EmpsysId + "'  order by FromDate Desc";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -6252,9 +6252,8 @@ left join TRN.VehicleMovementRequisitionChild VRC on VRC.VehicleMovementRequisit
 left join EmployeeInformation Em on EM.SystemId = VMR.AddedBy
 left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId 
 left join ORG.Department DP on DP.Id = Em.DepartmentId 
-left join TRN.VehiclePurposeResponsiblePerson VPR on VPR.Id = VMR.VehiclePurposeResponsiblePersonId
 where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null and VRC.VehicleMovementRequisitionId = VMR.Id and VMR.IsApprove is null
-and VPR.ResponsiblePersonId = '" + EmpSystemId + "'";
+and VMR.VehiclePurposeResponsiblePersonId = '" + EmpSystemId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
