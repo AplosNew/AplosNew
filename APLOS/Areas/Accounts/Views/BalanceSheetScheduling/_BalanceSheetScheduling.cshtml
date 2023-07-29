@@ -12,17 +12,17 @@
             <div class="col-sm-8 show-message">
                 <div class="select-style">
                     <select id="TypeId" class="form-control" name="Type" ng-model="balanceSheetScheduling.Type" tabindex="7" required>
-                        <option value="Balance Sheet">Balance Sheet</option>
-                        <option value="Profit & Loss">Profit & Loss</option>
+                        <option value="BS">BS</option>
+                        <option value="PL">PL</option>
                     </select>
                 </div>
             </div>
         </div>
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">DetailApplicable<sup>*</sup></label>
+            <label class="col-sm-4 control-label">DetailApplicable</label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select id="DetailApplicable" class="form-control" name="DetailApplicable" ng-model="balanceSheetScheduling.DetailApplicable" tabindex="7" required>
+                    <select id="DetailApplicable" class="form-control" name="DetailApplicable" ng-model="balanceSheetScheduling.DetailApplicable" tabindex="7" >
                         <option value="Budget Level">Budget Level</option>
                         <option value="Activity Level">Activity Level</option>
                     </select>
@@ -60,15 +60,15 @@
             </div>
         </div>
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">User Group<sup>*</sup></label>
+            <label class="col-sm-4 control-label">User Group</label>
             <div class="col-sm-8 show-message">
-                <input type="text" maxlength="50" name="UserGroup" ng-model="balanceSheetScheduling.UserGroup" class="form-control" required tabindex="3">
+                <input type="text" maxlength="50" name="UserGroup" ng-model="balanceSheetScheduling.UserGroup" class="form-control" tabindex="3">
             </div>
         </div>
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">User Sub Group<sup>*</sup></label>
+            <label class="col-sm-4 control-label">User Sub Group</label>
             <div class="col-sm-8 show-message">
-                <input type="text" maxlength="50" name="SubGroup" ng-model="balanceSheetScheduling.UserSubGroup" class="form-control" required tabindex="2">
+                <input type="text" maxlength="50" name="SubGroup" ng-model="balanceSheetScheduling.UserSubGroup" class="form-control" tabindex="2">
             </div>
         </div>
     </div>

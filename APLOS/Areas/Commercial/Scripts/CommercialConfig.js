@@ -44,6 +44,10 @@ function CommercialConfig($routeProvider) {
             templateUrl: 'Commercial/contract/masterlc',
             controller: 'masterLCController'
         })
+        .when('/masterlc-amendment', {
+            templateUrl: 'Commercial/contract/masterlc',
+            controller: 'masterLCAmendmentController'
+        })
         .when('/fund', {
             templateUrl: 'Commercial/ContractFundUtilization/Aplos',
             controller: 'contractFundUtilizationController'

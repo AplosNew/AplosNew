@@ -259,6 +259,7 @@ function employeeMyAppLeaveApplicationController(commonMessage, $scope, $rootSco
                                     , 'responsiblePersonId': $scope.responsiblePersonId
                                     , 'responsiblePersonName': $scope.responsiblePersonName
                                     , 'responsiplePersonEmail': $scope.responsiplePersonEmail
+                                    , 'yearId': $scope.YearNo
                                 },
                                 dataType: 'JSON'
                             }).then(function successCallback(response) {
@@ -279,7 +280,7 @@ function employeeMyAppLeaveApplicationController(commonMessage, $scope, $rootSco
                             $http({
                                 method: 'POST',
                                 url: $scope.updateUrl,
-                                data: $scope.leaveApplication,
+                                data: { 'leaveApplication':$scope.leaveApplication, 'yearId': $scope.YearNo },
                                 dataType: 'JSON'
                             }).then(function successCallback(response) {
                                 if (response.data.Error === true) {
