@@ -622,7 +622,7 @@ where wc.Active = 1 and wc.ProcessId = '" + ProcessId + "'  and wc.EntityId = '"
                 QCItemId = @"and QII.Id='" + POItemId + "'";
             }
             var sql = @"select distinct QIC.Id,QII.Id ItemId,QII.SNO,QII.ItemName,QII.UOMId,U.UserName as UOM,QIC.Value,QGD.Id as GradeId,QII.Max as MaxValue,QII.Min as MinValue,
-QIC.Remarks,QIC.ActionToBeTaken,R.EmployeeName as ResponsiblePerson,QIC.QCId,QIC.Repeat from MST.QualityIssueItem QII
+QIC.Remarks,QIC.ActionToBeTaken,R.EmployeeName as ResponsiblePerson,QIC.ResponsiblePersonId,QIC.QCId,QIC.Repeat from MST.QualityIssueItem QII
 LEFT JOIN TRN.QualityControl QC ON QC.IssueId=QII.IssueId
 LEFT JOIN TRN.[QualityControlDetails] QIC ON QIC.QCId='" + PId + @"' and QIC.ItemId=QII.Id
 LEFT JOIN SCS.UnitOfMeasurement U ON U.Id = QII.UOMId
@@ -732,7 +732,7 @@ where QID.IssueType in ('Order','General') " + QCDate + " " + QCProcess + " " + 
                 QCDate = @"and (format(QCD.AddedDate,'dd-MMM-yyyy')  between '" + fromDate + "' and '" + todate + "'  or QII.ItemName is null)";
             }
             
-            var sql = @"select distinct
+            var sql = @"select distinct QC.Id QCHeaderId,QCD.Id QCDId,
 format(QCD.AddedDate,'dd-MMM-yyyy') as QCActualDate,
 format(QCD.AddedDate,'hh:mm tt') as QCActualTime,
 QII.CheckingInterval as QCInterval,
