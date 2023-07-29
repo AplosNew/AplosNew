@@ -407,7 +407,7 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].Text = "Pre-Costing %";
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colPreCostingPer = COL;
-                sheet[ROW, COL].ColumnWidth = 26;
+                sheet[ROW, COL].ColumnWidth = 14;
                 COL++;
 
                 sheet[ROW, COL].Text = "Proc. Costing(D)";

@@ -142,12 +142,12 @@ where P.Id='" + Pid + "'";
 
         }
 
-        [Authorize, HttpGet]
+        [Authorize, HttpPost]
         public JsonResult GetParameterItemList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            var sql = @"select Id as Value,UserName as Text from HKP.ParameterMaster";
+            var sql = @"select PM.Id, PM.Code,PM.StandardName,PM.UserName  from HKP.ParameterMaster PM where PM.IsActive = 1";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
