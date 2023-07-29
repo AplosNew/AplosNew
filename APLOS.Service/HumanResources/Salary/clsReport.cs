@@ -2518,10 +2518,11 @@ where QPC.Id='" + PlannedId + @"'";
             try
             {
                 strSql = @"select QIC.Id,format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.Id order by AddedDate desc)),'dd-MMM-yyyy') as QualityIssueDate,
-QID.Id as IssueId,QID.IssueName,E.UserName Entity,
+QID.Id as IssueId,QMM.UserName IssueName,E.UserName Entity,
 P.UserName as Process,EI.EmployeeName as AllotedPlanEmployee
 from TRN.QualityIssueControl QIC
 left join MST.QualityIssueDetails QID on QID.Id=QIC.IssueId
+left join MST.QualityManagementMaster QMM on QMM.Id = QID.IssueNameId
 left join ORG.Entity  E on E.Id=QId.EntityId
 left join hkp.Process P on P.Id=QID.ProcessId
 left join EmployeeInformation EI on EI.SystemId=QIC.QGIEmployeeId
@@ -2550,16 +2551,16 @@ where QIC.Id='" + PlannedId + @"'";
             string strSql = string.Empty;
             try
             {
-                strSql = @"select distinct QII.Id,QII.SNO,QID.IssueName,QII.ItemName,UOM.UserName UOM,QII.Max,QII.Min,P.Code as PositionCode,QII.CriticalLevel,
+                strSql = @"select QII.Id,QII.SNO,QMM.UserName IssueName,QII.ItemName,UOM.UserName UOM,QII.Max,QII.Min,P.Code as PositionCode,QII.CriticalLevel,
 '' Value,'' GradeDetails,'' Remarks,'' ActionToBeTaken,'' ResponsiblePerson
 from MST.QualityIssueItem QII
 left join MST.QualityIssueDetails QID on QID.Id=QII.IssueId
+left join MST.QualityManagementMaster QMM on QMM.Id = QID.IssueNameId
 left join SCS.UnitOfMeasurement UOM on UOM.Id=QII.UOMId
 left join Org.Position P on P.Id=QII.PositionCodeId
 left join TRN.QualityIssueControl QIC on QID.Id=QIC.IssueId
 left join TRN.QualityControl QC on QC.QualityPlanId=QIC.Id
---left join TRN.QualityControlDetails QCD on QCD.QCId=QC.Id
-where QIC.Id='" + PlannedId + @"'";
+where QIC.Id='" + PlannedId + @"' order by QII.SNO";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.BeginTransaction();
