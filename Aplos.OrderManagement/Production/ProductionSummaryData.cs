@@ -3205,7 +3205,8 @@ SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, 
 
         public IEnumerable<object> GetQualityIssueList(string processId)
         {
-            string sql = @"SELECT distinct ID.Id [Value],ID.IssueName [Text] FROM [MST].[QualityIssueDetails] ID
+            string sql = @"SELECT distinct ID.Id [Value],QMM.UserName [Text] FROM [MST].[QualityIssueDetails] ID
+left join MST.QualityManagementMaster QMM on QMM.Id = ID.IssueNameId
  WHERE ID.ProcessId='" + processId + "'";
             return _sqlRepository.GetDataCollection(sql);
         }

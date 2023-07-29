@@ -626,17 +626,15 @@ left join MST.QualityManagementMaster QMM on QMM.Id=ID.IssueNameId where ID.Id=T
         public ActionResult LoadIssueItemDetails(string IssueId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select distinct CAST (CASE WHEN QII.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,QII.Id,QMP.SNO,
-'" + IssueId + @"' as IssueId,
+            string sql = @"select  CAST (CASE WHEN QII.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,QII.Id,QMP.SNO,
+'"+ IssueId + @"' as IssueId,
 QMM.UserName IssueName,(select PM.UserName from HKP.ParameterMaster PM where PM.Id = QMP.ParameterId) as ItemName,QMP.Id ParameterId,
 QMP.UOMId,QMP.Max,QMP.Min,QMP.CriticalLevel,QMP.Remarks,
 (select U.UserName from SCS.UnitOfMeasurement U where U.Id = QMP.UOMId) as UOM
 from MST.QualityManagementParameterItem QMP
-left
-join MST.QualityManagementMaster QMM on QMM.Id = QMP.QMID
-left
-join MST.QualityIssueItem QII on QII.IssueId = '" + IssueId + @"' and QII.ParameterId=QMP.Id
-where QMM.Id in (select IssueNameId from MST.QualityIssueDetails where Id = '" + IssueId + "')";
+left join MST.QualityManagementMaster QMM on QMM.Id = QMP.QMID
+left join MST.QualityIssueItem QII on QII.IssueId = '"+ IssueId + @"' and QII.ParameterId=QMP.Id
+where QMM.Id in (select IssueNameId from MST.QualityIssueDetails where Id = '"+ IssueId + "') order by QII.SNO";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 

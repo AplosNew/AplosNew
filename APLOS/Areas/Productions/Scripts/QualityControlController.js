@@ -2157,7 +2157,9 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         }
         $scope.productionSummaryNew.EntityId = $event.data.EntityId;
         $scope.productionSummaryNew.ProcessId = $event.data.ProcessId;
-        $scope.productionSummaryNew.ProductionDate = $event.data.QualityIssueDate;
+        if (baseService.isUndefinedOrNull($event.data.QualityIssueDate)) { $scope.productionSummaryNew.ProductionDate = $filter("date")(Date.now(), 'dd-MMM-yyyy'); }
+        else
+        { $scope.productionSummaryNew.ProductionDate = $event.data.QualityIssueDate; }
         $scope.productionSummaryNew.IssueId = $event.data.IssueId;
         $scope.productionSummaryNew.ProductionInCharge = $event.data.QGIEmployee;
         $scope.productionSummaryNew.ProductionInChargeId = $event.data.QGIEmployeeId;
