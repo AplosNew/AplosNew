@@ -347,9 +347,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             try
             {
-                var sql = @"IF EXISTS(select 1
-                            FROM (
-                            SELECT top(1) ActivityId FROM  trn.VoucherDetail where ActivityId='" + id + @"'
+                var sql = @"IF EXISTS(select 1 SELECT top(1) ActivityId FROM  trn.VoucherDetail where ActivityId='" + id + @"'
                             )x WHERE x.ActivityId='" + id + @"') SELECT 1 ELSE SELECT 0 RETURN ";
                 return Convert.ToBoolean(_budgetMasterRepository.SqlQuery<int>(sql).Single());
             }
