@@ -1446,17 +1446,6 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 							return false;
 						}
 
-
-
-
-						//else if (new Date($scope.ReceiptTransformation.EntryDate) < new Date($scope.ReceiptTransformation.DocDate)) {
-						//	return manualValidation("Gate entry date can't be less than Doc Date", 'failure');
-						//}
-
-						//else if (new Date($scope.ReceiptTransformation.GRNDate) < new Date($scope.ReceiptTransformation.EntryDate)) {
-						//	return manualValidation("GRN date can't be less than gate entry date", 'failure');
-
-						//}
 						else {
 							for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
 								if ($scope.inventoryMaterialList[i].check == true) {
@@ -1486,21 +1475,7 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 								}
 
 							}
-							//for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
-							//	if ($scope.inventoryMaterialListPO[i].check == true) {
-							//		if (baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[i].MaterialStorageId)) {
-							//			ShowResult("Please select storage location", 'failure');
-							//			return false;
-							//		}
-							//		else if (baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[i].QualityStatus)) {
-							//			ShowResult("Please select quality status", 'failure');
-							//			return false;
-							//		}
-							//		$scope.inventoryMaterialListPOnew1.push($scope.inventoryMaterialListPO[i]);
-
-							//	}
-
-							//}
+							
 						}
 					}
 					if ($scope.inventoryMaterialListPO.length > 0) {
@@ -1564,32 +1539,9 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 							return ShowResult('Enter the Note For Accounts', 'failure');
 							return false;
 						}
-						//else if (new Date($scope.ReceiptTransformation.EntryDate) < new Date($scope.ReceiptTransformation.DocDate)) {
-						//	return manualValidation("Gate entry date can't be less than Doc Date", 'failure');
-						//}
-
-						//else if (new Date($scope.ReceiptTransformation.GRNDate) < new Date($scope.ReceiptTransformation.EntryDate)) {
-						//	return manualValidation("GRN date can't be less than gate entry date", 'failure');
-
-						//}
+						
 						else {
 
-							//for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
-							//	if ($scope.inventoryMaterialList[i].check == true) {
-							//		if (baseService.isUndefinedOrNull($scope.inventoryMaterialList[i].MaterialStorageId)) {
-							//			ShowResult("Please select storage location", 'failure');
-							//			return false;
-							//		}
-							//		else if (baseService.isUndefinedOrNull($scope.inventoryMaterialList[i].QualityStatus)) {
-							//			ShowResult("Please select quality status", 'failure');
-							//			return false;
-							//		}
-							//		// $scope.inventoryMaterialListPOnew[i].TotalMaterialBooksCurrencyAmount = $scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount;
-							//		$scope.inventoryMaterialListPOnew.push($scope.inventoryMaterialList[i]);
-
-							//	}
-
-							//}
 							for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
 								if ($scope.inventoryMaterialListPO[i].check == true) {
 									if (baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[i].MaterialStorageId)) {
@@ -1621,7 +1573,7 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 					//debugger;
 					$http({
 						method: 'POST',
-						url: 'Products/GoodsReceiveNote/CreateJWGRN',
+						url: 'Products/GoodsReceiveNote/CreateOSReceiptGRN',
 						data:
 						{
 							'entity': $scope.ReceiptTransformation,
