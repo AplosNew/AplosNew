@@ -32,7 +32,7 @@ namespace Library.MaterialManagement.Inventory
         
         IEnumerable<object> GetCheckedByAndApprovedBYForPurchaserReturn(string CheckedBy, string ApprovedBy);
         
-        void JWInsertOrUpdateGraphNew(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel> entityMatByProduct);
+        void OSReceiptGRNInsertOrUpdateGraphNew(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel> entityMatByProduct);
 
         // Job Work Receipt
         void JobWorkInsertOrUpdateNew(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel> entityMatByProduct);

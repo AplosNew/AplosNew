@@ -1196,6 +1196,7 @@ upanelApp.controller("LOTCreationController", LOTCreationController)
 upanelApp.controller("CapitalizeAssetRegisterPostingController", CapitalizeAssetRegisterPostingController)
 upanelApp.controller("VehicleTripController", VehicleTripController)
 upanelApp.controller("ProcessManagementController", ProcessManagementController)
+upanelApp.controller("masterLCAmendmentController", masterLCAmendmentController)
 
 
 

@@ -2796,8 +2796,6 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-
-
         public void UpdateFOCDetail(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
         {
             var flag = false;
@@ -3294,7 +3292,6 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-
         public void InsertOrUpdateGraphNewEditsOnlyGRN(IEnumerable<InventoryMaterialViewModel> entityMat, string Id)//Sk
         {
             var flag = false;
@@ -3554,8 +3551,6 @@ namespace Library.MaterialManagement.Inventory
                 }
             }
         }
-
-
 
         public void InsertOrUpdateGraph(InventoryMaterialViewModel itemDetail, IEnumerable<InventoryReceiveTax> taxCategoryList, IEnumerable<GRNBinAllocationMap> gRNBinAllocationMapList)
         {
@@ -4808,9 +4803,6 @@ namespace Library.MaterialManagement.Inventory
             var sql = "";
             try
             {
-                //var DailySendMailRequisition = _notificationSetting.SqlQuery<bool>(@"Select NotificationAfterCreation  from NotificationSetting Where BusinessFlow = 'MaterialRequistion'").FirstOrDefault();
-                //if (DailySendMailRequisition == true)
-                //{
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if (CheckedBy == "true" && ApprovedBy == "true")
                 {
@@ -4839,10 +4831,6 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-
-
-
-
         #region notification setting Purchase Return
 
         public IEnumerable<object> GetCheckedByAndApprovedBYForPurchaserReturn(string CheckedBy, string ApprovedBy)
@@ -4851,9 +4839,6 @@ namespace Library.MaterialManagement.Inventory
             var sql = "";
             try
             {
-                //var DailySendMailRequisition = _notificationSetting.SqlQuery<bool>(@"Select NotificationAfterCreation  from NotificationSetting Where BusinessFlow = 'MaterialRequistion'").FirstOrDefault();
-                //if (DailySendMailRequisition == true)
-                //{
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if (CheckedBy == "true" && ApprovedBy == "true")
                 {
@@ -4868,9 +4853,6 @@ namespace Library.MaterialManagement.Inventory
                           where  A.ActionStatus='PurchaseReturnApproveBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 return _sqlRepository.GetDataCollection(sql);
-
-
-
             }
             catch (Exception ex)
             {
@@ -4981,9 +4963,9 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-        #region JW GRN Save
+        #region OS GRN Save
 
-        public void JWInsertOrUpdateGraphNew(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel> entityMatByProduct)
+        public void OSReceiptGRNInsertOrUpdateGraphNew(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel> entityMatByProduct)
         {
             var flag = false;
             Library.Service.Extension.Conversions.UOMConversion conversion = new Library.Service.Extension.Conversions.UOMConversion();
@@ -6089,7 +6071,7 @@ namespace Library.MaterialManagement.Inventory
                 throw ex;
             }
         }
-
+        #endregion
         private string GetTransformationBYProdPK()
         {
             string sID = string.Empty;
@@ -6215,7 +6197,7 @@ namespace Library.MaterialManagement.Inventory
         }
 
         // Job Work Receipt
-
+        #region Job Work
         public void JobWorkInsertOrUpdateNew(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel> entityMatByProduct)
         {
             var flag = false;
@@ -7179,6 +7161,8 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
+        #endregion
+
         private string GetJWWithoutMatPK()
         {
             string sID = string.Empty;
@@ -7464,9 +7448,6 @@ namespace Library.MaterialManagement.Inventory
                 }
             }
         }
-
-
-        #endregion
 
         public void IssueSlipDelete(string IssueslipDEtailId)
         {
