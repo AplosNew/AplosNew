@@ -278,7 +278,7 @@ where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1
         {
             string sql = @"SELECT MLC.Id, MLC.BenificiaryBankId, MLC.OpeningBank, MLC.OpeningDescription, MLC.LeinBank, MLC.LeinDescription, MLC.LCRef, FORMAT(MLC.LCDate,'dd-MMM-yyyy') LCDate, FORMAT(MLC.ExpiryDate,'dd-MMM-yyyy') ExpiryDate,
                           MLC.Amount, MLC.Type, MLC.Tenure, MLC.FinalDestinationId, MLC.PortOfLandingId, MLC.AddedBy,FORMAT(MLC.AddedDate,'dd-MMM-yyyy') AddedDate, MLC.AddedFromIP, MLC.UpdatedBy, FORMAT(MLC.UpdatedDate,'dd-MMM-yyyy') UpdatedDate, MLC.UpdatedFromIP, MLC.CurrencyId
-                         ,LB.UserName BenificiaryBank,CN.Code Currency, MLC.CustomerId, P.UserName PartyName,MLC.Version 
+                         ,LB.UserName BenificiaryBank,CN.Code Currency, MLC.CustomerId, P.UserName PartyName,MLC.Version
                          FROM [dbo].[MasterLC] MLC
                          LEFT JOIN MST.BankMaster OB  ON OB.Id=MLC.BenificiaryBankId
                          LEFT JOIN HKP.Bank LB ON LB.Id=OB.BankId

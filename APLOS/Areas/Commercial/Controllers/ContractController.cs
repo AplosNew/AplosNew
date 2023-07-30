@@ -240,7 +240,7 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             try
             {
-                SaveMasterLCAmendmentData(entity, out string masterId);
+                SaveMasterLCAmendmentData(entity, out string version, out string masterId);
 
                 return Json(new { Id = masterId, Message = AplosMessage.Insert });
             }
@@ -250,7 +250,7 @@ namespace Aplos.Areas.Commercial.Controllers
             }
 
         }
-        private void SaveMasterLCAmendmentData(MasterLCAmendment data, out string masterId)
+        private void SaveMasterLCAmendmentData(MasterLCAmendment data, out string Version, out string masterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
@@ -263,9 +263,58 @@ namespace Aplos.Areas.Commercial.Controllers
                 GetAmandmentAutoSequence(data.Id, out dsSeq);
                 decimal seq = Convert.ToDecimal(dsSeq.Tables[0].Rows[0]["Version"].ToString());
 
-                string sql = "SELECT * FROM [dbo].[MasterLCHistory] WHERE Id='" + data.Id + "'";
+
+                string _sql = "SELECT * FROM [dbo].[MasterLC] WHERE Id='" + data.Id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                objCon.OpenDataSetThroughAdapter(_sql, out dsMaster, false, "1");
+
+                // keep data in Version Table
+                string sql = "SELECT * FROM [dbo].[MasterLCHistory] WHERE Id='" + id + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsSeq, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    if (dsSeq.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsSeq.Tables[0].NewRow();
+
+                        dr["Id"] = "MLCA" + GetAmandmentVersionPK();
+                        dr["MasterLCId"] = data.Id;
+                        dr["Version"] = dsMaster.Tables[0].Rows[0]["Version"];
+                        dr["CustomerId"] =  dsMaster.Tables[0].Rows[0]["CustomerId"];
+                        dr["IsClose"] = dsMaster.Tables[0].Rows[0]["IsClose"];
+                        dr["BenificiaryBankId"] =  dsMaster.Tables[0].Rows[0]["BenificiaryBankId"];
+                        dr["OpeningBank"] = dsMaster.Tables[0].Rows[0]["OpeningBank"];
+                        dr["OpeningDescription"] = dsMaster.Tables[0].Rows[0]["OpeningDescription"];
+                        dr["LeinBank"] = dsMaster.Tables[0].Rows[0]["LeinBank"];
+                        dr["LeinDescription"] = dsMaster.Tables[0].Rows[0]["LeinDescription"];
+                        dr["LCRef"] = dsMaster.Tables[0].Rows[0]["LCRef"];
+                        dr["LCDate"] =  dsMaster.Tables[0].Rows[0]["LCDate"];
+                        dr["ExpiryDate"] = dsMaster.Tables[0].Rows[0]["ExpiryDate"];
+                        dr["AmendmentDate"] = dsMaster.Tables[0].Rows[0]["AmendmentDate"] != System.DBNull.Value ? dsMaster.Tables[0].Rows[0]["AmendmentDate"] : System.DBNull.Value;
+                        dr["Amount"] =  dsMaster.Tables[0].Rows[0]["Amount"];
+                        dr["Type"] = dsMaster.Tables[0].Rows[0]["Type"];
+                        dr["Tenure"] =  dsMaster.Tables[0].Rows[0]["Tenure"];
+                        dr["FinalDestinationId"] = dsMaster.Tables[0].Rows[0]["FinalDestinationId"];
+                        dr["PortOfLandingId"] = dsMaster.Tables[0].Rows[0]["PortOfLandingId"];
+                        dr["CurrencyId"] = dsMaster.Tables[0].Rows[0]["CurrencyId"];
+                        dr["LCShipmentDate"] = dsMaster.Tables[0].Rows[0]["LCShipmentDate"];
+                        dr["ShipmentModeId"] = dsMaster.Tables[0].Rows[0]["ShipmentModeId"];
+                        dr["PortOfLoadingId"] = dsMaster.Tables[0].Rows[0]["PortOfLoadingId"];
+
+                        dr["AddedBy"] = dsMaster.Tables[0].Rows[0]["AddedBy"];
+                        dr["AddedDate"] = dsMaster.Tables[0].Rows[0]["AddedDate"];
+                        dr["AddedFromIP"] = dsMaster.Tables[0].Rows[0]["AddedFromIP"];
+
+                        dr["UpdatedBy"] = dsMaster.Tables[0].Rows[0]["UpdatedBy"];
+                        dr["UpdatedDate"] = dsMaster.Tables[0].Rows[0]["UpdatedDate"];
+                        dr["UpdatedFromIP"] = dsMaster.Tables[0].Rows[0]["UpdatedFromIP"];
+
+                        dsSeq.Tables[0].Rows.Add(dr);
+                    }
+                }
+
 
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
@@ -282,8 +331,8 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["LeinDescription"] = data.LeinDescription;
                     dr["LCRef"] = data.LCRef;
                     dr["LCDate"] = data.LCDate;
+                    dr["AmendmentDate"] = data.AmendmentDate == null ? System.DBNull.Value : (object)data.AmendmentDate;
                     dr["ExpiryDate"] = data.ExpiryDate;
-                    dr["AmendmentDate"] = data.AmendmentDate;
                     dr["Amount"] = data.Amount;
                     dr["Type"] = data.Type;
                     dr["Tenure"] = data.Tenure;
@@ -307,7 +356,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
                     dr.BeginEdit();
 
-                    dr["Version"] = seq;
+                    dr["Version"] = data.Version + 1;
                     dr["CustomerId"] = data.CustomerId;
                     dr["IsClose"] = data.IsClose;
                     dr["BenificiaryBankId"] = data.BenificiaryBankId;
@@ -318,7 +367,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["LCRef"] = data.LCRef;
                     dr["LCDate"] = data.LCDate;
                     dr["ExpiryDate"] = data.ExpiryDate;
-                    dr["AmendmentDate"] = data.AmendmentDate;
+                    dr["AmendmentDate"] = data.AmendmentDate == null ? System.DBNull.Value : (object)data.AmendmentDate;
                     dr["Amount"] = data.Amount;
                     dr["Type"] = data.Type;
                     dr["Tenure"] = data.Tenure;
@@ -336,8 +385,10 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr.EndEdit();
                 }
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster);
+                obj.SaveDataSets(dsMaster, dsSeq);
                 masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                Version = dsMaster.Tables[0].Rows[0]["Version"].ToString();
+
             }
             catch (Exception ex)
             {
@@ -345,6 +396,22 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }
 
+        private string GetAmandmentVersionPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MasterLCAmandment", out sID);
+            return sID;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetAmandmentVersionCbo(string masterLCAId)
+        {
+            string sql = @"SELECT Id,Version FROM MasterLC WHERE Id='" + masterLCAId + @"'
+                           UNION
+                           SELECT MasterLCId Id,Version FROM MasterLCHistory where MasterLCId='" + masterLCAId + "'";
+            return Json(_sqlRepository.GetCombo(sql, "Id", "Version"), JsonRequestBehavior.AllowGet);
+        }
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
