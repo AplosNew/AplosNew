@@ -517,6 +517,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.TotalProcessPlanQty = 0;
             $scope.TotalCurPOBalProd = 0;
             $scope.TotalPOPreviousProdQty = 0;
+            $scope.TotalPOFirstProcessProdQty = 0;
 
             if ($scope.NewObject.BookingLevel === 'ProductionOrder') {
                 if (baseService.isUndefinedOrNull($scope.NewObject.ProductionOrderId)) {
@@ -534,6 +535,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                             $scope.TotalProcessPlanQty = parseFloat(response.data[0].ProcessPlanQty).toFixed(0);
                             $scope.TotalCurPOBalProd = parseFloat(response.data[0].CurPOBalProd).toFixed(0);
                             $scope.TotalPOPreviousProdQty = parseFloat(response.data[0].POPreviousProdQty).toFixed(0);
+                            $scope.TotalPOFirstProcessProdQty = parseFloat(response.data[0].POFirstProcessProductionQty).toFixed(0);
                             $scope.NewObject.RemainingQty = $scope.RemainQty;
                             $scope.NewObject.OrderQty = $scope.TotalSalesOrderQty;
                             $scope.NewObject.BookedQty = $scope.TotalProductionBookingQty;
@@ -543,6 +545,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                             $scope.NewObject.ProcessPlanQty = $scope.TotalProcessPlanQty;
                             $scope.NewObject.CurPOBalProd = $scope.TotalCurPOBalProd;
                             $scope.NewObject.POPreviousProdQty = $scope.TotalPOPreviousProdQty;
+                            $scope.NewObject.POFirstProcessProductionQty = $scope.TotalPOFirstProcessProdQty;
                         }
                     });
             }
@@ -598,6 +601,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.TotalProcessPlanQty = 0;
             $scope.TotalCurPOBalProd = 0;
             $scope.TotalPOPreviousProdQty = 0;
+            $scope.TotalPOFirstProcessProdQty = 0;
             if ($scope.NewobjectMOI.BookingLevel === 'MasterOrderItem' || $scope.NewobjectMOI.BookingLevel === 'ProductionCode') {
                 if (baseService.isUndefinedOrNull($scope.NewobjectMOI.MasterOrderItemId)) {
                     $scope.NewobjectMOI.MasterOrderItemId = $scope.MasterOrderItemId;
@@ -614,6 +618,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                             $scope.TotalProcessPlanQty = parseFloat(response.data[0].ProcessPlanQty).toFixed(0);
                             $scope.TotalCurPOBalProd = parseFloat(response.data[0].CurPOBalProd).toFixed(0);
                             $scope.TotalPOPreviousProdQty = parseFloat(response.data[0].POPreviousProdQty).toFixed(0);
+                            $scope.TotalPOFirstProcessProdQty = parseFloat(response.data[0].POFirstProcessProductionQty).toFixed(0);
                             $scope.NewobjectMOI.RemainingQty = $scope.RemainQty;
                             $scope.NewobjectMOI.OrderQty = $scope.TotalSalesOrderQty;
                             $scope.NewobjectMOI.BookedQty = $scope.TotalProductionBookingQty;
@@ -623,6 +628,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                             $scope.NewobjectMOI.ProcessPlanQty = $scope.TotalProcessPlanQty;
                             $scope.NewobjectMOI.CurPOBalProd = $scope.TotalCurPOBalProd;
                             $scope.NewobjectMOI.POPreviousProdQty = $scope.TotalPOPreviousProdQty;
+                            $scope.NewobjectMOI.POFirstProcessProductionQty = $scope.TotalPOFirstProcessProdQty;
                         }
                     });
             }
@@ -642,6 +648,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.TotalProcessPlanQty = 0;
             $scope.TotalCurPOBalProd = 0;
             $scope.TotalPOPreviousProdQty = 0;
+            $scope.TotalPOFirstProcessProdQty = 0;
             if ($scope.NewobjectPC.BookingLevel === 'ProductCode') {
                 if (baseService.isUndefinedOrNull($scope.NewobjectPC.MasterOrderItemId)) {
                     $scope.NewobjectPC.MasterOrderItemId = $scope.MasterOrderItemId;
@@ -658,6 +665,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                             $scope.TotalProcessPlanQty = parseFloat(response.data[0].ProcessPlanQty).toFixed(0);
                             $scope.TotalCurPOBalProd = parseFloat(response.data[0].CurPOBalProd).toFixed(0);
                             $scope.TotalPOPreviousProdQty = parseFloat(response.data[0].POPreviousProdQty).toFixed(0);
+                            $scope.TotalPOFirstProcessProdQty = parseFloat(response.data[0].POFirstProcessProductionQty).toFixed(0);
                             $scope.NewobjectPC.RemainingQty = $scope.RemainQty;
                             $scope.NewobjectPC.OrderQty = $scope.TotalSalesOrderQty;
                             $scope.NewobjectPC.BookedQty = $scope.TotalProductionBookingQty;
@@ -667,6 +675,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                             $scope.NewobjectPC.ProcessPlanQty = $scope.TotalProcessPlanQty;
                             $scope.NewobjectPC.CurPOBalProd = $scope.TotalCurPOBalProd;
                             $scope.NewobjectPC.POPreviousProdQty = $scope.TotalPOPreviousProdQty;
+                            $scope.NewobjectPC.POFirstProcessProductionQty = $scope.TotalPOFirstProcessProdQty;
                         }
                     });
             }
@@ -686,6 +695,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.TotalProcessPlanQty = 0;
             $scope.TotalCurPOBalProd = 0;
             $scope.TotalPOPreviousProdQty = 0;
+            $scope.TotalPOFirstProcessProdQty = 0;
             if ($scope.NewobjectSO.BookingLevel === 'SalesOrder') {
                 if (baseService.isUndefinedOrNull($scope.NewobjectSO.SalesOrderId)) {
                     $scope.NewobjectSO.SalesOrderId = $scope.SalesOrderId;
@@ -702,6 +712,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                             $scope.TotalProcessPlanQty = parseFloat(response.data[0].ProcessPlanQty).toFixed(0);
                             $scope.TotalCurPOBalProd = parseFloat(response.data[0].CurPOBalProd).toFixed(0);
                             $scope.TotalPOPreviousProdQty = parseFloat(response.data[0].POPreviousProdQty).toFixed(0);
+                            $scope.TotalPOFirstProcessProdQty = parseFloat(response.data[0].POFirstProcessProductionQty).toFixed(0);
                             $scope.NewobjectSO.RemainingQty = $scope.RemainQty;
                             $scope.NewobjectSO.OrderQty = $scope.TotalSalesOrderQty;
                             $scope.NewobjectSO.BookedQty = $scope.TotalProductionBookingQty;
@@ -711,6 +722,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                             $scope.NewobjectSO.ProcessPlanQty = $scope.TotalProcessPlanQty;
                             $scope.NewobjectSO.CurPOBalProd = $scope.TotalCurPOBalProd;
                             $scope.NewobjectSO.POPreviousProdQty = $scope.TotalPOPreviousProdQty;
+                            $scope.NewobjectSO.POFirstProcessProductionQty = $scope.TotalPOFirstProcessProdQty;
                         }
                     });
             }
@@ -1623,11 +1635,11 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     }
                     else {
 
-                        if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.ProcessPlanQty) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
-                            throw "If Previous Process Booked Qty is less than  Process Plan Qty then Please enter remarks and inform to departmental head without fail!";
+                        if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
+                            throw "If Previous Process Booked Qty is less than  Produced and Booked Qty then Please enter remarks and inform to departmental head without fail!";
                         }
                         else {
-                            if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.ProcessPlanQty) && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
+                            if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
                                 $scope.productionSummaryNew.PPQFlag = true;
                             }
                             else {
@@ -1642,7 +1654,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     throw "You cannot booked greater than Process Plan Qty.";
                 }
                 else {
-                    if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) < parseFloat($scope.NewObject.ProcessPlanQty) && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
+                    if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) <= parseFloat($scope.NewObject.ProcessPlanQty) && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
                         $scope.productionSummaryNew.PPQFlag = true;
                     }
                     else {
@@ -1845,11 +1857,11 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     }
                     else {
 
-                        if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.ProcessPlanQty) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
-                            throw "If Previous Process Booked Qty is less than  Process Plan Qty then Please enter remarks and inform to departmental head without fail!";
+                        if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
+                            throw "If Previous Process Booked Qty is less than  Produced and Booked Qty then Please enter remarks and inform to departmental head without fail!";
                         }
                         else {
-                            if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.ProcessPlanQty) && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
+                            if (parseFloat($scope.NewObject.POPreviousProdQty) < parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
                                 $scope.productionSummaryNew.PPQFlag = true;
                             }
                             else {
@@ -1864,7 +1876,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     throw "You cannot booked greater than Process Plan Qty.";
                 }
                 else {
-                    if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) < parseFloat($scope.NewObject.ProcessPlanQty) && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
+                    if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) <= parseFloat($scope.NewObject.ProcessPlanQty) && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
                         $scope.productionSummaryNew.PPQFlag = true;
                     }
                     else {

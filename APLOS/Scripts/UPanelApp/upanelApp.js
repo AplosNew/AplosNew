@@ -1194,6 +1194,9 @@ upanelApp.controller("faRegisterController", faRegisterController)
 upanelApp.controller("WeighingScaleMasterController", WeighingScaleMasterController)
 upanelApp.controller("LOTCreationController", LOTCreationController)
 upanelApp.controller("CapitalizeAssetRegisterPostingController", CapitalizeAssetRegisterPostingController)
+upanelApp.controller("VehicleTripController", VehicleTripController)
+upanelApp.controller("ProcessManagementController", ProcessManagementController)
+upanelApp.controller("masterLCAmendmentController", masterLCAmendmentController)
 
 
 

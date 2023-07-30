@@ -20,6 +20,8 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.UpdateUrlQP = $scope.path + 'UpdateQP';
     $scope.saveUrlGI = $scope.path + 'createGI';
     $scope.UpdateUrlGI = $scope.path + 'UpdateGI';
+    $scope.saveUrlRepeat = $scope.path + 'createRepeatQC';
+    $scope.UpdateUrlQICValue = $scope.path + 'UpdateQIC';
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
 
@@ -1020,10 +1022,81 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                 else {
                     //ShowResult(response.data.Message, 'success');
                 }
-                $scope.QPId = null;
-                $scope.PlanType = null;
+                //$scope.QPId = null;
+                //$scope.PlanType = null;
                 $scope.QCId = response.data.Data.Id;
                 $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId, $scope.POItemId);
+            }), function errorCallBack(response) {
+              /*  ShowResult(response.data.Message, 'failure');*/
+            }
+        }
+        catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
+    $scope.SaveRepeatQC = function () {
+        try {
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.wcList.length; i++) {
+                if ($scope.wcList[i].Repeat == true) {
+                    $scope.SaveList.push($scope.wcList[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlRepeat,
+                data: {
+                    'QualityControlData': $scope.productionSummaryNew,
+                    'DataList': $scope.SaveList,
+                    'QualityPlanId': $scope.QPId,
+                    'PlanType': $scope.PlanType
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $scope.ProcessGeneralIssue();
+                    $scope.ProcessQualityPlan();
+                    ShowResult(response.data.Message, 'success');
+                }
+                $scope.QCId = response.data.Data.Id;
+            }), function errorCallBack(response) {
+                //ShowResult(response.data.Message, 'failure');
+            }
+        }
+        catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
+    $scope.UpdateQIC = function () {
+        try {
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.wcList.length; i++) {
+                if (!baseService.isUndefinedOrNull($scope.wcList[i].Value)) {
+                    $scope.SaveList.push($scope.wcList[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.UpdateUrlQICValue,
+                data: {
+                    'DataList': $scope.SaveList,
+                    'PId': $scope.QCId
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $scope.loadWC();
+                    $scope.ProcessGeneralIssue();
+                    ShowResult(response.data.Message, 'success');
+                }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
@@ -1147,7 +1220,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                 else {
 
                     ShowResult(response.data.Message, 'success');
-                    $scope.ProcessGeneralIssue();
+                    /*$scope.ProcessGeneralIssue();*/
                     $scope.Action = 'Save';
                 }
 
@@ -1179,6 +1252,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                 else {
 
                     ShowResult(response.data.Message, 'success');
+                    $scope.ProcessGeneralIssue();
                     $scope.Action = 'Save';
                 }
 
@@ -1874,17 +1948,14 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         }
     };
 
+    $scope.SaveRepeatRecord = function ()
+    {
+        $scope.SaveRepeatQC();
+    }
+
     $scope.masterQCGo = function (isdisabled) {
         try {
-            //$scope.SetGo(isdisabled);
-            //if ($scope.IsParameterBased == true) {
-            //    $scope.IsVisible = false;
-            //}
-            //else {
-            //    $scope.IsVisible = true;
-            //}
             $scope.GetPOWiseData($scope.POWiseNew.ProcessId, $scope.POWiseNew.EntityId);
-            //$scope.getLineGrid();
         } catch (ex) {
             ShowResult(ex, 'Info');
         }
@@ -2062,6 +2133,8 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.productionSummaryNew.ProductionInCharge = $event.data.QPEmployee;
         $scope.productionSummaryNew.ProductionInChargeId = $event.data.QPEmployeeId;
         $scope.WorkCenterHeaderList = [];
+        $scope.QPId = null;
+        $scope.PlanType = null;
         $scope.QPId = $event.data.Id;
         $scope.PlanType = "POIssue"
         $scope.setTab(3);
@@ -2078,13 +2151,21 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
 
    
     $scope.SetQGISelectData = function ($event) {
+        if (baseService.isUndefinedOrNull($event.data.Id))
+        {
+            throw "Please save record and proceed";
+        }
         $scope.productionSummaryNew.EntityId = $event.data.EntityId;
         $scope.productionSummaryNew.ProcessId = $event.data.ProcessId;
-        $scope.productionSummaryNew.ProductionDate = $event.data.QualityIssueDate;
+        if (baseService.isUndefinedOrNull($event.data.QualityIssueDate)) { $scope.productionSummaryNew.ProductionDate = $filter("date")(Date.now(), 'dd-MMM-yyyy'); }
+        else
+        { $scope.productionSummaryNew.ProductionDate = $event.data.QualityIssueDate; }
         $scope.productionSummaryNew.IssueId = $event.data.IssueId;
         $scope.productionSummaryNew.ProductionInCharge = $event.data.QGIEmployee;
         $scope.productionSummaryNew.ProductionInChargeId = $event.data.QGIEmployeeId;
         $scope.WorkCenterHeaderList = [];
+        $scope.QPId = null;
+        $scope.PlanType = null;
         $scope.QPId = $event.data.Id;
         $scope.PlanType = "GeneralIssue"
         $scope.setTab(3);

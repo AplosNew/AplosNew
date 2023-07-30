@@ -2644,14 +2644,18 @@ namespace Library.OrderManagement.Production
                 sql = @"SELECT PlannedQty=SOP.OrderQty,POQ.POQty,isnull(PQ.Qty,POQ.POQty)/POQ.POQty*SOP.OrderQty*PPS.Qty/100-ISNULL(CEILING(PRS.TotalProductionQty), 0) as RemainingQty
 ,ISNULL(CEILING(PRS.TotalProductionQty), 0)TotalProductionQty,isnull(PQ.Qty,POQ.POQty) as TotalActualPlannedQty,PPS.Qty TotalProcessPlanPercentage
 ,isnull(PQ.Qty,POQ.POQty)/POQ.POQty*SOP.OrderQty*PPS.Qty/100 as ProcessPlanQty,
-isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty
+isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty,isnull(FPP.FirstProductionQty,0) POFirstProcessProductionQty
                              FROM trn.ProductionOrder AS PO
-                             LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '"+ processId + @"'
+                             LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + processId + @"'
                             LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id
 							LEFT JOIN (select SUM(PP.Quantity)TotalProductionQty, PP.ProductionOrderId from [TRN].[ProductionSummary] PP where PP.ProcessId = 
 (select ProcessId from TRN.ProductionOrderProcessSet B where B.ProductionOrderId=PP.ProductionOrderId  and B.Sequence =
 (select top 1 Sequence=Sequence - 1  from TRN.ProductionOrderProcessSet A where A.ProductionOrderId=PP.ProductionOrderId and A.ProcessId='" + processId + @"')) GROUP BY PP.ProductionOrderId
  ) AS PPP ON PPP.ProductionOrderId = PO.Id
+LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId from [TRN].[ProductionSummary] FP where FP.ProcessId = 
+(select ProcessId from TRN.ProductionOrderProcessSet B where B.ProductionOrderId=FP.ProductionOrderId  and B.Sequence = 
+(select top 1 Sequence from TRN.ProductionOrderProcessSet A where A.ProductionOrderId=FP.ProductionOrderId)) GROUP BY FP.ProductionOrderId 
+ ) AS FPP ON FPP.ProductionOrderId = PO.Id
                              LEFT JOIN
                             (SELECT SUM(SO.Qty) OrderQty, PD.ProductionOrderId
                             FROM TRN.SalesOrder SO
@@ -3201,7 +3205,8 @@ SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, 
 
         public IEnumerable<object> GetQualityIssueList(string processId)
         {
-            string sql = @"SELECT distinct ID.Id [Value],ID.IssueName [Text] FROM [MST].[QualityIssueDetails] ID
+            string sql = @"SELECT distinct ID.Id [Value],QMM.UserName [Text] FROM [MST].[QualityIssueDetails] ID
+left join MST.QualityManagementMaster QMM on QMM.Id = ID.IssueNameId
  WHERE ID.ProcessId='" + processId + "'";
             return _sqlRepository.GetDataCollection(sql);
         }
@@ -4024,6 +4029,7 @@ WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='" + productionDat
         public IEnumerable<object> GetQualityPlan()
         {
             string sql = @"select distinct QPC.Id Id,PD.Id QPId,PO.Id POId,ID.Id as IssueId,ID.IssueName as QPIssue,ID.ProcessId,P.UserName as Process,ID.EntityId,E.UserName Entity,PD.DependentDate as DependentOn,PD.Legdays,
+(select RepeatEntry from TRN.QualityControl where IssueId=ID.Id and QualityPlanId=QPC.Id and PlanType='POIssue' and RepeatEntry is not null) as RepeatEntry,
 case 
 when PD.DependentDate='ItemDate' then format(MOI.AddedDate,'dd-MMM-yyyy')
 when PD.DependentDate='ExFactoryDate' then format((select top 1 PlanExFactoryDate from TRN.SalesOrder where Id=SO.Id order by PlanExFactoryDate desc),'dd-MMM-yyyy')
@@ -4056,28 +4062,29 @@ left join MST.QualityIssueDetails ID on ID.Id=PD.IssueId
 left join hkp.process P on P.Id=ID.ProcessId
 left join org.Entity E on E.Id=ID.EntityId
 left join TRN.ProductionOrderDetail POD on POD.ProductionOrderId=PO.Id
-left join TRN.SalesOrder SO on SO.Id=POD.SalesOrderId
+left join TRN.SalesOrder SO on SO.Id=POD.SalesOrderId 
 left join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POFirstProdBookDate,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) FBPPD ON FBPPD.ProductionOrderId=PO.Id
 LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=PO.Id
-where PS.UserName in ('Running','To Close') and QPC.QCId is null";
+where PS.UserName in ('Running','To Close') and QPC.QCID is null or (select top 1 RepeatEntry from TRN.QualityControl where IssueId=ID.Id and QualityPlanId=QPC.Id and PlanType='POIssue' order by AddedDate desc) is not null";
             return _sqlRepository.GetDataCollection(sql);
         }
 
         public IEnumerable<object> GetGeneralIssue()
         {
-            string sql = @"select  QC.Id,QID.IssueNameId,
-format(DATEADD(hour, QID.CheckingInterval,(select top 1 ProductionDate from TRN.QualityControl where IssueId=QID.Id order by ProductionDate desc)),'dd-MMM-yyyy') as QualityIssueDate,
-E.Id  EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,QID.Id IssueId,QMM.UserName QGIssue,
+            string sql = @"select  QC.Id,QID.IssueNameId,(select top 1 RepeatEntry from TRN.QualityControl where IssueId=QID.Id and PlanType='GeneralIssue' order by AddedDate desc) as RepeatEntry,
+case when (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QID.Id and PlanType='GeneralIssue' order by AddedDate desc)='Repeat' then format((select top 1 AddedDate from TRN.QualityControl where IssueId=QID.Id and PlanType='GeneralIssue' order by AddedDate desc),'dd-MMM-yyyy') else
+format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.Id and PlanType='GeneralIssue' order by AddedDate desc)),'dd-MMM-yyyy') end as QualityIssueDate,
+E.Id  EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,QID.Id IssueId,
+QMM.UserName QGIssue,
 reverse(stuff(reverse((select EI.EmployeeName + ',' from EmployeeInformation EI where EmployeeStatus='Active' and PositionID in (select PositionCodeId from MST.QualityManagementPositionCode where QMID=QID.IssueNameId) for xml path(''))),1,1,'')) as PositionEmployee,
 QC.QGIEmployeeId,(select EmployeeName from EmployeeInformation where SystemId=QC.QGIEmployeeId) as QGIEmployee
 from MST.QualityIssueDetails  QID
-left join TRN.QualityIssueControl QC on QC.IssueId=QID.Id
+left join TRN.QualityIssueControl as QC on QC.IssueId=QID.Id and QC.Id = (select top 1 Id from TRN.QualityIssueControl where IssueId=QID.Id order by AddedDate desc) 
 left join MST.QualityManagementMaster QMM on QMM.Id=QID.IssueNameId
 left join org.Entity E on E.Id=QID.EntityId
 left join hkp.Process P on P.Id=QID.ProcessId
 where QID.IssueType in ('Order','General') 
---and QC.QCId is null 
 order by 
 format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.Id order by AddedDate desc)),'dd-MMM-yyyy')";
             return _sqlRepository.GetDataCollection(sql);

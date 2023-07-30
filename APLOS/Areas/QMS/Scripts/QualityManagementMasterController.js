@@ -317,6 +317,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         Id: null
         , SNO: null
         , ParameterId: null
+        , ParameterName: null
         , CriticalLevel: null
         , Category: null
         , IsAuditable: null
@@ -329,7 +330,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         , ExceptionDays: null
         , ReportApplicable: true
         , IsStdApplicable: true
-        , OrderSpecific: true
+        , OrderSpecific: false
         , General: true
         , UOMId: null
         , UOM: null
@@ -845,7 +846,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     }
 
     $scope.refreshTemplateProduct = function (args) {
-        $("#Pheadchk").ejCheckBox({ "change": CheckBoxSelectAllProduct });
+        $("#Pdheadchk").ejCheckBox({ "change": CheckBoxSelectAllProduct });
     };
     function CheckBoxSelectAllProduct(e) {
         var ChkOrUnchk = false;
@@ -976,16 +977,16 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         }
     };
 
-    $scope.ParameterItemList = [];
-    $scope.GetParameterItemList = function () {
-        $http({
-            method: 'GET',
-            url: 'QMS/QualityManagementMaster/GetParameterItemList'
-        }).then(function successCallback(response) {
-            $scope.ParameterItemList = response.data;
-        });
-    }
-    $scope.GetParameterItemList();
+    //$scope.ParameterItemList = [];
+    //$scope.GetParameterItemList = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: 'QMS/QualityManagementMaster/GetParameterItemList'
+    //    }).then(function successCallback(response) {
+    //        $scope.ParameterItemList = response.data;
+    //    });
+    //}
+    //$scope.GetParameterItemList();
 
     $scope.GeneratItemSequenceNo = function () {
         $http({
@@ -1087,6 +1088,32 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
 
     $scope.closeUOMPopUp = function () {
         angular.element(document.querySelector('#UOMPopUp')).modal('hide');
+    }
+
+    $scope.selectParameter = function () {
+        $scope.getParameterName();
+        angular.element(document.querySelector('#ParameterPopUp')).modal('show');
+    }
+
+    $scope.ParameterList = [];
+    $scope.getParameterName = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetParameterItemList',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.ParameterList = resp.data;
+        });
+    }
+
+    $scope.doubleParameter = function (e) {
+        $scope.ItemNew.ParameterId = e.data.Id;
+        $scope.ItemNew.ParameterName = e.data.UserName;
+        angular.element(document.querySelector('#ParameterPopUp')).modal('hide');
+    }
+
+    $scope.closeParameterPopUp = function () {
+        angular.element(document.querySelector('#ParameterPopUp')).modal('hide');
     }
 
    

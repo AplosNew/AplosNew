@@ -1,10 +1,9 @@
 ﻿<div class="tab-design">
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Pending For Approval</a></li>
-            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Approved</a></li>
-            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Reject</a></li>
-
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Pending Trip</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Generated Trip</a></li>
+            
         </ul>
     </div>
     <div class="tab-content">
@@ -26,6 +25,7 @@
                             <div e-column e-field="FromTime" e-headertext="From Time" e-width="50"></div>
                             <div e-column e-field="ToTime" e-headertext="To Time" e-width="50"></div>
                             <div e-column e-field="EmployeeName" e-headertext="By Whom" e-width="50"></div>
+                            <div e-column e-field="NumberOfPassengers" e-headertext="No. Of Pgrs" e-width="50"></div>
                             <div e-column e-field="Department" e-headertext="Department" e-width="50"></div>
                             <div e-column e-field="Purpose" e-headertext="Purpose" e-width="50"></div>
                             <div e-column e-field="PersonalOfficial" e-headertext="PersonalOfficialTemplate" e-width="50"></div>
@@ -53,61 +53,40 @@
                         </label>
                     </div>
                 </script>
-
             </div>
 
 
             <div class="common-btn">
                 <ul class="list-inline text-right">
-                    <li> <button ng-click="SaveVehicleAllocation();" class="btn" tabindex="9"><i class="glyphicon glyphicon-check"></i> Approve</button></li>
-                    <li> <button ng-click="OpenRejectPopup();" class="btn" tabindex="9"><i class="glyphicon glyphicon-remove"></i> Reject</button></li>
-
+                    <li> <button ng-click="MergeRows();" class="btn" tabindex="9"><i class="glyphicon glyphicon-check"></i> Trip Generate</button></li>
                 </ul>
             </div>
         </div>
-        @*   TAB -2 *@
-    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-        @*<div class="row">
-            <div class="col-md-12">
-                <div id="Grid">
-                </div>
-            </div>
-        </div>*@
-        <div class="content-container-fluid" style="color:black;overflow:scroll">
-            <div style="color:black;" ej-grid e-datasource="RequisitionApprovedList" e-templaterefresh="refreshTemplateMasterOrderOperation"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-                 
-                >
-                <div e-columns>
-                    
-                    <div e-column e-field="FromLocation" e-headertext="FromLocation " e-width="80"></div>
-                    <div e-column e-field="ToLocation" e-headertext="ToLocation " e-width="80"></div>
-                    <div e-column e-field="FromDate" e-headertext="From Date" e-width="50"></div>
-                    <div e-column e-field="ToDate" e-headertext="To Date" e-width="50"></div>
-                    <div e-column e-field="FromTime" e-headertext="From Time" e-width="50"></div>
-                    <div e-column e-field="ToTime" e-headertext="To Time" e-width="50"></div>
-                    <div e-column e-field="EmployeeName" e-headertext="By Whom" e-width="50"></div>
-                    <div e-column e-field="Department" e-headertext="Department" e-width="50"></div>
-                    <div e-column e-field="Purpose" e-headertext="Purpose" e-width="50"></div>
-                    <div e-column e-field="PersonalOfficial" e-headertext="PersonalOfficialTemplate" e-width="50"></div>
 
-                </div>
-            </div>
-        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div class="content-container-fluid" style="color:black;overflow:scroll">
+                <div style="color:black;" ej-grid e-datasource="GeneratedTripList" e-templaterefresh="refreshTemplateMasterOrderOperation"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                     e-detailstemplate="requisitiondetailTemp"
+                     e-detailsdatabound="requisitiondetailgrid">
+                    <div e-columns>                        
+                        @*<div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>*@
+                        <div e-column e-field="FromLocation" e-headertext="FromLocation " e-width="80"></div>
+                        <div e-column e-field="ToLocation" e-headertext="ToLocation " e-width="80"></div>
+                        <div e-column e-field="FromDate" e-headertext="From Date" e-width="50"></div>
+                        <div e-column e-field="ToDate" e-headertext="To Date" e-width="50"></div>
+                        <div e-column e-field="FromTime" e-headertext="From Time" e-width="50"></div>
+                        <div e-column e-field="ToTime" e-headertext="To Time" e-width="50"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="By Whom" e-width="50"></div>
+                        <div e-column e-field="NumberOfPassengers" e-headertext="No. Of Pgrs" e-width="50"></div>
+                        <div e-column e-field="Department" e-headertext="Department" e-width="50"></div>
+                        <div e-column e-field="Purpose" e-headertext="Purpose" e-width="50"></div>
+                        <div e-column e-field="PersonalOfficial" e-headertext="PersonalOfficialTemplate" e-width="50"></div>
 
-
-    </div>
-
-        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
-
-            <div class="row">
-                <div class="col-md-12">
-                    <div id="TripGrid">
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
@@ -161,7 +140,7 @@
                             </div>
                             <div class="common-btn">
                                 <ul class="list-inline text-right">
-                                    <li> <button ng-click="SaveVehicleAllocation();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                                    <li> <button ng-click="SaveVehicleTrip();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
 
                                     <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                                 </ul>
@@ -188,7 +167,7 @@
                     <input type="hidden" ng-model="RequisitionTejectModel.Id">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-6">
-                            
+
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">IsReject</label>
                                 <div class="checkbox-site">

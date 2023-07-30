@@ -289,6 +289,7 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
     $scope.Get = function (args) {
 
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.GetemployeeDataList(args.data.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -797,10 +798,11 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
     // #endregion Employee popup
 
     $scope.PurposeEmployeeList = [];
-    $scope.GetemployeeDataList = function () {
+    $scope.GetemployeeDataList = function (x) {
         $http({
             method: 'POST',
             url: $scope.path + "getemployeeDataList",
+            data: { 'headerid': x },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.PurposeEmployeeList = response.data;
@@ -812,7 +814,11 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
     $scope.ckdPurposeEmployeeList = [];
     $scope.SavePurposeRP = function () {
         for (var i = 0; i < $scope.PurposeEmployeeList.length; i++) {
-            if ($scope.PurposeEmployeeList[i].isSelected) {
+            if ($scope.PurposeEmployeeList[i].isSelected == true && ($scope.PurposeEmployeeList[i].IsActive == null || $scope.PurposeEmployeeList[i].IsActive == false)) {
+                $scope.ckdPurposeEmployeeList.push($scope.PurposeEmployeeList[i]);
+            }
+            else if ($scope.PurposeEmployeeList[i].isSelected == false && $scope.PurposeEmployeeList[i].Id != null) {
+               
                 $scope.ckdPurposeEmployeeList.push($scope.PurposeEmployeeList[i]);
             }
         }
@@ -831,9 +837,10 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    for (var i = 0; i < $scope.ckdPurposeEmployeeList.length; i++) {
-                        $scope.PurposeEmployeeList[i].isSelected = false
-                    }
+                    
+                    $scope.ckdPurposeEmployeeList = []
+                    $scope.GetemployeeDataList($scope.ModelNew.Id);
+                    
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');

@@ -975,7 +975,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
             return _signatrueService.GetAutoNumber("LT-", DateTime.Now).ToString();
         }
 
-        public void SaveData(LeaveTransaction leaveTransaction)
+        public void SaveData(LeaveTransaction leaveTransaction, string yearId)
         {
             var flag = false;
             decimal duration = 0.0m;
@@ -1093,7 +1093,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 }
 
 
-                CheckMaxLeaveataTime(leaveTransaction, LVPolicyMasterSystemID, leaveDays);
+                CheckMaxLeaveataTime(leaveTransaction, LVPolicyMasterSystemID, leaveDays, yearId);
 
                 if (leaveTransaction.LeaveDayType == "FirstHalfDay" || leaveTransaction.LeaveDayType == "SecondHalfDay")
                 {

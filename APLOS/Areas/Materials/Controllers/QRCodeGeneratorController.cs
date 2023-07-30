@@ -20,11 +20,14 @@ using System.Web.Mvc;
 using Zen.Barcode;
 using System.IO.Ports;
 using System.Threading;
+using System.Drawing;
 
 namespace Aplos.Areas.Materials.Controllers
 {
     public class QRCodeGeneratorController : Controller
     {
+        private Font verdana10Font;
+        private StreamReader reader;
         private readonly SqlRepository _sqlRepository;
         SerialPort serialPort = new SerialPort("COM9", 19200, Parity.None, 8, StopBits.One);
         public QRCodeGeneratorController()
@@ -82,8 +85,54 @@ namespace Aplos.Areas.Materials.Controllers
                             where PS.UserName in ('Running', 'ToClose')";
 
             }
-            GetPort();
+            
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetEntity() { 
+            string sql = @"select Id Value, UserName Text from org.Entity
+                            where Active = 1
+                            order by Text
+                            OFFSET 1 ROWS";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        private void PrintTextFileHandler (object sender, PrintPageEventArgs ppeArgs)
+        {
+            //Get the Graphics object
+
+            Graphics g = ppeArgs.Graphics;
+            float linesPerPage = 0;
+            float yPos = 0;
+            int count = 0;
+            //Read margins from PrintPageEventArgs
+            float leftMargin = ppeArgs.MarginBounds.Left;
+            float topMargin = ppeArgs.MarginBounds.Top;
+            string line = null;
+            //Calculate the lines per page on the basis of the height of the page and the height of the font
+            linesPerPage = ppeArgs.MarginBounds.Height;
+            //verdana10Font.GetHeight (g);
+            //Now read lines one by one, using StreamReader
+            while ( ( line = reader.ReadLine ()) != null)
+            {
+                //Calculate the starting position
+                yPos = topMargin + (count *
+                verdana10Font.GetHeight (g));
+                //Draw text
+                g.DrawString (line, verdana10Font, Brushes.Black,
+                leftMargin, yPos, new StringFormat());
+                //Move to next line
+                count++;
+            }
+            //If PrintPageEventArgs has more pages to print
+            if (line != null)
+            {
+                ppeArgs.HasMorePages = true;
+            }
+            else
+            {
+                ppeArgs.HasMorePages = false;
+            }
         }
 
         public IPresentation CreateQRCode(Dictionary<string, object> data, string ShadeText, string ArticleName, string productcodeText, string NetWeightText)
@@ -116,10 +165,10 @@ namespace Aplos.Areas.Materials.Controllers
 
                 PrintDocument pd = new PrintDocument();
                 //Set PrinterName as the selected printer in the printers list  
-                //pd.PrinterSettings.PrinterName = "";
+                //pd.PrinterSettings.PrinterName = "HPRT HT300 - ZP";
 
                 // Add PrintPage event handler
-               // pd.PrintPage += new PrintPageEventHandler();
+                // pd.PrintPage += new PrintPageEventHandler();
 
                 //Print the document  
                 //pd.Print();

@@ -929,6 +929,13 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
                 templateUrl: 'humanresource/VehicleMovementMaster/VehicleMovement',
                 controller: 'VehicleMovementController'
             })
+
+        .when('/vehicle-trip',
+            {
+                templateUrl: 'humanresource/VehicleMovementMaster/VehicleTrip',
+                controller: 'VehicleTripController'
+            })
+
         .when('/plant-inout',
             {
                 templateUrl: 'humanresource/PlantInOutControllReport/Aplos',

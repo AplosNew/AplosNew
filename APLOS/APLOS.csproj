@@ -552,6 +552,7 @@
     <Compile Include="Areas\Materials\Controllers\LOTCreationController.cs" />
     <Compile Include="Areas\Materials\Controllers\QRCodeGeneratorController.cs" />
     <Compile Include="Areas\Materials\Controllers\WeighingScaleMasterController.cs" />
+    <Compile Include="Areas\Processes\Controllers\ProcessManagementController.cs" />
     <Compile Include="Areas\Productions\Controllers\DailyPlanningAndProductionReportController.cs" />
     <Compile Include="Areas\Employees\Controllers\TransportGroupController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmpActiveInActiveNewController.cs" />
@@ -2017,6 +2018,7 @@
     <Content Include="Areas\Commercial\Scripts\LCReportsController.js" />
     <Content Include="Areas\Commercial\Scripts\InvoiceBudgetChargesSettingController.js" />
     <Content Include="Areas\Commercial\Scripts\CommercialAdditionalInfoController.js" />
+    <Content Include="Areas\Commercial\Scripts\masterLCAmendmentController.js" />
     <Content Include="Areas\Commercial\Scripts\PostSalesInvoiceController.js" />
     <Content Include="Areas\Commercial\Scripts\autoLoanController.js" />
     <Content Include="Areas\Commercial\Scripts\autoLoanPostController.js" />
@@ -2087,12 +2089,14 @@
     <Content Include="Areas\HumanResource\Scripts\VehicleMovementController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleMovementRequisitionController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleReqForApproveController.js" />
+    <Content Include="Areas\HumanResource\Scripts\VehicleTripController.js" />
     <Content Include="Areas\IE\Scripts\WorkcenterWiseDetentionController.js" />
     <Content Include="Areas\Materials\Scripts\LOTCreationController.js" />
     <Content Include="Areas\Materials\Scripts\QRCodeGeneratorController.js" />
     <Content Include="Areas\Materials\Scripts\WeighingScaleMasterController.js" />
     <Content Include="Areas\Packing\Scripts\packingConfig.js" />
     <Content Include="Areas\HumanResource\Scripts\WebBasedPackingController.js" />
+    <Content Include="Areas\Processes\Scripts\ProcessManagementController.js" />
     <Content Include="Areas\Productions\Scripts\DailyPlanningAndProductionReportController.js" />
     <Content Include="Areas\Employees\Scripts\RouteEmployeeReportController.js" />
     <Content Include="Areas\Employees\Scripts\TransportGroupController.js" />
@@ -4749,6 +4753,9 @@
     <Content Include="Areas\Materials\Views\LOTCreation\Aplos.cshtml" />
     <Content Include="Areas\FixedAssets\Views\CARApproval.cshtml" />
     <Content Include="Areas\FixedAssets\Views\CapitalizeAssetRegisterPosting.cshtml" />
+    <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\VehicleTrip.cshtml" />
+    <Content Include="Areas\Processes\Views\ProcessManagement\Aplos.cshtml" />
+    <Content Include="Areas\Commercial\Views\Contract\MasterLCAmendment.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -467,7 +467,7 @@ namespace Library.Service.FixedAssets
             try
             { 
                 parameters.CmdText = @"SELECT fami.Id,fam.Id FixedAssetMasterId,fam.UserName FixedAssetMaster,fami.Code,fami.ShortName,fami.StandardName,fami.UserName
-									                ,uom.UserName CapacityUoM,fami.CapacityValue,isnull(fami.Description,'') Description
+									                ,uom.Id CapacityUoMId,uom.UserName CapacityUoM,fami.CapacityValue,isnull(fami.Description,'') Description
 									                ,isnull(fami.Remarks,'') Remarks
 
                                                     FROM mst.FixedAssetItem AS fami

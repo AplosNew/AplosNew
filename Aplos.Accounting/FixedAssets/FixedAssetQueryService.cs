@@ -14,19 +14,20 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Reflection;
 using System.Threading;
+using OTSBD;
 
 namespace Library.Accounting.FixedAssets
 {
     public class FixedAssetQueryService
     {
         private readonly ISqlRepository _sqlRepository;
-        public FixedAssetQueryService(ISqlRepository sqlRepository )
+        public FixedAssetQueryService(ISqlRepository sqlRepository)
         {
             _sqlRepository = sqlRepository;
-           
+
         }
-       
-        
+
+
         public IEnumerable<object> GetFixedAssetList(string masterId)
         {
             try
@@ -176,7 +177,7 @@ namespace Library.Accounting.FixedAssets
                 throw;
             }
         }
-        public GridModel GetAssetItemList(GridParameter parameters,string asset,string consumable)
+        public GridModel GetAssetItemList(GridParameter parameters, string asset, string consumable)
         {
             try
             {
@@ -197,7 +198,7 @@ namespace Library.Accounting.FixedAssets
                 throw;
             }
         }
-        
+
         public IEnumerable<object> GetOpeningBalanceInfoWithAssetItemId(string assetGLId, string assetBudgetId, string assetActivityId, string companyId)
         {
             try
@@ -266,9 +267,9 @@ namespace Library.Accounting.FixedAssets
                 throw;
             }
         }
-        
-        
-        public List<Dictionary<string, object>> GetFixedAssetRegisterPopUpList(string column, string value,string companyId)
+
+
+        public List<Dictionary<string, object>> GetFixedAssetRegisterPopUpList(string column, string value, string companyId)
         {
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
@@ -398,7 +399,7 @@ namespace Library.Accounting.FixedAssets
                                     LEFT JOIN TRN.FixedAssetRegisterDisposed FAD ON FAD.Id=FARD.FixedAssetRegisterDisposedId
 									LEFT JOIN (select SUM(CurrentDepreciationAmount)FixedAssetDepreciationAmount,FixedAssetRegisterId from [TRN].[FixedAssetDepreciationProcess] GROUP BY  FixedAssetRegisterId) FADP ON FADP.FixedAssetRegisterId=FR.Id
                                    WHERE FR.CompanyId= '" + companyId + @"'  and FR.Archive= 0 and FR.IsAUC= 0 
-                                    AND FARD.FixedAssetRegisterDisposedId='"+ fixedAssetRegisterDisposeId +@"'
+                                    AND FARD.FixedAssetRegisterDisposedId='" + fixedAssetRegisterDisposeId + @"'
                                        ) AS TEMP 
                                     --WHERE FR.Id= order by SerialNo 
                                         ";
@@ -408,7 +409,7 @@ namespace Library.Accounting.FixedAssets
 
         public List<Dictionary<string, object>> GetFixedAssetLostByDisposeIdList(string id)
         {
-            
+
             var sql = @"select frd.Id,frd.Id DisposeNo,fr.Remarks,fr.[Status],ei.EmployeeName,frd.IsPark,rdd.FixedAssetRegisterId,rdd.FixedAssetRegisterDisposedId
                 , FR.SerialNo, FR.Id AssetNo, FR.InvoiceNo, MM.UserName MaterialMasterName
                 , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
@@ -466,14 +467,14 @@ namespace Library.Accounting.FixedAssets
                      LEFT JOIN SCS.Currency BC ON BC.Id =FR.FABaseCurrencyId
                 LEFT JOIN (SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount ,ISNULL(Sum(BaseAmount),0) subAssetBaseAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
 				LEFT JOIN (select SUM(CurrentDepreciationAmount)FixedAssetDepreciationAmount,FixedAssetRegisterId from [TRN].[FixedAssetDepreciationProcess] GROUP BY  FixedAssetRegisterId) FADP ON FADP.FixedAssetRegisterId=FR.Id
-                 where frd.Id='" + id+"'";
+                 where frd.Id='" + id + "'";
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public List<Dictionary<string, object>> GetFixedAssetLostJVList(string fixedAssetDisposeId, string companyId,string plantId)
+        public List<Dictionary<string, object>> GetFixedAssetLostJVList(string fixedAssetDisposeId, string companyId, string plantId)
         {
 
-            var sql = @"DECLARE @receiveId varchar(10)='"+ fixedAssetDisposeId + "', @companyId varchar(10)='"+ companyId + "', @plantId varchar(30)='"+ plantId + @"'
+            var sql = @"DECLARE @receiveId varchar(10)='" + fixedAssetDisposeId + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
 
 						SELECT X.* FROM(
 						SELECT  'Depreciation' AS OtherName, 'Dr' AS TrnType
@@ -582,10 +583,10 @@ namespace Library.Accounting.FixedAssets
             return _sqlRepository.GetDataCollection(sql);
         }
 
-		public List<Dictionary<string, object>> GetFixedAssetSalesSingleJVList(string fixedAssetDisposeId, string companyId, string plantId)
-		{
+        public List<Dictionary<string, object>> GetFixedAssetSalesSingleJVList(string fixedAssetDisposeId, string companyId, string plantId)
+        {
 
-			var sql = @"DECLARE @fixedAssetDisposeId varchar(10)='" + fixedAssetDisposeId + "', @companyId varchar(10)='"+ companyId + "', @plantId varchar(30)='"+ plantId + @"'
+            var sql = @"DECLARE @fixedAssetDisposeId varchar(10)='" + fixedAssetDisposeId + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
 
 						SELECT X.* FROM(
 						SELECT  'Depreciation' AS OtherName, 'Dr' AS TrnType
@@ -712,13 +713,13 @@ namespace Library.Accounting.FixedAssets
 						) X 
                         WHERE X.Amount>0
 						ORDER BY 2 DESC";
-			return _sqlRepository.GetDataCollection(sql);
-		}
+            return _sqlRepository.GetDataCollection(sql);
+        }
 
         public List<Dictionary<string, object>> GetFixedAssetSalesBookAsSalesJV1List(string fixedAssetDisposeId, string companyId, string plantId)
         {
 
-            var sql = @"DECLARE @fixedAssetDisposeId varchar(10)='" + fixedAssetDisposeId + @"', @companyId varchar(10)='"+ companyId + "', @plantId varchar(30)='"+ plantId +  @"'
+            var sql = @"DECLARE @fixedAssetDisposeId varchar(10)='" + fixedAssetDisposeId + @"', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
 
 					SELECT X.* FROM (
 						SELECT  'Depreciation' AS OtherName, 'Dr' AS TrnType
@@ -895,10 +896,10 @@ namespace Library.Accounting.FixedAssets
             return _sqlRepository.GetDataCollection(sql);
         }
 
-		public List<Dictionary<string, object>> GetFixedAssetTheftSingleJVList(string fixedAssetDisposeId, string companyId, string plantId)
-		{
+        public List<Dictionary<string, object>> GetFixedAssetTheftSingleJVList(string fixedAssetDisposeId, string companyId, string plantId)
+        {
 
-			var sql = @"DECLARE @fixedAssetDisposeId varchar(10)='" + fixedAssetDisposeId + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
+            var sql = @"DECLARE @fixedAssetDisposeId varchar(10)='" + fixedAssetDisposeId + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
 
 						SELECT X.* FROM(
 						SELECT  'Depreciation' AS OtherName, 'Dr' AS TrnType
@@ -986,10 +987,10 @@ namespace Library.Accounting.FixedAssets
 						) X 
                         WHERE X.Amount>0
 						ORDER BY 2 DESC";
-			return _sqlRepository.GetDataCollection(sql);
-		}
+            return _sqlRepository.GetDataCollection(sql);
+        }
 
-		public List<Dictionary<string, object>> GetFixedAssetSalesBookAsSalesJV2List(string fixedAssetDisposeId, string companyId, string plantId)
+        public List<Dictionary<string, object>> GetFixedAssetSalesBookAsSalesJV2List(string fixedAssetDisposeId, string companyId, string plantId)
         {
 
             var sql = @"DECLARE @fixedAssetDisposeId varchar(10)='" + fixedAssetDisposeId + @"', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
@@ -1070,10 +1071,10 @@ namespace Library.Accounting.FixedAssets
             return _sqlRepository.GetDataCollection(sql);
         }
 
-		public List<Dictionary<string, object>> GetFixedAssetDepreciationSingleJVList(string fixedAssetMasterId, DateTime depreciationProcessDate, string companyId, string plantId)
-		{
+        public List<Dictionary<string, object>> GetFixedAssetDepreciationSingleJVList(string fixedAssetMasterId, DateTime depreciationProcessDate, string companyId, string plantId)
+        {
 
-			var sql = @"DECLARE @fixedAssetMasterId varchar(10)='" + fixedAssetMasterId + "',@depreciationProcessDate DATE='" + depreciationProcessDate + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
+            var sql = @"DECLARE @fixedAssetMasterId varchar(10)='" + fixedAssetMasterId + "',@depreciationProcessDate DATE='" + depreciationProcessDate + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
 
 						SELECT X.* FROM(
 						SELECT  'Depreciation' AS OtherName, 'Dr' AS TrnType
@@ -1124,9 +1125,9 @@ namespace Library.Accounting.FixedAssets
 						) X 
                         WHERE X.Amount>0
 						ORDER BY 2 DESC";
-			return _sqlRepository.GetDataCollection(sql);
-		}
-		public GridModel GetFixedAssetAccDepGL(GridParameter parameters, string companyId)
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        public GridModel GetFixedAssetAccDepGL(GridParameter parameters, string companyId)
         {
             try
             {
@@ -1222,7 +1223,7 @@ namespace Library.Accounting.FixedAssets
             }
         }
 
-        public List<Dictionary<string, object>> GetPostedAUCList( string plantId)
+        public List<Dictionary<string, object>> GetPostedAUCList(string plantId)
         {
             try
             {
@@ -1817,11 +1818,11 @@ namespace Library.Accounting.FixedAssets
 		                            left join ORG.Entity E on E.Id= FR.EntityId
 									left join ORG.Department D on D.Id = FR.DepartmentId
 
-                                    WHERE FR.CompanyGroupId='" + companyGroupId+"'and FR.CompanyId='"+companyId+"' AND FR.PlantId='"+plantId+ @"'
+                                    WHERE FR.CompanyGroupId='" + companyGroupId + "'and FR.CompanyId='" + companyId + "' AND FR.PlantId='" + plantId + @"'
                                     and FR.Archive=0 and FR.IsAUC=0 and	FR.DisposedVoucherId IS NULL AND FR.Status IS NULL
                                     AND FR.Id NOT IN(' ')
-				                     and FR.MaterialMasterId in(" + materialMasterId+") AND FR.MaterialMasterArticleId in ("+materialMasterArticleId+") AND FR.FixedAssetMasterId in ("+fixedAssetMasterId+@")
-					                 and FR.VendorId in ("+vendorId+@") 
+				                     and FR.MaterialMasterId in(" + materialMasterId + ") AND FR.MaterialMasterArticleId in (" + materialMasterArticleId + ") AND FR.FixedAssetMasterId in (" + fixedAssetMasterId + @")
+					                 and FR.VendorId in (" + vendorId + @") 
                                      --AND MM.IsAsset in () ";
             return _sqlRepository.GetDataCollection(sql);
 
@@ -1880,22 +1881,22 @@ namespace Library.Accounting.FixedAssets
 
         }
 
-		public List<Dictionary<string, object>> GetFixedAssetRegisterDisposedElasticSearchDataList(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string nonPosted, string posted, string DisposeStatus)
-		{
-			var Posted = 0;
-			if (nonPosted == "True")
-			{
-				Posted = 1;
-			}
-			if (posted == "True")
-			{
-				Posted = 0;
-			}
-			if (posted == "True" && nonPosted == "True")
-			{
-				Posted = 2;
-			}
-			var sql = @"SELECT FR.SerialNo, FR.Id AssetNo,  e.UserName Entity, D.UserName Department, FR.Model
+        public List<Dictionary<string, object>> GetFixedAssetRegisterDisposedElasticSearchDataList(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string nonPosted, string posted, string DisposeStatus)
+        {
+            var Posted = 0;
+            if (nonPosted == "True")
+            {
+                Posted = 1;
+            }
+            if (posted == "True")
+            {
+                Posted = 0;
+            }
+            if (posted == "True" && nonPosted == "True")
+            {
+                Posted = 2;
+            }
+            var sql = @"SELECT FR.SerialNo, FR.Id AssetNo,  e.UserName Entity, D.UserName Department, FR.Model
                 , FR.InvoiceNo, MM.UserName MaterialMasterName, MMA.StandardName Article,FR.[Description]
                 , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
                 --, FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
@@ -1974,15 +1975,15 @@ namespace Library.Accounting.FixedAssets
 				AND  fard.IsPark=case when  " + Posted + @"=2 then fard.IsPark else " + Posted + @" end
 				AND convert(Date,fard.DocDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' 
 				";
-			return _sqlRepository.GetDataCollection(sql);
+            return _sqlRepository.GetDataCollection(sql);
 
-		}
+        }
 
 
-		#endregion Fixed Assets Register Report for Elastis Search
+        #endregion Fixed Assets Register Report for Elastis Search
 
-		#region Fixed Asset Depreciation Process
-		public IEnumerable<object> GetfixedAssetMastersListForProcess(string companyGroupId, string companyId, string plantId, string fiscalYearId, string toDate,string startDate)
+        #region Fixed Asset Depreciation Process
+        public IEnumerable<object> GetfixedAssetMastersListForProcess(string companyGroupId, string companyId, string plantId, string fiscalYearId, string toDate, string startDate)
         {
             var sql = @"DECLARE @FromDate NVARCHAR(20) = DATEADD(day,-1,'" + startDate + @"');
 						DECLARE @FiscalYearId AS [varchar](20)
@@ -2001,54 +2002,54 @@ namespace Library.Accounting.FixedAssets
                         LEFT OUTER JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
                      WHERE FAM.CompanyGroupId='" + companyGroupId + @"' 
 					 AND FAM.Id IN(select FixedAssetMasterId from [TRN].[FixedAssetRegister] where CapitalizationDate<='" + toDate + @"')";
-			return _sqlRepository.GetDataCollection(sql);
+            return _sqlRepository.GetDataCollection(sql);
 
         }
-		public Dictionary<string, object> GetFiscalYearDataByFiscalYear(string fiscalYearId)
-		{
-			try
-			{
-				var sql = @"SELECT Replace(CONVERT(VARCHAR(11), FY.StartDate, 106), ' ', '-') StartDate
+        public Dictionary<string, object> GetFiscalYearDataByFiscalYear(string fiscalYearId)
+        {
+            try
+            {
+                var sql = @"SELECT Replace(CONVERT(VARCHAR(11), FY.StartDate, 106), ' ', '-') StartDate
 							,Replace(CONVERT(VARCHAR(11), FY.EndDate, 106), ' ', '-') EndDate FROM SCS.FiscalYear AS FY
                             WHERE FY.Id='" + fiscalYearId + "'";
-				return _sqlRepository.GetData(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name.ToString(), null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Calendars.ToString()));
-			}
-		}
-		public void FixedAssetDepreciationProcess(string selectedAssetMastersLists, string fiscalYearId, string toDate)
-		{
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                return _sqlRepository.GetData(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name.ToString(), null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Calendars.ToString()));
+            }
+        }
+        public void FixedAssetDepreciationProcess(string selectedAssetMastersLists, string fiscalYearId, string toDate)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-				var rdBuilder = new System.Text.StringBuilder();
-				var builderSql = @"EXEC SP_FixedAssetDepreciationProcess '" + selectedAssetMastersLists + "' ,'" + fiscalYearId + "' ,'" + toDate + "' ,'" + identity.FullName + "' ,'" + identity.IPAddress + "'";
-				rdBuilder.Append(builderSql);
-				_sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                var rdBuilder = new System.Text.StringBuilder();
+                var builderSql = @"EXEC SP_FixedAssetDepreciationProcess '" + selectedAssetMastersLists + "' ,'" + fiscalYearId + "' ,'" + toDate + "' ,'" + identity.FullName + "' ,'" + identity.IPAddress + "'";
+                rdBuilder.Append(builderSql);
+                _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
 
 
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
-			}
-		}
-		#endregion
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        #endregion
 
-		#region Fixed Asset Depreciation POST
-		public List<Dictionary<string, object>> GetFixedAssetDepreciationListForPosting(string column, string value, string companyId)
-		{
-			string strkey = "1=1";
-			if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-				strkey = column + " like '%" + value + "%'";
-			var sql = @"select top 100 * from (select FR.FixedAssetMasterId
+        #region Fixed Asset Depreciation POST
+        public List<Dictionary<string, object>> GetFixedAssetDepreciationListForPosting(string column, string value, string companyId)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+            var sql = @"select top 100 * from (select FR.FixedAssetMasterId
 									,FAM.UserName 'FixedAssetMaster'
 									,FAC.UserName 'FixedAssetCategory'
 									,FASC.UserName 'FixedAssetSubCategory'
@@ -2064,14 +2065,14 @@ namespace Library.Accounting.FixedAssets
                 WHERE FR.CompanyId='" + companyId + @"' AND FDP.DepreciationVoucherId IS NULL
                    GROUP BY  FR.FixedAssetMasterId,FAM.UserName,FAC.UserName,FDP.DepreciationProcessDate,FASC.UserName,BC.Code	
                 ) AS TEMP WHERE " + strkey + " order by DepreciationProcessDate ASC  ";
-			return _sqlRepository.GetDataCollection(sql);
-		}
-		public List<Dictionary<string, object>> GetFixedAssetDepreciationPostedList(string column, string value, string companyId)
-		{
-			string strkey = "1=1";
-			if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-				strkey = column + " like '%" + value + "%'";
-			var sql = @"select top 100 * from (select V.Id,FR.FixedAssetMasterId
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        public List<Dictionary<string, object>> GetFixedAssetDepreciationPostedList(string column, string value, string companyId)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+            var sql = @"select top 100 * from (select V.Id,FR.FixedAssetMasterId
 									,FAM.UserName 'FixedAssetMaster'
 									,FAC.UserName 'FixedAssetCategory'
 									,FASC.UserName 'FixedAssetSubCategory'
@@ -2088,9 +2089,343 @@ namespace Library.Accounting.FixedAssets
                 LEFT  JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
                 WHERE FR.CompanyId='" + companyId + @"' AND V.Archive=0 AND FDP.DepreciationVoucherId IS NOT NULL
                 GROUP BY  V.Id,FR.FixedAssetMasterId,FAM.UserName,FAC.UserName,FDP.DepreciationProcessDate,FASC.UserName,BC.Code,V.VoucherNo,V.PostingDate ) AS TEMP WHERE " + strkey + " order by PostingDate DESC   ";
-			return _sqlRepository.GetDataCollection(sql);
-		}
-		#endregion
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        #endregion
 
-	}
+        #region Capitalize Asset Register
+        public List<Dictionary<string, object>> GetCapitalizeData()
+        {
+            string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode,Approved=CASE WHEN CM.IsApproved=1 THEN 'Approved' ELSE '' END
+FROM [TRN].[CapitalizationMaster] CM
+LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById Order by CM.AddedDate DESC";
+
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        public List<Dictionary<string, object>> GetApprovedCapitalizeData()
+        {
+            string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode,Approved=CASE WHEN CM.IsApproved=1 THEN 'Approved' ELSE '' END
+FROM [TRN].[CapitalizationMaster] CM
+LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById
+Where CM.IsApproved=1 AND CM.VoucherRowId IS NULL";
+
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        public List<Dictionary<string, object>> GetFixedAssetMasterItem()
+        {
+            string sql = @"SELECT FI.*,Uom.Code CapacityUoM,FM.UserName FixedAssetMaster,FC.UserName FixedAssetCategory,FSC.UserName FixedAssetSubCategory  
+FROM MST.FixedAssetItem FI
+LEFT JOIN MST.FixedAssetMaster FM ON FM.Id=FI.FixedAssetMasterId
+LEFT JOIN HKP.FixedAssetCategory FC ON FC.Id=FM.FixedAssetCategoryId
+LEFT JOIN HKP.FixedAssetSubCategory FSC ON FSC.Id=FM.FixedAssetSubCategoryId
+LEFT JOIN SCS.UnitOfMeasurement UoM ON UoM.Id=FI.CapacityUoMId";
+
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        public List<Dictionary<string, object>> GetCapitalizationMasterDetail(string masterId)
+        {
+            string sql = @"SELECT C.*,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName,V.VoucherNo,IRD.InventoryReceiveId GRNNo, Qty=CASE WHEN IRD.BaseQty=0 THEN IH.Qty ELSE IRD.BaseQty END 
+FROM [TRN].[CapitalizationMasterDetail] C
+LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=C.InventoryReceiveDetailId
+LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
+LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
+LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=IM.ArticleId
+left join [TRN].[VoucherDetail] VD ON VD.Id=C.VoucherDetailId
+left join [TRN].[Voucher] V ON V.Id=VD.VoucherId
+left join TRN.InventoryIssueHistory IH ON IH.Id=InventoryIssueHistoryId
+Where  C.CapitalizationMasterId='" + masterId + "'";
+
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        public List<Dictionary<string, object>> GetCapitalizationDetailByMaster(string masterId)
+        {
+            string sql = @"SELECT C.*,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName,V.VoucherNo,IRD.InventoryReceiveId GRNNo, Qty=CASE WHEN IRD.BaseQty=0 THEN IH.Qty ELSE IRD.BaseQty END 
+FROM [TRN].[CapitalizationMasterDetail] C
+LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=C.InventoryReceiveDetailId
+LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
+LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
+LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=IM.ArticleId
+left join [TRN].[VoucherDetail] VD ON VD.Id=C.VoucherDetailId
+left join [TRN].[Voucher] V ON V.Id=VD.VoucherId
+left join TRN.InventoryIssueHistory IH ON IH.Id=InventoryIssueHistoryId
+Where  C.CapitalizationMasterId " + masterId + "";
+
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        public List<Dictionary<string, object>> GetUnApprovedData(string EmployeeId)
+        {
+            string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode
+FROM [TRN].[CapitalizationMaster] CM
+LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById
+Where CM.IsApproved=0 AND CM.ApprovedById='" + EmployeeId + "'";
+
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        public List<Dictionary<string, object>> GetApprovedData(string EmployeeId)
+        {
+            string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode
+FROM [TRN].[CapitalizationMaster] CM
+LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById
+Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
+
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+        public void DeleteDetailData(string Id)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM [TRN].[CapitalizationMasterDetail] WHERE Id='" + Id + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
+        public void SaveCapitalizeData(Dictionary<string, object> data, List<Dictionary<string, object>> items, out string masterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster, dsChild = null;
+            string _Id = string.Empty;
+            string _CId = string.Empty;
+            try
+            {
+                bplib.clsGenID genid = new bplib.clsGenID();
+
+                string sql = "SELECT * FROM [TRN].[CapitalizationMaster] WHERE Id='" + data["Id"] + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "CapitalizationMaster", out _Id);
+
+                    data["Id"] = _Id;
+                    data["Type"] = "New";
+
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                #region items 
+                if (items != null)
+                {
+                    objCon.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[CapitalizationMasterDetail] where  CapitalizationMasterId='" + masterId + "'", out dsChild, false, "1");
+                    foreach (var item in items)
+                    {
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        item["CapitalizationMasterId"] = masterId;
+                        if (dv.Count == 0)
+                        {
+                            genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "CapitalizationMaster", out _CId);
+
+                            item["Id"] = _CId;
+                            item["CapitalizationMasterId"] = masterId;
+
+                            AddNewRow(dsChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsChild);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
+
+        #endregion
+
+        #region AdditionalInfoItem
+
+        public void SaveAdditionalInfoItem(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from HKP.AdditionalInfoItem where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Code already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from HKP.AdditionalInfoItem where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Name already exists!!!");
+
+
+                con.OpenDataSetThroughAdapter("select * from HKP.AdditionalInfoItem where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("AdditionalInfoItem", out _Id);
+
+                    data["Id"] = "AI" + _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void DeleteAdditionalInfoItemData(string Id)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM HKP.AdditionalInfoItem WHERE Id='" + Id + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
+        public List<Dictionary<string, object>> GetAdditionalInfoItemList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (
+                                                SELECT AII.*,uom.UserName UoM 
+                                                ,Man = CASE WHEN aii.IsMandatory=1 THEN 'Yes' ELSE 'No' end
+                                                ,Act = CASE WHEN aii.ACTIVE=1 THEN 'Yes' ELSE 'No' end
+                                                FROM HKP.AdditionalInfoItem AII
+                                                LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=AII.UoMId) AS TEMP WHERE " + strkey + " order by sequence";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public double GetAdditionalInfoItemSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  ISNULL(Max(Sequence),0) AS Sequence FROM HKP.AdditionalInfoItem");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
+        #endregion
+    }
 }
