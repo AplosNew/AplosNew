@@ -12,7 +12,7 @@
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Fixed Asset Master</a></li>
-            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Fixed Asset Master Item</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Fixed Asset Item</a></li>
             <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Additional Info Item</a></li>
         </ul>
     </div>
@@ -109,6 +109,8 @@
                         @*<li><button ng-click="fixedAssetMasterReport();" class="btn"><i class="glyphicon glyphicon-print"></i> Print</button></li>*@
                     </ul>
                 </div>
+
+
             </div>
             <div class="row text-right aplos-grid-toggle">
 
@@ -264,6 +266,31 @@
                         <li> <button ng-click="ClearFAMI();" class="btn" tabindex="16"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                     </ul>
                 </div>
+                <div class="row">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li><button style="margin-left: 5px;" ng-click="GetAdditionalInfoItemData();" ng-disabled="ModelChildNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i> Add  Additional Info Item</button></li>
+                        </ul>
+                    </div>
+                    <div class="col-xs-12">
+                        <div id="GriAdd" ej-grid e-datasource="AdditionalInfoItemList" e-templaterefresh="refreshTemplateemployee"
+                             e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="false"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-allowResizing="true">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="100px"></div>
+                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="90px"></div>
+                                <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="130px"></div>
+                                <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="130px"></div>
+                                <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="130px"></div>
+                                <div e-column e-type="string" e-field="UoM" e-headertext="UOM" e-width="100px"></div>
+                                <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="100px"></div>
+                                <div e-column e-type="string" e-field="Man" e-headertext="Is Mandatory" e-width="120px"></div>
+                                <div e-column e-type="string" e-field="Act" e-headertext="Active" e-width="90px"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
             <div class="table-responsive aplos-grid-toggle">
@@ -340,7 +367,7 @@
                             <div class="col-sm-8">
                                 <div class="select-style">
                                     <select name="UOM" class="form-control" ng-model="AIItemModelNew.UoMId" ng-options="item.Value as item.Text for item in uOMList" tabindex="6">
-                                    <option value=""></option>
+                                        <option value=""></option>
                                     </select>
                                 </div>
                             </div>
@@ -461,3 +488,46 @@
 </div>
 
 <confirm-modal></confirm-modal>
+<div class="modal fade site-modal in" id="AdditionalPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Additional Info Item</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-elements form-horizontal" ng-form="addForm">
+                    <div id="GriAdditional" ej-grid e-datasource="searchdata" e-templaterefresh="refreshTemplateemployee"
+                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="false"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-allowResizing="true">
+                        <div e-columns>
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                            <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="100px"></div>
+                            <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="90px"></div>
+                            <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="130px"></div>
+                            <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="130px"></div>
+                            <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="130px"></div>
+                            <div e-column e-type="string" e-field="UoM" e-headertext="UOM" e-width="100px"></div>
+                            <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="100px"></div>
+                            <div e-column e-type="string" e-field="Man" e-headertext="Is Mandatory" e-width="120px"></div>
+                            <div e-column e-type="string" e-field="Act" e-headertext="Active" e-width="90px"></div>
+
+                        </div>
+                    </div>
+                    <script type="text/template" id="checkboxTemplate">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.State" />
+                    </script>
+                    <script type="text/x-jsrender" id="headerTemplate">
+                        <input type="checkbox" id="headchk" />
+                    </script>
+
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="CloseAdditionalPopUp()" class="btn">Close</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
