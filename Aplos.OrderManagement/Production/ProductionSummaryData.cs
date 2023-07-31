@@ -4072,7 +4072,7 @@ where PS.UserName in ('Running','To Close') and QPC.QCID is null or (select top 
 
         public IEnumerable<object> GetGeneralIssue()
         {
-            string sql = @"select  QC.Id,QID.IssueNameId,(select top 1 RepeatEntry from TRN.QualityControl where IssueId=QID.Id and PlanType='GeneralIssue' order by AddedDate desc) as RepeatEntry,
+            string sql = @"select  '' Id,QID.IssueNameId,(select top 1 RepeatEntry from TRN.QualityControl where IssueId=QID.Id and PlanType='GeneralIssue' order by AddedDate desc) as RepeatEntry,
 case when (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QID.Id and PlanType='GeneralIssue' order by AddedDate desc)='Repeat' then format((select top 1 AddedDate from TRN.QualityControl where IssueId=QID.Id and PlanType='GeneralIssue' order by AddedDate desc),'dd-MMM-yyyy') else
 format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.Id and PlanType='GeneralIssue' order by AddedDate desc)),'dd-MMM-yyyy') end as QualityIssueDate,
 E.Id  EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,QID.Id IssueId,
@@ -4085,9 +4085,8 @@ left join MST.QualityManagementMaster QMM on QMM.Id=QID.IssueNameId
 left join org.Entity E on E.Id=QID.EntityId
 left join hkp.Process P on P.Id=QID.ProcessId
 where QID.IssueType in ('Order','General') 
-order by 
-format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.Id order by AddedDate desc)),'dd-MMM-yyyy')";
-            return _sqlRepository.GetDataCollection(sql);
+order by (select top 1 AddedDate from TRN.QualityControl where IssueId=QID.Id order by AddedDate desc) asc";
+             return _sqlRepository.GetDataCollection(sql);
         }
 
         public IEnumerable<object> GetSFGMovementFromCbo(string entity)

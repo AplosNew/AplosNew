@@ -1335,11 +1335,12 @@ where PO.ID= '" + POId + "'";
                             DataRow drpb = dv[0].Row;
                             EditRow(drpb, item);
                         }
+                        Id = dsProdBooked.Tables[0].Rows[0]["Id"].ToString();
                         clsStaticInfo obj = new clsStaticInfo();
                         obj.SaveDataSets(dsProdBooked);
                     }
                 }
-                return Json(new { Message = AplosMessage.Insert });
+                return Json(new {Id = Id, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
@@ -1757,11 +1758,11 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                         conC.BeginTransaction();
                         if (PlanType == "GeneralIssue")
                         {
-                            conC.executeQuery("Update TRN.QualityIssueControl set QCId='" + QualityControlData["Id"] + "' where Id='" + QualityPlanId + @"'");
+                            conC.executeQuery("Update TRN.QualityIssueControl set QCId='" + QualityControlData["Id"] + "',RepeatEntry='Repeat' where Id='" + QualityPlanId + @"'");
                         }
                         if (PlanType == "POIssue")
                         {
-                            conC.executeQuery("Update TRN.QualityPlanControl set QCId='" + QualityControlData["Id"] + "' where Id='" + QualityPlanId + @"'");
+                            conC.executeQuery("Update TRN.QualityPlanControl set QCId='" + QualityControlData["Id"] + "',RepeatEntry='Repeat' where Id='" + QualityPlanId + @"'");
                         }
                         conC.CommitTransaction();
                     }
