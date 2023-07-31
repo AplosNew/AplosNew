@@ -64,7 +64,8 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
         ResponsiblePersonCode: null,
         NumberOfPassengers: null,
         Name:null,
-        Remarks: null
+        Remarks: null,
+        VehiclePurposeResponsiblePersonId:null
     };
     $scope.VehicleRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
 
@@ -74,6 +75,7 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
 
         $scope.VehicleRequisitionModel = Object.assign({}, args.data);
         $scope.VehicleRequisitionModel.NumberOfPassengers = $scope.VehicleRequisitionModel.NumberOfPassengers.toString();
+        $scope.GetVehiclePrposeRP();
         $scope.MovementAction = 'Update';
         $scope.MovementChildAction = 'Update';
         if (!$rootScope.isCollapsed) {
@@ -96,6 +98,18 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
         });
     }
     $scope.GetVehicleRequisitiontData();
+
+    $scope.GetVehiclePrposeRP = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetVehiclePrposeRP',
+            data: { purposeid: $scope.VehicleRequisitionModel.PurposeId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.RPPurposeList = response.data;
+        });
+    }
+
 
     $scope.GetVehicleRequisitionChildData = function () {
         $http({

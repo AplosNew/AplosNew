@@ -697,13 +697,18 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
         [AllowAnonymous]
         public JsonResult GetVehicleRequisitiontData()
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"Select VMR.Id, VMR.AppliedId ,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial
-                           ,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department, VMR.NumberOfPassengers ,VMR.[Name]
+                           ,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department, VMR.NumberOfPassengers ,VMR.[Name], VMR.VehiclePurposeResponsiblePersonId
                             from [TRN].[VehicleMovementRequisition] VMR							
                             left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                             left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
+                            --(select distinct VPP.ResponsiblePersonId, RPE.EmployeeName from EmployeeInformation RPE
+							--left join TRN.VehiclePurposeResponsiblePerson VPP on VPP.ResponsiblePersonId = RPE.SystemId
+							
+							--) ResponsiblePersonId on ResponsiblePersonId.ResponsiblePersonId = VMR.VehiclePurposeResponsiblePersonId
 							LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId							
-                            where VMR.AppliedId is null and VMR.isCancel is null";
+                            where VMR.AppliedId is null and VMR.isCancel is null and EI.SystemId = '" + identity.UserId+"'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -767,6 +772,15 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
             
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
+        [AllowAnonymous]
+        public JsonResult GetVehiclePrposeRP(string purposeid)
+        {
+            string sql = @"select EI.SystemId Value, EI.EmployeeName Text from TRN.VehiclePurposeResponsiblePerson RP
+                            Left join EmployeeInformation EI on EI.SystemId = RP.ResponsiblePersonId
+                            where IsActive = 1 and RP.VehiclePurposeId = '" + purposeid + "'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize,AllowAnonymous]
         public ActionResult CreateVehicleRequisition(Dictionary<string, object> data)
         {
@@ -1004,9 +1018,10 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
         }
         #endregion Fuel
 
-        #region VehicleApproval
+        #region RequisitionApproval
         public JsonResult GetVehicleRequisitiontDataForApproval()
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"Select distinct VMR.Id, VMR.AppliedId ,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial, VMR.NumberOfPassengers
 ,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department,                         
 FromLocation = stuff((select ', ' + LM.UserName 
@@ -1025,7 +1040,7 @@ FromLocation = stuff((select ', ' + LM.UserName
                             left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
 							LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId							
                             where VMR.IsApprove is null and VMR.IsReject is null and VMR.isCancel is null and VMC.FromLocationId is not null and 
-							VMC.ToLocationId is not null
+							VMC.ToLocationId is not null and VMR.VehiclePurposeResponsiblePersonId = '"+identity.EmployeeId+@"'
 							--order by VMR.Id Desc, FORMAT(VMR.AddedDate, 'dd-MMM-yyy') Desc";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -1243,9 +1258,9 @@ FromLocation = stuff((select ', ' + LM.UserName
         }
 
 
-        #endregion VehicleApproval
+        #endregion RequisitionApproval
 
-        #region Trip
+        #region Trip Scheduling
         public JsonResult GetTripData()
         {
             string sql = @"Select Row_Number() OVER(Order by VT.Id)Row_Num 
@@ -1263,12 +1278,13 @@ FromLocation = stuff((select ', ' + LM.UserName
 							FOR XML PATH('')),1,1,'')
 							,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
                             , FORMAT(VT.ToTime, 'hh:mm tt')ToTime
-							,EI.EmployeeName ByWhome,  DEP.UserName Department ,PM.StandardName Purpose, VT.Id, VT.Id AppliedId 
+							,EI.EmployeeName ByWhome,  DEP.UserName Department ,PM.StandardName Purpose, VT.Id, VT.Id AppliedId , ABE.EmployeeName ApprovedBy
 						
 							
                             from TRN.VehicleTrip VT
                             left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
 							left join TRN.VehicleMovementRequisition VMR on VMR.AppliedId = VT.Id
+                            left join EmployeeInformation ABE on ABE.SystemId = VMR.VehiclePurposeResponsiblePersonId
 							left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
 							 left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
 							LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId			
@@ -1339,7 +1355,7 @@ where VA.TripId is not null";
             }
 
         }
-        #endregion Trip
+        #endregion Trip Scheduling
 
         #region VehicleIn
         public JsonResult GetVehicleInData(string vehicleallocationid)

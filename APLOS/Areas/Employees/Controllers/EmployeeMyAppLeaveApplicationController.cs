@@ -154,7 +154,7 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult Create(LeaveTransaction leaveApplication, string responsiblePersonId, string responsiblePersonName, string responsiplePersonEmail)
+        public JsonResult Create(LeaveTransaction leaveApplication, string responsiblePersonId, string responsiblePersonName, string responsiplePersonEmail,string yearId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             leaveApplication.GroupID = identity.CompanyGroupId;
@@ -168,8 +168,9 @@ namespace Aplos.Areas.Employees.Controllers
             {
                 leaveApplication.AppliedDate = DateTime.Now;
             }
-            
-            _leaveTransactionService.SaveData(leaveApplication);
+
+
+            _leaveTransactionService.SaveData(leaveApplication, yearId);
 
             #region Email Sender Service
 
@@ -238,11 +239,11 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult Edit(LeaveTransaction leaveApplication)
+        public JsonResult Edit(LeaveTransaction leaveApplication, string yearId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             leaveApplication.UpdatedBy = identity.Name;
-            _leaveTransactionService.SaveData(leaveApplication);
+            _leaveTransactionService.SaveData(leaveApplication, yearId);
             return Json(new { Message = AplosMessage.Updated });
         }
         [HttpPost, Authorize]
