@@ -1025,13 +1025,14 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                 //$scope.QPId = null;
                 //$scope.PlanType = null;
                 $scope.QCId = response.data.Data.Id;
+                $scope.NewObject.Id = null;
                 $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId, $scope.POItemId);
             }), function errorCallBack(response) {
               /*  ShowResult(response.data.Message, 'failure');*/
             }
         }
         catch (ex) {
-            ShowResult(ex, 'Info');
+            /*ShowResult(ex, 'Info');*/
         }
     };
 
@@ -1058,8 +1059,8 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    $scope.ProcessGeneralIssue();
-                    $scope.ProcessQualityPlan();
+                    if ($scope.PlanType == "GeneralIssue") { $scope.ProcessGeneralIssue();}
+                    if ($scope.PlanType == "POIssue") { $scope.ProcessQualityPlan(); }
                     ShowResult(response.data.Message, 'success');
                 }
                 $scope.QCId = response.data.Data.Id;
@@ -1233,6 +1234,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     };
 
     $scope.UpdateGI = function (data) {
+        $scope.NewObject = data.data;
         try {
 
             $scope.SaveList = [];
@@ -1250,9 +1252,12 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-
                     ShowResult(response.data.Message, 'success');
-                    $scope.ProcessGeneralIssue();
+                    $scope.NewObject.Id = response.data.Id;
+                    var gridObj = $("#GridGeneralIssue").data("ejGrid");
+                    gridObj.refreshContent();
+                    gridObj.refreshTemplate();
+                  /*  $scope.ProcessGeneralIssue();*/
                     $scope.Action = 'Save';
                 }
 
@@ -1944,7 +1949,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
             //$scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId);
             //$scope.getLineGrid();
         } catch (ex) {
-            ShowResult(ex, 'Info');
+            //ShowResult(ex, 'Info');
         }
     };
 
@@ -2126,7 +2131,8 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.productionSummaryNew.EntityId = $event.data.EntityId;
         $scope.productionSummaryNew.ProcessId = $event.data.ProcessId;
         $scope.productionSummaryNew.ProductionShiftId = $event.data.ProductionShiftId;
-        $scope.productionSummaryNew.ProductionDate = $event.data.QualityPlanDate;
+        if (baseService.isUndefinedOrNull($event.data.QualityPlanDate)) { $scope.productionSummaryNew.ProductionDate = $filter("date")(Date.now(), 'dd-MMM-yyyy'); }
+        else { $scope.productionSummaryNew.ProductionDate = $event.data.QualityPlanDate; }
         $scope.productionSummaryNew.IssueId = $event.data.IssueId;
         $scope.productionSummaryNew.PeriodId = $event.data.PeriodId;
         $scope.productionSummaryNew.LotNumber = $event.data.LotNumber;
@@ -2149,35 +2155,39 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         //$scope.productionSummaryNew.Article = $event.data.Article;
     }
 
-   
+    $scope.NewObject = { Id: null };
     $scope.SetQGISelectData = function ($event) {
-        if (baseService.isUndefinedOrNull($event.data.Id))
-        {
-            throw "Please save record and proceed";
+        try {
+            if (baseService.isUndefinedOrNull($scope.NewObject.Id)) {
+                throw "Please save record and proceed";
+            }
+            $scope.productionSummaryNew.EntityId = $event.data.EntityId;
+            $scope.productionSummaryNew.ProcessId = $event.data.ProcessId;
+            if (baseService.isUndefinedOrNull($event.data.QualityIssueDate)) { $scope.productionSummaryNew.ProductionDate = $filter("date")(Date.now(), 'dd-MMM-yyyy'); }
+            else { $scope.productionSummaryNew.ProductionDate = $event.data.QualityIssueDate; }
+            $scope.productionSummaryNew.IssueId = $event.data.IssueId;
+            $scope.productionSummaryNew.ProductionInCharge = $event.data.QGIEmployee;
+            $scope.productionSummaryNew.ProductionInChargeId = $event.data.QGIEmployeeId;
+            $scope.WorkCenterHeaderList = [];
+            $scope.QPId = null;
+            $scope.PlanType = null;
+            $scope.QPId = $scope.NewObject.Id;
+            $scope.PlanType = "GeneralIssue"
+            $scope.setTab(3);
+            $scope.getAllEntities();
+            $scope.loadProcessList($scope.productionSummaryNew.EntityId);
+            $scope.GetIssueList($scope.productionSummaryNew.ProcessId);
+            $scope.GetShiftList();
+            $scope.GetPeriodList($scope.productionSummaryNew.IssueId);
+            $scope.GetIssueType($scope.productionSummaryNew.IssueId);
+            $scope.GetQBookingLevel();
+            $scope.GetWorkCenterList($scope.productionSummaryNew.IssueId);
+            //$scope.productionSummaryNew.Article = $event.data.Article;
         }
-        $scope.productionSummaryNew.EntityId = $event.data.EntityId;
-        $scope.productionSummaryNew.ProcessId = $event.data.ProcessId;
-        if (baseService.isUndefinedOrNull($event.data.QualityIssueDate)) { $scope.productionSummaryNew.ProductionDate = $filter("date")(Date.now(), 'dd-MMM-yyyy'); }
-        else
-        { $scope.productionSummaryNew.ProductionDate = $event.data.QualityIssueDate; }
-        $scope.productionSummaryNew.IssueId = $event.data.IssueId;
-        $scope.productionSummaryNew.ProductionInCharge = $event.data.QGIEmployee;
-        $scope.productionSummaryNew.ProductionInChargeId = $event.data.QGIEmployeeId;
-        $scope.WorkCenterHeaderList = [];
-        $scope.QPId = null;
-        $scope.PlanType = null;
-        $scope.QPId = $event.data.Id;
-        $scope.PlanType = "GeneralIssue"
-        $scope.setTab(3);
-        $scope.getAllEntities();
-        $scope.loadProcessList($scope.productionSummaryNew.EntityId);
-        $scope.GetIssueList($scope.productionSummaryNew.ProcessId);
-        $scope.GetShiftList();
-        $scope.GetPeriodList($scope.productionSummaryNew.IssueId);
-        $scope.GetIssueType($scope.productionSummaryNew.IssueId);
-        $scope.GetQBookingLevel();
-        $scope.GetWorkCenterList($scope.productionSummaryNew.IssueId);
-        //$scope.productionSummaryNew.Article = $event.data.Article;
+        catch (ex)
+        {
+            ShowResult(ex, 'error');
+        }
     }
 
     $scope.psdList = [];

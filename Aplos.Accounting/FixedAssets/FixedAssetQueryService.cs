@@ -2488,7 +2488,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select top 100 * from (
-                                                SELECT AII.*,uom.UserName UoM 
+                                                SELECT State=CAST(0 AS bit),AII.*,uom.UserName UoM 
                                                 ,Man = CASE WHEN aii.IsMandatory=1 THEN 'Yes' ELSE 'No' end
                                                 ,Act = CASE WHEN aii.ACTIVE=1 THEN 'Yes' ELSE 'No' end
                                                 FROM HKP.AdditionalInfoItem AII
@@ -2503,6 +2503,16 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
             return 1;
+        }
+
+        public List<Dictionary<string, object>> GetAdditionalData(string masterId)
+        {
+            
+            string sql = @"SELECT M.*,A.Sequence,A.Code,A.ShortName,A.StandardName,A.UserName
+FROM [TRN].[AssetItemAdditionalInfoMap] M
+LEFT JOIN HKP.[AdditionalInfoItem] A ON A.Id=M.AdditionalInfoItemId
+Where M.FixedAssetItemId='"+ masterId + "'";
+            return _sqlRepository.GetDataCollection(sql, null);
         }
 
         #endregion
