@@ -368,6 +368,7 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
     };
 
     $scope.ClearFAMI = function () {
+        $scope.AdditionalInfoItemList = [];
         $scope.ModelChildNew = Object.assign({}, $scope.fixedAssetMasterItem);
         $scope.ActionItem = 'Save';
     }
@@ -385,6 +386,7 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
 
     $scope.GetFAMI = function (args) {
         $scope.ModelChildNew = Object.assign({}, args.data);
+        $scope.getAdditionalData();
         $scope.getFAMIData();
         $scope.ActionItem = 'Update';
         if (!$rootScope.isCollapsed) {
@@ -524,5 +526,122 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
     $scope.getAIItemData();
 
     //--------******Additional Info Item End*****-------------//
+
+    $scope.searchdata = [];
+    $scope.GetAdditionalInfoItemData = function () {
+        $scope.searchdata = [];
+        $http({
+            method: "POST",
+            url: 'fixedassets/FixedAssetRegister/GetAdditionalInfoItemList',
+            data: { column: $scope.searchEdit, value: $scope.searchEditValue },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.searchdata = response.data;
+        });
+        angular.element(document.querySelector('#AdditionalPopUp')).modal('show');
+    }
+    $scope.CloseAdditionalPopUp = function () {
+        MakeData();
+        angular.element(document.querySelector('#AdditionalPopUp')).modal('hide');
+    }
+
+    // #region checkbox all
+
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
+
+    function CheckBoxSelectAllEmolyeeWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GriAdditional").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.searchdata.length; i++) {
+                $scope.searchdata[i].State = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GriAdditional").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
+
+    $scope.AdditionalInfoItemList = [];
+    function MakeData() {
+
+        for (var i = 0; i < $scope.searchdata.length; i++) {
+            if ($scope.searchdata[i].State == true) {
+                if (checkExists($scope.AdditionalInfoItemList, $scope.searchdata[i].Id) === false) {
+                    var ob = {};
+                    ob.Id = null;
+                    ob.FixedAssetItemId = $scope.ModelChildNew.Id;
+                    ob.AdditionalInfoItemId = $scope.searchdata[i].Id;
+                    ob.Sequence = $scope.searchdata[i].Sequence;
+                    ob.Code = $scope.searchdata[i].Code;
+                    ob.ShortName = $scope.searchdata[i].ShortName;
+                    ob.StandardName = $scope.searchdata[i].StandardName;
+                    ob.UoM = $scope.searchdata[i].UoM;
+                    ob.Remarks = $scope.searchdata[i].Remarks;
+                    ob.Man = $scope.searchdata[i].Man;
+                    ob.Act = $scope.searchdata[i].Act;
+
+                    $scope.AdditionalInfoItemList.push(ob);
+                }
+                
+            }
+        }
+        $scope.SaveAdditional();
+    }
+
+    function checkExists(list, AdditionalInfoItemId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].AdditionalInfoItemId === AdditionalInfoItemId) {
+                return true;
+            }
+        }
+        return false;
+    }
+    $scope.SaveAdditional = function () {
+        try {
+            
+            $http({
+                method: 'POST',
+                url: 'FixedAssets/FixedAssetMaster/CreateAdditional',
+                data: { 'AdditionalList': $scope.AdditionalInfoItemList, 'masterId': $scope.ModelChildNew.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                  
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.getAdditionalData = function () {
+        $http({
+            method: 'GET',
+            url: 'FixedAssets/FixedAssetMaster/getAdditionalData?masterId=' + $scope.ModelChildNew.Id
+        }).then(function successCallback(response) {
+            $scope.AdditionalInfoItemList = response.data;
+        });
+    }
 
 }

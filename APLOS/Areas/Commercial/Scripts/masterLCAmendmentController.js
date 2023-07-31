@@ -14,19 +14,123 @@ function masterLCAmendmentController(commonMessage, $scope, $rootScope, baseServ
     $scope.masterLCAmendment = {
         Id: null, Version: 0, CustomerId: null, ContractId: null, BenificiaryBankId: null, OpeningBankId: null, OpeningDescription: null, LeinBankId: null,
         LeinDescription: null, LCRef: null, LCDate: null, ExpiryDate: null, Amount: null, Type: null, Tenure: null, FinalDestinationId: null,
-        PortOfLandingId: null, CurrencyId: null, IsClose: false, AmendmentDate:null
+        PortOfLandingId: null, CurrencyId: null, IsClose: false, AmendmentDate: null
     };
     $scope.masterLCAmendmentNew = Object.assign({}, $scope.masterLCAmendment);
 
-    $scope.Get = function (obj) {
+    $scope.flag = null;
+    $scope.Get = function (obj, flag) {
+        // if (obj.data.Version != 1) {
+        $scope.flag = flag;
+        //cboService.getCboTransactionCurrencyByCompany('', function (result) {
+        //    $scope.currencyList = [];
+        //    $scope.currencyList = result;
+        //    $scope.purchaseLCNew.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
+        //    $scope.companyCurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
+
+        //});
+
         $scope.masterLCAmendment = obj.data;
+        $scope.masterLCAmendment.LCDate = $filter('dateFiltering')($scope.masterLCAmendment.LCDate, 'dd-M-yyyy');
+
+        if ($scope.flag == 'Update') {
+            $scope.masterLCAmendment.AmendmentDate = $filter('dateFiltering')($scope.masterLCAmendment.AmendmentDate, 'dd-M-yyyy');
+
+        } else {
+            $scope.masterLCAmendment.AmendmentDate = null;
+        }
         $scope.masterLCAmendmentNew = Object.assign({}, $scope.masterLCAmendment);
+
+        //// $scope.ChangeBankMaster();
+        //if ($scope.flag == 'Update') {
+        //    $scope.GetPurchaseLCChargesDataByVersion();
+        //}
+        //GetAlldataPOWithLCMap($scope.purchaseLCNew.Id);
+
+        if ($scope.masterLCAmendmentNew.Version > 1) {
+            getAmandmentVersionCbo($scope.masterLCAmendmentNew.Id);
+        }
+        $scope.Version = $scope.masterLCAmendmentNew.Version;
+
+        if ($scope.masterLCAmendmentNew.IsAccepptanceFirst) {
+            $scope.masterLCAmendmentNew.IsAccepptanceFirst = 'true';
+        } else {
+            $scope.masterLCAmendmentNew.IsAccepptanceFirst = 'false';
+        }
         $scope.GetSavedContract($scope.masterLCAmendment.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
+        //}
     }
+
+    $scope.VersionList = [];
+    function getAmandmentVersionCbo(MLCAId) {
+        $http({
+            method: 'GET',
+            url: 'commercial/Contract/GetAmandmentVersionCbo?masterLCAId=' + MLCAId
+        }).then(function (response) {
+            $scope.VersionList = response.data;
+            if (baseService.arrayLength($scope.VersionList) > 0) {
+                for (var i = 0; i < $scope.VersionList.length; i++) {
+                    $scope.VersionList[i].Text = parseInt($scope.VersionList[i].Text);
+                    if ($scope.VersionList[i].Text === $scope.masterLCAmendmentNew.Version) {
+                        $scope.masterLCAmendmentNew.Version = $scope.VersionList[i].Text;
+                        $scope.version = $scope.masterLCAmendmentNew.Version;
+                        $scope.masterLCAmendmentNew.Id = $scope.VersionList[i].Value;
+                    }
+                }
+            }
+        });
+    }
+
+    //$scope.Get = function (obj) {
+    //    $scope.masterLCAmendment = obj.data;
+    //    $scope.masterLCAmendmentNew = Object.assign({}, $scope.masterLCAmendment);
+    //    $scope.GetSavedContract($scope.masterLCAmendment.Id);
+
+    //    if ($scope.masterLCAmendmentNew.Version > 1) {
+    //        $scope.version = $scope.masterLCAmendmentNew.PreVersion;
+    //        $scope.getBackData();
+    //    } else {
+    //        $scope.version = $scope.masterLCAmendmentNew.Version;
+    //    }
+
+    //    $scope.Action = 'Update';
+    //    if (!$rootScope.isCollapsed) {
+    //        $rootScope.toggle();
+    //    }
+    //}
+    //$scope.Get = function (obj) {
+    //    $scope.PurchaseLCUsedInAcceptance = false;
+    //    $scope.purchaseLC = obj.data;
+    //    $scope.purchaseLC.LCDate = $filter('dateFiltering')($scope.purchaseLC.LCDate, 'dd-M-yyyy');
+    //    $scope.purchaseLC.AmendmentDate = $filter('dateFiltering')($scope.purchaseLC.AmendmentDate, 'dd-M-yyyy');
+    //    $scope.purchaseLCNew = Object.assign({}, $scope.purchaseLC);
+    //    $scope.AmendmentDate = $scope.purchaseLCNew.AmendmentDate;
+
+    //    if ($scope.purchaseLCNew.Version > 1) {
+    //        $scope.version = $scope.purchaseLCNew.PreVersion;
+    //        $scope.getBackData();
+    //    } else {
+    //        $scope.version = $scope.purchaseLCNew.Version;
+    //    }
+    //    getPurchaseLCChargesBackData($scope.purchaseLCNew.Id, $scope.version);
+
+    //    $scope.GetPurchaseLCUsedInAcceptance($scope.purchaseLCNew.Id);
+    //    if ($scope.purchaseLCNew.IsAccepptanceFirst) {
+    //        $scope.purchaseLCNew.IsAccepptanceFirst = "true";
+    //    } else {
+    //        $scope.purchaseLCNew.IsAccepptanceFirst = "false";
+    //    }
+
+    //    $scope.Action = 'Update';
+    //    if (!$rootScope.isCollapsed) {
+    //        $rootScope.toggle();
+    //    }
+    //}
+
 
     $scope.closePartyPopUp = function () {
         if ($scope.partyIndex !== -1) {
@@ -200,6 +304,26 @@ function masterLCAmendmentController(commonMessage, $scope, $rootScope, baseServ
     };
     $scope.getSavedData();
 
+    //Create Amandment version
+    $scope.flag = 'Update';
+    $scope.confirmToCreateNewVersion = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.MasterLCAmandmentForm.$valid) {
+            if ($scope.flag === 'Amendment') {
+                if (!baseService.isUndefinedOrNull($scope.masterLCAmendment.Id)) {
+                    $scope.message = "Are you sure to create Amendment?";
+                    angular.element(document.querySelector("#confirmSavePopUp")).modal("show");
+                }
+                else {
+                    $scope.SaveMasterLCAmendment();
+                    angular.element(document.querySelector("#confirmSavePopUp")).modal("hide");
+                }
+            } else {
+                $scope.SaveMasterLCAmendment();
+            }
+        }
+    };
+
     $scope.SaveMasterLCAmendment = function () {
         try {
 
@@ -208,17 +332,22 @@ function masterLCAmendmentController(commonMessage, $scope, $rootScope, baseServ
                 if ($scope.masterLCAmendment.Tenure === 0 || $scope.masterLCAmendment.Tenure < 0) {
                     throw "Usance value must greater than 0.";
                 }
-            } else {
+            }
+            else {
                 $scope.masterLCAmendment.Tenure = 0;
             }
-            if ($scope.MasterLCForm.$valid) {
+            if ($scope.flag === 'Amendment') {
+                if (baseService.isUndefinedOrNull($scope.masterLCAmendment.AmendmentDate)) {
+                    throw "Amendment Date is reqiured.";
+                }
+                $scope.masterLCAmendment.flag = $scope.flag;
+            }
 
+            if ($scope.Action === 'Save' || $scope.Action === 'Update') {
                 $http({
                     method: 'POST',
                     url: $scope.saveMasterLCAmendmentUrl,
-                    data: {
-                        'entity': $scope.masterLCAmendment
-                    },
+                    data: { 'entity': $scope.masterLCAmendment },
                     dataType: 'JSON'
                     , contentType: "application/json charset=utf-8"
                 }).then(function successCallback(response) {
@@ -234,7 +363,8 @@ function masterLCAmendmentController(commonMessage, $scope, $rootScope, baseServ
                     ShowResult(response.data.Message, 'failure');
                 };
             }
-        } catch (e) {
+        }
+        catch (e) {
             ShowResult(e, "failure");
         }
     };
