@@ -136,6 +136,18 @@
                     </div>
                 </div>
             </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Asset Item</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" ng-maxlength="50" name="Asset Item" ng-model="voucher.FixedAssetItem" class="form-control" tabindex="7" readonly autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Asset Qty</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" ng-maxlength="50" name="Asset Qty" ng-model="voucher.Qty" class="form-control" tabindex="7" readonly autocomplete="off">
+                </div>
+            </div>
         </div>
     </fieldset>
 
@@ -144,7 +156,7 @@
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Material Info</a></li>
-                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="Transaction" role="tab" data-toggle="tab">Journal</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Transaction" role="tab" data-toggle="tab">Journal</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -175,7 +187,7 @@
                             </tr>
                             <tr>
                                 <td><label>Total </label></td>
-                                <td colspan="5"></td>
+                                <td colspan="4"></td>
                                 <td class="text-right">
                                     <label>
                                         {{selectedmaterialMasterList | sumByKey : 'Amount'|number:2}}
@@ -188,34 +200,7 @@
                 </div>
 
             </div>
-
-
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }" ng-form="tabForm3" ng-keypress="materialConfigMassege()">
-                @*<div class="form-group" style="margin-bottom: 0px;color:red">
-                        <label class="col-sm-9 control-label">{{MaterialAssetBudgetMessage}}</label>
-
-                    </div>*@
-                <div class="col-xs-12 col-sm-4 col-md-4">
-                    <div class="common-btn">
-                        <ul class="common-btn list-inline text-left">
-                            <li> <button ng-click="materialConfigMassege();" class="btn"> Show Reason</button></li>
-                        </ul>
-
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-4 col-md-4">
-                </div>
-                <div class="col-xs-12 col-sm-4 col-md-4">
-
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Additional Tax</label>
-                        <label class="switch col-sm-8" style="margin-left:18px;">
-                            <input type="checkbox" ng-disabled="modelNew.IsInvoice==false" ng-model="modelNew.AddtionalTax">
-                            <span class="slider round"></span>
-                        </label>
-                    </div>
-                </div>
-                <div class="clearfix"></div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" ng-keypress="materialConfigMassege()">
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>
@@ -228,7 +213,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="x in newList| orderBy:'Dr'| groupBy: 'MaterialGroupMasterId'">
+                            <tr ng-repeat="x in capitalizationJVList| orderBy:'Dr'">
                                 <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
                                 <td>{{x.BudgetName}}</td>
                                 <td>{{x.ActivityName}}</td>
@@ -237,67 +222,12 @@
                             </tr>
                             <tr>
                                 <td colspan="3"></td>
-                                <td class="text-right"><strong>{{newList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
-                                <td class="text-right"><strong>{{newList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
+                                <td class="text-right"><strong>{{capitalizationJVList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
+                                <td class="text-right"><strong>{{capitalizationJVList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="clearfix"></div>
-                <div class="table-responsive modal-table" ng-show="modelNew.AddtionalTax">
-                    <table class="table table-responsive table-striped">
-                        <caption>TDS </caption>
-                        <thead>
-                            <tr>
-                                <th>Input Tax</th>
-                                <th>Percentage</th>
-                                <th>Amount</th>
-                                <th class="text-right">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td id="td_TDS_TaxCode">
-                                    <div class="select-style show-message">
-                                        <select name="TDSTaxCodeId" ng-model="TDS.TaxCodeId" ng-change="selectTDS(TDS.TaxCodeId)" class="col-sm-3 form-control"
-                                                ng-options="item.Id as item.UserName for item in TDSCboList">
-                                            <option></option>
-                                        </select>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div>
-                                        <input type="text" n-decimals="4" class="form-control text-right" ng-disabled="TDS.Type =='FixedPercentage' && TDS.ValueOfFixed!=null" ng-model="TDS.ValueOfFixed">
-                                    </div>
-                                </td>
-                                <td id="td_TDS_TaxCodeAmount">
-                                    <div class="show-message">
-                                        <input type="text" n-decimals="4" class="form-control text-right" ng-model="TDS.TaxAmount" ng-keyup="copyTaxesAmount();">
-                                    </div>
-                                </td>
-                                <td class="text-right">
-                                    <a ng-click="addTDS();" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></a>
-                                </td>
-                            </tr>
-                            <tr ng-repeat="x in TDSList">
-                                <td>{{x.TaxName}}</td>
-                                <td>{{x.ValueOfFixed}}</td>
-                                <td class="text-right">{{x.TaxAmount | number:2 }}</td>
-                                <td class="text-right">
-                                    <button ng-click="removeTDSRow($index)" data-toggle="modal" ng-disabled="x.AdvanceId" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
-                                </td>
-                            </tr>
-                        </tbody>
-                        <tfoot ng-show="TDSList.length">
-                            <tr>
-                                <td colspan="2"><b>Sub Total</b></td>
-                                <td class="text-right"><b>{{ TDSList | sumByKey : 'TaxAmount' }}</b></td>
-                                <td></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-
             </div>
 
         </div>

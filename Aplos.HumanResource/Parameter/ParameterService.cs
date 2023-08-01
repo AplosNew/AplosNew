@@ -101,7 +101,7 @@ left join EmployeeInformation EI on EI.SystemId = PM.EmpSystemId
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                string sql = @"SELECT PM.*, EI.EmployeeName, EI.EmployeeCode FROM HKP.ParameterMaster PM
+                string sql = @"SELECT PM.*, EI.EmployeeName, EI.EmployeeCode,(select p.Code from org.position p where p.Id=PM.PositionCodeId) PositionCode FROM HKP.ParameterMaster PM
                                 left join EmployeeInformation EI on EI.SystemId = PM.EmpSystemId
                                 where " + strkey + "order by Sequence";
                 return _sqlRepository.GetDataCollection(sql, null);

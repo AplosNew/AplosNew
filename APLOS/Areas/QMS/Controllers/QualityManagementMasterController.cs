@@ -42,6 +42,21 @@ namespace Aplos.Areas.QMS.Controllers
 
         #region -- Operations
 
+        [Authorize, HttpPost]
+        public ActionResult GetPositionCode()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select P.Id,P.Code,P.UserName Position,P.Activity,
+DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection
+from ORG.Position P	
+LEFT JOIN ORG.Department AS DEP ON DEP.Id=P.DepartmentId
+LEFT OUTER JOIN ORG.Section S ON S.Id=P.SectionId
+LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
+left outer join MST.DesignationMaster DM ON DM.DesignationId=P.DesignationId
+where P.Active = 1";
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpGet]
         public JsonResult GetProcessList()
         {
@@ -218,7 +233,7 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
 
                 conRack = new ConnectionManager.DAL.ConManager("1");
                 conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementMaster] where Id='" + ScheduleData["Id"] + "'", out dsQualityManagmentMaster, false, "1");
-                string _Id = "";
+                string _Id = "", Id = string.Empty; ;
 
                 #region data update
                 if (dsQualityManagmentMaster.Tables[0].Rows.Count == 0)
@@ -253,11 +268,11 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
                 #endregion data update
 
 
-
+                Id = dsQualityManagmentMaster.Tables[0].Rows[0]["Id"].ToString();
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsQualityManagmentMaster);
 
-                return Json(new { Error = false, Data = ScheduleData, Message = AplosMessage.Insert });
+                return Json(new { Id = Id, Error = false, Data = ScheduleData, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
