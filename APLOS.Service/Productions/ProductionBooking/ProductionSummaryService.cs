@@ -770,7 +770,7 @@ left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId = mm.Id
 left outer join[MST].[ProductMaster] PM on pm.id = pd.ProductMasterId
 where Pod.ProductionOrderId = QC.ProductionOrderId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 POQ.POQty as QCPOQty,PQ.Qty QCScheduleQty,ProdQ.ProducedQty as QCProducedQty,POQ.POQty-ProdQ.ProducedQty QCRemainingQty,
-QII.ItemName as QCItemName,QCD.Value as QCValue,UM.UserName QCUOM,QGD.GradeName QCGradeName,QGD.GradeValue,QC.PlanType,
+QII.ItemName as ParameterName,QCD.Value as QCValue,UM.UserName QCUOM,QGD.GradeName QCGradeName,QGD.GradeValue,QC.PlanType,
 QII.Max QCMaxValue,QII.Min QCMinValue,(select ActionToBeTakenName from MST.QualityActionToBeTakenDetails where Id=QCD.ActionToBeTaken) as QCActionToBeTaken,EI.EmployeeName as QCResponsiblePerson,QCD.Remarks as QCItemRemarks,QC.QualityPlanId,
 QC.Id QulaityHeaderId,QCD.Id QulaityItemId,QII.CriticalLevel,
 D.UserName as Department,QID.IssueType,QID.IssueCategory,QID.Period,QID.Frequency
@@ -818,12 +818,12 @@ where QID.IssueType in ('Order','General') and QCD.Id is not null " + QCDate + "
             }
             if (fromDate != "null" && todate != "null" && fromDate != "undefined" && todate != "undefined")
             {
-                QCDate = @"and (format(QCD.AddedDate,'dd-MMM-yyyy')  between '" + fromDate + "' and '" + todate + "'  or QII.ItemName is null)";
+                QCDate = @"and (QC.AddedDate between '" + fromDate + "' and '" + todate + "'  or QII.ItemName is null)";
             }
 
-            var sql = @"select B.Customer,B.POId,B.LotNumber,B.Entity,B.ProcessSeq,B.Process,B.Shift,B.IssueDetails,B.Item,B.ItemUOM,B.Remarks,B.DateShiftTime,B.Value
+            var sql = @"select B.IssueType,B.Customer,B.POId,B.LotNumber,B.Entity,B.ProcessSeq,B.Process,B.Shift,B.IssueDetails,B.Parameter,B.ItemUOM,B.Remarks,B.DateShiftTime,B.Value
 into #tempPC from 
-(select A.Customer,A.POId,A.LotNumber,A.Entity,A.ProcessSeq,A.Process,A.Shift,A.IssueDetails,A.Item,A.ItemUOM,A.Remarks,A.DateShiftTime,A.Value from
+(select A.IssueType,A.Customer,A.POId,A.LotNumber,A.Entity,A.ProcessSeq,A.Process,A.Shift,A.IssueDetails,A.Parameter,A.ItemUOM,A.Remarks,A.DateShiftTime,A.Value from
 (select distinct
 Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
@@ -836,14 +836,16 @@ QC.ProductionOrderId as POId,
 E.UserName Entity,
 P.Sequence ProcessSeq,
 P.UserName Process,
-QID.IssueName IssueDetails,	  
+QMM.UserName IssueDetails,
+QID.IssueType,
 SD.ShiftDefinationDescription as Shift,
-QII.ItemName as Item,
+QII.ItemName as Parameter,
 UM.UserName ItemUOM,
 (select Remarks + ',' from TRN.QualityControlDetails where ItemId=QII.Id for xml path('')) Remarks,	
 format(QCD.AddedDate,'dd-MMM-yyyy')+'/'+ format(QCD.AddedDate,'hh:mm-tt') as DateShiftTime,
 QCD.Value
 from MST.QualityIssueDetails  QID
+left join MST.QualityManagementMaster QMM on QMM.Id=QID.IssueNameId
 left join MST.QualityIssueItem QII on QII.IssueId=QID.Id
 left join scs.UnitOfMeasurement UM on UM.Id=QII.UOMId
 left join TRN.QualityControl QC on QC.IssueId=QID.Id

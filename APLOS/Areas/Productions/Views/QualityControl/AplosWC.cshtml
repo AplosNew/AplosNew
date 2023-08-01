@@ -242,7 +242,7 @@
                         <div e-column e-field="QIssue" e-headertext="Q.Issue" e-width="100"></div>
                         <div e-column e-field="AllotedEmployee" e-headertext="Alloted Employee" e-width="150"></div>
                         <div e-column e-field="PositionEmployee" e-headertext="Position Employee" e-width="150"></div>
-                        <div e-column e-field="ItemName" e-headertext="Item Name" e-width="100"></div>
+                        <div e-column e-field="ItemName" e-headertext="Parameter Name" e-width="100"></div>
                         <div e-column e-field="QCustomer" e-headertext="Q.Customer" e-width="200"></div>
                         <div e-column e-field="QPOStatus" e-headertext="Q.POStatus" e-width="100"></div>
                         <div e-column e-field="PONO" e-headertext="PO NO" e-width="100"></div>
@@ -485,7 +485,7 @@
                     <div e-column e-template="#AddTile" e-headertext="Add" e-width="60"></div>
                     <div e-column e-field="ItemId" e-headertext="Id" e-width="50" e-visible="false"></div>
                     <div e-column e-field="SNO" e-headertext="SNO" e-width="100"></div>
-                    <div e-column e-field="ItemName" e-headertext="Item Name" e-width="100"></div>
+                    <div e-column e-field="ItemName" e-headertext="Parameter Name" e-width="100"></div>
                     <div e-column e-field="UOM" e-headertext="UOM" e-width="120"></div>
                     <div e-column e-type="number" e-template="#PValue" e-headertext="Value" e-width="100"></div>
                     <div e-column e-template="#GradeDetails" e-headertext="Grade Details" e-width="150"></div>
@@ -687,7 +687,7 @@
                         <div e-column e-type="string" e-field="QCScheduleQty" e-headertext="ScheduleQty" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCProducedQty" e-headertext="ProducedQty" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCRemainingQty" e-headertext="RemainingQty" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCItemName" e-headertext="ItemName" e-width="100"></div>
+                        <div e-column e-type="string" e-field="ParameterName" e-headertext="Parameter Name" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCUOM" e-headertext="UOM" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCValue" e-headertext="Value" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCGradeName" e-headertext="QCGrade" e-width="100"></div>
@@ -769,6 +769,7 @@
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                     <div e-columns>
+                        <div e-column e-type="string" e-field="IssueType" e-headertext="Issue Type" e-width="80"></div>
                         <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="100"></div>
                         <div e-column e-type="string" e-field="POId" e-headertext="PO No" e-width="100"></div>
                         <div e-column e-type="string" e-field="LotNumber" e-headertext="Lot Number" e-width="100"></div>
@@ -777,7 +778,7 @@
                         <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="100"></div>
                         <div e-column e-type="string" e-field="Shift" e-headertext="Shift" e-width="100"></div>
                         <div e-column e-type="string" e-field="IssueDetails" e-headertext="Issue Details" e-width="100"></div>
-                        <div e-column e-type="string" e-field="Item" e-headertext="Item" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Parameter" e-headertext="Parameter Name" e-width="100"></div>
                         <div e-column e-type="string" e-field="ItemUOM" e-headertext="Item UOM" e-width="100"></div>
                         <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
                     </div>
