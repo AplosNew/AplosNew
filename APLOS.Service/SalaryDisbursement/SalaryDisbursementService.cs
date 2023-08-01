@@ -283,7 +283,8 @@ namespace Library.Service.SalaryDisbursement
                                 CrAmount = directVoucherDetailVM.CrAmount,
                                 TrnNature = directVoucherDetailVM.SalaryHead,
                                 SalaryHeadId = directVoucherDetailVM.SalaryHeadId,
-                                SalaryType = directVoucherDetailVM.SalaryType
+                                SalaryType = directVoucherDetailVM.SalaryType,
+                                AccountsGroupId = directVoucherDetailVM.AccountsGroupId
                             }, currentVoucherDetailId);
 
                             // INSERT INTO VoucherDetailCurrency
@@ -437,7 +438,8 @@ namespace Library.Service.SalaryDisbursement
                                             CrAmount = directVoucherDetailVM.CrAmount - directAmount,
                                             TrnNature = directVoucherDetailVM.SalaryHead,
                                             SalaryHeadId = directVoucherDetailVM.SalaryHeadId,
-                                            SalaryType = directVoucherDetailVM.SalaryType
+                                            SalaryType = directVoucherDetailVM.SalaryType,
+                                            AccountsGroupId=directVoucherDetailVM.AccountsGroupId
                                         }, currentVoucherDetailId);
 
                                         // INSERT INTO VoucherDetailCurrency
