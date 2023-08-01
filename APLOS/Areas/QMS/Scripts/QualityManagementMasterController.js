@@ -125,7 +125,9 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         Remarks: null,
         EmployeeName: null,
         EmployeeCode: null,
-        EmpSystemId: null
+        EmpSystemId: null,
+        PositionCodeId: null,
+        PositionCode: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -156,6 +158,32 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         $scope.ModelNew.EmployeeCode = e.data.EmployeeCode;
 
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
+    }
+
+    $scope.selectPositionCode = function () {
+        $scope.getPositionCode();
+        angular.element(document.querySelector('#PositionCodePop')).modal('show');
+    }
+
+    $scope.PositionCodeList = [];
+    $scope.getPositionCode = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetPositionCode',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.PositionCodeList = resp.data;
+        });
+    }
+
+    $scope.doublePositionCode = function (e) {
+        $scope.ModelNew.PositionCodeId = e.data.Id;
+        $scope.ModelNew.PositionCode = e.data.Code;
+        angular.element(document.querySelector('#PositionCodePop')).modal('hide');
+    }
+
+    $scope.closePositionCodePopUp = function () {
+        angular.element(document.querySelector('#PositionCodePop')).modal('hide');
     }
 
     $scope.GetSequence = function () {
@@ -420,8 +448,19 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.scheduleNew.Id = response.data.Id;
                     $scope.LoadQualityManagementMasterList();
-                    ScheduleClearFields();
+                    $scope.LoadEntityDetails($scope.scheduleNew.Id);
+                    $scope.LoadQMActivityGroupDetails($scope.scheduleNew.Id);
+                    $scope.LoadProcessDetails($scope.scheduleNew.Id);
+                    $scope.GetParameterProcessList($scope.scheduleNew.Id);
+                    $scope.LoadItemDetails($scope.scheduleNew.Id);
+                    $scope.GeneratItemSequenceNo($scope.scheduleNew.Id);
+                    $scope.LoadMachineDetails($scope.scheduleNew.Id);
+                    $scope.LoadProductDetails($scope.scheduleNew.Id);
+                    $scope.LoadWorkCenterDetails($scope.scheduleNew.Id);
+                    $scope.LoadPositionCodeDetails($scope.scheduleNew.Id);
+                    //ScheduleClearFields();
 
                 }
             }), function errorCallBack(response) {

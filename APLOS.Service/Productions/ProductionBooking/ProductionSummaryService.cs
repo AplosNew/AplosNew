@@ -622,13 +622,13 @@ where wc.Active = 1 and wc.ProcessId = '" + ProcessId + "'  and wc.EntityId = '"
                 QCItemId = @"and QII.Id='" + POItemId + "'";
             }
             var sql = @"select distinct QIC.Id,QII.Id ItemId,QII.SNO,QII.ItemName,QII.UOMId,U.UserName as UOM,QIC.Value,QGD.Id as GradeId,QII.Max as MaxValue,QII.Min as MinValue,
-QIC.Remarks,QIC.ActionToBeTaken,R.EmployeeName as ResponsiblePerson,QIC.ResponsiblePersonId,QIC.QCId,QIC.Repeat from MST.QualityIssueItem QII
+QIC.Remarks,QIC.ActionToBeTaken,isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.[QualityControlDetails] where ItemId=QII.Id order by AddedDate desc))) as ResponsiblePerson,isnull(QIC.ResponsiblePersonId,(select top 1 ResponsiblePersonId from TRN.[QualityControlDetails] where ItemId=QII.Id order by AddedDate desc)) as ResponsiblePersonId,QIC.QCId,QIC.Repeat from MST.QualityIssueItem QII
 LEFT JOIN TRN.QualityControl QC ON QC.IssueId=QII.IssueId
 LEFT JOIN TRN.[QualityControlDetails] QIC ON QIC.QCId='" + PId + @"' and QIC.ItemId=QII.Id
 LEFT JOIN SCS.UnitOfMeasurement U ON U.Id = QII.UOMId
 left Join MST.QualityGradeDetails QGD ON QGD.Id=QIC.GradeId
 LEFT JOIN EmployeeInformation R ON  R.SystemId = QIC.ResponsiblePersonId
-where QII.IssueId='" + IssueId + "' " + QCItemId +  " ";
+where QII.IssueId='" + IssueId + "' " + QCItemId + " order by QII.SNO";
             return _sqlRepository.GetDataCollection(sql);
         }
 
@@ -729,19 +729,19 @@ where QID.IssueType in ('Order','General') " + QCDate + " " + QCProcess + " " + 
             }
             if (fromDate != "null" && todate != "null" && fromDate != "undefined" && todate != "undefined")
             {
-                QCDate = @"and (format(QCD.AddedDate,'dd-MMM-yyyy')  between '" + fromDate + "' and '" + todate + "'  or QII.ItemName is null)";
+                QCDate = @"and (QC.AddedDate  between '" + fromDate + "' and '" + todate + "'  or QII.ItemName is null)";
             }
             
             var sql = @"select distinct QC.Id QCHeaderId,QCD.Id QCDId,
-format(QCD.AddedDate,'dd-MMM-yyyy') as QCActualDate,
-format(QCD.AddedDate,'hh:mm tt') as QCActualTime,
-QII.CheckingInterval as QCInterval,
-format(DATEADD(hour, QII.CheckingInterval, QCD.AddedDate),'dd-MMM-yyyy') as QCDueDate,
-format(DATEADD(hour, QII.CheckingInterval, CAST(QCD.AddedDate AS DATETIME)),'hh:mm tt')  QCDueTime,
+format(QC.AddedDate,'dd-MMM-yyyy') as QCActualDate,
+format(QC.AddedDate,'hh:mm tt') as QCActualTime,
+QID.CheckingInterval as QCInterval,
+format(DATEADD(hour, QID.CheckingInterval, QC.AddedDate),'dd-MMM-yyyy') as QCDueDate,
+format(DATEADD(hour, QID.CheckingInterval, CAST(QC.AddedDate AS DATETIME)),'hh:mm tt')  QCDueTime,
 E.UserName QCEntity,
 P.UserName QCProcess,
 SD.ShiftDefinationName QCShift,
-QID.IssueName QCIssue,
+QMM.UserName QCIssue,
 QTD.PeriodName + ' ('+ format(QTD.FromTime,'hh:mm tt') + ' - ' + format(QTD.ToTime,'hh:mm tt') + ' )' as QCPeriod,
 QCCustomer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
@@ -775,6 +775,7 @@ QII.Max QCMaxValue,QII.Min QCMinValue,(select ActionToBeTakenName from MST.Quali
 QC.Id QulaityHeaderId,QCD.Id QulaityItemId,QII.CriticalLevel,
 D.UserName as Department,QID.IssueType,QID.IssueCategory,QID.Period,QID.Frequency
 from MST.QualityIssueDetails  QID
+left join MST.QualityManagementMaster QMM on QMM.Id=QID.IssueNameId
 left join MST.QualityIssueItem QII on QII.IssueId=QID.Id
 left join scs.UnitOfMeasurement UM on UM.Id=QII.UOMId
 left join TRN.QualityControl QC on QC.IssueId=QID.Id

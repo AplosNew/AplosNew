@@ -1499,6 +1499,28 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         }
     };
 
+    $scope.refreshTemplateRepeat = function (args) {
+        $("#Rheadchk").ejCheckBox({ "change": CheckBoxSelectAllRepeat });
+    };
+    function CheckBoxSelectAllRepeat(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#ProductionSummaryWC").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.wcList.length; i++) {
+                $scope.wcList[i].Repeat = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Repeat = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#ProductionSummaryWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
 
     $scope.POSelectList = [];
     $scope.GetPOWiseData = function () {
