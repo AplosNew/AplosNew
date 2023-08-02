@@ -2518,6 +2518,15 @@ Where M.FixedAssetItemId='"+ masterId + "'";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
+        public IEnumerable<object> GetAdditionallInfoUpdateData()
+        {
+
+            string sql = @"SELECT M.*,A.UserName FixedAssetItem
+FROM [TRN].[AdditionallInfoUpdate] M
+LEFT JOIN MST.FixedAssetItem A ON A.Id=M.FixedAssetItemId";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
         #endregion
     }
 }

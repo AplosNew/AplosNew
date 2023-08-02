@@ -47,7 +47,11 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             return View("~/Areas/FixedAssets/Views/FixedAssetMasterGL.cshtml");
         }
-
+        [Authorize]
+        public ActionResult AdditionalInfoUpdate()
+        {
+            return View("~/Areas/FixedAssets/Views/AdditionalInfoUpdate.cshtml");
+        }
         [HttpGet, Authorize]
         public ActionResult GetList(GridParameter parameters)
         {
@@ -315,6 +319,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
             }
         }
 
+        #region AdditionalInfo
         [HttpPost]
         public JsonResult CreateAdditional(List<Dictionary<string, object>> AdditionalList, string masterId)
         {
@@ -381,5 +386,72 @@ namespace Aplos.Areas.FixedAssets.Controllers
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             return Json(_fixedAssetQueryService.GetAdditionalData(masterId), JsonRequestBehavior.AllowGet);
         }
+        #endregion
+
+        #region AdditionalInfoUpdate
+
+        [HttpPost]
+        public JsonResult CreateAdditionallInfoUpdate(Dictionary<string, object> data)
+        {
+            try
+            {
+                SaveAdditionallInfoUpdate(data);
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+
+        }
+
+        public void SaveAdditionallInfoUpdate(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from [TRN].[AdditionallInfoUpdate] where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Code already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from [TRN].[AdditionallInfoUpdate] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "AdditionallInfoUpdate", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update 
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+               
+            }
+            catch (Exception ex)
+            {
+              throw  ex;
+            }
+        }
+
+        [HttpGet]
+        public ActionResult GetAdditionallInfoUpdateData()
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetAdditionallInfoUpdateData(), JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
     }
 }
