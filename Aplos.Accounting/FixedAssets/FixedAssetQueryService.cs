@@ -1142,6 +1142,7 @@ namespace Library.Accounting.FixedAssets
 							,ActivityId = FAMG.AssetUnderConstructionActivityId
 							,ActivityCode = A.Code
 							,ActivityName =A.UserName
+							,BudgetMasterActivityId =BMA.Id
 							, SUM( ISNULL(CM.TotalAmount,0)) AS Dr
 							, NULL Cr
 							, SUM( ISNULL(CM.TotalAmount,0)) AS Amount
@@ -1153,8 +1154,9 @@ namespace Library.Accounting.FixedAssets
 						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON FAMG.AssetUnderConstructionGLId=GL.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS A ON FAMG.AssetUnderConstructionActivityId= A.Id
+						LEFT JOIN [MST].[BudgetMasterActivity] AS BMA ON FAMG.AssetUnderConstructionActivityId= BMA.ActivityId AND FAMG.AssetUnderConstructionBudgetMasterId= BMA.BudgetMasterId
 					    WHERE CM.Id=@capitalizationMasterId 
-						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, B.Code, B.UserName, A.Code, A.UserName,FAMG.AssetUnderConstructionBudgetMasterId,FAMG.AssetUnderConstructionActivityId
+						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, B.Code, B.UserName, A.Code, A.UserName,FAMG.AssetUnderConstructionBudgetMasterId,FAMG.AssetUnderConstructionActivityId,BMA.Id
 						
 						UNION
 						SELECT  'Capitalization' AS OtherName, 'Cr' AS TrnType
@@ -1167,6 +1169,7 @@ namespace Library.Accounting.FixedAssets
 							,ActivityId = VD.ActivityId
 							,ActivityCode = A.Code
 							,ActivityName =A.UserName
+							,BudgetMasterActivityId =BMA.Id
 							, NULL Dr
 							,  SUM( ISNULL(CD.Amount,0)) AS Cr
 							,  SUM( ISNULL(CD.Amount,0)) AS Amount
@@ -1176,8 +1179,9 @@ namespace Library.Accounting.FixedAssets
 						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON VD.GLGeneralInfoId=GL.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS A ON VD.ActivityId= A.Id
+						LEFT JOIN [MST].[BudgetMasterActivity] AS BMA ON VD.ActivityId= BMA.ActivityId AND VD.BudgetMasterId= BMA.BudgetMasterId
 						WHERE CD.CapitalizationMasterId=@capitalizationMasterId 
-						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, VD.BudgetMasterId, B.Code, B.UserName, VD.ActivityId, A.Code, A.UserName
+						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, VD.BudgetMasterId, B.Code, B.UserName, VD.ActivityId, A.Code, A.UserName,BMA.Id
 						) X 
                         WHERE X.Amount>0
 						ORDER BY 2 DESC";
@@ -2380,23 +2384,22 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
-            var sql = @"select top 100 * from (select V.Id,FR.FixedAssetMasterId
-									,FAM.UserName 'FixedAssetMaster'
-									,FAC.UserName 'FixedAssetCategory'
-									,FASC.UserName 'FixedAssetSubCategory'
-									,FORMAT(FDP.DepreciationProcessDate, 'dd-MMM-yyyy') DepreciationProcessDate
-                                    ,sum( ISNULL(FDP.CurrentDepreciationAmount,0)) FixedAssetDepreciationAmount
-								    ,BC.Code BaseCurrency,1 CompanyCurrencyRate,1 ToCurrencyRate
+            var sql = @"select top 100 * from (select V.Id,FAI.FixedAssetMasterId,CM.FixedAssetItemId
+									,FAM.UserName FixedAssetMaster
+									,FAI.UserName FixedAssetItem
+									,FAC.UserName FixedAssetCategory
+									,FASC.UserName FixedAssetSubCategory
+                                    ,sum( ISNULL(VD.DrAmount,0)) Amount
 									,V.VoucherNo,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate
-                FROM [TRN].[FixedAssetDepreciationProcess] FDP
-                LEFT JOIN TRN.FixedAssetRegister FR on FR.Id=FDP.FixedAssetRegisterId
-				INNER JOIN TRN.Voucher V ON V.Id=FDP.DepreciationVoucherId
-	            LEFT JOIN SCS.Currency BC ON BC.Id =FR.FABaseCurrencyId
-				LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FR.FixedAssetMasterId
+                FROM [TRN].[CapitalizationMaster] CM
+				LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
+				INNER JOIN TRN.VoucherDetail VD ON VD.Id=CM.VoucherRowId
+				INNER JOIN TRN.Voucher V ON V.Id=VD.VoucherId
+				LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
                 LEFT  JOIN  HKP.[FixedAssetCategory]  FAC ON FAM.FixedAssetCategoryId=FAC.Id
                 LEFT  JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
-                WHERE FR.CompanyId='" + companyId + @"' AND V.Archive=0 AND FDP.DepreciationVoucherId IS NOT NULL
-                GROUP BY  V.Id,FR.FixedAssetMasterId,FAM.UserName,FAC.UserName,FDP.DepreciationProcessDate,FASC.UserName,BC.Code,V.VoucherNo,V.PostingDate ) AS TEMP WHERE " + strkey + " order by PostingDate DESC   ";
+                WHERE V.CompanyId='" + companyId + @"' AND V.Archive=0 AND CM.VoucherRowId IS NOT NULL
+                GROUP BY  V.Id,FAI.FixedAssetMasterId,CM.FixedAssetItemId,FAM.UserName,FAI.UserName,FAC.UserName,FASC.UserName,V.VoucherNo,V.PostingDate ) AS TEMP WHERE " + strkey + " order by PostingDate DESC   ";
             return _sqlRepository.GetDataCollection(sql);
         }
         #endregion
