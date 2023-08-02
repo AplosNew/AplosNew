@@ -453,7 +453,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
             }
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (
+            string sql = @"select * from (
                                 SELECT convert(bit,0) AS isChecked,MOI.Id AS MasterOrderItemId,
                                 convert(bit,CASE WHEN isnull(MOI.OrderCostingMasterTemplateId,'')='' THEN 0 ELSE 1 END) AS TakenForCosting,mm.UserName AS Material,mma.StandardName AS Article,
                                   moi.MasterOrderId,p.Id AS PartyId,pm.UserName AS Product, p.UserName AS Customer, 
