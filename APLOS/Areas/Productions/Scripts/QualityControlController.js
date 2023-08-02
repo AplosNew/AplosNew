@@ -238,6 +238,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         ProductCodeArticle: null,
         BookingLevel: null,
         WorkCenterId: null,
+        RepeatEntry: null,
     };
     $scope.productionSummaryNew = Object.assign({}, $scope.productionSummary);
 
@@ -1499,6 +1500,28 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         }
     };
 
+    $scope.refreshTemplateRepeat = function (args) {
+        $("#Rheadchk").ejCheckBox({ "change": CheckBoxSelectAllRepeat });
+    };
+    function CheckBoxSelectAllRepeat(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#ProductionSummaryWC").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.wcList.length; i++) {
+                $scope.wcList[i].Repeat = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Repeat = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#ProductionSummaryWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
 
     $scope.POSelectList = [];
     $scope.GetPOWiseData = function () {
@@ -2188,6 +2211,37 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         {
             ShowResult(ex, 'error');
         }
+    }
+
+    $scope.SetQCCompleteSelectData = function ($event) {
+        $scope.productionSummaryNew.Id = $event.data.QCHeaderId;
+        $scope.productionSummaryNew.ProductionOrderId = $event.data.QCPONo;
+        $scope.productionSummaryNew.EntityId = $event.data.EntityId;
+        $scope.productionSummaryNew.ProcessId = $event.data.ProcessId;
+        $scope.productionSummaryNew.ProductionShiftId = $event.data.ProductionShiftId;
+        $scope.productionSummaryNew.ProductionDate = $event.data.QCActualDate;
+        $scope.productionSummaryNew.IssueId = $event.data.IssueId;
+        $scope.productionSummaryNew.PeriodId = $event.data.PeriodId;
+        $scope.productionSummaryNew.LotNumber = $event.data.QCLotNumber;
+        $scope.productionSummaryNew.ProductionInCharge = $event.data.QCProductionIncharge;
+        $scope.productionSummaryNew.ProductionInChargeId = $event.data.ProductionInchargeId;
+        $scope.productionSummaryNew.Remarks = $event.data.QCRemarks;
+        $scope.productionSummaryNew.RepeatEntry = $event.data.RepeatEntry;
+        $scope.WorkCenterHeaderList = [];
+        $scope.QPId = $event.data.QualityPlanId;
+        $scope.PlanType = $event.data.PlanType;
+        $scope.QCId = $event.data.QCHeaderId;
+        $scope.setTab(3);
+        $scope.getAllEntities();
+        $scope.loadProcessList($scope.productionSummaryNew.EntityId);
+        $scope.GetIssueList($scope.productionSummaryNew.ProcessId);
+        $scope.GetShiftList();
+        $scope.GetPeriodList($scope.productionSummaryNew.IssueId);
+        $scope.GetIssueType($scope.productionSummaryNew.IssueId);
+        $scope.GetQBookingLevel();
+        $scope.GetWorkCenterList($scope.productionSummaryNew.IssueId);
+        $scope.loadWC();
+        //$scope.productionSummaryNew.Article = $event.data.Article;
     }
 
     $scope.psdList = [];

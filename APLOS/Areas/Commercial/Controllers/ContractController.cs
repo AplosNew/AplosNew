@@ -396,6 +396,123 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }
 
+        [HttpPost]
+        public JsonResult UpdateMasterLCAmendment(MasterLCAmendment entity)
+        {
+            try
+            {
+                UpdateAmendmentData(entity, out string version, out string masterId);
+
+                return Json(new { Id = masterId, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+
+        }
+        private void UpdateAmendmentData(MasterLCAmendment data, out string Version, out string masterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster;
+            string contId = string.Empty;
+            string id = string.Empty;
+            DataSet dsSeq = null;
+            try
+            { 
+                GetAutoSequence(data.Id, out dsSeq);
+                decimal seq = Convert.ToDecimal(dsSeq.Tables[0].Rows[0]["Version"].ToString());
+
+                string _sql = "SELECT * FROM [dbo].[MasterLC] WHERE Id='" + data.Id + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(_sql, out dsMaster, false, "1");
+
+                /// Update data in PurchaseLC Table
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+
+                    dr["Id"] = "MLC" + GetMasterLCPK();
+                    dr["Version"] = seq;
+                    dr["CustomerId"] = data.CustomerId;
+                    dr["IsClose"] = data.IsClose;
+                    dr["BenificiaryBankId"] = data.BenificiaryBankId;
+                    dr["OpeningBank"] = data.OpeningBank;
+                    dr["OpeningDescription"] = data.OpeningDescription;
+                    dr["LeinBank"] = data.LeinBank;
+                    dr["LeinDescription"] = data.LeinDescription;
+                    dr["LCRef"] = data.LCRef;
+                    dr["LCDate"] = data.LCDate;
+                    dr["AmendmentDate"] = data.AmendmentDate == null ? System.DBNull.Value : (object)data.AmendmentDate;
+                    dr["ExpiryDate"] = data.ExpiryDate;
+                    dr["Amount"] = data.Amount;
+                    dr["Type"] = data.Type;
+                    dr["Tenure"] = data.Tenure;
+                    dr["FinalDestinationId"] = data.FinalDestinationId;
+                    dr["PortOfLandingId"] = data.PortOfLandingId;
+                    dr["CurrencyId"] = data.CurrencyId;
+                    dr["LCShipmentDate"] = data.LCShipmentDate;
+                    dr["ShipmentModeId"] = data.ShipmentModeId;
+                    dr["PortOfLoadingId"] = data.PortOfLoadingId;
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now;
+                    dr["AddedFromIP"] = identity.IPAddress;
+
+                    dsMaster.Tables[0].Rows.Add(dr);
+
+                    contId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                }
+                else
+                {
+                    //edit
+                    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                    dr.BeginEdit();
+                     
+                    dr["Version"] = data.Version;
+                    dr["CustomerId"] = data.CustomerId;
+                    dr["IsClose"] = data.IsClose;
+                    dr["BenificiaryBankId"] = data.BenificiaryBankId;
+                    dr["OpeningBank"] = data.OpeningBank;
+                    dr["OpeningDescription"] = data.OpeningDescription;
+                    dr["LeinBank"] = data.LeinBank;
+                    dr["LeinDescription"] = data.LeinDescription;
+                    dr["LCRef"] = data.LCRef;
+                    dr["LCDate"] = data.LCDate;
+                    dr["ExpiryDate"] = data.ExpiryDate;
+                    dr["AmendmentDate"] = data.AmendmentDate == null ? System.DBNull.Value : (object)data.AmendmentDate;
+                    dr["Amount"] = data.Amount;
+                    dr["Type"] = data.Type;
+                    dr["Tenure"] = data.Tenure;
+                    dr["FinalDestinationId"] = data.FinalDestinationId;
+                    dr["PortOfLandingId"] = data.PortOfLandingId;
+                    dr["CurrencyId"] = data.CurrencyId;
+                    dr["LCShipmentDate"] = data.LCShipmentDate;
+                    dr["ShipmentModeId"] = data.ShipmentModeId;
+                    dr["PortOfLoadingId"] = data.PortOfLoadingId;
+
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+
+                    dr.EndEdit();
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+                masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                Version = dsMaster.Tables[0].Rows[0]["Version"].ToString();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
         private string GetAmandmentVersionPK()
         {
             string sID = string.Empty;
@@ -1369,46 +1486,7 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }//End of function
 
-        [HttpPost]
-        public ActionResult DeleteMasterLCAmandment(string id)
-        {
-            DeleteAmandmentData(id);
-            return Json(new { Message = AplosMessage.Deleted });
-        }
-
-        public void DeleteAmandmentData(string Id)
-        {
-            string strSQL;
-            ConnectionManager.DAL.ConManager objCon = null;
-            try
-            {
-                strSQL = "DELETE FROM dbo.MasterLCHistory WHERE Id = '" + Id + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenConnection("1");
-                objCon.BeginTransaction();
-                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
-                objCon.CommitTransaction();
-            }
-            catch (Exception ex)
-            {
-                try
-                {
-                    objCon.RollBack();
-                    throw (ex);
-                }
-                catch (Exception exx)
-                {
-                    throw exx;
-                }
-            }
-            finally
-            {
-                objCon.CloseConnection();
-                objCon = null;
-            }
-        }//End of function
-
-
+        
         [HttpGet, Authorize]
         public ActionResult GetSalesOrderList(string customerId)
         {

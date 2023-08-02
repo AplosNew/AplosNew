@@ -6,7 +6,7 @@ function masterLCAmendmentController(commonMessage, $scope, $rootScope, baseServ
     $scope.path = 'Commercial/contract/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveMasterLCAmendmentUrl = $scope.path + 'SaveMasterLCAmendment';
-    $scope.deleteUrl = $scope.path + 'DeleteMasterLCAmandment/';
+    $scope.updateMasterLCAmendmentUrl = $scope.path + 'UpdateMasterLCAmendment';
     $scope.partyType = "Customer";
     $controller("partyBaseController", { $scope: $scope, $http: $http });
     $controller("currencyBaseController", { $scope: $scope, $http: $http });
@@ -308,7 +308,7 @@ function masterLCAmendmentController(commonMessage, $scope, $rootScope, baseServ
     $scope.flag = 'Update';
     $scope.confirmToCreateNewVersion = function () {
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.MasterLCAmandmentForm.$valid) {
+        if ($scope.MasterLCAmendmentForm.$valid) {
             if ($scope.flag === 'Amendment') {
                 if (!baseService.isUndefinedOrNull($scope.masterLCAmendment.Id)) {
                     $scope.message = "Are you sure to create Amendment?";
@@ -318,7 +318,8 @@ function masterLCAmendmentController(commonMessage, $scope, $rootScope, baseServ
                     $scope.SaveMasterLCAmendment();
                     angular.element(document.querySelector("#confirmSavePopUp")).modal("hide");
                 }
-            } else {
+            }
+            else {
                 $scope.SaveMasterLCAmendment();
             }
         }
@@ -341,28 +342,52 @@ function masterLCAmendmentController(commonMessage, $scope, $rootScope, baseServ
                     throw "Amendment Date is reqiured.";
                 }
                 $scope.masterLCAmendment.flag = $scope.flag;
+
+                if ($scope.Action === 'Save' || $scope.Action === 'Update') {
+                    $http({
+                        method: 'POST',
+                        url: $scope.saveMasterLCAmendmentUrl,
+                        data: { 'entity': $scope.masterLCAmendment },
+                        dataType: 'JSON'
+                        , contentType: "application/json charset=utf-8"
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure');
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success');
+                            $scope.masterLCAmendment.Id = response.data.Id;
+                            $scope.getSavedData();
+                        }
+                    }), function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    };
+                }
             }
 
-            if ($scope.Action === 'Save' || $scope.Action === 'Update') {
-                $http({
-                    method: 'POST',
-                    url: $scope.saveMasterLCAmendmentUrl,
-                    data: { 'entity': $scope.masterLCAmendment },
-                    dataType: 'JSON'
-                    , contentType: "application/json charset=utf-8"
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
+            else {
+                if ($scope.Action === 'Save' || $scope.Action === 'Update') {
+                    $http({
+                        method: 'POST',
+                        url: $scope.updateMasterLCAmendmentUrl,
+                        data: { 'entity': $scope.masterLCAmendment },
+                        dataType: 'JSON'
+                        , contentType: "application/json charset=utf-8"
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure');
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success');
+                            $scope.masterLCAmendment.Id = response.data.Id;
+                            $scope.getSavedData();
+                        }
+                    }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.masterLCAmendment.Id = response.data.Id;
-                        $scope.getSavedData();
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                };
+                    };
+                }
             }
+            $scope.Clear();
         }
         catch (e) {
             ShowResult(e, "failure");
@@ -386,28 +411,6 @@ function masterLCAmendmentController(commonMessage, $scope, $rootScope, baseServ
         }
     }
 
-    $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.masterLCAmendmentNew.Id)) {
-            $http({
-                method: 'POST',
-                url: $scope.deleteUrl + $scope.masterLCAmendmentNew.Id,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.purchaseLCList.splice($scope.index, 1);
-                    $scope.getSavedData();
-                    ClearFields();
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
-        }
-    };
 
     $scope.deleteModal = function (obj) {
 
