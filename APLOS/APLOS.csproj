@@ -2273,6 +2273,8 @@
     <Content Include="Areas\Productions\Scripts\WCWorkStationsControlMasterController.js" />
     <Content Include="Areas\Productions\Scripts\WCWorkStationsControlReportController.js" />
     <Content Include="Areas\FixedAssets\Scripts\CapitalizeAssetRegisterApprovalController.js" />
+    <Content Include="Areas\Products\Scripts\IssueSlipApprovedByController.js" />
+    <Content Include="Areas\Products\Scripts\IssueSlipCheckedByController.js" />
     <Content Include="Areas\Products\Scripts\POWiseMaterialIssueController.js" />
     <Content Include="Areas\QMS\Scripts\ComplaintController.js" />
     <Content Include="Areas\QMS\Scripts\CustomerQualityAndTechnicalSupportController.js" />

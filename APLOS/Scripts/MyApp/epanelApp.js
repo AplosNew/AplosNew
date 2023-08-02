@@ -30,6 +30,8 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("PurchaseOrderApproveController", PurchaseOrderApproveController)
     .controller("grnApprovalController", grnApprovalController)
     .controller("IssueSlipController", IssueSlipController)
+    .controller("IssueSlipCheckedByController", IssueSlipCheckedByController)
+    .controller("IssueSlipApprovedByController", IssueSlipApprovedByController)
     .controller("AssetIssueSlipController", AssetIssueSlipController)
     .controller("MaterialIssueSlipController", MaterialIssueSlipController)
     .controller("TNAReportsController", TNAReportsController)
@@ -193,11 +195,11 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
 
             .when('/issueslip-check', {
                 templateUrl: 'Products/GoodsReceiveNote/IssueSlipCheck',
-                controller: 'IssueSlipController'
+                controller: 'IssueSlipCheckedByController'
             })
             .when('/approving-issue-slip', {
                 templateUrl: 'Products/GoodsReceiveNote/ApprovingIssueSlip',
-                controller: 'IssueSlipController'
+                controller: 'IssueSlipApprovedByController'
             })
             .when('/Material-Wise-issue-slip', {
                 templateUrl: 'Products/GoodsReceiveNote/MaterialIssueSlip',
