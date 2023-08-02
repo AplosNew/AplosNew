@@ -2384,12 +2384,12 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
-            var sql = @"select top 100 * from (select V.Id,FAI.FixedAssetMasterId,CM.FixedAssetItemId
+            var sql = @"select top 100 * from (select V.Id,FAI.FixedAssetMasterId,CM.FixedAssetItemId,CM.Id CapitalizationMasterId
 									,FAM.UserName FixedAssetMaster
 									,FAI.UserName FixedAssetItem
 									,FAC.UserName FixedAssetCategory
 									,FASC.UserName FixedAssetSubCategory
-                                    ,sum( ISNULL(VD.DrAmount,0)) Amount
+                                    ,ISNULL(VD.DrAmount,0) Amount,CM.Qty
 									,V.VoucherNo,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate
                 FROM [TRN].[CapitalizationMaster] CM
 				LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
@@ -2399,7 +2399,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                 LEFT  JOIN  HKP.[FixedAssetCategory]  FAC ON FAM.FixedAssetCategoryId=FAC.Id
                 LEFT  JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
                 WHERE V.CompanyId='" + companyId + @"' AND V.Archive=0 AND CM.VoucherRowId IS NOT NULL
-                GROUP BY  V.Id,FAI.FixedAssetMasterId,CM.FixedAssetItemId,FAM.UserName,FAI.UserName,FAC.UserName,FASC.UserName,V.VoucherNo,V.PostingDate ) AS TEMP WHERE " + strkey + " order by PostingDate DESC   ";
+                ) AS TEMP WHERE " + strkey + " order by PostingDate DESC   ";
             return _sqlRepository.GetDataCollection(sql);
         }
         #endregion

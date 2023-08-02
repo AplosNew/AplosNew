@@ -147,7 +147,6 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
 
     cboService.getCboTransactionCurrencyByCompany("", function (result) {
         $scope.tranCurrencyList = result;
-        //$scope.baseCurrencyId = $scope.selectBaseCurrency();
         $scope.voucher.CurrencyId = $scope.baseCurrencyId;
         $scope.GetCurrencyExchangeRateList();
     });
@@ -201,7 +200,7 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
         $scope.voucher.CapitalizationMasterId = null;
         $scope.voucher.Amount = null;
         $scope.voucher.FixedAssetItem = null;
-        $scope.voucher.Qty = data.Qty;
+        $scope.voucher.Qty = null;
         $scope.voucher.CapitalizationDate = null;
         $scope.selectedmaterialMasterList = [];
         $scope.capitalizationJVList = [];
@@ -214,7 +213,6 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
     };
 
     $scope.Post = function () {
-        $scope.$broadcast("show-errors-check-validity");
         if ($scope.form0.$valid) {
             $scope.SaveUrl = "fixedassets/FixedAssetRegister/CreatetCapitalizeAssetRegisterPost"
             if ($scope.Action === "Save") {
