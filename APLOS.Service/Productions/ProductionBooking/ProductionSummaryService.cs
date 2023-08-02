@@ -739,10 +739,15 @@ QID.CheckingInterval as QCInterval,
 format(DATEADD(hour, QID.CheckingInterval, QC.AddedDate),'dd-MMM-yyyy') as QCDueDate,
 format(DATEADD(hour, QID.CheckingInterval, CAST(QC.AddedDate AS DATETIME)),'hh:mm tt')  QCDueTime,
 E.UserName QCEntity,
+QID.EntityId,
 P.UserName QCProcess,
+QID.ProcessId,
 SD.ShiftDefinationName QCShift,
+QC.ProductionShiftId,
 QMM.UserName QCIssue,
+QID.Id IssueId,
 QTD.PeriodName + ' ('+ format(QTD.FromTime,'hh:mm tt') + ' - ' + format(QTD.ToTime,'hh:mm tt') + ' )' as QCPeriod,
+QTD.Id PeriodId,
 QCCustomer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
@@ -751,8 +756,9 @@ left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
 where QC.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 PS.UserName QCPOStatus,
 PI.EmployeeName as QCProductionIncharge,
+QC.ProductionInchargeId,
 QC.ProductionOrderId as QCPONo,
-QC.LotNumber as QCLotNumber,QC.Remarks as QCRemarks,
+QC.LotNumber as QCLotNumber,QC.Remarks as QCRemarks,QC.RepeatEntry,
 QCArticle = STUFF((select distinct ',' + MA.StandardName from trn.ProductionOrderDetail Pod
 left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId = so.Id
 left outer join trn.MasterOrderItem MOI on moi.Id = so.MasterOrderItemId

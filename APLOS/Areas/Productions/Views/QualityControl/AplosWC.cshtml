@@ -657,7 +657,7 @@
                 </div>
             </div>
             <div class="col-xs-12">
-                <div id="GridQCComplete" ej-grid e-datasource="QCCompleteList"
+                <div id="GridQCComplete" ej-grid e-datasource="QCCompleteList" e-recorddoubleclick="SetQCCompleteSelectData"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                     <div e-columns>
@@ -669,6 +669,7 @@
                         <div e-column e-type="string" e-field="QCDueDate" e-headertext="Next Due Date" e-width="80"></div>
                         <div e-column e-type="datetime" e-field="QCDueTime" e-headertext="Next Due Time" e-width="80"></div>
                         <div e-column e-type="string" e-field="IssueType" e-headertext="Issue Type" e-width="100"></div>
+                        <div e-column e-type="string" e-field="RepeatEntry" e-headertext="Repeat Entry" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCEntity" e-headertext="Entity" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCProcess" e-headertext="Process" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCShift" e-headertext="Shift" e-width="150"></div>
@@ -691,8 +692,8 @@
                         <div e-column e-type="string" e-field="QCUOM" e-headertext="UOM" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCValue" e-headertext="Value" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCGradeName" e-headertext="QCGrade" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCMaxValue" e-headertext="Max Value" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCMinValue" e-headertext="Min Value" e-width="100"></div>
+                        <div e-column e-type="string" e-field="QCMaxValue" e-headertext="Max Value" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCActionTobetaken" e-headertext="Action To be taken" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCResponsiblePerson" e-headertext="Responsible Person" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCItemRemarks" e-headertext="Remarks" e-width="150"></div>

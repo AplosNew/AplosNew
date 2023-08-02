@@ -327,7 +327,9 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
             Remarks: null,
             EmployeeName: null,
             EmployeeCode: null,
-            EmpSystemId: null
+            EmpSystemId: null,
+            PositionCodeId: null,
+            PositionCode: null
         };
 
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
