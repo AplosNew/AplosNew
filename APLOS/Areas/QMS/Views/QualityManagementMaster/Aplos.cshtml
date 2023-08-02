@@ -24,10 +24,10 @@
                         </div>
                     </div>
                     <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Responsible Persone Bgt Code<sup>*</sup></label>
+                        <label class="col-sm-4 control-label">Res.Pers.Bgt Code<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <div class="col-sm-10" style="padding:0px;">
-                                <input type="text" name="Responsible Persone Bgt Code" ng-disabled="true" ng-model="scheduleNew.ResponsiblePersoneBgtCode" class="form-control" maxlength="100" required autocomplete="off">
+                                <input type="text" name="Res.Pers.Bgt Code" ng-disabled="true" ng-model="scheduleNew.ResponsiblePersoneBgtCode" class="form-control" maxlength="100" required autocomplete="off">
                             </div>
                             <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
                                 <button ng-click="selectBudgetCode();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
@@ -207,12 +207,12 @@
                                     </div>
                                 </div>
                                 @*<div class="col-sm-8">
-            <div class="select-style">
-                <select class="form-control" ng-model="ItemNew.ParameterId" name="ActivityGroup"
-                        ng-options="item.Value as item.Text for item in ParameterItemList">
-                </select>
-            </div>
-        </div>*@
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="ItemNew.ParameterId" name="ActivityGroup"
+                                                    ng-options="item.Value as item.Text for item in ParameterItemList">
+                                            </select>
+                                        </div>
+                                    </div>*@
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">IsAuditable</label>
@@ -346,16 +346,16 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Max<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <input type="number" name="Maximum Points" ng-model="ItemNew.Max" class="form-control" required maxlength="10" autocomplete="off">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Max</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Maximum Points" ng-model="ItemNew.Max" class="form-control"  maxlength="10" autocomplete="off">
                                 </div>
                             </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Min<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <input type="number" name="Minimum Points" ng-model="ItemNew.Min" class="form-control" required maxlength="10" autocomplete="off">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Min</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Minimum Points" ng-model="ItemNew.Min" class="form-control"  maxlength="10" autocomplete="off">
                                 </div>
                             </div>
                         </div>
@@ -537,7 +537,7 @@
                     <div e-column e-field="StandaredName" e-headertext="Standard Name" e-width="100"></div>
                     <div e-column e-field="ScheduleDays" e-headertext="Schedule Days" e-width="100"></div>
                     <div e-column e-field="UserName" e-headertext="User Name" e-width="100"></div>
-                    <div e-column e-field="ResponsiblePersoneBgtCode" e-headertext="Responsible Person Bgt Code" e-width="100"></div>
+                    <div e-column e-field="ResponsiblePersoneBgtCode" e-headertext="Res.Pers.Bgt Code" e-width="100"></div>
                     <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
                 </div>
             </div>
@@ -557,24 +557,35 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Short Name" ng-model="ModelNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
+                            <input type="text" name="Short Name" ng-model="ModelNew.ShortName" class="form-control" maxlength="50" required tabindex="3">
                         </div>
                     </div>
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
+                            <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="100">
                         </div>
                     </div>
+                    @*<div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+                                    <span class="input-group-addon">{{ModelNew.EmployeeCode}}</span>
+                                    <input type="text" name="Responsible Person" ng-model="ModelNew.EmployeeName" class="form-control" required readonly>
+                                    <span class="input-group-btn">
+                                        <button name="submit" ng-click="OpeEmployeePopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>*@
                     <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+                        <label class="col-sm-4 control-label">Position Code<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <div class="input-group">
-                                <span class="input-group-addon">{{ModelNew.EmployeeCode}}</span>
-                                <input type="text" name="Responsible Person" ng-model="ModelNew.EmployeeName" class="form-control" required readonly>
-                                <span class="input-group-btn">
-                                    <button name="submit" ng-click="OpeEmployeePopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                                </span>
+                            <div class="col-sm-10" style="padding:0px;">
+                                <input type="text" name="Position Code" ng-disabled="true" ng-model="ModelNew.PositionCode" class="form-control" maxlength="100" required autocomplete="off">
+                            </div>
+                            <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                                <button ng-click="selectPositionCode();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                             </div>
                         </div>
                     </div>
@@ -600,7 +611,7 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
+                            <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="100">
                         </div>
                     </div>
 
@@ -968,6 +979,42 @@
                     <ul class="list-inline text-right">
                         <li>
                             <button ng-click="closeParameterPopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="PositionCodePop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">PositionCode List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an PositionCode</p>
+                        <div style="color:black;" id="GridPositionCode" ej-grid e-datasource="PositionCodeList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doublePositionCode">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="50"></div>
+                                <div e-column e-field="Code" e-headertext="Position Code" e-width="100"></div>
+                                <div e-column e-field="Position" e-headertext="Position" e-width="100"></div>
+                                <div e-column e-field="Activity" e-headertext="Activity" e-width="100"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                                <div e-column e-field="SubSection" e-headertext="SubSection" e-width="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closePositionCodePopUp();" class="btn"><i class=""></i> Close</button>
                         </li>
                     </ul>
 

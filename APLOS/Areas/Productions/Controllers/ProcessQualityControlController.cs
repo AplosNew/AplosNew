@@ -214,7 +214,7 @@ where P.Active = 1";
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            var sql = @"select Id as Value,(select QMM.UserName from MST.QualityManagementMaster QMM where QMM.Id=IssueNameId) as Text from [MST].[QualityIssueDetails]";
+            var sql = @"select Id as Value,(select QMM.UserName from MST.QualityManagementMaster QMM where QMM.Id=IssueNameId) as Text from [MST].[QualityIssueDetails] where IssueType = 'Order'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
