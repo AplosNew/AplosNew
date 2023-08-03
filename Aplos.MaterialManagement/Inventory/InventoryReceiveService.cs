@@ -12052,170 +12052,86 @@ namespace Library.MaterialManagement.Inventory
 
 
 
-        public IEnumerable<object> IssueDetailData(string issueId)
+        public IEnumerable<object> IssueDetailData(string slipstatus, string employeeById)
         {
             try
             {
-                //         var sql = @"Select 
-                //                     ROW_NUMBER() OVER(ORDER BY IR.Id ASC) AS SiNo
-                //                     ,IR.Id AS IssueRequestId
-                //                     ,RID.Id 
-                //                     ,RID.IssueDetailId 
-                //                     ,RID.IssueMasterId 
-                //                     ,CC.UserName AS CostCenterName
-                //                     ,IR.CostCenterId
-                //                     ,B.UserName ActivityName 
-                //                     ,IR.ExpenseActivityId
-                //                     ,mm.UserName MaterialMasterName
-                //,Imat.InventoryMaterialId
-                //                     ,ART.StandardName
-                //                     ,ART.Code
-                //,MRD.TransactionUoMId
-                //                     ,IR.RequisitionId
-                //                     ,IR.RequisitionDetailId
-                //                     ,TUoM.UserName AS UOM
-                //                     ,IR.RequestedQty
-                //                     ,IR.RejectedQty
-                //,RID.IssueQty IssueValidQty
-                //,0 IssueRejectedQty
-                //                     ,En.Username As EntityName
-                //                     ,MRM.EntityId	
-                //                     ,Us.FullName AddedBy
-                //                     ,MRM.Id RequisitionNo
-                //                     ,MRD.ArticleId
-                //                     ,Dp.UserName DepartmentName
-                //                     ,MGM.UserName MaterialMasterGroupName
-                //                     ,MT.UserName MaterialType
-                //                     ,MRD.FirstCharacteristicsId
-                //                     ,FC.UserName AS FirstCharacteristics
-                //                     ,MRD.FirstCharacteristicsValueId
-                //                     ,FCV.UserName AS FirstCharacteristicsValue
-                //                     ,MRD.SecondCharacteristicsId
-                //                     ,SC.UserName AS SecondCharacteristics
-                //                     ,MRD.SecondCharacteristicsValueId
-                //                     ,SCV.UserName AS SecondCharacteristicsValue
-                //                     ,MRD.ThirdCharacteristicsId
-                //                     ,TC.UserName AS ThirdCharacteristics
-                //                     ,MRD.ThirdCharacteristicsValueId
-                //                     ,TCV.UserName AS ThirdCharacteristicsValue
-                //                     ,IR.CostCenterId
-                //                     ,IR.ExpenseActivityId
-                //                     ,IR.BudgetMasterId
-                //                     ,IR.GLGeneralInfoId 
-                //                     ,IR.RequisitionDetailId
-                //,IR.IssueRequestMasterId
-                //                     from 
-                //trn.RequisitionIssueDetail RID
-                //left Join trn.IssueRequest IR ON IR.Id=RID.IssueRequestId
-                //                     left Join [TRN].[MaterialRequsitionDetails] As MRD on MRD.Id=IR.REquisitionDetailId
-                //                     Left Join [TRN].[MaterialRequsitionMaster] As MRM On MRD.MaterialReqqusitionMasterId=MRM.Id
-                //                     Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
-                //                     Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
-                //                     Left Join [ORG].[Entity] As En On MRM.EntityId=En.Id
-                //                     Left Join [HKP].[Budget] As Bu On Bu.Id=MRD.ActivityId
-                //                     Left JOIN MST.MaterialMaster AS MM ON MRD.MaterialMasterId = MM.Id
-                //                     LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-                //                     LEFT JOIN MST.MaterialMasterArticle AS ART ON MRD.ArticleId = ART.Id
-                //                     LEFT JOIN HKP.Characteristics AS FC ON MRD.FirstCharacteristicsId = FC.Id
-                //                     LEFT JOIN HKP.Characteristics AS SC ON MRD.SecondCharacteristicsId = SC.Id
-                //                     LEFT JOIN HKP.Characteristics AS TC ON MRD.ThirdCharacteristicsId = TC.Id
-                //                     LEFT JOIN HKP.CharacteristicsValue AS FCV ON MRD.FirstCharacteristicsValueId = FCV.Id
-                //                     LEFT JOIN HKP.CharacteristicsValue AS SCV ON MRD.SecondCharacteristicsValueId = SCV.Id
-                //                     LEFT JOIN HKP.CharacteristicsValue AS TCV ON MRD.ThirdCharacteristicsValueId = TCV.Id
-                //                     LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MRD.TransactionUoMId = TUoM.Id
-                //                     LEFT JOIN [SEC].[User] As Us On MRM.AddedBy=Us.UserId
-                //                     LEFT JOIN dbo.EmployeeInformation As Em On Us.EmployeeId=Em.SystemId
-                //                     LEFT JOIN [ORG].[Department] AS Dp On Dp.Id=Em.DepartmentId
-                //                     LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
-                //LEFT JOIN trn.IssueRequestMaster AS IRM ON IRM.Id = IR.IssueRequestMasterId
-                //                     Left JOIN  TRN.InventoryIssueDetail AS Imat ON Imat.InventoryMaterialId=mm.Id";
+                string tempQuery = "";
+                if (slipstatus == "ForChecked")
+                {
+                    tempQuery = "WHERE IRM.CheckedBy IS NOT NULL  AND IRM.CheckedByStatus = 'ForChecked' AND IRM.AuthorizedByStatus IS NULL AND IRM.AuthorizedBy IS null AND IRM.IssueSlipType = 'InventorySlip'  AND IRM.Preparedby='" + employeeById + "'";
+                }
+                else if (slipstatus == "HoldReject")
+                {
+                    tempQuery = "WHERE IRM.CheckedBy IS NOT NULL  AND IRM.CheckedByStatus = 'HoldReject' AND IRM.AuthorizedByStatus IS NULL AND IRM.AuthorizedBy IS null AND IRM.IssueSlipType = 'InventorySlip' AND IRM.Preparedby='" + employeeById + "'";
 
-                var sql = @"Select 
-                            ROW_NUMBER() OVER(ORDER BY IR.Id ASC) AS SiNo
-                            ,IR.Id AS IssueRequestId
-                           
-                            ,CC.UserName AS CostCenterName
-                            ,IR.CostCenterId
-                            ,B.UserName ActivityName 
-                            ,IR.ExpenseActivityId
-                            ,mm.UserName Material
-							,Imat.InventoryMaterialId
-                            ,ART.StandardName
-                            ,ART.Code
-							--,MRD.TransactionUoMId
-                            ,IR.RequisitionId
-                            ,IR.RequisitionDetailId
-                            ,TUoM.UserName AS UOM
-                            ,IR.RequestedQty
-                            ,IR.RejectedQty
-							--,RID.IssueQty IssueValidQty
-							,0 IssueRejectedQty
-                           -- ,En.Username As EntityName
-                           -- ,MRM.EntityId	
-                            ,Us.FullName AddedBy
-                            --,MRM.Id RequisitionNo
-                            ,IR.ArticleId
-                            ,Dp.UserName DepartmentName
-                            ,MGM.UserName MaterialGroup
-                            ,MT.UserName MaterialType
-                            ,IR.FirstCharacteristicsId
-                            ,FC.UserName AS FirstCharacteristics
-                            ,IR.FirstCharacteristicsValueId
-                            ,FCV.UserName AS FirstCharacteristicsValue
-                            ,IR.SecondCharacteristicsId
-                            ,SC.UserName AS SecondCharacteristics
-                            ,IR.SecondCharacteristicsValueId
-                            ,SCV.UserName AS SecondCharacteristicsValue
-                            ,IR.ThirdCharacteristicsId
-                            ,TC.UserName AS ThirdCharacteristics
-                            ,IR.ThirdCharacteristicsValueId
-                            ,TCV.UserName AS ThirdCharacteristicsValue
-                            ,IR.CostCenterId
-                            ,IR.ExpenseActivityId
-                            ,IR.BudgetMasterId
-                            ,IR.GLGeneralInfoId 
-                            ,IR.RequisitionDetailId
-							,IR.IssueRequestMasterId
-                            ,isnull(IGL1.UserName,'') AS CGL									
-									,isnull(B1.UserName,'') AS CBUdget
-									,isnull(IA1.UserName,'') AS GLBudgetActivity
-                            from trn.IssueRequest IR 
-                            left Join [TRN].[MaterialRequsitionDetails] As MRD on MRD.Id=IR.REquisitionDetailId
-                            Left Join [TRN].[MaterialRequsitionMaster] As MRM On MRD.MaterialReqqusitionMasterId=MRM.Id
-                            Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
-                            Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
-                            --Left Join [ORG].[Entity] As En On MRM.EntityId=En.Id
-                            --Left Join [HKP].[Budget] As Bu On Bu.Id=MRD.ActivityId
-                            Left JOIN MST.MaterialMaster AS MM ON IR.MaterialMasterId = MM.Id
-                            LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-                            LEFT JOIN MST.MaterialMasterArticle AS ART ON IR.ArticleId = ART.Id
-                            LEFT JOIN HKP.Characteristics AS FC ON IR.FirstCharacteristicsId = FC.Id
-                            LEFT JOIN HKP.Characteristics AS SC ON IR.SecondCharacteristicsId = SC.Id
-                            LEFT JOIN HKP.Characteristics AS TC ON IR.ThirdCharacteristicsId = TC.Id
-                            LEFT JOIN HKP.CharacteristicsValue AS FCV ON IR.FirstCharacteristicsValueId = FCV.Id
-                            LEFT JOIN HKP.CharacteristicsValue AS SCV ON IR.SecondCharacteristicsValueId = SCV.Id
-                            LEFT JOIN HKP.CharacteristicsValue AS TCV ON IR.ThirdCharacteristicsValueId = TCV.Id
-                            LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MRD.TransactionUoMId = TUoM.Id
-                            LEFT JOIN [SEC].[User] As Us On IR.AddedBy=Us.UserId
-                            LEFT JOIN dbo.EmployeeInformation As Em On Us.EmployeeId=Em.SystemId
-                            LEFT JOIN [ORG].[Department] AS Dp On Dp.Id=Em.DepartmentId
-                            LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
-							LEFT JOIN trn.IssueRequestMaster AS IRM ON IRM.Id = IR.IssueRequestMasterId
-                            Left JOIN  TRN.InventoryIssueDetail AS Imat ON Imat.InventoryMaterialId=mm.Id
-							LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IR.GLGeneralInfoId 
+                }
+                else if (slipstatus == "Checked")
+                {
+                    tempQuery = "WHERE IRM.CheckedBy IS NOT NULL  AND IRM.CheckedByStatus = 'Checked' AND IRM.AuthorizedByStatus='For Approval' AND IRM.IssueSlipType = 'InventorySlip' AND IRM.Preparedby='" + employeeById + "'";
+
+                }
+                else if (slipstatus == "For Approval")
+                {
+                    tempQuery = "WHERE   IRM.CheckedByStatus = 'Checked' AND IRM.AuthorizedByStatus='For Approval'  AND IRM.IssueSlipType = 'InventorySlip'  AND IRM.Preparedby='" + employeeById + "'";
+                }
+                else if (slipstatus == "HoldReject")
+                {
+                    tempQuery = "WHERE   IRM.CheckedByStatus = 'Checked' AND IRM.AuthorizedByStatus='Reject'  AND IRM.IssueSlipType = 'InventorySlip'  AND IRM.Preparedby='" + employeeById + "'";
+                }
+                else if (slipstatus == "Approved")
+                {
+                    tempQuery = "WHERE   IRM.CheckedByStatus = 'Checked' AND IRM.AuthorizedByStatus='Approved'  AND IRM.IssueSlipType = 'InventorySlip'  AND IRM.Preparedby='" + employeeById + "'";
+                }
+                var _sql = @"Select  IR.Id ,CC.UserName AS CostCenterName ,B.UserName ActivityName  ,IR.RequisitionId
+                                    ,IR.RequisitionDetailId   ,IR.RequestedQty ,IR.RejectedQty  ,En.Username As EntityName
+                                    ,MRM.EntityId ,Bu.Code  ,Bu.UserName ,IR.IssueRequestMasterId
+                                    ,Bu1.Code ,Bu1.UserName Activity ,Us.FullName AddedBy  ,MRM.Id RequisitionNo  ,MRD.ArticleId
+                                    ,Dp.UserName DepartmentName  ,MGM.UserName MaterialMasterGroupName
+                                    ,mm.UserName Material ,ART.StandardName ArticleName ,MT.UserName MaterialType  ,MRD.FirstCharacteristicsId
+                                    ,FC.UserName AS FirstCharacteristics ,MRD.FirstCharacteristicsValueId ,FCV.UserName AS Sku1 ,MRD.SecondCharacteristicsId
+                                    ,SC.UserName AS SecondCharacteristics ,MRD.SecondCharacteristicsValueId
+                                    ,SCV.UserName AS Sku2  ,MRD.ThirdCharacteristicsId ,TC.UserName AS ThirdCharacteristics ,MRD.ThirdCharacteristicsValueId
+                                    ,TCV.UserName AS Sku3 ,IR.ExpenseActivityId  ,IR.CostCenterId ,IR.ExpenseActivityId  ,IR.BudgetMasterId ,IR.GLGeneralInfoId 
+                                    ,IR.IssueRequestMasterId ,isnull(IGL1.UserName,'') AS CGL									
+									,isnull(B1.UserName,'') AS CBUdget ,isnull(IA1.UserName,'') AS GLBudgetActivity,TUoM.UserName UOM
+                                    from trn.IssueRequest IR
+                                    left Join TRN.IssueRequestMaster As IRM on IRM.Id=IR.IssueRequestMasterId
+                                    left Join [TRN].[MaterialRequsitionDetails] As MRD on MRD.Id=IR.REquisitionDetailId
+                                    Left Join [TRN].[MaterialRequsitionMaster] As MRM On MRD.MaterialReqqusitionMasterId=MRM.Id
+                                    Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
+                                    Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
+                                    Left Join [ORG].[Entity] As En On MRM.EntityId=En.Id
+                                    Left Join [HKP].[Budget] As Bu On Bu.Id=MRD.ActivityId
+                                    Left Join [HKP].[Budget] As Bu1 On Bu1.Id=IR.ExpenseActivityId
+                                    Left JOIN MST.MaterialMaster AS MM ON IR.MaterialMasterId = MM.Id
+                                    LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+                                    LEFT JOIN MST.MaterialMasterArticle AS ART ON IR.ArticleId = ART.Id
+                                    LEFT JOIN HKP.Characteristics AS FC ON IR.FirstCharacteristicsId = FC.Id
+                                    LEFT JOIN HKP.Characteristics AS SC ON IR.SecondCharacteristicsId = SC.Id
+                                    LEFT JOIN HKP.Characteristics AS TC ON IR.ThirdCharacteristicsId = TC.Id
+                                    LEFT JOIN HKP.CharacteristicsValue AS FCV ON IR.FirstCharacteristicsValueId = FCV.Id
+                                    LEFT JOIN HKP.CharacteristicsValue AS SCV ON IR.SecondCharacteristicsValueId = SCV.Id
+                                    LEFT JOIN HKP.CharacteristicsValue AS TCV ON IR.ThirdCharacteristicsValueId = TCV.Id
+                                     LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IR.TransactionUoMId = TUoM.Id
+                                    LEFT JOIN [SEC].[User] As Us On IR.AddedBy=Us.UserId
+                                    LEFT JOIN dbo.EmployeeInformation As Em On Us.EmployeeId=Em.SystemId
+                                    LEFT JOIN [ORG].[Department] AS Dp On Dp.Id=Em.DepartmentId
+                                    LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
+                                    LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IR.GLGeneralInfoId 
 									LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IR.BudgetMasterId
 									LEFT JOIN HKP.Activity IA1 ON IA1.Id=IR.ExpenseActivityId
-									Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId";
-                return _sqlRepository.GetDataCollection(sql);
+									Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId  " + tempQuery + "";
+
+                return _sqlRepository.GetDataCollection(_sql);
             }
             catch (Exception ex)
             {
                 throw new CustomException(ex.Message, ex,
                     Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
-
         #endregion
 
 
