@@ -324,7 +324,9 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rates"].ToString());
                 sheet[ROW, ColExRate].Number = clsStaticInfo.dbl(data.Rows[i]["ExchangeRate"].ToString());
                 sheet[ROW, ColDis].Number = clsStaticInfo.dbl(data.Rows[i]["DispatchQty"].ToString());
+               
                 sheet[ROW, ColODis].Number = clsStaticInfo.dbl(data.Rows[i]["OtherDispatchQty"].ToString());
+
                 sheet[ROW, ColBal].Number = clsStaticInfo.dbl(data.Rows[i]["BalanceToDispatch"].ToString());
                 sheet[ROW, ColAll].Number = clsStaticInfo.dbl(data.Rows[i]["AllotedStock"].ToString());
                 sheet[ROW, ColResponsiblePerson].Text = data.Rows[i]["ResponsiblePerson"].ToString();
