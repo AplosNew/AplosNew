@@ -144,6 +144,11 @@
             controller: 'CustomerQualityAndTechnicalSupportController'
         })
 
+        .when('/product-parameter-master', {
+            templateUrl: 'QMS/ProductParameterMaster/aplos',
+            controller: 'ProductParameterMasterController'
+        })
+
         
 }
 qmsConfig.$inject = ['$routeProvider', '$locationProvider'];
