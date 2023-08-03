@@ -78,7 +78,7 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
             url: $scope.path + 'LoadGrid',
             data: {
                 'customerId': $scope.ModelNew.CustomerId,
-                'poid': $scope.ModelNew.POId
+                'poid': $scope.ModelNew.PO
             },
             dataType: 'JSON'
         })
@@ -242,9 +242,7 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
         });
     }
 
-    //setInterval(function () {
-    //    $scope.GetGrossWeight();
-    //}, 10000)
+    
 
     $scope.QRCodeGeneratorTemp = {
         Id: null,
@@ -256,7 +254,7 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
         NumberOfCones: null,
         NetWeight: null,
         NetWeightId: null,
-        GrossWeight: null,
+        GrossWeight: 0.00,
         GrossWeightId: null,
         TierWeight:null,
         WeighingScaleNo:null,
@@ -345,7 +343,53 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
         })
             .then(function successCalback(res) {
                 $scope.QRCodeGenerateModel.GrossWeight = res.data;
+                $scope.QRCodeGenerateModel.GrossWeight = $scope.QRCodeGenerateModel.GrossWeight.substring(1)
                 
             })
     }
+
+    $scope.GetGrossWeightByWeighingScale = function () {
+        $scope.QRCodeGenerateModel.GrossWeight = null;
+        $http({
+            method: 'POST',
+            url: $scope.path + 'Read',
+            dataType: 'JSON'
+        })
+            .then(function successCalback(res) {
+                $scope.QRCodeGenerateModel.GrossWeight = res.data;
+                $scope.QRCodeGenerateModel.GrossWeight = $scope.QRCodeGenerateModel.GrossWeight.substring(0, 1)
+
+            })
+    }
+
+    var checkConnection = false;
+    $scope.CheckConnection = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'PassConnection',
+            dataType: 'JSON'
+        })
+            .then(function successCallback(res) {
+                checkConnection = res.data;
+                if (checkConnection == 'True')
+                    $scope.GetGrossWeightByWeighingScale();
+            })
+    }
+
+    $scope.RefereshGrossWeight = function () {
+        $scope.QRCodeGenerateModel.GrossWeight = null;
+        $scope.ConnectPortConnection();
+    }
+
+    // Read data auto from weighing scale on every 1sec.
+    
+    setInterval(function () {
+        if (!baseService.isUndefinedOrNull($scope.QRCodeGenerateModel.Portno)) {
+            $scope.RefereshGrossWeight();
+            
+        }
+        
+    }, 10000)
+
+   
 }

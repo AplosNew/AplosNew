@@ -158,6 +158,10 @@ function fixedAssetConfig($routeProvider, $locationProvider) {
             templateUrl: "FixedAssets/FixedAssetRegister/CapitalizeAssetRegisterPosting",
             controller: "CapitalizeAssetRegisterPostingController"
         })
+        .when("/add-info-update", {
+            templateUrl: "FixedAssets/FixedAssetMaster/AdditionalInfoUpdate",
+            controller: "AdditionalInfoUpdateController"
+        })
 
         ;
 }

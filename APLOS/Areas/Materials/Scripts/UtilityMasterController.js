@@ -554,4 +554,82 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
 
     };
     // #endregion Asset
+
+    //  #region UtilityCategory
+    $scope.UCAction = 'Save';
+
+    $scope.UtilityCategoryList = [];
+    $scope.GetUtilityCategoryList = function () {
+        $http({
+            method:'POST',
+            url: $scope.path + 'GetUtilityCategoryList',
+            dataType:'JSON'
+        })
+            .then(function successCallback(response) {
+                $scope.UtilityCategoryList = response.data;
+            })
+    }
+
+    $scope.UtilityCategoryTemp = {
+        Id: null,
+        UtilityCategory: null,
+        UoMId: null,
+        Remark:null
+    }
+    $scope.UtilityCategoryModelNew = Object.assign({}, $scope.UtilityCategoryTemp);
+
+    $scope.SaveUtilityCategory = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'SaveUtilityCategory',
+            data: { 'data': $scope.UtilityCategoryModelNew},
+            dataType:'JSON'
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success'); 
+                    
+                }
+            })
+    }
+
+    $scope.DeleteUtilityCategory = function () {
+        $http({
+            method: 'POST',
+            url: 'Materials/UtilityMaster/DeleteUtilityCategory?id=' + $scope.UtilityCategoryModelNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+
+    $scope.ClearUtilityCategory = function () {
+        ClearFieldsUtilityCategory();
+        return true;
+    };
+
+    function ClearFieldsUtilityCategory() {
+        $scope.UCAction = 'Save';
+        $scope.UtilityCategoryModelNew = {
+            Id: null,
+            UtilityCategory: null,
+            UoMId: null,
+            Remark: null
+        };
+        
+        $scope.UtilityCategoryModelNew = Object.assign({}, $scope.UtilityCategoryTemp);
+    }
+    //  #endregion UtilityCategory
 }

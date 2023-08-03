@@ -1594,11 +1594,30 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
             return Json(new { Message = AplosMessage.Insert });
         }
+        [HttpGet, Authorize]
+        public ActionResult CapitalizeAssetRegisterPostReport(ReportFormat reportFormat, string voucherId)
+        {
+            FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var workbook = _fixedAssetDisposeService.CapitalizeAssetRegisterPostReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName, false);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
 
         #endregion
 
         #region AdditionalInfoItem
-        
+
         [HttpPost]
         public JsonResult CreateAdditionalInfoItem(Dictionary<string, object> data)
         {

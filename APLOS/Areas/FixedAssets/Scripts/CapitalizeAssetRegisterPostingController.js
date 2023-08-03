@@ -6,14 +6,14 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
     $scope.message_confirmation = "";
     $scope.path = "fixedassets/fixedassetregister/";
 
-    $scope.searchBy = "FixedAssetMasterId"; $scope.search = "";
-    $scope.searchByList = [{ value: 'VoucherNo', name: "Voucher No" }, { value: 'PostingDate', name: "Posting Date" }, { value: 'FixedAssetMasterId', name: "Asset Master Id" }, { value: 'FixedAssetMaster', name: "Asset Master" }, { value: 'FixedAssetCategory', name: "Asset Category" }, { value: 'FixedAssetSubCategory', name: "Asset Sub Category" }, { value: 'DepreciationProcessDate', name: "Depreciation Process Date" }];
+    $scope.searchBy = "VoucherNo"; $scope.search = "";
+    $scope.searchByList = [{ value: 'VoucherNo', name: "Voucher No" }, { value: 'PostingDate', name: "Posting Date" }, { value: 'FixedAssetMasterId', name: "Asset Master Id" }, { value: 'FixedAssetItemId', name: "Asset Item Id" }, { value: 'FixedAssetMaster', name: "Asset Master" }, { value: 'FixedAssetItem', name: "Asset Item" }, { value: 'FixedAssetCategory', name: "Asset Category" }, { value: 'FixedAssetSubCategory', name: "Asset Sub Category" }];
 
     $scope.voucherList = [];
     $scope.getData = function () {
         $http({
             method: 'Post'
-            , url: 'FixedAssets/FixedAssetRegister/GetFixedAssetDepreciationPostedList'
+            , url: 'FixedAssets/FixedAssetRegister/GetCapitalizeAssetRegisterPostedList'
             , data: { column: $scope.searchBy, value: $scope.search }
             , dataType: 'JSON'
         }).then(function (response) {
@@ -147,7 +147,6 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
 
     cboService.getCboTransactionCurrencyByCompany("", function (result) {
         $scope.tranCurrencyList = result;
-        $scope.baseCurrencyId = $scope.selectBaseCurrency();
         $scope.voucher.CurrencyId = $scope.baseCurrencyId;
         $scope.GetCurrencyExchangeRateList();
     });
@@ -198,12 +197,22 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
         $scope.voucher.DocRefNo = null;
         $scope.voucher.Narration = null;
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
+        $scope.voucher.CapitalizationMasterId = null;
+        $scope.voucher.Amount = null;
+        $scope.voucher.FixedAssetItem = null;
+        $scope.voucher.Qty = null;
+        $scope.voucher.CapitalizationDate = null;
+        $scope.selectedmaterialMasterList = [];
         $scope.capitalizationJVList = [];
+
+        $scope.capitalizationMaster.Id = null;
+        $scope.capitalizationMaster.FixedAssetItemId = null;
+        $scope.capitalizationMaster.Qty = null;
+        $scope.capitalizationMaster.TotalAmount = null;
         
     };
 
     $scope.Post = function () {
-        $scope.$broadcast("show-errors-check-validity");
         if ($scope.form0.$valid) {
             $scope.SaveUrl = "fixedassets/FixedAssetRegister/CreatetCapitalizeAssetRegisterPost"
             if ($scope.Action === "Save") {
@@ -232,6 +241,26 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
                 return true;
             }
             return true;
+        }
+    };
+    $scope.onClickReportDownloadExcel = function (args) {
+        var reportFormat = "Excel";
+        try {
+            var file_src = $scope.path + 'CapitalizeAssetRegisterPostReport?reportFormat=' + reportFormat + '&voucherId=' + args.Id
+            $rootScope.report(file_src);
+        } catch (e) {
+
+        }
+    };
+
+    $scope.onClickReportDownloadWord = function (args) {
+        var reportFormat = "Pdf";
+        if (baseService.isUndefinedOrNull(args.Id)) return ShowResult('No Id found', 'failure');
+        try {
+            var file_src = $scope.path + 'CapitalizeAssetRegisterPostReport?reportFormat=' + reportFormat + '&voucherId=' + args.Id
+            $rootScope.report(file_src);
+        } catch (e) {
+
         }
     };
 
