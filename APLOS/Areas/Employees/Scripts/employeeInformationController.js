@@ -302,7 +302,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
     }
 
 
-    $scope.DOJpastDays = null;
+    $scope.DOJpastDays = 0;
     $scope.Operation = null;
     $scope.GetPlantWiseHRMSSetting = function () {
         $http({
@@ -367,19 +367,23 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
 
         })
+
+        $('.datepicker').datepicker({
+            startDate: '-' + $scope.DOJpastDays + 1 + 'd',
+            endDate: '-' + $scope.DOJpastDays + 'd',
+            datesDisabled: $scope.DisabledDates,
+            format: 'dd-M-yyyy',
+            todayHighlight: true,
+            autoclose: true,
+            inline: true,
+            changeMonth: true
+        });
+
     };
     $scope.GetPlantWiseHRMSSetting();
 
-    $('.datepicker').datepicker({
-        startDate: '-' + $scope.DOJpastDays + 1 + 'd',
-        endDate: '-' + $scope.DOJpastDays + 'd',
-        datesDisabled: $scope.DisabledDates,
-        format: 'dd-M-yyyy',
-        todayHighlight: true,
-        autoclose: true,
-        inline: true,
-        changeMonth: true
-    });
+    $scope.DisabledDates = [];
+    
 
 
 
