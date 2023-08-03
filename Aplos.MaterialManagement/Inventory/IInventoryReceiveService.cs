@@ -138,7 +138,7 @@ namespace Library.MaterialManagement.Inventory
         IEnumerable<object> GetRequisitionIssueDetail(string issueId);
 
 
-        IEnumerable<object> IssueDetailData(string issueId);
+        IEnumerable<object> IssueDetailData(string status,string Preparedby);
         IEnumerable<object> GetSupervisorCbo();
         IEnumerable<object> GetSupervisorCboApproved();
         IEnumerable<object> GetTaxCategoryListByPartyPlant(string companyGroupId, string partyPlantId, string plantId, string hsnCodeId);

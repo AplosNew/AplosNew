@@ -25,7 +25,7 @@ namespace Aplos.Areas.Processes.Controllers
             return View();
         }
 
-        [Authorize, HttpGet]
+        
         public ActionResult LoadEntityDetails()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -35,31 +35,56 @@ namespace Aplos.Areas.Processes.Controllers
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize, HttpGet]
-        public ActionResult LoadProcess()
+        
+        public ActionResult LoadProcessList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select Id Value, StandardName Text from HKP.Process where Active = 1 order by Text";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        public JsonResult getemployeeDataList(string headerid)
+        
+        public ActionResult LoadSubProcessList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select Id Value, StandardName Text from HKP.SubProcess where Active = 1 order by Text";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        
+        public ActionResult LoadMaterialGrid()
+        {
+            string sql = @"select distinct MM.Id, MM.Code MaterialCode ,MM.UserName Material, MC.UserName MaterialCategory, MGM.UserName MaterialGroup
+, MMA.Code ArticleCode,MMA.StandardName MaterialArticle
+from MST.MaterialMaster MM
+                            left join MST.MaterialGroupMaster MGM on MGM.Id = MM.MaterialGroupMasterId
+                            left join HKP.MaterialCategory MC on MC.ID = MM.MaterialCategoryId
+							left join MST.MaterialMasterArticle MMA on MMA.MaterialMasterId = MM.Id
+                            where MM.Active = 1 and MGM.Active = 1 and MM.MaterialCategoryId is not null";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult LoadUtilityGrid()
+        {
+            string sql = @"select UM.Id, UM.UserName UtilityName, UM.StandardName UtilityStdName, UOM.UserName UOM from UtilityMaster UM
+                            left join SCS.UnitOfMeasurement UOM on UOM.Id = UM.UoMId
+                            where UM.Active = 1";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult LoadResponsiblePopupData()
         {
             try
             {
-                //var Today = DateTime.Now;
-                //string FirstDayOfTheMonth = "01-" + Convert.ToDateTime(Today).ToString("MMM") + "-" + Convert.ToDateTime(Today).ToString("yyyy");
-                //string LastDayOfTheMonth = Convert.ToDateTime(FirstDayOfTheMonth).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
-                
-
+              
                 string CmdText = @"SELECT 
                                   Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode, Emp.EmployeeStatus, Emp.EmployeeCurrentStatus,
                                     Emp.DOS,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
                                     
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(emp.DOS,'dd-MMM-yyyy') DOS
-                                        ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric, RG.UserName ResidenceGroup, PR.PaymentLink Skill, EC.UserName EmployeeCategory
-                                        ,RM.Location, RM.ResidenceCategory, EMP.GenderID
+                                        ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric, PR.PaymentLink Skill, EC.UserName EmployeeCategory
+                                         ,EMP.GenderID
 										FROM EmployeeInformation EMP
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
@@ -72,14 +97,12 @@ namespace Aplos.Areas.Processes.Controllers
                                         LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
-                                        LEFT JOIN ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId 
-										LEFT JOIN ResidenceAllocatedEmployees RAE on RAE.EmployeeSystemId = EMP.SystemId
-										LEFT JOIN ResidenceMaster RM on RM.Id = RAE.ResidenceId
+                                     
 										LEFT JOIN MST.DesignationMaster DM on DM.DesignationId = D.Id
 										LEFT JOIN HKP.EmployeeCategory EC on EC.Id = DM.EmployeeCategoryId
 										
                                         Where EMP.EmployeeStatus='Active' 
-                                        order by RP.IsActive DESC
+                                       
                                         --ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
                 
 
@@ -91,6 +114,12 @@ namespace Aplos.Areas.Processes.Controllers
                     Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
             }
+        }
+
+        public ActionResult GetUOM()
+        {
+            string sql = @"Select Id Value, UserName Text from SCS.UnitOfMeasurement";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
     }
 }

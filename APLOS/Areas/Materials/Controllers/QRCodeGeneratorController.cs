@@ -19,16 +19,20 @@ using System.Web;
 using System.Web.Mvc;
 using Zen.Barcode;
 using System.IO.Ports;
-using System.Threading;
 using System.Drawing;
+
+
 
 namespace Aplos.Areas.Materials.Controllers
 {
     public class QRCodeGeneratorController : Controller
     {
-        private Font verdana10Font;
-        private StreamReader reader;
+        
         private readonly SqlRepository _sqlRepository;
+        public string DataReceived = "";
+
+        
+
         SerialPort serialPort = new SerialPort("COM9", 19200, Parity.None, 8, StopBits.One);
         public QRCodeGeneratorController()
         {
@@ -97,43 +101,7 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        private void PrintTextFileHandler (object sender, PrintPageEventArgs ppeArgs)
-        {
-            //Get the Graphics object
-
-            Graphics g = ppeArgs.Graphics;
-            float linesPerPage = 0;
-            float yPos = 0;
-            int count = 0;
-            //Read margins from PrintPageEventArgs
-            float leftMargin = ppeArgs.MarginBounds.Left;
-            float topMargin = ppeArgs.MarginBounds.Top;
-            string line = null;
-            //Calculate the lines per page on the basis of the height of the page and the height of the font
-            linesPerPage = ppeArgs.MarginBounds.Height;
-            //verdana10Font.GetHeight (g);
-            //Now read lines one by one, using StreamReader
-            while ( ( line = reader.ReadLine ()) != null)
-            {
-                //Calculate the starting position
-                yPos = topMargin + (count *
-                verdana10Font.GetHeight (g));
-                //Draw text
-                g.DrawString (line, verdana10Font, Brushes.Black,
-                leftMargin, yPos, new StringFormat());
-                //Move to next line
-                count++;
-            }
-            //If PrintPageEventArgs has more pages to print
-            if (line != null)
-            {
-                ppeArgs.HasMorePages = true;
-            }
-            else
-            {
-                ppeArgs.HasMorePages = false;
-            }
-        }
+       
 
         public IPresentation CreateQRCode(Dictionary<string, object> data, string ShadeText, string ArticleName, string productcodeText, string NetWeightText)
         {
@@ -163,19 +131,10 @@ namespace Aplos.Areas.Materials.Controllers
                     }
                 }
 
-                PrintDocument pd = new PrintDocument();
-                //Set PrinterName as the selected printer in the printers list  
-                //pd.PrinterSettings.PrinterName = "HPRT HT300 - ZP";
-
-                // Add PrintPage event handler
-                // pd.PrintPage += new PrintPageEventHandler();
-
-                //Print the document  
-                //pd.Print();
-
                 string concatdata = Convert.ToString(
                     string.Concat(
-                     productcodeText, "#"
+                     //productcodeText, "#"
+                     data["ProductCode"].ToString(), "#"
                     , data["PO"].ToString(), "#"
                     , data["LOT"].ToString(), "#"
                     , data["NumberOfCones"].ToString(), "#"
@@ -193,7 +152,7 @@ namespace Aplos.Areas.Materials.Controllers
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "LOT", Convert.ToString(data["LOT"]), "Kalpurush", 18);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "NumberOfCones", Convert.ToString(data["NumberOfCones"]), "Kalpurush", 18);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "NETWEIGHT", Convert.ToString(data["NetWeight"]), "Kalpurush", 18);
-                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "GWeight", Convert.ToString(data["GrossWeight"]), "Kalpurush", 18);
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "GrossWeight", Convert.ToString(data["GrossWeight"]), "Kalpurush", 18);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "Shade", Convert.ToString(data["Shade"]), "Kalpurush", 18);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "Article", Convert.ToString(data["Article"]), "Kalpurush", 18);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "PackedBy", identity.UserId, "Kalpurush", 18);
@@ -202,7 +161,8 @@ namespace Aplos.Areas.Materials.Controllers
                     ConvertPresentationToPdf.SetQRCode(presentation.Slides[i], "EmpQR", barcodeImg);
                 }
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
-                //workbook.Save(fullPath);
+
+               
                 return presentation;
             }
             catch(Exception ex)
@@ -265,10 +225,10 @@ namespace Aplos.Areas.Materials.Controllers
                 _info.SaveDataSets(dsMaster);
                 datas.Save(fullPath);
                 con.BeginTransaction();
-
-                con.executeQuery($"update dbo.WeighingScaleDataCapture set isQR = 1 where Id ='" + data["GrossWeightId"] + "'");
-                con.CommitTransaction();
                 
+                //con.executeQuery($"update dbo.WeighingScaleDataCapture set isQR = 1 where Id ='" + data["GrossWeightId"] + "'");
+                //con.CommitTransaction();
+
 
                 return Json(new { FileName = fileName, Error = false, Message = AplosMessage.Insert });
             }
@@ -418,6 +378,27 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
+        public bool PassConnection()
+        {
+            try
+            {
+                Disconnect();
+                if (!serialPort.IsOpen)
+                {
+                    serialPort.Open();
+
+                }
+                
+                //var data = Read();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
+
         public string Connect()
         {
             try
@@ -426,15 +407,49 @@ namespace Aplos.Areas.Materials.Controllers
                 {
                     serialPort.Open();
 
-                    
                 }
-                var data = string.Format("{0:X2} ", serialPort.ReadExisting());
+               
+                var data = Read();
+                Disconnect();
                 return data;
             }
             catch (Exception ex)
             {
                 throw ex;
 
+            }
+        }
+
+        public void Disconnect()
+        {
+            try
+            {
+                if (serialPort.IsOpen)
+                {
+                    serialPort.Close();
+                    //MessageBox.Show("Disconnected");
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public string Read()
+        {
+            try
+            {
+               
+                    this.DataReceived = serialPort.ReadLine().ToString();
+               
+                
+                return (this.DataReceived);
+            }
+            catch(Exception ex)
+            {
+                throw;
             }
         }
     }
