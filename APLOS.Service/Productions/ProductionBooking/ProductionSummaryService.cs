@@ -729,7 +729,7 @@ where QID.IssueType in ('Order','General') " + QCDate + " " + QCProcess + " " + 
             }
             if (fromDate != "null" && todate != "null" && fromDate != "undefined" && todate != "undefined")
             {
-                QCDate = @"and (QC.AddedDate  between '" + fromDate + "' and '" + todate + "'  or QII.ItemName is null)";
+                QCDate = @"and (CONVERT(DATE,QC.AddedDate)  between '" + fromDate + "' and '" + todate + "'  or QII.ItemName is null)";
             }
             
             var sql = @"select distinct QC.Id QCHeaderId,QCD.Id QCDId,
@@ -824,7 +824,7 @@ where QID.IssueType in ('Order','General') and QCD.Id is not null " + QCDate + "
             }
             if (fromDate != "null" && todate != "null" && fromDate != "undefined" && todate != "undefined")
             {
-                QCDate = @"and (QC.AddedDate between '" + fromDate + "' and '" + todate + "'  or QII.ItemName is null)";
+                QCDate = @"and (CONVERT(DATE,QC.AddedDate) between '" + fromDate + "' and '" + todate + "'  or QII.ItemName is null)";
             }
 
             var sql = @"select B.IssueType,B.Customer,B.POId,B.LotNumber,B.Entity,B.ProcessSeq,B.Process,B.Shift,B.IssueDetails,B.Parameter,B.ItemUOM,B.Remarks,B.DateShiftTime,B.Value

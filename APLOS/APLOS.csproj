@@ -647,6 +647,7 @@
     <Compile Include="Areas\QMS\Controllers\ComplaintController.cs" />
     <Compile Include="Areas\QMS\Controllers\CustomerQualityAndTechnicalSupportController.cs" />
     <Compile Include="Areas\QMS\Controllers\DocumentSetupController.cs" />
+    <Compile Include="Areas\QMS\Controllers\ProductParameterMasterController.cs" />
     <Compile Include="Areas\QMS\Controllers\QualityManagementMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SurveyandFeedbackController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\TrainingMasterController.cs" />
@@ -2277,6 +2278,7 @@
     <Content Include="Areas\QMS\Scripts\ComplaintController.js" />
     <Content Include="Areas\QMS\Scripts\CustomerQualityAndTechnicalSupportController.js" />
     <Content Include="Areas\QMS\Scripts\DocumentSetupController.js" />
+    <Content Include="Areas\QMS\Scripts\ProductParameterMasterController.js" />
     <Content Include="Areas\QMS\Scripts\QualityManagementMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\SurveyandFeedbackController.js" />
     <Content Include="Areas\HumanResource\Scripts\TablesUploadController.js" />
@@ -4906,6 +4908,7 @@
     <Content Include="Areas\Accounts\Views\GeneralAccountDeterminate\GlControl.cshtml" />
     <Content Include="Areas\QMS\Views\CustomerQualityAndTechnicalSupport\Aplos.cshtml" />
     <Content Include="Areas\QMS\Views\Complaint\Aplos.cshtml" />
+    <Content Include="Areas\QMS\Views\ProductParameterMaster\Aplos.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />
