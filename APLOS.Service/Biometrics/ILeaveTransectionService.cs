@@ -20,7 +20,7 @@ namespace Library.Service.Biometrics
 
         IEnumerable<object> LoadLvPolicyWiseLeaveTypeCmb(string sPlantID, string strLvPolSysID, string employeeId);
 
-        void SaveData(LeaveTransaction leaveTransaction);
+        void SaveData(LeaveTransaction leaveTransaction, string yearId);
         void SaveLeaveData(LeaveTransaction leaveTransaction);
 
         IEnumerable<ComboModel> LoadYearCbo(string plantId);

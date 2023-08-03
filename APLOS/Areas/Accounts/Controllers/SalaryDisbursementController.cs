@@ -336,7 +336,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         left join MST.ManpowerBudget MPB on MPB.Id = ei.BudgetCode
                         left join ORG.Position PO on PO.Id = MPB.PositionId
                         left join trn.Voucher v on v.Id=sl.PayableVoucherId
-						left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Net Pay'
+						left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Net Pay' and vd.SalaryHeadId=sh.SalaryHeadID and Vd.AccountsGroupId=sl.AccountsGroupId
 							LEFT JOIN HKP.GLGeneralInfo CDGL ON CDGL.Id=vd.GLGeneralInfoId
                             LEFT JOIN MST.BudgetMaster CDBM ON CDBM.Id=vd.BudgetMasterId
                             LEFT JOIN HKP.Budget CDB ON CDB.Id=CDBM.BudgetId
@@ -381,7 +381,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         left join MST.ManpowerBudget MPB on MPB.Id = ei.BudgetCode
                         left join ORG.Position PO on PO.Id = MPB.PositionId
                         left join trn.Voucher v on v.Id=sl.PayableVoucherId
-						left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Net Pay'
+						left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Net Pay' and vd.SalaryHeadId=sh.SalaryHeadID and Vd.AccountsGroupId=sl.AccountsGroupId
 							LEFT JOIN HKP.GLGeneralInfo CDGL ON CDGL.Id=vd.GLGeneralInfoId
                             LEFT JOIN MST.BudgetMaster CDBM ON CDBM.Id=vd.BudgetMasterId
                             LEFT JOIN HKP.Budget CDB ON CDB.Id=CDBM.BudgetId
@@ -432,7 +432,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         left join ORG.Position PO on PO.Id = MPB.PositionId
 
                         left join trn.Voucher v on v.Id=sl.PayableVoucherId
-						left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Net Pay'
+						left join trn.VoucherDetail vd on vd.VoucherId=v.Id and vd.TrnNature ='Net Pay' and vd.SalaryHeadId=sh.SalaryHeadID and Vd.AccountsGroupId=sl.AccountsGroupId
 							LEFT JOIN HKP.GLGeneralInfo CDGL ON CDGL.Id=vd.GLGeneralInfoId
                             LEFT JOIN MST.BudgetMaster CDBM ON CDBM.Id=vd.BudgetMasterId
                             LEFT JOIN HKP.Budget CDB ON CDB.Id=CDBM.BudgetId

@@ -2441,7 +2441,7 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
             string strSql = string.Empty;
             try
             {
-                strSql = @"select QPC.Id,QPC.POId,QID.Id as IssueId,QID.IssueName,E.UserName Entity,
+                strSql = @"select QPC.Id,QPC.POId,QID.Id as IssueId,QMM.UserName IssueName,E.UserName Entity,
 P.UserName as Process,QPC.DependentOn,QPC.Legdays,format(QPC.Date,'dd-MMM-yyyy') as Date,format(QPC.QualityPlanDate,'dd-MMM-yyyy') as QualityPlanDate,EI.EmployeeName as AllotedPlanEmployee,
 reverse(stuff(reverse((select distinct LotNumber + ',' from TRN.ProductionSummary where ProductionOrderId=QPC.POId and ProcessId=P.Id for xml path(''))),1,1,'')) as LotNumber,
 Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
@@ -2453,6 +2453,7 @@ where QPC.POId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR
 PS.UserName as POStatus
 from TRN.QualityPlanControl QPC
 left join MST.QualityIssueDetails QID on QID.Id=QPC.IssueId
+left join MST.QualityManagementMaster QMM on QMM.Id = QID.IssueNameId
 left join MST.POQualityPlanDetails QPD on QPD.Id=QPC.QPId
 left join ORG.Entity  E on E.Id=QId.EntityId
 left join hkp.Process P on P.Id=QID.ProcessId
@@ -2484,16 +2485,17 @@ where QPC.Id='" + PlannedId + @"'";
             string strSql = string.Empty;
             try
             {
-                strSql = @"select QII.Id,QII.SNO,QID.IssueName,QII.ItemName,UOM.UserName UOM,QII.Max,QII.Min,P.Code as PositionCode,QII.CriticalLevel,
+                strSql = @"select QII.Id,QII.SNO,QMM.UserName IssueName,QII.ItemName,UOM.UserName UOM,QII.Max,QII.Min,P.Code as PositionCode,QII.CriticalLevel,
 QCD.Value,QCD.GradeId as GradeDetails,QCD.Remarks,QCD.ActionToBeTaken,QCD.ResponsiblePersonId as ResponsiblePerson
 from MST.QualityIssueItem QII
 left join MST.QualityIssueDetails QID on QID.Id=QII.IssueId
+left join MST.QualityManagementMaster QMM on QMM.Id = QID.IssueNameId
 left join SCS.UnitOfMeasurement UOM on UOM.Id=QII.UOMId
 left join Org.Position P on P.Id=QII.PositionCodeId
 left join TRN.QualityPlanControl QPC on QID.Id=QPC.IssueId
 left join TRN.QualityControl QC on QC.QualityPlanId=QPC.Id
 left join TRN.QualityControlDetails QCD on QCD.QCId=QC.Id
-where QPC.Id='" + PlannedId + @"'";
+where QPC.Id='" + PlannedId + @"' order by QII.SNO";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.BeginTransaction();
@@ -2584,12 +2586,13 @@ where QIC.Id='" + PlannedId + @"' order by QII.SNO";
             string strSql = string.Empty;
             try
             {
-                strSql = @"select QC.Id,QID.Id as IssueId,QID.IssueName,E.UserName Entity,P.UserName as Process,QC.ProductionDate,SD.UserName Shift,
+                strSql = @"select QC.Id,QID.Id as IssueId,QMM.UserName IssueName,E.UserName Entity,P.UserName as Process,QC.ProductionDate,SD.UserName Shift,
 QTD.PeriodName + ' ('+ format(QTD.FromTime,'hh:mm tt') + ' - ' + format(QTD.ToTime,'hh:mm tt') + ' )' as period,EI.EmployeeName,QC.LotNumber,QC.PlanType,QC.QualityPlanId,QC.Remarks,QC.MasterOrderItemId,QC.SalesOrderId
  from TRN.QualityControl QC
 left join ORG.Entity  E on E.Id=QC.EntityId
 left join hkp.Process P on P.Id=QC.ProcessId
 left join MST.QualityIssueDetails QID on QID.Id=QC.IssueId
+left join MST.QualityManagementMaster QMM on QMM.Id = QID.IssueNameId
 left join ShiftDefination SD on SD.SystemID=QC.ProductionShiftId
 left join MST.QualityTimeDetails QTD on QTD.Id=QC.PeriodId
 left join EmployeeInformation EI on EI.SystemId=QC.ProductionInchargeId
@@ -2617,14 +2620,15 @@ where QC.Id='" + PlannedId + @"'";
             string strSql = string.Empty;
             try
             {
-                strSql = @"select QII.Id,QII.SNO,QID.IssueName,QII.ItemName,UOM.UserName UOM,QII.Max,QII.Min,P.Code as PositionCode,QII.CriticalLevel,
+                strSql = @"select QII.Id,QII.SNO,QMM.UserName IssueName,QII.ItemName,UOM.UserName UOM,QII.Max,QII.Min,P.Code as PositionCode,QII.CriticalLevel,
 QCD.Value,(select GradeName from MST.QualityGradeDetails where id=QCD.GradeId) as GradeDetails,QCD.Remarks,(select ActionToBeTakenName from MST.QualityActionToBeTakenDetails where id=QCD.ActionToBeTaken) as ActionToBeTaken,QCD.ResponsiblePersonId as ResponsiblePerson from TRN.QualityControlDetails QCD 
 left join TRN.QualityControl QC on QC.id=QCD.QCId
 left join MST.QualityIssueItem QII on QII.Id=QCD.ItemId
 left join MST.QualityIssueDetails QID on QID.Id=QII.IssueId
+left join MST.QualityManagementMaster QMM on QMM.Id = QID.IssueNameId
 left join SCS.UnitOfMeasurement UOM on UOM.Id=QII.UOMId
 left join Org.Position P on P.Id=QII.PositionCodeId
-where QCD.QCId='" + PlannedId + @"'";
+where QCD.QCId='" + PlannedId + @"' order by QII.SNO";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.BeginTransaction();

@@ -1097,6 +1097,13 @@ namespace Aplos.Areas.FixedAssets.Controllers
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             return Json(_fixedAssetQueryService.GetFixedAssetDepreciationSingleJVList(fixedAssetMasterId, depreciationProcessDate, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
+        [HttpPost, Authorize]
+        public ActionResult GetCapitalizationSingleJVList(string capitalizationMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetCapitalizationSingleJVList(capitalizationMasterId,  identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
 
         [Authorize, HttpPost]
         public ActionResult GetFixedAssetDisposePostedList(string column, string value, string companyId)
@@ -1573,25 +1580,44 @@ namespace Aplos.Areas.FixedAssets.Controllers
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            return Json(_fixedAssetQueryService.GetFixedAssetDepreciationPostedList(column, value, identity.CompanyId), JsonRequestBehavior.AllowGet);
+            return Json(_fixedAssetQueryService.GetCapitalizeAssetRegisterPostedList(column, value, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
-        public JsonResult CreatetCapitalizeAssetRegisterPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<FixedAssetDepreciationProcessVM> fixedAssetDepreciationList)
+        public JsonResult CreatetCapitalizeAssetRegisterPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, Dictionary<string, object> capitalizationMasterdata)
         {
             FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
-            _fixedAssetDisposeService.InsertFixedAssetDepreciationPosting(voucherVM, voucherDetailVMList, fixedAssetDepreciationList);
+            _fixedAssetDisposeService.InsertCapitalizeAssetRegisterPosting(voucherVM, voucherDetailVMList, capitalizationMasterdata);
 
             return Json(new { Message = AplosMessage.Insert });
+        }
+        [HttpGet, Authorize]
+        public ActionResult CapitalizeAssetRegisterPostReport(ReportFormat reportFormat, string voucherId)
+        {
+            FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var workbook = _fixedAssetDisposeService.CapitalizeAssetRegisterPostReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName, false);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
         }
 
         #endregion
 
         #region AdditionalInfoItem
-        
+
         [HttpPost]
         public JsonResult CreateAdditionalInfoItem(Dictionary<string, object> data)
         {

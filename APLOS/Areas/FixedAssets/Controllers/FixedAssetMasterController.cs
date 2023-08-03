@@ -1,10 +1,13 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
+using Library.Accounting.FixedAssets;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using Library.Model.FixedAssets;
 using Library.Security.Core;
 using Library.Service.FixedAssets;
+using Library.Service.Systems;
 using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
@@ -18,10 +21,13 @@ namespace Aplos.Areas.FixedAssets.Controllers
     public class FixedAssetMasterController : BaseController
     {
         private readonly IFixedAssetMasterService _fixedAssetMasterService;
-
-        public FixedAssetMasterController(IFixedAssetMasterService fixedAssetMasterService)
+        private readonly IPKGeneratorService _pkGeneratorService;
+        private readonly ISqlRepository _sqlRepository;
+        public FixedAssetMasterController(IFixedAssetMasterService fixedAssetMasterService, IPKGeneratorService pkGeneratorService, ISqlRepository sqlRepository)
         {
             _fixedAssetMasterService = fixedAssetMasterService;
+            _pkGeneratorService = pkGeneratorService;
+            _sqlRepository = sqlRepository;
         }
 
         [Authorize]
@@ -41,7 +47,11 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             return View("~/Areas/FixedAssets/Views/FixedAssetMasterGL.cshtml");
         }
-
+        [Authorize]
+        public ActionResult AdditionalInfoUpdate()
+        {
+            return View("~/Areas/FixedAssets/Views/AdditionalInfoUpdate.cshtml");
+        }
         [HttpGet, Authorize]
         public ActionResult GetList(GridParameter parameters)
         {
@@ -139,8 +149,8 @@ namespace Aplos.Areas.FixedAssets.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string fileName = ""; 
-                fileName = _fixedAssetMasterService.GetFixedAssetMasterReport("", reportFileName,identity.CompanyGroupId); 
+                string fileName = "";
+                fileName = _fixedAssetMasterService.GetFixedAssetMasterReport("", reportFileName, identity.CompanyGroupId);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -279,7 +289,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             try
             {
-               
+
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 conC.BeginTransaction();
                 conC.executeQuery("delete from [MST].[FixedAssetItem] where Id ='" + Id + "'");
@@ -309,5 +319,139 @@ namespace Aplos.Areas.FixedAssets.Controllers
             }
         }
 
+        #region AdditionalInfo
+        [HttpPost]
+        public JsonResult CreateAdditional(List<Dictionary<string, object>> AdditionalList, string masterId)
+        {
+            try
+            {
+                SaveAdditionalData(AdditionalList, masterId);
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+
+        }
+
+
+        private void SaveAdditionalData(List<Dictionary<string, object>> AdditionalList, string masterId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsChild;
+            int c = 0;
+            try
+            {
+                #region AdditionalList 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[AssetItemAdditionalInfoMap] where  FixedAssetItemId='" + masterId + "'", out dsChild, false, "1");
+                if (AdditionalList != null)
+                {
+                    foreach (var item in AdditionalList)
+                    {
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            c++;
+
+                            item["Id"] = _pkGeneratorService.MakePK(masterId, c, 2);
+
+                            AddNewRow(dsChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsChild);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpGet]
+        public ActionResult GetAdditionalData(string masterId)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetAdditionalData(masterId), JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+
+        #region AdditionalInfoUpdate
+
+        [HttpPost]
+        public JsonResult CreateAdditionallInfoUpdate(Dictionary<string, object> data)
+        {
+            try
+            {
+                SaveAdditionallInfoUpdate(data);
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+
+        }
+
+        public void SaveAdditionallInfoUpdate(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from [TRN].[AdditionallInfoUpdate] where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Code already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from [TRN].[AdditionallInfoUpdate] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "AdditionallInfoUpdate", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update 
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+               
+            }
+            catch (Exception ex)
+            {
+              throw  ex;
+            }
+        }
+
+        [HttpGet]
+        public ActionResult GetAdditionallInfoUpdateData()
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetAdditionallInfoUpdateData(), JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
     }
 }
