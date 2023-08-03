@@ -33,23 +33,12 @@
         width: auto;
         vertical-align: middle;
     }
-    /*.e-gridheader .e-headercell {
-        background-color: #1c1f32;
-        color: White;
-        min-height: 100%;
-        border-bottom-color: #8B4513;
-    }*/
+
     .e-grid.e-wrap .e-columnheader .e-headercelldiv {
         margin-bottom: 2px;
         margin-top: 0;
         font-size: 9px;
     }
-    /*.e-filterset:before {
-        color: Green;
-    }*/
-
-
-
 
     e-grid .e-columnheader .wrap .e-headercelldiv {
         height: Auto;
@@ -149,20 +138,19 @@
                              e-detailstemplate="detailTemp"
                              e-detailsdatabound="detailgrid">
                             <div e-columns>
-                                @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
-                                <div e-column e-field="Id" e-headertext="Id" e-width="30"></div>
-                                <div e-column e-field="RequestedQty" e-headertext="Qty" e-width="50"></div>
-                                @*<div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="80"></div>*@
 
+                                <div e-column e-headertext="Actions" e-width="30">
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Un Approved" ng-click="$parent.onClickSave('GridIUNApproved');" style="margin: -6px;"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridIUNApproved');" style="margin: -6px;"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintMICData(this);" style="margin: -6px;"></i></button>
+                                </div>
                                 <div e-column e-template="#RejectCheckedReason" e-headertext="Hold / Reject Reason" e-width="120" style="height: 20px;"></div>
                                 <div e-column e-template="#showGraph" e-headertext="Approved Status" e-width="50"></div>
-                                @* <div e-column e-headertext="" e-commands="commandpoAuth" e-isunbound=true e-textalign="center" e-width="100"></div>*@
-                            <div e-column e-headertext="Actions" e-width="30">
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Un Approved" ng-click="$parent.onClickSave('GridIUNApproved');" style="margin: -6px;"></i></button>
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridIUNApproved');" style="margin: -6px;"></i></button>
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintMICData(this);" style="margin: -6px;"></i></button>
-                            </div>
-
+                                <div e-column e-field="Id" e-headertext="Id" e-width="30"></div>
+                                <div e-column e-field="RequestedQty" e-headertext="Qty" e-width="50"></div>
+                                <div e-column e-field="ProductionOrderId" e-headertext="PONo" e-width="60"></div>
+                                <div e-column e-field="PlanPercentage" e-headertext="Plan%" e-width="60"></div>
+                                <div e-column e-field="RecoveryPercentage" e-headertext="Recovery %" e-width="80"></div>
                             </div>
 
                         </div>
@@ -182,7 +170,7 @@
         </div>
         <script type="text/template" id="RejectCheckedReason">
             @*<div class="col-sm-10" style="width:300px;height:20px; ">*@
-                <input type="text" ng-model="data.CheckedRejectReason" style="color:black;" class="form-control" />
+            <input type="text" ng-model="data.CheckedRejectReason" style="color:black;" class="form-control" />
             @*</div>*@
         </script>
 
@@ -191,9 +179,7 @@
                 <div id="control1">
                     <input id="combo-default12" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.approvalStatusList" e-value="data.CheckedByStatus" e-width="100%" />
                 </div>
-
             </div>
-
         </script>
 
         <div ng-hide="false" role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetIssueApp(2), active: isSetIssueApp(2) }">
@@ -209,27 +195,17 @@
                              e-detailsdatabound="detailgrid">
                             <div e-columns>
 
-                                @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
-                                <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
-                                @*<div e-column e-field="CostCenterName" e-headertext="Cost Center Name" e-width="80"></div>
-                                <div e-column e-field="ActivityName" e-headertext="ActivityName" e-width="80"></div>
-                                <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="80"></div>
-                                <div e-column e-field="RequisitionDetailId" e-headertext="RequisitionDetailId" e-width="80"></div>*@
+                                <div e-column e-headertext="Actions" e-width="80">
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridIUNApproved2');" style="margin: -6px;"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintMICData(this);" style="margin: -6px;"></i></button>
+                                </div>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="30"></div>
                                 <div e-column e-field="RequestedQty" e-headertext="Qty" e-width="50"></div>
-                                @*<div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="80"></div>*@
-
-
-                                @*<div e-column e-headertext="Print" e-commands="IssueRequestReport" e-isunbound=true e-textalign="center" e-width="50"></div>*@
-
-                            <div e-column e-headertext="Actions" e-width="20">
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridIUNApproved2');" style="margin: -6px;"></i></button>
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintMICData(this);" style="margin: -6px;"></i></button>
+                                <div e-column e-field="ProductionOrderId" e-headertext="PONo" e-width="60"></div>
+                                <div e-column e-field="PlanPercentage" e-headertext="Plan%" e-width="60"></div>
+                                <div e-column e-field="RecoveryPercentage" e-headertext="Recovery %" e-width="80"></div>
                             </div>
-
-                            </div>
-
                         </div>
-
                     </div>
 
                     <script id="tabGridContents" type="text/x-jsrender">
@@ -251,7 +227,6 @@
             <fieldset class="scheduler-border">
                 <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
                 <div>
-                    @*<div id='Grid'>e-allowselection="true"</div>*@
                     <div class="content-container-fluid" style="color:black;">
                         <div style="color:black;" id="GridIUNApproved3" ej-grid e-datasource="GridIssueSlipUnApprovedList"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
@@ -260,21 +235,19 @@
                              e-detailsdatabound="detailgrid">
                             <div e-columns>
 
-                                @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
-                                <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
+
+                                <div e-column e-headertext="Actions" e-width="80">
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Un Approved" ng-click="$parent.onClickSave('GridIUNApproved3');" style="margin: -6px;"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridIUNApproved3');" style="margin: -6px;"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintMICData(this);" style="margin: -6px;"></i></button>
+                                </div>
+                                <div e-column e-template="#RejectCheckedReason" e-headertext="Hold / Reject Reason" e-width="60" style="height: 20px;"></div>
+                                <div e-column e-template="#CheckedStatus1" e-headertext="Approval Status" e-width="60"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="30"></div>
                                 <div e-column e-field="RequestedQty" e-headertext="Qty" e-width="50"></div>
-                                <div e-column e-template="#ToBeApprovedBy1" e-headertext="To Be Approved By" e-width="150"></div>
-                                <div e-column e-template="#RejectCheckedReason" e-headertext="Hold / Reject Reason" e-width="150" style="height: 20px;"></div>
-                                <div e-column e-template="#CheckedStatus1" e-headertext="Checked Status" e-width="150"></div>
-
-                                @*<div e-column e-headertext="Print" e-commands="IssueRequestReport" e-isunbound=true e-textalign="center" e-width="50"></div>*@
-
-                            <div e-column e-headertext="Actions" e-width="30">
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Un Approved" ng-click="$parent.onClickSave('GridIUNApproved3');" style="margin: -6px;"></i></button>
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridIUNApproved3');" style="margin: -6px;"></i></button>
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintMICData(this);" style="margin: -6px;"></i></button>
-                            </div>
-
+                                <div e-column e-field="ProductionOrderId" e-headertext="PONo" e-width="60"></div>
+                                <div e-column e-field="PlanPercentage" e-headertext="Plan%" e-width="60"></div>
+                                <div e-column e-field="RecoveryPercentage" e-headertext="Recovery %" e-width="80"></div>
                             </div>
 
                         </div>
@@ -294,29 +267,19 @@
                 </div>
             </fieldset>
         </div>
-        <script type="text/template" id="ToBeApprovedBy1">
-            <div class="">
-                <div id="control">
-                    <input id="combo-default1" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.checkedByList1" e-value="data.SystemId" e-width="100%" />
-                </div>
-            </div>
-        </script>
+
         <script type="text/template" id="CheckedStatus1">
             <div class="">
                 <div id="control1">
-                    <input id="combo-default" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.POApprovalList" e-value="data.CheckedStatus" e-width="100%" />
+                    <input id="combo-default" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.approvalStatusList" e-value="data.CheckedByStatus" e-width="100%" />
                 </div>
             </div>
         </script>
 
 
         <script type="text/template" id="RejectCheckedReason">
-            @*<div class="col-sm-10" style="width:300px;height:20px; ">*@
-                <input type="text" ng-model="data.CheckedRejectReason" style="color:black;" class="form-control" />
-            @*</div>*@
+
         </script>
-
-
 
     </div>
 </div>
@@ -332,15 +295,8 @@
                         <label class="col-sm-4 control-label" ng-model="SystemId" ng-hide="true">{{SystemId}}</label>
                         <div class="col-sm-12">
                             <textarea type="text" rows="3" ng-model="reason" class="form-control" style="border:double"></textarea>
-                      
-                        
-                        
                         </div>
-
-
-
                     </div>
-
                 </div>
                 <div class="clearfix"></div>
                 <div class="form-group">
@@ -349,20 +305,11 @@
                         <li><button ng-click="ClosedPOPUp();" class="btn"> Close</button></li>
                     </ul>
                 </div>
-
-
-                @*  *@
             </div>
-
-
-
         </div>
     </div>
 
-
 </div>
-@*Taufik create list End*@
-
 
 <confirm-archive-generic modalid="poapprovealert" title="Confirmation" message={{message}} data-ng-click-right-button="IssueSlipApproved();"></confirm-archive-generic>
 <confirm-archive-generic modalid="poapprovalalert1" title="Confirmation" message={{message}} data-ng-click-right-button="poApp1();"></confirm-archive-generic>

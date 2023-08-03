@@ -26,7 +26,7 @@ namespace Library.MaterialManagement.Products
         IEnumerable<object> AssetIssueListData(string IssueStatus, string IssueSlipType);
         
         IEnumerable<object> ApprovedIssueSlipGridData(string IssueStatusApproval, string IssueSlipType);
-        IEnumerable<object> IssueSlipDetail(string Id);
+        IEnumerable<object> IssueSlipDetail(string slipstatus, string employeeId);
 
         IEnumerable<object> IssueListById(GridParameter parameters, string Id);
         IEnumerable<object> GetAllPurchaseOrderGroupDetails(string Id);

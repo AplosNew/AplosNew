@@ -41,27 +41,7 @@ function IssueSlipController(addressService, $window,  cboService, commonMessage
 		});
 	}
 	$scope.IssueDetailData();
-	//$window.onresize = function (event) {
-
-	//	$scope.actionCompleteSelected();
-
-	//};
-	//$scope.actionCompleteSelected = function (args) {
-	//	try {
-	//		if (args.requestType === "refresh") {
-	//			var gridObj = $("#GridIssueSlipMaterial").ejGrid("instance");
-	//			var scrollerwidth = $("#scroll").width();//Obtain the width of the container
-
-	//			//   $("#GridReq").children('.e-grid.e-headercell').css('height', '100px');              
-	//			gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 400 } });//pass the obtainer width and height to gridmodel options
-	//			gridObj.windowonresize();
-	//		}
-	//	} catch (e) {
-	//		//$scope.ShowResultCustom(e, 'failure');
-	//	}
-	//};
-
-
+	
 
 
 	$scope.FilterList123 = [];
@@ -130,7 +110,7 @@ function IssueSlipController(addressService, $window,  cboService, commonMessage
 			$scope.IssueSlipList = response.data;
 		});
 	}
-	$scope.Griddata();
+	//$scope.Griddata();
 
 
 
@@ -724,7 +704,7 @@ function IssueSlipController(addressService, $window,  cboService, commonMessage
 								ShowResult(response.data.Message, 'failure');
 							else {
 								ShowResult(response.data.Message, 'success');
-								$scope.Griddata();
+								//$scope.Griddata();
 								getInventoryMaterialList($scope.productNew.Id);
 
 							}
@@ -816,7 +796,7 @@ function IssueSlipController(addressService, $window,  cboService, commonMessage
 								ShowResult(response.data.Message, 'failure');
 							else {
 								ShowResult(response.data.Message, 'success');
-								$scope.Griddata();
+								//$scope.Griddata();
 								getInventoryMaterialList($scope.productNew.Id);
 
 							}
@@ -839,7 +819,7 @@ function IssueSlipController(addressService, $window,  cboService, commonMessage
 								ShowResult(response.data.Message, 'failure');
 							else {
 								ShowResult(response.data.Message, 'success');
-								$scope.Griddata();
+								//$scope.Griddata();
 								getInventoryMaterialList($scope.productNew.Id);
 
 							}
@@ -968,7 +948,7 @@ function IssueSlipController(addressService, $window,  cboService, commonMessage
 	$scope.tab1 = 1;
 	$scope.setTabIndex = function (newTab) {
 		$scope.tab1 = newTab;
-		$scope.Griddata();
+		//$scope.Griddata();
 	};
 	$scope.isSetIndex = function (tabNum) {
 		return $scope.tab1 === tabNum;
@@ -1439,7 +1419,7 @@ function IssueSlipController(addressService, $window,  cboService, commonMessage
 							ShowResult(response.data.Message, 'failure');
 						else {
 							ShowResult(response.data.Message, 'success');
-							$scope.Griddata();
+							//$scope.Griddata();
 							getInventoryMaterialList($scope.productNew.Id);
 
 						}
@@ -1464,7 +1444,7 @@ function IssueSlipController(addressService, $window,  cboService, commonMessage
 							ShowResult(response.data.Message, 'failure');
 						else {
 							ShowResult(response.data.Message, 'success');
-							$scope.Griddata();
+							//$scope.Griddata();
 							getInventoryMaterialList($scope.productNew.Id);
 
 						}
