@@ -1652,13 +1652,12 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult IssueSlipDetail(string Id)
+        public JsonResult IssueSlipDetail(string slipstatus)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_issueRequestService.IssueSlipDetail(Id), JsonRequestBehavior.AllowGet);
+            return Json(_issueRequestService.IssueSlipDetail(slipstatus, identity.EmployeeId), JsonRequestBehavior.AllowGet);
         }
         [HttpPost, Authorize]
-        //public JsonResult IssueSlipUpdate(IssueRequestMaster Issentity, IEnumerable<IssueRequestViewModel> entity, string Id, string CheckedBy, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
         public JsonResult IssueSlipUpdate(IssueRequestMaster Issentity, string entity, string Id, string CheckedBy, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, string SOListSelectedNew, string MaterialColorListNew, string OrderSpecific)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1668,12 +1667,7 @@ namespace Aplos.Areas.Products.Controllers
             Issentity.PlantId = identity.PlantId;
 
             List<IssueRequestViewModel> entityDetailVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(entity);
-            //List<IssueRequestViewModel> SOListSelectedNewDetailVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(SOListSelectedNew);
-            //List<IssueRequestViewModel> MaterialColorListNewDetailVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(MaterialColorListNew);
-
             _issueRequestService.InsertOrUpdateGraphIssueSlipUpdate(Issentity, entityDetailVM, Id, IssueSlipType, CheckedByStatusForNoti, ApprovedByStatusForNoti);
-            //DetailCreate(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId);
-
             return Json(new { Message = "Issue Request " + AplosMessage.Updated });
         }
         [Authorize, HttpGet]
@@ -1701,9 +1695,10 @@ namespace Aplos.Areas.Products.Controllers
 
 
         [Authorize, HttpGet]
-        public JsonResult IssueDetailData(string issueId)
+        public JsonResult IssueDetailData(string status)
         {
-            return Json(_inventoryReveiveService.IssueDetailData(issueId), JsonRequestBehavior.AllowGet);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.IssueDetailData(status,identity.EmployeeId), JsonRequestBehavior.AllowGet);
 
         }
 

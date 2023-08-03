@@ -164,13 +164,19 @@ function ProductConfig($routeProvider, $locationProvider) {
 
         .when('/issueslip-check', {
             templateUrl: 'Products/GoodsReceiveNote/IssueSlipCheck',
-            controller: 'IssueSlipController'
+            controller: 'IssueSlipCheckedByController'
         })
 
         .when('/approving-issue-slip', {
             templateUrl: 'Products/GoodsReceiveNote/ApprovingIssueSlip',
-            controller: 'IssueSlipController'
+            controller: 'IssueSlipApprovedByController'
         })
+
+        .when('/Material-Wise-issue-slip', {
+            templateUrl: 'Products/GoodsReceiveNote/MaterialIssueSlip',
+            controller: 'MaterialIssueSlipController'
+        })
+
         .when('/purchaseOrder-Authorized', {
             templateUrl: 'Products/PurchaseOrder/POApprove',
             controller: 'PurchaseOrderApproveController'
@@ -255,10 +261,7 @@ function ProductConfig($routeProvider, $locationProvider) {
             templateUrl: 'Products/inventoryIssue/SlipAssetIssue',
             controller: 'AssetIssueSlipBaseController'
         })
-        .when('/Material-Wise-issue-slip', {
-            templateUrl: 'Products/GoodsReceiveNote/MaterialIssueSlip',
-            controller: 'MaterialIssueSlipController'
-        })
+        
        
         .when('/inventory-issue-delete', {
             templateUrl: 'Products/inventoryIssue/IssueDelete',

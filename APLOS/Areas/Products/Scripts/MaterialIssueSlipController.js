@@ -291,16 +291,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
     }
     $scope.checkedByList = [];
-       //**********To Checked By**************
-    //$scope.GetSupervisorCboList = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'Products/PurchaseOrder/GetSupervisorCbo'
-    //    }).then(function successCallback(response) {
-    //        $scope.checkedByList = response.data;
-    //    });
-    //}
-    //$scope.GetSupervisorCboList();
+    
     //********** To Checked By**************
     $scope.GetCheckedByAndApprovedBy1 = function () {
         if (!baseService.isUndefinedOrNull($scope.CheckedByStatusForNoti) && !baseService.isUndefinedOrNull($scope.ApprovedByStatusForNoti)) {
@@ -333,59 +324,21 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
             else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true) {
                 $scope.labelCheckAndApproved = 'To be checked by';
             }
-            //else {
-            //    $scope.productNew.labelCheckAndApproved = 'To be checked/approved by';
-            //}
-
+           
         });
     }
     $scope.NotificationSettingStatus();
     
-
-    $scope.IssueDetailData = function () {
-        //debugger;
-        $http({
-            method: 'GET',
-            url: 'Products/GoodsReceiveNote/IssueDetailData'
-        }).then(function successCallback(response) {
-            $scope.lstIssueDetailData = response.data;
-            //$scope.detailgrid($scope.lst);
-            window.lstIssueDetailData = response.data;
-
-        });
-    }
-    $scope.IssueDetailData();
-
+    $scope.IssueStatus = 'ForChecked';
     $scope.FilterList123 = [];
-
-    $scope.data1 = $scope.lst;
-    $scope.detailTemp = "#tabGridContents";
-    //$scope.detailgrid = "detailGridData(e)";
-    $scope.detailgridIssue = function detailGridData(e) {
-        //debugger;
-        var filteredData = e.data["Id"];
-        var data = ej.DataManager(window.lstIssueDetailData).executeLocal(ej.Query().where("IssueMasterId", "equal", parseInt(filteredData), true).take(100));
-        e.detailsElement.find("#detailGrid").ejGrid({
-            dataSource: data,
-            columns: ["EntityName", "CostCenterName", "ExpenceActivityCode", "Activity", "MaterialType", "MaterialMasterGroupName", "MaterialMasterName", "ArticleId", "RequisitionNo", "RequisitionDetailId", "DepartmentName", "AddedBy", "ApprovedQty", "RejectionQty", "TotalQty", "IssuedQty"]
-        });
-        e.detailsElement.find(".tabcontrol").ejTab();
-    }
-
-
-
-
     $scope.lst = [];
     $scope.IssueSlipDetail = function () {
-        //debugger;
         $http({
             method: 'GET',
-            url: 'Products/GoodsReceiveNote/IssueSlipDetail'
+            url: 'Products/GoodsReceiveNote/IssueDetailData?status=' + $scope.IssueStatus
         }).then(function successCallback(response) {
             $scope.lst = response.data;
-            //$scope.detailgrid($scope.lst);
             window.lst = response.data;
-
         });
     }
     $scope.IssueSlipDetail();
@@ -394,19 +347,17 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
     $scope.data1 = $scope.lst;
     $scope.detailTemp = "#tabGridContents";
-    //$scope.detailgrid = "detailGridData(e)";
     $scope.detailgrid = function detailGridData(e) {
-        //debugger;
-
         var filteredData = e.data["Id"];
         var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("IssueRequestMasterId", "equal", parseInt(filteredData), true).take(100));
         e.detailsElement.find("#detailGrid").ejGrid({
 
             dataSource: data,
-            columns: ["CostCenterName", "GLBudgetActivity", "MaterialType", "MaterialGroup", "Material", "ArticleName", "Sku1", "Sku2", "Sku3", "AddedBy", "UOM", "RequestedQty"]
+            columns: ["EntityName", "CostCenterName", "ExpenceActivityCode", "Activity", "MaterialType", "MaterialMasterGroupName", "Material", "ArticleName", "RequisitionNo", "RequisitionDetailId", "DepartmentName", "AddedBy", "RequestedQty", "RejectedQty"]
         });
         e.detailsElement.find(".tabcontrol").ejTab();
     }
+
     //#endregion
     $scope.requisitionIssueDetailList = [];
 
@@ -415,7 +366,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
     $scope.IssueSlipList = [];
     $scope.IssueSlipHoldRejectList=[]
     $scope.IssueSlipCheckedList=[]
-    $scope.IssueStatus = 'ForChecked';
+    
     
     $scope.Griddata = function (issueStatus) {
         $scope.IssueSlipList = [];
@@ -834,15 +785,8 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
             url: 'Products/GoodsReceiveNote/IssueSlipFilter',
         }).then(function successCallback(response) {
             $scope.FilterList = response.data;
-            //$scope.detailgrid($scope.lst);
-            //  window.lst = response.data;
-
         });
     }
-    //$scope.FilterListData();
-
-
-
 
     $scope.GetEntity = function () {
         //debugger;
@@ -925,12 +869,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
     }
     $scope.detailSave = function () {
-
-        //debugger;
-
         try {
-
-            //$scope.GetListForMasterOrdernew = [];
             for (var i = 0; i < $scope.FilterList1.length; i++) {
                 if ($scope.FilterList1[i].RequestedQty === 0) {
                     ShowResult('Enter the Requested Qty', 'failure');
@@ -952,9 +891,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
                     ShowResult('Please select Expense Activity Code', 'failure');
                     return false;
                 }
-
             }
-            // $scope.processgroupList($scope.GetListForMasterOrdernew, $scope.groupList);
 
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.productNewForm.$valid) {
@@ -1061,8 +998,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
                         $scope.FilterList123New.push($scope.FilterList123[i]);
                     }
                 }
-
-
             }
             $scope.SOListSelectedNew = [];
             $scope.MaterialColorListNew = [];
@@ -1101,20 +1036,12 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
                                 && $scope.FilterList1234[i1].BOQDsThirdCharacteristicsValueId === $scope.FilterList123[i2].BOQDsThirdCharacteristicsValueId
                                 && $scope.FilterList1234[i1].TransactionUoMId === $scope.FilterList123[i2].TransactionUoMId) {
                                 $scope.FilterList1234[i1].RequestedQtyNew += Math.round($scope.FilterList123[i2].RequestedQtyNew * 100 + Number.EPSILON) / 100;;
-
-
                             }
-
                         }
-
                     }
-
-
                 }
             }
 
-            // $scope.FilterList1.IssueSlipType = $scope.IssueSlipType;
-            // $scope.processgroupList($scope.GetListForMasterOrdernew, $scope.groupList);
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.productNewForm.$valid) {
                 $scope.materialValidation();
@@ -1193,20 +1120,15 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
                         }), function errorCallBack(response) {
                             ShowResult(response.data.Message, 'failure');
                         };
-
                     }
                 }
-
             }
 
 
 
         } catch (e) {
-            //ShowResult(e, 'fail', 'detailPopUp');
         }
     };
-
-
 
 
     $scope.CostCenterLoad = function () {
@@ -1249,9 +1171,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
     };
 
     $scope.popUp = function (index) {
-        //debugger;
         $scope.customerInvoiceGLList = [];
-        //baseService.setCurrentPage("cOAICodeList");
         $scope.GetCOAICodeListData = function (pageno) {
             baseService.paginationBase("Accounts/GLItem/GetAllGLBudgetActivityPostingAutomaticOnly", pageno, $scope.glListParameters)
                 .then(function (result) {
@@ -1377,11 +1297,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
             getSalesOrderInfobyIssueSlipId(Id);
 
             GetIssueWiseSKU(Id);
-            /*GetProductionOrderBYSalesOrder($scope.ProductionOrderId);*/
-            //$scope.model.Id = $scope.ProductionOrderId;
-            //GetProcessByProductionOrder();
-
-
+           
         }
         else {
             $scope.productNew.OrderSpecific = 'No';
@@ -1479,22 +1395,15 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
                 $("#Grid3").children('.e-pager.e-js.e-pager').hide();
                 $("#Grid3").children('.e-gridcontent.e-droppable.e-js').hide();
                 $("#Grid3").children('.e-gridcontent').hide();
-                //$("#Grid2").children('.e-grid .e-headercell {background - color: chocolate;}').add();
-
                 $("#Grid3").children('.e-grid.e-headercell').css('background-color', 'red'); //{background - color: chocolate;}').add();
             }
 
         });
     }
     $scope.GetFilterForIssue();
-    //**********Issue**************
-
-    //**********IssueSlipChecked Approved**************
-
-
+ 
     $scope.tabIU = 1;
     $scope.IUCsetTabIndex = function (newTab) {
-        //debugger;
         $scope.tabIU = newTab;
         $scope.getaldataIssueSlipUnChecked();
     };
@@ -1503,7 +1412,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
     };
 
     $scope.ICsetTabIndex = function (newTab) {
-        //debugger;
         $scope.tabIU = newTab;
         $scope.getaldataIssueSlipChecked();
     };
@@ -1512,39 +1420,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
     };
 
     $scope.GriddataISUnCheckedList = [];
-    $scope.getaldataIssueSlipUnChecked = function () {
-        //debugger;
-        $http({
-            method: "GET",
-            dataType: 'JSON',
-            //url: $scope.getSearchListUrl,
-            url: 'Products/GoodsReceiveNote/IssueSlipUnChecked',
-        }).then(function successCallback(response) {
-            $scope.GriddataISUnCheckedList = response.data;
-
-            //entrydata = copy(searchdata);
-        });
-    };
-    $scope.getaldataIssueSlipUnChecked();
-
-
-    $scope.GriddataISCkedList = [];
-    $scope.getaldataIssueSlipChecked = function () {
-        //debugger;
-        $http({
-            method: "GET",
-            dataType: 'JSON',
-            //url: $scope.getSearchListUrl,
-            url: 'Products/GoodsReceiveNote/IssueSlipChecked',
-        }).then(function successCallback(response) {
-            $scope.GriddataISCkedList = response.data;
-
-            //entrydata = copy(searchdata);
-        });
-    };
-    $scope.getaldataIssueSlipChecked();
-
-
 
     $scope.IssueSlipChecked = function () {
         var str = $('#combo-default1').val();
@@ -1554,7 +1429,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
             ShowResult("Please Select To be Approved By", 'failure');
             return false;
         }
-
         else if (Status === null || Status === "") {
             ShowResult("Please Select Checked By Status", 'failure');
             return false;
@@ -1563,8 +1437,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
             ShowResult("Please Select Checked By Status", 'failure');
             return false;
         }
-
-        //debugger;
         $http({
             method: 'POST',
             url: 'Products/GoodsReceiveNote/IssueSlipToChecked',
@@ -1573,7 +1445,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
                 'PoValue': $scope.podata.TotalQty,
                 'CheckedStataus': Status,
                 'AuthorizedBy': Id
-
             },
 
             dataType: 'JSON'
@@ -1592,12 +1463,8 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
             ShowResult(response.data.Message, 'failure');
         });
     }
-
-
-    //**********ApprovingIssueSlipk**************
     $scope.checkedByList1 = [];
     $scope.GetSupervisorCboList1 = function () {
-        //debugger;
         $http({
             method: 'GET',
             url: 'Products/InventoryCheckApproved/GetSupervisorCboApproved'
@@ -1621,14 +1488,9 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
     }
     $scope.LoadapprovalStatus();
-    //#endregion
-
-
-
-
+   
     $scope.tabIU = 1;
     $scope.IUCsetTabIndex = function (newTab) {
-        //debugger;
         $scope.tabIU = newTab;
         $scope.getaldataIssueSlipUnApproved();
     };
@@ -1648,16 +1510,12 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
     $scope.GridIssueSlipUnApprovedList = [];
     $scope.getaldataIssueSlipUnApproved = function () {
-        //debugger;
         $http({
             method: "GET",
             dataType: 'JSON',
-            //url: $scope.getSearchListUrl,
             url: 'Products/GoodsReceiveNote/IssueSlipUnApproved',
         }).then(function successCallback(response) {
             $scope.GridIssueSlipUnApprovedList = response.data;
-
-            //entrydata = copy(searchdata);
         });
     };
     $scope.getaldataIssueSlipUnApproved();
@@ -1666,16 +1524,12 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
     $scope.GridIssueSlipApprovedList = [];
     $scope.getaldataIssueSlipApproved = function () {
-        //debugger;
         $http({
             method: "GET",
             dataType: 'JSON',
-            //url: $scope.getSearchListUrl,
             url: 'Products/GoodsReceiveNote/IssueSlipApproved',
         }).then(function successCallback(response) {
             $scope.GridIssueSlipApprovedList = response.data;
-
-            //entrydata = copy(searchdata);
         });
     };
     $scope.getaldataIssueSlipApproved();
@@ -1694,8 +1548,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
             return false;
         }
 
-
-        //debugger;
         $http({
             method: 'POST',
             url: 'Products/GoodsReceiveNote/IssueSlipToApproved',
@@ -1723,16 +1575,9 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
         });
     }
 
-
-
-    //#region Issue Slip Checked Update
     $scope.onClickPOA = function (args) {
-        //debugger;
         var gridObj = $("#GridISUnchecked").data("ejGrid");
-        //getting corresponding record 
         $scope.podata = gridObj.getSelectedRecords()[0];
-
-        //alert('Approve=' + data.Id);
         $scope.approvalAlert();
     };
     $scope.commandpo = [{
@@ -1928,6 +1773,8 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
         $scope.tab1 = newTab;
         $scope.Status = 'InventorySlip';
         $scope.Griddata('ForChecked');
+        $scope.IssueStatus = 'ForChecked';
+        $scope.IssueSlipDetail();
     };
     $scope.isSetIndex = function (tabNum) {
         return $scope.tab1 === tabNum;
@@ -1937,6 +1784,8 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
         $scope.tab1 = newTab;
         $scope.IssueStatus = 'HoldReject';
         $scope.Griddata('HoldReject');
+        $scope.IssueStatus = 'Reject';
+        $scope.IssueSlipDetail();
     };
     $scope.isSetIssueCHR = function (tabNum) {
         return $scope.tab1 === tabNum;
@@ -1947,6 +1796,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
         $scope.tab1 = newTab;
         $scope.IssueStatus = 'Checked';
         $scope.Griddata('Checked');
+        $scope.IssueSlipDetail();
     };
     $scope.isSetIssueChecked = function (tabNum) {
         return $scope.tab1 === tabNum;
@@ -1967,6 +1817,8 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
         $scope.tab1 = newTab;
         $scope.IssueStatusApproval = 'Approval';
         $scope.LoadIssueSlipApproveData();
+        $scope.IssueStatus = 'Approved';
+        $scope.IssueSlipDetail();
     };
     $scope.isSetIssueApprove = function (tabNum) {
         return $scope.tab1 === tabNum;
@@ -2045,12 +1897,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
         $scope.popUpIndex = -1;
         angular.element(document.querySelector('#confirmProcessPopUp')).modal('hide');
     };
-
-    // #endregion
-
-
-
-    //#region Asset Issue Slip Code
 
     $scope.GetAssetIssueSlipFilterData = function () {
         //debugger;
@@ -2339,16 +2185,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
     $scope.uom();
 
 
-    //$scope.getUoM = function (Id) {
-    //    $http({
-    //        method: 'GET',
-    //        url: $scope.path + "GetUoMList?MaterialMasterId=" + Id,
-    //    }).then(function successCallback(response) {
-    //        $scope.FilterList123.uoMList = response.data.UOMList;
-
-    //    });
-    //}
-
 
     $scope.getMachineInventoryIssueStock = function (data) {
         $scope.selectedMaterialRow = data;
@@ -2451,10 +2287,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
             $scope.machineQtyList.splice(index, 1);
 
         }
-        //else {
-        //	$scope.DeleteAdditinalTax(Id);
-        //	$scope.GetAdvanceTaxInfo($scope.productNew.Id);
-        //}
+       
     };
 
     $scope.workCenterList = [];

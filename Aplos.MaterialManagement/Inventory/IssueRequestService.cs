@@ -149,8 +149,8 @@ namespace Library.MaterialManagement.Products
                     Issentry.AuthorizedByStatus = null;
 
                 }
-                if(!string.IsNullOrEmpty(identity.EmployeeId))
-                Issentry.Preparedby = identity.EmployeeId;
+                if (!string.IsNullOrEmpty(identity.EmployeeId))
+                    Issentry.Preparedby = identity.EmployeeId;
 
                 Issentry.IssueSlipType = IssueSlipType;
 
@@ -252,15 +252,15 @@ namespace Library.MaterialManagement.Products
                         };
                         try
                         {
-                            
+
 
 
                             if (string.IsNullOrEmpty(itemDetail.InventoryMaterialId))
                             {
-                                var inventoryMaterialData= _inventoryMaterialMasterService.Query(r => r.MaterialMasterId == itemDetail.MaterialMasterId && r.ArticleId == itemDetail.ArticleId &&
-                               r.FirstCharacteristicsValueId == itemDetail.FirstCharacteristicsValueId && r.SecondCharacteristicsValueId == itemDetail.SecondCharacteristicsValueId).Select(r => r.Id).FirstOrDefault();                                                            
+                                var inventoryMaterialData = _inventoryMaterialMasterService.Query(r => r.MaterialMasterId == itemDetail.MaterialMasterId && r.ArticleId == itemDetail.ArticleId &&
+                                r.FirstCharacteristicsValueId == itemDetail.FirstCharacteristicsValueId && r.SecondCharacteristicsValueId == itemDetail.SecondCharacteristicsValueId).Select(r => r.Id).FirstOrDefault();
 
-                               
+
                                 IssueRequstD.InventoryMaterialId = inventoryMaterialData;
 
                                 if (string.IsNullOrEmpty(inventoryMaterialData))
@@ -307,8 +307,8 @@ namespace Library.MaterialManagement.Products
                             SKU3 = IssueRequstD.ThirdCharacteristicsValueId;
                             SalesOrderId = itemDetail.SalesOrderId;
                             TransactionUoMId = IssueRequstD.TransactionUoMId;
-                            
-                            if (machinepopUpDataList!=null)
+
+                            if (machinepopUpDataList != null)
                             {
                                 foreach (var item in machinepopUpDataList.Where(r => r["MaterialMasterId"].ToString() == itemDetail.MaterialMasterId
                                                             && r["ArticleId"].ToString() == itemDetail.ArticleId
@@ -317,7 +317,7 @@ namespace Library.MaterialManagement.Products
                                     item["IssueRequestId"] = IssueRequstD.Id;
                                 }
                             }
-                            
+
                         }
                         catch (DivideByZeroException ex)
                         {
@@ -370,7 +370,7 @@ namespace Library.MaterialManagement.Products
                     SaveIssueMaterailMachineAllocation(machinepopUpDataList);
                 }
             }
-           
+
             catch (Exception ex)
             {
                 throw new CustomException(ex.Message, ex,
@@ -400,7 +400,7 @@ namespace Library.MaterialManagement.Products
                 {
                     throw new CustomException("Please select another employee for Check by.");
                 }
-               
+
                 else
                 {
                     Issentry.CheckedBy = Issentry.CheckedBy;
@@ -415,7 +415,7 @@ namespace Library.MaterialManagement.Products
                 Issentry.IssueSlipType = IssueSlipType;
 
                 _issueRequestMasterService.Insert(Issentry);
-               
+
                 var slipDetailId = "";
                 var Material = "";
                 var Article = "";
@@ -516,7 +516,7 @@ namespace Library.MaterialManagement.Products
                             SalesOrderId = itemDetail.SalesOrderId;
                             TransactionUoMId = IssueRequstD.TransactionUoMId;
 
-                            
+
 
                         }
                         catch (DivideByZeroException ex)
@@ -565,7 +565,7 @@ namespace Library.MaterialManagement.Products
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
-                
+
             }
 
             catch (Exception ex)
@@ -604,7 +604,7 @@ namespace Library.MaterialManagement.Products
                         {
                             ccount++; string id = MakePK(item["IssueRequestId"].ToString(), ccount, 2);
                             item["Id"] = id;
-                           materialCommonService.AddNewRowD(dsMaster.Tables[0], item);
+                            materialCommonService.AddNewRowD(dsMaster.Tables[0], item);
                         }
                     }
                 }
@@ -816,7 +816,7 @@ namespace Library.MaterialManagement.Products
                                 ThirdCharacteristicsValueId = itemDetail.ThirdCharacteristicsValueId,
                                 InventoryMaterialId = itemDetail.InventoryMaterialId,
                                 UpdatedBy = identity.UserId,
-                                TransactionUoMId=itemDetail.TransactionUoMId
+                                TransactionUoMId = itemDetail.TransactionUoMId
                             };
                             try
                             {
@@ -2244,74 +2244,55 @@ namespace Library.MaterialManagement.Products
             }
         }
 
-        public IEnumerable<object> IssueSlipDetail(string Id)
+        public IEnumerable<object> IssueSlipDetail(string slipstatus, string employeeById)
         {
             try
             {
-                var _sql = @"DECLARE @plantId VARCHAR(10)='" + Id + @"'; 
-                                    Select 
-                                    IR.Id
-                                    ,CC.UserName AS CostCenterName
-                                    ,B.UserName ActivityName 
-                                    ,IR.RequisitionId
-                                    ,IR.RequisitionDetailId
-                                    ,IR.RequestedQty
-                                    ,IR.RejectedQty
-                                   -- ,EI.FirstName+''+ EI.MiddleName+''+EI.LastName AS PreparedBy
+                string tempQuery = "";
+                if (slipstatus == "ForChecked")
+                {
+                    tempQuery = "WHERE IRM.CheckedBy IS NOT NULL  AND IRM.CheckedByStatus = 'ForChecked' AND IRM.AuthorizedByStatus IS NULL AND IRM.AuthorizedBy IS null AND IRM.IssueSlipType = 'InventorySlip'  AND IRM.CheckedBy='" + employeeById + "'";
+                }
+                else if (slipstatus == "HoldReject")
+                {
+                    tempQuery = "WHERE IRM.CheckedBy IS NOT NULL  AND IRM.CheckedByStatus = 'HoldReject' AND IRM.AuthorizedByStatus IS NULL AND IRM.AuthorizedBy IS null AND IRM.IssueSlipType = 'InventorySlip' AND IRM.CheckedBy='" + employeeById + "'";
 
+                }
+                else if (slipstatus == "Checked")
+                {
+                    tempQuery = "WHERE IRM.CheckedBy IS NOT NULL  AND IRM.CheckedByStatus = 'Checked' AND IRM.AuthorizedByStatus='For Approval' AND IRM.IssueSlipType = 'InventorySlip' AND IRM.CheckedBy='" + employeeById + "'";
 
-                                    ,En.Username As EntityName
-                                    ,MRM.EntityId
-                                    ,Bu.Code
-                                    ,Bu.UserName ,IR.IssueRequestMasterId
-                                    ,Bu1.Code
-                                    ,Bu1.UserName Activity
-                                    ,Us.FullName AddedBy
-                                    ,MRM.Id RequisitionNo
-                                    ,MRD.ArticleId
-                                    ,Dp.UserName DepartmentName
-                                    ,MGM.UserName MaterialMasterGroupName
-                                    ,mm.UserName Material
-                                    ,ART.StandardName ArticleName
-                                    ,MT.UserName MaterialType
-                                    ,MRD.FirstCharacteristicsId
-                                    ,FC.UserName AS FirstCharacteristics
-                                    ,MRD.FirstCharacteristicsValueId
-                                    ,FCV.UserName AS Sku1
-                                    ,MRD.SecondCharacteristicsId
-                                    ,SC.UserName AS SecondCharacteristics
-                                    ,MRD.SecondCharacteristicsValueId
-                                    ,SCV.UserName AS Sku2
-                                    ,MRD.ThirdCharacteristicsId
-                                    ,TC.UserName AS ThirdCharacteristics
-                                    ,MRD.ThirdCharacteristicsValueId
-                                    ,TCV.UserName AS Sku3
-                                    ,IR.ExpenseActivityId
-                                    ,IR.CostCenterId
-                                    ,IR.ExpenseActivityId
-                                    ,IR.BudgetMasterId
-                                    ,IR.GLGeneralInfoId 
-                                    --,IR.AddedBy
-                                    --,IR.AddedDate
-                                    --,IR.AddedFromIP
-                                    --,IR.UpdatedBy
-                                    --,IR.UpdatedDate
-                                    --,IR.UpdatedFromIP	
-                                    --,IR.Preparedby
-                                    --,IR.CheckedBy
-                                    --,IR.CheckedByStatus
-                                    --,IR.AuthorizedBy
-                                    --,IR.AuthorizedByStatus
-                                      ,IR.IssueRequestMasterId
-                                      ,isnull(IGL1.UserName,'') AS CGL									
-									,isnull(B1.UserName,'') AS CBUdget
-									,isnull(IA1.UserName,'') AS GLBudgetActivity,TUoM.UserName UOM
+                }
+                else if(slipstatus == "For Approval")
+                {
+                    tempQuery = "WHERE   IRM.CheckedByStatus = 'Checked' AND IRM.AuthorizedByStatus='For Approval'  AND IRM.IssueSlipType = 'InventorySlip'  AND IRM.AuthorizedBy='" + employeeById + "'";
+                }
+                 else if (slipstatus == "HoldReject")
+                {
+                    tempQuery = "WHERE   IRM.CheckedByStatus = 'Checked' AND IRM.AuthorizedByStatus='Reject'  AND IRM.IssueSlipType = 'InventorySlip'  AND IRM.AuthorizedBy='" + employeeById + "'";
+                }
+                 else if (slipstatus == "Approved")
+                {
+                    tempQuery = "WHERE   IRM.CheckedByStatus = 'Checked' AND IRM.AuthorizedByStatus='Approved'  AND IRM.IssueSlipType = 'InventorySlip'  AND IRM.AuthorizedBy='" + employeeById + "'";
+                }
+                var _sql = @"Select  IR.Id ,CC.UserName AS CostCenterName ,B.UserName ActivityName  ,IR.RequisitionId
+                                    ,IR.RequisitionDetailId   ,IR.RequestedQty ,IR.RejectedQty  ,En.Username As EntityName
+                                    ,MRM.EntityId ,Bu.Code  ,Bu.UserName ,IR.IssueRequestMasterId
+                                    ,Bu1.Code ,Bu1.UserName Activity ,Us.FullName AddedBy  ,MRM.Id RequisitionNo  ,MRD.ArticleId
+                                    ,Dp.UserName DepartmentName  ,MGM.UserName MaterialMasterGroupName
+                                    ,mm.UserName Material ,ART.StandardName ArticleName ,MT.UserName MaterialType  ,MRD.FirstCharacteristicsId
+                                    ,FC.UserName AS FirstCharacteristics ,MRD.FirstCharacteristicsValueId ,FCV.UserName AS Sku1 ,MRD.SecondCharacteristicsId
+                                    ,SC.UserName AS SecondCharacteristics ,MRD.SecondCharacteristicsValueId
+                                    ,SCV.UserName AS Sku2  ,MRD.ThirdCharacteristicsId ,TC.UserName AS ThirdCharacteristics ,MRD.ThirdCharacteristicsValueId
+                                    ,TCV.UserName AS Sku3 ,IR.ExpenseActivityId  ,IR.CostCenterId ,IR.ExpenseActivityId  ,IR.BudgetMasterId ,IR.GLGeneralInfoId 
+                                    ,IR.IssueRequestMasterId ,isnull(IGL1.UserName,'') AS CGL									
+									,isnull(B1.UserName,'') AS CBUdget ,isnull(IA1.UserName,'') AS GLBudgetActivity,TUoM.UserName UOM
                                     from trn.IssueRequest IR
+                                    left Join TRN.IssueRequestMaster As IRM on IRM.Id=IR.IssueRequestMasterId
                                     left Join [TRN].[MaterialRequsitionDetails] As MRD on MRD.Id=IR.REquisitionDetailId
                                     Left Join [TRN].[MaterialRequsitionMaster] As MRM On MRD.MaterialReqqusitionMasterId=MRM.Id
                                     Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
                                     Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
-                                   -- LEFT JOIN EmployeeInformation EI On EI.SystemId=IR.Preparedby
                                     Left Join [ORG].[Entity] As En On MRM.EntityId=En.Id
                                     Left Join [HKP].[Budget] As Bu On Bu.Id=MRD.ActivityId
                                     Left Join [HKP].[Budget] As Bu1 On Bu1.Id=IR.ExpenseActivityId
@@ -2332,10 +2313,7 @@ namespace Library.MaterialManagement.Products
                                     LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IR.GLGeneralInfoId 
 									LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IR.BudgetMasterId
 									LEFT JOIN HKP.Activity IA1 ON IA1.Id=IR.ExpenseActivityId
-									Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId";
-
-
-
+									Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId  " + tempQuery + "";
 
                 return _sqlRepository.GetDataCollection(_sql);
             }
@@ -2348,160 +2326,36 @@ namespace Library.MaterialManagement.Products
         }
 
         #region  IssueSlipChecked and Approval
-        //public IEnumerable<object> IssueSlipUnChecked(string IssuStatus)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-        //    try
-        //    {
-        //        var _sql = @" select x.Id ,Sum(x.RequestedQty) RequestedQty ,Sum(x.RejectedQty) RejectedQty from
-        //                    (
-        //                        SELECT IRM.Id
-        //                        ,CC.UserName AS CostCenterName
-        //                     ,B.UserName ActivityName      
-        //                     ,IR.RequisitionId
-        //                        ,IR.RequisitionDetailId                           
-        //                     ,EI.FirstName  PreparedBy	                          
-        //                        ,IRM.AddedBy
-        //                        ,IRM.AddedDate
-        //                        ,IRM.AddedFromIP
-        //                        ,IRM.UpdatedBy
-        //                        ,IRM.UpdatedDate
-        //                        ,IRM.UpdatedFromIP	  
-        //                       -- ,IRM.Preparedby
-        //                        ,IRM.CheckedBy
-        //                        ,IRM.CheckedByStatus
-        //                        ,IRM.AuthorizedBy
-        //                        ,IRM.AuthorizedByStatus
-        //                     ,RequestedQty
-        //                    ,RejectedQty
-        //                    FROM TRN.IssueRequestMaster IRM
-        //                    Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
-        //                    Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
-        //                    Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
-        //                    LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
-        //                    Where IRM.CheckedByStatus='ForChecked' And IRM.CheckedBy='" + identity.EmployeeId + @"')x Group by Id";   
-
-        //        return _sqlRepository.GetDataCollection(_sql);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new CustomException(ex.Message, ex,
-        //            Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-        //            ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-        //    }
-        //}
-
-
-
 
         public IEnumerable<object> IssueSlipUnChecked(string IssuStatus)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = "";
+                string tempQuery = "";
                 if (IssuStatus == "ForChecked")
                 {
-                    sql = @" select x.Id ,Sum(x.RequestedQty) RequestedQty ,Sum(x.RejectedQty) RejectedQty from
-                            (
-                                SELECT IRM.Id
-                                ,EI.SystemId
-                                ,CC.UserName AS CostCenterName
-	                            ,B.UserName ActivityName      
-	                            ,IR.RequisitionId
-                                ,IR.RequisitionDetailId                           
-	                            ,EI.FirstName  PreparedBy	                          
-                                ,IRM.AddedBy
-                                ,IRM.AddedDate
-                                ,IRM.AddedFromIP
-                                ,IRM.UpdatedBy
-                                ,IRM.UpdatedDate
-                                ,IRM.UpdatedFromIP	  
-                               -- ,IRM.Preparedby
-                                ,IRM.CheckedBy
-                                ,IRM.CheckedByStatus
-                                ,IRM.AuthorizedBy
-                                ,IRM.AuthorizedByStatus
-	                            ,RequestedQty
-                            ,RejectedQty
-                            FROM TRN.IssueRequestMaster IRM
-                            Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
-                            Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
-                            Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
-                            LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
-                            Where IRM.CheckedByStatus='ForChecked' And IRM.CheckedBy='" + identity.EmployeeId + @"')x Group by Id,SystemId";
+                    tempQuery = "WHERE IRM.CheckedBy IS NOT NULL  AND IRM.CheckedByStatus = 'ForChecked' AND IRM.AuthorizedByStatus IS NULL AND IRM.AuthorizedBy IS null AND IRM.IssueSlipType = 'InventorySlip'  AND IRM.CheckedBy='" + identity.EmployeeId + "'";
                 }
                 else if (IssuStatus == "HoldReject")
                 {
-                    sql = @" select x.Id ,Sum(x.RequestedQty) RequestedQty ,Sum(x.RejectedQty) RejectedQty,NULL AuthorizedBy from
-                            (
-                                SELECT IRM.Id
-                                ,EI.SystemId
-                                ,CC.UserName AS CostCenterName
-	                            ,B.UserName ActivityName      
-	                            ,IR.RequisitionId
-                                ,IR.RequisitionDetailId                           
-	                            ,EI.FirstName  PreparedBy	                          
-                                ,IRM.AddedBy
-                                ,IRM.AddedDate
-                                ,IRM.AddedFromIP
-                                ,IRM.UpdatedBy
-                                ,IRM.UpdatedDate
-                                ,IRM.UpdatedFromIP	  
-                               -- ,IRM.Preparedby
-                                ,IRM.CheckedBy
-                                ,IRM.CheckedByStatus
-                                ,IRM.AuthorizedBy
-                                ,IRM.AuthorizedByStatus
-	                            ,RequestedQty
-                            ,RejectedQty
-                            FROM TRN.IssueRequestMaster IRM
-                            Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
-                            Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
-                            Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
-                            LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
-                            Where IRM.CheckedByStatus<>'Checked' And IRM.CheckedBy='" + identity.EmployeeId + @"')x Group by Id,SystemId";
-
-
-
+                    tempQuery = "WHERE IRM.CheckedBy IS NOT NULL  AND IRM.CheckedByStatus = 'HoldReject' AND IRM.AuthorizedByStatus IS NULL AND IRM.AuthorizedBy IS null AND IRM.IssueSlipType = 'InventorySlip' AND IRM.CheckedBy='" + identity.EmployeeId + "'";
                 }
-                else
+                else if (IssuStatus == "Checked")
                 {
-                    sql = @" select x.Id ,Sum(x.RequestedQty) RequestedQty ,Sum(x.RejectedQty) RejectedQty from
-                            (
-                                SELECT IRM.Id
-                                ,EI.SystemId
-                                ,CC.UserName AS CostCenterName
-	                            ,B.UserName ActivityName      
-	                            ,IR.RequisitionId
-                                ,IR.RequisitionDetailId                           
-	                            ,EI.FirstName  PreparedBy	                          
-                                ,IRM.AddedBy
-                                ,IRM.AddedDate
-                                ,IRM.AddedFromIP
-                                ,IRM.UpdatedBy
-                                ,IRM.UpdatedDate
-                                ,IRM.UpdatedFromIP	  
-                               -- ,IRM.Preparedby
-                                ,IRM.CheckedBy
-                                ,IRM.CheckedByStatus
-                                ,IRM.AuthorizedBy
-                                ,IRM.AuthorizedByStatus
-	                            ,RequestedQty
-                            ,RejectedQty
-                            FROM TRN.IssueRequestMaster IRM
-                            Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
-                            Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
-                            Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
-                            LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
-                           Where IRM.CheckedByStatus='Checked' And IRM.CheckedBy='" + identity.EmployeeId + @"')x Group by Id,SystemId";
-
-
-
-
+                    tempQuery = "WHERE IRM.CheckedBy IS NOT NULL  AND IRM.CheckedByStatus = 'Checked' AND IRM.AuthorizedByStatus='For Approval' AND IRM.IssueSlipType = 'InventorySlip' AND IRM.CheckedBy='" + identity.EmployeeId + "'";
                 }
 
+                var sql = @" SELECT IRM.Id,IRM.ProductionOrderId, pr.PlannedQty ,MIC.PlanPercentage,RecoveryPercentage=(100+(100-isnull(MIC.PlanPercentage,0))) ,RequestedQty ,RejectedQty
+                            FROM TRN.IssueRequestMaster IRM
+                            LEFT JOIN (select IssueRequestMasterId,CostCenterId,ExpenseActivityId,sum(RequestedQty) RequestedQty,sum(RejectedQty)RejectedQty 
+									FROM  TRN.IssueRequest group by IssueRequestMasterId,ExpenseActivityId,CostCenterId) IR ON IR.IssueRequestMasterId=IRM.Id
+                            LEFT JOIN [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
+							LEFT JOIN trn.ProductionOrder PR ON PR.Id=IRM.ProductionOrderId
+							LEFT JOIN dbo.MaterialIssueControlMaster MIC ON MIC.POId=pr.Id
+                            LEFT JOIN hkp.Budget B On B.Id=IR.ExpenseActivityId
+                            LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
+                              " + tempQuery +  " ";
 
                 return _sqlRepository.GetDataCollection(sql);
 
@@ -2870,145 +2724,30 @@ namespace Library.MaterialManagement.Products
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = "";
-                if (IssuAppStatus == "Approved")
+                string tempQuery = "";
+                if (IssuAppStatus == "For Approval")
                 {
-                    sql = @" select x.Id ,Sum(x.RequestedQty) RequestedQty ,Sum(x.RejectedQty) RejectedQty from
-                            (
-                                SELECT IRM.Id
-                                ,CC.UserName AS CostCenterName
-	                            ,B.UserName ActivityName      
-	                            ,IR.RequisitionId
-                                ,IR.RequisitionDetailId                           
-	                            ,EI.FirstName  PreparedBy	                          
-                                ,IRM.AddedBy
-                                ,IRM.AddedDate
-                                ,IRM.AddedFromIP
-                                ,IRM.UpdatedBy
-                                ,IRM.UpdatedDate
-                                ,IRM.UpdatedFromIP	  
-                               -- ,IRM.Preparedby
-                                ,IRM.CheckedBy
-                                ,IRM.CheckedByStatus
-                                ,IRM.AuthorizedBy
-                                ,IRM.AuthorizedByStatus
-	                            ,RequestedQty
-                            ,RejectedQty
-                            FROM TRN.IssueRequestMaster IRM
-                            Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
-                            Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
-                            Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
-                            LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
-                            Where  IRM.AuthorizedBy='" + identity.EmployeeId + @"' 
-                            And IRM.AuthorizedByStatus ='Approved'
-                            And IRM.CheckedByStatus='Checked'
-UNION ALL
-SELECT IRM.Id
-                                ,CC.UserName AS CostCenterName
-	                            ,B.UserName ActivityName      
-	                            ,IR.RequisitionId
-                                ,IR.RequisitionDetailId                           
-	                            ,EI.FirstName  PreparedBy	                          
-                                ,IRM.AddedBy
-                                ,IRM.AddedDate
-                                ,IRM.AddedFromIP
-                                ,IRM.UpdatedBy
-                                ,IRM.UpdatedDate
-                                ,IRM.UpdatedFromIP	  
-                               -- ,IRM.Preparedby
-                                ,IRM.CheckedBy
-                                ,IRM.CheckedByStatus
-                                ,IRM.AuthorizedBy
-                                ,IRM.AuthorizedByStatus
-	                            ,RequestedQty
-                            ,RejectedQty
-                            FROM TRN.IssueRequestMaster IRM
-                            Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
-                            Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
-                            Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
-                            LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
-                            Where  IRM.AuthorizedBy='" + identity.EmployeeId + @"' 
-                            And IRM.AuthorizedByStatus ='Approved'
-                            And IRM.CheckedByStatus Is null
-                            )x 
-                            Group by Id                          
-                          ";
+                    tempQuery = "WHERE   IRM.CheckedByStatus = 'Checked' AND IRM.AuthorizedByStatus='For Approval'  AND IRM.IssueSlipType = 'InventorySlip'  AND IRM.AuthorizedBy='" + identity.EmployeeId + "'";
                 }
                 else if (IssuAppStatus == "HoldReject")
                 {
-                    sql = @" select x.Id ,Sum(x.RequestedQty) RequestedQty ,Sum(x.RejectedQty) RejectedQty from
-                            (
-                                SELECT IRM.Id
-                                ,CC.UserName AS CostCenterName
-	                            ,B.UserName ActivityName      
-	                            ,IR.RequisitionId
-                                ,IR.RequisitionDetailId                           
-	                            ,EI.FirstName  PreparedBy	                          
-                                ,IRM.AddedBy
-                                ,IRM.AddedDate
-                                ,IRM.AddedFromIP
-                                ,IRM.UpdatedBy
-                                ,IRM.UpdatedDate
-                                ,IRM.UpdatedFromIP	  
-                               -- ,IRM.Preparedby
-                                ,IRM.CheckedBy
-                                ,IRM.CheckedByStatus
-                                ,IRM.AuthorizedBy
-                                ,IRM.AuthorizedByStatus
-	                            ,RequestedQty
-                            ,RejectedQty
-                            FROM TRN.IssueRequestMaster IRM
-                            Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
-                            Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
-                            Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
-                            LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
-                            Where IRM.CheckedByStatus <> 'Checked' AND  IRM.AuthorizedBy='" + identity.EmployeeId + @"' And IRM.AuthorizedByStatus is null
-                            )x 
-                            Group by Id                          
-                          ";
-
-
-
+                    tempQuery = "WHERE   IRM.CheckedByStatus = 'Checked' AND IRM.AuthorizedByStatus='Reject'  AND IRM.IssueSlipType = 'InventorySlip'  AND IRM.AuthorizedBy='" + identity.EmployeeId + "'";
                 }
-                else
+                else if (IssuAppStatus == "Approved")
                 {
-                    sql = @" select x.Id ,Sum(x.RequestedQty) RequestedQty ,Sum(x.RejectedQty) RejectedQty from
-                            (
-                                SELECT IRM.Id
-                                ,CC.UserName AS CostCenterName
-	                            ,B.UserName ActivityName      
-	                            ,IR.RequisitionId
-                                ,IR.RequisitionDetailId                           
-	                            ,EI.FirstName  PreparedBy	                          
-                                ,IRM.AddedBy
-                                ,IRM.AddedDate
-                                ,IRM.AddedFromIP
-                                ,IRM.UpdatedBy
-                                ,IRM.UpdatedDate
-                                ,IRM.UpdatedFromIP	  
-                               -- ,IRM.Preparedby
-                                ,IRM.CheckedBy
-                                ,IRM.CheckedByStatus
-                                ,IRM.AuthorizedBy
-                                ,IRM.AuthorizedByStatus
-	                            ,RequestedQty
-                            ,RejectedQty
-                            FROM TRN.IssueRequestMaster IRM
-                            Left JOin TRN.IssueRequest IR ON IR.IssueRequestMasterId=IRM.Id
-                            Left Join [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
-                            Left Join hkp.Budget B On B.Id=IR.ExpenseActivityId
-                            LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
-                             Where  IRM.AuthorizedBy='" + identity.EmployeeId + @"' 
-                            And IRM.AuthorizedByStatus='For Approval'
-                            )x 
-                            Group by Id                          
-                          ";
-
-
-
-
+                    tempQuery = "WHERE   IRM.CheckedByStatus = 'Checked' AND IRM.AuthorizedByStatus='Approved'  AND IRM.IssueSlipType = 'InventorySlip'  AND IRM.AuthorizedBy='" + identity.EmployeeId + "'";
                 }
 
+                var sql = @" SELECT IRM.Id,IRM.ProductionOrderId, pr.PlannedQty ,MIC.PlanPercentage,RecoveryPercentage=(100+(100-isnull(MIC.PlanPercentage,0))) ,RequestedQty ,RejectedQty
+                            FROM TRN.IssueRequestMaster IRM
+                            LEFT JOIN (select IssueRequestMasterId,CostCenterId,ExpenseActivityId,sum(RequestedQty) RequestedQty,sum(RejectedQty)RejectedQty 
+									FROM  TRN.IssueRequest group by IssueRequestMasterId,ExpenseActivityId,CostCenterId) IR ON IR.IssueRequestMasterId=IRM.Id
+                            LEFT JOIN [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
+							LEFT JOIN trn.ProductionOrder PR ON PR.Id=IRM.ProductionOrderId
+							LEFT JOIN dbo.MaterialIssueControlMaster MIC ON MIC.POId=pr.Id
+                            LEFT JOIN hkp.Budget B On B.Id=IR.ExpenseActivityId
+                            LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
+                              " + tempQuery + " ";
 
                 return _sqlRepository.GetDataCollection(sql);
 
@@ -3023,7 +2762,7 @@ SELECT IRM.Id
 
         #endregion
 
-        public IEnumerable<object> IssueListDataByProudctionOrder(string IssueStatus, string IssueSlipType,string productionOrderId)
+        public IEnumerable<object> IssueListDataByProudctionOrder(string IssueStatus, string IssueSlipType, string productionOrderId)
         {
             try
             {
@@ -3097,7 +2836,7 @@ SELECT IRM.Id
                                 AND IRM.AuthorizedByStatus IS NULL 
                                 AND IRM.AuthorizedBy IS null  
                                 AND IRM.IssueSlipType='InventorySlip' 
-                                AND IRM.ProductionOrderId='"+productionOrderId+ @"' 
+                                AND IRM.ProductionOrderId='" + productionOrderId + @"' 
 
                                 UNION ALL
                                 SELECT IRM.Id
