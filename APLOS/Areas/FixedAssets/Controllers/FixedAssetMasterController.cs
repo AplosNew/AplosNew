@@ -4,6 +4,7 @@ using Library.Accounting.FixedAssets;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
+using Library.Data.UnitOfWorks;
 using Library.Model.FixedAssets;
 using Library.Security.Core;
 using Library.Service.FixedAssets;
@@ -20,11 +21,13 @@ namespace Aplos.Areas.FixedAssets.Controllers
 {
     public class FixedAssetMasterController : BaseController
     {
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IFixedAssetMasterService _fixedAssetMasterService;
         private readonly IPKGeneratorService _pkGeneratorService;
         private readonly ISqlRepository _sqlRepository;
-        public FixedAssetMasterController(IFixedAssetMasterService fixedAssetMasterService, IPKGeneratorService pkGeneratorService, ISqlRepository sqlRepository)
+        public FixedAssetMasterController(IUnitOfWork unitOfWork,IFixedAssetMasterService fixedAssetMasterService, IPKGeneratorService pkGeneratorService, ISqlRepository sqlRepository)
         {
+            _unitOfWork = unitOfWork;
             _fixedAssetMasterService = fixedAssetMasterService;
             _pkGeneratorService = pkGeneratorService;
             _sqlRepository = sqlRepository;
@@ -386,17 +389,24 @@ namespace Aplos.Areas.FixedAssets.Controllers
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             return Json(_fixedAssetQueryService.GetAdditionalData(masterId), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet]
+        public ActionResult GetAdditionalDataByAssetId(string masterId, string headerId)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetAdditionalDataByAssetId(masterId, headerId), JsonRequestBehavior.AllowGet);
+        }
         #endregion
 
         #region AdditionalInfoUpdate
 
         [HttpPost]
-        public JsonResult CreateAdditionallInfoUpdate(Dictionary<string, object> data)
+        public JsonResult CreateAdditionalInfoUpdate(Dictionary<string, object> data, List<Dictionary<string, object>> detailData)
         {
             try
             {
-                SaveAdditionallInfoUpdate(data);
-                return Json(new { Message = AplosMessage.Insert });
+                SaveAdditionalInfoUpdate(data, detailData, out string Id);
+                return Json(new { Id, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
@@ -405,26 +415,27 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
         }
 
-        public void SaveAdditionallInfoUpdate(Dictionary<string, object> data)
+        public void SaveAdditionalInfoUpdate(Dictionary<string, object> data, List<Dictionary<string, object>> detailData, out string Id)
         {
             try
             {
-                DataSet dsMaster;
+                DataSet dsMaster, dsDetail = null;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from [TRN].[AdditionallInfoUpdate] where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [TRN].[AdditionalInfoUpdate] where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Code already exists!!!");
 
-                con.OpenDataSetThroughAdapter("select * from [TRN].[AdditionallInfoUpdate] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [TRN].[AdditionalInfoUpdate] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
-                string _Id = "";
+
+                string _Id = "", detailId = "";
 
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "AdditionallInfoUpdate", out _Id);
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "AdditionalInfoUpdate", out _Id);
 
                     data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
@@ -434,14 +445,46 @@ namespace Aplos.Areas.FixedAssets.Controllers
                     _Id = data["Id"].ToString();
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
+                Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
                 #endregion data update 
+
+                #region Additionall Info Update Detail
+                if (detailData != null)
+                {
+                    con.OpenDataSetThroughAdapter("select * from [TRN].[AdditionalInfoUpdateDetail]", out dsDetail, false, "1");
+                    foreach (var item in detailData)
+                    {
+                        DataView dv = new DataView(dsDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "AdditionalInfoUpdateDetail", out detailId);
+
+                            item["Id"] = detailId;
+                            item["AdditionalInfoUpdateId"] = _Id;
+
+                            AddNewRow(dsDetail.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+
+                #endregion Additionall Info Update Detail
+
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-               
+                _info.SaveDataSets(dsMaster, dsDetail);
+
             }
             catch (Exception ex)
             {
-              throw  ex;
+                throw ex;
             }
         }
 
@@ -452,6 +495,24 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return Json(_fixedAssetQueryService.GetAdditionallInfoUpdateData(), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
+        public ActionResult DeleteAdditionallInfoUpdate(string Id)
+        {
+            _unitOfWork.BeginTransaction();
+            var vendorAdWr = new System.Text.StringBuilder();
+            var vendorAdWrsql = "";
+             
+            vendorAdWrsql = "delete from [TRN].[AdditionalInfoUpdateDetail] Where AdditionalInfoUpdateId='" + Id + "'";
+            vendorAdWr.Append(vendorAdWrsql);
+            vendorAdWrsql = "delete from [TRN].[AdditionalInfoUpdate] Where Id='" + Id + "'";
+            vendorAdWr.Append(vendorAdWrsql);
+
+            _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+            _unitOfWork.SaveChanges();
+            _unitOfWork.Commit(); 
+
+            return Json(new { Message = AplosMessage.Deleted });
+        }
         #endregion
     }
 }

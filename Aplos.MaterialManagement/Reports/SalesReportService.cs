@@ -4913,7 +4913,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
 								,P.TINNO CustomerGSTNo
                                 , p.VATResistrationNo as CustomerPANNo
 								,Addres.Address1 VendorAddress
-                                , ISNULL(HSNC.Code,MHSN.Code) HSNCode
+                                , ISNULL(MHSN.Code,MHC.Code) HSNCode
                                  , Plant.GSTIN
 								,Plant.VATResistrationNo as PlantPANNo
                                 ,DPARTYPL.GSTIN ShipGSTIN
@@ -5041,11 +5041,12 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                          LEFT JOIN HKP.Party P ON P.Id = IR.PartyId
                          LEFT JOIN[MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
                          LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
+                         LEFT JOIN (Select distinct HsnCodeId,SalesMaterialId FROM TRN.SalesTax ) STH ON STH.SalesMaterialId=IRD.Id
                          LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
                          LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
                          LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
-                         LEFT JOIN[HKP].[HSNCode] AS MHSN ON MHSN.ID = MM.HSNCodeId
-                         LEFT JOIN[HKP].[HSNCode] AS HSNC ON HSNC.ID = MMA.HSNCodeId
+                         LEFT JOIN[HKP].[HSNCode] AS MHSN ON MHSN.ID = STH.HSNCodeId
+                         LEFT JOIN[HKP].[HSNCode] AS MHC ON MHC.ID = MMA.HSNCodeId
                          LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
                          LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId = SC.Id
                          LEFT JOIN HKP.Characteristics AS TC ON IRD.ThirdCharacteristicsId = TC.Id

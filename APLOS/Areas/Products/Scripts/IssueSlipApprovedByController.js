@@ -154,14 +154,11 @@ function IssueSlipApprovedByController(addressService, $window,  cboService, com
 		});
 	}
 
-
 	$scope.approvalAlert = function () {
 		//debugger;
 		$scope.message = 'Are you sure want to Approve?';
 		angular.element(document.querySelector('#poapprovealert')).modal('show');
 	};
-
-
 
 	$scope.onClickSave = function (z) {
 		//debugger;
@@ -172,14 +169,11 @@ function IssueSlipApprovedByController(addressService, $window,  cboService, com
 	};
 
 
-
 	$scope.LoadapprovalStatus = function () {
 		cboService.getEnumCbo("enum/GetCheckedStatusCbo", function (result) {
 			$scope.approvalStatusList = result;
 		});
-
 	}
 	$scope.LoadapprovalStatus();
-
 
 }

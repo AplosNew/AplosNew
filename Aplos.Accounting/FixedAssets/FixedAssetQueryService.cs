@@ -2510,11 +2510,23 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
 
         public List<Dictionary<string, object>> GetAdditionalData(string masterId)
         {
-            
-            string sql = @"SELECT M.*,A.Sequence,A.Code,A.ShortName,A.StandardName,A.UserName
-FROM [TRN].[AssetItemAdditionalInfoMap] M
-LEFT JOIN HKP.[AdditionalInfoItem] A ON A.Id=M.AdditionalInfoItemId
-Where M.FixedAssetItemId='"+ masterId + "'";
+
+            string sql = @"SELECT M.*,A.Sequence,A.Code,A.ShortName,A.StandardName,A.UserName 
+                                        FROM [TRN].[AssetItemAdditionalInfoMap] M
+                                        LEFT JOIN HKP.[AdditionalInfoItem] A ON A.Id=M.AdditionalInfoItemId 
+                                        Where M.FixedAssetItemId='" + masterId + "'";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public List<Dictionary<string, object>> GetAdditionalDataByAssetId(string masterId, string headerId)
+        {
+
+            string sql = @"SELECT M.AdditionalInfoItemId,A.Sequence,A.Code,A.ShortName,A.StandardName,A.UserName,uom.UserName UoM,AIUD.Id,AIUD.[Value],AIUD.Remarks
+                                        FROM [TRN].[AssetItemAdditionalInfoMap] M
+                                        LEFT JOIN HKP.[AdditionalInfoItem] A ON A.Id=M.AdditionalInfoItemId
+                                        LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=A.UoMId
+                                        LEFT JOIN(SELECT * from trn.AdditionalInfoUpdateDetail WHERE ISNULL(AdditionalInfoUpdateId,'" + headerId + "')='" + headerId + @"') AIUD ON AIUD.AdditionalInfoItemId=M.AdditionalInfoItemId 
+                                        Where M.FixedAssetItemId='" + masterId + "'";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
@@ -2522,8 +2534,8 @@ Where M.FixedAssetItemId='"+ masterId + "'";
         {
 
             string sql = @"SELECT M.*,A.UserName FixedAssetItem
-FROM [TRN].[AdditionallInfoUpdate] M
-LEFT JOIN MST.FixedAssetItem A ON A.Id=M.FixedAssetItemId";
+                        FROM [TRN].[AdditionalInfoUpdate] M
+                        LEFT JOIN MST.FixedAssetItem A ON A.Id=M.FixedAssetItemId";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
