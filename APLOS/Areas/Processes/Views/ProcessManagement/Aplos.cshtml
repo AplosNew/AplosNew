@@ -1,84 +1,311 @@
-﻿<togglable name="{{title}}"></togglable>
-<div class="form-elements form-horizontal">
-    <div class="row" ng-form="ProcessManagementForm">
-        <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Standared Name<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Standared Nam" ng-model="ProcessManagementNew.StandaredName" class="form-control" maxlength="100" required autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Process<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select class="form-control" ng-model="ProcessManagementNew.Process" name="Process"
-                                tabindex="2" required>
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in ProcessList" value="{{option.value}}">{{option.name}}</option>
+﻿<div class="site-tab">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" ng-class="{ active: isSetUC(1) }"><a ng-click="SetUCTab(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">Process Management</a></li>
+        <li role="presentation" ng-class="{ active: isSetUC(2) }"><a ng-click="SetUCTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Process Parameter</a></li>
+    </ul>
+</div>
 
-                        </select>
+<div class="tab-content">
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetUC(1), active: isSetUC(1) }">
+        <togglable name="{{title}}"></togglable>
+        <div class="form-elements form-horizontal">
+            <div class="row" ng-form="ProcessManagementForm">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Standared Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Standared Nam" ng-model="ProcessManagementNew.StandaredName" class="form-control" maxlength="100" required autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="ProcessManagementNew.Process" name="Process"
+                                        tabindex="2" required>
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in ProcessList" value="{{option.Value}}">{{option.Text}}</option>
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Min SPT InTime<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input id="MinSPTInTimeId" e-value="ProcessManagementNew.MinSPTInTime" width="420" ej-timepicker name="Time" tabindex="4" required />
+
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Standard SPT InTime<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input id="StandardSPTInTimeId" e-value="ProcessManagementNew.StandardSPTInTime" width="420" ej-timepicker name="Time" tabindex="4" required />
+
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="input-group">
+                                <span class="input-group-addon">{{ProcessManagementNew.ResponsiblePersonCode}}</span>
+                                <input type="text" name="Responsible Person" ng-model="ProcessManagementNew.EmployeeName" class="form-control" readonly required>
+                                <span class="input-group-btn">
+                                    <button name="submit" ng-click="LoadResponsiblePopupData()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Standared Nam" ng-model="ProcessManagementNew.UserName" class="form-control" maxlength="100" required autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Sub Process<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="ProcessManagementNew.SubProcess" name="SubProcess"
+                                        tabindex="2" required>
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in SubProcessList" value="{{option.Value}}">{{option.Text}}</option>
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Max SPT InTime<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input id="MaxSPTInTimeId" e-value="ProcessManagementNew.MaxSPTInTime" width="420" ej-timepicker name="Time" tabindex="4" required />
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Remarks</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="Remarks" ng-model="ProcessManagementNew.Remarks" class="form-control" maxlength="100" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Is Workcenter Applicable</label>
+                        <div class="col-sm-8">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-model="ProcessManagementNew.Active" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="Save();" class="btn" tabindex="22"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="23"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                            <li> <button ng-click="Clear();" class="btn" tabindex="24"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
                     </div>
                 </div>
             </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="input-group">
-                        <span class="input-group-addon">{{ProcessManagementNew.ResponsiblePersonCode}}</span>
-                        <input type="text" name="Responsible Person" ng-model="ProcessManagementNew.EmployeeName" class="form-control" readonly required>
-                        <span class="input-group-btn">
-                            <button name="submit" ng-click="showEmployeeListPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                        </span>
+            <div class="clearfix"></div>
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">Entity</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Material</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Utility</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="doc" role="tab" data-toggle="tab">Workcenter</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div class="row">
+                        <div id="GridEntity" ej-grid e-datasource="EntityList"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-headertext="All" e-headertemplateid="#headerTemplateEntity" e-template="#checkboxTemplateEntity" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                <div e-column e-field="EntityType" e-headertext="Entity Type" e-width="100"></div>
+                                <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="100"></div>
+                                @*<div e-column e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>*@
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateEntity">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                        </script>
+                        <script type="text/x-jsrender" id="headerTemplateEntity">
+                            <input type="checkbox" id="Eheadchk" />
+                        </script>
+                        @*<script type="text/template" id="Remarks">
+                                <div class="col-sm-10" style="padding:0px;">
+                                    <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
+                                </div>
+                            </script>*@
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                        </ul>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Standared Nam" ng-model="ProcessManagementNew.UserName" class="form-control" maxlength="100" required autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Sub Process<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select class="form-control" ng-model="ProcessManagementNew.SubProcess" name="SubProcess"
-                                tabindex="2" required>
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in SubProcessList" value="{{option.value}}">{{option.name}}</option>
-
-                        </select>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    <div class="row">
+                        <div id="GridMaterial" ej-grid e-datasource="MaterialList"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-headertext="All" e-headertemplateid="#headerTemplateMaterial" e-template="#checkboxTemplateMaterial" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                <div e-column e-field="MaterialCode" e-headertext="Material Code" e-width="100"></div>
+                                <div e-column e-field="Material" e-headertext="Material" e-width="100"></div>
+                                <div e-column e-field="MaterialCategory" e-headertext="Material Category" e-width="100"></div>
+                                <div e-column e-field="MaterialGroup" e-headertext="MaterialGroup" e-width="100"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateMaterial">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                        </script>
+                        <script type="text/x-jsrender" id="headerTemplateMaterial">
+                            <input type="checkbox" id="Materialheadchk" />
+                        </script>
+                        <script type="text/template" id="Remarks">
+                            <div class="col-sm-10" style="padding:0px;">
+                                <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
+                            </div>
+                        </script>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                        </ul>
                     </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Remarks</label>
-                <div class="col-sm-8">
-                    <input type="text" name="Remarks" ng-model="ProcessManagementNew.Remarks" class="form-control" maxlength="100" autocomplete="off">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                    <div class="row">
+                        <div id="GridUtility" ej-grid e-datasource="UtilityList"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-headertext="All" e-headertemplateid="#headerTemplateUtility" e-template="#checkboxTemplateUtility" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                <div e-column e-field="UtilityName" e-headertext="Material Code" e-width="100"></div>
+                                <div e-column e-field="UtilityStdName" e-headertext="Material" e-width="100"></div>
+                                <div e-column e-template="#Min" e-headertext="Min" e-width="100"></div>
+                                <div e-column e-template="#Max" e-headertext="Max" e-width="100"></div>
+                                <div e-column e-field="UOM" e-headertext="Material Category" e-width="100"></div>
+                                <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="100"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateUtility">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                        </script>
+                        <script type="text/x-jsrender" id="headerTemplateUtility">
+                            <input type="checkbox" id="Materialheadchk" />
+                        </script>
+                        <script type="text/template" id="Max">
+                            <div class="col-sm-10" style="padding:0px;">
+                                <input type="text" name="Remarks" ng-model="data.Max" ng-click="" class="form-control" maxlength="200">
+                            </div>
+                        </script>
+                        <script type="text/template" id="Min">
+                            <div class="col-sm-10" style="padding:0px;">
+                                <input type="text" name="Remarks" ng-model="data.Min" ng-click="" class="form-control" maxlength="200">
+                            </div>
+                        </script>
+                        <script type="text/template" id="Remarks">
+                            <div class="col-sm-10" style="padding:0px;">
+                                <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
+                            </div>
+                        </script>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                        </ul>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+
                 </div>
             </div>
-        </div>
 
-        <div class="site-tab">
-            <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSetPRM(1) }"><a ng-click="setTabPRM(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">Quality Management Master</a></li>
-                <li role="presentation" ng-class="{ active: isSetPRM(2) }"><a ng-click="setTabPRM(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Parameter Master</a></li>
-                <li role="presentation" ng-class="{ active: isSetPRM(2) }"><a ng-click="setTabPRM(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Frequency</a></li>
-            </ul>
         </div>
-        <div class="tab-content">
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetPRM(1), active: isSetPRM(1) }">
-            </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetPRM(2), active: isSetPRM(2) }">
-            </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetPRM(3), active: isSetPRM(3) }">
+    </div>
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetUC(2), active: isSetUC(2) }">
+        <togglable name="{{title}}"></togglable>
+        <div class="form-elements form-horizontal">
+            <div class="row" ng-form="PMPForm">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="PMPModelNew.Sequence" e-width="100" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">UoM<sup>*</sup> </label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <input id="UOM_Id" e-watermarktext="Type" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-data="PMPModelNew.UoMId" e-datasource="UOMList" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Max<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Max" ng-model="PMPModelNew.Max" class="form-control" maxlength="100" required autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Is Utility Applicable</label>
+                        <div class="col-sm-8">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-model="LocationNewModel.Active" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Item Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Item Name" ng-model="PMPModelNew.ItemName" class="form-control" maxlength="100" required autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Min<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Min" ng-model="PMPModelNew.Min" class="form-control" maxlength="100" required autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Remark</label>
+                        <div class="col-sm-8">
+                            <textarea class="form-control" rows="2" ng-model="PMPModelNew.Remark" maxlength="250" tabindex="18"></textarea>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="Save();" class="btn" tabindex="22"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="23"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                            <li> <button ng-click="Clear();" class="btn" tabindex="24"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+
 
 
 @*Employee Popup*@
@@ -90,11 +317,27 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
+                <div class="row">
+                    <div id="GridRespPerson" ej-grid e-datasource="ResponsiblePersonList"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-recorddoubleclick=""
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-field="SystemId" e-headertext="Id" e-width="50" e-visible="false"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Emp Code" e-width="100"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Name" e-width="100"></div>
 
+                            <div e-column e-field="Designation" e-headertext="Designation" e-width="100"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                            <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
-            <div class="modal-footer common-btn">
-                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
-            </div>
+            @*<div class="modal-footer common-btn">
+                    <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
+                </div>*@
         </div>
     </div>
 </div>

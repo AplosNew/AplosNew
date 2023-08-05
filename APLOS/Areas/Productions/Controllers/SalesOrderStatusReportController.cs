@@ -231,6 +231,10 @@ namespace Aplos.Areas.Productions.Controllers
             int ColDis = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Other Dispatch Qty", 12, ExcelHAlign.HAlignRight);
+            int ColODis = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Balance To Dispatch", 12, ExcelHAlign.HAlignRight);
             int ColBal = COL;
             COL++;
@@ -320,6 +324,9 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rates"].ToString());
                 sheet[ROW, ColExRate].Number = clsStaticInfo.dbl(data.Rows[i]["ExchangeRate"].ToString());
                 sheet[ROW, ColDis].Number = clsStaticInfo.dbl(data.Rows[i]["DispatchQty"].ToString());
+               
+                sheet[ROW, ColODis].Number = clsStaticInfo.dbl(data.Rows[i]["OtherDispatchQty"].ToString());
+
                 sheet[ROW, ColBal].Number = clsStaticInfo.dbl(data.Rows[i]["BalanceToDispatch"].ToString());
                 sheet[ROW, ColAll].Number = clsStaticInfo.dbl(data.Rows[i]["AllotedStock"].ToString());
                 sheet[ROW, ColResponsiblePerson].Text = data.Rows[i]["ResponsiblePerson"].ToString();
@@ -367,8 +374,9 @@ namespace Aplos.Areas.Productions.Controllers
         {
             try {                
                 var strSQL = @"Select  p.UserName as Customer, mo.MasterOrderNo , format(mo.AddedDate,'dd-MMM-yyyy') as MasterOrderDate ,so.ContractId, moi.OwnReferenceNo , moi.BuyerReferenceNo as BuyerOrderNo , mma.StandardName as Article, moi.Id as ItemId , so.Id as SONo , so.Qty as SOQty , format(so.PlanExFactoryDate,'dd-MMM-yyyy') as ExFactoryDate , 
-                            format(so.CommitmentDate , 'dd-MMM-yyyy') as CommitmentDate , format(so.DeliveryDate , 'dd-MMM-yyyy') as DeliveryDate , oc.UserName as SOCategory , so.Rate , so.CM , isnull(sm.DispatchQty,0) as DispatchQty , 
-                            (so.Qty -  isnull(sm.DispatchQty,0)) as BalanceToDispatch , moi.ProductLibraryId, PAG.UserName as CustomerGroup,pl.Code as ProductCode, pod.ProductionOrderId,format(mo.AddedDate,'dd-MMM-yyyy') as CreatedDate,
+                            format(so.CommitmentDate , 'dd-MMM-yyyy') as CommitmentDate , format(so.DeliveryDate , 'dd-MMM-yyyy') as DeliveryDate , oc.UserName as SOCategory , so.Rate , so.CM , isnull(sm.DispatchQty,0) as DispatchQty , isnull(OtherDispatchQty.ScanQty,0) OtherDispatchQty
+                            ,case when isnull(sm.DispatchQty,0)>isnull(OtherDispatchQty.ScanQty,0) 
+						   then SO.Qty-isnull(DispatchQty,0) else SO.Qty-isnull(OtherDispatchQty.ScanQty,0)end as BalanceToDispatch  , moi.ProductLibraryId, PAG.UserName as CustomerGroup,pl.Code as ProductCode, pod.ProductionOrderId,format(mo.AddedDate,'dd-MMM-yyyy') as CreatedDate,
 
                              (Select Stuff((
                                                         Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
@@ -410,6 +418,13 @@ namespace Aplos.Areas.Productions.Controllers
                             from trn.SalesMaterial sm
                             group by SalesOrderId
                             ) as sm on sm.SalesOrderId = so.Id
+
+                            left join (select PLI.SOId, sum(isc.NetWeight) ScanQty
+                from itemscanchild isc
+                left join trn.POLotReference PLR on PLR.Id = isc.PackingId
+                left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
+                    group by PLI.SOId) OtherDispatchQty on OtherDispatchQty.SOId = SO.Id
+
                             left join hkp.Party p on p.Id = mo.PartyId
                             LEFT JOIN [HKP].[CompanyParty] AS COMP ON COMP.PartyId=P.Id AND COMP.PartyType='Customer'
                              LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=COMP.PartyAccountGroupId

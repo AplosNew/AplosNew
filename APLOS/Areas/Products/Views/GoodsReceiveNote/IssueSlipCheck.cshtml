@@ -170,18 +170,21 @@
                             <div e-columns>
 
                                 @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
-                                <div e-column e-headertext="Actions" e-width="60">
+                                <div e-column e-headertext="Actions" e-width="80">
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Un Checked" ng-click="$parent.onClickSave('GridISUnchecked');" style="margin: -6px;"></i></button>
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridISUnchecked');" style="margin: -6px;"></i></button>
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintMICData(this);" style="margin: -6px;"></i></button>
                                 </div>
-                                <div e-column e-template="#ToBeApprovedBy1" e-headertext="To Be Approved By" e-width="150"></div>
-                                <div e-column e-template="#RejectCheckedReason" e-headertext="Hold / Reject Reason" e-width="150" style="height: 20px;"></div>
-                                <div e-column e-template="#CheckedStatus1" e-headertext="Checked Status" e-width="150"></div>
+                                <div e-column e-template="#ToBeApprovedBy1" e-headertext="To Be Approved By" e-width="100"></div>
+                                <div e-column e-template="#RejectCheckedReason" e-headertext="Hold / Reject Reason" e-width="100" style="height: 20px;"></div>
+                                <div e-column e-template="#CheckedStatus1" e-headertext="Checked Status" e-width="100"></div>
                                 <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
 
-                                <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="50"></div>
-                                <div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="80"></div>
+                                <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="80"></div>
+                                <div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="50"></div>
+                                <div e-column e-field="ProductionOrderId" e-headertext="PONo" e-width="60"></div>
+                                <div e-column e-field="PlanPercentage" e-headertext="Plan%" e-width="60"></div>
+                                <div e-column e-field="RecoveryPercentage" e-headertext="Recovery %" e-width="80"></div>
 
                             </div>
 
@@ -238,15 +241,16 @@
                             <div e-columns>
 
                                 @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
-                                <div e-column e-headertext="Actions" e-width="20">
+                                <div e-column e-headertext="Actions" e-width="80">
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridISUnchecked2');" style="margin: -6px;"></i></button>
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintMICData(this);" style="margin: -6px;"></i></button>
                                 </div>
                                 <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
-
-                                <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="50"></div>
-                                <div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="80"></div>
-
+                                <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="80"></div>
+                                <div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="50"></div>
+                                <div e-column e-field="ProductionOrderId" e-headertext="PONo" e-width="60"></div>
+                                <div e-column e-field="PlanPercentage" e-headertext="Plan%" e-width="60"></div>
+                                <div e-column e-field="RecoveryPercentage" e-headertext="Recovery %" e-width="80"></div>
                             </div>
 
                         </div>
@@ -287,14 +291,17 @@
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridISUnchecked3');" style="margin: -6px;"></i></button>
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintMICData(this);" style="margin: -6px;"></i></button>
                                 </div>
-                                <div e-column e-template="#ToBeApprovedByRejectTab" e-headertext="To Be Approved By" e-width="150"></div>
-                                <div e-column e-template="#RejectCheckedReason" e-headertext="Hold / Reject Reason" e-width="150" style="height: 20px;"></div>
-                                <div e-column e-template="#CheckedStatus1" e-headertext="Checked Status" e-width="150"></div>
+                                <div e-column e-template="#ToBeApprovedByRejectTab" e-headertext="To Be Approved By" e-width="100"></div>
+                                <div e-column e-template="#RejectCheckedReason" e-headertext="Hold / Reject Reason" e-width="100" style="height: 20px;"></div>
+                                <div e-column e-template="#CheckedStatus1" e-headertext="Checked Status" e-width="100"></div>
 
                                 <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
 
-                                <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="50"></div>
-                                <div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="80"></div>
+                                <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="80"></div>
+                                <div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="50"></div>
+                                <div e-column e-field="ProductionOrderId" e-headertext="PONo" e-width="60"></div>
+                                <div e-column e-field="PlanPercentage" e-headertext="Plan%" e-width="60"></div>
+                                <div e-column e-field="RecoveryPercentage" e-headertext="Recovery %" e-width="80"></div>
                             </div>
 
                         </div>

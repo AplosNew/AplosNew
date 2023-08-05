@@ -1127,6 +1127,66 @@ namespace Library.Accounting.FixedAssets
 						ORDER BY 2 DESC";
             return _sqlRepository.GetDataCollection(sql);
         }
+        public List<Dictionary<string, object>> GetCapitalizationSingleJVList(string capitalizationMasterId, string companyId, string plantId)
+        {
+            var sql = @"DECLARE @capitalizationMasterId varchar(50)='" + capitalizationMasterId + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
+
+						SELECT X.* FROM(
+						SELECT  'Asset' AS OtherName, 'Dr' AS TrnType
+							,GLGeneralInfoId =BM.GLGeneralInfoId        
+							,GLGeneralInfoCode =GL.AccountCode 
+							,GLGeneralInfoName =GL.UserName
+							,BudgetMasterId =FAMG.AssetUnderConstructionBudgetMasterId
+							,BudgetCode = B.Code
+							,BudgetName =B.UserName 
+							,ActivityId = FAMG.AssetUnderConstructionActivityId
+							,ActivityCode = A.Code
+							,ActivityName =A.UserName
+							,BudgetMasterActivityId =BMA.Id
+							, SUM( ISNULL(CM.TotalAmount,0)) AS Dr
+							, NULL Cr
+							, SUM( ISNULL(CM.TotalAmount,0)) AS Amount
+					    FROM [TRN].[CapitalizationMaster] CM
+						LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
+						LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAI.FixedAssetMasterId
+						LEFT JOIN HKP.FixedAssetMasterGL AS FAMG  ON FAMG.FixedAssetMasterId=FAM.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON FAMG.AssetUnderConstructionBudgetMasterId= BM.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON FAMG.AssetUnderConstructionGLId=GL.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON FAMG.AssetUnderConstructionActivityId= A.Id
+						LEFT JOIN [MST].[BudgetMasterActivity] AS BMA ON FAMG.AssetUnderConstructionActivityId= BMA.ActivityId AND FAMG.AssetUnderConstructionBudgetMasterId= BMA.BudgetMasterId
+					    WHERE CM.Id=@capitalizationMasterId 
+						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, B.Code, B.UserName, A.Code, A.UserName,FAMG.AssetUnderConstructionBudgetMasterId,FAMG.AssetUnderConstructionActivityId,BMA.Id
+						
+						UNION
+						SELECT  'Capitalization' AS OtherName, 'Cr' AS TrnType
+							,GLGeneralInfoId =BM.GLGeneralInfoId        
+							,GLGeneralInfoCode =GL.AccountCode 
+							,GLGeneralInfoName =GL.UserName
+							,BudgetMasterId =VD.BudgetMasterId
+							,BudgetCode = B.Code
+							,BudgetName =B.UserName 
+							,ActivityId = VD.ActivityId
+							,ActivityCode = A.Code
+							,ActivityName =A.UserName
+							,BudgetMasterActivityId =BMA.Id
+							, NULL Dr
+							,  SUM( ISNULL(CD.Amount,0)) AS Cr
+							,  SUM( ISNULL(CD.Amount,0)) AS Amount
+						FROM [TRN].[CapitalizationMasterDetail] CD
+						LEFT JOIN TRN.VoucherDetail VD	 ON VD.Id=CD.VoucherDetailId
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON VD.BudgetMasterId= BM.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON VD.GLGeneralInfoId=GL.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON VD.ActivityId= A.Id
+						LEFT JOIN [MST].[BudgetMasterActivity] AS BMA ON VD.ActivityId= BMA.ActivityId AND VD.BudgetMasterId= BMA.BudgetMasterId
+						WHERE CD.CapitalizationMasterId=@capitalizationMasterId 
+						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, VD.BudgetMasterId, B.Code, B.UserName, VD.ActivityId, A.Code, A.UserName,BMA.Id
+						) X 
+                        WHERE X.Amount>0
+						ORDER BY 2 DESC";
+            return _sqlRepository.GetDataCollection(sql);
+        }
         public GridModel GetFixedAssetAccDepGL(GridParameter parameters, string companyId)
         {
             try
@@ -2319,7 +2379,29 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
 
             dr.EndEdit();
         }
-
+        public List<Dictionary<string, object>> GetCapitalizeAssetRegisterPostedList(string column, string value, string companyId)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+            var sql = @"select top 100 * from (select V.Id,FAI.FixedAssetMasterId,CM.FixedAssetItemId,CM.Id CapitalizationMasterId
+									,FAM.UserName FixedAssetMaster
+									,FAI.UserName FixedAssetItem
+									,FAC.UserName FixedAssetCategory
+									,FASC.UserName FixedAssetSubCategory
+                                    ,ISNULL(VD.DrAmount,0) Amount,CM.Qty
+									,V.VoucherNo,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate
+                FROM [TRN].[CapitalizationMaster] CM
+				LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
+				INNER JOIN TRN.VoucherDetail VD ON VD.Id=CM.VoucherRowId
+				INNER JOIN TRN.Voucher V ON V.Id=VD.VoucherId
+				LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
+                LEFT  JOIN  HKP.[FixedAssetCategory]  FAC ON FAM.FixedAssetCategoryId=FAC.Id
+                LEFT  JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
+                WHERE V.CompanyId='" + companyId + @"' AND V.Archive=0 AND CM.VoucherRowId IS NOT NULL
+                ) AS TEMP WHERE " + strkey + " order by PostingDate DESC   ";
+            return _sqlRepository.GetDataCollection(sql);
+        }
         #endregion
 
         #region AdditionalInfoItem
@@ -2409,7 +2491,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select top 100 * from (
-                                                SELECT AII.*,uom.UserName UoM 
+                                                SELECT State=CAST(0 AS bit),AII.*,uom.UserName UoM 
                                                 ,Man = CASE WHEN aii.IsMandatory=1 THEN 'Yes' ELSE 'No' end
                                                 ,Act = CASE WHEN aii.ACTIVE=1 THEN 'Yes' ELSE 'No' end
                                                 FROM HKP.AdditionalInfoItem AII
@@ -2424,6 +2506,37 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
             return 1;
+        }
+
+        public List<Dictionary<string, object>> GetAdditionalData(string masterId)
+        {
+
+            string sql = @"SELECT M.*,A.Sequence,A.Code,A.ShortName,A.StandardName,A.UserName 
+                                        FROM [TRN].[AssetItemAdditionalInfoMap] M
+                                        LEFT JOIN HKP.[AdditionalInfoItem] A ON A.Id=M.AdditionalInfoItemId 
+                                        Where M.FixedAssetItemId='" + masterId + "'";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public List<Dictionary<string, object>> GetAdditionalDataByAssetId(string masterId, string headerId)
+        {
+
+            string sql = @"SELECT M.AdditionalInfoItemId,A.Sequence,A.Code,A.ShortName,A.StandardName,A.UserName,uom.UserName UoM,AIUD.Id,AIUD.[Value],AIUD.Remarks
+                                        FROM [TRN].[AssetItemAdditionalInfoMap] M
+                                        LEFT JOIN HKP.[AdditionalInfoItem] A ON A.Id=M.AdditionalInfoItemId
+                                        LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=A.UoMId
+                                        LEFT JOIN(SELECT * from trn.AdditionalInfoUpdateDetail WHERE ISNULL(AdditionalInfoUpdateId,'" + headerId + "')='" + headerId + @"') AIUD ON AIUD.AdditionalInfoItemId=M.AdditionalInfoItemId 
+                                        Where M.FixedAssetItemId='" + masterId + "'";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public IEnumerable<object> GetAdditionallInfoUpdateData()
+        {
+
+            string sql = @"SELECT M.*,A.UserName FixedAssetItem
+                        FROM [TRN].[AdditionalInfoUpdate] M
+                        LEFT JOIN MST.FixedAssetItem A ON A.Id=M.FixedAssetItemId";
+            return _sqlRepository.GetDataCollection(sql, null);
         }
 
         #endregion

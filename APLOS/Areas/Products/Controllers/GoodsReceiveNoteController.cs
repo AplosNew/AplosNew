@@ -1652,13 +1652,12 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult IssueSlipDetail(string Id)
+        public JsonResult IssueSlipDetail(string slipstatus)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_issueRequestService.IssueSlipDetail(Id), JsonRequestBehavior.AllowGet);
+            return Json(_issueRequestService.IssueSlipDetail(slipstatus, identity.EmployeeId), JsonRequestBehavior.AllowGet);
         }
         [HttpPost, Authorize]
-        //public JsonResult IssueSlipUpdate(IssueRequestMaster Issentity, IEnumerable<IssueRequestViewModel> entity, string Id, string CheckedBy, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
         public JsonResult IssueSlipUpdate(IssueRequestMaster Issentity, string entity, string Id, string CheckedBy, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, string SOListSelectedNew, string MaterialColorListNew, string OrderSpecific)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1668,12 +1667,7 @@ namespace Aplos.Areas.Products.Controllers
             Issentity.PlantId = identity.PlantId;
 
             List<IssueRequestViewModel> entityDetailVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(entity);
-            //List<IssueRequestViewModel> SOListSelectedNewDetailVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(SOListSelectedNew);
-            //List<IssueRequestViewModel> MaterialColorListNewDetailVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(MaterialColorListNew);
-
             _issueRequestService.InsertOrUpdateGraphIssueSlipUpdate(Issentity, entityDetailVM, Id, IssueSlipType, CheckedByStatusForNoti, ApprovedByStatusForNoti);
-            //DetailCreate(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId);
-
             return Json(new { Message = "Issue Request " + AplosMessage.Updated });
         }
         [Authorize, HttpGet]
@@ -1701,9 +1695,10 @@ namespace Aplos.Areas.Products.Controllers
 
 
         [Authorize, HttpGet]
-        public JsonResult IssueDetailData(string issueId)
+        public JsonResult IssueDetailData(string status)
         {
-            return Json(_inventoryReveiveService.IssueDetailData(issueId), JsonRequestBehavior.AllowGet);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.IssueDetailData(status,identity.EmployeeId), JsonRequestBehavior.AllowGet);
 
         }
 
@@ -4041,9 +4036,9 @@ UNION ALL
             }
         }
 
-        #region GRN-By-JW
+        #region GRN-By-Outsource
         [HttpPost]
-        public JsonResult CreateJWGRN(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, string entityMatByProduct)
+        public JsonResult CreateOSReceiptGRN(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, string entityMatByProduct)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             entity.CompanyGroupId = identity.CompanyGroupId;
@@ -4162,13 +4157,13 @@ UNION ALL
 
 
             //JWDetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType, entityMatByProduct1);
-            _inventoryDetailService.JWInsertOrUpdateGraphNew(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType, entityMatByProduct1);
+            _inventoryDetailService.OSReceiptGRNInsertOrUpdateGraphNew(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType, entityMatByProduct1);
             return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
         }
         public JsonResult JWDetailCreate(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel> entityMatByProduct)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            _inventoryDetailService.JWInsertOrUpdateGraphNew(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType, entityMatByProduct);
+            _inventoryDetailService.OSReceiptGRNInsertOrUpdateGraphNew(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType, entityMatByProduct);
             return Json(new { Message = AplosMessage.Success });
         }
 

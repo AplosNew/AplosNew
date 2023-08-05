@@ -1,27 +1,125 @@
 ﻿'use strict';
-QualityManagementMasterController.$inject = ["cboService","commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter"];
-function QualityManagementMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = "QualityManagementMaster";
+ProductParameterMasterController.$inject = ["cboService","commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter"];
+function ProductParameterMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+    $rootScope.title = "ProductParameterMaster";
     $scope.CriticalLevelLists = [];
     $scope.CategoryLists = [];
     $scope.ModelList = [];
     $scope.Action = 'Save';
-    $scope.path = 'QMS/QualityManagementMaster/';
+    $scope.path = 'QMS/ProductParameterMaster/';
     $scope.saveUrl = $scope.path + 'create';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrlParaMaster = $scope.path + 'createParaMaster';
     $scope.deleteUrl = $scope.path + 'delete/';
-    $scope.saveUrlEntity = $scope.path + 'createEntity';
-    $scope.saveUrlActivityGroup = $scope.path + 'createActivityGroup';
-    $scope.saveUrlProcess = $scope.path + 'createProcess';
-    $scope.saveUrlItem = $scope.path + 'createItem';
-    $scope.saveUrlParameter = $scope.path + 'createParameter';
-    $scope.saveUrlFrequency = $scope.path + 'createFrequency';
-    $scope.saveUrlFrequencyValue = $scope.path + 'createFrequencyValue';
-    $scope.saveUrlMachine = $scope.path + 'createMachine';
-    $scope.saveUrlProduct = $scope.path + 'createProduct';
-    $scope.saveUrlWorkCenter = $scope.path + 'createWorkCenter';
-    $scope.saveUrlPositionCode = $scope.path + 'createPositionCode';
+    $scope.saveUrlProductGroup = $scope.path + 'createProductGroup';
+    //$scope.saveUrlEntity = $scope.path + 'createEntity';
+    //$scope.saveUrlActivityGroup = $scope.path + 'createActivityGroup';
+    //$scope.saveUrlProcess = $scope.path + 'createProcess';
+    //$scope.saveUrlItem = $scope.path + 'createItem';
+    //$scope.saveUrlParameter = $scope.path + 'createParameter';
+    //$scope.saveUrlFrequency = $scope.path + 'createFrequency';
+    //$scope.saveUrlFrequencyValue = $scope.path + 'createFrequencyValue';
+    //$scope.saveUrlMachine = $scope.path + 'createMachine';
+    //$scope.saveUrlProduct = $scope.path + 'createProduct';
+    //$scope.saveUrlWorkCenter = $scope.path + 'createWorkCenter';
+    //$scope.saveUrlPositionCode = $scope.path + 'createPositionCode';
+
+    $scope.ProductGroup = {
+        Id: null
+        , ProductionGroup: null
+        , ProductionSubGroup: null
+        , ProductionItem: null
+    }
+    $scope.ProductGroupNew = Object.assign({}, $scope.ProductGroup);
+
+    $scope.ProductGroupSave = function () {
+        $http({
+            method: 'POST',
+            url: $scope.saveUrlProductGroup,
+            data: {
+                'ProductGroupData': $scope.ProductGroupNew
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getProductGroup();
+                ProductGroupClearFields();
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    $scope.ProductGroupList = [];
+    $scope.getProductGroup = function () {
+        $http({
+            method: 'Get',
+            url: 'QMS/ProductParameterMaster/getProductGroup'
+        }).then(function successCallback(response) {
+            $scope.ProductGroupList = response.data;
+        }
+        )
+    }
+    $scope.getProductGroup();
+
+    $scope.GetProductGroupDetails = function (args) {
+        $http({
+            method: 'Get',
+            url: 'QMS/ProductParameterMaster/getProductGroupData?ProductGroupId=' + args.data.Id
+        }).then(function successCallback(response) {
+            $scope.ProductGroupNew = response.data.productgroup[0];
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        }
+        )
+    }
+
+    $scope.removeProductGroup = function (index, data) {
+        try {
+            $scope.popUpIndex = index;
+            $scope.tempPGId = data;
+            $scope.message_confirmation = "Are you sure you want to delete?";
+            angular.element(document.querySelector('#confirmRemoveProductGroup')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.DeleteProductGroup = function () {
+        $http({
+            method: 'POST',
+            url: 'QMS/ProductParameterMaster/ProductGroupDelete?id=' + $scope.tempPGId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getProductGroup();
+               ProductGroupClearFields();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
+    $scope.ProductGroupClear = function () {
+        ProductGroupClearFields();
+    };
+
+    function ProductGroupClearFields() {
+        $scope.Action = "Save";
+        $scope.ProductGroupNew = Object.assign({}, $scope.ProductGroup);
+    }
    
     $scope.CriticalLevelLists = [
         {
@@ -61,42 +159,19 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.GetParameterProcessList = function (pid) {
         $http({
             method: 'GET',
-            url: 'QMS/QualityManagementMaster/GetParameterProcessList?ScheduleId=' + pid
+            url: 'QMS/ProductParameterMaster/GetParameterProcessList?ScheduleId=' + pid
         }).then(function successCallback(response) {
             $scope.ParameterProcessList = response.data;
         });
     }
     $scope.GetParameterProcessList();
 
-    $scope.FrequencyList = [];
-    $scope.getFrequency = function () {
-        $http({
-            method: 'Get',
-            url: 'QMS/QualityManagementMaster/getFrequency'
-        }).then(function successCallback(response) {
-            $scope.FrequencyList = response.data;
-        }
-        )
-    }
-    $scope.getFrequency();
-
-    $scope.GetFrequencyDetails = function (args) {
-        $http({
-            method: 'Get',
-            url: 'QMS/QualityManagementMaster/getFrequencyData?FrequencyId=' + args.data.Id
-        }).then(function successCallback(response) {
-            $scope.FrequencyNew = response.data.frequency[0];
-            if (!$rootScope.isCollapsed) {
-                $rootScope.toggle();
-            }
-        }
-        )
-    }
+    
 
     $scope.GetParameterProcessAGList = function (pid) {
         $http({
             method: 'GET',
-            url: 'QMS/QualityManagementMaster/GetParameterProcessAGList?ScheduleId=' + $scope.ScheduleMasterId + '&ProcessId=' + pid
+            url: 'QMS/ProductParameterMaster/GetParameterProcessAGList?ScheduleId=' + $scope.ScheduleMasterId + '&ProcessId=' + pid
         }).then(function successCallback(response) {
             $scope.ItemNew.ActivityGroup = response.data[0].ActivityGroupName;
         });
@@ -276,37 +351,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         }
     };
 
-    $scope.removeFrequency = function (index, data) {
-        try {
-            $scope.popUpIndex = index;
-            $scope.tempFId = data;
-            $scope.message_confirmation = "Are you sure you want to delete?";
-            angular.element(document.querySelector('#confirmRemoveFrequency')).modal('show');
-        }
-        catch (e) {
-            ShowResult(e, 'Error');
-        }
-    };
-
-    $scope.DeleteFrequency = function () {
-        $http({
-            method: 'POST',
-            url: 'QMS/QualityManagementMaster/FrequencyDelete?id=' + $scope.tempFId,
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.getFrequency();
-                FrequencyClearFields();
-            }
-            function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        });
-    };
+    
 
     $scope.ClearParameter = function () {
         ClearFields();
@@ -378,19 +423,13 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     }
     $scope.ParameterNew = Object.assign({}, $scope.Parameter);
 
-    $scope.Frequency = {
-        Id: null
-        , SNO: null
-        , UserName: null
-        , Remarks: null
-    }
-    $scope.FrequencyNew = Object.assign({}, $scope.Frequency);
+    
 
     $scope.ProcessList = [];
     $scope.GetProcessList = function () {
         $http({
             method: 'GET',
-            url: 'QMS/QualityManagementMaster/GetProcessList'
+            url: 'QMS/ProductParameterMaster/GetProcessList'
         }).then(function successCallback(response) {
             $scope.ProcessList = response.data;
         });
@@ -402,7 +441,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         $http({
 
             method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadQualityManagementMasterList'
+            url: 'QMS/ProductParameterMaster/LoadQualityManagementMasterList'
         }).then(function successCallback(response) {
             $scope.QualityManagementMasterList = response.data;
             var gridObj = $("#GridQualityManagementMaster").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -415,7 +454,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         $scope.ScheduleMasterId = args.data.Id;
         $http({
             method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadQualityManagementEditData?ScheduleID=' + args.data.Id
+            url: 'QMS/ProductParameterMaster/LoadQualityManagementEditData?ScheduleID=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.scheduleNew = response.data.schedule[0];
             $scope.scheduleNew.ResponsiblePersoneBgtCode = response.data.schedule[0].ResponsiblePersoneBgtCode;
@@ -438,7 +477,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.QualityManagementMasterForm.$valid) {
+        if ($scope.ProductParameterMasterForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -474,7 +513,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.Delete = function () {
         $http({
             method: 'POST',
-            url: 'QMS/QualityManagementMaster/ScheduleDelete?id=' + $scope.scheduleNew.Id,
+            url: 'QMS/ProductParameterMaster/ScheduleDelete?id=' + $scope.scheduleNew.Id,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -496,7 +535,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         $http({
 
             method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadEntityDetails?ScheduleId=' + pid
+            url: 'QMS/ProductParameterMaster/LoadEntityDetails?ScheduleId=' + pid
         }).then(function successCallback(response) {
             $scope.QualityManagementMasterEntityList = response.data;
         }
@@ -567,7 +606,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.LoadPositionCodeDetails = function (pid) {
         $http({
             method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadPositionCodeDetails?ScheduleId=' + pid
+            url: 'QMS/ProductParameterMaster/LoadPositionCodeDetails?ScheduleId=' + pid
         }).then(function successCallback(response) {
             $scope.QualityManagementMasterPositionCodeList = response.data;
         }
@@ -641,7 +680,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         $http({
 
             method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadQMActivityGroupDetails?ScheduleId=' + pid
+            url: 'QMS/ProductParameterMaster/LoadQMActivityGroupDetails?ScheduleId=' + pid
         }).then(function successCallback(response) {
             $scope.QualityManagementActivityGroupList = response.data;
         }
@@ -677,7 +716,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.GetQMActivityGroupDetails = function (args) {
         $http({
             method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadActivityGroupEditData?AGId=' + args.data.Id
+            url: 'QMS/ProductParameterMaster/LoadActivityGroupEditData?AGId=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.ActivityGroupNew = response.data.activitygroup[0];
             if (!$rootScope.isCollapsed) {
@@ -702,7 +741,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.removeLevelRow = function () {
         $http({
             method: 'POST',
-            url: 'QMS/QualityManagementMaster/ActivityGroupDelete?id=' + $scope.tempAGId,
+            url: 'QMS/ProductParameterMaster/ActivityGroupDelete?id=' + $scope.tempAGId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -724,7 +763,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         $http({
 
             method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadProcessDetails?ScheduleId=' + pid
+            url: 'QMS/ProductParameterMaster/LoadProcessDetails?ScheduleId=' + pid
         }).then(function successCallback(response) {
             $scope.QualityManagementProcessList = response.data;
         }
@@ -758,7 +797,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.GetActivityGroupList = function () {
         $http({
             method: 'GET',
-            url: 'QMS/QualityManagementMaster/GetActivityGroupList'
+            url: 'QMS/ProductParameterMaster/GetActivityGroupList'
         }).then(function successCallback(response) {
             $scope.ActivityGroupList = response.data;
         });
@@ -807,7 +846,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         $http({
 
             method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadMachineDetails?ScheduleId=' + pid
+            url: 'QMS/ProductParameterMaster/LoadMachineDetails?ScheduleId=' + pid
         }).then(function successCallback(response) {
             $scope.QualityManagementMasterMachineList = response.data;
         }
@@ -879,7 +918,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         $http({
 
             method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadProductDetails?ScheduleId=' + pid
+            url: 'QMS/ProductParameterMaster/LoadProductDetails?ScheduleId=' + pid
         }).then(function successCallback(response) {
             $scope.QualityManagementMasterProductList = response.data;
         }
@@ -951,7 +990,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         $http({
 
             method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadWorkCenterDetails?ScheduleId=' + pid
+            url: 'QMS/ProductParameterMaster/LoadWorkCenterDetails?ScheduleId=' + pid
         }).then(function successCallback(response) {
             $scope.QualityManagementMasterWorkCenterList = response.data;
         }
@@ -1022,7 +1061,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     //$scope.GetParameterItemList = function () {
     //    $http({
     //        method: 'GET',
-    //        url: 'QMS/QualityManagementMaster/GetParameterItemList'
+    //        url: 'QMS/ProductParameterMaster/GetParameterItemList'
     //    }).then(function successCallback(response) {
     //        $scope.ParameterItemList = response.data;
     //    });
@@ -1032,7 +1071,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.GeneratItemSequenceNo = function () {
         $http({
             method: 'GET',
-            url: 'QMS/QualityManagementMaster/GetItemAutoSequence?scheduleId=' + $scope.scheduleNew.Id
+            url: 'QMS/ProductParameterMaster/GetItemAutoSequence?scheduleId=' + $scope.scheduleNew.Id
         }).then(function successCallback(response) {
             $scope.ItemNew.SNO = response.data;
         });
@@ -1045,7 +1084,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         $http({
 
             method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadItemDetails?ScheduleId=' + $scope.scheduleNew.Id
+            url: 'QMS/ProductParameterMaster/LoadItemDetails?ScheduleId=' + $scope.scheduleNew.Id
         }).then(function successCallback(response) {
             $scope.ScheduleItemList = response.data;
         }
@@ -1204,7 +1243,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         var ItemId = $scope.ItemNew.Id;
         $scope.ItemNew.Id = ItemId;
         try {
-            $http.get('QMS/QualityManagementMaster/getParameterData?ParameterId=' + $scope.NewObject.Id)
+            $http.get('QMS/ProductParameterMaster/getParameterData?ParameterId=' + $scope.NewObject.Id)
                 .then(
                     function successCallback(response) {
                         $scope.ParameterLists = response.data;
@@ -1222,7 +1261,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
 
     $scope.getParameter = function (data) {
         try {
-            $http.get('QMS/QualityManagementMaster/getParameterData?ParameterId=' + data)
+            $http.get('QMS/ProductParameterMaster/getParameterData?ParameterId=' + data)
                 .then(
                     function successCallback(response) {
                         $scope.ParameterLists = response.data;
@@ -1239,7 +1278,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.GetParameterDetails = function (args) {
         $http({
             method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadParameterEditData?ParameterId=' + args.data.Id
+            url: 'QMS/ProductParameterMaster/LoadParameterEditData?ParameterId=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.ParameterNew = response.data.Parameter[0];
             if (!$rootScope.isCollapsed) {
@@ -1272,28 +1311,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
             }
     };
 
-    $scope.FrequencySave = function () {
-        $http({
-            method: 'POST',
-            url: $scope.saveUrlFrequency,
-            data: {
-                'FrequencyData': $scope.FrequencyNew
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.getFrequency();
-                FrequencyClearFields();
-
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-        }
-    };
+    
 
 
     $scope.ParameterId = null;
@@ -1304,7 +1322,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         $http({
 
             method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadFrequencyList?ParameterId=' + $scope.ParameterId
+            url: 'QMS/ProductParameterMaster/LoadFrequencyList?ParameterId=' + $scope.ParameterId
         }).then(function successCallback(response) {
             $scope.ParameterFrequencyList = response.data;
             var gridObj = $("#GridFrequencyValuePopup").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -1373,7 +1391,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.GetItemDetails = function (args) {
         $http({
             method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadItemEditData?ItemId=' + args.data.Id
+            url: 'QMS/ProductParameterMaster/LoadItemEditData?ItemId=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.ItemNew = response.data.item[0];
             if (!$rootScope.isCollapsed) {
@@ -1398,9 +1416,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.SaveParameterClear = function () {
         ParameterClearFields();
     };
-    $scope.FrequencyClear = function () {
-        FrequencyClearFields();
-    };
+   
    
     function ScheduleClearFields() {
         $scope.Action = "Save";
@@ -1423,15 +1439,12 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         $scope.ParameterNew = Object.assign({}, $scope.Parameter);
     }
 
-    function FrequencyClearFields() {
-        $scope.Action = "Save";
-        $scope.FrequencyNew = Object.assign({}, $scope.Frequency);
-    }
+    
   
     $scope.removeItemRow = function () {
         $http({
             method: 'POST',
-            url: 'QMS/QualityManagementMaster/ItemDelete?id=' + $scope.tempId,
+            url: 'QMS/ProductParameterMaster/ItemDelete?id=' + $scope.tempId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {

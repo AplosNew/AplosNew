@@ -15,7 +15,7 @@ using Library.HumanResource.Parameter;
 
 namespace Aplos.Areas.QMS.Controllers
 {
-    public class QualityManagementMasterController : Controller
+    public class ProductParameterMasterController : Controller
     {
         #region Constructor
 
@@ -23,7 +23,7 @@ namespace Aplos.Areas.QMS.Controllers
         ParameterService ps = new ParameterService();
         private readonly ISqlRepository _sqlRepository;
 
-        public QualityManagementMasterController(ISqlRepository R)
+        public ProductParameterMasterController(ISqlRepository R)
         {
             _sqlRepository = R;
         }
@@ -41,6 +41,88 @@ namespace Aplos.Areas.QMS.Controllers
         #endregion -- Pages
 
         #region -- Operations
+
+        [Authorize, HttpGet]
+        public ActionResult getProductGroup()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT * FROM [HKP].[PPMProductGroup]";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult getProductGroupData(string ProductGroupId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"select * FROM [HKP].[PPMProductGroup] PPG where PPG.Id='" + ProductGroupId + @"'";
+            return Json(new { productgroup = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult createProductGroup(Dictionary<string, object> ProductGroupData)
+        {
+            try
+            {
+
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [HKP].[PPMProductGroup] where Id<>'" + ProductGroupData["Id"] + "'", out DataSet dsPPMProductGroupValidation, false, "1");
+
+                DataSet dsPPMProductGroup;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [HKP].[PPMProductGroup] where Id='" + ProductGroupData["Id"] + "'", out dsPPMProductGroup, false, "1");
+                string _Id = "";
+
+                #region data update
+                if (dsPPMProductGroup.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("[HKP].[PPMProductGroup]", out _Id);
+                    _Id = "PPG" + _Id;
+                    ProductGroupData["Id"] = _Id;
+                    AddNewRow(dsPPMProductGroup.Tables[0], ProductGroupData);
+                }
+                else
+                {
+                    _Id = ProductGroupData["Id"].ToString();
+                    EditRow(dsPPMProductGroup.Tables[0].Rows[0], ProductGroupData);
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsPPMProductGroup);
+
+                return Json(new { Error = false, Data = ProductGroupData, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpPost]
+        public ActionResult ProductGroupDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from [HKP].[PPMProductGroup] where Id ='" + id + @"'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         [Authorize, HttpPost]
         public ActionResult GetPositionCode()
@@ -724,23 +806,7 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
             }
         }
 
-        [HttpPost]
-        public ActionResult FrequencyDelete(string id)
-        {
-            try
-            {
-                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
-                conC.BeginTransaction();
-                conC.executeQuery("delete from [HKP].[QualityManagementFrequency] where Id ='" + id + @"'");
-                conC.CommitTransaction();
-
-                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        
 
         [Authorize, HttpGet]
         public ActionResult LoadFrequencyList(string ParameterId)
@@ -835,22 +901,9 @@ FROM [MST].[QualityManagementParameterItem] QMP where QMID ='" + ScheduleId + "'
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize, HttpGet]
-        public ActionResult getFrequency()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT * FROM [HKP].[QualityManagementFrequency] order by SNO";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
+        
 
-        [Authorize, HttpGet]
-        public ActionResult getFrequencyData(string FrequencyId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            string sql = @"select * FROM [HKP].[QualityManagementFrequency] QMF where QMF.Id='" + FrequencyId + @"' order by SNO";
-            return Json(new { frequency = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
-        }
+        
 
         [Authorize, HttpGet]
         public ActionResult LoadBudgetCodeDetails(string ScheduleId)
@@ -967,52 +1020,7 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
             }
         }
 
-        [HttpPost]
-        public JsonResult createFrequency(Dictionary<string, object> FrequencyData)
-        {
-            try
-            {
-
-                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [HKP].[QualityManagementFrequency] where Id<>'" + FrequencyData["Id"] + "'", out DataSet dsQualityManagementFrequencyValidation, false, "1");
-
-                DataSet dsQualityManagementFrequency;
-
-                conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [HKP].[QualityManagementFrequency] where Id='" + FrequencyData["Id"] + "'", out dsQualityManagementFrequency, false, "1");
-                string _Id = "";
-
-                #region data update
-                if (dsQualityManagementFrequency.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("QualityManagementFrequency", out _Id);
-                    _Id = "QMF" + _Id;
-                    FrequencyData["Id"] = _Id;
-                    AddNewRow(dsQualityManagementFrequency.Tables[0], FrequencyData);
-                }
-                else
-                {
-                    _Id = FrequencyData["Id"].ToString();
-                    EditRow(dsQualityManagementFrequency.Tables[0].Rows[0], FrequencyData);
-                }
-                #endregion data update
-
-
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsQualityManagementFrequency);
-
-                return Json(new { Error = false, Data = FrequencyData, Message = AplosMessage.Insert });
-
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message });
-
-            }
-        }
+       
 
         [HttpPost]
         public JsonResult createFrequencyValue(List<Dictionary<string, object>> ParameterFrequencyData, string ParameterId)

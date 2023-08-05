@@ -4314,7 +4314,7 @@ namespace Library.Service.HumanResources
 
                             xlsRow = 12;
                             xlsCol = 1;
-                            sheet1.Range[xlsRow, xlsCol].Text = "Item Details:";
+                            sheet1.Range[xlsRow, xlsCol].Text = "Parameter Details:";
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
                             sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
@@ -4323,14 +4323,14 @@ namespace Library.Service.HumanResources
                             xlsRow += 1;
                             SNO = xlsCol;
                             xlsCol += 1;
-                            sheet1.Range[xlsRow, SNO].Text = "Item SNO";
+                            sheet1.Range[xlsRow, SNO].Text = "Parameter SNO";
                             sheet1.Range[xlsRow, SNO].ColumnWidth = 25;
                             sheet1.Range[xlsRow, SNO].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, SNO].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                             ItemName = xlsCol;
                             xlsCol += 1;
-                            sheet1.Range[xlsRow, ItemName].Text = "Item Name";
+                            sheet1.Range[xlsRow, ItemName].Text = "Parameter Name";
                             sheet1.Range[xlsRow, ItemName].ColumnWidth = 25;
                             sheet1.Range[xlsRow, ItemName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, ItemName].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -4864,7 +4864,7 @@ namespace Library.Service.HumanResources
 
                             xlsRow = 12;
                             xlsCol = 1;
-                            sheet1.Range[xlsRow, xlsCol].Text = "Item Details:";
+                            sheet1.Range[xlsRow, xlsCol].Text = "Parameter Details:";
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
                             sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
@@ -4873,14 +4873,14 @@ namespace Library.Service.HumanResources
                             xlsRow += 1;
                             SNO = xlsCol;
                             xlsCol += 1;
-                            sheet1.Range[xlsRow, SNO].Text = "Item SNO";
+                            sheet1.Range[xlsRow, SNO].Text = "Parameter SNO";
                             sheet1.Range[xlsRow, SNO].ColumnWidth = 25;
                             sheet1.Range[xlsRow, SNO].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, SNO].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                             ItemName = xlsCol;
                             xlsCol += 1;
-                            sheet1.Range[xlsRow, ItemName].Text = "Item Name";
+                            sheet1.Range[xlsRow, ItemName].Text = "Parameter Name";
                             sheet1.Range[xlsRow, ItemName].ColumnWidth = 35;
                             sheet1.Range[xlsRow, ItemName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, ItemName].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -5453,7 +5453,7 @@ namespace Library.Service.HumanResources
 
                             xlsRow = 12;
                             xlsCol = 1;
-                            sheet1.Range[xlsRow, xlsCol].Text = "Item Details:";
+                            sheet1.Range[xlsRow, xlsCol].Text = "Parameter Details:";
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
                             sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
@@ -5462,14 +5462,14 @@ namespace Library.Service.HumanResources
                             xlsRow += 1;
                             SNO = xlsCol;
                             xlsCol += 1;
-                            sheet1.Range[xlsRow, SNO].Text = "Item SNO";
+                            sheet1.Range[xlsRow, SNO].Text = "Parameter SNO";
                             sheet1.Range[xlsRow, SNO].ColumnWidth = 25;
                             sheet1.Range[xlsRow, SNO].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, SNO].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                             ItemName = xlsCol;
                             xlsCol += 1;
-                            sheet1.Range[xlsRow, ItemName].Text = "Item Name";
+                            sheet1.Range[xlsRow, ItemName].Text = "Parameter Name";
                             sheet1.Range[xlsRow, ItemName].ColumnWidth = 35;
                             sheet1.Range[xlsRow, ItemName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, ItemName].VerticalAlignment = ExcelVAlign.VAlignCenter;

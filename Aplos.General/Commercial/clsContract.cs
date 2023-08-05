@@ -276,14 +276,20 @@ where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1
 
         public IEnumerable<object> GetMasterLCDataList()
         {
-            string sql = @"SELECT MLC.Id, MLC.BenificiaryBankId, MLC.OpeningBank, MLC.OpeningDescription, MLC.LeinBank, MLC.LeinDescription, MLC.LCRef, FORMAT(MLC.LCDate,'dd-MMM-yyyy') LCDate, FORMAT(MLC.ExpiryDate,'dd-MMM-yyyy') ExpiryDate,
-                          MLC.Amount, MLC.Type, MLC.Tenure, MLC.FinalDestinationId, MLC.PortOfLandingId, MLC.AddedBy,FORMAT(MLC.AddedDate,'dd-MMM-yyyy') AddedDate, MLC.AddedFromIP, MLC.UpdatedBy, FORMAT(MLC.UpdatedDate,'dd-MMM-yyyy') UpdatedDate, MLC.UpdatedFromIP, MLC.CurrencyId
-                         ,LB.UserName BenificiaryBank,CN.Code Currency, MLC.CustomerId, P.UserName PartyName,MLC.Version 
+            string sql = @"SELECT MLC.Id, MLC.BenificiaryBankId, MLC.OpeningBank, MLC.OpeningDescription, MLC.LeinBank, MLC.LeinDescription, MLC.LCRef, FORMAT(MLC.LCDate,'dd-MMM-yyyy') LCDate, 
+							FORMAT(MLC.ExpiryDate,'dd-MMM-yyyy') ExpiryDate, MLC.Amount, MLC.Type, MLC.Tenure, MLC.FinalDestinationId,MLC.PortOfLandingId,
+							PR.UserName PortOfLanding, MLC.AddedBy,FORMAT(MLC.AddedDate,'dd-MMM-yyyy') AddedDate, MLC.AddedFromIP, MLC.UpdatedBy, 
+							FORMAT(MLC.UpdatedDate,'dd-MMM-yyyy') UpdatedDate, MLC.UpdatedFromIP, MLC.CurrencyId,LB.UserName BenificiaryBank,CN.Code Currency, 
+							MLC.CustomerId, P.UserName PartyName,MLC.Version,mlc.LCShipmentDate,mlc.ShipmentModeId,sm.UserName ShipmentMode,mlc.AmendmentDate
+							,mlc.PortOfLoadingId,prl.UserName PortOfLoading
                          FROM [dbo].[MasterLC] MLC
                          LEFT JOIN MST.BankMaster OB  ON OB.Id=MLC.BenificiaryBankId
                          LEFT JOIN HKP.Bank LB ON LB.Id=OB.BankId
                          LEFT JOIN SCS.Currency CN ON CN.Id=MLC.CurrencyId
-                         LEFT JOIN HKP.Party P ON P.Id=MLC.CustomerId";
+                         LEFT JOIN HKP.Party P ON P.Id=MLC.CustomerId
+                         LEFT JOIN mst.ShipMode AS sm ON sm.Id=mlc.ShipmentModeId
+                         LEFT JOIN [MST].[Port] PR ON PR.Id=mlc.PortOfLandingId
+                         LEFT JOIN [MST].[Port] PRL ON PRL.Id=mlc.PortOfLoadingId";
             return _sqlRepository.GetDataCollection(sql);
         }
 
