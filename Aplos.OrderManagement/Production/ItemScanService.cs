@@ -798,7 +798,7 @@ namespace Library.Service.EmployeeServices
 
                 var items = DataToSave.ToList();
 
-                var sqlx = @"select * from dbo.ItemScanChild where RefNo IN(" + RefNo + @")";
+                var sqlx = @"select * from dbo.ItemScanChild where SalesReturnId is null and RefNo IN(" + RefNo + @")";
                 con.OpenDataSetThroughAdapter(sqlx, out dsMaster, false, "1");
 
                 double BkQty = 0.0;
@@ -811,7 +811,7 @@ namespace Library.Service.EmployeeServices
 
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
-                        dr["BookedDate"] = DateTime.Now;
+                        dr["UpdatedDate"] = DateTime.Now;
                         dr["UpdatedBy"] = item.UpdatedBy;
                         dr["ReturnNetWeight"] = item.ReturnNetWeight;
                        // dr["Booked"] = false;   Booked is now 0 is stop 
