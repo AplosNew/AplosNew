@@ -121,5 +121,21 @@ from MST.MaterialMaster MM
             string sql = @"Select Id Value, UserName Text from SCS.UnitOfMeasurement";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
+
+        
+        public ActionResult LoadWorkCenterDetails()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select WM.Id, WM.Code ,WM.UserName Workcenter, WC.UserName WorkcenterCategory, WCS.UserName WorkcenterSubCategory, P.UserName Process, WM.Capacity
+, UOM.UserName UOM 
+                            from SCS.WorkCenterMaster WM
+							--LEFT JOIN [MST].[QualityManagementWorkCenter] QMW ON QMW.WorkCenterMasterId=WM.Id
+							LEFT JOIN HKP.WorkCenterCategory WC on WC.Id = WM.WorkCenterCategoryId
+                            LEFT JOIN HKP.WorkCenterSubCategory WCS on WCS.Id = WM.WorkCenterSubcategoryId
+                            left join HKP.Process P on P.Id = WM.ProcessId
+                            LEFT JOIN SCS.UnitOfMeasurement UOM on UOM.Id = WM.UoMId 
+                            where WM.Active = 1 ";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
     }
 }

@@ -1,6 +1,6 @@
 ﻿'use strict';
-QRCodeGeneratorController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService', '$controller'];
-function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService, $controller) {
+QRCodeGeneratorController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService', '$controller','$window'];
+function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService, $controller, $window) {
     $rootScope.title = "QR Code Generate";
     $scope.Action = 'Save';
     $scope.characterlist = [];
@@ -113,12 +113,48 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
     }
     $scope.GetPO();
 
+    $scope.SelectedRowOB = {};
+    $scope.SelectedRowList = [];
     $scope.Get = function (args) {
+       
+        $scope.SelectedRowOB.Article = args.data.Article;
+        
+        $scope.SelectedRowOB.ArticleId = args.data.ArticleId;
+       
+        $scope.SelectedRowOB.Id = args.data.Id;
+        
+        $scope.SelectedRowOB.PO = args.data.PO;
+        
+        $scope.SelectedRowOB.ProductCode = args.data.ProductCode;
+       
+        $scope.SelectedRowOB.ProductionStatus = args.data.ProductionStatus;
+       
+        $scope.SelectedRowOB.Shade = args.data.Shade;
+
+        $scope.SelectedRowList.push($scope.SelectedRowOB);
+       
         angular.element(document.querySelector('#weighingmachinepopup')).modal('show');
         $scope.QRCodeGenerateModel = Object.assign({}, args.data);
         //$scope.GetWeighingScale();
         //$scope.GetGrossWeight();
         $scope.GetPort();
+    }
+
+    $scope.CreateAnotherRows = function () {
+
+        for (var i = 0; i < 1; i++) {
+            var obj = angular.copy($scope.SelectedRowList[0]);
+            obj.MaxWeight = null;
+            obj.MinWeight = null;
+            obj.LOT = null;
+            obj.NoOfPackets = null;
+            obj.NetWeight = null;
+            obj.GrossWeight = null;
+            obj.TierWeight = null;
+            $scope.SelectedRowList.push(obj);
+            
+        }
+
     }
 
     $scope.WeighingScaleList = [];
@@ -306,6 +342,7 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
                 else {
 
                     $rootScope.report($scope.downloadgriddataUrlPath + "?FileName=" + response.data.FileName);//downloadgriddataUrlPath
+                    //$window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
                     ShowResult(response.data.Message, 'success');
                 }
 

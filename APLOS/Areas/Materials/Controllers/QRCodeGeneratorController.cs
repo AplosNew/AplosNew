@@ -20,8 +20,8 @@ using System.Web.Mvc;
 using Zen.Barcode;
 using System.IO.Ports;
 using System.Drawing;
-
-
+using Syncfusion.Pdf;
+using Syncfusion.PresentationToPdfConverter;
 
 namespace Aplos.Areas.Materials.Controllers
 {
@@ -118,6 +118,7 @@ namespace Aplos.Areas.Materials.Controllers
                 var fileName = "";
 
                 fileName = "QRCode" + identity.PlantId + langName + ".pptx";
+                //fileName = "QRCode.pptx";
                 strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), fileName);  // IDCardEng.xlsx
                 File = fileName;
 
@@ -147,22 +148,35 @@ namespace Aplos.Areas.Materials.Controllers
                 IPresentation presentation = Presentation.Open(strPath);
                 for (int i = 0; i < presentation.Slides.Count; i++)
                 {
-                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "ProductCode", Convert.ToString(data["ProductCode"]), "Kalpurush", 18);
-                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "PO", Convert.ToString(data["PO"]), "Kalpurush", 18);
-                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "LOT", Convert.ToString(data["LOT"]), "Kalpurush", 18);
-                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "NumberOfCones", Convert.ToString(data["NumberOfCones"]), "Kalpurush", 18);
-                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "NETWEIGHT", Convert.ToString(data["NetWeight"]), "Kalpurush", 18);
-                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "GrossWeight", Convert.ToString(data["GrossWeight"]), "Kalpurush", 18);
-                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "Shade", Convert.ToString(data["Shade"]), "Kalpurush", 18);
-                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "Article", Convert.ToString(data["Article"]), "Kalpurush", 18);
-                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "PackedBy", identity.UserId, "Kalpurush", 18);
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "ProductCode", Convert.ToString(data["ProductCode"]), "Kalpurush", 8);
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "PO", Convert.ToString(data["PO"]), "Kalpurush", 8);
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "LOT", Convert.ToString(data["LOT"]), "Kalpurush", 8);
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "NumberOfCones", Convert.ToString(data["NumberOfCones"]), "Kalpurush", 8);
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "NETWEIGHT", Convert.ToString(data["NetWeight"]), "Kalpurush", 8);
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "GrossWeight", Convert.ToString(data["GrossWeight"]), "Kalpurush", 8);
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "Shade", Convert.ToString(data["Shade"]), "Kalpurush", 8);
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "Article", Convert.ToString(data["Article"]), "Kalpurush", 8);
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "PackedBy", identity.UserId, "Kalpurush", 8);
                     CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
                     System.Drawing.Image barcodeImg = qrCode.Draw(concatdata, 200, 2);
                     ConvertPresentationToPdf.SetQRCode(presentation.Slides[i], "EmpQR", barcodeImg);
                 }
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
-               
+                //Opens a PowerPoint Presentation
+                presentation = Presentation.Open(fullPath);
+                //Converts the PowerPoint Presentation into PDF document
+                PdfDocument pdfDocument = PresentationToPdfConverter.Convert(presentation);
+                //Saves the PDF document
+                pdfDocument.Save(fullPath+".pdf");
+                //Closes the PDF document
+                pdfDocument.Close(true);
+                //Closes the Presentation
+                presentation.Close();
+                //This will open the PDF file so, the result will be seen in default PDF viewer
+                System.Diagnostics.Process.Start(fullPath+".pdf");
+
+
                 return presentation;
             }
             catch(Exception ex)
@@ -216,14 +230,20 @@ namespace Aplos.Areas.Materials.Controllers
                 }
                 #endregion data update
 
-                var fileName = "QRCode" + identity.UserId + ".pptx";
+                var fileName = "QRCode.pptx";
 
                 var datas = CreateQRCode(data, ShadeText, ArticleName, productcodeText, NetWeightText);
 
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+
                 clsStaticInfo _info = new clsStaticInfo();
+
                 _info.SaveDataSets(dsMaster);
-                datas.Save(fullPath);
+                
+                //datas.Save(fullPath);
+
+                
+
                 con.BeginTransaction();
                 
                 //con.executeQuery($"update dbo.WeighingScaleDataCapture set isQR = 1 where Id ='" + data["GrossWeightId"] + "'");

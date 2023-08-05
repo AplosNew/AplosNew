@@ -112,6 +112,19 @@ function ProcessManagementController(commonMessage, $scope, $rootScope, baseServ
     }
     $scope.GetUOM();
 
+    $scope.QualityManagementMasterWorkCenterList = [];
+    $scope.GetWorkcenter = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'LoadWorkCenterDetails',
+            dataType: 'JSON'
+        })
+            .then(function successCallback(response) {
+                $scope.QualityManagementMasterWorkCenterList = response.data;
+            })
+    }
+    $scope.GetWorkcenter();
+
     $scope.ProcessManagementTemp = {
         Id: null,
         StandaredName: null,
