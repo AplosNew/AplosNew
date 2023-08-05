@@ -2380,7 +2380,7 @@ namespace Library.MaterialManagement.Inventory
             {
                 var Sql = @"--DECLARE @plantId VARCHAR(10)='" + plantId + @"';
                 	
-				Select top(500) * from(
+				Select top(600) * from(
 									SELECT ROW_NUMBER() OVER (ORDER BY  IR.Id) AS SiNo, IR.Id, REPLACE(CONVERT(CHAR(11), IR.PODate, 106), ' ', '-') AS PODate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
 							, CP.UserName AS PartyAccountGroupName
 							, IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106), ' ', '-') AS DocDate
@@ -2443,7 +2443,7 @@ namespace Library.MaterialManagement.Inventory
 								)PO ON PO.InventoryReceiveId = IRD.InventoryReceiveId
 					 WHERE IR.AuthorizedBy= '" + identity.EmployeeId + @"'
 					 AND IR.CheckedByStatus= 'Checked'
-					 AND IR.AuthorizedbyStatus = 'Approved'
+					 AND IR.AuthorizedbyStatus = 'Approved' 
  
 
 					 UNION ALL
