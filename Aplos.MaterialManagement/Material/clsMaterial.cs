@@ -1475,7 +1475,7 @@ Where A.ProductionOrderId='" + ProductionOrderId + "' AND A.Sequence=1";
 				,P.UserName Customer,PL.Code,MSO.SOQty,PT.UserName PackingType
                 ,Shade=STUFF((select distinct ','+PLA.AttributeValue from ProductLibraryAttribute PLA                                               
 							                                where PLA.ProductLibraryId=PL.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                ,MS.AddedBy,CB.EmployeeName CheckedBy,AP.EmployeeName AuthorizedBy
+                ,MS.AddedBy,CB.EmployeeName CheckedBy,AP.EmployeeName AuthorizedBy,AR.StandardName Article
                 FROM dbo.MaterialIssueControlDetail D 
 				LEFT JOIN dbo.MaterialIssueControlMaster MS ON MS.Id=D.MaterialIssueControlMasterId
 				LEFT JOIN dbo.MaterialIssueControlSODetail MSO ON MSO.MaterialIssueControlMasterId=D.MaterialIssueControlMasterId
@@ -1503,6 +1503,8 @@ Where A.ProductionOrderId='" + ProductionOrderId + "' AND A.Sequence=1";
                                 	WHERE cc.IssueRequestBOQMapId IS NOT NULL
                                 	GROUP BY aa.Id
                                 	) IDRM ON IDRM.Id = IR.id
+                LEFT JOIN TRN.MasterOrderItem SMOI ON SMOI.Id=SO.MasterOrderItemId
+                 LEFT JOIN [MST].[MaterialMasterArticle] AR ON AR.Id=SMOI.ArticleId 
                 WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
 
                 dtOrder = _sqlRepository.GetDataTable(strSql);

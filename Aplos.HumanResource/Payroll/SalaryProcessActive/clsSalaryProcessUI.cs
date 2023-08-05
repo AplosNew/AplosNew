@@ -414,7 +414,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                         left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
-                                        LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id
+                                        LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id AND DMC.PlantId=E.PlantId
 										LEFT JOIN dbo.AccountsGroup AG ON AG.Id=DMC.AccountsGroupId
                                             LEFT OUTER JOIN
                                             (
@@ -1532,7 +1532,7 @@ LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.I
 
                                         left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
-                                        LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id
+                                        LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id AND DMC.PlantId=E.PlantId
 										LEFT JOIN dbo.AccountsGroup AG ON AG.Id=DMC.AccountsGroupId
 											  LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
                                             WHERE (

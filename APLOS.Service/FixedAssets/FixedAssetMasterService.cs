@@ -886,7 +886,7 @@ namespace Library.Service.FixedAssets
                                                     LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=fami.CapacityUoMId
 													where fam.Id ='" + FAMId + "'";
             return _sqlRepository.GetDataTable(str);
-        }
+        } 
 
     }
 }
