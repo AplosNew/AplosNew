@@ -4029,7 +4029,7 @@ WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='" + productionDat
 
         public IEnumerable<object> GetQualityPlan()
         {
-            string sql = @"select distinct QPC.Id Id,PD.Id QPId,PO.Id POId,ID.Id as IssueId,ID.IssueName as QPIssue,ID.ProcessId,P.UserName as Process,ID.EntityId,E.UserName Entity,PD.DependentDate as DependentOn,PD.Legdays,
+            string sql = @"select distinct QPC.Id Id,PD.Id QPId,PO.Id POId,ID.Id as IssueId,QMM.UserName as QPIssue,ID.ProcessId,P.UserName as Process,ID.EntityId,E.UserName Entity,PD.DependentDate as DependentOn,PD.Legdays,
 (select RepeatEntry from TRN.QualityControl where IssueId=ID.Id and QualityPlanId=QPC.Id and PlanType='POIssue' and RepeatEntry is not null) as RepeatEntry,
 case 
 when PD.DependentDate='ItemDate' then format(MOI.AddedDate,'dd-MMM-yyyy')
@@ -4060,6 +4060,7 @@ left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
 left join MST.POQualityPlanDetails PD on 1=1
 left join [TRN].[QualityPlanControl] QPC on QPC.QPId=PD.Id and QPC.POId=PO.Id
 left join MST.QualityIssueDetails ID on ID.Id=PD.IssueId
+left join MST.QualityManagementMaster QMM on QMM.Id=ID.IssueNameId
 left join hkp.process P on P.Id=ID.ProcessId
 left join org.Entity E on E.Id=ID.EntityId
 left join TRN.ProductionOrderDetail POD on POD.ProductionOrderId=PO.Id

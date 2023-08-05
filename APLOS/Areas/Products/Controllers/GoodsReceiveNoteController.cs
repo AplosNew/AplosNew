@@ -1695,9 +1695,10 @@ namespace Aplos.Areas.Products.Controllers
 
 
         [Authorize, HttpGet]
-        public JsonResult IssueDetailData(string issueId)
+        public JsonResult IssueDetailData(string status)
         {
-            return Json(_inventoryReveiveService.IssueDetailData(issueId), JsonRequestBehavior.AllowGet);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.IssueDetailData(status,identity.EmployeeId), JsonRequestBehavior.AllowGet);
 
         }
 

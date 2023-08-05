@@ -1327,12 +1327,18 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet.Range[ROW, COL + 7].Text = "Approved Status: " + dtOrder.Rows[0]["AuthorizedByStatus"].ToString();
                 sheet.Range[ROW, COL + 7, ROW, COL + 11].Merge();
 
+                ROW = 8; COL = 1;
+                sheet.Range[ROW, COL].Text = "Article:";
+                sheet.Range[ROW, COL + 1].Text = dtOrder.Rows[0]["Article"].ToString();
+                sheet.Range[ROW, COL + 1, ROW, COL + 3].Merge();
+                sheet.Range[ROW, COL + 4, ROW, COL + 11].Merge();
+
                 sheet.Range[ROW, 1, ROW + 1, 11].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, 1, ROW + 1, 11].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW + 1, 11].BorderInside(ExcelLineStyle.Hair);
 
-                sheet.Range[8, 1, 8, COL + 11].Merge();
-                ROW = 8; COL = 1;
+                sheet.Range[9, 1, 9, COL + 11].Merge();
+                ROW = 9; COL = 1;
                 ROW++;
                 #region ColumnsHeader
 

@@ -8,7 +8,7 @@ function AdditionalInfoUpdateController(cboService, commonMessage, $scope, $root
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
-    $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.deleteUrl = $scope.path + 'DeleteAdditionallInfoUpdate/';
 
 
     $scope.tab = 1;
@@ -60,7 +60,7 @@ function AdditionalInfoUpdateController(cboService, commonMessage, $scope, $root
     $scope.getAdditionalData = function (masterId) {
         $http({
             method: 'GET',
-            url: 'FixedAssets/FixedAssetMaster/getAdditionalData?masterId=' + masterId
+            url: 'FixedAssets/FixedAssetMaster/GetAdditionalDataByAssetId?masterId=' + masterId + '&headerId=' + $scope.modelNew.Id
         }).then(function successCallback(response) {
             $scope.AdditionalInfoItemList = response.data;
         });
@@ -78,56 +78,11 @@ function AdditionalInfoUpdateController(cboService, commonMessage, $scope, $root
     $scope.getData();
 
     $scope.Get = function (args) {
-        $scope.modelNew = Object.assign({}, args);
+        $scope.modelNew = Object.assign({}, args.data);
         $scope.getAdditionalData($scope.modelNew.FixedAssetItemId);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
-        }
-    };
-
-    $scope.XSave = function () {
-        angular.copy($scope.modelNew, $scope.model);
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.AdditionalInfoUpdateNewForm.$valid) {
-            if ($scope.Action === 'Save') {
-                $http({
-                    method: 'POST',
-                    url: 'FixedAssets/FixedAssetMaster/CreateAdditionallInfoUpdate',
-                    data: $scope.model,
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.getData();
-                        ClearFields();
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            }
-            else if ($scope.Action === 'Update') {
-                $http({
-                    method: 'POST',
-                    url: 'FixedAssets/FixedAssetMaster/CreateAdditionallInfoUpdate',
-                    data: $scope.model,
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.getData();
-                        ClearFields();
-                    }
-                }, function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                });
-            }
         }
     };
 
@@ -138,8 +93,8 @@ function AdditionalInfoUpdateController(cboService, commonMessage, $scope, $root
             if ($scope.Action === 'Save' || $scope.Action === 'Update') {
                 $http({
                     method: 'POST',
-                    url: 'FixedAssets/FixedAssetMaster/CreateAdditionallInfoUpdate',
-                    data: { 'data': $scope.model },
+                    url: 'FixedAssets/FixedAssetMaster/CreateAdditionalInfoUpdate',
+                    data: { 'data': $scope.model, 'detailData': $scope.AdditionalInfoItemList },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -147,8 +102,9 @@ function AdditionalInfoUpdateController(cboService, commonMessage, $scope, $root
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.ClearFAMI();
-                        $scope.getFAMIData();
+                        $scope.modelNew.Id = response.data.Id;
+                        $scope.getAdditionalData($scope.modelNew.FixedAssetItemId);
+                        $scope.getData();
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -169,9 +125,8 @@ function AdditionalInfoUpdateController(cboService, commonMessage, $scope, $root
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.AdditionalInfoUpdates.splice($scope.index, 1);
-                    baseService.paginationRemove();
-                    ClearFields(response.data.Sequence);
+                    $scope.getData();
+                    $scope.Clear();
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -187,6 +142,19 @@ function AdditionalInfoUpdateController(cboService, commonMessage, $scope, $root
 
     function ClearFields() {
         $scope.Action = 'Save';
-        $scope.modelNew = {};
+        $scope.model = {
+            Id: null,
+            FixedAssetItemId: null,
+            Code: null,
+            ShortName: null,
+            StandardName: null,
+            UserName: null,
+            Description: null,
+            Remarks: null,
+            Active: true
+        };
+
+        $scope.modelNew = Object.assign({}, $scope.model);
+        $scope.AdditionalInfoItemList = [];
     }
 }
