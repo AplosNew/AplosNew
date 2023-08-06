@@ -11,52 +11,156 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body text-center">
-                @*<div class="row text-right">
-                    <div class="col-xs-12 col-sm-12 col-sm-12">
-                        <div class="search-form">
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-3 col-md-3">
-                                    <div class="select-style">
-                                        <select ng-model="searchBy">
-                                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getSearchData()">
-                                </div>
-                                <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="getSearchData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>*@
+                
                 <div class="table-responsive modal-table">
 
                     <div style="color:black;" id="Grid" ej-grid e-datasource="materialMasterList" e-templaterefresh="refreshTemplate" e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                         <div e-columns>
                             <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
-                            <div e-column e-type="string" e-field="VoucherNo" e-headertext="VoucherNo" e-width="100"></div>
+                            <div e-column e-type="string" e-field="VendorName" e-headertext="Vendor" e-width="100"></div>
+                            <div e-column e-type="string" e-field="InvoiceDate" e-headertext="GRN Date" e-width="80"></div>
+                            <div e-column e-type="string" e-field="GateEntryNo" e-headertext="GRNNo" e-width="80"></div>
+                            <div e-column e-type="string" e-field="InventoryReceiveDetailId" e-headertext="GRNRowId" e-width="80"></div>
                             <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="Material" e-width="100"></div>
                             <div e-column e-type="string" e-field="ArticleStandardName" e-headertext="Article" e-width="100"></div>
+                            <div e-column e-type="string" e-field="TransactionUoM" e-headertext="UoM" e-width="30"></div>
+                            <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Amount" e-headertext="Amount" e-width="80"></div>
+                            <div e-column e-type="string" e-field="VoucherDetailNo" e-headertext="VoucherRowId" e-width="100"></div>
+                            <div e-column e-type="string" e-field="VoucherNo" e-headertext="VoucherNo" e-width="100"></div>
+                            <div e-column e-type="string" e-field="IssueNo" e-headertext="Issue No" e-width="30"></div>
+                            <div e-column e-type="string" e-field="CapitalizeDate" e-headertext="Issue Date" e-width="50"></div>
                             <div e-column e-type="string" e-field="AssetMasterName" e-headertext="Asset Master" e-width="80"></div>
                             <div e-column e-type="string" e-field="AssetGLName" e-headertext="GL" e-width="80"></div>
                             <div e-column e-type="string" e-field="AssetBudgetName" e-headertext="Budget" e-width="80"></div>
                             <div e-column e-type="string" e-field="ActivityName" e-headertext="Activity" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="80"></div>
-                            <div e-column e-type="string" e-field="TransactionUoM" e-headertext="UoM" e-width="30"></div>
                             <div e-column e-type="string" e-field="GRNCurrencyCode" e-headertext="Currency" e-width="30"></div>
-                            <div e-column e-type="string" e-field="Amount" e-headertext="Amount" e-width="80"></div>
                             <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Base Currency" e-width="30"></div>
                             <div e-column e-type="string" e-field="FABaseAmount" e-headertext="Base Amount" e-width="80"></div>
                             <div e-column e-type="string" e-field="RefNo" e-headertext="RefNo" e-width="60"></div>
-                            <div e-column e-type="string" e-field="GateEntryNo" e-headertext="GRNNo" e-width="80"></div>
                             <div e-column e-type="string" e-field="InvoiceNo" e-headertext="Invoice No" e-width="80"></div>
-                            <div e-column e-type="string" e-field="InvoiceDate" e-headertext="Invoice Date" e-width="80"></div>
-                            <div e-column e-type="string" e-field="IssueNo" e-headertext="Issue No" e-width="30"></div>
-                            <div e-column e-type="string" e-field="CapitalizeDate" e-headertext="Capitalize Date" e-width="50"></div>
+                            <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee" e-width="60"></div>
+                        </div>
+
+                    </div>
+                    <script type="text/template" id="checkboxTemplate">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                    </script>
+                    <script type="text/x-jsrender" id="headerTemplate">
+                        <input type="checkbox" id="headchk" />
+                    </script>
+                </div>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="CloseMMPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Apply</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="assetmodalCI" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">
+                {{ItemName}} Info
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+
+                <div class="table-responsive modal-table">
+
+                    <div style="color:black;" id="GridCI" ej-grid e-datasource="materialMasterList" e-templaterefresh="refreshTemplate" e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                        <div e-columns>
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
                             <div e-column e-type="string" e-field="VendorName" e-headertext="Vendor" e-width="100"></div>
+                            <div e-column e-type="string" e-field="InvoiceDate" e-headertext="GRN Date" e-width="80"></div>
+                            <div e-column e-type="string" e-field="GateEntryNo" e-headertext="GRNNo" e-width="80"></div>
+                            <div e-column e-type="string" e-field="InventoryReceiveDetailId" e-headertext="GRNRowId" e-width="80"></div>
+                            <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="Material" e-width="100"></div>
+                            <div e-column e-type="string" e-field="ArticleStandardName" e-headertext="Article" e-width="100"></div>
+                            <div e-column e-type="string" e-field="TransactionUoM" e-headertext="UoM" e-width="30"></div>
+                            <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Amount" e-headertext="Amount" e-width="80"></div>
+                            <div e-column e-type="string" e-field="VoucherDetailNo" e-headertext="VoucherRowId" e-width="100"></div>
+                            <div e-column e-type="string" e-field="VoucherNo" e-headertext="VoucherNo" e-width="100"></div>
+                            <div e-column e-type="string" e-field="IssueNo" e-headertext="Issue No" e-width="30"></div>
+                            <div e-column e-type="string" e-field="CapitalizeDate" e-headertext="Issue Date" e-width="30"></div>
+                            <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="80"></div>
+                            <div e-column e-type="string" e-field="CostCenter" e-headertext="Cost Center" e-width="80"></div>
+                            <div e-column e-type="string" e-field="AssetMasterName" e-headertext="Asset Master" e-width="80"></div>
+                            <div e-column e-type="string" e-field="AssetGLName" e-headertext="GL" e-width="80"></div>
+                            <div e-column e-type="string" e-field="AssetBudgetName" e-headertext="Budget" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ActivityName" e-headertext="Activity" e-width="80"></div>
+                            <div e-column e-type="string" e-field="GRNCurrencyCode" e-headertext="Currency" e-width="30"></div>
+                            <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Base Currency" e-width="30"></div>
+                            <div e-column e-type="string" e-field="FABaseAmount" e-headertext="Base Amount" e-width="80"></div>
+                            <div e-column e-type="string" e-field="RefNo" e-headertext="RefNo" e-width="60"></div>
+                            <div e-column e-type="string" e-field="InvoiceNo" e-headertext="Invoice No" e-width="80"></div>
+                            <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee" e-width="60"></div>
+                        </div>
+
+                    </div>
+                    <script type="text/template" id="checkboxTemplate">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                    </script>
+                    <script type="text/x-jsrender" id="headerTemplate">
+                        <input type="checkbox" id="headchk" />
+                    </script>
+                </div>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="CloseMMPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Apply</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="assetmodalEx" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">
+                {{ItemName}} Info
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                @*<div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li> <button ng-click="DownloadExpense();" class="btn"><i class="glyphicon glyphicon-download"></i> Download</button></li>
+                    </ul>
+                </div>*@
+                <div class="table-responsive modal-table">
+
+                    <div style="color:black;" id="GridEx" ej-grid e-datasource="materialMasterList" e-templaterefresh="refreshTemplate" e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                        <div e-columns>
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                            <div e-column e-type="string" e-field="VendorName" e-headertext="Vendor" e-width="100"></div>
+                            <div e-column e-type="string" e-field="InvoiceDate" e-headertext="GRN Date" e-width="80"></div>
+                            <div e-column e-type="string" e-field="GateEntryNo" e-headertext="GRNNo" e-width="80"></div>
+                            <div e-column e-type="string" e-field="InventoryReceiveDetailId" e-headertext="GRNRowId" e-width="80"></div>
+                            <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="Material" e-width="100"></div>
+                            <div e-column e-type="string" e-field="ArticleStandardName" e-headertext="Article" e-width="100"></div>
+                            <div e-column e-type="string" e-field="TransactionUoM" e-headertext="UoM" e-width="30"></div>
+                            <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Amount" e-headertext="Amount" e-width="80"></div>
+                            <div e-column e-type="string" e-field="VoucherDetailNo" e-headertext="VoucherRowId" e-width="100"></div>
+                            <div e-column e-type="string" e-field="VoucherNo" e-headertext="VoucherNo" e-width="100"></div>
+                            <div e-column e-type="string" e-field="IssueNo" e-headertext="Issue No" e-width="30"></div>
+                            <div e-column e-type="string" e-field="CapitalizeDate" e-headertext="Issue Date" e-width="50"></div>
+                            <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="80"></div>
+                            <div e-column e-type="string" e-field="CostCenter" e-headertext="Cost Center" e-width="80"></div>
+                            <div e-column e-type="string" e-field="AssetMasterName" e-headertext="Asset Master" e-width="80"></div>
+                            <div e-column e-type="string" e-field="AssetGLName" e-headertext="GL" e-width="80"></div>
+                            <div e-column e-type="string" e-field="AssetBudgetName" e-headertext="Budget" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ActivityName" e-headertext="Activity" e-width="80"></div>
+                            <div e-column e-type="string" e-field="GRNCurrencyCode" e-headertext="Currency" e-width="30"></div>
+                            <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Base Currency" e-width="30"></div>
+                            <div e-column e-type="string" e-field="FABaseAmount" e-headertext="Base Amount" e-width="80"></div>
+                            <div e-column e-type="string" e-field="RefNo" e-headertext="RefNo" e-width="60"></div>
+                            <div e-column e-type="string" e-field="InvoiceNo" e-headertext="Invoice No" e-width="80"></div>
                             <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee" e-width="60"></div>
                         </div>
 

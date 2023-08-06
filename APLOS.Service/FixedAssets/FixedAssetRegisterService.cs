@@ -2977,7 +2977,7 @@ GROUP BY FAR.FABudgetMasterId
 									,REPLACE(Convert(VARCHAR(11), II.IssueDate, 106), ' ', '-') AS CapitalizeDate
 									, BM.BudgetId, B.UserName AssetBudgetName,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName, AC.UserName AS ActivityName
                                     , AC.Id ActivityId, BM.RefNo,P.UserName VendorName,EI.EmployeeCode+ ''+EI.EmployeeName EmployeeName,IR.PartyId,IM.MaterialMasterId,IM.ArticleId,IM.FirstCharacteristicsValueId
-                                    ,REPLACE(Convert(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate,IRD.CountryId
+                                    ,REPLACE(Convert(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate,IRD.CountryId,en.UserName Entity,CC.UserName CostCenter
                                     FROM  TRN.InventoryIssueHistory IIH
 									LEFT JOIN  TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
 									LEFT JOIN  TRN.InventoryIssue II ON II.Id=IID.InventoryIssueId
@@ -3001,6 +3001,8 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= IR.EmployeeId
 									LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=IM.MaterialMasterId
 									LEFT JOIN [MST].[MaterialMasterArticle] MMA ON MMA.Id=IM.ArticleId
+									LEFT JOIN ORG.Entity EN  ON EN.Id=II.EntityId
+									LEFT JOIN [ORG].[CostCenter] CC ON CC.Id=iid.CostCenterId
                                     WHERE  II.IssueType='Capital' AND II.VoucherId<>'' AND V.IsPark=0 AND VD.Id NOT IN (Select ISNULL([VoucherDetailId],'') from [TRN].[CapitalizationMasterDetail])) AS TEMP WHERE " + strkey + "";
                 }
                 else
@@ -3014,7 +3016,7 @@ GROUP BY FAR.FABudgetMasterId
 									, AC.UserName AS ActivityName
                                     , AC.Id ActivityId, BM.RefNo
 									,P.UserName VendorName,EI.EmployeeCode+ ''+EI.EmployeeName EmployeeName,VD.PartyId
-                                    ,REPLACE(Convert(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                                    ,REPLACE(Convert(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate,en.UserName Entity,CC.UserName CostCenter
                                     FROM TRN.VoucherDetail VD 
 									JOIN TRN.Voucher V ON V.Id=VD.VoucherId
                                     LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=VD.BudgetMasterId
@@ -3026,6 +3028,8 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN [SCS].Currency GC ON GC.Id=V.CurrencyId
 									LEFT JOIN [HKP].[Party] AS P ON P.Id= VD.PartyId
 									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= VD.EmployeeId
+									LEFT JOIN ORG.Entity EN  ON EN.Id=VD.EntityId
+									LEFT JOIN [ORG].[CostCenter] CC ON CC.Id=VD.CostCenterId
                                    WHERE V.SourceType IN('VendorInvoice','JournalVoucher','EmployeePayable') AND V.IsPark=0 AND VD.DrAmount>0
 								   AND ATY.Id='Expense' AND VD.Id NOT IN (Select ISNULL([VoucherDetailId],'') from [TRN].[CapitalizationMasterDetail])) AS TEMP WHERE " + strkey + "";
                 }
