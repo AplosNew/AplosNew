@@ -85,10 +85,13 @@
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-12 col-sm-12" style="padding-top:10px">
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border">Additional Info Item</legend>
+
                     <div class="content-container-fluid" style="color:black;">
                         <div style="color:black;" id="Grid" ej-grid e-datasource="AdditionalInfoItemList"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                             e-allowselection="true" @*e-recorddoubleclick="recorddoubleclick"*@ e-filtersettings-filterType="excel">
+                             e-allowselection="true" e-filtersettings-filterType="excel">
                             <div e-columns>
                                 <div e-column e-field="Sequence" e-headertext="Sequence" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
                                 <div e-column e-field="Code" e-headertext="Code" e-width="40"></div>
@@ -115,6 +118,7 @@
                             </script>
                         </div>
                     </div>
+                    </fieldset>
                 </div>
 
                 <div class="common-btn">
