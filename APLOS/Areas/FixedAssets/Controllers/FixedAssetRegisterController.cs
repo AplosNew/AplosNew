@@ -1467,7 +1467,14 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             return View("~/Areas/FixedAssets/Views/CapitalizeAssetRegisterPosting.cshtml");
         }
-
+        public ActionResult CapitalizeAssetRegisterPostingNew()
+        {
+            return View("~/Areas/FixedAssets/Views/CapitalizeAssetRegisterPostingNew.cshtml");
+        }
+        public ActionResult CapitalizeAssetRegisterPostingAddition()
+        {
+            return View("~/Areas/FixedAssets/Views/CapitalizeAssetRegisterPostingAddition.cshtml");
+        }
 
 
         [HttpPost]

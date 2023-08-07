@@ -14,7 +14,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
     $scope.getYearOfHaving = function () {
         $scope.yearList = [];
         var endYear = new Date();
-        var ey = parseInt(endYear.getFullYear())-5;
+        var ey = parseInt(endYear.getFullYear()) - 5;
         for (var i = ey; i <= 2099; i++) {
             var ob = {
                 Value: i,
@@ -86,7 +86,16 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
             $scope.ItemName = 'Expense';
         }
         $scope.getSearchData(faType);
-        angular.element(document.querySelector("#assetmodal")).modal("show");
+
+        if (faType == 'AUC') {
+            angular.element(document.querySelector("#assetmodal")).modal("show");
+        } else if (faType == 'CI') {
+            angular.element(document.querySelector("#assetmodalCI")).modal("show");
+        }
+        else {
+            angular.element(document.querySelector("#assetmodalEx")).modal("show");
+        }
+
     };
     $scope.searchBy = "VoucherNo"; $scope.search = "";
     $scope.searchByList = [
@@ -265,7 +274,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                     $scope.selectedmaterialMasterList.push(ob);
                     ob = {};
                 }
-                
+
             }
         }
 
@@ -327,7 +336,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         }
     };
 
-   
+
     $scope.FixedAssetMasterItemList = [];
     $scope.ShowFixedAssetMasterItem = function () {
         $scope.Url = 'FixedAssets/FixedAssetRegister/GetFixedAssetMasterItem';
@@ -368,7 +377,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
             $scope.register.IssueAmount = 0;
             for (var i = 0; i < $scope.selectedmaterialMasterList.length; i++) {
                 $scope.register.TotalAmount += $scope.selectedmaterialMasterList[i].Amount;
-                if ($scope.selectedmaterialMasterList[i].Source =='AUC') {
+                if ($scope.selectedmaterialMasterList[i].Source == 'AUC') {
                     $scope.register.GRNAmount += $scope.selectedmaterialMasterList[i].Amount;
                 }
                 else if ($scope.selectedmaterialMasterList[i].Source == 'CI') {
