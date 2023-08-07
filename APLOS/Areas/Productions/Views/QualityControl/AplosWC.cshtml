@@ -93,8 +93,7 @@
 </style>
 <div class="site-tab">
     <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" ng-class="{ active: isSet(0) }"><a ng-click="setTab(0);" href="" aria-controls="doc" role="tab" data-toggle="tab">General Issue</a></li>
-        @*<li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">General Issue</a></li>*@
+        <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);" href="" aria-controls="doc" role="tab" data-toggle="tab">General Issue</a></li>
         <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" aria-controls="doc" role="tab" data-toggle="tab">PO Issue</a></li>
         <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Update Quality Data</a></li>
         <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="doc" role="tab" data-toggle="tab">Complete</a></li>
@@ -102,7 +101,7 @@
     </ul>
 </div>
 <div class="tab-content">
-    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(0), active: isSet(0) }">
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
         <div class="form-element-ctrl form-horizontal row" ng-form="modelForm5">
             @*<div class="col-xs-12">
             <div class="common-btn">
@@ -125,13 +124,13 @@
                      e-rowdatabound="QGIrowDataBound" e-recorddoubleclick="SetQGISelectData">
                     <div e-columns>
                         <div e-column e-template="#QGIJobCart" e-headertext="Print" e-width="50"></div>
-                        <div e-column e-type="string" e-field="QualityIssueDate" e-headertext="Quality Issue Date" e-width="150"></div>
-                        <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="150"></div>
-                        <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="150"></div>
-                        <div e-column e-type="string" e-field="QGIssue" e-headertext="QG.Issue" e-width="150"></div>
-                        <div e-column e-template="#GIAllotedEmployee" e-headertext="Alloted Employee" e-width="150"></div>
-                        <div e-column e-template="#Update" e-headertext="Update" e-width="150"></div>
-                        <div e-column e-type="string" e-field="PositionEmployee" e-headertext="Position Employee" e-width="150"></div>
+                        <div e-column e-type="string" e-field="QualityIssueDate" e-headertext="Quality Issue Date" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="100"></div>
+                        <div e-column e-type="string" e-field="QGIssue" e-headertext="QG.Issue" e-width="100"></div>
+                        <div e-column e-template="#GIAllotedEmployee" e-headertext="Alloted Employee" e-width="100"></div>
+                        <div e-column e-template="#Update" e-headertext="Update" e-width="50"></div>
+                        @*<div e-column e-type="string" e-field="PositionEmployee" e-headertext="Position Employee" e-width="150"></div>*@
                         <div e-column e-type="string" e-field="RepeatEntry" e-headertext="Repeat Entry" e-width="100"></div>
                     </div>
                 </div>
@@ -161,113 +160,6 @@
             </div>
         </div>
     </div>
-    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-        <div class="form-element-ctrl form-horizontal row" ng-form="modelForm1">
-            <div class="col-xs-12 col-sm-6 col-md-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Date</label>
-                    <div class="col-sm-8">
-                        <input type="text" required e-dateformat="dd-MMM-yyyy" ng-model="POWiseNew.ToDate" ng-change="PODateValidation(POWiseNew.ToDate);" datepicker class="form-control">
-                    </div>
-                </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Process<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="select-style">
-                            <select class="form-control" ng-disabled="IsGo" ng-model="POWiseNew.ProcessId" ng-change="GetIssueList(POWiseNew.ProcessId);" name="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
-                                <option value=""></option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">PO No</label>
-                    <div class="col-sm-8 show-message">
-                        <div class="select-style">
-                            <select class="form-control" ng-disabled="IsGo" ng-model="POWiseNew.POId" name="POId" ng-options="item.Value as item.Text for item in POList" required>
-                                <option value=""></option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-6 col-md-6">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="select-style">
-                            <select class="form-control" ng-disabled="IsGo" ng-model="POWiseNew.EntityId" ng-change="loadProcessList(POWiseNew.EntityId)" name="Entity" ng-options="item.Id as item.UserName for item in entityList" required>
-                                <option value=""></option>
-                            </select>
-                        </div>
-
-                    </div>
-                </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Issue<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="select-style">
-                            <select class="form-control" ng-disabled="IsGo" ng-model="POWiseNew.IssueId" name="Issue" ng-change="GetPOList(POWiseNew.IssueId);GetIssueType(POWiseNew.IssueId);" ng-options="item.Value as item.Text for item in IssueHeaderList" required>
-                                <option value=""></option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="common-btn">
-                        <ul class="list-inline text-right">
-                            <li> <button ng-click="masterQCGo(true)" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button></li>
-                            <li> <button ng-click="SetQCBack(false);" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12">
-                <div id="POSelect" ej-grid e-datasource="POSelectList"
-                     e-allowfiltering="true"
-                     e-allowpaging="true"
-                     e-allowsorting="true"
-                     e-enabletouch="false"
-                     e-responsive="true"
-                     e-allowselection="true"
-                     e-filtersettings-filterType="excel"
-                     e-recorddoubleclick="SetPOSelectData"
-                     e-rowdatabound="rowDataBound">
-                    <div e-columns>
-                        <div e-column e-template="#QCJobCart" e-headertext="Print" e-width="50"></div>
-                        <div e-column e-field="Date" e-headertext="Due Date" e-width="80"></div>
-                        <div e-column e-type="datetime" e-field="QCTime" e-headertext="Due Time" e-width="80"></div>
-                        <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
-                        <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
-                        <div e-column e-field="QIssue" e-headertext="Q.Issue" e-width="100"></div>
-                        <div e-column e-field="AllotedEmployee" e-headertext="Alloted Employee" e-width="150"></div>
-                        <div e-column e-field="PositionEmployee" e-headertext="Position Employee" e-width="150"></div>
-                        <div e-column e-field="ItemName" e-headertext="Parameter Name" e-width="100"></div>
-                        <div e-column e-field="QCustomer" e-headertext="Q.Customer" e-width="200"></div>
-                        <div e-column e-field="QPOStatus" e-headertext="Q.POStatus" e-width="100"></div>
-                        <div e-column e-field="PONO" e-headertext="PO NO" e-width="100"></div>
-                        <div e-column e-field="Article" e-headertext="Article" e-width="200"></div>
-                        <div e-column e-field="SONO" e-headertext="SO NO" e-width="100"></div>
-                        <div e-column e-field="ProductCode" e-headertext="ProductCode" e-width="100"></div>
-                        <div e-column e-field="POQty" e-headertext="POQty" e-width="100"></div>
-                        <div e-column e-field="ScheduleQty" e-headertext="Schedule Qty" e-width="100"></div>
-                        <div e-column e-field="ProducedQty" e-headertext="Produced Qty" e-width="100"></div>
-                        <div e-column e-field="RemainingQty" e-headertext="Remaining Qty" e-width="100"></div>
-                    </div>
-                </div>
-                <script type="text/template" id="QCJobCart">
-                    <div class="form-group">
-                        <div class="col-sm-5 text-center" style="padding:0px;padding-left:4px">
-                            <div class="common-btn">
-                                <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Machines/MaintenanceStatusDetails/GetMaintenanceJobCardReportView?PlannedId={{data.PlannedId}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: 6px;"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </script>
-            </div>
-        </div>
-        <div class="clearfix"></div>
-    </div>
     <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
         <div class="form-element-ctrl form-horizontal row" ng-form="modelForm4">
             @*<div class="col-xs-12">
@@ -292,21 +184,21 @@
                     <div e-columns>
                         <div e-column e-template="#QPJobCart" e-headertext="Print" e-width="50"></div>
                         <div e-column e-type="string" e-field="POId" e-headertext="PO No" e-width="100"></div>
-                        <div e-column e-type="string" e-field="DependentOn" e-headertext="Dependent On" e-width="150"></div>
-                        <div e-column e-type="string" e-field="Date" e-headertext="Date" e-width="150"></div>
-                        <div e-column e-type="string" e-field="Legdays" e-headertext="Legdays" e-width="150"></div>
-                        <div e-column e-type="string" e-field="QualityPlanDate" e-headertext="Quality Plan Date" e-width="150"></div>
-                        <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="150"></div>
-                        <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="150"></div>
-                        <div e-column e-type="string" e-field="QPIssue" e-headertext="QP.Issue" e-width="150"></div>
-                        <div e-column e-template="#AllotedEmployee" e-headertext="Alloted Employee" e-width="150"></div>
-                        <div e-column e-template="#UpdatePO" e-headertext="Update" e-width="150"></div>
+                        <div e-column e-type="string" e-field="DependentOn" e-headertext="Dependent On" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Date" e-headertext="Date" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Legdays" e-headertext="Legdays" e-width="100"></div>
+                        <div e-column e-type="string" e-field="QualityPlanDate" e-headertext="Quality Plan Date" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="100"></div>
+                        <div e-column e-type="string" e-field="QPIssue" e-headertext="QP.Issue" e-width="100"></div>
+                        <div e-column e-template="#AllotedEmployee" e-headertext="Alloted Employee" e-width="100"></div>
+                        <div e-column e-template="#UpdatePO" e-headertext="Update" e-width="80"></div>
                         <div e-column e-type="string" e-field="RepeatEntry" e-headertext="Repeat Entry" e-width="100"></div>
-                        <div e-column e-type="string" e-field="PositionEmployee" e-headertext="Position Employee" e-width="150"></div>
-                        <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="150"></div>
-                        <div e-column e-type="string" e-field="LotNumber" e-headertext="Lot Number" e-width="150"></div>
-                        <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
-                        <div e-column e-type="string" e-field="POStatus" e-headertext="PO Status" e-width="150"></div>
+                        @*<div e-column e-type="string" e-field="PositionEmployee" e-headertext="Position Employee" e-width="150"></div>*@
+                        <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="100"></div>
+                        <div e-column e-type="string" e-field="LotNumber" e-headertext="Lot Number" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                        <div e-column e-type="string" e-field="POStatus" e-headertext="PO Status" e-width="100"></div>
                     </div>
                 </div>
                 <script type="text/template" id="AllotedEmployee">
@@ -493,8 +385,8 @@
                     <div e-column e-field="MaxValue" e-headertext="Max Value" e-width="100"></div>
                     <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="150"></div>
                     <div e-column e-template="#ActionToBeTaken" e-headertext="ActionToBeTaken" e-width="150"></div>
-                    @*  <div e-column e-headertext="Repeat" e-template="#checkboxTemplateRepeat" e-textalign="center" e-width="80"></div>*@
                     <div e-column e-headertext="Repeat All" e-headertemplateid="#headerTemplateRepeat" e-template="#checkboxTemplateRepeat" e-textalign="center" e-width="30"></div>
+                    <div e-column e-template="#WorkCenter" e-headertext="WorkCenter" e-width="120"></div>
                     <div e-column e-template="#ResponsiblePerson" e-headertext="Responsible Person" e-width="120"></div>
                     <div e-column e-template="#SaveQIC" e-headertext="Save" e-width="80"></div>
                     <div e-column e-template="#QUDJobCart" e-headertext="Print" e-width="50"></div>
@@ -543,12 +435,16 @@
                 </div>
             </script>
             <script type="text/template" id="ActionToBeTaken">
-                @*<div class="col-sm-10" style="padding:0px;">
-                <input type="text" name="ActionToBeTaken" ng-model="data.ActionToBeTaken" ng-click="" class="form-control" maxlength="200">
-            </div>*@
                 <div class="select-style">
-                    <select class="form-control" ng-model="data.ActionToBeTaken" name="Grade"
+                    <select class="form-control" ng-model="data.ActionToBeTaken" name="ActionToBeTaken"
                             ng-options="item.Value as item.Text for item in $parent.ActionToBeTakenList">
+                    </select>
+                </div>
+            </script>
+            <script type="text/template" id="WorkCenter">
+                <div class="select-style">
+                    <select class="form-control" ng-model="data.WorkCenterId" name="WorkCenter"
+                            ng-options="item.Value as item.Text for item in $parent.WorkCenterList">
                     </select>
                 </div>
             </script>
@@ -668,11 +564,12 @@
                         <div e-column e-type="string" e-field="QCInterval" e-headertext="Interval" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCDueDate" e-headertext="Next Due Date" e-width="80"></div>
                         <div e-column e-type="datetime" e-field="QCDueTime" e-headertext="Next Due Time" e-width="80"></div>
-                        <div e-column e-type="string" e-field="IssueType" e-headertext="Issue Type" e-width="100"></div>
+                        <div e-column e-type="string" e-field="IssueApplicable" e-headertext="Issue Applicable" e-width="100"></div>
                         <div e-column e-type="string" e-field="RepeatEntry" e-headertext="Repeat Entry" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCEntity" e-headertext="Entity" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCProcess" e-headertext="Process" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCShift" e-headertext="Shift" e-width="150"></div>
+                        <div e-column e-type="string" e-field="PType" e-headertext="Plan Type" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCIssue" e-headertext="QCIssue" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCPeriod" e-headertext="Period" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCCustomer" e-headertext="Customer" e-width="100"></div>
@@ -770,7 +667,7 @@
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                     <div e-columns>
-                        <div e-column e-type="string" e-field="IssueType" e-headertext="Issue Type" e-width="80"></div>
+                        <div e-column e-type="string" e-field="IssueApplicable" e-headertext="Issue Applicable" e-width="80"></div>
                         <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="100"></div>
                         <div e-column e-type="string" e-field="POId" e-headertext="PO No" e-width="100"></div>
                         <div e-column e-type="string" e-field="LotNumber" e-headertext="Lot Number" e-width="100"></div>

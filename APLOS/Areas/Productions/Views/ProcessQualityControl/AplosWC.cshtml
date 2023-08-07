@@ -193,10 +193,10 @@
                     </div>
                 </div>
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Issue Type<sup>*</sup></label>
+                    <label class="col-sm-4 control-label">Issue Applicable<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style">
-                            <select class="form-control" id="IssueType" ng-model="IssueNew.IssueType" name="Issue Type" ng-options="item.Value as item.Text for item in IssueTypeList" required>
+                            <select class="form-control" id="IssueType" ng-model="IssueNew.IssueType" name="Issue Applicable" ng-options="item.Value as item.Text for item in IssueTypeList" required>
                                 <option value=""></option>
                             </select>
                         </div>
@@ -251,7 +251,7 @@
                     <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
                     <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
                     <div e-column e-field="QIssueName" e-headertext="Issue Name" e-width="100"></div>
-                    <div e-column e-field="IssueType" e-headertext="Issue Type" e-width="100"></div>
+                    <div e-column e-field="IssueType" e-headertext="Issue Applicable" e-width="100"></div>
                     <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
                     @*<div e-column e-field="PositionCode" e-headertext="Position Code" e-width="100"></div>*@
                     <div e-column e-field="IssueCategory" e-headertext="Issue Category" e-width="100"></div>
@@ -272,7 +272,7 @@
                     <label class="col-sm-4 control-label">Issue<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style">
-                            <select class="form-control" id="IssueId" ng-model="POQualityNew.IssueId" name="IssueId" ng-options="item.Value as item.Text for item in IssuePOQualityList" required>
+                            <select class="form-control" id="IssueId" ng-model="POQualityNew.IssueId" name="IssueId" ng-change="getPOProcess(POQualityNew.IssueId);" ng-options="item.Value as item.Text for item in IssuePOQualityList" required>
                                 <option value=""></option>
                             </select>
                         </div>
@@ -338,6 +338,16 @@
                         </div>
                     </div>
                 </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" id="ProcessId" ng-model="POQualityNew.ProcessId" name="ProcessId" ng-options="item.Value as item.Text for item in POprocessList" required>
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="common-btn">
                 <ul class="list-inline text-right">
@@ -357,6 +367,7 @@
                     <div e-column e-field="DependentDate" e-headertext="Dependent Date" e-width="100"></div>
                     <div e-column e-field="Legdays" e-headertext="Legdays" e-width="100"></div>
                     <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="100"></div>
+                    <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
                     <div e-column e-field="PositionCode" e-headertext="Position Code" e-width="100"></div>
                     <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
                 </div>
@@ -470,101 +481,6 @@
     </div>
     <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
         <div class="form-element-ctrl form-horizontal row" ng-form="IssueItemDetailsForm">
-            @*<div class="col-xs-12 col-sm-4 col-md-4">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Issue Name<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select class="form-control" ng-model="IssueItemNew.IssueId" name="Issue Name" ng-change="GetChkInterval(IssueItemNew.IssueId);" ng-options="item.Value as item.Text for item in IssueItemIssueList" required>
-                            <option value=""></option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">SNO<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="SNO" ng-disabled="true" ng-model="IssueItemNew.SNO" class="form-control" required maxlength="100" autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Issue Item<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Name" ng-model="IssueItemNew.ItemName" class="form-control" required maxlength="100" autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Parameter<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="col-sm-10" style="padding:0px;">
-                        <input type="text" name="Parameter" ng-disabled="true" ng-model="IssueItemNew.Parameter" class="form-control" maxlength="100" required autocomplete="off">
-                    </div>
-                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                        <button ng-click="selectParameter();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-4 col-md-4">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">UOM<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="col-sm-10" style="padding:0px;">
-                        <input type="text" name="UOM" ng-disabled="true" ng-model="IssueItemNew.UOM" class="form-control" maxlength="100" required autocomplete="off">
-                    </div>
-                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                        <button ng-click="selectUOM();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Checking Interval in Hours</label>
-                <div class="col-sm-8">
-                    <input type="text" name="Checking Interval" ng-model="IssueItemNew.CheckingInterval" class="form-control" maxlength="100" autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Max Value</label>
-                <div class="col-sm-8">
-                    <input type="number" name="Max" ng-model="IssueItemNew.Max" class="form-control" maxlength="10" autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Min Value</label>
-                <div class="col-sm-8">
-                    <input type="number" name="Min" ng-model="IssueItemNew.Min" class="form-control" maxlength="10" autocomplete="off">
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-4 col-md-4">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Position Code<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="col-sm-10" style="padding:0px;">
-                        <input type="text" name="PositionCode" ng-disabled="true" ng-model="IssueItemNew.PositionCode" class="form-control" maxlength="100" required autocomplete="off">
-                    </div>
-                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                        <button ng-click="selectItemPositionCode();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Critical Level<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select class="form-control" ng-model="IssueItemNew.CriticalLevel" name="Critical Level" required
-                                ng-options="item.Value as item.Text for item in CriticalLevelLists">
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Remarks</label>
-                <div class="col-sm-8">
-                    <input type="text" name="Remarks" ng-model="IssueItemNew.Remarks" class="form-control" maxlength="100" autocomplete="off">
-                </div>
-            </div>
-        </div>*@
             <div class="col-xs-12 col-sm-4 col-md-4">
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Issue Name<sup>*</sup></label>
