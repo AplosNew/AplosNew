@@ -120,6 +120,23 @@ function ProductParameterMasterController(cboService, commonMessage, $scope, $ro
         $scope.Action = "Save";
         $scope.ProductGroupNew = Object.assign({}, $scope.ProductGroup);
     }
+
+
+    $scope.ProductParaMasterNew = {
+        Id: null,
+        Sequence: 0,
+        Code: null,
+        UserName: null,
+        StandardName: null,
+        ShortName: null,
+        IsActive: true,
+        Remarks: null,
+        ProductGroupId: null,
+        ProductGroup: null
+    };
+    $scope.ProductParaMasterNew = Object.assign({}, $scope.ProductParaMasterNew);
+
+
    
     $scope.CriticalLevelLists = [
         {
