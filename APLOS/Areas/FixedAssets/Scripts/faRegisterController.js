@@ -115,6 +115,8 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
 
     $scope.materialMasterList = [];
     $scope.getSearchData = function (faType) {
+        $scope.materialMasterList = [];
+
         $http.get('FixedAssets/FixedAssetRegister/GetAUCCIExpenseData?column=' + $scope.searchBy + '&value=' + $scope.search + '&faType=' + faType)
             .then(function (response) {
                 $scope.materialMasterList = response.data;
@@ -368,7 +370,6 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
     }
     $scope.GetApprovedCboList();
 
-
     $scope.SaveRegister = function () {
         try {
             $scope.register.TotalAmount = 0;
@@ -428,8 +429,6 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         $scope.selectedmaterialMasterList = [];
     }
 
-
-
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -438,5 +437,74 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
+
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+
+    $scope.DownloadReport = function () {
+        var dataList = [];
+        var g = null;
+
+        if ($scope.FaType == 'AUC') {
+            g = $("#Grid").data("ejGrid");
+        } else if ($scope.FaType == 'CI') {
+            g = $("#GridCI").data("ejGrid");
+        }
+        else {
+            g = $("#GridEx").data("ejGrid");
+        }
+
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.materialMasterList;
+        }
+        for (var i = 0; i < dataList.length; i++) {
+            if ($scope.FaType == 'AUC') {
+                dataList[i].Qty = dataList[i].BaseQty;
+                dataList[i].IssueNo = null;
+                dataList[i].CapitalizeDate = null;
+                dataList[i].Entity = null;
+                dataList[i].CostCenter = null;
+            }
+            if ($scope.FaType == 'Expense') {
+                dataList[i].InventoryReceiveDetailId = null;
+                dataList[i].MaterialMasterName = null;
+                dataList[i].ArticleStandardName = null;
+                dataList[i].BaseUoM = null;
+                dataList[i].IssueNo = null;
+                dataList[i].CapitalizeDate = null;
+            }
+            if ($scope.FaType == 'CI') {
+                dataList[i].BaseUoM = dataList[i].TransactionUoM;
+            }
+            
+        }
+
+        $scope.fileName = 'AssetCapitalizationReport.xlsx';
+        $http({
+            method: "POST",
+            url: 'FixedAssets/FixedAssetRegister/GetAUCCIExpenseReport',
+            data: {
+                'data': dataList,
+                'reportFileName': $scope.fileName,
+            },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                //$window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+
 
 }
