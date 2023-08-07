@@ -23,6 +23,7 @@ using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -2977,7 +2978,7 @@ GROUP BY FAR.FABudgetMasterId
 									,REPLACE(Convert(VARCHAR(11), II.IssueDate, 106), ' ', '-') AS CapitalizeDate
 									, BM.BudgetId, B.UserName AssetBudgetName,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName, AC.UserName AS ActivityName
                                     , AC.Id ActivityId, BM.RefNo,P.UserName VendorName,EI.EmployeeCode+ ''+EI.EmployeeName EmployeeName,IR.PartyId,IM.MaterialMasterId,IM.ArticleId,IM.FirstCharacteristicsValueId
-                                    ,REPLACE(Convert(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate,IRD.CountryId
+                                    ,REPLACE(Convert(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate,IRD.CountryId,en.UserName Entity,CC.UserName CostCenter,IIH.InventoryReceiveDetailId
                                     FROM  TRN.InventoryIssueHistory IIH
 									LEFT JOIN  TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
 									LEFT JOIN  TRN.InventoryIssue II ON II.Id=IID.InventoryIssueId
@@ -3001,6 +3002,8 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= IR.EmployeeId
 									LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=IM.MaterialMasterId
 									LEFT JOIN [MST].[MaterialMasterArticle] MMA ON MMA.Id=IM.ArticleId
+									LEFT JOIN ORG.Entity EN  ON EN.Id=II.EntityId
+									LEFT JOIN [ORG].[CostCenter] CC ON CC.Id=iid.CostCenterId
                                     WHERE  II.IssueType='Capital' AND II.VoucherId<>'' AND V.IsPark=0 AND VD.Id NOT IN (Select ISNULL([VoucherDetailId],'') from [TRN].[CapitalizationMasterDetail])) AS TEMP WHERE " + strkey + "";
                 }
                 else
@@ -3014,7 +3017,7 @@ GROUP BY FAR.FABudgetMasterId
 									, AC.UserName AS ActivityName
                                     , AC.Id ActivityId, BM.RefNo
 									,P.UserName VendorName,EI.EmployeeCode+ ''+EI.EmployeeName EmployeeName,VD.PartyId
-                                    ,REPLACE(Convert(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                                    ,REPLACE(Convert(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate,en.UserName Entity,CC.UserName CostCenter
                                     FROM TRN.VoucherDetail VD 
 									JOIN TRN.Voucher V ON V.Id=VD.VoucherId
                                     LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=VD.BudgetMasterId
@@ -3026,6 +3029,8 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN [SCS].Currency GC ON GC.Id=V.CurrencyId
 									LEFT JOIN [HKP].[Party] AS P ON P.Id= VD.PartyId
 									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= VD.EmployeeId
+									LEFT JOIN ORG.Entity EN  ON EN.Id=VD.EntityId
+									LEFT JOIN [ORG].[CostCenter] CC ON CC.Id=VD.CostCenterId
                                    WHERE V.SourceType IN('VendorInvoice','JournalVoucher','EmployeePayable') AND V.IsPark=0 AND VD.DrAmount>0
 								   AND ATY.Id='Expense' AND VD.Id NOT IN (Select ISNULL([VoucherDetailId],'') from [TRN].[CapitalizationMasterDetail])) AS TEMP WHERE " + strkey + "";
                 }
@@ -3035,6 +3040,125 @@ GROUP BY FAR.FABudgetMasterId
             catch (Exception)
             {
                 throw;
+            }
+        }
+
+        public string GetAUCCIExpenseReport(DataTable data, string ReportHeader, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Data";
+                sheet = workbook.Worksheets[0];
+
+                int ROW = 6; int COL = 1;
+
+                #region columns
+
+                sheet[ROW, COL].Text = "Vendor"; sheet[ROW, COL].ColumnWidth = 16; int colVen = COL; COL++;
+                sheet[ROW, COL].Text = "GRN Date"; sheet[ROW, COL].ColumnWidth = 16; int colGD = COL; COL++;
+                sheet[ROW, COL].Text = "GRNNo"; sheet[ROW, COL].ColumnWidth = 16; int colGN = COL; COL++;
+                sheet[ROW, COL].Text = "GRNRowId"; sheet[ROW, COL].ColumnWidth = 16; int colGRN = COL; COL++;
+                sheet[ROW, COL].Text = "Material"; sheet[ROW, COL].ColumnWidth = 16; int colM = COL; COL++;
+                sheet[ROW, COL].Text = "Article"; sheet[ROW, COL].ColumnWidth = 16; int colA = COL; COL++;
+                sheet[ROW, COL].Text = "UoM"; sheet[ROW, COL].ColumnWidth = 16; int colU = COL; COL++;
+                sheet[ROW, COL].Text = "Qty"; sheet[ROW, COL].ColumnWidth = 16; int colQ = COL; COL++;
+                sheet[ROW, COL].Text = "Amount"; sheet[ROW, COL].ColumnWidth = 16; int colAM = COL; COL++;
+                sheet[ROW, COL].Text = "VoucherRowId"; sheet[ROW, COL].ColumnWidth = 16; int colVRI = COL; COL++;
+                sheet[ROW, COL].Text = "VoucherNo"; sheet[ROW, COL].ColumnWidth = 16; int colV = COL; COL++;
+                sheet[ROW, COL].Text = "Issue No"; sheet[ROW, COL].ColumnWidth = 16; int colIN = COL; COL++;
+                sheet[ROW, COL].Text = "Issue Date"; sheet[ROW, COL].ColumnWidth = 16; int colID = COL; COL++;
+                sheet[ROW, COL].Text = "Entity"; sheet[ROW, COL].ColumnWidth = 16; int colE = COL; COL++;
+                sheet[ROW, COL].Text = "Cost Center"; sheet[ROW, COL].ColumnWidth = 16; int colCC = COL;
+
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+                int LastRow = ROW + (data.Rows.Count - 1);
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, colVen].Text = data.Rows[i]["VendorName"].ToString();
+                    sheet[ROW, colID].Text = data.Rows[i]["InvoiceDate"].ToString();
+                    sheet[ROW, colGN].Text = data.Rows[i]["GRNNo"].ToString();
+                    sheet[ROW, colGRN].Text = data.Rows[i]["InventoryReceiveDetailId"].ToString();
+                    sheet[ROW, colM].Text = data.Rows[i]["MaterialMasterName"].ToString();
+                    sheet[ROW, colA].Text = data.Rows[i]["ArticleStandardName"].ToString();
+                    sheet[ROW, colU].Text = data.Rows[i]["BaseUoM"].ToString();
+                    sheet[ROW, colQ].Text = data.Rows[i]["Qty"].ToString();
+                    sheet[ROW, colAM].Text = data.Rows[i]["Amount"].ToString();
+                    sheet[ROW, colVRI].Text = data.Rows[i]["VoucherDetailNo"].ToString();
+                    sheet[ROW, colV].Text = data.Rows[i]["VoucherNo"].ToString();
+                    sheet[ROW, colIN].Text = data.Rows[i]["IssueNo"].ToString();
+                    sheet[ROW, colID].Text = data.Rows[i]["CapitalizeDate"].ToString();
+                    sheet[ROW, colE].Text = data.Rows[i]["Entity"].ToString();
+                    sheet[ROW, colCC].Text = data.Rows[i]["CostCenter"].ToString();
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+
+                sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, ROW, endCol];
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Asset Capitalization Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 

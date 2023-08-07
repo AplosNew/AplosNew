@@ -129,15 +129,36 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
         };
 
     };
+    // #region TAB CHANGE Main
+    $scope.tabMain = 1;
+    $scope.setTabMain = function (newTab) {
+        $scope.tabMain = newTab;
+    };
+    $scope.isSetMain = function (tabNum) {
+        return $scope.tabMain === tabNum;
+    };
+    // #endregion TAB CHANGE Main
 
+    // #region TAB CHANGE New
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
     };
-
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
+    // #endregion TAB CHANGE New
+
+    // #region TAB CHANGE Addition
+    $scope.tabAddition = 1;
+    $scope.setTabAddition = function (newTab) {
+        $scope.tabAddition = newTab;
+    };
+    $scope.isSetAddition = function (tabNum) {
+        return $scope.tabAddition === tabNum;
+    };
+    // #endregion TAB CHANGE Addition
+
     baseService.getCompanyConfiguration(function (result) {
         $scope.companyConfig = result;
         cboService.getCboEntityByPlant(null, null, "", function (result) {

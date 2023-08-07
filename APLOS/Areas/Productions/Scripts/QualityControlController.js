@@ -173,7 +173,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     }
     $scope.GeneratGradeSequenceNo();
    
-    $scope.tab = 0;
+    $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
 
@@ -408,6 +408,17 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         });
     }
     $scope.GetActionToBeTakenGridList();
+
+    $scope.WorkCenterList = [];
+    $scope.GetWorkCenterGridList = function (QIssueId) {
+        $http({
+            method: 'GET',
+            url: 'Productions/QualityControl/GetWorkCenterList?IssueId=' + QIssueId
+        }).then(function successCallback(response) {
+            $scope.WorkCenterList = response.data;
+        });
+    }
+    $scope.GetWorkCenterGridList();
 
     $scope.TimeList = [];
     $scope.LoadTimeDetails = function () {
@@ -1028,6 +1039,8 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                 $scope.QCId = response.data.Data.Id;
                 $scope.NewObject.Id = null;
                 $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId, $scope.POItemId);
+                if ($scope.PlanType == "GeneralIssue") { $scope.ProcessGeneralIssue(); }
+                if ($scope.PlanType == "POIssue") { $scope.ProcessQualityPlan(); }
             }), function errorCallBack(response) {
               /*  ShowResult(response.data.Message, 'failure');*/
             }
@@ -2227,6 +2240,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.productionSummaryNew.ProductionInChargeId = $event.data.ProductionInchargeId;
         $scope.productionSummaryNew.Remarks = $event.data.QCRemarks;
         $scope.productionSummaryNew.RepeatEntry = $event.data.RepeatEntry;
+        $scope.productionSummaryNew.WorkCenterId = $event.data.WorkCenterId;
         $scope.WorkCenterHeaderList = [];
         $scope.QPId = $event.data.QualityPlanId;
         $scope.PlanType = $event.data.PlanType;
@@ -2241,6 +2255,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.GetQBookingLevel();
         $scope.GetWorkCenterList($scope.productionSummaryNew.IssueId);
         $scope.loadWC();
+        $scope.GetWorkCenterGridList($scope.productionSummaryNew.IssueId);
         //$scope.productionSummaryNew.Article = $event.data.Article;
     }
 
