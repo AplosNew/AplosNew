@@ -134,7 +134,6 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 var lang = payrollReportsService.GetLanguage();
 
-
                 fileName = "LeaveRegisterForm" + plantId + ".docx";
                 strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
                 File = fileName;
@@ -143,8 +142,6 @@ namespace Aplos.Areas.HumanResource.Controllers
                     throw new CustomException("File <" + fileName + "> Not Found.");
                 }
 
-
-
                 FileInfo DocFile = new FileInfo(strPath);
                 if (DocFile.Exists == false)
                 {
@@ -152,14 +149,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                     throw new CustomException("File Not Found");
                 }
 
-
-
                 DataTable dtEmp = payrollReportsService.GetEmployeeBasicInfoById(empId, plantId, lang["Id"].ToString(), tempId);
-                //DataTable dtSalary = SalaryDetailsForSB(empId, langID); // GetGrossAmount(empId);
-                //DataTable dtDisciplinaryAction = EmployeeDisciplinaryAction(empId, langID); // GetGrossAmount(empId);
-                DataTable dtClanderYear = payrollReportsService.GetCurrentClanderYear(plantId);
-
-                ////A opens input document.
                 WordDocument document = new WordDocument(DocFile.FullName);
 
                 TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
@@ -192,101 +182,82 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 }
 
-                //document.Replace("{Date}", GetFormatedDate(System.DateTime.Now.ToString("dd-MMM-yyyy"), lang["Language"].ToString()), false, true);
                 WSection section = document.Sections[0];
-                //WTable wTable = (WTable)section.Body.Tables[0];
-
                 #region LeaveInformation
 
                 WTable table1 = (WTable)section.Body.Tables[0];
                 WTableRow copiedRow3 = table1.Rows[2].Clone();
                 WTableRow row3;
-                
 
-                for (int i = 0; i < dtClanderYear.Rows.Count; i++)
+                DataTable dtloadLeaveTransactions = payrollReportsService.LeaveSummaryForServiceBookQuery(empId, identity.PlantId, year);
+                DataTable dtLoadLeave = payrollReportsService.loadBf(empId, year);
+
+                for (int ROW = 0; ROW < dtloadLeaveTransactions.Rows.Count; ROW++)
                 {
 
-                    DataTable dtloadLeaveTransactions = payrollReportsService.LeaveSummaryForServiceBookQuery(empId, identity.PlantId, dtClanderYear.Rows[i]["YearNo"].ToString());
-                    DataTable dtLoadLeave = payrollReportsService.loadBf(empId, dtClanderYear.Rows[i]["Id"].ToString());
-
-                    for (int ROW = 0; ROW < dtloadLeaveTransactions.Rows.Count; ROW++)
+                    if (ROW > 0)
                     {
+                        row3 = copiedRow3.Clone();
+                        table1.Rows.Add(row3);
+                    }
 
-                        if (ROW > 0)
-                        {
-                            row3 = copiedRow3.Clone();
-                            table1.Rows.Add(row3);
-                        }
+                    if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["EarnLeave"].ToString()))
+                    {
+                        table1.Replace("{EarnLeave}", payrollReportsService.cnDgt(dtloadLeaveTransactions.Rows[ROW]["EarnLeave"].ToString(), tempId), false, true);
+                    }
 
-                        if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["FromDate"].ToString()))
-                        {
-                            table1.Replace("{FromDate}", payrollReportsService.GetFormatedDate(dtloadLeaveTransactions.Rows[ROW]["FromDate"].ToString(), tempId), false, true);
-                        }
+                    if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["CasualLeave"].ToString()))
+                    {
+                        table1.Replace("{CasualLeave}", payrollReportsService.cnDgt(dtloadLeaveTransactions.Rows[ROW]["CasualLeave"].ToString(), tempId), false, true);
+                    }
 
-                        if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["ToDate"].ToString()))
-                        {
-                            table1.Replace("{ToDate}", payrollReportsService.GetFormatedDate(dtloadLeaveTransactions.Rows[ROW]["ToDate"].ToString(), tempId), false, true);
-                        }
+                    if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["SickLeave"].ToString()))
+                    {
+                        table1.Replace("{SickLeave}", payrollReportsService.cnDgt(dtloadLeaveTransactions.Rows[ROW]["SickLeave"].ToString(), tempId), false, true);
+                    }
 
+                    if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["RejectionReason"].ToString()))
+                    {
+                        table1.Replace("{RejectionReason}", payrollReportsService.cnDgt(dtloadLeaveTransactions.Rows[ROW]["RejectionReason"].ToString(), tempId), false, true);
+                    }
 
-                        if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["Availed"].ToString()))
-                        {
-                            table1.Replace("{LeaveDays}", payrollReportsService.cnDgt(dtloadLeaveTransactions.Rows[ROW]["Availed"].ToString(), tempId), false, true);
-                        }
+                    if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["ApprovedDate"].ToString()))
+                    {
+                        table1.Replace("{ApprovedDate}", payrollReportsService.GetFormatedDate(dtloadLeaveTransactions.Rows[ROW]["ApprovedDate"].ToString(), tempId), false, true);
+                    }
 
-                        if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["Balance"].ToString()))
-                        {
-                            table1.Replace("{Balance}", payrollReportsService.cnDgt(dtloadLeaveTransactions.Rows[ROW]["Balance"].ToString(), tempId), false, true);
-                        }
-                        if (i == 0)
-                        {
-                            if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["EncashmentDayNo"].ToString()))
-                            {
-                                table1.Replace("{EncashmentDayNo}", payrollReportsService.cnDgt(dtloadLeaveTransactions.Rows[ROW]["EncashmentDayNo"].ToString(), tempId), false, true);
-                            }
+                    if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["LeaveAmount"].ToString()))
+                    {
+                        table1.Replace("{LeaveAmount}", payrollReportsService.cnDgt(dtloadLeaveTransactions.Rows[ROW]["LeaveAmount"].ToString(), tempId), false, true);
+                    }
 
-                            if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["EncashmentDate"].ToString()))
-                            {
-                                table1.Replace("{EncashmentDate}", payrollReportsService.GetFormatedDate(dtloadLeaveTransactions.Rows[ROW]["EncashmentDate"].ToString(), tempId), false, true);
-                            }
-                        }
+                    if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["CumulitiveEarnLeave"].ToString()))
+                    {
+                        table1.Replace("{CumulitiveEarnLeave}", payrollReportsService.cnDgt(dtloadLeaveTransactions.Rows[ROW]["CumulitiveEarnLeave"].ToString(), tempId), false, true);
+                    }
 
+                    if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["CumulitiveCasualLeave"].ToString()))
+                    {
+                        table1.Replace("{CumulitiveCasualLeave}", payrollReportsService.cnDgt(dtloadLeaveTransactions.Rows[ROW]["CumulitiveCasualLeave"].ToString(), tempId), false, true);
+                    }
+
+                    if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["CumulitiveSickLeave"].ToString()))
+                    {
+                        table1.Replace("{CumulitiveSickLeave}", payrollReportsService.cnDgt(dtloadLeaveTransactions.Rows[ROW]["CumulitiveSickLeave"].ToString(), tempId), false, true);
                     }
                 }
+                #endregion
 
                 foreach (string item in replaced.Keys)
                 {
                     if (replaced[item] == 0)
                         document.Replace(item, "", false, true);
-
                 }
-                //document.EncryptDocument("syncfusion");
+           
                 document.Protect(ProtectionType.AllowOnlyReading, "password");
                 string filename = "Leave Register Form-" + empId + ".docx";
                 document.Save(filename, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 document.Close();
-
-                ////Creates an instance of the DocToPDFConverter
-                //DocToPDFConverter converter = new DocToPDFConverter();
-
-                ////Converts Word document into PDF document
-                //PdfDocument pdfDocument = converter.ConvertToPDF(document);
-
-                ////Releases all resources used by DocToPDFConverter
-                //converter.Dispose();
-
-                ////Closes the instance of document objects
-                //document.Close();
-                //
-                ////Saves the PDF file 
-                //pdfDocument.Save(filename + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
-                ////Closes the instance of document objects
-                //pdfDocument.Close(true);
-
-                //document.Close();
-                #endregion
-
-
             }
             catch (Exception ex)
             {

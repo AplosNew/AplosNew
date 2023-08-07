@@ -22,6 +22,7 @@ function LeaveRegistersFormController(commonMessage, $scope, $rootScope, baseSer
     $scope.yearList = [];
     cboService.getCboLeaveYear(function (result) {
         $scope.yearList = result;
+        console.log($scope.yearList);
     });
 
     $scope.EmployeeList = [];
