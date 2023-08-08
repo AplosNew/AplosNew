@@ -65,7 +65,9 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
         PerformanceGroupId: null,
         PhysicalVarification: false,
         UserReportGroup: null,
-        ProcessId: null
+        ProcessId: null,
+        GoodWorkPositionCodeId:null,
+        GoodWorkPositionCode: null
     };
 
     $scope.positionAllowance = {
@@ -575,6 +577,19 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
                         '</div>' +
                         '</div>' +
 
+
+                        '<div class="form-group">' +
+                        '<label class="col-sm-4 control-label">Good Work Position Code</label>' +
+                        '<div class="col-sm-8">' +
+                        '<div class="input-group">' +
+                        '<input type="text" name="Process" ng-model="companyStructureSetup.GoodWorkPositionCode" class="form-control" readonly>' +
+                        '<span class="input-group-btn">' +
+                        '<button name="submit" ng-click="GWPositionCodePopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>' +
+                        '</span>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' +
+
                         '</div>';
                 }
             });
@@ -684,7 +699,70 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
         $scope.companyStructureSetup.ProcessId = data.Id;
         angular.element(document.querySelector('#processPopUp')).modal('hide');
     };
-    
+
+    //start Good Work Position Code
+    $scope.GWPCSearchList = [
+        {
+            'name': 'Sequence',
+            'value': 'Sequence'
+        },
+        {
+            'name': 'Code',
+            'value': 'Code'
+        },
+        {
+            'name': 'User Name',
+            'value': 'UserName'
+        },
+        {
+            'name': 'Local Name',
+            'value': 'LocalName'
+        },
+        {
+            'name': 'Alias',
+            'value': 'Alias'
+        }
+    ];
+
+    $scope.GWPCPopUpParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'Sequence',
+        searchBy: "UserName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+
+    $scope.GWPositionCodePopUp = function () {
+        $scope.GWPCPopUpUrl = 'Organizations/Position/getlist';
+        $scope.getGWPCData = function (pageno) {
+            baseService.paginationBase($scope.GWPCPopUpUrl, pageno, $scope.GWPCPopUpParameters)
+                .then(function (result) {
+                    $scope.GWPCPopUpDataList = result.Rows;
+                    $scope.GWPCPopUpParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure', 'GWPCPopUp');
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector('#GWPCPopUp')).modal('show');
+        $scope.getGWPCData();
+    };
+
+    $scope.closeGWPCPopUp = function () {
+        angular.element(document.querySelector('#GWPCPopUp')).modal('hide');
+    };
+
+    $scope.GWPCAdd = function (data) {
+        $scope.companyStructureSetup.GoodWorkPositionCode = data.Code;
+        $scope.companyStructureSetup.GoodWorkPositionCodeId = data.Id;
+        angular.element(document.querySelector('#GWPCPopUp')).modal('hide');
+    };
+
     // #endregion
 
 }
