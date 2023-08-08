@@ -4764,6 +4764,8 @@
     <Content Include="Areas\Processes\Views\ProcessManagement\Aplos.cshtml" />
     <Content Include="Areas\Commercial\Views\Contract\MasterLCAmendment.cshtml" />
     <Content Include="Areas\FixedAssets\Views\AdditionalInfoUpdate.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\CapitalizeAssetRegisterPostingNew.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\CapitalizeAssetRegisterPostingAddition.cshtml" />
     <Content Include="Areas\Processes\Views\ProcessTemplate\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

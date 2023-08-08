@@ -143,7 +143,7 @@
                             <th>Category</th>
                             <th>Sub Category</th>
                             <th>Asset Type</th>
-                            <th>Actions</th>
+                            <th>Download</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -156,7 +156,7 @@
                             <td>
                                 <div class="common-btn">
                                     <ul class="list-inline text-left">
-                                        <li> <button data-toggle="modal" ng-click="$parent.FixedAssetMasterIndividualReport(x.Id);" class="btn" tabindex="10"><i class="glyphicon glyphicon-cloud-download"></i>Download</button></li>
+                                        <li> <button data-toggle="modal" ng-click="$parent.FixedAssetMasterIndividualReport(x.Id);" class="btn" tabindex="10"><i class="glyphicon glyphicon-cloud-download"></i></button></li>
                                     </ul>
                                 </div>
                             </td>
@@ -176,7 +176,7 @@
 
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-            <togglable name="Fixed Asset Master Item"></togglable>
+            <togglable name="Fixed Asset Item"></togglable>
             <div class="form-elements form-horizontal" ng-form name="fixedAssetMasterItemNewForm">
                 <div class="row">
                     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -237,11 +237,8 @@
                         </div>
 
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Capacity Value<sup>*</sup></label>
-                            <div class="col-sm-4 show-message">
-                                <input type="text" name="Standard Name" maxlength="100" ng-model="ModelChildNew.CapacityValue" class="form-control" required tabindex="6">
-                            </div>
-                            <div class="col-sm-4 show-message">
+                            <label class="col-sm-4 control-label">Capacity UoM<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
                                 <div class="select-style">
                                     <select submit-="true" ng-model="ModelChildNew.CapacityUoMId" class="form-control" name="CapacityUoM" required
                                             id="CapacityUoMId" ng-options="item.Value as item.Text for item in uOMList" tabindex="8">
@@ -302,7 +299,6 @@
                         <div e-column e-field="UserName" e-headertext="User Name" e-width="4"></div>
                         <div e-column e-field="FixedAssetMaster" e-headertext="Fixed Asset Master" e-width="5"></div>
                         <div e-column e-field="CapacityUoM" e-headertext="Capacity UoM" e-width="4"></div>
-                        <div e-column e-field="CapacityValue" e-headertext="Capacity Value" e-width="4"></div>
                         <div e-column e-field="Description" e-headertext="Description" e-width="4"></div>
                     </div>
                 </div>
