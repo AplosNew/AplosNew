@@ -33,6 +33,18 @@
                     </div>
                 </div>
             </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <span class="input-group-addon">{{ProcessManagementNew.ResponsiblePersonCode}}</span>
+                        <input type="text" name="Responsible Person" ng-model="ProcessManagementNew.EmployeeName" class="form-control" readonly required>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="LoadResponsiblePopupData()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
             <div class="common-btn">
                 <ul class="list-inline text-right">
                     <li> <button ng-click="LoadGrid();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> Load Grid</button></li>

@@ -425,7 +425,7 @@ left join SCS.WorkCenterMaster AS wcm ON wcm.Id = MMA.WorkCenterMasterId where A
 
         public JsonResult GetUtilityCategoryList()
         {
-            string sql = @"Select UC.Id, UC.CategoryName, UoM.UserName UoM ,UC.Remark from HKP.UtilityCategory UC
+            string sql = @"Select UC.Id, UC.CategoryName, UoM.UserName UoM ,UC.Remarks from HKP.UtilityCategory UC
                             left join SCS.UnitOfMeasurement UoM on UoM.Id = UC.UoMId";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -438,13 +438,13 @@ left join SCS.WorkCenterMaster AS wcm ON wcm.Id = MMA.WorkCenterMasterId where A
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from HKP.UtilityCategory where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from HKP.UtilityCategory where CategoryName='" + data["CategoryName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Category name already exists!!!");
 
                
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from HKP.UtilityCategory where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 

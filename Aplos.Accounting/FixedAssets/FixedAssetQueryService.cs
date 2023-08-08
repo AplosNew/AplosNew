@@ -2540,6 +2540,24 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
+        public IEnumerable<object> GetAssetRegisterData()
+        {
+
+            string sql = @"SELECT Flag=CAST(0 AS bit),AR.*,FAI.UserName FixedAssetItem FROM TRN.AssetRegister AR
+LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
+WHERE AR.AdditionalInfoUpdateId IS NULL";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public IEnumerable<object> GetTaggedAssetRegisterData(string headerId)
+        {
+
+            string sql = @"SELECT AR.*,FAI.UserName FixedAssetItem FROM TRN.AssetRegister AR
+LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
+WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
         #endregion
     }
 }
