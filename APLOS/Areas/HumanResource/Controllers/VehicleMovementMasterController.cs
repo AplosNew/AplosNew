@@ -308,7 +308,7 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
 
         public ActionResult SavePurposeRP(List<Dictionary<string, object>> datalist, string headerid)
         {
-            string TableName = "TRN.HRReportMasterChild";
+            
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
@@ -1705,8 +1705,8 @@ left join EmployeeInformation EI on EI.SystemId = DM.DriverId";
                 }
                 else
                 {
-                    CmdText = @"SELECT --isSelected=(CAST(0 as bit)), 
-                                  RP.IsActive isSelected, RP.Id, Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode, Emp.EmployeeStatus, Emp.EmployeeCurrentStatus,
+                    CmdText = @"SELECT 
+                                   Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode, Emp.EmployeeStatus, Emp.EmployeeCurrentStatus,
                                     Emp.DOS,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
                                     
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
@@ -1714,7 +1714,7 @@ left join EmployeeInformation EI on EI.SystemId = DM.DriverId";
                                         ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric, RG.UserName ResidenceGroup, PR.PaymentLink Skill, EC.UserName EmployeeCategory
                                         ,RM.Location, RM.ResidenceCategory, EMP.GenderID
 										FROM EmployeeInformation EMP
-                                        left join TRN.VehiclePurposeResponsiblePerson RP on RP.ResponsiblePersonId = EMP.SystemId
+                                       
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
@@ -1732,9 +1732,7 @@ left join EmployeeInformation EI on EI.SystemId = DM.DriverId";
 										LEFT JOIN MST.DesignationMaster DM on DM.DesignationId = D.Id
 										LEFT JOIN HKP.EmployeeCategory EC on EC.Id = DM.EmployeeCategoryId
 										
-                                        Where EMP.EmployeeStatus='Active' 
-                                        order by RP.IsActive DESC
-                                        --ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
+                                        Where EMP.EmployeeStatus='Active' ";
                 }
 
                 return Json(_sqlRepository.GetDataCollection(CmdText), JsonRequestBehavior.AllowGet);
