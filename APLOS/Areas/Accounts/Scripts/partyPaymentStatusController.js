@@ -15,7 +15,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         TransactionType: 'LoanTaken',
         ReportFormat: 'Excel',
         VoucherId: null,
-
         IsWithAdvance: false
     };
 
@@ -227,7 +226,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         $scope.ToDatevalidation();
         if (!$scope.invalidFromDate && !$scope.invalidDocDate) {
             try {
-
                 $http({
                     method: 'POST',
                     url: $scope.path + "GetPartyPaymentStatusInvoiceList",
@@ -236,18 +234,13 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                         toDate: $scope.material.VendorToDate
                     },
                     dataType: 'JSON'
-
                 }).then(function successCallback(response) {
                     if (response.data.Error == false) {
-                        //for (var i = 0; i < response.data.DATA.length; i++) {
-                        //    // response.data.DATA[i].MasterLCDate = new Date(response.data.DATA[i].MasterLCDate);
-                        //}
                         $scope.MasterLCList = response.data.DATA;
                     }
                     else {
                         ShowResult(response.data.Message, 'failure');
                     }
-
                 }),
                     function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');
@@ -262,26 +255,18 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     }
 
     $scope.InvoiceSummaryReport = function () {
-
         try {
             var NewMasterLCList = [];
             for (var i = 0; i < $scope.MasterLCList.length; i++) {
                 if ($scope.MasterLCList[i].isSelected == true) {
-
-                        NewMasterLCList.push($scope.MasterLCList[i]);
-                    //if (NewMasterLCList, $scope.MasterLCList[i].PartyId) {
-                    //}
+                    NewMasterLCList.push($scope.MasterLCList[i]);
                 }
             }
             if (NewMasterLCList.length == 0) {
-                //(angular.isUndefinedOrNull(NewMasterLCList)) 
                 ShowResult('Please select at least one Party', 'failure');
-                //throw 'Please enter to date';
-
             }
 
             $scope.downloadgriddataUrl = 'GridReports/Download';
-
                 $http({
                     method: 'POST',
                     url: $scope.path + "PartyPaymentStatusReport",
