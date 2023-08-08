@@ -302,7 +302,7 @@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Utility Category<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="Standard Name" ng-model="UtilityCategoryModelNew.UtilityCategory" class="form-control" required autocomplete="off" tabindex="9" maxlength="50">
+                                <input type="text" name="Standard Name" ng-model="UtilityCategoryModelNew.CategoryName" class="form-control" required autocomplete="off" tabindex="9" maxlength="50">
                             </div>
                         </div>
                         <div class="form-group">
@@ -321,7 +321,7 @@
                                 <option value="">--Select--</option>
                                 <option ng-repeat="option in uOMList" value="{{option.Value}}">{{option.Text}}</option>
                             </select>*@
-                                    <input id="UOM_Id" e-watermarktext="Type" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-data="UtilityCategoryModelNew.UoMId" e-datasource="uOMList" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                                    <input id="UOM_Id" e-watermarktext="Type" ej-dropdownlist e-enablefiltersearch="true" e-create="create" ng-model="UtilityCategoryModelNew.UOMId" e-datasource="uOMList" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
 
                                 </div>
                             </div>
@@ -343,8 +343,8 @@
                                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                                 <div e-columns>
                                     <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
-                                    <div e-column e-field="UtilityCategory" e-headertext="Utility Category" e-width="2"></div>
-                                    <div e-column e-field="UOM" e-headertext="UOM" e-width="3"></div>
+                                    <div e-column e-field="CategoryName" e-headertext="Utility Category" e-width="2"></div>
+                                    <div e-column e-field="UoM" e-headertext="UOM" e-width="3"></div>
                                     <div e-column e-field="Remarks" e-headertext="Remarks " e-width="5"></div>
 
                                 </div>

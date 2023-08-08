@@ -73,5 +73,9 @@ function ProcessConfig($routeProvider) {
             templateUrl: 'Processes/ProcessManagement/Aplos',
             controller: 'ProcessManagementController'
         })
+        .when('/process-template', {
+            templateUrl: 'Processes/ProcessTemplate/Aplos',
+            controller: 'ProcessTemplateController'
+        })
         ;
 }

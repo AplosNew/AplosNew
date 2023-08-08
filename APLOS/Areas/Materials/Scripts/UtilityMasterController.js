@@ -569,12 +569,13 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
                 $scope.UtilityCategoryList = response.data;
             })
     }
+    $scope.GetUtilityCategoryList();
 
     $scope.UtilityCategoryTemp = {
         Id: null,
-        UtilityCategory: null,
-        UoMId: null,
-        Remark:null
+        CategoryName: null,
+        UOMId: null,
+        Remarks:null
     }
     $scope.UtilityCategoryModelNew = Object.assign({}, $scope.UtilityCategoryTemp);
 
@@ -588,10 +589,11 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
             .then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
+                    $scope.ClearUtilityCategory();
                 }
                 else {
                     ShowResult(response.data.Message, 'success'); 
-                    
+                    $scope.GetUtilityCategoryList();
                 }
             })
     }
@@ -624,9 +626,9 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         $scope.UCAction = 'Save';
         $scope.UtilityCategoryModelNew = {
             Id: null,
-            UtilityCategory: null,
-            UoMId: null,
-            Remark: null
+            CategoryName: null,
+            UOMId: null,
+            Remarks: null
         };
         
         $scope.UtilityCategoryModelNew = Object.assign({}, $scope.UtilityCategoryTemp);
