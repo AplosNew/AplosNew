@@ -622,7 +622,7 @@ where wc.Active = 1 and wc.ProcessId = '" + ProcessId + "'  and wc.EntityId = '"
                 QCItemId = @"and QII.Id='" + POItemId + "'";
             }
             var sql = @"select distinct QIC.Id,QII.Id ItemId,QII.SNO,QII.ItemName,QII.UOMId,U.UserName as UOM,QIC.Value,QGD.Id as GradeId,QII.Max as MaxValue,QII.Min as MinValue,
-QIC.Remarks,QIC.ActionToBeTaken,isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.[QualityControlDetails] where ItemId=QII.Id order by AddedDate desc))) as ResponsiblePerson,isnull(QIC.ResponsiblePersonId,(select top 1 ResponsiblePersonId from TRN.[QualityControlDetails] where ItemId=QII.Id order by AddedDate desc)) as ResponsiblePersonId,QIC.QCId,QIC.Repeat from MST.QualityIssueItem QII
+QIC.Remarks,QIC.ActionToBeTaken,QIC.WorkCenterId,isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.[QualityControlDetails] where ItemId=QII.Id order by AddedDate desc))) as ResponsiblePerson,isnull(QIC.ResponsiblePersonId,(select top 1 ResponsiblePersonId from TRN.[QualityControlDetails] where ItemId=QII.Id order by AddedDate desc)) as ResponsiblePersonId,QIC.QCId,QIC.Repeat from MST.QualityIssueItem QII
 LEFT JOIN TRN.QualityControl QC ON QC.IssueId=QII.IssueId
 LEFT JOIN TRN.[QualityControlDetails] QIC ON QIC.QCId='" + PId + @"' and QIC.ItemId=QII.Id
 LEFT JOIN SCS.UnitOfMeasurement U ON U.Id = QII.UOMId
@@ -739,13 +739,13 @@ QID.CheckingInterval as QCInterval,
 format(DATEADD(hour, QID.CheckingInterval, QC.AddedDate),'dd-MMM-yyyy') as QCDueDate,
 format(DATEADD(hour, QID.CheckingInterval, CAST(QC.AddedDate AS DATETIME)),'hh:mm tt')  QCDueTime,
 E.UserName QCEntity,
-QID.EntityId,
+QC.EntityId,
 P.UserName QCProcess,
-QID.ProcessId,
+QC.ProcessId,
 SD.ShiftDefinationName QCShift,
 QC.ProductionShiftId,
 QMM.UserName QCIssue,
-QID.Id IssueId,
+QID.IssueNameId IssueId,
 QTD.PeriodName + ' ('+ format(QTD.FromTime,'hh:mm tt') + ' - ' + format(QTD.ToTime,'hh:mm tt') + ' )' as QCPeriod,
 QTD.Id PeriodId,
 QCCustomer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
@@ -776,23 +776,23 @@ left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId = mm.Id
 left outer join[MST].[ProductMaster] PM on pm.id = pd.ProductMasterId
 where Pod.ProductionOrderId = QC.ProductionOrderId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 POQ.POQty as QCPOQty,PQ.Qty QCScheduleQty,ProdQ.ProducedQty as QCProducedQty,POQ.POQty-ProdQ.ProducedQty QCRemainingQty,
-QII.ItemName as ParameterName,QCD.Value as QCValue,UM.UserName QCUOM,QGD.GradeName QCGradeName,QGD.GradeValue,QC.PlanType,
+QII.ItemName as ParameterName,QCD.Value as QCValue,UM.UserName QCUOM,QGD.GradeName QCGradeName,QGD.GradeValue,QC.PlanType as PType,
 QII.Max QCMaxValue,QII.Min QCMinValue,(select ActionToBeTakenName from MST.QualityActionToBeTakenDetails where Id=QCD.ActionToBeTaken) as QCActionToBeTaken,EI.EmployeeName as QCResponsiblePerson,QCD.Remarks as QCItemRemarks,QC.QualityPlanId,
 QC.Id QulaityHeaderId,QCD.Id QulaityItemId,QII.CriticalLevel,
-D.UserName as Department,QID.IssueType,QID.IssueCategory,QID.Period,QID.Frequency
+D.UserName as Department,QID.IssueType IssueApplicable,QID.IssueCategory,QID.Period,QID.Frequency,QC.WorkCenterId
 from MST.QualityIssueDetails  QID
 left join MST.QualityManagementMaster QMM on QMM.Id=QID.IssueNameId
-left join MST.QualityIssueItem QII on QII.IssueId=QID.Id
+left join MST.QualityIssueItem QII on QII.IssueId=QID.IssueNameId
 left join scs.UnitOfMeasurement UM on UM.Id=QII.UOMId
-left join TRN.QualityControl QC on QC.IssueId=QID.Id
+left join TRN.QualityControl QC on QC.IssueId=QID.IssueNameId
 left join TRN.QualityControlDetails QCD on QCD.QCId=QC.Id and QCD.ItemId=QII.Id
 left join MST.QualityGradeDetails QGD on QGD.Id=QCD.GradeId
 left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
 left join EmployeeInformation PI on PI.SystemId=QC.ProductionInchargeId
 left join MST.QualityTimeDetails QTD on QTD.Id=QC.PeriodId
-left join org.Entity E on E.Id=QID.EntityId
+left join org.Entity E on E.Id=QC.EntityId
 left join org.Department D on D.Id=QID.DepartmentId
-left join hkp.Process P on P.Id=QID.ProcessId
+left join hkp.Process P on P.Id=QC.ProcessId
 left join ShiftDefination SD on SD.SystemID=QC.ProductionShiftId
 left join TRN.ProductionOrder PO ON PO.Id=QC.ProductionOrderId
 LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
@@ -806,7 +806,7 @@ left join (select Sum(QD.Value) ProducedQty,Q.ProductionOrderId from TRN.Quality
 left join TRN.QualityControl Q on Q.Id=QD.QCId
 GROUP BY Q.ProductionOrderId
 ) AS ProdQ ON ProdQ.ProductionOrderId = QC.ProductionOrderId
-where QID.IssueType in ('Order','General') and QCD.Id is not null " + QCDate + "  " + QCIssue + " " + QCPONO + "";
+where QCD.Id is not null " + QCDate + "  " + QCIssue + " " + QCPONO + "";
             return _sqlRepository.GetDataCollection(sql);
         }
 
@@ -827,9 +827,9 @@ where QID.IssueType in ('Order','General') and QCD.Id is not null " + QCDate + "
                 QCDate = @"and (CONVERT(DATE,QC.AddedDate) between '" + fromDate + "' and '" + todate + "'  or QII.ItemName is null)";
             }
 
-            var sql = @"select B.IssueType,B.Customer,B.POId,B.LotNumber,B.Entity,B.ProcessSeq,B.Process,B.Shift,B.IssueDetails,B.Parameter,B.ItemUOM,B.Remarks,B.DateShiftTime,B.Value
+            var sql = @"select B.IssueApplicable,B.Customer,B.POId,B.LotNumber,B.Entity,B.ProcessSeq,B.Process,B.Shift,B.IssueDetails,B.Parameter,B.ItemUOM,B.Remarks,B.DateShiftTime,B.Value
 into #tempPC from 
-(select A.IssueType,A.Customer,A.POId,A.LotNumber,A.Entity,A.ProcessSeq,A.Process,A.Shift,A.IssueDetails,A.Parameter,A.ItemUOM,A.Remarks,A.DateShiftTime,A.Value from
+(select A.IssueApplicable,A.Customer,A.POId,A.LotNumber,A.Entity,A.ProcessSeq,A.Process,A.Shift,A.IssueDetails,A.Parameter,A.ItemUOM,A.Remarks,A.DateShiftTime,A.Value from
 (select distinct
 Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
@@ -838,34 +838,34 @@ left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
 where QC.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 QC.ProductionOrderId as POId,
-(select '[' + LotNumber + '] ,' from TRN.QualityControl Q where Q.IssueId=QID.Id for xml path('')) LotNumber,									                
+(select '[' + LotNumber + '] ,' from TRN.QualityControl Q where Q.IssueId=QID.IssueNameId for xml path('')) LotNumber,									                
 E.UserName Entity,
 P.Sequence ProcessSeq,
 P.UserName Process,
 QMM.UserName IssueDetails,
-QID.IssueType,
+QID.IssueType IssueApplicable,
 SD.ShiftDefinationDescription as Shift,
 QII.ItemName as Parameter,
 UM.UserName ItemUOM,
 (select Remarks + ',' from TRN.QualityControlDetails where ItemId=QII.Id for xml path('')) Remarks,	
-format(QCD.AddedDate,'dd-MMM-yyyy')+'/'+ format(QCD.AddedDate,'hh:mm-tt') as DateShiftTime,
+format(QCD.AddedDate,'dd-MM-yy')+'/'+ format(QCD.AddedDate,'HH:mm') as DateShiftTime,
 QCD.Value
 from MST.QualityIssueDetails  QID
 left join MST.QualityManagementMaster QMM on QMM.Id=QID.IssueNameId
-left join MST.QualityIssueItem QII on QII.IssueId=QID.Id
+left join MST.QualityIssueItem QII on QII.IssueId=QID.IssueNameId
 left join scs.UnitOfMeasurement UM on UM.Id=QII.UOMId
-left join TRN.QualityControl QC on QC.IssueId=QID.Id
+left join TRN.QualityControl QC on QC.IssueId=QID.IssueNameId
 left join TRN.QualityControlDetails QCD on QCD.QCId=QC.Id and QCD.ItemId=QII.Id
 left join MST.QualityGradeDetails QGD on QGD.Id=QCD.GradeId
 left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
 left join EmployeeInformation PI on PI.SystemId=QC.ProductionInchargeId
 left join MST.QualityTimeDetails QTD on QTD.Id=QC.PeriodId
-left join org.Entity E on E.Id=QID.EntityId
-left join hkp.Process P on P.Id=QID.ProcessId
+left join org.Entity E on E.Id=QC.EntityId
+left join hkp.Process P on P.Id=QC.ProcessId
 left join ShiftDefination SD on SD.SystemID=QC.ProductionShiftId
 left join TRN.ProductionOrder PO ON PO.Id=QC.ProductionOrderId
 LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
-where QID.IssueType in ('Order','General') and QCD.Id is not null " + QCDate + "  " + QCIssue + " " + QCPONO + @")A 
+where QCD.Id is not null " + QCDate + "  " + QCIssue + " " + QCPONO + @")A 
 )B order by B.ProcessSeq 
 
 DECLARE @sql nvarchar(max), @col nvarchar(max)
@@ -1133,7 +1133,7 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
                 var sql = @"SELECT PlannedQty=SOP.OrderQty,POQ.POQty,isnull(PQ.Qty,POQ.POQty)/POQ.POQty*SOP.OrderQty*PPS.Qty/100-ISNULL(CEILING(PRS.TotalProductionQty), 0) as RemainingQty
 ,ISNULL(CEILING(PRS.TotalProductionQty), 0)TotalProductionQty,isnull(PQ.Qty,POQ.POQty) as TotalActualPlannedQty,PPS.Qty TotalProcessPlanPercentage
 ,isnull(PQ.Qty,POQ.POQty)/POQ.POQty*SOP.OrderQty*PPS.Qty/100 as ProcessPlanQty,
-isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty,isnull(FPP.FirstProductionQty,0) POFirstProcessProductionQty
+isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty,isnull(FPP.FirstProductionQty,0) POFirstProcessProductionQty,PPS.Sequence POProcessSequence
                              FROM trn.ProductionOrder AS PO
                              LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + processId + @"'
                             LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id
@@ -1183,7 +1183,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                 var sql = @"SELECT PlannedQty=SOP.OrderQty,POQ.POQty,isnull(PQ.Qty,POQ.POQty)/POQ.POQty*SOP.OrderQty*PPS.Qty/100-ISNULL(CEILING(PRS.TotalProductionQty), 0) as RemainingQty
 ,ISNULL(CEILING(PRS.TotalProductionQty), 0)TotalProductionQty,isnull(PQ.Qty,POQ.POQty) as TotalActualPlannedQty,PPS.Qty TotalProcessPlanPercentage
 ,isnull(PQ.Qty,POQ.POQty)/POQ.POQty*SOP.OrderQty*PPS.Qty/100 as ProcessPlanQty,
-isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty,isnull(FPP.FirstProductionQty,0) POFirstProcessProductionQty
+isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty,isnull(FPP.FirstProductionQty,0) POFirstProcessProductionQty,PPS.Sequence POProcessSequence
                              FROM trn.ProductionOrder AS PO
                              LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + processId + @"'
                             LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id
@@ -1228,7 +1228,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                 var sql = @"SELECT PlannedQty=SOP.OrderQty,POQ.POQty,isnull(PQ.Qty,POQ.POQty)/POQ.POQty*SOP.OrderQty*PPS.Qty/100-ISNULL(CEILING(PRS.TotalProductionQty), 0) as RemainingQty
 ,ISNULL(CEILING(PRS.TotalProductionQty), 0)TotalProductionQty,isnull(PQ.Qty,POQ.POQty) as TotalActualPlannedQty,PPS.Qty TotalProcessPlanPercentage
 ,isnull(PQ.Qty,POQ.POQty)/POQ.POQty*SOP.OrderQty*PPS.Qty/100 as ProcessPlanQty,
-isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty,isnull(FPP.FirstProductionQty,0) POFirstProcessProductionQty
+isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty,isnull(FPP.FirstProductionQty,0) POFirstProcessProductionQty,PPS.Sequence POProcessSequence
                              FROM trn.ProductionOrder AS PO
                              LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + processId + @"'
                             LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id

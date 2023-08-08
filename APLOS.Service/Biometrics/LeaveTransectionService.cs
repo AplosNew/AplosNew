@@ -1922,7 +1922,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
 
                                     if (item.Balance < leaveDays)
                                     {
-                                        throw new Exception("Can't apply more than Balance...");
+                                       // throw new Exception("Can't apply more than Balance...");
                                     }
                                 }
                             }//leave type

@@ -12,9 +12,9 @@
             <div class="row" ng-form="ProcessManagementForm">
                 <div class="col-xs-12 col-sm-6 col-md-6">
                     <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Standared Name<sup>*</sup></label>
+                        <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Standared Nam" ng-model="ProcessManagementNew.StandaredName" class="form-control" maxlength="100" required autocomplete="off">
+                            <input type="text" name="Standared Nam" ng-model="ProcessManagementNew.StandardName" class="form-control" maxlength="100" required autocomplete="off">
                         </div>
                     </div>
                     <div class="form-group" show-errors>
@@ -33,14 +33,14 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Min SPT InTime<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input id="MinSPTInTimeId" e-value="ProcessManagementNew.MinSPTInTime" width="420" ej-timepicker name="Time" tabindex="4" required />
+                            <input id="MinSPTInTimeId" e-value="ProcessManagementNew.MinSPTTime" width="420" ej-timepicker name="Time" tabindex="4" required />
 
                         </div>
                     </div>
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Standard SPT InTime<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input id="StandardSPTInTimeId" e-value="ProcessManagementNew.StandardSPTInTime" width="420" ej-timepicker name="Time" tabindex="4" required />
+                            <input id="StandardSPTInTimeId" e-value="ProcessManagementNew.StandardSPTTime" width="420" ej-timepicker name="Time" tabindex="4" required />
 
                         </div>
                     </div>
@@ -48,7 +48,7 @@
                         <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <div class="input-group">
-                                <span class="input-group-addon">{{ProcessManagementNew.ResponsiblePersonCode}}</span>
+                                <span class="input-group-addon">{{ProcessManagementNew.ResponsiblePerson}}</span>
                                 <input type="text" name="Responsible Person" ng-model="ProcessManagementNew.EmployeeName" class="form-control" readonly required>
                                 <span class="input-group-btn">
                                     <button name="submit" ng-click="LoadResponsiblePopupData()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
@@ -81,7 +81,7 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Max SPT InTime<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input id="MaxSPTInTimeId" e-value="ProcessManagementNew.MaxSPTInTime" width="420" ej-timepicker name="Time" tabindex="4" required />
+                            <input id="MaxSPTInTimeId" e-value="ProcessManagementNew.MaxSPTTime" width="420" ej-timepicker name="Time" tabindex="4" required />
 
                         </div>
                     </div>
@@ -96,7 +96,7 @@
                         <div class="col-sm-8">
                             <div class="checkbox-site">
                                 <label>
-                                    <input type="checkbox" ng-model="ProcessManagementNew.Active" tabindex="8">
+                                    <input type="checkbox" ng-model="ProcessManagementNew.IsWorkCenterApplicable" tabindex="8">
                                     <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                 </label>
                             </div>
@@ -230,7 +230,29 @@
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
-
+                    <div class="row">
+                        <div id="GridWorkCenter" ej-grid e-datasource="QualityManagementMasterWorkCenterList" e-templaterefresh="refreshTemplateWorkCenter" e-recorddoubleclick=""
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-headertext="All" e-headertemplateid="#headerTemplateWorkCenter" e-template="#checkboxTemplateWorkCenter" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="100"></div>
+                                <div e-column e-field="Workcenter" e-headertext="WorkCenter" e-width="100"></div>
+                                <div e-column e-field="WorkcenterCategory" e-headertext="WorkCenter Category" e-width="100"></div>
+                                <div e-column e-field="WorkcenterSubCategory" e-headertext="WorkCenter SubCategory" e-width="100"></div>
+                                <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
+                                <div e-column e-field="Capacity" e-headertext="Capacity" e-width="100"></div>
+                                <div e-column e-field="UOM" e-headertext="UOM" e-width="100"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateWorkCenter">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                        </script>
+                        <script type="text/x-jsrender" id="headerTemplateWorkCenter">
+                            <input type="checkbox" id="Wheadchk" />
+                        </script>
+                    </div>
                 </div>
             </div>
 
@@ -251,7 +273,7 @@
                         <label class="col-sm-4 control-label">UoM<sup>*</sup> </label>
                         <div class="col-sm-8">
                             <div class="select-style">
-                                <input id="UOM_Id" e-watermarktext="Type" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-data="PMPModelNew.UoMId" e-datasource="UOMList" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                                <input id="UOM_Id" e-watermarktext="Type" ej-dropdownlist e-enablefiltersearch="true" e-create="create" ng-model="PMPModelNew.UOMId" e-datasource="UOMList" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
                             </div>
                         </div>
                     </div>
@@ -266,7 +288,7 @@
                         <div class="col-sm-8">
                             <div class="checkbox-site">
                                 <label>
-                                    <input type="checkbox" ng-model="LocationNewModel.Active" tabindex="8">
+                                    <input type="checkbox" ng-model="LocationNewModel.IsUtilityApplicable" tabindex="8">
                                     <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                 </label>
                             </div>
@@ -289,13 +311,13 @@
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Remark</label>
                         <div class="col-sm-8">
-                            <textarea class="form-control" rows="2" ng-model="PMPModelNew.Remark" maxlength="250" tabindex="18"></textarea>
+                            <textarea class="form-control" rows="2" ng-model="PMPModelNew.Remarks" maxlength="250" tabindex="18"></textarea>
                         </div>
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
-                            <li> <button ng-click="Save();" class="btn" tabindex="22"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="23"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                            <li> <button ng-click="SaveProcessParameter();" class="btn" tabindex="22"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                            <li> <button data-toggle="modal" ng-click="RemoveDetailConsumptionMatrix(this)" data-target="#confirmDetailPopUp" class="btn" tabindex="23"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                             <li> <button ng-click="Clear();" class="btn" tabindex="24"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                         </ul>
                     </div>
@@ -319,7 +341,7 @@
             <div class="modal-body">
                 <div class="row">
                     <div id="GridRespPerson" ej-grid e-datasource="ResponsiblePersonList"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-recorddoubleclick=""
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-recorddoubleclick="EmployeedblClick"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                         <div e-columns>
                             <div e-column e-field="SystemId" e-headertext="Id" e-width="50" e-visible="false"></div>
@@ -341,3 +363,5 @@
         </div>
     </div>
 </div>
+
+<confirm-archive-generic modalid="confirmDetailPopUp" title="Confirmation" message={{message_Detailconfirmation}} data-ng-click-right-button="DeleteProcessParameter();"></confirm-archive-generic>

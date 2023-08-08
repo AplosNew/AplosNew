@@ -16,7 +16,6 @@
     </div>
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-
             <togglable name="Additional Info Update"></togglable>
             <div class="form-elements form-horizontal" ng-form name="AdditionalInfoUpdateNewForm">
                 <div class="row">
@@ -75,46 +74,84 @@
                                 <input type="text" name="User Name" maxlength="100" ng-model="modelNew.UserName" class="form-control" required tabindex="4">
                             </div>
                         </div>
-
+                        <div class="form-group">
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <span class="input-group-btn">
+                                        <button ng-click="GetAssetRegisterData()" class="btn single-small-btn"><i class="glyphicon glyphicon-search">Asset Register</i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Remarks</label>
                             <div class="col-sm-8">
                                 <textarea class="form-control" rows="3" ng-model="modelNew.Remarks" ng-trim="false" maxlength="250" tabindex="10"></textarea>
                             </div>
                         </div>
+
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-12 col-sm-12" style="padding-top:10px">
-                    <div class="content-container-fluid" style="color:black;">
-                        <div style="color:black;" id="Grid" ej-grid e-datasource="AdditionalInfoItemList"
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                             e-allowselection="true" @*e-recorddoubleclick="recorddoubleclick"*@ e-filtersettings-filterType="excel">
-                            <div e-columns>
-                                <div e-column e-field="Sequence" e-headertext="Sequence" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
-                                <div e-column e-field="Code" e-headertext="Code" e-width="40"></div>
-                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="50"></div>
-                                <div e-column e-field="StandardName" e-headertext="StandardName" e-width="50"></div>
-                                <div e-column e-field="UserName" e-headertext="Fixed Asset Item" e-width="50"></div>
-                                <div e-column e-field="UoM" e-headertext="UoM" e-width="30"></div>
-                                <div e-column e-headertext="Value" e-template="#ShowValue" e-width="50"></div>
-                                <div e-column e-headertext="Remarks" e-template="#ShowRemarks" e-width="50"></div>
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border">Additional Info Item</legend>
+
+                        <div class="content-container-fluid" style="color:black;">
+                            <div style="color:black;" id="Grid" ej-grid e-datasource="AdditionalInfoItemList"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-field="Sequence" e-headertext="Sequence" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                    <div e-column e-field="Code" e-headertext="Code" e-width="40"></div>
+                                    <div e-column e-field="ShortName" e-headertext="Short Name" e-width="50"></div>
+                                    <div e-column e-field="StandardName" e-headertext="StandardName" e-width="50"></div>
+                                    <div e-column e-field="UserName" e-headertext="Fixed Asset Item" e-width="50"></div>
+                                    <div e-column e-field="UoM" e-headertext="UoM" e-width="30"></div>
+                                    <div e-column e-headertext="Value" e-template="#ShowValue" e-width="50"></div>
+                                    <div e-column e-headertext="Remarks" e-template="#ShowRemarks" e-width="50"></div>
+                                </div>
+                                <script type="text/ng-template" id="ShowValue">
+                                    <div class="form-group">
+                                        <div class="col-sm-12">
+                                            <input type="text" name="Value" maxlength="100" ng-model="data.Value" class="form-control" tabindex="4">
+                                        </div>
+                                    </div>
+                                </script>
+                                <script type="text/ng-template" id="ShowRemarks">
+                                    <div class="form-group">
+                                        <div class="col-sm-12">
+                                            <input type="text" name="Remarks" maxlength="100" ng-model="data.Remarks" class="form-control" tabindex="4">
+                                        </div>
+                                    </div>
+                                </script>
                             </div>
-                            <script type="text/ng-template" id="ShowValue">
-                                <div class="form-group">
-                                    <div class="col-sm-12">
-                                        <input type="text" name="Value" maxlength="100" ng-model="data.Value" class="form-control" tabindex="4">
-                                    </div>
-                                </div>
-                            </script>
-                            <script type="text/ng-template" id="ShowRemarks">
-                                <div class="form-group">
-                                    <div class="col-sm-12">
-                                        <input type="text" name="Remarks" maxlength="100" ng-model="data.Remarks" class="form-control" tabindex="4">
-                                    </div>
-                                </div>
-                            </script>
                         </div>
-                    </div>
+                    </fieldset>
+                </div>
+
+                <div class="col-xs-12 col-sm-12 col-sm-12" style="padding-top:10px">
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border">Asset Register</legend>
+
+                        <div class="content-container-fluid" style="color:black;">
+                            <div id="GridAR" ej-grid e-datasource="SelectedAssetRegisterList"
+                                 e-allowfiltering="true" e-allowscrolling="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-field="Id" e-headertext="Id" e-width="3"></div>
+                                    <div e-column e-field="AssetSlNo" e-headertext="AssetSlNo" e-width="3"></div>
+                                    <div e-column e-field="RFId" e-headertext="RFId" e-width="4"></div>
+                                    <div e-column e-field="BarCode" e-headertext="BarCode" e-width="5"></div>
+                                    <div e-column e-field="Status" e-headertext="Status" e-width="4"></div>
+                                    <div e-column e-field="AssetCondition" e-headertext="AssetCondition" e-width="4"></div>
+                                    <div e-column e-field="UserReference" e-headertext="UserReference" e-width="4"></div>
+                                    <div e-column e-field="OldReference" e-headertext="OldReference" e-width="4"></div>
+                                    <div e-column e-field="UserGroup" e-headertext="UserGroup" e-width="4"></div>
+                                    <div e-column e-field="FixedAssetItem" e-headertext="Fixed Asset Item" e-width="4"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
                 </div>
 
                 <div class="common-btn">
@@ -125,9 +162,9 @@
                     </ul>
                 </div>
             </div>
-            
+
             <div class="table-responsive modal-table aplos-grid-toggle">
-                <div id="GridAddUpdate"ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="AdditionalInfoUpdateList"
+                <div id="GridAddUpdate" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="AdditionalInfoUpdateList"
                      e-allowfiltering="true" e-allowscrolling="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
                      e-recorddoubleclick="Get" e-allowselection="true" e-filtersettings-filterType="excel">
                     <div e-columns>
@@ -172,6 +209,49 @@
                     <div class="common-btn">
                         <ul class="list-inline text-right">
                             <li> <button ng-click="CloseAssetItemPopUp()" class="btn">Close</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="AssetRegisterPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Asset Register</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-elements form-horizontal" ng-form="AssetRegisterForm">
+                    <div id="GriAssetRegister" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="AssetRegisterList"
+                         e-allowfiltering="true" e-allowscrolling="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                         e-templaterefresh="refreshTemplate" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="3"></div>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="3"></div>
+                            <div e-column e-field="AssetSlNo" e-headertext="AssetSlNo" e-width="3"></div>
+                            <div e-column e-field="RFId" e-headertext="RFId" e-width="4"></div>
+                            <div e-column e-field="BarCode" e-headertext="BarCode" e-width="5"></div>
+                            <div e-column e-field="Status" e-headertext="Status" e-width="4"></div>
+                            <div e-column e-field="AssetCondition" e-headertext="AssetCondition" e-width="4"></div>
+                            <div e-column e-field="UserReference" e-headertext="UserReference" e-width="4"></div>
+                            <div e-column e-field="OldReference" e-headertext="OldReference" e-width="4"></div>
+                            <div e-column e-field="UserGroup" e-headertext="UserGroup" e-width="4"></div>
+                            <div e-column e-field="FixedAssetItem" e-headertext="Fixed Asset Item" e-width="4"></div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="checkboxTemplate">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                    </script>
+                    <script type="text/x-jsrender" id="headerTemplate">
+                        <input type="checkbox" id="headchk" />
+                    </script>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="CloseAssetRegisterPopUp()" class="btn">Close</button></li>
                         </ul>
                     </div>
                 </div>

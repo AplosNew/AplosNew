@@ -448,7 +448,7 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
                             LEFT JOIN HKP.WorkCenterSubCategory WCS on WCS.Id = WM.WorkCenterSubcategoryId
                             left join HKP.Process P on P.Id = WM.ProcessId
                             LEFT JOIN SCS.UnitOfMeasurement UOM on UOM.Id = WM.UoMId 
-                            where WM.Active = 1 order by QMW.Id desc";
+                            where WM.Active = 1 and WM.EntityId in (select EntityId from MST.QualityManagementEntity where QMID='" + ScheduleId + @"') and WM.ProcessId in (select ProcessId from MST.QualityManagementProcess where QMID='" + ScheduleId + @"') order by QMW.Id desc";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 

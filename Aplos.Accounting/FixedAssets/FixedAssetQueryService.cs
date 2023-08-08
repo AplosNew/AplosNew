@@ -2523,8 +2523,9 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
 
             string sql = @"SELECT M.AdditionalInfoItemId,A.Sequence,A.Code,A.ShortName,A.StandardName,A.UserName,uom.UserName UoM,AIUD.Id,AIUD.[Value],AIUD.Remarks
                                         FROM [TRN].[AssetItemAdditionalInfoMap] M
+                                        LEFT JOIN MST.FixedAssetItem FA ON FA.Id=M.FixedAssetItemId
                                         LEFT JOIN HKP.[AdditionalInfoItem] A ON A.Id=M.AdditionalInfoItemId
-                                        LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=A.UoMId
+                                        LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=FA.CapacityUoMId
                                         LEFT JOIN(SELECT * from trn.AdditionalInfoUpdateDetail WHERE ISNULL(AdditionalInfoUpdateId,'" + headerId + "')='" + headerId + @"') AIUD ON AIUD.AdditionalInfoItemId=M.AdditionalInfoItemId 
                                         Where M.FixedAssetItemId='" + masterId + "'";
             return _sqlRepository.GetDataCollection(sql, null);
@@ -2536,6 +2537,24 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
             string sql = @"SELECT M.*,A.UserName FixedAssetItem
                         FROM [TRN].[AdditionalInfoUpdate] M
                         LEFT JOIN MST.FixedAssetItem A ON A.Id=M.FixedAssetItemId";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public IEnumerable<object> GetAssetRegisterData()
+        {
+
+            string sql = @"SELECT Flag=CAST(0 AS bit),AR.*,FAI.UserName FixedAssetItem FROM TRN.AssetRegister AR
+LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
+WHERE AR.AdditionalInfoUpdateId IS NULL";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public IEnumerable<object> GetTaggedAssetRegisterData(string headerId)
+        {
+
+            string sql = @"SELECT AR.*,FAI.UserName FixedAssetItem FROM TRN.AssetRegister AR
+LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
+WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
