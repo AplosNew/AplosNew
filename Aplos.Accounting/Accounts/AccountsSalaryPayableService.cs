@@ -247,11 +247,11 @@ namespace Library.Accounting.Accounts
                 }
             }
             string sql = @"SELECT 
-                       X.SalaryHeadId ,'Direct' SalaryType,X.SalaryHead ,X.SalaryHeadCategory,
+                       X.SalaryHeadId,X.AccountsGroupId ,'Direct' SalaryType,X.SalaryHead ,X.SalaryHeadCategory,
                             X.DirectGLName,X.DirectBudgetName,X.DirectActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.DisbusmentAmount) DisbusmentAmount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId 
                         FROM
                         (
-                         select sh.SalaryHeadID SalaryHeadId,sh.SalaryHead,sh.HeadCategory SalaryHeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType
+                         select sh.SalaryHeadID SalaryHeadId, SGL.AccountsGroupId,sh.SalaryHead,sh.HeadCategory SalaryHeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType
                         , DrAmount=case when SUM(spc.DisbusmentAmount) < 0 then SUM(spc.DisbusmentAmount)*-1 else SUM(spc.DisbusmentAmount) end
                         , 0 CrAmount
                         ,SUM(spc.DisbusmentAmount) DisbusmentAmount
@@ -278,15 +278,15 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN MST.BudgetMaster DBM ON DBM.Id=SGL.DrDirectBudgetMasterId
                             LEFT JOIN HKP.Budget DB ON DB.Id=DBM.BudgetId
                             LEFT JOIN HKP.Activity DA ON DA.Id=SGL.DrDirectActivityId
-                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
+                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
                         and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=1 
                         AND ISNULL(sgl.DrDirectActivityId,'')<>'' 
                         AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where month(effectivedate)<=sl.MonthNo and year(effectivedate)=sl.YearNo)
-                        group by sh.SalaryHeadID,sh.SalaryHead,sh.HeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence],SGL.DrDirectGLId,SGL.DrDirectBudgetMasterId,SGL.DrDirectActivityId
+                        GROUP BY sh.SalaryHeadID,sh.SalaryHead, SGL.AccountsGroupId,sh.HeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence],SGL.DrDirectGLId,SGL.DrDirectBudgetMasterId,SGL.DrDirectActivityId
 						,DGL.AccountCode,DGL.UserName ,DB.UserName ,DA.UserName
 						,SGL.CrDirectGLId,SGL.CrDirectBudgetMasterId,SGL.CrDirectActivityId
             UNION
-			select sh.SalaryHeadID SalaryHeadId,sh.SalaryHead,sh.HeadCategory SalaryHeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType
+			SELECT sh.SalaryHeadID SalaryHeadId, SGL.AccountsGroupId,sh.SalaryHead,sh.HeadCategory SalaryHeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType
                         , 0 DrAmount
                         ,  CrAmount=case when SUM(spc.DisbusmentAmount) < 0 then SUM(spc.DisbusmentAmount)*-1 else SUM(spc.DisbusmentAmount) end
                         ,SUM(spc.DisbusmentAmount) DisbusmentAmount
@@ -296,7 +296,7 @@ namespace Library.Accounting.Accounts
 						,CDGL.AccountCode+' - '+CDGL.UserName DirectGLName
                            ,CDB.UserName DirectBudgetName
                            ,CDA.UserName DirectActivityName
-                        from  dbo.SalaryProcMaster spm 
+                        FROM  dbo.SalaryProcMaster spm 
 						left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID 
 						LEFT JOIN SalaryLock AS sl ON sl.EmpSystemId=spc.EmpInfoSystemID AND sl.YearNo=spm.YearNo AND sl.MonthNo=spm.MonthNo
                         LEFT JOIN dbo.SalaryProcessLogDetail SPL ON SPL.SalaryProcessId=SPM.SystemID AND spl.EmpSystemId=spc.EmpInfoSystemID
@@ -308,21 +308,20 @@ namespace Library.Accounting.Accounts
                         left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
 						left join MST.SalaryHeadGL SGL ON SGL.SalaryHeadId=sh.SalaryHeadID and ISNULL(DMC.AccountsGroupId,'')=ISNULL(SGL.AccountsGroupId,'')
 
-
 							LEFT JOIN HKP.GLGeneralInfo CDGL ON CDGL.Id=SGL.CrDirectGLId
                             LEFT JOIN MST.BudgetMaster CDBM ON CDBM.Id=SGL.CrDirectBudgetMasterId
                             LEFT JOIN HKP.Budget CDB ON CDB.Id=CDBM.BudgetId
                             LEFT JOIN HKP.Activity CDA ON CDA.Id=SGL.CrDirectActivityId
-                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
+                        WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
                         AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where month(effectivedate)<=sl.MonthNo and year(effectivedate)=sl.YearNo)
-                        and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=1 
+                        AND ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=1 
                          AND  ISNULL(sgl.CrDirectActivityId,'')<>'' 
-                        group by sh.SalaryHeadID,sh.SalaryHead,sh.HeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
+                        GROUP BY sh.SalaryHeadID,sh.SalaryHead, SGL.AccountsGroupId,sh.HeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
 						,SGL.CrDirectGLId,SGL.CrDirectBudgetMasterId,SGL.CrDirectActivityId
                         ,CDGL.AccountCode,CDGL.UserName ,CDB.UserName ,CDA.UserName
 						)X
 						GROUP BY 
-						X.SalaryHeadId,X.SalaryHead,X.SalaryHeadCategory,
+						X.SalaryHeadId,X.SalaryHead, X.AccountsGroupId,X.SalaryHeadCategory,
                         X.DirectGLName,X.DirectBudgetName,X.DirectActivityName,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId 
 						ORDER BY 7";
             return _sqlRepository.GetDataCollection(sql);
@@ -557,11 +556,11 @@ namespace Library.Accounting.Accounts
                 }
             }
             string sql = @"SELECT 
-                            X.SalaryHeadId ,'InDirect' SalaryType, X.SalaryHead ,X.SalaryHeadCategory,
+                            X.SalaryHeadId,X.AccountsGroupId ,'InDirect' SalaryType, X.SalaryHead ,X.SalaryHeadCategory,
                             X.InDirectGLName,X.InDirectBudgetName,X.InDirectActivityName, SUM(X.DrAmount) DrAmount,SUM(X.CrAmount) CrAmount,SUM(X.DisbusmentAmount) DisbusmentAmount,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId 
                             FROM
                             (
-                            select sh.SalaryHeadID SalaryHeadId,sh.SalaryHead,sh.HeadCategory SalaryHeadCategory,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType
+                            select sh.SalaryHeadID SalaryHeadId,SGL.AccountsGroupId,sh.SalaryHead,sh.HeadCategory SalaryHeadCategory,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType
                         , DrAmount=case when SUM(spc.DisbusmentAmount) < 0 then SUM(spc.DisbusmentAmount)*-1 else SUM(spc.DisbusmentAmount) end
                         , 0 CrAmount
                         ,SUM(spc.DisbusmentAmount) DisbusmentAmount
@@ -592,10 +591,10 @@ namespace Library.Accounting.Accounts
                         and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=0 
                         and ISNULL(sgl.DrInDirectActivityId,'')<>''
                        AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where month(effectivedate)<=sl.MonthNo and year(effectivedate)=sl.YearNo)
-                        group by sh.SalaryHeadID,sh.SalaryHead,sh.HeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence],SGL.DrInDirectGLId,SGL.DrInDirectBudgetMasterId,SGL.DrInDirectActivityId
+                        group by sh.SalaryHeadID,SGL.AccountsGroupId,sh.SalaryHead,sh.HeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence],SGL.DrInDirectGLId,SGL.DrInDirectBudgetMasterId,SGL.DrInDirectActivityId
 						,IGL.AccountCode,IGL.UserName ,IB.UserName ,IA.UserName
                         UNION
-			            select sh.SalaryHeadID SalaryHeadId,sh.SalaryHead,sh.HeadCategory SalaryHeadCategory,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType
+			            select sh.SalaryHeadID SalaryHeadId,SGL.AccountsGroupId,sh.SalaryHead,sh.HeadCategory SalaryHeadCategory,sh.[Sequence],sl.YearNo,sl.MonthNo,sh.HeadType
                         , 0 DrAmount
                         , CrAmount=case when SUM(spc.DisbusmentAmount) < 0 then SUM(spc.DisbusmentAmount)*-1 else SUM(spc.DisbusmentAmount) end
                         ,SUM(spc.DisbusmentAmount) DisbusmentAmount
@@ -625,12 +624,12 @@ namespace Library.Accounting.Accounts
                         and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=0 
                         AND ISNULL(sgl.CrInDirectActivityId,'')<>'' 
                         AND  ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where month(effectivedate)<=sl.MonthNo and year(effectivedate)=sl.YearNo)
-                        group by sh.SalaryHeadID,sh.SalaryHead,sh.HeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
+                        group by sh.SalaryHeadID,SGL.AccountsGroupId,sh.SalaryHead,sh.HeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
 						,SGL.CrInDirectGLId,SGL.CrInDirectBudgetMasterId,SGL.CrInDirectActivityId
                         ,CIGL.AccountCode,CIGL.UserName ,CIB.UserName ,CIA.UserName
 						)X
 						GROUP BY 
-						X.SalaryHeadId,X.SalaryHead,X.SalaryHeadCategory,
+						X.SalaryHeadId,X.AccountsGroupId,X.SalaryHead,X.SalaryHeadCategory,
                         X.InDirectGLName,X.InDirectBudgetName,X.InDirectActivityName,X.GLGeneralInfoId,X.BudgetMasterId,X.ActivityId 
 						ORDER BY 7";
             return _sqlRepository.GetDataCollection(sql);
