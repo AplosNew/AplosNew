@@ -17,4 +17,17 @@ function ProcessTemplateController(commonMessage, $scope, $rootScope, baseServic
 
 
     // #endregion TAB CHANGE
+
+    $scope.ProcessManagementList = [];
+    $scope.GetProcessManagementDataList = function () {
+        $http({
+            method: 'POST',
+            url: 'Processes/ProcessTemplate/GetProcessManagementDataList'
+        }).then(function successCallback(response) {
+            $scope.ProcessManagementList = response.data;
+
+        }
+        )
+    }
+    $scope.GetProcessManagementDataList();
 }
