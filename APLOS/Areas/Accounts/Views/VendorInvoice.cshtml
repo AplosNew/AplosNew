@@ -80,16 +80,20 @@
             <label class="col-sm-3 control-label">Source<sup>*</sup></label>
             <div class="col-sm-9 radio">
                 <label>
-                    <input ng-click="clearBankPopUp()" ng-disabled="voucher.InvoiceType=='LC'" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.PaymentSource.GL.ToString()">
+                    <input ng-click="clearSourceInfo()" ng-disabled="voucher.InvoiceType=='LC'" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.PaymentSource.GL.ToString()">
                     <span class="cr" tabindex="17"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.GL.ToString()
                 </label>
                 <label>
-                    <input ng-click="clearCashPopUp()" ng-disabled="voucher.Id" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.PaymentSource.Cash.ToString()">
+                    <input ng-click="clearSourceInfo()" ng-disabled="voucher.Id" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.PaymentSource.Cash.ToString()">
                     <span class="cr" tabindex="18"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Cash.ToString()
                 </label>
                 <label ng-show="voucher.InvoiceType=='LC'">
-                    <input ng-disabled="voucher.Id" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.PaymentSource.Loan.ToString()">
+                    <input ng-disabled="voucher.Id" ng-click="clearSourceInfo()" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.PaymentSource.Loan.ToString()">
                     <span class="cr" tabindex="18"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Loan.ToString()
+                </label>
+                <label ng-show="voucher.InvoiceType=='LC'">
+                    <input ng-disabled="voucher.Id" ng-click="clearSourceInfo()" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.PaymentSource.Bank.ToString()">
+                    <span class="cr" tabindex="18"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Bank.ToString()
                 </label>
             </div>
         </div>
@@ -135,6 +139,26 @@
                         <option value="">--Select--</option>
                     </select>
                 </div>
+            </div>
+        </div>
+        <div class="form-group" ng-show="voucher.PaymentSource=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">
+            <label class="col-sm-4 control-label">Bank<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input type="text" name="CashName" ng-model="voucher.BankName" class="form-control" readonly data-toggle="tooltip" data-placement="top" title="{{voucher.BankName}}" tooltip>
+                    <span class="input-group-btn">
+                        <button ng-click="showBankPopUp(voucher.EntityId);" class="btn single-small-btn" tabindex="23"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" ng-show="voucher.CurrencyId!=voucher.BankCurrencyId && voucher.PaymentSource=='@Library.Model.Payments.PaymentSource.Bank.ToString()' && voucher.BankMasterId!=null">
+            <label class="col-sm-4 control-label">Bank Amount<sup>*</sup></label>
+            <div class="col-sm-2 show-message" style="padding-right:0px;">
+                <input type="text" readonly class="form-control text-right" name="BankCurrencyCode" ng-model="voucher.BankCurrencyCode">
+            </div>
+            <div class="col-sm-6 show-message" style="padding-left:0px;" ng-disabled="voucher.CurrencyId==voucher.BankCurrencyId">
+                <input type="text" n-decimals="2"  title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="BankAmount" ng-model="voucher.BankAmount" ng-keyup="recalBankAmount()" autocomplete="off">
             </div>
         </div>
     </div>
