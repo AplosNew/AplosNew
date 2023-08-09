@@ -224,6 +224,37 @@ namespace Aplos.MaterialManagement.MaterialQuery
             }
         }
 
+        public IEnumerable<object> GetSearchDistinctMaterialBOQ(string companyId, string plantId, string materialStorageId)
+        {
+            try
+            {
+                var sql = @"SELECT  distinct IM.MaterialMasterId ,MT.UserName MaterialType,MMG.UserName MaterialGroup,MM.Code MaterialCode,MM.UserName MaterialMasterName
+						,IM.ArticleId ,MMA.StandardName ArticleName,0 IsSelect
+                    FROM TRN.GRNPORequisitionAllocation grnmap
+					JOIN [TRN].[InventoryReceiveDetail] AS IRD  on grnmap.InventoryReceiveDetailId=ird.Id
+                    LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
+					LEFT JOIN MST.MaterialMaster MM ON MM.Id=Im.MaterialMasterId
+					LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=Im.ArticleId
+					LEFT JOIN Mst.MaterialGroupMaster MMG ON MMG.Id=MM.MaterialGroupMasterId
+					LEFT JOIN HKP.MaterialType MT ON MT.Id=MMG.MaterialTypeId
+                    LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
+					LEFT JOIN (
+								 SELECT IHB.InventoryReceiveDetailId, SUM(ISNULL(IHB.Qty,0)) IssueQty ,IHB.BOQDetailId
+								 FROM TRN.InventoryIssueHistoryBOQ IHB 
+								 GROUP BY IHB.InventoryReceiveDetailId ,IHB.BOQDetailId
+								 ) II ON II.InventoryReceiveDetailId=grnmap.InventoryReceiveDetailId  
+                    WHERE  IM.CompanyId='" + companyId + @"' AND IM.PlantId='"+ plantId + "' AND IRD.MaterialStorageId='"+ materialStorageId + @"'
+                    AND IR.[Status]='Posting' AND IR.IsFOC=0 AND IRD.BaseQty !=ISNULL(II.IssueQty,0)";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
         public IEnumerable<object> GetItemListDetailsByList(string MaterialIds, string ArticleIds, string VendorRefNos, string CustomerRefNos, string OwnReferenceNo, string PartyId)
         {
             try

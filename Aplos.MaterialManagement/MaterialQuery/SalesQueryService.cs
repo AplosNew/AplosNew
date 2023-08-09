@@ -1506,12 +1506,9 @@ select x.* from (
 								,FORMAT(SA.InvoiceDate,'dd-MMM-yyyy') DocRefDate
 								, P.UserName AS Party,p.Code PartyCode,p.PartyType
 								,PPI.GSTIN as GSTINNo
-								,HS.Code HSNCode
-								
+								,HSNCode=ISNULL(MHSN.Code,HS.Code) 
 								,MGM.UserName AS MaterialGroup
 								,MM.UserName Material
-								
-								
 								--,FORMAT(SA.EntryDate, 'dd-MMM-yyyy') Invoi
 								
 								,ART.StandardName AS Article
@@ -1619,6 +1616,8 @@ select x.* from (
 						LEFT JOIN MST.ProductMaster PM ON PM.Id=PD.ProductMasterId
 						LEFT JOIN HKP.ProductCategory PDC ON PDC.Id=PM.ProductCategoryId
 						LEFT JOIN HKP.ProductSubCategory PDSC ON PDSC.Id=PM.ProductSubCategoryId
+						LEFT JOIN (Select distinct HsnCodeId,SalesMaterialId FROM TRN.SalesTax ) STH ON STH.SalesMaterialId=SM.Id
+						LEFT JOIN[HKP].[HSNCode] AS MHSN ON MHSN.ID = STH.HSNCodeId
 						LEFT JOIN HKP.HSNCode HS ON HS.Id=MM.HSNCodeId
 						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
 						LEFT JOIN MST.MaterialMasterArticle AS ART ON SM.ArticleId=ART.Id

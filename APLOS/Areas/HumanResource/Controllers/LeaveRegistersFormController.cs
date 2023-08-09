@@ -149,6 +149,11 @@ namespace Aplos.Areas.HumanResource.Controllers
                     throw new CustomException("File Not Found");
                 }
 
+                #region new system
+                //var MaterialTotal = makeLocalTaxInvoiceService(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {materialItems}
+                #endregion new system
+
+
                 DataTable dtEmp = payrollReportsService.GetEmployeeBasicInfoById(empId, plantId, lang["Id"].ToString(), tempId);
                 WordDocument document = new WordDocument(DocFile.FullName);
 

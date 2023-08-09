@@ -179,12 +179,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
 
 
     $scope.Save = function () {
-        //var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.specificStockList), 'RequisitionQty');
-        //$scope.selectedRowQty1 = $filter('sumByKey')($filter('filter')($scope.detailList), 'TransactionQty');
-        //if (sumOfmaterialStockList < $scope.selectedRowQty1) {
-        //    ShowResult("Please select specific GRN", 'failure');
-        //    return false;
-        //}
+       
         if ($scope.detailList.length === 0) {
             ShowResult('Please select Atlest one material');
             return false;
@@ -255,6 +250,8 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
         $scope.specificStockList = [];
         $scope.materialStockList = [];
         $scope.selectedSearchDataList = [];
+        $scope.MaterialPopUpList = [];
+        $scope.selectedMaterialSearchDataList = [];
         $scope.IssueType = 'Revenue';
         $scope.productNew.OrderSpecific = 'No';
         $scope.ispostDisable = false;
@@ -842,7 +839,8 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
         location.href = "Products/InventoryIssue/IssueReport?grnId=" + data.Id;
     };
 
-
+    $scope.MaterialPopUpList = [];
+    $scope.selectedMaterialSearchDataList = [];
 
 
     $scope.closeEmployeePopUp = function () {
@@ -1711,6 +1709,45 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
 
     }
 
+    $scope.SearchMaterialPopup = function () {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.productNewForm.$valid) {
+                $scope.ShowDiv = true;
+                var eDialog = $("#MateriaSearch").data("ejDialog");
+                eDialog.open();
+                $scope.getMaterialBoqFilter();
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.getMaterialBoqFilter = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetSearchDistinctMaterialBOQ?materialStorageId=" + $scope.productNew.MaterialStorageId,
+        }).then(function successCallback(response) {
+            $scope.MaterialPopUpList = response.data;
+        });
+    }
+
+    $scope.selectedMaterialSearchDataList = [];
+    $scope.submitSearchMaterialData = function () {
+        for (var i = 0; i < $scope.MaterialPopUpList.length; i++) {
+            if ($scope.MaterialPopUpList[i].IsSelect == true) {
+                $scope.selectedMaterialSearchDataList.push($scope.MaterialPopUpList[i]);
+            }
+        }
+        var eDialog = $("#MateriaSearch").data("ejDialog");
+        eDialog.close();
+    }
+
+    $scope.closeMaterialSearchData = function () {
+        var eDialog = $("#MateriaSearch").data("ejDialog");
+        eDialog.close();
+    }
+
     $scope.ShowDiv = false;
     $scope.SearchPopup = function () {
 
@@ -1729,8 +1766,13 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
     $scope.PopUpList = [];
     $scope.getBoqFilter = function () {
         $http({
-            method: 'GET',
-            url: $scope.path + "GETBoqFilter?materialStorageId=" + $scope.productNew.MaterialStorageId,
+            method: 'Post',
+            url: $scope.path + 'GETBoqFilter',
+            data: {
+                'materialStorageId': $scope.productNew.MaterialStorageId,
+                'parameters': $scope.selectedMaterialSearchDataList
+            },
+            dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.PopUpList = response.data;
         });
@@ -1750,6 +1792,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
     $scope.closeSearchData = function () {
         var eDialog = $("#Base").data("ejDialog");
         eDialog.close();
+        $scope.selectedMaterialSearchDataList = [];
     }
 
     $scope.materialStockList = [];
