@@ -1541,7 +1541,9 @@ WHERE sm.Id IN(" + Ids + ")";
                                 LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
 								LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
                                 LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
-                                WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest'  Order by EmployeeCodeNumeric";
+                                WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest'  
+								AND PR.Id IN(select GoodWorkPositionCodeId from org.position WHERE GoodWorkPositionCodeId<>'')
+								Order by EmployeeCodeNumeric";
                 return _sqlRepository.GetDataCollection(CmdText);
             }
             catch (Exception ex)

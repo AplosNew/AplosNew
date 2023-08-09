@@ -29,20 +29,44 @@ namespace Aplos.Areas.Processes.Controllers
             return View();
         }
 
-        public ActionResult GetDProcessManagementDataList()
+        public ActionResult GetProcessManagementDataList()
         {
-            string sql = @"";
+            string sql = @"select PM.Id, PM.StandardName, PM.UserName, PM.Process, EI.SystemId ResponsiblePerson ,EI.EmployeeName EmployeeName
+                        , FORMAT(PM.MinSPTTime, 'hh:mm tt')MinSPTTime ,FORMAT(PM.MaxSPTTime, 'hh:mm tt')MaxSPTTime, FORMAT(PM.StandardSPTTime, 'hh:mm tt')StandardSPTTime, PM.Remarks
+                        from dbo.ProcessManagement PM
+                        LEFT JOIN HKP.Process P on  P.Id = PM.Process
+                        left join EmployeeInformation EI on EI.SystemId = PM.ResponsiblePerson";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult LoadProcessParameterData()
+        {
+            string sql = @"select PM.Id, PM.[Sequence], PM.ItemName, PM.UOMId, PM.[Max], PM.[Min], PM.IsUtilityApplicable, PM.Remarks from dbo.ProcessParameter PM
+                           left join SCS.UnitOfMeasurement UOM on UOM.Id = PM.UOMId";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
 
-        public ActionResult LoadEntityDetails()
+        public ActionResult LoadEntityDetails(string headerId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select E.Id EntityId,E.EntityType,E.UserName Entity,E.Code
+            string sql = "";
+            if (headerId != null) {
+                sql = @"select PME.Id, Flag = convert(bit, PME.Id)  ,E.Id EntityId,E.EntityType,E.UserName Entity,E.Code
                             from ORG.Entity E
+                            left join dbo.ProcessManagementEntity PME on PME.EntityId = E.Id
                             where E.Active = 1 order by E.Id desc";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                sql = @"select ''Id, E.Id EntityId,E.EntityType,E.UserName Entity,E.Code
+                            from ORG.Entity E
+                            
+                            where E.Active = 1 order by E.Id desc";
+                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            }
+             
         }
 
         
@@ -76,7 +100,7 @@ from MST.MaterialMaster MM
 
         public ActionResult LoadUtilityGrid()
         {
-            string sql = @"select UM.Id, UM.UserName UtilityName, UM.StandardName UtilityStdName, UOM.UserName UOM from UtilityMaster UM
+            string sql = @"select UM.Id, UM.UserName UtilityName, UM.StandardName UtilityStdName, UM.UtilityCategory, UM.UtilitySubCategory ,UOM.UserName UOM from UtilityMaster UM
                             left join SCS.UnitOfMeasurement UOM on UOM.Id = UM.UoMId
                             where UM.Active = 1";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -147,6 +171,7 @@ from MST.MaterialMaster MM
                             where WM.Active = 1 ";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
+       
 
         [HttpPost]
         public JsonResult Save(Dictionary<string, object> data)
@@ -322,6 +347,277 @@ from MST.MaterialMaster MM
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
             return 1;
+        }
+
+        public ActionResult SaveProcessEntity(List<Dictionary<string, object>> datalist, string headerid)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+
+            DataSet dsChild;
+            string id = string.Empty;
+
+            string _Id = "";
+            string _UserGroupId = string.Empty;
+
+
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                objCon.OpenDataSetThroughAdapter("select * from [dbo].[ProcessManagementEntity]  where ProcessManagementId = '" + headerid + "'", out dsChild, false, "1");
+                foreach (var item in datalist)
+                {
+                    DataView dv = new DataView(dsChild.Tables[0]);
+
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+                    if (dv.Count > 0)
+                    {
+                        DataRow dr = dv[0].Row;
+                        dr.BeginEdit();
+                        dr["ProcessManagementId"] = headerid;
+                        dr["EntityId"] = item["EntityId"];
+
+                       dr["IsActive"] = item["Flag"];
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dr.EndEdit();
+
+                    }
+                    else
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("TRN.VehiclePurposeResponsiblePerson", out _UserGroupId);
+                        DataRow dr = dsChild.Tables[0].NewRow();
+                        dr["Id"] = _UserGroupId;
+                        dr["ProcessManagementId"] = headerid;
+                        dr["EntityId"] = item["EntityId"];
+
+                        dr["IsActive"] = item["Flag"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dsChild.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsChild);
+                return Json(new { Error = false, Data = datalist, Sequence = GetSequence(), Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public ActionResult SaveProcessMaterial(List<Dictionary<string, object>> datalist, string headerid)
+        {
+
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+
+            DataSet dsChild;
+            string id = string.Empty;
+
+            string _Id = "";
+            string _UserGroupId = string.Empty;
+
+
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                objCon.OpenDataSetThroughAdapter("select * from [dbo].[ProcessManagementMaterial]  where ProcessManagementId = '" + headerid + "'", out dsChild, false, "1");
+                foreach (var item in datalist)
+                {
+                    DataView dv = new DataView(dsChild.Tables[0]);
+
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+                    if (dv.Count > 0)
+                    {
+                        DataRow dr = dv[0].Row;
+                        dr.BeginEdit();
+                        dr["ProcessManagementId"] = headerid;
+                        dr["MaterialId"] = item["Id"];
+
+                        dr["IsActive"] = item["Flag"];
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dr.EndEdit();
+
+                    }
+                    else
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("TRN.VehiclePurposeResponsiblePerson", out _UserGroupId);
+                        DataRow dr = dsChild.Tables[0].NewRow();
+                        dr["Id"] = _UserGroupId;
+                        dr["ProcessManagementId"] = headerid;
+                        dr["Id"] = item["MaterialId"];
+
+                        dr["IsActive"] = item["Flag"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dsChild.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsChild);
+                return Json(new { Error = false, Data = datalist, Sequence = GetSequence(), Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public ActionResult SaveProcessUtility(List<Dictionary<string, object>> datalist, string headerid)
+        {
+
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+
+            DataSet dsChild;
+            string id = string.Empty;
+
+            string _Id = "";
+            string _UserGroupId = string.Empty;
+
+
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                objCon.OpenDataSetThroughAdapter("select * from [dbo].[ProcessManagementUtility]  where ProcessManagementId = '" + headerid + "'", out dsChild, false, "1");
+                foreach (var item in datalist)
+                {
+                    DataView dv = new DataView(dsChild.Tables[0]);
+
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+                    if (dv.Count > 0)
+                    {
+                        DataRow dr = dv[0].Row;
+                        dr.BeginEdit();
+                        dr["ProcessManagementId"] = headerid;
+                        dr["UtilityId"] = item["UtilityId"];
+
+                        // dr["IsActive"] = item["isSelected"];
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dr.EndEdit();
+
+                    }
+                    else
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("TRN.VehiclePurposeResponsiblePerson", out _UserGroupId);
+                        DataRow dr = dsChild.Tables[0].NewRow();
+                        dr["Id"] = _UserGroupId;
+                        dr["ProcessManagementId"] = headerid;
+                        dr["UtilityId"] = item["UtilityId"];
+
+                        //dr["IsActive"] = item["isSelected"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dsChild.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsChild);
+                return Json(new { Error = false, Data = datalist, Sequence = GetSequence(), Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public ActionResult SaveProcessWorkcenter(List<Dictionary<string, object>> datalist, string headerid)
+        {
+
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+
+            DataSet dsChild;
+            string id = string.Empty;
+
+            string _Id = "";
+            string _UserGroupId = string.Empty;
+
+
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                objCon.OpenDataSetThroughAdapter("select * from [dbo].[ProcessManagementWorkcenter]  where ProcessManagementId = '" + headerid + "'", out dsChild, false, "1");
+                foreach (var item in datalist)
+                {
+                    DataView dv = new DataView(dsChild.Tables[0]);
+
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+                    if (dv.Count > 0)
+                    {
+                        DataRow dr = dv[0].Row;
+                        dr.BeginEdit();
+                        dr["ProcessManagementId"] = headerid;
+                        dr["WorkcenterId"] = item["WorkcenterId"];
+
+                        // dr["IsActive"] = item["isSelected"];
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dr.EndEdit();
+
+                    }
+                    else
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("TRN.VehiclePurposeResponsiblePerson", out _UserGroupId);
+                        DataRow dr = dsChild.Tables[0].NewRow();
+                        dr["Id"] = _UserGroupId;
+                        dr["ProcessManagementId"] = headerid;
+                        dr["WorkcenterId"] = item["WorkcenterId"];
+
+                        //dr["IsActive"] = item["isSelected"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dsChild.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsChild);
+                return Json(new { Error = false, Data = datalist, Sequence = GetSequence(), Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
         }
     }
 }

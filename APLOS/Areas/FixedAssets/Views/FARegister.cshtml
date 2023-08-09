@@ -139,6 +139,16 @@
 
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Type</label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select name="Type" class="form-control" ng-model="register.Type" ng-disabled="register.Id!==null" ng-options="item.Value as item.Text for item in typeList" tabindex="1">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Capitalization Date<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     <input type="text" name="Capitalization Date" ng-model="register.CapitalizationDate" datepicker class="form-control datepicker" tabindex="10" required>
@@ -183,7 +193,7 @@
                                 </div>
                             </div>
 
-                            
+
                         </div>
                     </div>
                 </div>
