@@ -2287,7 +2287,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "CapitalizationMaster", out _Id);
 
                     data["Id"] = _Id;
-                    data["Type"] = "New";
+                    //data["Type"] = "New";
 
                     AddNewRow(dsMaster.Tables[0], data);
                 }
