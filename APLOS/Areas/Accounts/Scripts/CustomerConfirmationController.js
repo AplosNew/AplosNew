@@ -1,12 +1,14 @@
 ﻿'use strict';
-CustomerConfirmationController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
-function CustomerConfirmationController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
+CustomerConfirmationController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', "$controller"];
+function CustomerConfirmationController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, $controller) {
     $rootScope.title = 'Voucher GL Update';
     $scope.Action = 'Save';
     $scope.path = 'Accounts/VoucherGlUpdate/';
     $scope.url = "Accounts/VoucherGlUpdate";
     $scope.parkUrl = $scope.url + "/parkModeVoucher";
     $scope.saveUrl = $scope.path + 'UpdateInvoice';
+    $controller("bankBaseController", { $scope: $scope, $http: $http });
+
 
     $scope.report = {
         PaymentStatus: null,
@@ -23,7 +25,7 @@ function CustomerConfirmationController(cboService, commonMessage, $scope, $root
         //    "Value": "ALL"
         //}
     ];
-    
+
 
     $scope.tempList = [];
     $scope.paymentSelectedList = [];
@@ -36,7 +38,7 @@ function CustomerConfirmationController(cboService, commonMessage, $scope, $root
             "name": "Customer Name",
             "value": "PartyName"
         }
-        
+
     ];
     $scope.popUpParameters = {
         limit: 10,
@@ -144,18 +146,18 @@ function CustomerConfirmationController(cboService, commonMessage, $scope, $root
 
     var NewCustomerSelectedList = [];
     $scope.closePopUp = function () {
-         NewCustomerSelectedList = [];
+        NewCustomerSelectedList = [];
         for (var i = 0; i < $scope.tempList.length; i++) {
-            
+
             if (NewCustomerSelectedList, $scope.tempList[i].PartyId) {
                 NewCustomerSelectedList.push($scope.tempList[i].PartyId);
             }
-            
+
         }
         if (NewCustomerSelectedList.length > 0) {
             $scope.getcustomerInvoiceList();
         }
-       
+
         angular.element(document.querySelector('#CustomerListPopUP')).modal('hide');
     };
     $scope.customerInvoiceList = [];
@@ -223,36 +225,137 @@ function CustomerConfirmationController(cboService, commonMessage, $scope, $root
         }
         return false;
     }
-   
+
     $scope.Save = function () {
         if ($scope.voucherDetailList.length == 0) {
             ShowResult('Please select at least one Invoice', 'failure');
             return;
         }
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: {
-                    voucherDetailVMList: $scope.voucherDetailList
-                },
-                dataType: 'JSON'
-            }).then(function (response) {
-                if (response.data.Error === true)
-                    ShowResult(response.data.Message, 'failure');
-                else {
-                    ShowResult(response.data.Message, 'success');
-                  
-                }
-            }), function (response) {
+        $http({
+            method: 'POST',
+            url: $scope.saveUrl,
+            data: {
+                voucherDetailVMList: $scope.voucherDetailList
+            },
+            dataType: 'JSON'
+        }).then(function (response) {
+            if (response.data.Error === true)
                 ShowResult(response.data.Message, 'failure');
-            };
-      
+            else {
+                ShowResult(response.data.Message, 'success');
+
+            }
+        }), function (response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+
 
     };
 
-    
+    $scope.bankSearchByList = [
+        {
+            "name": "Bank",
+            "value": "BankName"
+        },
+        {
+            "name": "Bank Branch",
+            "value": "BankBranchName"
+        },
+        {
+            "name": "Account Type",
+            "value": "BankAccountTypeName"
+        },
+        {
+            "name": "Account Number",
+            "value": "AccountNumber"
+        },
+        {
+            "name": "Currency",
+            "value": "CurrencyCode"
+        }
+    ];
 
+    $scope.bankParameters = {
+        limit: 10,
+        offset: 0,
+        order: "asc",
+        sort: "BankName, BankBranchName, AccountTitle",
+        searchBy: "AccountNumber",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+    if ($scope.bankACType === "HouseBank") {
+        $scope.bankSearchByList.push(
+            {
+                "name": "GL Code",
+                "value": "GLGeneralInfoCode"
+            },
+            {
+                "name": "GL Name",
+                "value": "GLGeneralInfoName"
+            },
+            {
+                "name": "Budget Code",
+                "value": "BudgetCode"
+            },
+            {
+                "name": "Budget Name",
+                "value": "BudgetName"
+            },
+            {
+                "name": "Activity Code",
+                "value": "ActivityCode"
+            },
+            {
+                "name": "Activity Name",
+                "value": "ActivityName"
+            }
+        );
+    }
+    $scope.selectBankPopUp = function (index, id) {
+        $scope.bankIndex = index;
+    };
+
+    $scope.rowData = {};
+    $scope.showBankPopUp = function (entityId, data) {
+        $scope.rowData = data.data;
+        if (entityId === undefined || entityId === "undefined") {
+            entityId = null;
+        }
+        $scope.getBankList = function (pageno) {
+            $scope.url = "Banks/BankMaster/GetBankMasterList?bankACType=HouseBank&&entityId=" + entityId;
+            baseService.paginationBase($scope.url, pageno, $scope.bankParameters)
+                .then(function (result) {
+                    $scope.bankList = result.Rows;
+                    $scope.bankParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, "failure");
+                }).finally(function () {
+                });
+        };
+        $scope.getBankList();
+        angular.element(document.querySelector("#bankPopUp")).modal("show");
+    };
+  
+    $scope.closeBankPopUp = function () {
+        if ($scope.bankIndex !== -1) {
+            var bank = $scope.bankList[$scope.bankIndex];
+
+            $scope.rowData.AccountTitle = bank.AccountTitle;
+            $scope.rowData.BankMasterName = bank.AccountTitle;
+            $scope.rowData.BankMasterId = bank.BankMasterId;
+            var gridObj = $("#GridCustomerInvoiceList").data("ejGrid");
+            gridObj.refreshContent();
+            gridObj.refreshTemplate();
+        }
+        $scope.hideBankPopUp();
+    }
 };
+
+
 
 
 

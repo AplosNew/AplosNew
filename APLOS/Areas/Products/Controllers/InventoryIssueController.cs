@@ -2633,12 +2633,32 @@ namespace Aplos.Areas.Products.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-        [Authorize, HttpGet]
-        public JsonResult GETBoqFilter(string materialStorageId)
+        [Authorize, HttpPost]
+        public JsonResult GETBoqFilter(string materialStorageId, List<Dictionary<string, object>> parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
+                string materialIds = "''";
+                string articleIds = "''";
+                string tempQuery = "";
+                
+                if (parameters!=null)
+                {
+                    foreach (var item in parameters)
+                    {
+                        materialIds += ",'" + item["MaterialMasterId"].ToString() + "'";
+                        articleIds += ",'" + item["ArticleId"].ToString() + "'";
+                    }
+
+                    if (articleIds!=null)
+                    {
+                        tempQuery = "AND IM.MaterialMasterId in ("+ materialIds + ") AND IM.ArticleId in ("+ articleIds + ")";
+                    }
+                }
+                
+                
+
                 var sql = "";
                 sql = @"SELECT DISTINCT Convert(BIT, 'False') IsActives
                             	,ISNULL(POD.InventoryReceiveId, '') POId
@@ -2670,7 +2690,7 @@ namespace Aplos.Areas.Products.Controllers
                             LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id = pomap.PODetailId
                             LEFT JOIN TRN.PurchaseOrder PO ON PO.Id = POD.InventoryReceiveId
 							WHERE IR.[Status]='Posting' AND IRD.MaterialStorageId='" + materialStorageId + "' and IR.PlantId='" + identity.PlantId + @"'
-                            ";
+                          "+ tempQuery + @"   ";
 
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
@@ -2681,6 +2701,14 @@ namespace Aplos.Areas.Products.Controllers
                 throw ex;
             }
 
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult GetSearchDistinctMaterialBOQ( string materialStorageId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            BOQQueryService bOQQueryService = new BOQQueryService(_sqlRepository);
+            return Json(bOQQueryService.GetSearchDistinctMaterialBOQ(identity.CompanyId, identity.PlantId, materialStorageId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]

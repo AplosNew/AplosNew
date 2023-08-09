@@ -1286,7 +1286,7 @@ namespace Library.Accounting.Accounts
                 foreach (var voucherDetailVM in voucherDetailVMList)
                 {
                     var rdBuilder = new System.Text.StringBuilder();
-                    var builderSql = @"UPDATE [TRN].[Invoice] SET ExpectedPaymentReceivedDate='" + voucherDetailVM.ExpectedPaymentReceivedDate + "' , BuyerRefNo='" + voucherDetailVM.BuyerRefNo + "' , CustomerRemarks='" + voucherDetailVM.CustomerRemarks + "'   WHERE Id='" + voucherDetailVM.Id + "' ";
+                    var builderSql = @"UPDATE [TRN].[Invoice] SET ExpectedPaymentReceivedDate='" + voucherDetailVM.ExpectedPaymentReceivedDate + "' , BuyerRefNo='" + voucherDetailVM.BuyerRefNo + "' , CustomerRemarks='" + voucherDetailVM.CustomerRemarks + "', BankRefNo='" + voucherDetailVM.BankRefNo + "' , BankMasterId='" + voucherDetailVM.BankMasterId + "'    WHERE Id='" + voucherDetailVM.Id + "' ";
                     rdBuilder.Append(builderSql);
                     _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                     //con.OpenDataSetThroughAdapter(@"SELECT * FROM [TRN].[Invoice] WHERE Id='" + voucherDetailVM.Id + "'", out _drvDetailDataset, false, "1");
