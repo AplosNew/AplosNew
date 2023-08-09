@@ -414,7 +414,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
             $scope.popUpDataList = [];
             $http({
                 method: 'GET',
-                url: 'OrderManagements/SalesOrderApproval/GetAllActiveEmployeeData'
+                url: 'OrderManagements/SalesOrderApproval/GetAllActiveEmpData'
 
             }).then(function successCallback(response) {
                 $scope.popUpDataList = response.data;

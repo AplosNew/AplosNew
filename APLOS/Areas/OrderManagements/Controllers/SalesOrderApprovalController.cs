@@ -104,6 +104,14 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetAllActiveEmpData()
+        {
+            JsonResult json = Json(clsSales.GetAllActiveEmployeeData(), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetplantByCompany(string companyId)
         {
             JsonResult json = Json(clsSales.GetplantByCompanyId(companyId), JsonRequestBehavior.AllowGet);
