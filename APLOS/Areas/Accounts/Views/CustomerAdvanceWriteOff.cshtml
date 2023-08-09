@@ -86,20 +86,24 @@
                     <input type="text" maxlength="50" id="Rate" name="Rate" ng-model="advance.CompanyCurrencyRate" class="form-control text-right" tabindex="5" readonly required>
                 </div>
             </div>
-            <div class="form-group" ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.Return.ToString()'">
+            <div class="form-group" >
                 <label class="col-sm-4 control-label">Payment Source<sup>*</sup></label>
                 <div class="col-sm-8 radio">
+                    <label ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.SetOff.ToString()'">
+                        <input ng-click="clearBankPopUp()" type="radio" name="source" ng-model="advance.PaymentSource" value="@Library.Model.Payments.PaymentSource.Invoice.ToString()">
+                        <span class="cr" tabindex="8"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Invoice.ToString()
+                    </label>
                     <label>
                         <input ng-click="clearBankPopUp()" type="radio" name="source" ng-model="advance.PaymentSource" value="@Library.Model.Payments.PaymentSource.Bank.ToString()">
                         <span class="cr" tabindex="8"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Bank.ToString()
                     </label>
-                    <label>
+                    <label ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.Return.ToString()'">
                         <input ng-click="clearCashPopUp()" type="radio" name="source" ng-model="advance.PaymentSource" value="@Library.Model.Payments.PaymentSource.Cash.ToString()">
                         <span class="cr" tabindex="9"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Cash.ToString()
                     </label>
                 </div>
             </div>
-            <div class="form-group" ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.Return.ToString()'&&advance.PaymentSource=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">
+            <div class="form-group" ng-show="advance.PaymentSource=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">
                 <label class="col-sm-4 control-label">Bank<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="input-group">
@@ -121,7 +125,7 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group" ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.SetOff.ToString()'">
+            <div class="form-group" ng-show="advance.PaymentSource=='@Library.Model.Payments.PaymentSource.Invoice.ToString()'">
                 <label class="col-sm-4 control-label">Invoice<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="input-group">
@@ -131,7 +135,7 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group" ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.Return.ToString()'">
+            <div class="form-group" ng-show="advance.PaymentSource=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">
                 <label class="col-sm-4 control-label">Amount<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <input type="text" maxlength="50" name="Amount" ng-model="advance.Amount" class="form-control text-right" tabindex="4" autocomplete="off" n-decimals="2">
