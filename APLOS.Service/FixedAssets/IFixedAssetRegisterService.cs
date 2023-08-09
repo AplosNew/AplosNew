@@ -5,6 +5,7 @@ using Library.Model.Materials;
 using Library.Service.Core;
 using Syncfusion.XlsIO;
 using System.Collections.Generic;
+using System.Data;
 
 namespace Library.Service.FixedAssets
 {
@@ -90,6 +91,7 @@ namespace Library.Service.FixedAssets
 
         GridModel GetCapitalizeAssetItem(GridParameter parameters, string faType);
         IEnumerable<object> GetAUCCIExpenseData(string column, string value, string faType);
+        string GetAUCCIExpenseReport(DataTable data, string ReportHeader, string reportFileName);
         void InsertORUpdateCapitalizeAsset(FixedAssetRegister master, IEnumerable<SubFixedAssetRegister> subFixedAssetRegister, decimal NumberOfQuantity, string CompanyCurrencyCode
          , string CompanyGroupCurrencyCode, string HardCurrencyCode, out string masterid, IEnumerable<MaterialMasterMachineProcess> assetItemValue, IEnumerable<FixedAssetRegisterCharacteristicsValue> fixedAssetRegisterSkuValue
          , string fixedAssetMasterId, string assetGLId, string assetBudgetId, string assetActivityId, IEnumerable<FixedAssetRegisterDetail> fixedAssetRegisterDetail);

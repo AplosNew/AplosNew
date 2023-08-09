@@ -9,7 +9,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-3 control-label">Work Date<sup>*</sup></label>
             <div class="col-sm-6 show-message">
-                <input type="text" name="Date" ng-model="ModelNew.WorkDate" datepicker class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
+                <input type="text" name="Date" ng-model="ModelNew.WorkDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="3">
             </div>
         </div>
 
@@ -103,15 +103,27 @@
             </div>
         </div>
         <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">Remarks</label>
-            <div class="col-sm-6 show-message">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="8"></textarea>
-            </div>
-        </div>
-        <div class="form-group" show-errors>
             <label class="col-sm-3 control-label">Calculated Minute<sup>*</sup></label>
             <div class="col-sm-6 show-message">
                 <input type="number" class="form-control" name="CalculatedTime" ng-model="ModelNew.CalculatedTime" e-width="100" disabled />
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">User Group<sup>*</sup></label>
+            <div class="col-sm-6 show-message"> 
+                <div class="select-style">
+                    <select id="Category" class="form-control" ng-model="ModelNew.UserGroup" name="UserGroup" tabindex="3">
+                        <option value="All">--Select--</option>
+                        <option ng-repeat="option in UserGroupList" value="{{option.Id}}">{{option.UserReportGroup}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Remarks</label>
+            <div class="col-sm-6 show-message">
+                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="8"></textarea>
             </div>
         </div>
     </div>
@@ -173,7 +185,7 @@
                         <button ng-click="$parent.selectEdit(x,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Edit">
                             <i class="glyphicon glyphicon-edit"></i>
                         </button>
-                    
+
                         <button ng-click="$parent.removeRow(x)" @*data-toggle="modal"*@ ng-disabled="currencyDisable" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
                             <i class="glyphicon glyphicon-remove"></i>
                         </button>
@@ -401,7 +413,7 @@
                     </div>
                 </div>
             </div>
-           
+
             <div class="common-btn">
                 <ul class="list-inline text-right">
                     <li>
@@ -411,7 +423,7 @@
 
             </div>
         </div>
-        </div>
     </div>
 </div>
+
 

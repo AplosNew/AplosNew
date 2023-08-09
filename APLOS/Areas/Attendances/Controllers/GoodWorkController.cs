@@ -49,11 +49,11 @@ namespace Aplos.Areas.Attendances.Controllers
 
         //Load Employee
         [HttpGet]
-        public ActionResult LoadEmployeelist(string empCategory, string department, string section, string subSection, string designation)
+        public ActionResult LoadEmployeelist(string empCategory, string department, string section, string subSection, string designation, string userGroup)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = string.Empty;
-            var ec = ""; var dep = ""; var sec = ""; var subsec = ""; var des = "";
+            var ec = ""; var dep = ""; var sec = ""; var subsec = ""; var des = ""; var userGr = "";
             if (empCategory != "null")
             {
                 ec = "and EC.Id in ('" + empCategory + @"')";
@@ -73,6 +73,10 @@ namespace Aplos.Areas.Attendances.Controllers
             if (designation != "null")
             {
                 des = "and EI.GivenDesignationId in ('" + designation + @"')";
+            }
+            if (userGroup != "null")
+            {
+                userGr = "and PR.GoodWorkPositionCodeId in ('" + userGroup + @"')";
             }
             try
             {
@@ -100,7 +104,7 @@ namespace Aplos.Areas.Attendances.Controllers
 						 LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
                          LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
                          LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-                         WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec + "  " + dep + @"  " + sec + "   " + subsec + "   " + des + @" 
+                         WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec +@"  " + dep + @"  " + sec +@"   " + subsec +@"   " + des + @" " + userGr +@"
                          ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
             }
             catch (Exception ex)
@@ -304,7 +308,19 @@ namespace Aplos.Areas.Attendances.Controllers
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
-
+        [HttpGet, Authorize]
+        public ActionResult getUserGroupData()
+        {
+            try
+            {
+                string strSQL = @"select distinct UserReportGroup, Id from org.position";
+                return Json(_sqlRepository.GetDataCollection(strSQL), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         public class GoodWorkTransaction
         {
             #region Scalar Properties

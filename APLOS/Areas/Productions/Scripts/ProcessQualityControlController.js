@@ -338,6 +338,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.POQuality = {
         Id: null,
         IssueId: null,
+        ProcessId:null,
         SequenceNo: null,
         Category: null,
         DependentDate: null,
@@ -446,6 +447,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
             url: 'Productions/ProcessQualityControl/LoadPOQualityDetailsEditData?PQPId=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.POQualityNew = response.data.qualityplan[0];
+            $scope.getPOProcess($scope.POQualityNew.IssueId);
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
@@ -1462,6 +1464,19 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
                     $scope.QIprocessList = response.data;
                     if (baseService.arrayLength(response.data) === 1) {
                         $scope.IssueNew.ProcessId = $scope.QIprocessList[0].Value;
+                    }
+                }
+            });
+    }
+
+    $scope.POprocessList = [];
+    $scope.getPOProcess = function (Id) {
+        $http.get('Productions/ProcessQualityControl/GetProcess?IssueNameId=' + Id)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.POprocessList = response.data;
+                    if (baseService.arrayLength(response.data) === 1) {
+                        $scope.POQualityNew.ProcessId = $scope.POprocessList[0].Value;
                     }
                 }
             });

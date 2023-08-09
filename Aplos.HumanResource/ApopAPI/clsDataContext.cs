@@ -6744,6 +6744,192 @@ where MB.ROBudgetCode = '" + Id + "'";
             }
         }
         #endregion Incident
+
+        #region Attdn Lock
+        public void GetCheckAttdnLock(out List<Default2> DataList, string Date)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select LockedDate Value,IsActive Name from PlantWiseAttendanceLock where LockedDate = '" + Date + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        #endregion Attdn Lock
+
+        #region Quality Control
+        public void GetQualityGeneraWiseIssue(out List<QualityGenaralIssue> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<QualityGenaralIssue>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select  '' Id,QID.IssueNameId,(select top 1 RepeatEntry from TRN.QualityControl where IssueId=QID.IssueNameId and PlanType='GeneralIssue' order by AddedDate desc) as RepeatEntry,
+case when (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QID.IssueNameId and PlanType='GeneralIssue' order by AddedDate desc)='Repeat' then format((select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId and PlanType='GeneralIssue' order by AddedDate desc),'dd-MMM-yyyy') else
+format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId and PlanType='GeneralIssue' order by AddedDate desc)),'dd-MMM-yyyy') end as QualityIssueDate,
+E.Id  EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,QID.IssueNameId IssueId,QID.Id DefineIssueId,
+QMM.UserName QGIssue,
+reverse(stuff(reverse((select EI.EmployeeName + ',' from EmployeeInformation EI where EmployeeStatus='Active' and PositionID in (select PositionCodeId from MST.QualityManagementPositionCode where QMID=QID.IssueNameId) for xml path(''))),1,1,'')) as PositionEmployee,
+QC.QGIEmployeeId,(select EmployeeName from EmployeeInformation where SystemId=QC.QGIEmployeeId) as QGIEmployee
+from MST.QualityIssueDetails  QID
+left join TRN.QualityIssueControl as QC on QC.IssueId=QID.Id and QC.Id = (select top 1 Id from TRN.QualityIssueControl where IssueId=QID.Id order by AddedDate desc) 
+left join MST.QualityManagementMaster QMM on QMM.Id=QID.IssueNameId
+left join org.Entity E on E.Id=QID.EntityId
+left join hkp.Process P on P.Id=QID.ProcessId
+where QID.IssueType in ('General','Order') 
+order by (select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId order by AddedDate desc) asc";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new QualityGenaralIssue
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        IssueNameId = dsRef.Tables[0].Rows[i]["IssueNameId"].ToString(),
+                        RepeatEntry = dsRef.Tables[0].Rows[i]["RepeatEntry"].ToString(),
+                        QualityIssueDate = dsRef.Tables[0].Rows[i]["QualityIssueDate"].ToString(),
+                        EntityId = dsRef.Tables[0].Rows[i]["EntityId"].ToString(),
+                        Entity = dsRef.Tables[0].Rows[i]["Entity"].ToString(),
+                        ProcessId = dsRef.Tables[0].Rows[i]["ProcessId"].ToString(),
+                        Process = dsRef.Tables[0].Rows[i]["Process"].ToString(),
+                        IssueId = dsRef.Tables[0].Rows[i]["IssueId"].ToString(),
+                        DefineIssueId = dsRef.Tables[0].Rows[i]["DefineIssueId"].ToString(),
+                        QGIssue = dsRef.Tables[0].Rows[i]["QGIssue"].ToString(),
+                        QGIEmployeeId = dsRef.Tables[0].Rows[i]["QGIEmployeeId"].ToString(),
+                        QGIEmployee = dsRef.Tables[0].Rows[i]["QGIEmployee"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetQualityPOWiseIssue(out List<QualityPOIssue> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<QualityPOIssue>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct QPC.Id Id,PD.Id QPId,PO.Id POId,PD.IssueId as IssueId,QMM.UserName as QPIssue,PD.ProcessId,P.UserName as Process,E.Id EntityId,E.UserName Entity,PD.DependentDate as DependentOn,PD.Legdays,
+(select RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' and RepeatEntry is not null) as RepeatEntry,
+case 
+when PD.DependentDate='ItemDate' then format(MOI.AddedDate,'dd-MMM-yyyy')
+when PD.DependentDate='ExFactoryDate' then format((select top 1 PlanExFactoryDate from TRN.SalesOrder where Id=SO.Id order by PlanExFactoryDate desc),'dd-MMM-yyyy')
+when PD.DependentDate='PODate' then format(PO.AddedDate,'dd-MMM-yyyy')
+when PD.DependentDate='POStartDate' then isnull(format(FBPPD.POFirstProdBookDate,'dd-MMM-yyyy'),format(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy'))
+when PD.DependentDate='POEndDate' then isnull(format(Type1.BaseProcPlanCompletionDate,'dd-MMM-yyyy'),format(FBPPD.POLatestProdBookDate,'dd-MMM-yyyy'))
+end Date, 
+case 
+when PD.DependentDate='ItemDate' then format(DATEADD(Day, PD.Legdays, MOI.AddedDate),'dd-MMM-yyyy')
+when PD.DependentDate='ExFactoryDate' then format(DATEADD(Day, PD.Legdays, (select top 1 PlanExFactoryDate from TRN.SalesOrder where Id=SO.Id order by PlanExFactoryDate desc)),'dd-MMM-yyyy')
+when PD.DependentDate='PODate' then format(DATEADD(Day, PD.Legdays, PO.AddedDate),'dd-MMM-yyyy')
+when PD.DependentDate='POStartDate' then format(DATEADD(Day, PD.Legdays, isnull(FBPPD.POFirstProdBookDate,Type1.BaseProcPlanStartDate)),'dd-MMM-yyyy')
+when PD.DependentDate='POEndDate' then format(DATEADD(Day, PD.Legdays,isnull(Type1.BaseProcPlanCompletionDate,FBPPD.POLatestProdBookDate)),'dd-MMM-yyyy')
+end QualityPlanDate,PD.Remarks,
+reverse(stuff(reverse((select distinct LotNumber + ',' from TRN.ProductionSummary where ProductionOrderId=PO.Id and ProcessId=PD.ProcessId for xml path(''))),1,1,'')) as LotNumber,
+Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+PS.UserName as POStatus,
+QPC.QPEmployeeId,(select EmployeeName from EmployeeInformation where SystemId=QPC.QPEmployeeId) as QPEmployee
+from TRN.ProductionOrder PO
+left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
+left join MST.POQualityPlanDetails PD on 1=1
+left join [TRN].[QualityPlanControl] QPC on QPC.QPId=PD.Id and QPC.POId=PO.Id
+--left join MST.QualityIssueDetails ID on ID.Id=PD.IssueId
+left join MST.QualityManagementMaster QMM on QMM.Id=PD.IssueId
+left join hkp.process P on P.Id=PD.ProcessId
+left join org.Entity E on E.Id=PO.EntityId
+left join TRN.ProductionOrderDetail POD on POD.ProductionOrderId=PO.Id
+left join TRN.SalesOrder SO on SO.Id=POD.SalesOrderId 
+left join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
+LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POFirstProdBookDate,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) FBPPD ON FBPPD.ProductionOrderId=PO.Id
+LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=PO.Id
+where PS.UserName in ('Running','To Close') and QPC.QCID is null or (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' order by AddedDate desc) is not null";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new QualityPOIssue
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        QPId = dsRef.Tables[0].Rows[i]["QPId"].ToString(),
+                        RepeatEntry = dsRef.Tables[0].Rows[i]["RepeatEntry"].ToString(),
+                        POId = dsRef.Tables[0].Rows[i]["POId"].ToString(),
+                        EntityId = dsRef.Tables[0].Rows[i]["EntityId"].ToString(),
+                        Entity = dsRef.Tables[0].Rows[i]["Entity"].ToString(),
+                        ProcessId = dsRef.Tables[0].Rows[i]["ProcessId"].ToString(),
+                        Process = dsRef.Tables[0].Rows[i]["Process"].ToString(),
+                        IssueId = dsRef.Tables[0].Rows[i]["IssueId"].ToString(),
+                        QPIssue = dsRef.Tables[0].Rows[i]["QPIssue"].ToString(),
+                        DependentOn = dsRef.Tables[0].Rows[i]["DependentOn"].ToString(),
+                        Legdays = dsRef.Tables[0].Rows[i]["Legdays"].ToString(),
+                        Date = dsRef.Tables[0].Rows[i]["Date"].ToString(),
+                        QualityPlanDate = dsRef.Tables[0].Rows[i]["QualityPlanDate"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        LotNumber = dsRef.Tables[0].Rows[i]["LotNumber"].ToString(),
+                        Customer = dsRef.Tables[0].Rows[i]["Customer"].ToString(),
+                        POStatus = dsRef.Tables[0].Rows[i]["POStatus"].ToString(),
+                        QPEmployeeId = dsRef.Tables[0].Rows[i]["QPEmployeeId"].ToString(),
+                        QPEmployee = dsRef.Tables[0].Rows[i]["QPEmployee"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        #endregion Quality Control
     }
 
 
@@ -7609,6 +7795,52 @@ where MB.ROBudgetCode = '" + Id + "'";
         public string DayStatus { get; set; }
         public string InTime { get; set; }
         public string OutTime { get; set; }
+
+    }
+
+    public class QualityGenaralIssue
+    {
+
+        public string Id { get; set; }
+        public string IssueNameId { get; set; }
+        public string RepeatEntry { get; set; }
+        public string QualityIssueDate { get; set; }
+        public string EntityId { get; set; }
+        public string Entity { get; set; }
+        public string ProcessId { get; set; }
+        public string Process { get; set; }
+        public string IssueId { get; set; }
+        public string DefineIssueId { get; set; }
+        public string QGIssue { get; set; }
+        public string PositionEmployee { get; set; }
+        public string QGIEmployeeId { get; set; }
+        public string QGIEmployee { get; set; }
+
+    }
+
+    public class QualityPOIssue
+    {
+
+        public string Id { get; set; }
+        public string QPId { get; set; }
+        public string POId { get; set; }
+        public string IssueId { get; set; }
+        public string QPIssue { get; set; }
+        public string ProcessId { get; set; }
+        public string Process { get; set; }
+        public string EntityId { get; set; }
+        public string Entity { get; set; }
+        public string DependentOn { get; set; }
+        public string Legdays { get; set; }
+        public string RepeatEntry { get; set; }
+        public string Date { get; set; }
+        public string QualityPlanDate { get; set; }
+        public string Remarks { get; set; }
+        public string LotNumber { get; set; }
+        public string Customer { get; set; }
+        public string POStatus { get; set; }
+        public string QPEmployeeId { get; set; }
+        public string QPEmployee { get; set; }
 
     }
 

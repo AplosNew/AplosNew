@@ -63,6 +63,7 @@ function AdditionalInfoUpdateController(cboService, commonMessage, $scope, $root
             url: 'FixedAssets/FixedAssetMaster/GetAdditionalDataByAssetId?masterId=' + masterId + '&headerId=' + $scope.modelNew.Id
         }).then(function successCallback(response) {
             $scope.AdditionalInfoItemList = response.data;
+           
         });
     }
 
@@ -80,11 +81,103 @@ function AdditionalInfoUpdateController(cboService, commonMessage, $scope, $root
     $scope.Get = function (args) {
         $scope.modelNew = Object.assign({}, args.data);
         $scope.getAdditionalData($scope.modelNew.FixedAssetItemId);
+        $scope.GetTaggedAssetRegisterData();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
     };
+
+    $scope.GetTaggedAssetRegisterData = function () {
+        $http({
+            method: 'GET',
+            url: 'FixedAssets/FixedAssetMaster/GetTaggedAssetRegisterData?headerId=' + $scope.modelNew.Id
+        }).then(function successCallback(response) {
+            $scope.SelectedAssetRegisterList = response.data;
+        });
+    }
+
+
+    $scope.AssetRegisterList = [];
+    $scope.GetAssetRegisterData = function () {
+        $http({
+            method: 'GET',
+            url: 'FixedAssets/FixedAssetMaster/GetAssetRegisterData'
+        }).then(function successCallback(response) {
+            $scope.AssetRegisterList = response.data;
+        });
+        angular.element(document.querySelector('#AssetRegisterPopUp')).modal('show');
+    }
+
+    // #region checkbox all
+
+    $scope.refreshTemplate = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllWise });
+    };
+
+    function CheckBoxSelectAllWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GriAssetRegister").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.AssetRegisterList.length; i++) {
+                $scope.AssetRegisterList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GriAssetRegister").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.CloseAssetRegisterPopUp = function () {
+        MakeData();
+        angular.element(document.querySelector("#AssetRegisterPopUp")).modal("hide");
+    }
+
+    $scope.SelectedAssetRegisterList = [];
+    function checkExistTempList(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].Id === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function MakeData() {
+        for (var i = 0; i < $scope.AssetRegisterList.length; i++) {
+            if ($scope.AssetRegisterList[i].Flag == true) {
+                if (checkExistTempList($scope.SelectedAssetRegisterList, $scope.AssetRegisterList[i].Id) === false) {
+
+                    var ob = {};
+                    ob.Id = $scope.AssetRegisterList[i].Id;
+                    ob.AssetSlNo = $scope.AssetRegisterList[i].AssetSlNo;
+                    ob.RFId = $scope.AssetRegisterList[i].RFId;
+                    ob.BarCode = $scope.AssetRegisterList[i].BarCode;
+                    ob.Status = $scope.AssetRegisterList[i].Status;
+                    ob.AssetCondition = $scope.AssetRegisterList[i].AssetCondition;
+                    ob.UserReference = $scope.AssetRegisterList[i].UserReference;
+                    ob.OldReference = $scope.AssetRegisterList[i].OldReference;
+                    ob.UserGroup = $scope.AssetRegisterList[i].UserGroup;
+                    ob.FixedAssetItem = $scope.AssetRegisterList[i].FixedAssetItem;
+
+                    $scope.SelectedAssetRegisterList.push(ob);
+                    ob = {};
+                }
+
+            }
+        }
+
+    }
+
+    // #endregion checkbox all
 
     $scope.Save = function () {
         angular.copy($scope.modelNew, $scope.model);
@@ -94,7 +187,7 @@ function AdditionalInfoUpdateController(cboService, commonMessage, $scope, $root
                 $http({
                     method: 'POST',
                     url: 'FixedAssets/FixedAssetMaster/CreateAdditionalInfoUpdate',
-                    data: { 'data': $scope.model, 'detailData': $scope.AdditionalInfoItemList },
+                    data: { 'data': $scope.model, 'detailData': $scope.AdditionalInfoItemList, 'SelectedAssetRegisterList': $scope.SelectedAssetRegisterList },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -156,5 +249,6 @@ function AdditionalInfoUpdateController(cboService, commonMessage, $scope, $root
 
         $scope.modelNew = Object.assign({}, $scope.model);
         $scope.AdditionalInfoItemList = [];
+        $scope.SelectedAssetRegisterList = [];
     }
 }
