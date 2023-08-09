@@ -1717,6 +1717,7 @@ namespace Library.Accounting.FixedAssets
                         Id = _accountsCommonService.MakePK(id, 1, 2),
                         AssetRegisterId = id,
                         CapitalizationMasterId = capitalizationMasterdata["Id"].ToString(),
+                        Amount = Math.Round(voucherVM.Amount/ Int32.Parse(capitalizationMasterdata["Qty"].ToString()),2),
                         AddedBy = identity.Name,
                         AddedDate = System.DateTime.Now.ToString(),
                         AddedFromIP = identity.IPAddress,
@@ -1729,6 +1730,155 @@ namespace Library.Accounting.FixedAssets
 
                 clsStaticInfo objApp = new clsStaticInfo();
                 objApp.SaveDataSets(_vdataset, _crvDetailData, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, _assetRegisterData, _assetRegisterChildData);
+                if (capitalizationMasterdata != null)
+                {
+                    var rdBuilder = new System.Text.StringBuilder();
+                    var builderSql = @"UPDATE [TRN].[CapitalizationMaster] SET VoucherRowId='" + voucherDrId + "' WHERE Id='" + capitalizationMasterdata["Id"].ToString() + "'  ";
+                    rdBuilder.Append(builderSql);
+                    _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public void InsertCapitalizeAssetRegisterPostingAddition(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, List<Dictionary<string, object>> assetRegisterList, Dictionary<string, object> capitalizationMasterdata)
+        {
+            try
+            {
+                AccountsCommonService _accountsCommonService = new AccountsCommonService(_sqlRepository);
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                DataSet _drvDetailData = null;
+                DataSet _drvDetailCurrencyData = null;
+                DataSet _crvDetailData = null;
+                DataSet _crvDetailCurrencyData = null;
+                DataSet _assetRegisterData = null;
+                DataSet _assetRegisterChildData = null;
+                var voucherDrId = "";
+
+
+                var voucher = new Voucher
+                {
+                    CompanyGroupId = voucherVM.CompanyGroupId,
+                    CompanyId = voucherVM.CompanyId,
+                    PlantId = voucherVM.PlantId,
+                    CurrencyId = companyCurrencyId,
+                    FiscalYearId = voucherVM.FiscalYearId,
+                    FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+                    TaxYearId = voucherVM.TaxYearId,
+                    TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+                    VoucherDate = DateTime.Now,
+                    DocDate = voucherVM.DocDate,
+                    DocRefNo = voucherVM.DocRefNo,
+                    Narration = voucherVM.Narration,
+                    PostingDate = voucherVM.PostingDate,
+                    SourceType = SourceType.FixedAssetCapitalizeJournal.ToString(),
+                    VoucherTypeId = voucherVM.VoucherTypeId
+                };
+                _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
+
+                var currentVoucherDetaiRecord = 0;
+
+
+                foreach (var voucherDetailVM in voucherDetailVMList)
+                {
+
+                    if (voucherDetailVM.TrnType == "Dr" && voucherDetailVM.Amount > 0)
+                    {
+
+                        // INSERT INTO InvoiceDetail
+
+
+                        if (string.IsNullOrEmpty(voucherDetailVM.GLGeneralInfoId))
+                            throw new CustomException("Without GL can not post.");
+                        // in libility side Dr.
+                        var voucherDr = new VoucherDetail
+                        {
+                            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                            BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                            ActivityId = voucherDetailVM.ActivityId,
+                            BudgetMasterActivityId = voucherDetailVM.BudgetMasterActivityId,
+                            DrAmount = voucherDetailVM.Amount,
+                            DocRefNo = voucherVM.DocRefNo,
+                            Narration = voucherDetailVM.Narration,
+                        };
+                        currentVoucherDetaiRecord++;
+                        _accountsCommonService.InsertVoucherDetail(voucher, voucherDr, currentVoucherDetaiRecord, ref _drvDetailData);
+
+                        _accountsCommonService.InsertVoucherDetailCompanyCurrency(voucherDr, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = companyCurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = 1,
+                            DrAmount = voucherDr.DrAmount
+                        }, ref _drvDetailCurrencyData);
+                        voucherDrId = voucherDr.Id;
+                    }
+                    else if (voucherDetailVM.TrnType == "Cr" && voucherDetailVM.Amount > 0)
+                    {
+                        if (string.IsNullOrEmpty(voucherDetailVM.GLGeneralInfoId))
+                            throw new CustomException("Without GL can not post.");
+                        // INSERT INTO VoucherDetail
+                        var voucherCr = new VoucherDetail
+                        {
+                            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                            BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                            ActivityId = voucherDetailVM.ActivityId,
+                            BudgetMasterActivityId = voucherDetailVM.BudgetMasterActivityId,
+                            CurrencyId = voucher.CurrencyId,
+                            DrAmount = 0,
+                            CrAmount = voucherDetailVM.Amount,
+                        };
+                        currentVoucherDetaiRecord++;
+                        _accountsCommonService.InsertVoucherDetail(voucher, voucherCr, currentVoucherDetaiRecord, ref _crvDetailData);
+
+                        _accountsCommonService.InsertVoucherDetailCompanyCurrency(voucherCr, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = companyCurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = 1,
+                            CrAmount = voucherCr.CrAmount
+                        }, ref _crvDetailCurrencyData);
+                    }
+                }
+                
+                ConnectionManager.DAL.ConManager objCon;
+                string sqlChild = "SELECT * FROM [TRN].[AssetRegisterChild] WHERE 1=2 ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlChild, out _assetRegisterChildData, false, "1");
+
+                foreach (var item in assetRegisterList)
+                {
+                    objCon.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[AssetRegisterChild] where  AssetRegisterId='" + item["AssetRegisterId"].ToString() + "'", out _assetRegisterData, false, "1");
+                    var assetRegisterChildData = new
+                    {
+                        Id = _accountsCommonService.MakePK(item["AssetRegisterId"].ToString(), _assetRegisterData.Tables[0].Rows.Count+1, 2),
+                        AssetRegisterId = item["AssetRegisterId"].ToString(),
+                        CapitalizationMasterId = capitalizationMasterdata["Id"].ToString(),
+                        Amount = item["Amount"].ToString(),
+                        AddedBy = identity.Name,
+                        AddedDate = System.DateTime.Now.ToString(),
+                        AddedFromIP = identity.IPAddress,
+                    };
+                    AddNewRow(_assetRegisterChildData.Tables[0], assetRegisterChildData);
+
+                }
+
+
+
+                clsStaticInfo objApp = new clsStaticInfo();
+                objApp.SaveDataSets(_vdataset, _crvDetailData, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, _assetRegisterChildData);
                 if (capitalizationMasterdata != null)
                 {
                     var rdBuilder = new System.Text.StringBuilder();
