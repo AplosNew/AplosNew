@@ -209,7 +209,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
             $scope.popUpDataList = [];
             $http({
                 method: 'GET',
-                url: 'Attendances/GoodWork/GetAllActiveEmployeeData'
+                url: 'Attendances/GoodWork/GetAllActiveEmpData'
             }).then(function successCallback(response) {
                 $scope.popUpDataList = response.data;
             });
