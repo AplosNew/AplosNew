@@ -653,8 +653,7 @@ namespace Library.Service.Advances
                     _voucherService.InsertVoucherDetail(voucher, voucherDetailCr, currentVoucherDetailId);
                     totalAmountDr += voucherDetailCr.DrAmount;
                     totalAmountCr += voucherDetailCr.CrAmount;
-
-                    // INSRT INTO GLTransactionDetail
+                     // INSRT INTO GLTransactionDetail
                     if (voucherVM.PaymentSource == PaymentSource.Bank.ToString() || voucherVM.PaymentSource == PaymentSource.Cash.ToString())
                     {
                         if (!string.IsNullOrEmpty(voucherDetailCr.BankMasterId) || !string.IsNullOrEmpty(voucherDetailCr.CashMasterId))
