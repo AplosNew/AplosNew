@@ -14,7 +14,7 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
         $http({
             method: 'Post'
             , url: 'FixedAssets/FixedAssetRegister/GetCapitalizeAssetRegisterPostedList'
-            , data: { column: $scope.searchBy, value: $scope.search }
+            , data: { column: $scope.searchBy, value: $scope.search, type: "New" }
             , dataType: 'JSON'
         }).then(function (response) {
             $scope.voucherList = response.data;
@@ -64,9 +64,9 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
 
     $scope.masterList = [];
     $scope.getMasterData = function () {
-        $scope.purchaseLCList = [];
-        $http.get("fixedassets/fixedassetregister/GetApprovedCapitalizeData")
-            .then(
+        $scope.masterList = [];
+        $http.get("fixedassets/fixedassetregister/GetApprovedCapitalizeData?type=" + "New")
+        .then(
                 function successCallback(response) {
                     $scope.masterList = response.data;
                 },
@@ -82,7 +82,7 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
 
     $scope.selectedmaterialMasterList = [];
     $scope.GetCapitalizationMasterDetail = function () {
-        $scope.purchaseLCList = [];
+        $scope.selectedmaterialMasterList = [];
         $http.get("fixedassets/fixedassetregister/GetCapitalizationMasterDetail?masterId=" + $scope.voucher.CapitalizationMasterId)
             .then(
                 function successCallback(response) {
@@ -169,6 +169,7 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
     cboService.getCboTransactionCurrencyByCompany("", function (result) {
         $scope.tranCurrencyList = result;
         $scope.voucher.CurrencyId = $scope.baseCurrencyId;
+        $scope.voucherAddition.CurrencyId = $scope.baseCurrencyId;
         $scope.GetCurrencyExchangeRateList();
     });
 
@@ -179,6 +180,9 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
                 $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
                 $scope.voucher.DocDate = $scope.voucher.PostingDate;
+                $scope.voucherAddition.VoucherTypeId = $scope.voucherTypeList[0].Value;
+                $scope.voucherAddition.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
+                $scope.voucherAddition.DocDate = $scope.voucher.PostingDate;
                 $scope.GetCurrencyExchangeRateList();
             }
         });
@@ -192,12 +196,33 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
             }).then(function successCallback(response) {
                 $scope.currencyExchangeRate = response.data;
                 $scope.voucher.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
+                $scope.voucherAddition.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
             });
         }
         else {
             $scope.currencyExchangeRate = null;
         }
     };
+
+    $scope.invalidDocDate = false;
+    $scope.checkDocDate = function () {
+        var msg = "";
+        if (new Date($scope.voucher.DocDate) > new Date()) {
+            $scope.invalidDocDate = true;
+            msg = "Doc date must be below or equal to current Date!";
+        }
+        else if (new Date($scope.voucher.PostingDate) < new Date($scope.voucher.DocDate)) {
+            msg = "Doc date must be below or equal to Posting Date!";
+            $scope.invalidDocDate = true;
+        }
+        else if (baseService.isUndefinedOrNull($scope.voucher.DocDate)) {
+            msg = "Doc Date is required.";
+            $scope.invalidDocDate = true;
+        }
+        else $scope.invalidDocDate = false;
+        return manualValidation("div_DocDate", $scope.invalidDocDate, msg);
+    };
+
     $scope.invalidPostingDate = false;
     $scope.checkPostingDate = function () {
         var msg = "";
@@ -285,4 +310,327 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
         }
     };
 
+    // #region  Addition Posting
+    $scope.searchByAddition = "VoucherNo"; $scope.searchAddition = "";
+    $scope.searchByListAddition = [{ value: 'VoucherNo', name: "Voucher No" }, { value: 'PostingDate', name: "Posting Date" }, { value: 'FixedAssetMasterId', name: "Asset Master Id" }, { value: 'FixedAssetItemId', name: "Asset Item Id" }, { value: 'FixedAssetMaster', name: "Asset Master" }, { value: 'FixedAssetItem', name: "Asset Item" }, { value: 'FixedAssetCategory', name: "Asset Category" }, { value: 'FixedAssetSubCategory', name: "Asset Sub Category" }];
+
+    $scope.voucherListAddition = [];
+    $scope.getDataAddition = function () {
+        $http({
+            method: 'Post'
+            , url: 'FixedAssets/FixedAssetRegister/GetCapitalizeAssetRegisterPostedList'
+            , data: { column: $scope.searchByAddition, value: $scope.searchAddition, type: "Addition" }
+            , dataType: 'JSON'
+        }).then(function (response) {
+            $scope.voucherListAddition = response.data;
+        }), function (response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+    };
+    $scope.getDataAddition();
+    $scope.voucherAddition = {
+        Id: null,
+        VoucherDate: $filter("dateFiltering")(Date.now()),
+        DocDate: null,
+        DocRefNo: null,
+        Amount: 0,
+        Narration: null,
+        Remarks: null,
+        IsPark: false,
+        AddedBy: null,
+        AddedDate: null,
+        AddedFromIP: null,
+        EmployeeId: null,
+        Designation: null,
+        DOJ: null,
+        GivenDesignation: null,
+        Department: null,
+        LegalDesignation: null,
+        CompanyCurrencyRate: 1,
+        RepaymentStartDate: null,
+        LifeOfYear: null,
+        ProfitRate: null,
+        NoOfInstallmentPerYear: null,
+        ProfitAmount: null,
+        TotalNoOfInstallment: null,
+        PaymentTermId: null,
+        BaseOnDueDate: null,
+        BaseNoOfDays: null,
+        MatureDate: null
+    };
+    $scope.capitalizationMasterAddition = {
+        Id: null,
+        FixedAssetItemId: null,
+        Qty: null,
+        TotalAmount: null
+    };
+
+    $scope.masterListAddition = [];
+    $scope.getMasterDataAddition = function () {
+        $scope.masterListAddition = [];
+        $http.get("fixedassets/fixedassetregister/GetApprovedCapitalizeData?type=" + "Addition")
+            .then(
+                function successCallback(response) {
+                    $scope.masterListAddition = response.data;
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        angular.element(document.querySelector('#CapitalpopUpAddition')).modal('show');
+    };
+
+    $scope.closePopUpAddition = function () {
+        angular.element(document.querySelector('#CapitalpopUpAddition')).modal('hide');
+    }
+
+    $scope.selectedmaterialMasterListAddition = [];
+    $scope.GetCapitalizationMasterDetailAddition = function () {
+        $scope.selectedmaterialMasterListAddition = [];
+        $http.get("fixedassets/fixedassetregister/GetCapitalizationMasterDetail?masterId=" + $scope.voucherAddition.CapitalizationMasterId)
+            .then(
+                function successCallback(response) {
+                    $scope.selectedmaterialMasterListAddition = response.data;
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+
+    $scope.SelectMasterAddition = function (x) {
+        var data = x.data;
+        $scope.voucherAddition.CapitalizationMasterId = data.Id;
+        $scope.voucherAddition.Amount = data.TotalAmount;
+        $scope.voucherAddition.FixedAssetItem = data.FixedAssetItem;
+        $scope.voucherAddition.Qty = data.Qty;
+        $scope.voucherAddition.CapitalizationDate = $filter("dateFiltering")(data.CapitalizationDate);
+
+        $scope.capitalizationMasterAddition.Id = data.Id;
+        $scope.capitalizationMasterAddition.FixedAssetItemId = data.FixedAssetItemId;
+        $scope.capitalizationMasterAddition.Qty = data.Qty;
+        $scope.capitalizationMasterAddition.TotalAmount = data.TotalAmount;
+
+        $scope.GetCapitalizationMasterDetailAddition();
+        $scope.getCapitalizationJVAddition(data.Id);
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+
+        angular.element(document.querySelector('#CapitalpopUpAddition')).modal('hide');
+    };
+
+    $scope.capitalizationJVListAddition = [];
+    $scope.getCapitalizationJVAddition = function (Id) {
+        $scope.capitalizationJVListAddition = [];
+        $scope.jvurl = 'FixedAssets/FixedAssetRegister/GetCapitalizationSingleJVList?capitalizationMasterId=' + Id
+        $http({
+            method: 'Post'
+            , url: $scope.jvurl
+            , dataType: 'JSON'
+        }).then(function (response) {
+            $scope.capitalizationJVListAddition = response.data;
+        }), function (response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+    };
+
+    $scope.invalidDocDateAddition = false;
+    $scope.checkDocDateAddition = function () {
+        var msg = "";
+        if (new Date($scope.voucherAddition.DocDate) > new Date()) {
+            $scope.invalidDocDateAddition = true;
+            msg = "Doc date must be below or equal to current Date!";
+        }
+        else if (new Date($scope.voucherAddition.PostingDate) < new Date($scope.voucherAddition.DocDate)) {
+            msg = "Doc date must be below or equal to Posting Date!";
+            $scope.invalidDocDateAddition = true;
+        }
+        else if (baseService.isUndefinedOrNull($scope.voucherAddition.DocDate)) {
+            msg = "Doc Date is required.";
+            $scope.invalidDocDateAddition = true;
+        }
+        else $scope.invalidDocDateAddition = false;
+        return manualValidation("div_DocDateAddition", $scope.invalidDocDateAddition, msg);
+    };
+
+    $scope.invalidPostingDateAddition = false;
+    $scope.checkPostingDateAddition = function () {
+        var msg = "";
+        if (new Date($scope.voucherAddition.PostingDate) > new Date()) {
+            msg = "Posting date must be below or equal to current Date!";
+            $scope.currencyExchangeRate = [];
+            $scope.invalidPostingDateAddition = true;
+        }
+        else {
+            $scope.invalidPostingDateAddition = false;
+        }
+        return manualValidation("div_PostingDateAddition", $scope.invalidPostingDateAddition, msg);
+    };
+
+    $scope.ClearAddition = function () {
+        $scope.Action = "Save";
+        $scope.voucherAddition.Active = true;
+        $scope.voucherAddition.Amount = 0;
+        $scope.voucherAddition.DocRefNo = null;
+        $scope.voucherAddition.Narration = null;
+        $scope.voucherAddition.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
+        $scope.voucherAddition.CapitalizationMasterId = null;
+        $scope.voucherAddition.Amount = null;
+        $scope.voucherAddition.FixedAssetItem = null;
+        $scope.voucherAddition.Qty = null;
+        $scope.voucherAddition.CapitalizationDate = null;
+        $scope.selectedmaterialMasterListAddition = [];
+        $scope.capitalizationJVListAddition = [];
+        $scope.checkedAssetRegisterList = [];
+
+        $scope.capitalizationMasterAddition.Id = null;
+        $scope.capitalizationMasterAddition.FixedAssetItemId = null;
+        $scope.capitalizationMasterAddition.Qty = null;
+        $scope.capitalizationMasterAddition.TotalAmount = null;
+
+    };
+
+    $scope.validation = function () {
+        if ($scope.checkedAssetRegisterList.length === 0) {
+            ShowResult("Please select Asset Register!", "failure");
+            return true;
+        }
+        if ($scope.checkedAssetRegisterList.length !== parseFloat($scope.voucherAddition.Qty)) {
+            ShowResult("Please select " + $scope.voucherAddition.Qty +" Asset Register!", "failure");
+            return true;
+        }
+    };
+
+    $scope.PostAddition = function () {
+        $scope.validation();
+        if ($scope.formAddition.$valid) {
+            $scope.SaveUrl = "fixedassets/FixedAssetRegister/CreatetCapitalizeAssetRegisterPostAddition"
+            if ($scope.Action === "Save") {
+                $http({
+                    method: "POST",
+                    url: $scope.SaveUrl,
+                    data: {
+                        "voucherVM": $scope.voucherAddition,
+                        "voucherDetailVMList": $scope.capitalizationJVListAddition,
+                        "assetRegisterList": $scope.checkedAssetRegisterList,
+                        "capitalizationMasterdata": $scope.capitalizationMasterAddition
+                    },
+                    dataType: "JSON"
+                    , contentType: "application/json charset=utf-8"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
+                    }
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        $scope.getDataAddition();
+                        $scope.ClearAddition();
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, "failure");
+                });
+                return true;
+            }
+            return true;
+        }
+    };
+
+    $scope.checkedAssetRegisterList = [];
+    $scope.AssetRegisterAvailableList = [];
+    $scope.searchByAssetRegister = "AssetRegisterId"; $scope.searchAssetRegister = "";
+    $scope.searchByAssetRegisterList = [{ value: 'AssetRegisterId', name: "AssetRegisterId" }, { value: 'FixedAssetItemId', name: "FixedAssetItemId" }, { value: 'FixedAssetItem', name: "FixedAssetItem" }, { value: 'AssetSlNo', name: "AssetSlNo" }];
+    $scope.showAssetRegisterPopUp = function () {
+        if ($scope.capitalizationJVListAddition.length === 0) {
+            ShowResult("Please select Master Id first!", "failure");
+            return true;
+        }
+        $http({
+            method: 'POST',
+            url: 'fixedassets/FixedAssetRegister/GetAssetRegisterList',
+            data: { column: $scope.searchByAssetRegister, value: $scope.searchAssetRegister },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.AssetRegisterAvailableList = response.data;
+
+            if (baseService.arrayLength($scope.checkedAssetRegisterList) > 0) {
+                for (var i = 0; i < baseService.arrayLength($scope.checkedAssetRegisterList); i++) {
+                    for (var j = 0; j < baseService.arrayLength($scope.AssetRegisterAvailableList); j++) {
+                        if ($scope.checkedAssetRegisterList[i].AssetRegisterId == $scope.AssetRegisterAvailableList[j].AssetRegisterId) {
+                            $scope.AssetRegisterAvailableList[j].Active = true;
+                        }
+                    }
+                }
+            }
+        });
+
+        angular.element(document.querySelector('#AssetRegisterPopUp')).modal('show');
+
+    };
+    
+    $scope.hideAssetRegisterPopUp = function () {
+        angular.element(document.querySelector("#AssetRegisterPopUp")).modal("hide");
+    };
+    $scope.calDistributedAmount = function myfunction() {
+        $scope.TotalDistributedInvoiceAmount = 0;
+
+        for (var i = 0; i < $scope.checkedAssetRegisterList.length; i++) {
+            $scope.checkedAssetRegisterList[i].Amount = 0;
+        }
+
+        for (var i = 0; i < $scope.checkedAssetRegisterList.length; i++) {
+            if ($scope.checkedAssetRegisterList.length - 1 == i) {
+
+                $scope.TotalDistributedInvoiceAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedAssetRegisterList), "Amount"));
+                $scope.checkedAssetRegisterList[i].Amount = (parseFloat($scope.voucherAddition.Amount) - $scope.TotalDistributedInvoiceAmount).toFixed(2);
+            }
+            else {
+                $scope.checkedAssetRegisterList[i].Amount = parseFloat(parseFloat($scope.voucherAddition.Amount) / parseFloat($scope.voucherAddition.Qty)).toFixed(2);
+            }
+        }
+    };
+
+    $scope.AddAssetRegister = function () {
+        if (baseService.arrayLength($scope.AssetRegisterAvailableList) > 0) {
+            $scope.checkedAssetRegisterList = [];
+            angular.forEach($scope.AssetRegisterAvailableList, function (a) {
+                if (a.Active) {
+                    $scope.checkedAssetRegisterList.push({
+                        AssetRegisterId: a.AssetRegisterId
+                        , FixedAssetItemId: a.FixedAssetItemId
+                        , FixedAssetItem: a.FixedAssetItem
+                        , AssetSlNo: a.AssetSlNo
+                        , Amount: 0
+                        , Active: true
+                    });
+                }
+            });
+        }
+
+        $scope.hideAssetRegisterPopUp();
+        $scope.calDistributedAmount();
+    };
+
+    $scope.DeleteConfirmation = function (AssetRegisterId) {
+        $scope.AssetRegisterId = AssetRegisterId;
+        $scope.message_conf = "Are you sure to Delete?";
+        angular.element(document.querySelector("#DeleteConfirmationPopUp")).modal("show");
+    };
+
+    $scope.RemoveAssetRegisterId = function () {
+        for (var i = 0; i < baseService.arrayLength($scope.checkedAssetRegisterList); i++) {
+            if ($scope.checkedAssetRegisterList[i].AssetRegisterId == $scope.AssetRegisterId)
+                $scope.checkedAssetRegisterList.splice(i, 1);
+        }
+        $scope.calDistributedAmount();
+    };
+
+    $scope.checkDistributedAmount = function myfunction(index, item) {
+        $scope.TotalDistributedAmounts = 0;
+        $scope.TotalDistributedAmounts = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedAssetRegisterList), "Amount"));
+
+        if (parseFloat($scope.TotalDistributedAmounts) > parseFloat($scope.voucherAddition.Amount)) {
+            $scope.checkedAssetRegisterList[index].Amount = 0;
+            ShowResult("Distributed Amount must be equal Total Amount.!", "failure");
+        }
+    };
+    // #endregion Addition Posting
 }
