@@ -664,7 +664,7 @@ namespace Library.Service.Advances
                                 SourceType = voucherDetailCr.PaymentSource,
                                 BankMasterId = voucherDetailCr.BankMasterId,
                                 CashMasterId = voucherDetailCr.CashMasterId,
-                                CrAmount = voucherVM.Amount,
+                                CrAmount = voucherVM.CurrencyId==voucherVM.BankCurrencyId? voucherVM.Amount: voucherVM.BankAmount,
                                 AddedBy = voucherDetailCr.AddedBy,
                                 AddedDate = voucherDetailCr.AddedDate,
                                 AddedFromIP = voucherDetailCr.AddedFromIP
