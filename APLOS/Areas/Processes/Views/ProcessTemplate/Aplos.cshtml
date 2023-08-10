@@ -58,10 +58,69 @@
     </div>
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-            
+            <div class="row">
+                <div id="GridPM" ej-grid e-datasource="ProcessManagementList" e-templaterefresh="refreshTemplateWorkCenter"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-headertext="" e-headertemplateid="#headerTemplatePM" e-template="#checkboxTemplatePM" e-textalign="center" e-width="30"></div>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                        <div e-column e-field="ProcessStdName" e-headertext="ProcessStdName" e-width="100"></div>
+                        <div e-column e-field="ProcessUserName" e-headertext="ProcessUserName" e-width="100"></div>
+                        <div e-column e-field="Process" e-headertext="WorkCenter Category" e-width="100"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="ResponsiblePerson" e-width="100"></div>
+                        <div e-column e-field="MinSPTTime" e-headertext="MinSPTTime" e-width="100"></div>
+                        <div e-column e-field="MaxSPTTime" e-headertext="MaxSPTTime" e-width="100"></div>
+                        <div e-column e-field="StandardSPTTime" e-headertext="StandardSPTTime" e-width="100"></div>
+                    </div>
+                </div>
+                <script type="text/template" id="checkboxTemplatePM">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                </script>
+                <script type="text/x-jsrender" id="headerTemplatePM">
+                    <input type="checkbox" id="Wheadchk" />
+                </script>
+
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveProcessEntity()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                    </ul>
+                </div>
+            </div>
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-            
+            <div class="row">
+                <div id="GridMaterial" ej-grid e-datasource="MaterialList"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplateMaterial" e-template="#checkboxTemplateMaterial" e-textalign="center" e-width="30"></div>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                        <div e-column e-field="MaterialCode" e-headertext="Material Code" e-width="100"></div>
+                        <div e-column e-field="Material" e-headertext="Material" e-width="100"></div>
+                        <div e-column e-field="MaterialCategory" e-headertext="Material Category" e-width="100"></div>
+                        <div e-column e-field="MaterialGroup" e-headertext="MaterialGroup" e-width="100"></div>
+                        <div e-column e-field="ArticleCode" e-headertext="Article Code" e-width="100"></div>
+                        <div e-column e-field="MaterialArticle" e-headertext="Material Article" e-width="100"></div>
+                    </div>
+                </div>
+                <script type="text/template" id="checkboxTemplateMaterial">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                </script>
+                <script type="text/x-jsrender" id="headerTemplateMaterial">
+                    <input type="checkbox" id="Materialheadchk" />
+                </script>
+                <script type="text/template" id="Remarks">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
+                    </div>
+                </script>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                </ul>
+            </div>
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
            

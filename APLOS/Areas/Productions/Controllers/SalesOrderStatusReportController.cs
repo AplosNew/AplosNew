@@ -423,6 +423,7 @@ namespace Aplos.Areas.Productions.Controllers
                 from itemscanchild isc
                 left join trn.POLotReference PLR on PLR.Id = isc.PackingId
                 left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
+                    where isc.IsDespatch = 0
                     group by PLI.SOId) OtherDispatchQty on OtherDispatchQty.SOId = SO.Id
 
                             left join hkp.Party p on p.Id = mo.PartyId

@@ -2163,13 +2163,13 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById Order by CM.Ad
 
             return _sqlRepository.GetDataCollection(sql);
         }
-        public List<Dictionary<string, object>> GetApprovedCapitalizeData()
+        public List<Dictionary<string, object>> GetApprovedCapitalizeData(string type)
         {
             string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode,Approved=CASE WHEN CM.IsApproved=1 THEN 'Approved' ELSE '' END
 FROM [TRN].[CapitalizationMaster] CM
 LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById
-Where CM.IsApproved=1 AND CM.VoucherRowId IS NULL";
+Where CM.Type='" + type + "' AND CM.IsApproved=1 AND CM.VoucherRowId IS NULL";
 
             return _sqlRepository.GetDataCollection(sql);
         }
@@ -2287,7 +2287,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "CapitalizationMaster", out _Id);
 
                     data["Id"] = _Id;
-                    data["Type"] = "New";
+                    //data["Type"] = "New";
 
                     AddNewRow(dsMaster.Tables[0], data);
                 }
@@ -2379,7 +2379,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
 
             dr.EndEdit();
         }
-        public List<Dictionary<string, object>> GetCapitalizeAssetRegisterPostedList(string column, string value, string companyId)
+        public List<Dictionary<string, object>> GetCapitalizeAssetRegisterPostedList(string column, string value, string type, string companyId)
         {
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
@@ -2398,9 +2398,31 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
 				LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
                 LEFT  JOIN  HKP.[FixedAssetCategory]  FAC ON FAM.FixedAssetCategoryId=FAC.Id
                 LEFT  JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
-                WHERE V.CompanyId='" + companyId + @"' AND V.Archive=0 AND CM.VoucherRowId IS NOT NULL
+                WHERE CM.Type='" + type + @"' AND V.CompanyId='" + companyId + @"' AND V.Archive=0 AND CM.VoucherRowId IS NOT NULL
                 ) AS TEMP WHERE " + strkey + " order by PostingDate DESC   ";
             return _sqlRepository.GetDataCollection(sql);
+        }
+        public List<Dictionary<string, object>> GetAssetRegisterList(string companyGroupId, string companyId, string column, string value)
+        {
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"SELECT TOP 500 * from ( SELECT 0 Active, AR.Id AssetRegisterId, AR.FixedAssetItemId,FAI.UserName FixedAssetItem, AR.AssetSlNo, AR.RFId, AR.BarCode
+                            ,AR.AdditionalInfoUpdateId, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks 
+                            FROM TRN.AssetRegister AR
+                            LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
+                            ) AS TEMP WHERE " + strkey + " order by FixedAssetItem ASC ";
+                return _sqlRepository.GetDataCollection(sql);
+
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
         }
         #endregion
 
