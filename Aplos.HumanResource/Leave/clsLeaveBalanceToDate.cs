@@ -74,7 +74,7 @@ namespace Library.HumanResource.Leave
             }
 
         }//End Function
-        public IWorkbook XlsLeaveBalanceRpt(string PlantId, string sGroup, string Year, string ToDate)
+        public IWorkbook XlsLeaveBalanceRpt(string PlantId, string sGroup, string Year, string ToDate, string empIds)
         {
             clsReport objRpt = null;
             DataSet dsCmp = null;
@@ -111,7 +111,7 @@ namespace Library.HumanResource.Leave
             int ROW = 6;
             int endCol = 1;
             int COL = 1;
-            var dsLvAllo = GetLeaveBalanceType(sGroup, PlantId, Year, _ToDate);
+            var dsLvAllo = GetLeaveBalanceTypeData(sGroup, PlantId, Year, _ToDate,empIds);
 
             // var finalList = LoadGrdAllocatedLvDetails(dsLvAllo);
 
@@ -209,15 +209,17 @@ namespace Library.HumanResource.Leave
                 sheet[ROW, ColLeaveName].Text = item["LeaveName"].ToString();
                 //sheet[ROW, ColBroughtForward].Number = clsStaticInfo.dbl(item["BroughtForward"].ToString());
                 //sheet[ROW, ColCarryForward].Number = clsStaticInfo.dbl(item["CarryForwardOpeningBalance"].ToString());
-                sheet[ROW, ColOpeningBalance].Number = clsStaticInfo.dbl(item["BroughtForward"].ToString()) + clsStaticInfo.dbl(item["CarryForwardOpeningBalance"].ToString());
+                //sheet[ROW, ColOpeningBalance].Number = clsStaticInfo.dbl(item["BroughtForward"].ToString()) + clsStaticInfo.dbl(item["CarryForwardOpeningBalance"].ToString());
+                sheet[ROW, ColOpeningBalance].Number = clsStaticInfo.dbl(item["BroughtForward"].ToString());
 
                 sheet[ROW, ColCurrentAllocation].Number = clsStaticInfo.dbl(item["CurrentYearAllocation"].ToString());
                 //sheet[ROW, ColLeaveDays].Number = clsStaticInfo.dbl(item["DaysCanBeSanctioned"].ToString());
-                sheet[ROW, ColApplied].Number = clsStaticInfo.dbl(item["AppliedLeave"].ToString());
+                sheet[ROW, ColApplied].Number = clsStaticInfo.dbl(item["AppliedDays"].ToString());
                 sheet[ROW, ColAvailed].Number = clsStaticInfo.dbl(item["AvailedDays"].ToString());
+                sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(item["Balance"].ToString());
                 // sheet[ROW, ColEncashedInbetween].Number = clsStaticInfo.dbl(item["YearEndEncash"].ToString());
-                sheet[ROW, ColBalance].Formula = clsStaticInfo.GetxlsCol(ColOpeningBalance) + ROW + "+" + clsStaticInfo.GetxlsCol(ColCurrentAllocation) + ROW
-                    + "-" + clsStaticInfo.GetxlsCol(ColAvailed) + ROW;
+                //sheet[ROW, ColBalance].Formula = clsStaticInfo.GetxlsCol(ColOpeningBalance) + ROW + "+" + clsStaticInfo.GetxlsCol(ColCurrentAllocation) + ROW
+                   // + "-" + clsStaticInfo.GetxlsCol(ColAvailed) + ROW;
 
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -812,7 +814,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                 throw ex;
             }
         }//End Function
-        public DataTable GetLeaveBalanceType(string sGroupID, string sPlantID, string calYearId, string ToDate)
+        public DataTable GetLeaveBalanceTypeData(string sGroupID, string sPlantID, string calYearId, string ToDate,string empIds)
         {
 
             try
@@ -923,8 +925,8 @@ DEPT.UserName AS Department,ct.UserName AS EmployeeCategory, lt.UserName LeaveNa
 										  ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END)+(case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
 																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
 																   else Isnull(els.DaysCanBeSanctioned,0) end)
-										   ,ISNULL(ltrn.ldays, 0)+isnull(CurrentYearAvailedOpeningBalance,0) Applied
-										   ,ISNULL(tav.av, 0)+isnull(CurrentYearAvailedOpeningBalance,0) Availed
+										   ,ISNULL(ltrn.ldays, 0)+isnull(CurrentYearAvailedOpeningBalance,0) AppliedDays
+										   ,ISNULL(tav.av, 0)+isnull(CurrentYearAvailedOpeningBalance,0) AvailedDays
 										 ,Balance=((CASE WHEN LT.LeaveType='Earn' THEN	
 												ISNULL(ALP.PBroughtForward, 
 												 CASE WHEN els.IsEncashed =1 THEN ISNULL(els.CarryForward, 0)+ISNULL(els.EncashedInbetween, 0) 
@@ -940,7 +942,7 @@ DEPT.UserName AS Department,ct.UserName AS EmployeeCategory, lt.UserName LeaveNa
                                                         LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
                                                         LEFT JOIN LeavePolicyDetail AS lp ON lp.LPMSystemID=dmc.LeavePolicyMasterId AND s.LeaveTypeId=lp.LTSystemID
 														where CalanderYearId IN (Select Id from YearlyCalendar  where '" + _FromDate + @"' BETWEEN FromDate AND ToDate)
-														AND S.EmployeeId IN('2010669') AND lp.EncashmentBasis='CalanderYear'
+														AND S.EmployeeId " + empIds + @" AND lp.EncashmentBasis='CalanderYear'
 
                                                         UNION
 
@@ -952,7 +954,7 @@ DEPT.UserName AS Department,ct.UserName AS EmployeeCategory, lt.UserName LeaveNa
                                                         LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
                                                         LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
                                                         LEFT JOIN LeavePolicyDetail AS lp ON lp.LPMSystemID=dmc.LeavePolicyMasterId AND s.LeaveTypeId=lp.LTSystemID
-                                                        where S.EmployeeId IN('2010669') AND lp.EncashmentBasis<>'CalanderYear') els
+                                                        where S.EmployeeId " + empIds + @" AND lp.EncashmentBasis<>'CalanderYear') els
 										 left outer join dbo.LeaveType lt on lt.Id = els.LeaveTypeId AND lt.Code IN ('PL','CL')
 LEFT JOIN
 											(
@@ -995,7 +997,7 @@ LEFT JOIN
 																		 (
 																				SELECT DC.LeavePolicyMasterId,dm.DesignationId FROM MST.DesignationMaster DM
 																				LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId where dc.plantid='202034'
- ) dm where dm.DesignationId =(select givendesignationId  from dbo.EmployeeInformation  where SystemId IN('2010669'))
+ ) dm where dm.DesignationId =(select givendesignationId  from dbo.EmployeeInformation  where SystemId " + empIds + @")
 																	)--w
                                                  ) ltd on ltd.LTSystemID = lt.Id
 LEFT JOIN EmployeeInformation AS ei ON ei.SystemId  = els.EmployeeId
@@ -1008,7 +1010,7 @@ LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
 LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
 LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
- WHERE els.EmployeeID IN('2010669')  AND els.LeaveTypeId not IN (select id from LeaveType where IsESIC=1 and IsGeneral=0) AND LT.UserName NOT LIKE '%Maternity%')A";
+ WHERE els.EmployeeID " + empIds+ @"   AND lt.Code IN ('PL','CL'))A";
 
 
                 return _sqlRepository.GetDataTable(_sql);
