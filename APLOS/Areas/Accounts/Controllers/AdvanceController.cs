@@ -195,6 +195,8 @@ namespace Aplos.Areas.Accounts.Controllers
             advanceVM.IsPark = true;
             advanceVM.SourceType = SourceType.CustomerAdvanceWriteOff.ToString();
             advanceVM.PartyType = PartyType.Customer.ToString();
+            if(advanceVM.PaymentSource==PaymentSource.Bank.ToString() && advanceVM.CurrencyId!=advanceVM.BankCurrencyId && advanceVM.BankAmount==0)
+                throw new CustomException("Please Input BankAmount !");
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceWriteOffService.InsertCustomerAdvanceWriteOff(advanceVM, advanceDetailVMList, currencyList)) });
         }
 
