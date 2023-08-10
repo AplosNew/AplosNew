@@ -17,7 +17,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
 
     $controller("currencyBaseController", { $scope: $scope, $http: $http });
     $controller("employeeBaseController", { $scope: $scope, $http: $http });
-
+    $controller("bankBaseController", { $scope: $scope, $http: $http });
     $scope.partyType = "Vendor";
     $scope.isAdvance = false;
     $controller("partyBaseController", { $scope: $scope, $http: $http });
@@ -343,7 +343,10 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
                 ShowResult("Rate can not Empty!", "failure");
                 return true;
             }
-
+            if ($scope.voucher.PartyId !== LCVendorId && $scope.voucher.InvoiceType === "LC") {
+                ShowResult("LC Vendor and Invoice venodr are not same!,Please select Same Vendor!", "failure");
+                return true;
+            }
             if ($scope.voucher.PaymentSource === "GL") {
                 var vdetailDr = $filter("filter")($scope.voucherDetailList, { TrnType: "Dr" });
                 if (vdetailDr.length === 0) {
@@ -368,18 +371,18 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
                     ShowResult("Please select Loan!", "failure");
                     return true;
                 }
-                if ($scope.voucher.PartyId !== LCVendorId && $scope.voucher.InvoiceType === "LC") {
-                    ShowResult("LC Vendor and Invoice venodr are not same!,Please select Same Vendor!", "failure");
-                    return true;
-                }
+                
             }
             else if ($scope.voucher.PaymentSource === "Cash") {
                 if (baseService.isUndefinedOrNull($scope.voucher.CashMasterId)) {
                     ShowResult("Please select Cash!", "failure");
                     return true;
                 }
-                if ($scope.voucher.PartyId !== LCVendorId && $scope.voucher.InvoiceType === "LC") {
-                    ShowResult("LC Vendor and Invoice venodr are not same!,Please select Same Vendor!", "failure");
+                
+            }
+            else if ($scope.voucher.PaymentSource === "Bank") {
+                if (baseService.isUndefinedOrNull($scope.voucher.BankMasterId)) {
+                    ShowResult("Please select Bank!", "failure");
                     return true;
                 }
             }
@@ -2410,4 +2413,66 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         }
     };
 
+    $scope.closeBankPopUp = function () {
+        if (baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
+            ShowResult("Please Select Currency !", "failure", "bankPopUp");
+            return;
+        }
+        if ($scope.bankIndex !== -1) {
+            var bank = $scope.bankList[$scope.bankIndex];
+            if (baseService.isUndefinedOrNull(bank.GLGeneralInfoId)) {
+                ShowResult("Bank GL not found!", "failure", "bankPopUp");
+                return;
+            }
+            else if ($scope.companyConfig.IsVoucherFromBudget && baseService.isUndefinedOrNull(bank.BudgetMasterId)) {
+                ShowResult("Bank Budget not found!", "failure", "bankPopUp");
+                return;
+            }
+            else if (baseService.isUndefinedOrNull(bank.CurrencyId)) {
+                ShowResult("Bank Transaction Currency not found!", "failure", "bankPopUp");
+                return;
+            }
+            else {
+                $scope.voucher.AccountTitle = bank.AccountTitle;
+                $scope.voucher.BankName = bank.BankCode + " - " + bank.BankName + " - " + bank.AccountTitle + " - " + bank.AccountNumber;
+                $scope.voucher.BankMasterId = bank.BankMasterId;
+                $scope.voucher.BankCurrencyId = bank.CurrencyId;
+                $scope.voucher.BankCurrencyCode = bank.CurrencyCode;
+
+                $scope.voucher.GLGeneralInfoId = bank.GLGeneralInfoId;
+                $scope.voucher.GLGeneralInfoName = bank.GLGeneralInfoName;
+                $scope.voucher.BudgetMasterId = bank.BudgetMasterId;
+                $scope.voucher.BudgetName = bank.BudgetName;
+                $scope.voucher.ActivityId = bank.ActivityId;
+                $scope.voucher.ActivityName = bank.ActivityName;
+                //$scope.checkBankAmount();
+            }
+        }
+        $scope.hideBankPopUp();
+        //$scope.calBaseAmount();
+    };
+
+    $scope.checkBankAmount = function () {
+        if (!baseService.isUndefinedOrNull($scope.voucher.BankCurrencyId)) {
+            if ($scope.voucher.BankCurrencyId !== $scope.companyCurrencyId) {
+                $scope.isBankAmount = true;
+                $scope.voucher.BankAmount = 0;
+            }
+            else {
+                $scope.isBankAmount = false;
+                $scope.voucher.BankAmount = 0;
+            }
+        }
+    };
+
+    $scope.clearSourceInfo = function () {
+        $scope.voucher.BankMasterId = null;
+        $scope.voucher.BankCurrencyId = null;
+        $scope.voucher.BankAmount = 0;
+        $scope.voucher.CashMasterId = null;
+        $scope.voucher.PurchaseLCId = null;
+        $scope.ExistingLoanList = [];
+        $scope.existingLoan = {};
+        $scope.voucherDetailList = [];
+    }
 }

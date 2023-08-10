@@ -5,124 +5,75 @@
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <input type="hidden" ng-model="ModelNew.Id">
     <div class="col-xs-12 col-sm-6 col-md-6">
-
         <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">Work Date<sup>*</sup></label>
-            <div class="col-sm-6 show-message">
-                <input type="text" name="Date" ng-model="ModelNew.WorkDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="3">
+            <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="FromDate" ng-model="ModelNew.FromDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="3">
             </div>
         </div>
-
         <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">Employee Category</label>
-            <div class="col-sm-6" show-message>
-                <div class="select-style">
-                    <select id="Category" class="form-control" ng-model="ModelNew.EmployeeCategory" name="subSectionId" tabindex="3">
-                        <option value="All">--All--</option>
-                        <option ng-repeat="option in EmployeeCategoryList" value="{{option.Id}}">{{option.EmployeeCategory}}</option>
-                    </select>
+            <label class="col-sm-4 control-label">User Reference<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" class="form-control" name="UserRef" ng-model="ModelNew.UserRef" e-width="100"/>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Percentage<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="number" class="form-control" name="Percentage" ng-model="ModelNew.Percentage" e-width="100"/>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Approved By<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input tabindex="1" type="text" name="ApprovedBy" ng-model="ModelNew.ApprovedBy" class="form-control" readonly required>
+                    <span class="input-group-btn">
+                        <button ng-click="showEmployeeListPopUp('AB');" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
                 </div>
             </div>
         </div>
         <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">Section<sup>*</sup></label>
-            <div class="col-sm-6 show-message">
-                <div class="select-style">
-                    <select id="Category" class="form-control" ng-model="ModelNew.Section" name="Department" tabindex="3">
-                        <option value="All">--Select--</option>
-                        <option ng-repeat="option in SectionList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">Designation<sup>*</sup></label>
-            <div class="col-sm-6 show-message">
-                <div class="select-style">
-                    <select id="Category" class="form-control" ng-model="ModelNew.Designation" name="Designation" tabindex="3">
-                        <option value="All">--Select--</option>
-                        <option ng-repeat="option in designationList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">From Time<sup>*</sup></label>
-            <div class="col-sm-6 show-message">
-                <div class="input-group bootstrap-timepicker timepicker">
-                    <input id="FromTime" type="text" class="form-control" ng-model="ModelNew.FromTime" ng-change="getMinute();" e-width="100" tabindex="7">
-                    <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">To Time<sup>*</sup></label>
-            <div class="col-sm-6 show-message">
-                <div class="input-group bootstrap-timepicker timepicker">
-                    <input id="ToTime" type="text" class="form-control" ng-model="ModelNew.ToTime" ng-change="getMinute();" e-width="100" tabindex="7">
-                    <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
+            <label class="col-sm-4 control-label">Prepared By<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input tabindex="1" type="text" name="PreparedBy" ng-model="ModelNew.PreparedBy" class="form-control" readonly required>
+                    <span class="input-group-btn">
+                        <button ng-click="showEmployeeListPopUp('PB');" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">Shift<sup>*</sup></label>
-            <div class="col-sm-6 show-message">
-                <div class="input-group" tabindex="208">
-                    <input type="text" name="Shift" ng-model="ModelNew.Shift" ng-disabled="true" class="form-control" maxlength="200" required readonly>
+            <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="ToDate" ng-model="ModelNew.ToDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">No Of Days<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="number" class="form-control" name="NoOfDays" ng-model="ModelNew.NoOfDays" e-width="100"/>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Checked By<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input tabindex="1" type="text" name="CheckedBy" ng-model="ModelNew.CheckedBy" class="form-control" readonly required>
                     <span class="input-group-btn">
-                        <button ng-click="selectShift()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="showEmployeeListPopUp('CB');" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
             </div>
         </div>
 
         <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">Department<sup>*</sup></label>
-            <div class="col-sm-6 show-message">
-                <div class="select-style">
-                    <select id="Category" class="form-control" ng-model="ModelNew.Department" name="Department" tabindex="3">
-                        <option value="All">--Select--</option>
-                        <option ng-repeat="option in DepartmentList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">Sub-Section<sup>*</sup></label>
-            <div class="col-sm-6 show-message">
-                <div class="select-style">
-                    <select id="Category" class="form-control" ng-model="ModelNew.SubSection" name="SubSection" tabindex="3">
-                        <option value="All">--Select--</option>
-                        <option ng-repeat="option in SubSectionList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">Calculated Minute<sup>*</sup></label>
-            <div class="col-sm-6 show-message">
-                <input type="number" class="form-control" name="CalculatedTime" ng-model="ModelNew.CalculatedTime" e-width="100" disabled />
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">User Group<sup>*</sup></label>
-            <div class="col-sm-6 show-message"> 
-                <div class="select-style">
-                    <select id="Category" class="form-control" ng-model="ModelNew.UserGroup" name="UserGroup" tabindex="3">
-                        <option value="All">--Select--</option>
-                        <option ng-repeat="option in UserGroupList" value="{{option.Id}}">{{option.UserReportGroup}}</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">Remarks</label>
-            <div class="col-sm-6 show-message">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8 show-message">
                 <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="8"></textarea>
             </div>
         </div>
@@ -139,54 +90,29 @@
                 <tr>
                     <th>Employee Code</th>
                     <th>Employee Name</th>
-                    <th>From Time</th>
-                    <th>To Time</th>
-                    <th>Purpose</th>
-                    <th>Purpose Category</th>
-                    <th>Approved By</th>
-                    <th>Remarks</th>
-                    <th>Minute</th>
                     <th>Section</th>
                     <th>SubSection</th>
                     <th>Department</th>
+                    <th>Pay Days</th>
+                    <th>Amount</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="x in GoodWorkList" ng-class="{selected : x.Id==null}">
+                <tr ng-repeat="x in EmployeeMainList" ng-class="{selected : x.Id==null}">
                     <td>{{x.EmployeeCode}}</td>
                     <td>{{x.EmployeeName}}</td>
-                    <td>{{x.FromTime}}</td>
-                    <td>{{x.ToTime}}</td>
-
-                    <td><input type="text" name="Purpose" ng-model="x.Purpose" class="form-control" maxlength="15" required tabindex="3"></td>
-                    <td>
-                        <select name="PurposeCategory" ng-model="x.PurposeCategory" id="pc" class="form-control">
-                            <option value="BreakDown">BreakDown</option>
-                            <option value="Additional">Additional</option>
-                            <option value="New">New</option>
-                            <option value="Normal">Normal</option>
-                        </select>
-                    </td>
-                    <td>
-                        <span class="input-group-addon">{{x.ApprovedByName}}</span>
-                        <span class="input-group-btn">
-                            <button ng-click="$parent.showByWhomEmployeeListPopUp($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                            <button ng-click="clearEmp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                        </span>
-                    </td>
-                    <td><input type="text" name="Remarks" ng-model="x.Remarks" class="form-control" maxlength="15" required tabindex="3"></td>
-                    <td><input type="number" class="form-control" name="CalculatedTime" ng-model="x.CalculatedTime" e-width="100" disabled /></td>
                     <td>{{x.Section}}</td>
                     <td>{{x.SubSection}}</td>
                     <td>{{x.Department}}</td>
-
+                    <td> 
+                        <span class="input-group-btn">
+                            <input type="number" class="form-control" name="PayDays" ng-model="x.PayDays" e-width="100" />
+                        </span>
+                    </td>
+                    <td><input type="number" class="form-control" name="Amount" ng-model="x.Amount" e-width="100"/></td>
                     <td class="text-right">
-                        <button ng-click="$parent.selectEdit(x,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Edit">
-                            <i class="glyphicon glyphicon-edit"></i>
-                        </button>
-
-                        <button ng-click="$parent.removeRow(x)" @*data-toggle="modal"*@ ng-disabled="currencyDisable" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                        <button ng-click="$parent.removeRow(x)" @*data-toggle="modal"*@ ng-="currencyDisable" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
                             <i class="glyphicon glyphicon-remove"></i>
                         </button>
                     </td>
@@ -208,12 +134,18 @@
 
 
 <div class="table-responsive aplos-grid-toggle">
-    <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="ModelList" e-recorddoubleclick="GetDblClick" e-load="loadGridEdit"
+    <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="WorkerAdvanceList" e-recorddoubleclick="GetDblClick" e-load="loadGridEdit"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            <div e-column e-field="WorkDate" e-headertext="Work Date" e-width="2" e-isprimarykey="true"></div>
-            <div e-column e-field="Shift" e-headertext="Shift" e-width="3"></div>
+            <div e-column e-field="FromDate" e-headertext="From Date" e-width="2" e-isprimarykey="true"></div>
+            <div e-column e-field="ToDate" e-headertext="To Date" e-width="2" e-isprimarykey="true"></div>
+            <div e-column e-field="UserRef" e-headertext="User Ref" e-width="3"></div>
+            <div e-column e-field="NoOfDays" e-headertext="No Of Days" e-width="3"></div>
+            <div e-column e-field="Percentage" e-headertext="Percentage" e-width="3"></div>
+            <div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="3"></div>
+            <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="3"></div>
+            <div e-column e-field="ApprovedBy" e-headertext="Approved By" e-width="3"></div>
             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
         </div>
     </div>
@@ -376,54 +308,81 @@
 </div>
 
 
-<div class="modal fade site-modal in" id="EditPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg modellgModify">
+<div class="modal fade site-modal in" id="employeePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">Edit Minute<button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <div class="col-md-6">
-
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">From Time</label>
-                        <div class="col-sm-6">
-                            <div class="input-group bootstrap-timepicker timepicker">
-                                <input id="FromTime" type="text" class="form-control" ng-model="ModelNewtemp.FromTime" ng-change="getMinuteEdit();" e-width="100" tabindex="7">
-                                <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">To Time</label>
-                        <div class="col-sm-6">
-                            <div class="input-group bootstrap-timepicker timepicker">
-                                <input id="ToTime" type="text" class="form-control" ng-model="ModelNewtemp.ToTime" ng-change="getMinuteEdit();" e-width="100" tabindex="7">
-                                <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">Calculated Minute</label>
-                        <div class="col-sm-6">
-                            <input type="number" class="form-control" name="CalculatedTime" ng-model="ModelNewtemp.CalculatedTime" e-width="100" disabled />
-                        </div>
-                    </div>
-                </div>
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li>
-                        <button ng-click="closeEditPopUp();" class="btn"><i class=""></i> Close</button>
-                    </li>
-                </ul>
-
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="employeeParameters.searchBy">
+                                            <option ng-repeat="option in searchEmployeeByList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="employeeParameters.search" ng-enter="getEmployeeData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee Code</th>
+                                <th>First Name</th>
+                                <th>Middle Name</th>
+                                <th>Last Name</th>
+                                <th>Employee Name</th>
+                                <th>Date Of Birth</th>
+                                <th>Designation</th>
+                                <th>Entity</th>
+                                <th>Department</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeDataList|itemsPerPage:employeeParameters.pageSize" total-items="employeeParameters.total_count"
+                                ng-click="selectEmployeePopUp($index, x.SystemId)" ng-class="{selected : x.SystemId == selectedEmployee}" ng-dblclick="closeEmployeePopUp();" pagination-id="metaData.name + 'employeeList'">
+                                <td>{{x.EmployeeCode}}</td>
+                                <td>{{x.FirstName}}</td>
+                                <td>{{x.MiddleName}}</td>
+                                <td>{{x.LastName}}</td>
+                                <td>{{x.EmployeeName}}</td>
+                                <td>{{x.DOB | dateFiltering}}</td>
+                                <td>{{x.Designation}}</td>
+                                <td>{{x.EntityName}}</td>
+                                <td>{{x.Department}}</td>
+                                <td>{{x.EmploymentType}}</td>
+                                <td>{{x.EmployeeStatus}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'employeeList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="getEmployeeData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
             </div>
         </div>
     </div>
 </div>
-
 

@@ -1284,11 +1284,13 @@ WHERE  PLI.PackingId ='" + packingId + "' ORDER BY MMA.StandardName";
                             FOR XML PATH('')
                             ) , 1, 2, '')) as ProdDetails
                             FROM ItemScanChild S 
+							LEFT JOIN MST.MaterialMovementMaster MMM ON MMM.Id = S.LocMasterId
+							LEFT JOIN HKP.MaterialMovementPurpose MMP ON MMP.Id = MMM.PurposeId
                             LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
                             LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
                             LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId 
-                            WHERE S.Booked = 'False' AND R.ToLocation NOT IN ( 'JOB WORK LOCATION','DyeHouse','PACKING', 'JW Sale-Dye')
-                             " + tempDate + @"
+                            WHERE S.Booked = 'False' AND isnull(cast(MMP.IsInventoryOut as int),0) <> 1
+							" + tempDate + @"
                             AND M.StandardName IS NOT NULL AND S.SalesId IS NULL 
                             GROUP BY  M.StandardName , S.LotNo, S.NetWeight , P.Id, S.ProductCode, S.POId
                            
@@ -1303,10 +1305,12 @@ WHERE  PLI.PackingId ='" + packingId + "' ORDER BY MMA.StandardName";
                             FOR XML PATH('')
                             ) , 1, 2, '')) as ProdDetails
                             FROM ItemScanChild S 
+							LEFT JOIN MST.MaterialMovementMaster MMM ON MMM.Id = S.LocMasterId
+							LEFT JOIN HKP.MaterialMovementPurpose MMP ON MMP.Id = MMM.PurposeId
                             LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
                             LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
                             LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId 
-                            WHERE S.Booked = 'False' AND R.ToLocation NOT IN ( 'JOB WORK LOCATION','DyeHouse','PACKING', 'JW Sale-Dye')
+                            WHERE S.Booked = 'False' AND isnull(cast(MMP.IsInventoryOut as int),0) <> 1
                              " + tempCurrentDate + @"
                             AND M.StandardName IS NOT NULL AND S.SalesId IS NULL 
                             GROUP BY  M.StandardName , S.LotNo, S.NetWeight , P.Id, S.ProductCode, S.POId
