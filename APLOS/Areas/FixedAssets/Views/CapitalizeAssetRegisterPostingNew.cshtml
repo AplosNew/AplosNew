@@ -279,7 +279,7 @@
             <div e-column e-field="FixedAssetSubCategory" e-headertext="Asset Sub Category" e-width="100"></div>
             <div e-column e-field="Qty" e-headertext="Qty" e-width="30" e-type="numeric"  e-textalign="center"></div>
             <div e-column e-field="Amount" e-headertext="Amount" e-width="60" e-type="numeric" e-format="{0:0.00}" e-textalign="right"></div>
-            <div e-column e-template="#ShowActionButtonsassigned" e-headertext="PDF&Excel" e-width="80"></div>
+            <div e-column e-template="#ShowActionButtonsassigned" e-headertext="Actions" e-width="120" e-textalign="center"></div>
 
         </div>
     </div>
@@ -295,6 +295,11 @@
                 <li>
                     <div ej-tooltip e-showshadow="true" e-content="Pdf" ng-click="$parent.onClickReportDownloadWord(data);" e-width="width">
                         <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-pdf-o"></i></button>
+                    </div>
+                </li>
+                <li>
+                    <div ej-tooltip e-showshadow="true" e-content="Asset Register" ng-click="$parent.onClickAssetRegisterpopUpByCapitalizationMasterId(data);" e-width="width">
+                        <button class="btn" style="background-color: #1c1f32;"><i class="glyphicon glyphicon-floppy-disk"></i></button>
                     </div>
                 </li>
 
@@ -328,6 +333,98 @@
                 <ul class="common-btn list-inline text-right">
                     <li><button ng-click="closePopUp();" class="btn"> Close</button></li>
                 </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="AssetRegisterUpdatePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:1400px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Asset Register</h4>
+            </div>
+            <div class="row text-right">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="searchByAssetRegisterUpdate">
+                                        <option ng-repeat="option in searchByAssetRegisterUpdateList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="searchAssetRegisterUpdate" ng-enter="showAssetRegisterUpdatePopUp()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="showAssetRegisterUpdatePopUp()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <div id="AssetRegisterUpdateGridPopUp" ng-init="chkinit()" ej-grid e-datasource="AssetRegisterUpdateAvailableList" e-load="loadGridEdit"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-template="#checkboxTemplateMasterUpdate" e-headertext="Check" e-textalign="center" e-width="1"></div>
+                            <div e-column e-field="AssetRegisterId" e-headertext="Asset Register Id" e-width="3"></div>
+                            <div e-column e-field="FixedAssetItemId" e-headertext="Asset Item Id" e-width="3"></div>
+                            <div e-column e-field="FixedAssetItem" e-headertext="Asset Item" e-width="4"></div>
+                            <div e-column e-template="#assetSlNo" e-headertext="Asset Sl No" e-width="3"></div>
+                            <div e-column e-template="#rFId" e-headertext="RF Id" e-width="3"></div>
+                            <div e-column e-template="#barCode" e-headertext="Bar Code" e-width="3"></div>
+                            <div e-column e-template="#status" e-headertext="Status" e-type='string' e-width="3"></div>
+                            <div e-column e-template="#assetCondition" e-headertext="Asset Condition" e-type='string' e-width="3"></div>
+                            <div e-column e-template="#userReference" e-headertext="User Reference" e-width="3"></div>
+                            <div e-column e-template="#oldReference" e-headertext="Old Reference" e-type='string' e-width="3"></div>
+                            <div e-column e-template="#userGroup" e-headertext="User Group" e-type='string' e-width="3"></div>
+                            <div e-column e-template="#remarks" e-headertext="Remarks" e-type='string' e-width="3"></div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="checkboxTemplateMasterUpdate">
+                        <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                    </script>
+                    <script type="text/template" id="assetSlNo">
+                        <input type="text" ng-model="data.AssetSlNo" class="form-control">
+                    </script>
+                    <script type="text/template" id="rFId">
+                        <input type="text" ng-model="data.RFId" class="form-control">
+                    </script>
+                    <script type="text/template" id="barCode">
+                        <input type="text" ng-model="data.BarCode" class="form-control">
+                    </script>
+                    <script type="text/template" id="status">
+                        <input type="text" ng-model="data.Status" class="form-control">
+                    </script>
+                    <script type="text/template" id="assetCondition">
+                        <input type="text" ng-model="data.AssetCondition" class="form-control">
+                    </script>
+                    <script type="text/template" id="userReference">
+                        <input type="text" ng-model="data.UserReference" class="form-control">
+                    </script>
+                    <script type="text/template" id="oldReference">
+                        <input type="text" ng-model="data.OldReference" class="form-control">
+                    </script>
+                    <script type="text/template" id="userGroup">
+                        <input type="text" ng-model="data.UserGroup" class="form-control">
+                    </script>
+                    <script type="text/template" id="remarks">
+                        <input type="text" ng-model="data.Remarks" class="form-control">
+                    </script>
+
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="UpdateAssetRegister();" class="btn"><i></i>Update</button></li>
+                        <li> <button ng-click="hideAssetRegisterUpdatePopUp();" class="btn"><i class="glyphicon glyphicon-remove"></i> Close</button></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>

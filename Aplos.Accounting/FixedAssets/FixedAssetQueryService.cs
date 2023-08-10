@@ -2424,6 +2424,29 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public List<Dictionary<string, object>> GetAssetRegisterUpdateList(string companyGroupId, string companyId, string column, string value, string capitalizationMasterId)
+        {
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"SELECT TOP 500 * from ( SELECT 0 Active, AR.Id AssetRegisterId, AR.FixedAssetItemId,FAI.UserName FixedAssetItem, AR.AssetSlNo, AR.RFId, AR.BarCode
+                            ,AR.AdditionalInfoUpdateId, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks 
+                            FROM TRN.AssetRegister AR
+                            LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
+                            WHERE AR.Id in(SELECT AssetRegisterId FROM [TRN].[AssetRegisterChild] where CapitalizationMasterId='" + capitalizationMasterId + @"')
+                            ) AS TEMP WHERE " + strkey + " order by FixedAssetItem ASC ";
+                return _sqlRepository.GetDataCollection(sql);
+
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
         #endregion
 
         #region AdditionalInfoItem
