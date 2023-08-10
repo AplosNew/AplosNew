@@ -310,6 +310,103 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
         }
     };
 
+    $scope.checkedAssetRegisterUpdateList = [];
+    $scope.AssetRegisterUpdateAvailableList = [];
+    $scope.searchByAssetRegisterUpdate = "AssetRegisterId"; $scope.searchAssetRegisterUpdate = "";
+    $scope.searchByAssetRegisterUpdateList = [{ value: 'AssetRegisterId', name: "AssetRegisterId" }, { value: 'FixedAssetItemId', name: "FixedAssetItemId" }, { value: 'FixedAssetItem', name: "FixedAssetItem" }, { value: 'AssetSlNo', name: "AssetSlNo" }];
+    $scope.searchCapitalizationMasterId = "";
+    $scope.onClickAssetRegisterpopUpByCapitalizationMasterId = function (args) {
+        $scope.searchCapitalizationMasterId = args.CapitalizationMasterId;
+        $http({
+            method: 'POST',
+            url: 'fixedassets/FixedAssetRegister/GetAssetRegisterUpdateList',
+            data: { column: $scope.searchByAssetRegisterUpdate, value: $scope.searchAssetRegisterUpdate, capitalizationMasterId: $scope.searchCapitalizationMasterId},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.AssetRegisterUpdateAvailableList = response.data;
+        });
+
+        angular.element(document.querySelector('#AssetRegisterUpdatePopUp')).modal('show');
+
+    };
+
+    $scope.showAssetRegisterUpdatePopUp = function () {
+        $http({
+            method: 'POST',
+            url: 'fixedassets/FixedAssetRegister/GetAssetRegisterUpdateList',
+            data: { column: $scope.searchByAssetRegisterUpdate, value: $scope.searchAssetRegisterUpdate, capitalizationMasterId: $scope.searchCapitalizationMasterId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.AssetRegisterUpdateAvailableList = response.data;
+        });
+
+        angular.element(document.querySelector('#AssetRegisterUpdatePopUp')).modal('show');
+
+    };
+
+    $scope.hideAssetRegisterUpdatePopUp = function () {
+        angular.element(document.querySelector("#AssetRegisterUpdatePopUp")).modal("hide");
+    };
+    $scope.AddAssetRegisterUpdate = function () {
+        if (baseService.arrayLength($scope.AssetRegisterUpdateAvailableList) > 0) {
+            $scope.checkedAssetRegisterUpdateList = [];
+            angular.forEach($scope.AssetRegisterUpdateAvailableList, function (a) {
+                if (a.Active) {
+                    $scope.checkedAssetRegisterUpdateList.push({
+                        AssetRegisterId: a.AssetRegisterId
+                        , FixedAssetItemId: a.FixedAssetItemId
+                        , FixedAssetItem: a.FixedAssetItem
+                        , AssetSlNo: a.AssetSlNo
+                        , RFId: a.RFId
+                        , BarCode: a.BarCode
+                        , Status: a.Status
+                        , AssetCondition: a.AssetCondition
+                        , UserReference: a.UserReference
+                        , OldReference: a.OldReference
+                        , UserGroup: a.UserGroup
+                        , Remarks: a.Remarks
+                        , Active: true
+                    });
+                }
+            });
+        }
+
+    };
+    $scope.validationUpdateAssetRegister = function () {
+        if ($scope.checkedAssetRegisterUpdateList.length === 0) {
+            ShowResult("Please select Asset Register!", "failure");
+            return true;
+        }
+    };
+    $scope.UpdateAssetRegister = function () {
+        $scope.AddAssetRegisterUpdate();
+        $scope.validationUpdateAssetRegister();
+        if (!$scope.validationUpdateAssetRegister()) {
+            $scope.SaveUrl = "fixedassets/FixedAssetRegister/UpdateAssetRegister"
+            $http({
+                method: "POST",
+                url: $scope.SaveUrl,
+                data: {
+                    "assetRegisterList": $scope.checkedAssetRegisterUpdateList
+                },
+                dataType: "JSON"
+                , contentType: "application/json charset=utf-8"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    //$scope.getData();
+
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, "failure");
+            });
+            return true;
+        }
+    };
+
     // #region  Addition Posting
     $scope.searchByAddition = "VoucherNo"; $scope.searchAddition = "";
     $scope.searchByListAddition = [{ value: 'VoucherNo', name: "Voucher No" }, { value: 'PostingDate', name: "Posting Date" }, { value: 'FixedAssetMasterId', name: "Asset Master Id" }, { value: 'FixedAssetItemId', name: "Asset Item Id" }, { value: 'FixedAssetMaster', name: "Asset Master" }, { value: 'FixedAssetItem', name: "Asset Item" }, { value: 'FixedAssetCategory', name: "Asset Category" }, { value: 'FixedAssetSubCategory', name: "Asset Sub Category" }];

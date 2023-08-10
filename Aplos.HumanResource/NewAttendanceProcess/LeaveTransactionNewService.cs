@@ -2289,30 +2289,30 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                     }
 
                     //check balance
-                    //if (yearId.Length > 0)
-                    //{
-                    //    // List<LeaveTransactionVM> list_balance = (List<LeaveTransactionVM>)LoadGrdAllocatedLvDetails(companyGroupId, plantId, EmpSystemID, yearId);
-                    //    clsLeaveBalanceToDate leave = new clsLeaveBalanceToDate();
-                    //    List<Dictionary<string, object>> list_balance = leave.GetLeaveBalanceType(EmpSystemID, yearId);
-                    //    foreach (var item in list_balance)
-                    //    {
-                    //        if (item["LeaveTypeId"].ToString() == leaveTypeId)
-                    //        {
-                    //            if (_IsAvailExceptionAllowedOnSpecialAppeal == false)
-                    //            {
-                    //                if (string.IsNullOrEmpty(leaveTransaction.SystemID) == false)//edit
-                    //                {
-                    //                    item["ClosingBalance"] = (decimal)(clsStaticInfo.dbl(item["ClosingBalance"].ToString()) - clsStaticInfo.dbl(item["AllFutureAppliedLeave"].ToString())) + leaveTransaction.LeaveDays;
-                    //                }
+                    if (yearId.Length > 0)
+                    {
+                        // List<LeaveTransactionVM> list_balance = (List<LeaveTransactionVM>)LoadGrdAllocatedLvDetails(companyGroupId, plantId, EmpSystemID, yearId);
+                        clsLeaveBalanceToDate leave = new clsLeaveBalanceToDate();
+                        List<Dictionary<string, object>> list_balance = leave.GetLeaveBalanceType(EmpSystemID, yearId);
+                        foreach (var item in list_balance)
+                        {
+                            if (item["LeaveTypeId"].ToString() == leaveTypeId)
+                            {
+                                if (_IsAvailExceptionAllowedOnSpecialAppeal == false)
+                                {
+                                    if (string.IsNullOrEmpty(leaveTransaction.SystemID) == false)//edit
+                                    {
+                                        item["ClosingBalance"] = (decimal)(clsStaticInfo.dbl(item["ClosingBalance"].ToString()) - clsStaticInfo.dbl(item["AllFutureAppliedLeave"].ToString())) + leaveTransaction.LeaveDays;
+                                    }
 
-                    //                if ((decimal)(clsStaticInfo.dbl(item["ClosingBalance"].ToString())) < leaveDays)
-                    //                {
-                    //                    throw new Exception("Can't apply more than Balance...");
-                    //                }
-                    //            }
-                    //        }//leave type
-                    //    }//foreach
-                    //}//yearid
+                                    if ((decimal)(clsStaticInfo.dbl(item["ClosingBalance"].ToString())) < leaveDays)
+                                    {
+                                        throw new Exception("Can't apply more than Balance...");
+                                    }
+                                }
+                            }//leave type
+                        }//foreach
+                    }//yearid
                     ////balance check
 
                 }
