@@ -1655,6 +1655,14 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
             return Json(new { Message = AplosMessage.Insert });
         }
+        [HttpPost]
+        public JsonResult UpdateAssetRegister( List<Dictionary<string, object>> assetRegisterList)
+        {
+            FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
+            _fixedAssetDisposeService.UpdateAssetRegister(assetRegisterList);
+
+            return Json(new { Message = AplosMessage.Updated });
+        }
         [HttpGet, Authorize]
         public ActionResult CapitalizeAssetRegisterPostReport(ReportFormat reportFormat, string voucherId)
         {
@@ -1680,6 +1688,13 @@ namespace Aplos.Areas.FixedAssets.Controllers
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_fixedAssetQueryService.GetAssetRegisterList(identity.CompanyGroupId, identity.CompanyId, column, value), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost, Authorize]
+        public JsonResult GetAssetRegisterUpdateList(string column, string value, string capitalizationMasterId)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_fixedAssetQueryService.GetAssetRegisterUpdateList(identity.CompanyGroupId, identity.CompanyId, column, value, capitalizationMasterId), JsonRequestBehavior.AllowGet);
         }
 
         #endregion
