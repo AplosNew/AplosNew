@@ -968,5 +968,29 @@ namespace Aplos.Controllers.ApopAPIHR
         }
         #endregion Incedent
 
+        #region Attdn Lock
+        public List<Default2> GetCheckAttdnLock(string Date)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetCheckAttdnLock(out List<Default2> activelists, Date);
+            return activelists;
+        }
+        #endregion Attdn Lock
+
+        #region Quality control 
+        public List<QualityGenaralIssue> GetQualityGeneraWiseIssue()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetQualityGeneraWiseIssue(out List<QualityGenaralIssue> activelists);
+            return activelists;
+        }
+
+        public List<QualityPOIssue> GetQualityPOWiseIssue()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetQualityPOWiseIssue(out List<QualityPOIssue> activelists);
+            return activelists;
+        }
+        #endregion Quality control 
     }
 }

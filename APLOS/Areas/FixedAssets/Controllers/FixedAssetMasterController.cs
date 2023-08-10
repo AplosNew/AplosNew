@@ -25,7 +25,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         private readonly IFixedAssetMasterService _fixedAssetMasterService;
         private readonly IPKGeneratorService _pkGeneratorService;
         private readonly ISqlRepository _sqlRepository;
-        public FixedAssetMasterController(IUnitOfWork unitOfWork,IFixedAssetMasterService fixedAssetMasterService, IPKGeneratorService pkGeneratorService, ISqlRepository sqlRepository)
+        public FixedAssetMasterController(IUnitOfWork unitOfWork, IFixedAssetMasterService fixedAssetMasterService, IPKGeneratorService pkGeneratorService, ISqlRepository sqlRepository)
         {
             _unitOfWork = unitOfWork;
             _fixedAssetMasterService = fixedAssetMasterService;
@@ -50,7 +50,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             return View("~/Areas/FixedAssets/Views/FixedAssetMasterGL.cshtml");
         }
-        [Authorize]
+        
         public ActionResult AdditionalInfoUpdate()
         {
             return View("~/Areas/FixedAssets/Views/AdditionalInfoUpdate.cshtml");
@@ -401,11 +401,11 @@ namespace Aplos.Areas.FixedAssets.Controllers
         #region AdditionalInfoUpdate
 
         [HttpPost]
-        public JsonResult CreateAdditionalInfoUpdate(Dictionary<string, object> data, List<Dictionary<string, object>> detailData)
+        public JsonResult CreateAdditionalInfoUpdate(Dictionary<string, object> data, List<Dictionary<string, object>> detailData, List<Dictionary<string, object>> SelectedAssetRegisterList)
         {
             try
             {
-                SaveAdditionalInfoUpdate(data, detailData, out string Id);
+                SaveAdditionalInfoUpdate(data, detailData, out string Id, SelectedAssetRegisterList);
                 return Json(new { Id, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
@@ -415,11 +415,14 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
         }
 
-        public void SaveAdditionalInfoUpdate(Dictionary<string, object> data, List<Dictionary<string, object>> detailData, out string Id)
+        public void SaveAdditionalInfoUpdate(Dictionary<string, object> data, List<Dictionary<string, object>> detailData, out string Id, List<Dictionary<string, object>> SelectedAssetRegisterList)
         {
             try
             {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+         
                 DataSet dsMaster, dsDetail = null;
+                DataSet dsAssetRegister = null;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                 con.OpenDataSetThroughAdapter("select * from [TRN].[AdditionalInfoUpdate] where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
@@ -430,7 +433,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
 
                 string _Id = "", detailId = "";
-
+                string id = string.Empty;
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
@@ -478,8 +481,44 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
                 #endregion Additionall Info Update Detail
 
+                #region AssetRegister
+
+                foreach (var item in SelectedAssetRegisterList)
+                {
+                    if (id == "")
+                        id = "'" + item["Id"] + "'";
+                    else
+                        id = id + ",'" + item["Id"] + "'";
+                }
+                string mosql = "SELECT * FROM TRN.AssetRegister WHERE Id IN (" + id + ")";
+                con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter(mosql, out dsAssetRegister, false, "1");
+
+                foreach (var item in SelectedAssetRegisterList)
+                {
+                    DataView dv = new DataView(dsAssetRegister.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count > 0)
+                    {
+                        DataRow drmo = dv[0].Row;
+
+                        drmo.BeginEdit();
+
+                        drmo["AdditionalInfoUpdateId"] = _Id;
+                        drmo["UpdatedBy"] = identity.Name;
+                        drmo["UpdatedDate"] = DateTime.Now.ToString();
+                        drmo["UpdatedFromIP"] = identity.IPAddress;
+
+                        drmo.EndEdit();
+
+                    }
+
+                }
+                #endregion
+
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsDetail);
+                _info.SaveDataSets(dsMaster, dsDetail, dsAssetRegister);
 
             }
             catch (Exception ex)
@@ -501,7 +540,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
             _unitOfWork.BeginTransaction();
             var vendorAdWr = new System.Text.StringBuilder();
             var vendorAdWrsql = "";
-             
+
             vendorAdWrsql = "delete from [TRN].[AdditionalInfoUpdateDetail] Where AdditionalInfoUpdateId='" + Id + "'";
             vendorAdWr.Append(vendorAdWrsql);
             vendorAdWrsql = "delete from [TRN].[AdditionalInfoUpdate] Where Id='" + Id + "'";
@@ -509,10 +548,25 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
             _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
             _unitOfWork.SaveChanges();
-            _unitOfWork.Commit(); 
+            _unitOfWork.Commit();
 
             return Json(new { Message = AplosMessage.Deleted });
         }
+
+        [HttpGet]
+        public ActionResult GetAssetRegisterData(string fixedAssetItemId)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetAssetRegisterData(fixedAssetItemId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public ActionResult GetTaggedAssetRegisterData(string headerId)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetTaggedAssetRegisterData(headerId), JsonRequestBehavior.AllowGet);
+        }
+
         #endregion
     }
 }

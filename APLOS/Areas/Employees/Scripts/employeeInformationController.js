@@ -313,6 +313,19 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $scope.CountryId = response.data[0].CountryId;
             $scope.DOJpastDays = response.data[0].PastDOJDaysAllowed;
 
+            if ($scope.DOJpastDays!=0) {
+                $('.datepicker').datepicker({
+                    startDate: '-' + $scope.DOJpastDays + 1 + 'd',
+                    endDate: '-' + $scope.DOJpastDays + 'd',
+                    datesDisabled: $scope.DisabledDates,
+                    format: 'dd-M-yyyy',
+                    todayHighlight: true,
+                    autoclose: true,
+                    inline: true,
+                    changeMonth: true
+                });
+            }
+
             if (response.data[0].DOCBaseON === "Month") {
                 $scope.showMonthInput = true;
                 $scope.showDayInput = false;
@@ -368,16 +381,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
         })
 
-        $('.datepicker').datepicker({
-            startDate: '-' + $scope.DOJpastDays + 1 + 'd',
-            endDate: '-' + $scope.DOJpastDays + 'd',
-            datesDisabled: $scope.DisabledDates,
-            format: 'dd-M-yyyy',
-            todayHighlight: true,
-            autoclose: true,
-            inline: true,
-            changeMonth: true
-        });
+        
 
     };
     $scope.GetPlantWiseHRMSSetting();

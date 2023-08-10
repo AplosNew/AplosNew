@@ -112,7 +112,7 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         VoucherTypeId: null,
         PartyType: "Customer",
         SettlementType: "SetOff",
-        PaymentSource: 'Bank',
+        PaymentSource: 'Invoice',
         Type: null,
         VoucherNo: null,
         VoucherDate: $filter("dateFiltering")(Date.now()),
@@ -321,11 +321,15 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
                 ShowResult("Please select Customer!", "failure");
                 return true;
             }
-            if ($scope.voucherDetailList.length === 0 && $scope.advance.SettlementType ==='SetOff') {
+            if ($scope.voucherDetailList.length === 0 && $scope.advance.SettlementType === 'SetOff' && $scope.advance.PaymentSource === 'Invoice') {
                 ShowResult("Please select Invoice Receivable!", "failure");
                 return true;
             }
             if ($scope.advance.PaymentSource === 'Bank' && $scope.advance.SettlementType === 'Return' && $scope.advance.BankMasterId==null) {
+                ShowResult("Please select Bank!", "failure");
+                return true;
+            }
+            if ($scope.advance.PaymentSource === 'Bank' && $scope.advance.SettlementType === 'SetOff' && $scope.advance.BankMasterId == null) {
                 ShowResult("Please select Bank!", "failure");
                 return true;
             }
@@ -720,6 +724,13 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
     };
 
     $scope.changeSettlementType = function () {
+
+        if ($scope.advance.SettlementType == 'SetOff') {
+            $scope.advance.PaymentSource = 'Bank'
+        }
+        else {
+            $scope.advance.PaymentSource = 'Invoice'
+        }
     };
 
     $scope.closeBankPopUp = function () {
@@ -906,5 +917,27 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         return true;
     };
 
-
+    $scope.clearSourceInfo = function () {
+        $scope.advance.Amount = 0;
+        $scope.advance.BankAmount = 0;
+        $scope.advance.CashMasterId = null;
+        $scope.isBankAmount = false;
+        $scope.advance.AccountTitle = null;
+        $scope.advance.BankName = null;
+        $scope.advance.BankMasterId = null;
+        $scope.advance.BankCurrencyId = null;
+        $scope.advance.CashMasterId = null;
+        $scope.advance.CashName = null;
+        $scope.advance.CashCurrencyId = null;
+        $scope.advance.GLGeneralInfoId = null;
+        $scope.advance.GLGeneralInfoCode = null;
+        $scope.advance.GLGeneralInfoName = null;
+        $scope.advance.BudgetMasterId = null;
+        $scope.advance.BudgetCode = null;
+        $scope.advance.BudgetName = null;
+        $scope.advance.ActivityId = null;
+        $scope.advance.ActivityCode = null;
+        $scope.advance.ActivityName = null;
+        $scope.voucherDetailList = [];
+    }
 }

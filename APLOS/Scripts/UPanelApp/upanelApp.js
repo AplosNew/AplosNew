@@ -1199,6 +1199,8 @@ upanelApp.controller("ProcessManagementController", ProcessManagementController)
 upanelApp.controller("masterLCAmendmentController", masterLCAmendmentController)
 upanelApp.controller("AdditionalInfoUpdateController", AdditionalInfoUpdateController)
 upanelApp.controller("ProductParameterMasterController", ProductParameterMasterController)
+upanelApp.controller("ProcessTemplateController", ProcessTemplateController)
+upanelApp.controller("PayableCreationAndWorkerAdvanceController", PayableCreationAndWorkerAdvanceController)
 
 
 

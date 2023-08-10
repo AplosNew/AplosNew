@@ -385,6 +385,59 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
        
 
     }
+
+    $scope.PurposeEmployeeList = [];
+    $scope.GetemployeeDataList = function (x) {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getemployeeDataList",
+            data: { 'headerid': x },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.PurposeEmployeeList = response.data;
+
+        });
+    }
+    $scope.GetemployeeDataList();
+
+    $scope.ckdPurposeEmployeeList = [];
+    $scope.SavePurposeRP = function () {
+        for (var i = 0; i < $scope.PurposeEmployeeList.length; i++) {
+            if ($scope.PurposeEmployeeList[i].isSelected == true && ($scope.PurposeEmployeeList[i].IsActive == null || $scope.PurposeEmployeeList[i].IsActive == false)) {
+                $scope.ckdPurposeEmployeeList.push($scope.PurposeEmployeeList[i]);
+            }
+            else if ($scope.PurposeEmployeeList[i].isSelected == false && $scope.PurposeEmployeeList[i].Id != null) {
+
+                $scope.ckdPurposeEmployeeList.push($scope.PurposeEmployeeList[i]);
+            }
+        }
+        $http({
+            method: 'POST',
+            url: $scope.path + 'SavePurposeRP',
+            data: {
+                datalist: $scope.ckdPurposeEmployeeList,
+                headerid: $scope.ModelNew.Id
+            },
+            dataType: 'JSON'
+        })
+            .then(function successCalback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+
+                    $scope.ckdPurposeEmployeeList = []
+                    $scope.GetemployeeDataList($scope.ModelNew.Id);
+
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+
+            })
+
+    }
     //  #endregion PurposeMaaster
 
     // #region LocationMaster
@@ -797,57 +850,6 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
 
     // #endregion Employee popup
 
-    $scope.PurposeEmployeeList = [];
-    $scope.GetemployeeDataList = function (x) {
-        $http({
-            method: 'POST',
-            url: $scope.path + "getemployeeDataList",
-            data: { 'headerid': x },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.PurposeEmployeeList = response.data;
-
-        });
-    }
-    $scope.GetemployeeDataList();
-
-    $scope.ckdPurposeEmployeeList = [];
-    $scope.SavePurposeRP = function () {
-        for (var i = 0; i < $scope.PurposeEmployeeList.length; i++) {
-            if ($scope.PurposeEmployeeList[i].isSelected == true && ($scope.PurposeEmployeeList[i].IsActive == null || $scope.PurposeEmployeeList[i].IsActive == false)) {
-                $scope.ckdPurposeEmployeeList.push($scope.PurposeEmployeeList[i]);
-            }
-            else if ($scope.PurposeEmployeeList[i].isSelected == false && $scope.PurposeEmployeeList[i].Id != null) {
-               
-                $scope.ckdPurposeEmployeeList.push($scope.PurposeEmployeeList[i]);
-            }
-        }
-        $http({
-            method: 'POST',
-            url: $scope.path + 'SavePurposeRP',
-            data: {
-                datalist: $scope.ckdPurposeEmployeeList,
-                headerid: $scope.ModelNew.Id
-            },
-            dataType:'JSON'
-        })
-            .then(function successCalback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    
-                    $scope.ckdPurposeEmployeeList = []
-                    $scope.GetemployeeDataList($scope.ModelNew.Id);
-                    
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-              
-            })
-
-    }
+    
    
 }

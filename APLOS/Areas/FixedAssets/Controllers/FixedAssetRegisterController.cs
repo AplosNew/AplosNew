@@ -1561,10 +1561,10 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetApprovedCapitalizeData()
+        public JsonResult GetApprovedCapitalizeData(string type)
         {
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
-            return Json(_fixedAssetQueryService.GetApprovedCapitalizeData(), JsonRequestBehavior.AllowGet);
+            return Json(_fixedAssetQueryService.GetApprovedCapitalizeData(type), JsonRequestBehavior.AllowGet);
         }
 
 
@@ -1624,12 +1624,12 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
         #region Capitalize Asset Register Post
         [Authorize, HttpPost]
-        public ActionResult GetCapitalizeAssetRegisterPostedList(string column, string value)
+        public ActionResult GetCapitalizeAssetRegisterPostedList(string column, string value, string type)
         {
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            return Json(_fixedAssetQueryService.GetCapitalizeAssetRegisterPostedList(column, value, identity.CompanyId), JsonRequestBehavior.AllowGet);
+            return Json(_fixedAssetQueryService.GetCapitalizeAssetRegisterPostedList(column, value, type, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
         public JsonResult CreatetCapitalizeAssetRegisterPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, Dictionary<string, object> capitalizationMasterdata)
@@ -1642,6 +1642,26 @@ namespace Aplos.Areas.FixedAssets.Controllers
             _fixedAssetDisposeService.InsertCapitalizeAssetRegisterPosting(voucherVM, voucherDetailVMList, capitalizationMasterdata);
 
             return Json(new { Message = AplosMessage.Insert });
+        }
+        [HttpPost]
+        public JsonResult CreatetCapitalizeAssetRegisterPostAddition(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, List<Dictionary<string, object>> assetRegisterList, Dictionary<string, object> capitalizationMasterdata)
+        {
+            FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            _fixedAssetDisposeService.InsertCapitalizeAssetRegisterPostingAddition(voucherVM, voucherDetailVMList, assetRegisterList, capitalizationMasterdata);
+
+            return Json(new { Message = AplosMessage.Insert });
+        }
+        [HttpPost]
+        public JsonResult UpdateAssetRegister( List<Dictionary<string, object>> assetRegisterList)
+        {
+            FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
+            _fixedAssetDisposeService.UpdateAssetRegister(assetRegisterList);
+
+            return Json(new { Message = AplosMessage.Updated });
         }
         [HttpGet, Authorize]
         public ActionResult CapitalizeAssetRegisterPostReport(ReportFormat reportFormat, string voucherId)
@@ -1661,6 +1681,20 @@ namespace Aplos.Areas.FixedAssets.Controllers
                 default:
                     return RenderReportAsExcel(workbook, reportFileName);
             }
+        }
+        [HttpPost, Authorize]
+        public JsonResult GetAssetRegisterList(string column, string value)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_fixedAssetQueryService.GetAssetRegisterList(identity.CompanyGroupId, identity.CompanyId, column, value), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost, Authorize]
+        public JsonResult GetAssetRegisterUpdateList(string column, string value, string capitalizationMasterId)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_fixedAssetQueryService.GetAssetRegisterUpdateList(identity.CompanyGroupId, identity.CompanyId, column, value, capitalizationMasterId), JsonRequestBehavior.AllowGet);
         }
 
         #endregion

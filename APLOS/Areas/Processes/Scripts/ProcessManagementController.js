@@ -25,18 +25,41 @@ function ProcessManagementController(commonMessage, $scope, $rootScope, baseServ
     }
     // #endregion TAB CHANGE
 
+    $scope.DataList = [];
+    $scope.GetProcessManagementDataList = function () {
+        $http({
+            method: 'POST',
+            url: 'Processes/ProcessManagement/GetProcessManagementDataList'
+        }).then(function successCallback(response) {
+            $scope.DataList = response.data;
+            
+        }
+        )
+    }
+
+    $scope.GetProcessManagementDataList();
+
+    $scope.Get = function (args) {
+        $scope.ProcessManagementNew = Object.assign({}, args.data)
+        $scope.Action = 'Update';
+        $scope.LoadEntityDetails();
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    }
 
     $scope.EntityList = [];
     $scope.LoadEntityDetails = function () {
         $http({
             method: 'POST',
-            url: 'Processes/ProcessManagement/LoadEntityDetails'
+            url: 'Processes/ProcessManagement/LoadEntityDetails',
+            data: { 'headerId': $scope.ProcessManagementNew.Id}
         }).then(function successCallback(response) {
             $scope.EntityList = response.data;
         }
         )
     }
-    $scope.LoadEntityDetails();
+    //$scope.LoadEntityDetails();
 
     $scope.ProcessList = [];
     $scope.LoadProcessList = function () {
@@ -127,23 +150,52 @@ function ProcessManagementController(commonMessage, $scope, $rootScope, baseServ
 
     $scope.ProcessManagementTemp = {
         Id: null,
-        StandaredName: null,
+        StandardName: null,
         UserName:null,
         Process: null,
         SubProcess:null,
-        MinSPTInTime: null,
-        MaxSPTInTime:null,
-        StandardSPTInTime: null,
-        ResponsiblePersonCode: null,
-        EmployeeName:null
+        MinSPTTime: null,
+        MaxSPTTime:null,
+        StandardSPTTime: null,
+        ResponsiblePerson: null,
+        EmployeeName: null,
+        IsWorkCenterApplicable:null
     }
     $scope.ProcessManagementNew = Object.assign({}, $scope.ProcessManagementTemp)
 
-    $scope.SaveUtilityCategory = function () {
+    $scope.Save = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'ProcessManagementNew',
-            data: { 'data': $scope.UtilityCategoryModelNew },
+            url: $scope.path + 'Save',
+            data: { 'data': $scope.ProcessManagementNew },
+            dataType: 'JSON'
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetProcessManagementDataList();
+                }
+            })
+    }
+
+    $scope.SelectedEntityList = [];
+    $scope.SaveProcessEntity = function () {
+        for (var i = 0; i < $scope.EntityList.length; i++) {
+            if ($scope.EntityList[i].Flag) {
+                $scope.SelectedEntityList.push($scope.EntityList[i]);
+            }
+
+        }
+        $http({
+            method: 'POST',
+            url: $scope.path + 'SaveProcessEntity',
+            data: {
+                'datalist': $scope.SelectedEntityList,
+                'headerid': $scope.ProcessManagementNew.Id
+            },
             dataType: 'JSON'
         })
             .then(function successCallback(response) {
@@ -156,4 +208,173 @@ function ProcessManagementController(commonMessage, $scope, $rootScope, baseServ
                 }
             })
     }
+
+    $scope.ChkdMaterialList = [];
+    $scope.SaveProcessMaterial = function () {
+        for (var i = 0; i < $scope.MaterialList.length; i++) {
+            if ($scope.MaterialList[i].Flag) {
+                $scope.ChkdMaterialList.push($scope.MaterialList[i]); 
+            }
+
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveProcessMaterial',
+                data: {
+                    'datalist': $scope.ChkdMaterialList,
+                    'headerid': $scope.ProcessManagementNew.Id
+                },
+                dataType: 'JSON'
+            })
+                .then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+
+                    }
+                })
+        }
+    }
+
+    $scope.checkUtilityList = [];
+    $scope.SaveProcessUtility = function () {
+        for (var i = 0; i < $scope.UtilityList.length; i++) {
+            if ($scope.UtilityList[i].Flag) {
+                $scope.checkUtilityList.push($scope.UtilityList[i]);
+            }
+
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveProcessUtility',
+                data: { 'datalist': $scope.checkUtilityList },
+                dataType: 'JSON'
+            })
+                .then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+
+                    }
+                })
+        }
+    }
+
+    $scope.chkdWorkcenterList = [];
+    $scope.SaveWorkcenter = function(){
+        for (var i = 0; i < $scope.QualityManagementMasterWorkCenterList.length; i++) {
+            if ($scope.QualityManagementMasterWorkCenterList[i].Flag) {
+                $scope.chkdWorkcenterList.push($scope.QualityManagementMasterWorkCenterList[i]);
+
+            }
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'SaveWorkcenter',
+            data: {
+                'datalist': $scope.chkdWorkcenterList
+                
+            },
+            dataType: 'JSON'
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+
+                }
+            })
+    }
+
+
+
+    $scope.EmployeedblClick = function (args) {
+        $scope.ProcessManagementNew.ResponsiblePerson = args.data.EmployeeCode;
+        $scope.ProcessManagementNew.EmployeeName = args.data.EmployeeName;
+        angular.element(document.querySelector('#employeePopUps')).modal('hide');
+    }
+
+
+    //----------------------------------------------------------------------------------------------------------------------------
+
+    // #region Process Parameter
+    $scope.getSeqUrl = $scope.path + 'GetSequence';
+    $scope.ActionPP = 'Save';
+
+    $scope.GetProcessParameter = function (args) {
+        $scope.PMPModelNew = Object.assign({}, args.data)
+        $scope.ActionPP  = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    }
+
+    $scope.ProcessParamList = [];
+    $scope.LoadProcessParameterData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'LoadProcessParameterData',
+            dataType: 'JSON'
+        })
+            .then(function successCallback(response) {
+                $scope.ProcessParamList = response.data;
+            })
+    }
+    $scope.LoadProcessParameterData();
+
+    $scope.PMTemp = {
+        Id:null,
+        Sequence: null,
+        ItemName: null,
+        UOMId: null,
+        Min: null,
+        Max: null,
+        Remarks: null,
+        IsUtilityApplicable:null
+    }
+    $scope.PMPModelNew = Object.assign({}, $scope.PMTemp);
+
+    $scope.GetSequence = function () {
+        cboService.getSequence($scope.getSeqUrl, function (data) {
+            $scope.PMTemp.Sequence = data;
+            $scope.PMPModelNew.Sequence = data;
+        });
+    };
+    $scope.GetSequence();
+
+    $scope.SaveProcessParameter = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'SaveProcessParameter',
+            data: { 'data': $scope.PMPModelNew },
+            dataType: 'JSON'
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadProcessParameterData();
+                }
+            })
+    }
+
+    $scope.message_Detailconfirmation = null;
+    $scope.RemoveDetailConsumptionMatrix = function (data) {
+        $scope.DetailConsumptionSKUMapping = data;
+        if (!baseService.isUndefinedOrNull($scope.DetailConsumptionSKUMapping.Id))
+            $scope.message_Detailconfirmation = 'Are you sure want to delete permanently';
+        angular.element(document.querySelector('#confirmDetailPopUp')).modal('show');
+    }
+
+    $scope.DeleteProcessParameter = function () {
+
+    }
+    // #endregion Process Parameter
 }

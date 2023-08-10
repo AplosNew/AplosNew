@@ -553,6 +553,7 @@
     <Compile Include="Areas\Materials\Controllers\QRCodeGeneratorController.cs" />
     <Compile Include="Areas\Materials\Controllers\WeighingScaleMasterController.cs" />
     <Compile Include="Areas\Processes\Controllers\ProcessManagementController.cs" />
+    <Compile Include="Areas\Processes\Controllers\ProcessTemplateController.cs" />
     <Compile Include="Areas\Productions\Controllers\DailyPlanningAndProductionReportController.cs" />
     <Compile Include="Areas\Employees\Controllers\TransportGroupController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmpActiveInActiveNewController.cs" />
@@ -1901,6 +1902,7 @@
     <Content Include="Areas\Administration\Scripts\ServicesApprovingAuthorityController.js" />
     <Content Include="Areas\Attendances\Scripts\BuyerjobCardcomplianceReportController.js" />
     <Content Include="Areas\Attendances\Scripts\EOTController.js" />
+    <Content Include="Areas\Attendances\Scripts\PayableCreationAndWorkerAdvanceController.js" />
     <Content Include="Areas\Attendances\Scripts\MultipleEmployeeIndividualLockController.js" />
     <Content Include="Areas\Attendances\Scripts\LeaveYearEndProcessEncashmentApprovalController.js" />
     <Content Include="Areas\Attendances\Scripts\LeaveYearEndProcessNewController.js" />
@@ -2099,6 +2101,7 @@
     <Content Include="Areas\Packing\Scripts\packingConfig.js" />
     <Content Include="Areas\HumanResource\Scripts\WebBasedPackingController.js" />
     <Content Include="Areas\Processes\Scripts\ProcessManagementController.js" />
+    <Content Include="Areas\Processes\Scripts\ProcessTemplateController.js" />
     <Content Include="Areas\Productions\Scripts\DailyPlanningAndProductionReportController.js" />
     <Content Include="Areas\Employees\Scripts\RouteEmployeeReportController.js" />
     <Content Include="Areas\Employees\Scripts\TransportGroupController.js" />
@@ -4764,6 +4767,8 @@
     <Content Include="Areas\FixedAssets\Views\AdditionalInfoUpdate.cshtml" />
     <Content Include="Areas\FixedAssets\Views\CapitalizeAssetRegisterPostingNew.cshtml" />
     <Content Include="Areas\FixedAssets\Views\CapitalizeAssetRegisterPostingAddition.cshtml" />
+    <Content Include="Areas\Processes\Views\ProcessTemplate\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\GoodWork\PCAAC.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -167,7 +167,7 @@ namespace Library.Accounting.Accounts
 									 , SM.TransactionUoMId, TUoM.UserName AS TransactionUoM
 									 ,C.Code CurrencyName,SM.TransactionQty,SM.TransactionRate,SM.TransactionAmount
 									  , ISNULL(SM.BaseAmount*S.ToCurrencyRate,0)+ISNULL(SM.TaxAmount*S.ToCurrencyRate,0) + ISNULL(SS.Amount*S.ToCurrencyRate,0) AS BaseAmount
-									 , SM.TaxAmount,HSN.Code HSNCode
+									 , SM.TaxAmount,HSNCode=ISNULL(MHSN.Code,HSN.Code) 
 							,MGGL.GLGeneralInfoId
 							,GL.AccountCode GLGeneralInfoCode
 							,GL.UserName GLGeneralInfoName 
@@ -199,12 +199,13 @@ namespace Library.Accounting.Accounts
 									LEFT JOIN[MST].[BudgetMaster] AS BM ON MGGL.BudgetMasterId= BM.Id
 									LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 									LEFT JOIN [HKP].[Activity] AS A ON MGGL.ActivityId= A.Id
+									LEFT JOIN (SELECT DISTINCT HsnCodeId,SalesMaterialId FROM TRN.SalesTax ) STH ON STH.SalesMaterialId=SM.Id
+									LEFT JOIN[HKP].[HSNCode] AS MHSN ON MHSN.ID = STH.HSNCodeId
 									LEFT JOIN HKP.HSNCode HSN ON HSN.Id=MM.HSNCodeId
 									 		--LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=S.Id
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
                                     WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + "' AND S.Id='"+ salesId + @"' AND S.VoucherId IS NULL";
                 return _sqlRepository.GetDataCollection(cmdText);
-
             }
             catch (Exception ex)
             {
