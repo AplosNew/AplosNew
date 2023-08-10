@@ -2456,7 +2456,6 @@ left join MST.QualityIssueDetails QID on QID.Id=QPC.IssueId
 left join MST.QualityManagementMaster QMM on QMM.Id = QPC.IssueId
 left join MST.POQualityPlanDetails QPD on QPD.Id=QPC.QPId
 left join EmployeeInformation EI on EI.SystemId=QPC.QPEmployeeId
-left join TRN.QualityControl QC on QC.QualityPlanId=QPC.Id
 left join TRN.Productionorder PO on PO.Id=QPC.POId
 left join ORG.Entity  E on E.Id=PO.EntityId
 left join hkp.Process P on P.Id=QPD.ProcessId
@@ -2485,16 +2484,12 @@ where QPC.Id='" + PlannedId + @"'";
             string strSql = string.Empty;
             try
             {
-                strSql = @"select QII.Id,QII.SNO,QMM.UserName IssueName,QII.ItemName,UOM.UserName UOM,QII.Max,QII.Min,P.Code as PositionCode,QII.CriticalLevel,
-QCD.Value,QCD.GradeId as GradeDetails,QCD.Remarks,QCD.ActionToBeTaken,QCD.ResponsiblePersonId as ResponsiblePerson
+                strSql = @"select QII.Id,QII.SNO,QMM.UserName IssueName,QII.ItemName,UOM.UserName UOM,QII.Max,QII.Min,QII.CriticalLevel,
+'' Value,'' GradeDetails,'' Remarks,'' ActionToBeTaken,'' ResponsiblePerson
 from MST.QualityIssueItem QII
-left join MST.QualityIssueDetails QID on QID.Id=QII.IssueId
 left join SCS.UnitOfMeasurement UOM on UOM.Id=QII.UOMId
-left join Org.Position P on P.Id=QII.PositionCodeId
-left join TRN.QualityPlanControl QPC on QID.Id=QPC.IssueId
+left join TRN.QualityPlanControl QPC on QII.IssueId=QPC.IssueId
 left join MST.QualityManagementMaster QMM on QMM.Id = QPC.IssueId
-left join TRN.QualityControl QC on QC.QualityPlanId=QPC.Id
-left join TRN.QualityControlDetails QCD on QCD.QCId=QC.Id
 where QPC.Id='" + PlannedId + @"' order by QII.SNO";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -2512,18 +2507,19 @@ where QPC.Id='" + PlannedId + @"' order by QII.SNO";
             }
         }
 
-        public void GetQualityGeneralIssuePlannedDetails(string PlannedId, string plantId, out DataSet dsRef)
+        public void GetQualityGeneralIssuePlannedDetails(string PlannedId, string plantId, out DataSet dsRef) 
         {
 
             ConnectionManager.DAL.ConManager objCon;
             string strSql = string.Empty;
             try
             {
-                strSql = @"select QIC.Id,format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.Id order by AddedDate desc)),'dd-MMM-yyyy') as QualityIssueDate,
-QID.Id as IssueId,QMM.UserName IssueName,E.UserName Entity,
+                strSql = @"select QIC.Id,format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId order by AddedDate desc)),'dd-MMM-yyyy') as QualityIssueDate,
+format((select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId order by AddedDate desc),'dd-MMM-yyyy') as LastDate,
+QIC.IssueId,QMM.UserName IssueName,E.UserName Entity,
 P.UserName as Process,EI.EmployeeName as AllotedPlanEmployee
 from TRN.QualityIssueControl QIC
-left join MST.QualityIssueDetails QID on QID.Id=QIC.IssueId
+left join MST.QualityIssueDetails QID on QID.IssueNameId=QIC.IssueId
 left join MST.QualityManagementMaster QMM on QMM.Id = QIC.IssueId
 left join ORG.Entity  E on E.Id=QId.EntityId
 left join hkp.Process P on P.Id=QID.ProcessId
@@ -2553,15 +2549,12 @@ where QIC.Id='" + PlannedId + @"'";
             string strSql = string.Empty;
             try
             {
-                strSql = @"select QII.Id,QII.SNO,QMM.UserName IssueName,QII.ItemName,UOM.UserName UOM,QII.Max,QII.Min,P.Code as PositionCode,QII.CriticalLevel,
+                strSql = @"select QII.Id,QII.SNO,QMM.UserName IssueName,QII.ItemName,UOM.UserName UOM,QII.Max,QII.Min,QII.CriticalLevel,
 '' Value,'' GradeDetails,'' Remarks,'' ActionToBeTaken,'' ResponsiblePerson
 from MST.QualityIssueItem QII
-left join MST.QualityIssueDetails QID on QID.Id=QII.IssueId
 left join SCS.UnitOfMeasurement UOM on UOM.Id=QII.UOMId
-left join Org.Position P on P.Id=QII.PositionCodeId
-left join TRN.QualityIssueControl QIC on QID.Id=QIC.IssueId
+left join TRN.QualityIssueControl QIC on QII.IssueId=QIC.IssueId
 left join MST.QualityManagementMaster QMM on QMM.Id = QIC.IssueId
-left join TRN.QualityControl QC on QC.QualityPlanId=QIC.Id
 where QIC.Id='" + PlannedId + @"' order by QII.SNO";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -2586,12 +2579,12 @@ where QIC.Id='" + PlannedId + @"' order by QII.SNO";
             string strSql = string.Empty;
             try
             {
-                strSql = @"select QC.Id,QID.Id as IssueId,QMM.UserName IssueName,E.UserName Entity,P.UserName as Process,QC.ProductionDate,SD.UserName Shift,
+                strSql = @"select QC.Id,QC.IssueId,QMM.UserName IssueName,E.UserName Entity,P.UserName as Process,QC.ProductionDate,SD.UserName Shift,
 QTD.PeriodName + ' ('+ format(QTD.FromTime,'hh:mm tt') + ' - ' + format(QTD.ToTime,'hh:mm tt') + ' )' as period,EI.EmployeeName,QC.LotNumber,QC.PlanType,QC.QualityPlanId,QC.Remarks,QC.MasterOrderItemId,QC.SalesOrderId
  from TRN.QualityControl QC
 left join ORG.Entity  E on E.Id=QC.EntityId
 left join hkp.Process P on P.Id=QC.ProcessId
-left join MST.QualityIssueDetails QID on QID.Id=QC.IssueId
+--left join MST.QualityIssueDetails QID on QID.Id=QC.IssueId
 left join MST.QualityManagementMaster QMM on QMM.Id = QC.IssueId
 left join ShiftDefination SD on SD.SystemID=QC.ProductionShiftId
 left join MST.QualityTimeDetails QTD on QTD.Id=QC.PeriodId
@@ -2624,7 +2617,7 @@ where QC.Id='" + PlannedId + @"'";
 QCD.Value,(select GradeName from MST.QualityGradeDetails where id=QCD.GradeId) as GradeDetails,QCD.Remarks,(select ActionToBeTakenName from MST.QualityActionToBeTakenDetails where id=QCD.ActionToBeTaken) as ActionToBeTaken,QCD.ResponsiblePersonId as ResponsiblePerson from TRN.QualityControlDetails QCD 
 left join TRN.QualityControl QC on QC.id=QCD.QCId
 left join MST.QualityIssueItem QII on QII.Id=QCD.ItemId
-left join MST.QualityIssueDetails QID on QID.Id=QII.IssueId
+--left join MST.QualityIssueDetails QID on QID.Id=QII.IssueId
 left join MST.QualityManagementMaster QMM on QMM.Id = QC.IssueId
 left join SCS.UnitOfMeasurement UOM on UOM.Id=QII.UOMId
 left join Org.Position P on P.Id=QII.PositionCodeId

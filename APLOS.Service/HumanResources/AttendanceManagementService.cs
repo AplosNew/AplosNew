@@ -4845,12 +4845,20 @@ namespace Library.Service.HumanResources
                             xlsCol = 3;
                             xlsRow = 5;
                             
-                            sheet1.Range[xlsRow, xlsCol].Text = "Quality Issue Date";
+                            sheet1.Range[xlsRow, xlsCol].Text = "Due Date";
                             sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[0]["QualityIssueDate"].ToString().Trim();
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
                             sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 2].Merge();
-                           
+
+                            xlsCol = 3;
+                            xlsRow += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = "Last Date";
+                            sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[0]["LastDate"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 2].Merge();
+
                             xlsCol = 3;
                             xlsRow += 1;
                             sheet1.Range[xlsRow, xlsCol].Text = "Issue Name";

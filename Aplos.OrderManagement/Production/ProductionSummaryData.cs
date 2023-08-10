@@ -3211,11 +3211,11 @@ select IssueId as Value,(select QMM.UserName from MST.QualityManagementMaster QM
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public IEnumerable<object> GetQualityWorkCenterList(string IssueId)
+        public IEnumerable<object> GetQualityWorkCenterList(string IssueId, string EntityId, string ProcessId)
         {
             string sql = @"select QMW.WorkCenterMasterId as Value, WCM.UserName as Text from MST.QualityManagementWorkCenter QMW
 left join scs.WorkCenterMaster WCM on WCM.Id=QMW.WorkCenterMasterId
-where QMW.QMID ='"+ IssueId + "'";
+where QMW.QMID ='" + IssueId + "' and WCM.EntityId='" + EntityId + "' and WCM.ProcessId='" + ProcessId + "'";
             return _sqlRepository.GetDataCollection(sql);
         }
 

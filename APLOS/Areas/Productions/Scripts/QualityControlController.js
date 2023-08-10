@@ -410,10 +410,10 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.GetActionToBeTakenGridList();
 
     $scope.WorkCenterList = [];
-    $scope.GetWorkCenterGridList = function (QIssueId) {
+    $scope.GetWorkCenterGridList = function (QIssueId,QEntityId,QProcessId) {
         $http({
             method: 'GET',
-            url: 'Productions/QualityControl/GetWorkCenterList?IssueId=' + QIssueId
+            url: 'Productions/QualityControl/GetWorkCenterList?IssueId=' + QIssueId + '&EntityId=' + QEntityId + '&ProcessId=' + QProcessId
         }).then(function successCallback(response) {
             $scope.WorkCenterList = response.data;
         });
@@ -2174,6 +2174,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.productionSummaryNew.LotNumber = $event.data.LotNumber;
         $scope.productionSummaryNew.ProductionInCharge = $event.data.QPEmployee;
         $scope.productionSummaryNew.ProductionInChargeId = $event.data.QPEmployeeId;
+        $scope.productionSummaryNew.WorkCenterId = $event.data.WorkCenterId;
         $scope.WorkCenterHeaderList = [];
         $scope.QPId = null;
         $scope.PlanType = null;
@@ -2187,7 +2188,8 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.GetPeriodList($scope.productionSummaryNew.IssueId);
         $scope.GetIssueType($scope.productionSummaryNew.IssueId);
         $scope.GetQBookingLevel();
-        $scope.GetWorkCenterList($scope.productionSummaryNew.IssueId);
+        $scope.GetWorkCenterList($scope.productionSummaryNew.IssueId, $scope.productionSummaryNew.EntityId, $scope.productionSummaryNew.ProcessId);
+        $scope.GetWorkCenterGridList($scope.productionSummaryNew.IssueId, $scope.productionSummaryNew.EntityId, $scope.productionSummaryNew.ProcessId);
         //$scope.productionSummaryNew.Article = $event.data.Article;
     }
 
@@ -2204,6 +2206,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
             $scope.productionSummaryNew.IssueId = $event.data.IssueId;
             $scope.productionSummaryNew.ProductionInCharge = $event.data.QGIEmployee;
             $scope.productionSummaryNew.ProductionInChargeId = $event.data.QGIEmployeeId;
+            $scope.productionSummaryNew.WorkCenterId = $event.data.WorkCenterId;
             $scope.WorkCenterHeaderList = [];
             $scope.QPId = null;
             $scope.PlanType = null;
@@ -2217,7 +2220,8 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
             $scope.GetPeriodList($scope.productionSummaryNew.IssueId);
             $scope.GetIssueType($scope.productionSummaryNew.IssueId);
             $scope.GetQBookingLevel();
-            $scope.GetWorkCenterList($scope.productionSummaryNew.IssueId);
+            $scope.GetWorkCenterList($scope.productionSummaryNew.IssueId, $scope.productionSummaryNew.EntityId, $scope.productionSummaryNew.ProcessId);
+            $scope.GetWorkCenterGridList($scope.productionSummaryNew.IssueId, $scope.productionSummaryNew.EntityId, $scope.productionSummaryNew.ProcessId);
             //$scope.productionSummaryNew.Article = $event.data.Article;
         }
         catch (ex)
@@ -2228,17 +2232,17 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
 
     $scope.SetQCCompleteSelectData = function ($event) {
         $scope.productionSummaryNew.Id = $event.data.QCHeaderId;
-        $scope.productionSummaryNew.ProductionOrderId = $event.data.QCPONo;
+        $scope.productionSummaryNew.ProductionOrderId = $event.data.PONo;
         $scope.productionSummaryNew.EntityId = $event.data.EntityId;
         $scope.productionSummaryNew.ProcessId = $event.data.ProcessId;
         $scope.productionSummaryNew.ProductionShiftId = $event.data.ProductionShiftId;
-        $scope.productionSummaryNew.ProductionDate = $event.data.QCActualDate;
+        $scope.productionSummaryNew.ProductionDate = $event.data.ActualDate;
         $scope.productionSummaryNew.IssueId = $event.data.IssueId;
         $scope.productionSummaryNew.PeriodId = $event.data.PeriodId;
-        $scope.productionSummaryNew.LotNumber = $event.data.QCLotNumber;
-        $scope.productionSummaryNew.ProductionInCharge = $event.data.QCProductionIncharge;
+        $scope.productionSummaryNew.LotNumber = $event.data.LotNumber;
+        $scope.productionSummaryNew.ProductionInCharge = $event.data.CheckedBy;
         $scope.productionSummaryNew.ProductionInChargeId = $event.data.ProductionInchargeId;
-        $scope.productionSummaryNew.Remarks = $event.data.QCRemarks;
+        $scope.productionSummaryNew.Remarks = $event.data.IssueRemarks;
         $scope.productionSummaryNew.RepeatEntry = $event.data.RepeatEntry;
         $scope.productionSummaryNew.WorkCenterId = $event.data.WorkCenterId;
         $scope.WorkCenterHeaderList = [];
@@ -2253,9 +2257,9 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.GetPeriodList($scope.productionSummaryNew.IssueId);
         $scope.GetIssueType($scope.productionSummaryNew.IssueId);
         $scope.GetQBookingLevel();
-        $scope.GetWorkCenterList($scope.productionSummaryNew.IssueId);
+        $scope.GetWorkCenterList($scope.productionSummaryNew.IssueId, $scope.productionSummaryNew.EntityId, $scope.productionSummaryNew.ProcessId);
         $scope.loadWC();
-        $scope.GetWorkCenterGridList($scope.productionSummaryNew.IssueId);
+        $scope.GetWorkCenterGridList($scope.productionSummaryNew.IssueId, $scope.productionSummaryNew.EntityId, $scope.productionSummaryNew.ProcessId);
         //$scope.productionSummaryNew.Article = $event.data.Article;
     }
 
@@ -3388,8 +3392,8 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     }
 
     $scope.WorkCenterHeaderList = [];
-    $scope.GetWorkCenterList = function (IId) {
-        $http.get('Productions/QualityControl/GetQualityWorkCenterList?IssueId=' + IId)
+    $scope.GetWorkCenterList = function (IId,EId,PId) {
+        $http.get('Productions/QualityControl/GetQualityWorkCenterList?IssueId=' + IId + '&EntityId='+ EId + '&ProcessId=' + PId)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
                     $scope.WorkCenterHeaderList = response.data;
