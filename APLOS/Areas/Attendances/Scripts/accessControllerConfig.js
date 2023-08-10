@@ -438,5 +438,9 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/GoodWork/Aplos',
             controller: 'GoodWorkController'
         })
+        .when('/payable-creation-worker-advance', {
+            templateUrl: 'Attendances/GoodWork/PCAAC',
+            controller: 'PayableCreationAndWorkerAdvanceController'
+        })
         ;
 } 

@@ -46,7 +46,10 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             return View();
         }
-
+        public ActionResult PCAAC()
+        {
+            return View();
+        }
         //Load Employee
         [HttpGet]
         public ActionResult LoadEmployeelist(string empCategory, string department, string section, string subSection, string designation, string userGroup)
@@ -287,7 +290,7 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult GetAllActiveEmployeeData()
         {
-            JsonResult json = Json(clsSales.GetAllEmployeeData(), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(clsSales.GetAllGoodWorkEmployeeData(), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
