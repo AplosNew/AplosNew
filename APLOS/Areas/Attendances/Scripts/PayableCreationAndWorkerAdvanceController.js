@@ -27,7 +27,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         CheckedBy: null,
         ApprovedBy: null,
         PreparedBy: null,
-        Remarks: null        
+        Remarks: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -38,7 +38,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         EmployeeCode: null,
         EmployeeName: null,
         PayDays: null,
-        Amount: null 
+        Amount: null
     };
     $scope.ModelWADNew = Object.assign({}, $scope.ModelWADTemp);
 
@@ -75,7 +75,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.closePopUp = function () {
         angular.element(document.querySelector('#popUp')).modal('hide');
     }
- 
+
     $scope.removeRow = function (data) {
         $scope.empSystemId = data.SystemId;
         $scope.Id = data.Id;
@@ -183,7 +183,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             $scope.EmployeeMainList = resp.data;
         });
     }
- 
+
     // UserGroup
     $scope.UserGroupList = [];
     $scope.selectUserGroup = function () {
@@ -200,7 +200,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     // UserGroup
 
     //***********************************Payable Creation And Worker Advance Start ********************************************************//
- 
+
     $scope.employeeParameters = {
         limit: 10,
         offset: 0,
@@ -319,9 +319,6 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             for (var i = 0; i < $scope.EmployeeList.length; i++) {
                 if (checkItemExist($scope.EmployeeMainList, $scope.EmployeeList[i].SystemId) === false) {
                     if ($scope.EmployeeList[i].CheckBoxSelect === true) {
-                        $scope.EmployeeList[i].FromTime = $scope.ModelNew.FromTime;
-                        $scope.EmployeeList[i].ToTime = $scope.ModelNew.ToTime;
-                        $scope.EmployeeList[i].CalculatedTime = $scope.ModelNew.CalculatedTime;
                         $scope.EmployeeMainList.push($scope.EmployeeList[i]);
                     }
                 }
@@ -341,21 +338,14 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         return false;
     }
 
-    $scope.getAmount = function () {
-        try {
-                $http({
-                    method: 'POST',
-                    url: 'Attendances/GoodWork/GetAmount',
-                    data: { 'data': $scope.ModelNew },
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    $scope.ModelWADNew.Amount = response.data;
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-          
-        } catch (e) {
-            ShowResult(e, 'failure');
+    $scope.getAmount = function (index) {
+        var amountObj = $scope.EmployeeMainList[index];
+        amountObj.Amount = amountObj.Basic / 26 * amountObj.PayDays * $scope.ModelNew.Percentage;
+    }
+
+    $scope.getCalulationAmount = function () {
+        for (var i = 0; i < $scope.EmployeeMainList.length; i++) {
+            $scope.EmployeeMainList[i].Amount = $scope.EmployeeMainList[i].Basic / 26 * $scope.EmployeeMainList[i].PayDays * $scope.ModelNew.Percentage;
         }
     }
 

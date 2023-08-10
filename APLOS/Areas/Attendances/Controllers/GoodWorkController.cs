@@ -107,7 +107,7 @@ namespace Aplos.Areas.Attendances.Controllers
 						 LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
                          LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
                          LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-                         WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec +@"  " + dep + @"  " + sec +@"   " + subsec +@"   " + des + @" " + userGr +@"
+                         WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec + @"  " + dep + @"  " + sec + @"   " + subsec + @"   " + des + @" " + userGr + @"
                          ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
             }
             catch (Exception ex)
@@ -421,22 +421,32 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         #region Payable Creation and Worker Advance
-        
+
         [HttpGet, Authorize]
         public ActionResult GetWorkerAdvanceList()
         {
-            string sql = @"select * from [dbo].[WorkerAdvance]";
+            string sql = @"select *,FORMAT(FromDate,'dd-MMM-yy')FromDate,FORMAT(ToDate,'dd-MMM-yy')ToDate from [dbo].[WorkerAdvance]";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult GetWorkerAdvanceDetailCenter(string workAdvanceId)
         {
-            string str = @"select wad.Id workAdvanceDetailId,wa.Id workAdvanceId,ei.EmployeeName,wad.PayDays,wad.Amount
+            string str = @"select ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,s.UserName UserName,ss.UserName SubSection,wad.Id
+							,wa.Id workAdvanceId,d.UserName Department,wad.PayDays,wad.Amount,x.[Basic]
                             from [dbo].[WorkerAdvanceDetail] wad
                             left join [dbo].[WorkerAdvance] wa on wa.Id=wad.WorkerAdvanceId
                             left join EmployeeInformation ei on ei.SystemId=wad.EmpSystemId
+                            left join org.Section AS s ON s.Id=ei.SectionId
+                            left join org.SubSection AS ss ON ss.Id=ei.SubSectionId
+                            left join org.Department d on d.Id=ei.DepartmentId
+                            LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = ei.SystemId
+                            LEFT JOIN (SELECT SID.DefineAmount Basic,SH.SalaryHead,SID.SalaryID
+                                      FROM SalaryInfoDefine SID 
+                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+                                      WHERE SH.HeadCategory='Basic')x ON x.SalaryID = SIDM.SystemID
                             where wad.WorkerAdvanceId in ('" + workAdvanceId + "')";
+
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
@@ -504,9 +514,9 @@ namespace Aplos.Areas.Attendances.Controllers
                             string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
                             DataRow drmo = dv[0].Row;
                             drmo.BeginEdit();
-                            drmo["Id"] = detailid;
+                            
                             drmo["WorkerAdvanceId"] = _MasterId;
-                            drmo["EmpSystemId"] = item["SystemId"];
+                            drmo["EmpSystemId"] = item["EmpSystemId"];
                             drmo["PayDays"] = item["PayDays"];
                             drmo["Amount"] = item["Amount"];
 
@@ -544,7 +554,8 @@ namespace Aplos.Areas.Attendances.Controllers
                          ,S.UserName Section,SS.UserName SubSection, DP.UserName Department
                          , PMB.Code,PR.UserName PositionName
                          ,EI.EmployeeStatus
-						 ,OTTitle = case when EI.ExcludeOT=0 then 'Yes' else 'No' end
+						 ,OTTitle = case when EI.ExcludeOT=0 then 'Yes' else 'No' END
+						 ,x.DefineAmount Basic,x.SalaryHead
                          FROM dbo.Employeeinformation EI
                          LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
                          LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
@@ -558,6 +569,12 @@ namespace Aplos.Areas.Attendances.Controllers
 						 LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
                          LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
                          LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                         LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
+                         LEFT JOIN (SELECT SID.DefineAmount,SH.SalaryHead,SID.SalaryID
+                                      FROM SalaryInfoDefine SID 
+                         LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+                                    WHERE SH.HeadCategory='Basic')x ON x.SalaryID = SIDM.SystemID
+                         
                          where EI.employeeCode<>''
                          ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
             }
@@ -571,12 +588,94 @@ namespace Aplos.Areas.Attendances.Controllers
             return json;
         }
 
-
-        [Authorize, HttpPost]
-        public ActionResult GetAmount(string data)
+        public class WorkerAdvanceTransaction
         {
-            var ts = 0; /*Basic / 26 * PayDays * Percentage;*/
-            return Json(ts, JsonRequestBehavior.AllowGet);
+            #region Scalar Properties
+            public int Percentage { get; set; }
+
+            #endregion Scalar Properties
+
+            #region Audit Properties
+
+            /// <summary>
+            ///This is  AddedBy.Who add data keep track by AddedBy.
+            /// </summary>
+            [NeverUpdate]
+            public string AddedBy { get; set; }
+
+            /// <summary>
+            ///This is  AddedDate.Added date keep track by AddedDate.
+            /// </summary>
+            [NeverUpdate]
+            public DateTime AddedDate { get; set; }
+
+            /// <summary>
+            /// Record insert by user from IP address.
+            /// </summary>
+            [NeverUpdate]
+            public string AddedFromIP { get; set; }
+
+            /// <summary>
+            /// Record updated user name.
+            /// </summary>
+            public string UpdatedBy { get; set; }
+
+            /// <summary>
+            /// Record updated by user date and time.
+            /// </summary>
+            public DateTime? UpdatedDate { get; set; }
+
+            /// <summary>
+            /// Record updated by user IP address.
+            /// </summary>
+            public string UpdatedFromIP { get; set; }
+
+            #endregion Audit Properties
+        }
+        public class WorkerAdvanceDetailTransaction
+        {
+            #region Scalar Properties
+            public double Basic { get; set; }
+            public int PayDays { get; set; }
+
+            #endregion Scalar Properties
+
+            #region Audit Properties
+
+            /// <summary>
+            ///This is  AddedBy.Who add data keep track by AddedBy.
+            /// </summary>
+            [NeverUpdate]
+            public string AddedBy { get; set; }
+
+            /// <summary>
+            ///This is  AddedDate.Added date keep track by AddedDate.
+            /// </summary>
+            [NeverUpdate]
+            public DateTime AddedDate { get; set; }
+
+            /// <summary>
+            /// Record insert by user from IP address.
+            /// </summary>
+            [NeverUpdate]
+            public string AddedFromIP { get; set; }
+
+            /// <summary>
+            /// Record updated user name.
+            /// </summary>
+            public string UpdatedBy { get; set; }
+
+            /// <summary>
+            /// Record updated by user date and time.
+            /// </summary>
+            public DateTime? UpdatedDate { get; set; }
+
+            /// <summary>
+            /// Record updated by user IP address.
+            /// </summary>
+            public string UpdatedFromIP { get; set; }
+
+            #endregion Audit Properties
         }
 
         #endregion Payable Creation and Worker Advance
