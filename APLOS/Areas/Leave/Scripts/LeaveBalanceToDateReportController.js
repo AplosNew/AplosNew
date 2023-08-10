@@ -34,6 +34,19 @@ function LeaveBalanceToDateReportController(commonMessage, $scope, $rootScope, b
     $scope.Report = function () {
         var reportFormat = "Excel";
         try {
+            if ($scope.idList.length > 0) {
+                //var uniqueId = removeDuplicates($scope.idList, 'Id');
+                var wcId = "";
+                if ($scope.idList.length > 0) {
+                    wcId = "IN(";
+                    wcId += Array.prototype.map.call($scope.idList, function (item) { return "'" + item + "'"; }).join(",") + ")";
+                }
+                $scope.sqlInStatement = wcId;
+            
+            }
+
+
+
             var DropDownListObj = $("#ddlPlantList").data("ejDropDownList");
             var PlantId = DropDownListObj.getSelectedValue();
             //if ($scope.YearId == "" || $scope.YearId == null) {
