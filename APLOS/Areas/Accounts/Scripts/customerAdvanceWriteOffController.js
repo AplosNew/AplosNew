@@ -917,5 +917,27 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         return true;
     };
 
-
+    $scope.clearSourceInfo = function () {
+        $scope.advance.Amount = 0;
+        $scope.advance.BankAmount = 0;
+        $scope.advance.CashMasterId = null;
+        $scope.isBankAmount = false;
+        $scope.advance.AccountTitle = null;
+        $scope.advance.BankName = null;
+        $scope.advance.BankMasterId = null;
+        $scope.advance.BankCurrencyId = null;
+        $scope.advance.CashMasterId = null;
+        $scope.advance.CashName = null;
+        $scope.advance.CashCurrencyId = null;
+        $scope.advance.GLGeneralInfoId = null;
+        $scope.advance.GLGeneralInfoCode = null;
+        $scope.advance.GLGeneralInfoName = null;
+        $scope.advance.BudgetMasterId = null;
+        $scope.advance.BudgetCode = null;
+        $scope.advance.BudgetName = null;
+        $scope.advance.ActivityId = null;
+        $scope.advance.ActivityCode = null;
+        $scope.advance.ActivityName = null;
+        $scope.voucherDetailList = [];
+    }
 }
