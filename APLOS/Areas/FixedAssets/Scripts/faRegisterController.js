@@ -7,7 +7,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
     $scope.path = "fixedassets/fixedassetregister/";
 
     $scope.register = {
-        Id: null, FixedAssetItemId: null, CapitalizationDate: null, Qty: 0, GRNAmount: 0, IssueAmount: 0, ExpensesAmount: 0, Other: null, TotalAmount: 0, ApprovedById: null, IsApproved: false, Status: null, Type: null, VoucherRowId: null, Remark: null, InstallationYear: null, Lifetime: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
+        Id: null, FixedAssetItemId: null, CapitalizationDate: null, Qty: 0, GRNAmount: 0, IssueAmount: 0, ExpensesAmount: 0, Other: null, TotalAmount: 0, ApprovedById: null, IsApproved: false, Status: null, Type: 'New', VoucherRowId: null, Remark: null, InstallationYear: null, Lifetime: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
     };
 
     $scope.yearList = [];
@@ -35,6 +35,10 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
     };
     $scope.getYearOfHaving();
 
+    $scope.typeList = [
+        { Value: "New", Text: "New" },
+        { Value: "Addition", Text: "Addition" }
+    ];
 
     $scope.masterList = [];
     $scope.getSavedData = function () {

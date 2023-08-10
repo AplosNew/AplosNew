@@ -2572,7 +2572,55 @@ namespace Library.Service.Invoices
                         });
                         totalBaseCurrencyDrAmount += Math.Round(voucherDetailDr.DrAmount * voucherVM.CompanyCurrencyRate, 2);
                     }
+                    else if (invoice.PaymentSource == PaymentSource.Bank.ToString())
+                    {
+                        if (string.IsNullOrEmpty(voucherVM.BankMasterId))
+                            throw new CustomException("Bank Id not found!");
+                        var bankMaster = _accountsCommonService.GetBankMaster(voucherVM.BankMasterId);
 
+                        //invoice.BankMasterId = voucherVM.BankMasterId;
+
+                        var voucherDetailDr = new VoucherDetail
+                        {
+                            GLGeneralInfoId = bankMaster["GLGeneralInfoId"].ToString(),
+                            BudgetMasterId = bankMaster["BudgetMasterId"].ToString(),
+                            ActivityId = bankMaster["ActivityId"].ToString(),
+                            DrAmount = invoice.Amount,
+                            PostingWithoutTaxAllow = invoice.IsExcludingTax,
+                            PaymentSource = PaymentSource.Bank.ToString(),
+                            BankMasterId = voucherVM.BankMasterId
+                        };
+                        currentVoucherDetailId++;
+                        _voucherService.InsertVoucherDetail(voucher, voucherDetailDr, currentVoucherDetailId);
+                        totalAmountDr += voucherDetailDr.DrAmount;
+
+                        var glTransactionDetail = new GLTransactionDetail
+                        {
+                            SourceType = voucherDetailDr.PaymentSource,
+                            BankMasterId = voucherVM.BankMasterId,
+                            CashMasterId = voucherVM.CashMasterId
+                        };
+
+                        if (bankMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
+                            glTransactionDetail.DrAmount = voucherDetailDr.DrAmount;
+                        else
+                            glTransactionDetail.DrAmount = voucherVM.BankAmount;// Math.Round(voucherVM.CompanyCurrencyRate * voucherDetailDr.DrAmount, 2);
+
+                        currentVoucherDetailId++;
+                        _voucherService.InsertVoucherDetail(voucher, voucherDetailDr, currentVoucherDetailId);
+                        _voucherService.InsertGLTransactionDetail(voucherDetailDr, glTransactionDetail);
+
+                        _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailDr, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = voucherDetailDr.CurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                            DrAmount = Math.Round(voucherDetailDr.DrAmount * voucherVM.CompanyCurrencyRate, 2),
+                        });
+                        totalBaseCurrencyDrAmount += Math.Round(voucherDetailDr.DrAmount * voucherVM.CompanyCurrencyRate, 2);
+                    }
 
                     if (null != taxDetailVMList && taxDetailVMList.Count() > 0)
                     {

@@ -147,7 +147,25 @@ namespace Aplos.Areas.Leave.Controllers
         }
 
 
+        public void PlantLockCheck(string FDate, string TDate, out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                string From = Convert.ToDateTime(FDate).ToString("dd-MMM-yyyy");
+                string To = Convert.ToDateTime(TDate).ToString("dd-MMM-yyyy");
 
+                var sql = @"select * from PlantWiseAttendanceLock where PlantId='" + Plant + @"'
+                and LockedDate between '" + From + "' and '" + To + "' and IsActive='1'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
 
         [HttpPost,Authorize]
         public ActionResult SaveLeaveApproval(List<LeaveVM> LeaveData)
@@ -155,6 +173,24 @@ namespace Aplos.Areas.Leave.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                foreach (LeaveVM item in LeaveData)
+                {
+                    DateTime Ftd = Convert.ToDateTime(item.FromDate);
+                    DateTime Tld = Convert.ToDateTime(item.ToDate);
+                    DataSet PlantLock;
+                    PlantLockCheck(Ftd.ToString(), Tld.ToString(), out PlantLock, identity.PlantId);
+                    string pl = "";
+                    if (PlantLock.Tables[0].Rows.Count > 0)
+                    {
+                        for (var i = 0; i < PlantLock.Tables[0].Rows.Count; i++)
+                        {
+                            pl = pl + " " + PlantLock.Tables[0].Rows[i]["LockedDate"].ToString() + ", ";
+                        }
+
+                        throw new Exception("The Plant is Locked for - " + pl);
+                    } 
+                }
 
                 string trnIdList = "(' '";
 

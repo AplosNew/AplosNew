@@ -112,7 +112,7 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         VoucherTypeId: null,
         PartyType: "Customer",
         SettlementType: "SetOff",
-        PaymentSource: 'Bank',
+        PaymentSource: 'Invoice',
         Type: null,
         VoucherNo: null,
         VoucherDate: $filter("dateFiltering")(Date.now()),
@@ -321,11 +321,15 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
                 ShowResult("Please select Customer!", "failure");
                 return true;
             }
-            if ($scope.voucherDetailList.length === 0 && $scope.advance.SettlementType ==='SetOff') {
+            if ($scope.voucherDetailList.length === 0 && $scope.advance.SettlementType === 'SetOff' && $scope.advance.PaymentSource === 'Invoice') {
                 ShowResult("Please select Invoice Receivable!", "failure");
                 return true;
             }
             if ($scope.advance.PaymentSource === 'Bank' && $scope.advance.SettlementType === 'Return' && $scope.advance.BankMasterId==null) {
+                ShowResult("Please select Bank!", "failure");
+                return true;
+            }
+            if ($scope.advance.PaymentSource === 'Bank' && $scope.advance.SettlementType === 'SetOff' && $scope.advance.BankMasterId == null) {
                 ShowResult("Please select Bank!", "failure");
                 return true;
             }
@@ -720,6 +724,13 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
     };
 
     $scope.changeSettlementType = function () {
+
+        if ($scope.advance.SettlementType == 'SetOff') {
+            $scope.advance.PaymentSource = 'Bank'
+        }
+        else {
+            $scope.advance.PaymentSource = 'Invoice'
+        }
     };
 
     $scope.closeBankPopUp = function () {
