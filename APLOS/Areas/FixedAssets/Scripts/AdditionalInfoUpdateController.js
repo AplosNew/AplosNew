@@ -62,8 +62,9 @@ function AdditionalInfoUpdateController(cboService, commonMessage, $scope, $root
             method: 'GET',
             url: 'FixedAssets/FixedAssetMaster/GetAdditionalDataByAssetId?masterId=' + masterId + '&headerId=' + $scope.modelNew.Id
         }).then(function successCallback(response) {
+            $scope.AdditionalInfoItemList = [];
             $scope.AdditionalInfoItemList = response.data;
-           
+
         });
     }
 
@@ -102,7 +103,7 @@ function AdditionalInfoUpdateController(cboService, commonMessage, $scope, $root
     $scope.GetAssetRegisterData = function () {
         $http({
             method: 'GET',
-            url: 'FixedAssets/FixedAssetMaster/GetAssetRegisterData'
+            url: 'FixedAssets/FixedAssetMaster/GetAssetRegisterData?fixedAssetItemId=' + $scope.modelNew.FixedAssetItemId
         }).then(function successCallback(response) {
             $scope.AssetRegisterList = response.data;
         });

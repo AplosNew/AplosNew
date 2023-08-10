@@ -554,10 +554,10 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetAssetRegisterData()
+        public ActionResult GetAssetRegisterData(string fixedAssetItemId)
         {
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
-            return Json(_fixedAssetQueryService.GetAssetRegisterData(), JsonRequestBehavior.AllowGet);
+            return Json(_fixedAssetQueryService.GetAssetRegisterData(fixedAssetItemId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
