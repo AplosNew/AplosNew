@@ -658,6 +658,24 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
         }
 
         [HttpPost]
+        public ActionResult ParameterDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from QualityManagementParameterCheckPoints where Id ='" + id + @"'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost]
         public ActionResult createProcess(List<Dictionary<string, object>> DataList,string Pid)
         {
             ConnectionManager.DAL.ConManager objCon;

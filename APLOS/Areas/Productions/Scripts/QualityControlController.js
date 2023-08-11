@@ -2231,7 +2231,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     }
 
     $scope.SetQCCompleteSelectData = function ($event) {
-        $scope.productionSummaryNew.Id = $event.data.QCHeaderId;
+        $scope.productionSummaryNew.Id = $event.data.TransactionHeaderId;
         $scope.productionSummaryNew.ProductionOrderId = $event.data.PONo;
         $scope.productionSummaryNew.EntityId = $event.data.EntityId;
         $scope.productionSummaryNew.ProcessId = $event.data.ProcessId;
@@ -2248,7 +2248,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.WorkCenterHeaderList = [];
         $scope.QPId = $event.data.QualityPlanId;
         $scope.PlanType = $event.data.PlanType;
-        $scope.QCId = $event.data.QCHeaderId;
+        $scope.QCId = $event.data.TransactionHeaderId;
         $scope.setTab(3);
         $scope.getAllEntities();
         $scope.loadProcessList($scope.productionSummaryNew.EntityId);

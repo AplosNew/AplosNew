@@ -480,7 +480,7 @@ left join MST.QualityManagementMaster QMM on QMM.Id=QPD.IssueId where QPD.Id='" 
             {
 
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                //conRack.OpenDataSetThroughAdapter("select * from [MST].[POQualityPlanDetails] where ReasonName='" + ReasonData["ReasonName"] + "' and IssueId='" + ReasonData["IssueId"] + "'", out DataSet dsItemDetailsReasonNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[POQualityPlanDetails] where IssueId='" + POQualityData["IssueId"] + "'", out DataSet dsPOQualityPlanDetailsIssueNameValidation, false, "1");
 
                 DataSet dsPOQualityPlanDetailsDetails;
 
@@ -491,11 +491,19 @@ left join MST.QualityManagementMaster QMM on QMM.Id=QPD.IssueId where QPD.Id='" 
                 #region data update
                 if (dsPOQualityPlanDetailsDetails.Tables[0].Rows.Count == 0)
                 {
+                    if (dsPOQualityPlanDetailsIssueNameValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Issue Name Already Exist.");
+                    }
+                    else
+                    {
+
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID("POQualityPlanDetails", out _Id);
                         _Id = "QPD" + _Id;
                         POQualityData["Id"] = _Id;
                         AddNewRow(dsPOQualityPlanDetailsDetails.Tables[0], POQualityData);
+                    }
                     
                 }
                 else

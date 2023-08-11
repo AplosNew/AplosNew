@@ -377,18 +377,19 @@
                 <div e-columns>
                     <div e-column e-template="#AddTile" e-headertext="Add" e-width="60"></div>
                     <div e-column e-field="ItemId" e-headertext="Id" e-width="50" e-visible="false"></div>
-                    <div e-column e-field="SNO" e-headertext="SNO" e-width="100"></div>
+                    <div e-column e-field="SNO" e-headertext="SNO" e-width="80"></div>
                     <div e-column e-field="ItemName" e-headertext="Parameter Name" e-width="100"></div>
-                    <div e-column e-field="UOM" e-headertext="UOM" e-width="120"></div>
-                    <div e-column e-type="number" e-template="#PValue" e-headertext="Value" e-width="100"></div>
+                    <div e-column e-field="UOM" e-headertext="UOM" e-width="100"></div>
+                    <div e-column e-type="number" e-template="#PValue" e-headertext="Value" e-width="80"></div>
                     <div e-column e-template="#GradeDetails" e-headertext="Grade Details" e-width="150"></div>
-                    <div e-column e-field="MinValue" e-headertext="Min Value" e-width="100"></div>
-                    <div e-column e-field="MaxValue" e-headertext="Max Value" e-width="100"></div>
+                    <div e-column e-field="MinValue" e-headertext="Min" e-width="80"></div>
+                    <div e-column e-field="MaxValue" e-headertext="Max" e-width="80"></div>
                     <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="150"></div>
                     <div e-column e-template="#ActionToBeTaken" e-headertext="ActionToBeTaken" e-width="150"></div>
                     <div e-column e-headertext="Repeat All" e-headertemplateid="#headerTemplateRepeat" e-template="#checkboxTemplateRepeat" e-textalign="center" e-width="30"></div>
                     <div e-column e-template="#WorkCenter" e-headertext="WorkCenter" e-width="120"></div>
-                    <div e-column e-template="#ResponsiblePerson" e-headertext="Responsible Person" e-width="120"></div>
+                    <div e-column e-template="#ResponsiblePerson" e-headertext="Responsible Person" e-width="150"></div>
+                    <div e-column e-field="Checkpoints" e-headertext="Check Points" e-width="150"></div>
                     <div e-column e-template="#SaveQIC" e-headertext="Save" e-width="80"></div>
                     <div e-column e-template="#QUDJobCart" e-headertext="Print" e-width="50"></div>
                     <div e-column e-template="#Delete" e-headertext="Delete" e-width="80"></div>
@@ -558,8 +559,8 @@
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                     <div e-columns>
-                        <div e-column e-type="datetime" e-field="QCHeaderId" e-headertext="QC HeaderId" e-width="100"></div>
-                        <div e-column e-type="datetime" e-field="QCDId" e-headertext="QCDId" e-width="100"></div>
+                        <div e-column e-type="string" e-field="TransactionHeaderId" e-headertext="Transaction HeaderId" e-width="100"></div>
+                        <div e-column e-type="string" e-field="QCDId" e-headertext="QCDId" e-width="100"></div>
                         <div e-column e-type="datetime" e-field="ActualDate" e-headertext="Actual Date" e-width="100"></div>
                         <div e-column e-type="datetime" e-field="ActualTime" e-headertext="Actual Time" e-width="80"></div>
                         <div e-column e-type="string" e-field="Interval" e-headertext="Interval" e-width="100"></div>

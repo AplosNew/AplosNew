@@ -622,7 +622,11 @@ where wc.Active = 1 and wc.ProcessId = '" + ProcessId + "'  and wc.EntityId = '"
                 QCItemId = @"and QII.Id='" + POItemId + "'";
             }
             var sql = @"select distinct QIC.Id,QII.Id ItemId,QII.SNO,QII.ItemName,QII.UOMId,U.UserName as UOM,QIC.Value,QGD.Id as GradeId,QII.Max as MaxValue,QII.Min as MinValue,
-QIC.Remarks,QIC.ActionToBeTaken,QIC.WorkCenterId,isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.[QualityControlDetails] where ItemId=QII.Id order by AddedDate desc))) as ResponsiblePerson,isnull(QIC.ResponsiblePersonId,(select top 1 ResponsiblePersonId from TRN.[QualityControlDetails] where ItemId=QII.Id order by AddedDate desc)) as ResponsiblePersonId,QIC.QCId,QIC.Repeat from MST.QualityIssueItem QII
+QIC.Remarks,QIC.ActionToBeTaken,isnull(QIC.WorkCenterId,(select WorkCenterId from TRN.QualityControl where Id='" + PId + @"')) as WorkCenterId,
+isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.[QualityControlDetails] where ItemId=QII.Id order by AddedDate desc))) as ResponsiblePerson,
+isnull(QIC.ResponsiblePersonId,(select top 1 ResponsiblePersonId from TRN.[QualityControlDetails] where ItemId=QII.Id order by AddedDate desc)) as ResponsiblePersonId,
+reverse(stuff(reverse((select CheckPoints +',' from QualityManagementParameterCheckPoints where ParameterId=QII.ParameterId for xml path(''))),1,1,'')) as Checkpoints,
+QIC.QCId,QIC.Repeat from MST.QualityIssueItem QII
 LEFT JOIN TRN.QualityControl QC ON QC.IssueId=QII.IssueId
 LEFT JOIN TRN.[QualityControlDetails] QIC ON QIC.QCId='" + PId + @"' and QIC.ItemId=QII.Id
 LEFT JOIN SCS.UnitOfMeasurement U ON U.Id = QII.UOMId
@@ -732,7 +736,7 @@ where QID.IssueType in ('Order','General') " + QCDate + " " + QCProcess + " " + 
                 QCDate = @"and (CONVERT(DATE,QC.AddedDate)  between '" + fromDate + "' and '" + todate + "'  or QII.ItemName is null)";
             }
             
-            var sql = @"select distinct QC.Id QCHeaderId,format(QC.AddedDate,'dd-MMM-yyyy') as ActualDate,
+            var sql = @"select distinct QC.Id TransactionHeaderId,(select SNO from MST.QualityIssueItem where Id=QCD.ItemId) as ParameterSNO,format(QC.AddedDate,'dd-MMM-yyyy') as ActualDate,
 format(QC.AddedDate,'hh:mm tt') as ActualTime,QID.CheckingInterval as Interval,
 format(DATEADD(hour, QID.CheckingInterval, QC.AddedDate),'dd-MMM-yyyy') as DueDate,
 format(DATEADD(hour, QID.CheckingInterval, CAST(QC.AddedDate AS DATETIME)),'hh:mm tt')  DueTime,
