@@ -1766,14 +1766,14 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                         AddNewRow(dsQualityControlData.Tables[0], QualityControlData);
                         ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                         conC.BeginTransaction();
-                        if (PlanType == "GeneralIssue")
-                        {
-                            conC.executeQuery("Update TRN.QualityIssueControl set QCId='" + QualityControlData["Id"] + "',RepeatEntry='Repeat' where Id='" + QualityPlanId + @"'");
-                        }
-                        if (PlanType == "POIssue")
-                        {
-                            conC.executeQuery("Update TRN.QualityPlanControl set QCId='" + QualityControlData["Id"] + "',RepeatEntry='Repeat' where Id='" + QualityPlanId + @"'");
-                        }
+                        //if (PlanType == "GeneralIssue")
+                        //{
+                        //    conC.executeQuery("Update TRN.QualityIssueControl set QCId='" + QualityControlData["Id"] + "',RepeatEntry='Repeat' where Id='" + QualityPlanId + @"'");
+                        //}
+                        //if (PlanType == "POIssue")
+                        //{
+                        //    conC.executeQuery("Update TRN.QualityPlanControl set QCId='" + QualityControlData["Id"] + "',RepeatEntry='Repeat' where Id='" + QualityPlanId + @"'");
+                        //}
                         conC.CommitTransaction();
                     }
                 }

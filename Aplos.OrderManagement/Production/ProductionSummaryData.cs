@@ -3221,8 +3221,9 @@ where QMW.QMID ='" + IssueId + "' and WCM.EntityId='" + EntityId + "' and WCM.Pr
 
         public IEnumerable<object> GetPOCompleteIssueList()
         {
-            string sql = @"SELECT distinct ID.Id [Value],QMM.UserName [Text] FROM [MST].[QualityIssueDetails] ID
-left join MST.QualityManagementMaster QMM on QMM.Id = ID.IssueNameId";
+            string sql = @"select IssueNameId as Value,(select QMM.UserName from MST.QualityManagementMaster QMM where QMM.Id=IssueNameId) as Text from [MST].[QualityIssueDetails] 
+union
+select IssueId as Value,(select QMM.UserName from MST.QualityManagementMaster QMM where QMM.Id = IssueId) as Text from[MST].[POQualityPlanDetails]";
             return _sqlRepository.GetDataCollection(sql);
         }
 
@@ -4067,7 +4068,7 @@ left join TRN.SalesOrder SO on SO.Id=POD.SalesOrderId
 left join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POFirstProdBookDate,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) FBPPD ON FBPPD.ProductionOrderId=PO.Id
 LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=PO.Id
-where PS.UserName in ('Running','To Close') and QPC.QCID is null or (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' order by AddedDate desc) is not null";
+where PS.UserName in ('Running','To Close') and E.Id in (select EntityId from MST.QualityManagementEntity where QMID=QMM.Id) and QPC.QCID is null or (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' order by AddedDate desc) is not null";
             return _sqlRepository.GetDataCollection(sql);
         }
 

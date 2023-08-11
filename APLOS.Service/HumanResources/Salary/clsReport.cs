@@ -2514,8 +2514,8 @@ where QPC.Id='" + PlannedId + @"' order by QII.SNO";
             string strSql = string.Empty;
             try
             {
-                strSql = @"select QIC.Id,format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId order by AddedDate desc)),'dd-MMM-yyyy') as QualityIssueDate,
-format((select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId order by AddedDate desc),'dd-MMM-yyyy') as LastDate,
+                strSql = @"select QIC.Id,format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId where PlanType='GeneralIssue' order by AddedDate desc)),'dd-MMM-yyyy') as QualityIssueDate,
+format((select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId where  PlanType='GeneralIssue' order by AddedDate desc),'dd-MMM-yyyy') as LastDate,
 QIC.IssueId,QMM.UserName IssueName,E.UserName Entity,
 P.UserName as Process,EI.EmployeeName as AllotedPlanEmployee
 from TRN.QualityIssueControl QIC
