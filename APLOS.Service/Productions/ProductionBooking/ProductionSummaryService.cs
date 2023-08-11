@@ -733,7 +733,7 @@ where QID.IssueType in ('Order','General') " + QCDate + " " + QCProcess + " " + 
             }
             if (fromDate != "null" && todate != "null" && fromDate != "undefined" && todate != "undefined")
             {
-                QCDate = @"and (CONVERT(DATE,QC.AddedDate)  between '" + fromDate + "' and '" + todate + "'  or QII.ItemName is null)";
+                QCDate = @"and CONVERT(DATE,QC.AddedDate)  between '" + fromDate + "' and '" + todate + "'";
             }
             
             var sql = @"select distinct QC.Id TransactionHeaderId,(select SNO from MST.QualityIssueItem where Id=QCD.ItemId) as ParameterSNO,format(QC.AddedDate,'dd-MMM-yyyy') as ActualDate,
@@ -780,8 +780,10 @@ QCD.Remarks as ParameterRemarks,QCD.Repeat,QCD.WorkCenterId as ParameterWorkCent
 (select UserName from  scs.UnitOfMeasurement where id = (select UOMId from MST.QualityIssueItem where Id=QCD.ItemId)) UOM,QGD.GradeValue,
 (select Max from MST.QualityIssueItem where Id=QCD.ItemId) MaxValue,(select Min from MST.QualityIssueItem where Id=QCD.ItemId) MinValue,
 EI.EmployeeName as ActionTobeTakenResponsible,QC.QualityPlanId,(select CriticalLevel from MST.QualityIssueItem where Id=QCD.ItemId) CriticalLevel,
-D.UserName as Department,QID.IssueType,QID.IssueCategory,QID.Period PeriodType,QID.Frequency,reverse(stuff(reverse((select top 2 EI.EmployeeName + ',' from EmployeeInformation EI where EmployeeStatus='Active' and  
-PositionID in (select PositionCodeId from HKP.ParameterMaster  where Id=QPM.ParameterId) order by DOJ asc  for xml path('') )),1,1,'')) as ParameterResponsilblePerson,(select top 1 EmployeeName from EmployeeInformation  where BudgetCode=QMM.ResponsiblePersoneBgtCodeId and EmployeeStatus='Active' order by DOJ asc) IssueResponsiblePerson
+D.UserName as Department,QID.IssueType,QID.IssueCategory,QID.Period PeriodType,QID.Frequency,
+--reverse(stuff(reverse((select top 2 EI.EmployeeName + ',' from EmployeeInformation EI where EmployeeStatus='Active' and  
+--PositionID in (select PositionCodeId from HKP.ParameterMaster  where Id=QPM.ParameterId) order by DOJ asc  for xml path('') )),1,1,'')) as ParameterResponsilblePerson,
+(select top 1 EmployeeName from EmployeeInformation  where BudgetCode=QMM.ResponsiblePersoneBgtCodeId and EmployeeStatus='Active' order by DOJ asc) IssueResponsiblePerson
 from TRN.QualityControl QC
 left join TRN.QualityControlDetails QCD on QCD.QCID=QC.Id
 left join MST.QualityIssueDetails QID on QID.IssueNameId=QC.IssueId

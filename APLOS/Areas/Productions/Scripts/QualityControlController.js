@@ -3217,13 +3217,13 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    // $scope.loadWC();
                     for (var i = 0; i < $scope.wcList.length; i++) {
                         if ($scope.wcList[i].Id == master.data.Id) {
                             $scope.wcList[i].Id = null;
                             break;
                         }
                     }
+                    $scope.loadWC();
                     var gridObj = $("#ProductionSummaryWC").data("ejGrid");
                     gridObj.refreshContent();
                     gridObj.refreshTemplate();
