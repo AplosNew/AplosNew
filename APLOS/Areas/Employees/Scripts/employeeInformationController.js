@@ -314,7 +314,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $scope.DOJpastDays = response.data[0].PastDOJDaysAllowed;
 
             if ($scope.DOJpastDays!=0) {
-                $('.datepicker').datepicker({
+                $('.datepic').datepicker({
                     startDate: '-' + $scope.DOJpastDays + 1 + 'd',
                     endDate: '-' + $scope.DOJpastDays + 'd',
                     datesDisabled: $scope.DisabledDates,
@@ -376,18 +376,21 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 $scope.employeeNew.CitizenID = $scope.CountryId;
                 $scope.employeeInformation.CitizenID = $scope.CountryId;
             });
-
-
-
         })
-
-        
-
     };
     $scope.GetPlantWiseHRMSSetting();
 
     $scope.DisabledDates = [];
-    
+    //$('.datepic').datepicker({
+    //    startDate: '-' + $scope.DOJpastDays + 1 + 'd',
+    //    endDate: '-' + $scope.DOJpastDays + 'd',
+    //    datesDisabled: $scope.DisabledDates,
+    //    format: 'dd-M-yyyy',
+    //    todayHighlight: true,
+    //    autoclose: true,
+    //    inline: true,
+    //    changeMonth: true
+    //});
 
 
 

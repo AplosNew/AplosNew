@@ -2281,7 +2281,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                     }
                     if (Convert.ToDateTime(fromDate.ToString("dd-MMM-yyyy")) < doj)
                     {
-                        throw new Exception("Leave application is not allowed Before DOJ");
+                   
                     }
                     if (IsAllowedInProbationalPeriod == true && Convert.ToDateTime(fromDate.ToString("dd-MMM-yyyy")) < dateAfterAllow)
                     {

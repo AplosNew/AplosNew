@@ -103,7 +103,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             return View("~/Areas/FixedAssets/Views/FixedAssetRegisterExpenseReport.cshtml");
         }
-        [Authorize]
+        [Authorize] 
         public ActionResult CARApproval()
         {
             return View("~/Areas/FixedAssets/Views/CARApproval.cshtml");
