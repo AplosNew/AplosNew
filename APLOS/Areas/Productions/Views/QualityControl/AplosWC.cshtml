@@ -110,13 +110,13 @@
                 </ul>
             </div>
         </div>*@
-            @*<div class="col-xs-12">
+            <div class="col-xs-12">
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li><button ng-click="SaveGI();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> Process</button></li>
                     </ul>
                 </div>
-            </div>*@
+            </div>
             <div class="col-xs-12">
                 <div id="GridGeneralIssue" ej-grid e-datasource="GeneralIssueList"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
@@ -124,13 +124,13 @@
                      e-rowdatabound="QGIrowDataBound" e-recorddoubleclick="SetQGISelectData">
                     <div e-columns>
                         <div e-column e-template="#QGIJobCart" e-headertext="Print" e-width="50"></div>
-                        <div e-column e-type="string" e-field="QualityIssueDate" e-headertext="Quality Issue Date" e-width="100"></div>
+                        <div e-column e-type="string" e-field="QualityIssueDate" e-headertext="Due Date" e-width="100"></div>
+                        <div e-column e-type="string" e-field="QualityIssueTime" e-headertext="Due Time" e-width="100"></div>
                         <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
                         <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="100"></div>
                         <div e-column e-type="string" e-field="QGIssue" e-headertext="QG.Issue" e-width="100"></div>
                         <div e-column e-template="#GIAllotedEmployee" e-headertext="Alloted Employee" e-width="100"></div>
                         <div e-column e-template="#Update" e-headertext="Update" e-width="50"></div>
-                        @*<div e-column e-type="string" e-field="PositionEmployee" e-headertext="Position Employee" e-width="150"></div>*@
                         <div e-column e-type="string" e-field="RepeatEntry" e-headertext="Repeat Entry" e-width="100"></div>
                     </div>
                 </div>
@@ -185,9 +185,9 @@
                         <div e-column e-template="#QPJobCart" e-headertext="Print" e-width="50"></div>
                         <div e-column e-type="string" e-field="POId" e-headertext="PO No" e-width="100"></div>
                         <div e-column e-type="string" e-field="DependentOn" e-headertext="Dependent On" e-width="100"></div>
-                        <div e-column e-type="string" e-field="Date" e-headertext="Date" e-width="100"></div>
+                        <div e-column e-type="string" e-field="PODate" e-headertext="Date" e-width="100"></div>
                         <div e-column e-type="string" e-field="Legdays" e-headertext="Legdays" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QualityPlanDate" e-headertext="Quality Plan Date" e-width="100"></div>
+                        <div e-column e-type="string" e-field="QPDate" e-headertext="Quality Plan Date" e-width="100"></div>
                         <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
                         <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="100"></div>
                         <div e-column e-type="string" e-field="QPIssue" e-headertext="QP.Issue" e-width="100"></div>
@@ -376,18 +376,19 @@
                 <div e-columns>
                     <div e-column e-template="#AddTile" e-headertext="Add" e-width="60"></div>
                     <div e-column e-field="ItemId" e-headertext="Id" e-width="50" e-visible="false"></div>
-                    <div e-column e-field="SNO" e-headertext="SNO" e-width="100"></div>
+                    <div e-column e-field="SNO" e-headertext="SNO" e-width="80"></div>
                     <div e-column e-field="ItemName" e-headertext="Parameter Name" e-width="100"></div>
-                    <div e-column e-field="UOM" e-headertext="UOM" e-width="120"></div>
-                    <div e-column e-type="number" e-template="#PValue" e-headertext="Value" e-width="100"></div>
+                    <div e-column e-field="UOM" e-headertext="UOM" e-width="100"></div>
+                    <div e-column e-type="number" e-template="#PValue" e-headertext="Value" e-width="80"></div>
                     <div e-column e-template="#GradeDetails" e-headertext="Grade Details" e-width="150"></div>
-                    <div e-column e-field="MinValue" e-headertext="Min Value" e-width="100"></div>
-                    <div e-column e-field="MaxValue" e-headertext="Max Value" e-width="100"></div>
+                    <div e-column e-field="MinValue" e-headertext="Min" e-width="80"></div>
+                    <div e-column e-field="MaxValue" e-headertext="Max" e-width="80"></div>
                     <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="150"></div>
                     <div e-column e-template="#ActionToBeTaken" e-headertext="ActionToBeTaken" e-width="150"></div>
                     <div e-column e-headertext="Repeat All" e-headertemplateid="#headerTemplateRepeat" e-template="#checkboxTemplateRepeat" e-textalign="center" e-width="30"></div>
                     <div e-column e-template="#WorkCenter" e-headertext="WorkCenter" e-width="120"></div>
-                    <div e-column e-template="#ResponsiblePerson" e-headertext="Responsible Person" e-width="120"></div>
+                    <div e-column e-template="#ResponsiblePerson" e-headertext="Responsible Person" e-width="150"></div>
+                    <div e-column e-field="Checkpoints" e-headertext="Check Points" e-width="150"></div>
                     <div e-column e-template="#SaveQIC" e-headertext="Save" e-width="80"></div>
                     <div e-column e-template="#QUDJobCart" e-headertext="Print" e-width="50"></div>
                     <div e-column e-template="#Delete" e-headertext="Delete" e-width="80"></div>
@@ -406,11 +407,13 @@
             </script>
             <script type="text/template" id="QUDJobCart">
                 <div class="form-group">
-                    <div class="col-sm-5 text-center" style="padding:0px;padding-left:4px">
+                    @*<div class="col-sm-5 text-center" style="padding:0px;padding-left:4px">*@
                         <div class="common-btn">
-                            <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Productions/QualityControl/GetQualityUpdateIssueJobCardReportView?PlannedId={{data.QCId}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: 6px;"></i></a>
+                            <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Productions/QualityControl/GetQualityUpdateIssueJobCardReportView?PlannedId={{data.QCId}}" target="_blank">
+                            <i class="glyphicon glyphicon-print"></i>
+                            </a>
                         </div>
-                    </div>
+                    @*</div>*@
                 </div>
             </script>
             <script type="text/template" id="PValue">
@@ -457,15 +460,17 @@
             </script>
             <script type="text/template" id="Delete">
                 <div class="form-group">
-                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                    @*<div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">*@
+                    <div class="common-btn">
                         <ul class="list-inline action-list">
                             <li>
                                 <button ng-click="$parent.deleteMasterWC(this);" class="btn"><i class="glyphicon glyphicon-remove"></i></button>
                             </li>
                         </ul>
                     </div>
-                </div>
-            </script>
+                            @*</div>*@
+                    </div>
+</script>
             <script type="text/template" id="GradeDetails">
                 <div class="select-style">
                     <select class="form-control" ng-model="data.GradeId" name="Grade"
@@ -557,43 +562,44 @@
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                     <div e-columns>
-                        <div e-column e-type="datetime" e-field="QCHeaderId" e-headertext="QC HeaderId" e-width="100"></div>
-                        <div e-column e-type="datetime" e-field="QCDId" e-headertext="QCDId" e-width="100"></div>
-                        <div e-column e-type="datetime" e-field="QCActualDate" e-headertext="Actual Date" e-width="100"></div>
-                        <div e-column e-type="datetime" e-field="QCActualTime" e-headertext="Actual Time" e-width="80"></div>
-                        <div e-column e-type="string" e-field="QCInterval" e-headertext="Interval" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCDueDate" e-headertext="Next Due Date" e-width="80"></div>
-                        <div e-column e-type="datetime" e-field="QCDueTime" e-headertext="Next Due Time" e-width="80"></div>
-                        <div e-column e-type="string" e-field="IssueApplicable" e-headertext="Issue Applicable" e-width="100"></div>
+                        <div e-column e-type="string" e-field="TransactionHeaderId" e-headertext="Transaction HeaderId" e-width="100"></div>
+                        <div e-column e-type="string" e-field="QCDId" e-headertext="QCDId" e-width="100"></div>
+                        <div e-column e-type="datetime" e-field="ActualDate" e-headertext="Actual Date" e-width="100"></div>
+                        <div e-column e-type="datetime" e-field="ActualTime" e-headertext="Actual Time" e-width="80"></div>
+                        <div e-column e-type="string" e-field="Interval" e-headertext="Interval" e-width="100"></div>
+                        <div e-column e-type="string" e-field="DueDate" e-headertext="Next Due Date" e-width="80"></div>
+                        <div e-column e-type="datetime" e-field="DueTime" e-headertext="Next Due Time" e-width="80"></div>
+                        <div e-column e-type="string" e-field="IssueType" e-headertext="Issue Applicable" e-width="100"></div>
                         <div e-column e-type="string" e-field="RepeatEntry" e-headertext="Repeat Entry" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCEntity" e-headertext="Entity" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCProcess" e-headertext="Process" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCShift" e-headertext="Shift" e-width="150"></div>
+                        <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Shift" e-headertext="Shift" e-width="150"></div>
                         <div e-column e-type="string" e-field="PType" e-headertext="Plan Type" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCIssue" e-headertext="QCIssue" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCPeriod" e-headertext="Period" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCCustomer" e-headertext="Customer" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCPOStatus" e-headertext="PO Status" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCProductionIncharge" e-headertext="Production Incharge" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCPONo" e-headertext="PO No" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCLotNumber" e-headertext="Lot Number" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCRemarks" e-headertext="Remarks" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCArticle" e-headertext="Article" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCSNO" e-headertext="SNO" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCProductCode" e-headertext="ProductCode" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCPOQty" e-headertext="POQty" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCScheduleQty" e-headertext="ScheduleQty" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCProducedQty" e-headertext="ProducedQty" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCRemainingQty" e-headertext="RemainingQty" e-width="100"></div>
+                        <div e-column e-type="string" e-field="IssueName" e-headertext="Issue Name" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Period" e-headertext="Period" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="100"></div>
+                        <div e-column e-type="string" e-field="POStatus" e-headertext="PO Status" e-width="100"></div>
+                        <div e-column e-type="string" e-field="CheckedBy" e-headertext="Checked By" e-width="100"></div>
+                        <div e-column e-type="string" e-field="PONo" e-headertext="PO No" e-width="100"></div>
+                        <div e-column e-type="string" e-field="LotNumber" e-headertext="Lot Number" e-width="100"></div>
+                        <div e-column e-type="string" e-field="IssueRemarks" e-headertext="Remarks" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="100"></div>
+                        <div e-column e-type="string" e-field="SONO" e-headertext="SNO" e-width="100"></div>
+                        <div e-column e-type="string" e-field="ProductCode" e-headertext="ProductCode" e-width="100"></div>
+                        <div e-column e-type="string" e-field="POQty" e-headertext="POQty" e-width="100"></div>
+                        <div e-column e-type="string" e-field="ScheduleQty" e-headertext="ScheduleQty" e-width="100"></div>
+                        <div e-column e-type="string" e-field="ProducedQty" e-headertext="ProducedQty" e-width="100"></div>
+                        <div e-column e-type="string" e-field="RemainingQty" e-headertext="RemainingQty" e-width="100"></div>
+                        <div e-column e-type="string" e-field="CriticalLevel" e-headertext="Critical Level" e-width="100"></div>
                         <div e-column e-type="string" e-field="ParameterName" e-headertext="Parameter Name" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCUOM" e-headertext="UOM" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCValue" e-headertext="Value" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCGradeName" e-headertext="QCGrade" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCMinValue" e-headertext="Min Value" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCMaxValue" e-headertext="Max Value" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCActionTobetaken" e-headertext="Action To be taken" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCResponsiblePerson" e-headertext="Responsible Person" e-width="100"></div>
-                        <div e-column e-type="string" e-field="QCItemRemarks" e-headertext="Remarks" e-width="150"></div>
+                        <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Value" e-headertext="Value" e-width="100"></div>
+                        <div e-column e-type="string" e-field="GradeName" e-headertext="Grade Name" e-width="100"></div>
+                        <div e-column e-type="string" e-field="MinValue" e-headertext="Min Value" e-width="100"></div>
+                        <div e-column e-type="string" e-field="MaxValue" e-headertext="Max Value" e-width="100"></div>
+                        <div e-column e-type="string" e-field="ActionToBeTaken" e-headertext="Action To be taken" e-width="100"></div>
+                        <div e-column e-type="string" e-field="ActionTobeTakenResponsible" e-headertext="Responsible Person" e-width="100"></div>
+                        <div e-column e-type="string" e-field="ParameterRemarks" e-headertext="Parameter Remarks" e-width="150"></div>
                         <div e-column e-type="string" e-field="QualityPlanId" e-headertext="Quality Plan Id" e-width="100"></div>
                     </div>
                 </div>

@@ -50,7 +50,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             return View("~/Areas/FixedAssets/Views/FixedAssetMasterGL.cshtml");
         }
-        [Authorize]
+        
         public ActionResult AdditionalInfoUpdate()
         {
             return View("~/Areas/FixedAssets/Views/AdditionalInfoUpdate.cshtml");

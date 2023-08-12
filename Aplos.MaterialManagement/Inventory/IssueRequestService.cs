@@ -2352,7 +2352,11 @@ namespace Library.MaterialManagement.Products
 									FROM  TRN.IssueRequest group by IssueRequestMasterId,ExpenseActivityId,CostCenterId) IR ON IR.IssueRequestMasterId=IRM.Id
                             LEFT JOIN [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
 							LEFT JOIN trn.ProductionOrder PR ON PR.Id=IRM.ProductionOrderId
-							LEFT JOIN dbo.MaterialIssueControlMaster MIC ON MIC.POId=pr.Id
+							LEFT JOIN (
+							Select distinct IR.IssueRequestMasterId,MIC.POId,MIC.PlanPercentage  FROM TRN.IssueRequest IR
+							  left join MaterialIssueControlDetail MICD ON MICD.Id=IR.MaterialIssueControlDetailId
+							  left join MaterialIssueControlMaster MIC ON MIC.Id=MICD.MaterialIssueControlMasterId
+							) MIC ON MIC.IssueRequestMasterId=IRM.Id
                             LEFT JOIN hkp.Budget B On B.Id=IR.ExpenseActivityId
                             LEFT JOIN EmployeeInformation EI On EI.SystemId=IRM.Preparedby
                               " + tempQuery +  " ";

@@ -424,7 +424,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
             $scope.LoadProcessDetails($scope.ScheduleMasterId);
             $scope.GetParameterProcessList($scope.ScheduleMasterId);
             $scope.LoadItemDetails($scope.ScheduleMasterId);
-            $scope.GeneratItemSequenceNo($scope.ScheduleMasterId);
+            //$scope.GeneratItemSequenceNo($scope.ScheduleMasterId);
             $scope.LoadMachineDetails($scope.ScheduleMasterId);
             $scope.LoadProductDetails($scope.ScheduleMasterId);
             $scope.LoadWorkCenterDetails($scope.ScheduleMasterId);
@@ -457,7 +457,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
                     $scope.LoadProcessDetails($scope.scheduleNew.Id);
                     $scope.GetParameterProcessList($scope.scheduleNew.Id);
                     $scope.LoadItemDetails($scope.scheduleNew.Id);
-                    $scope.GeneratItemSequenceNo($scope.scheduleNew.Id);
+                    //$scope.GeneratItemSequenceNo($scope.scheduleNew.Id);
                     $scope.LoadMachineDetails($scope.scheduleNew.Id);
                     $scope.LoadProductDetails($scope.scheduleNew.Id);
                     $scope.LoadWorkCenterDetails($scope.scheduleNew.Id);
@@ -484,6 +484,26 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
                 ShowResult(response.data.Message, 'success');
                 $scope.LoadQualityManagementMasterList();
                 ScheduleClearFields();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
+    $scope.ParameterDelete = function () {
+        $http({
+            method: 'POST',
+            url: 'QMS/QualityManagementMaster/ParameterDelete?id=' + $scope.ParameterNew.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getParameter($scope.ItemNew.Id);
+                ParameterClearFields();
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -1029,15 +1049,15 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     //}
     //$scope.GetParameterItemList();
 
-    $scope.GeneratItemSequenceNo = function () {
-        $http({
-            method: 'GET',
-            url: 'QMS/QualityManagementMaster/GetItemAutoSequence?scheduleId=' + $scope.scheduleNew.Id
-        }).then(function successCallback(response) {
-            $scope.ItemNew.SNO = response.data;
-        });
-    }
-    $scope.GeneratItemSequenceNo();
+    //$scope.GeneratItemSequenceNo = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: 'QMS/QualityManagementMaster/GetItemAutoSequence?scheduleId=' + $scope.scheduleNew.Id
+    //    }).then(function successCallback(response) {
+    //        $scope.ItemNew.SNO = response.data;
+    //    });
+    //}
+    //$scope.GeneratItemSequenceNo();
 
    
     $scope.ScheduleItemList = [];
@@ -1176,7 +1196,8 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.LoadItemDetails($scope.scheduleNew.Id);
-                    ItemClearFields($scope.GeneratItemSequenceNo($scope.scheduleNew.Id));
+                    //ItemClearFields($scope.GeneratItemSequenceNo($scope.scheduleNew.Id));
+                    ItemClearFields();
 
                 }
             }), function errorCallBack(response) {
@@ -1393,7 +1414,8 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     };
 
     $scope.ItemClear = function () {
-        ItemClearFields($scope.GeneratItemSequenceNo($scope.scheduleNew.Id));
+        //ItemClearFields($scope.GeneratItemSequenceNo($scope.scheduleNew.Id));
+        ItemClearFields();
     };
     $scope.SaveParameterClear = function () {
         ParameterClearFields();
@@ -1411,10 +1433,10 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         $scope.ActivityGroupNew = Object.assign({}, $scope.ActivityGroup);
     }
 
-    function ItemClearFields(seq) {
+    function ItemClearFields() {
         $scope.Action = "Save";
         $scope.ItemNew = Object.assign({}, $scope.Item);
-        $scope.ItemNew.SNO = seq;
+        //$scope.ItemNew.SNO = seq;
     }
 
    
@@ -1440,7 +1462,8 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
             else {
                 ShowResult(response.data.Message, 'success');
                 $scope.LoadItemDetails($scope.scheduleNew.Id);
-                ItemClearFields($scope.GeneratItemSequenceNo($scope.scheduleNew.Id));
+                //ItemClearFields($scope.GeneratItemSequenceNo($scope.scheduleNew.Id));
+                ItemClearFields();
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
