@@ -1018,6 +1018,21 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.QCId = null;
     $scope.SaveQC = function () {
         try {
+            if ($scope.productionSummaryNew.BookingLevel === 'SalesOrder') {
+                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.SOArticle)) {
+                    throw "Please select SO Article and Proceed.";
+                }
+            }
+            if ($scope.productionSummaryNew.BookingLevel === 'MasterOrderItem') {
+                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.MOIArticle)) {
+                    throw "Please select MOI Article and Proceed.";
+                }
+            }
+            if ($scope.productionSummaryNew.BookingLevel === 'ProductCode') {
+                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ProductCodeArticle)) {
+                    throw "Please select Product Code Article and Proceed.";
+                }
+            }
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -1046,7 +1061,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
             }
         }
         catch (ex) {
-            /*ShowResult(ex, 'Info');*/
+            ShowResult(ex, 'Info');
         }
     };
 
@@ -1235,7 +1250,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                 else {
 
                     ShowResult(response.data.Message, 'success');
-                    /*$scope.ProcessGeneralIssue();*/
+                    $scope.ProcessGeneralIssue();
                     $scope.Action = 'Save';
                 }
 
@@ -2196,9 +2211,9 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.NewObject = { Id: null };
     $scope.SetQGISelectData = function ($event) {
         try {
-            if (baseService.isUndefinedOrNull($scope.NewObject.Id)) {
-                throw "Please save record and proceed";
-            }
+            //if (baseService.isUndefinedOrNull($scope.NewObject.Id)) {
+            //    throw "Please save record and proceed";
+            //}
             $scope.productionSummaryNew.EntityId = $event.data.EntityId;
             $scope.productionSummaryNew.ProcessId = $event.data.ProcessId;
             if (baseService.isUndefinedOrNull($event.data.QualityIssueDate)) { $scope.productionSummaryNew.ProductionDate = $filter("date")(Date.now(), 'dd-MMM-yyyy'); }
@@ -2210,7 +2225,8 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
             $scope.WorkCenterHeaderList = [];
             $scope.QPId = null;
             $scope.PlanType = null;
-            $scope.QPId = $scope.NewObject.Id;
+            //$scope.QPId = $scope.NewObject.Id;
+            $scope.QPId = $event.data.Id;
             $scope.PlanType = "GeneralIssue"
             $scope.setTab(3);
             $scope.getAllEntities();
