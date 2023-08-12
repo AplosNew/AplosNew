@@ -441,12 +441,13 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
         public ActionResult LoadWorkCenterDetails(string ScheduleId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select CAST (CASE WHEN QMW.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,QMW.Id,WM.Id as WorkCenterMasterId, WM.Code ,WM.UserName Workcenter, WC.UserName WorkcenterCategory, WCS.UserName WorkcenterSubCategory, P.UserName Process, WM.Capacity, UOM.UserName UOM 
+            string sql = @"select CAST (CASE WHEN QMW.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,QMW.Id,WM.Id as WorkCenterMasterId, WM.Code ,WM.UserName Workcenter, WC.UserName WorkcenterCategory, WCS.UserName WorkcenterSubCategory, P.UserName Process, E.UserName Entity, WM.Capacity, UOM.UserName UOM 
                             from SCS.WorkCenterMaster WM
 							LEFT JOIN [MST].[QualityManagementWorkCenter] QMW ON QMW.WorkCenterMasterId=WM.Id and QMW.QMID='" + ScheduleId + @"'
 							LEFT JOIN HKP.WorkCenterCategory WC on WC.Id = WM.WorkCenterCategoryId
                             LEFT JOIN HKP.WorkCenterSubCategory WCS on WCS.Id = WM.WorkCenterSubcategoryId
                             left join HKP.Process P on P.Id = WM.ProcessId
+                            left join org.Entity E on E.Id = WM.EntityId
                             LEFT JOIN SCS.UnitOfMeasurement UOM on UOM.Id = WM.UoMId 
                             where WM.Active = 1 and WM.EntityId in (select EntityId from MST.QualityManagementEntity where QMID='" + ScheduleId + @"') and WM.ProcessId in (select ProcessId from MST.QualityManagementProcess where QMID='" + ScheduleId + @"') order by QMW.Id desc";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -646,6 +647,24 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 conC.BeginTransaction();
                 conC.executeQuery("delete from [MST].[QualityManagementActivityGroup] where Id ='" + id + @"'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost]
+        public ActionResult ParameterDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from QualityManagementParameterCheckPoints where Id ='" + id + @"'");
                 conC.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);

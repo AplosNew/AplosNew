@@ -2466,7 +2466,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
     };
 
     $scope.clearSourceInfo = function () {
-        $scope.voucher.BudgetMasterId = null;
+        $scope.voucher.BankMasterId = null;
         $scope.voucher.BankCurrencyId = null;
         $scope.voucher.BankAmount = 0;
         $scope.voucher.CashMasterId = null;

@@ -206,7 +206,6 @@ namespace Library.Accounting.Accounts
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
                                     WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + "' AND S.Id='"+ salesId + @"' AND S.VoucherId IS NULL";
                 return _sqlRepository.GetDataCollection(cmdText);
-
             }
             catch (Exception ex)
             {

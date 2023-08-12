@@ -46,7 +46,10 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             return View();
         }
-
+        public ActionResult PCAAC()
+        {
+            return View();
+        }
         //Load Employee
         [HttpGet]
         public ActionResult LoadEmployeelist(string empCategory, string department, string section, string subSection, string designation, string userGroup)
@@ -287,7 +290,7 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult GetAllActiveEmployeeData()
         {
-            JsonResult json = Json(clsSales.GetAllEmployeeData(), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(clsSales.GetAllGoodWorkEmployeeData(), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
@@ -417,5 +420,165 @@ namespace Aplos.Areas.Attendances.Controllers
             dr.EndEdit();
         }
 
+        #region Payable Creation and Worker Advance
+        
+        [HttpGet, Authorize]
+        public ActionResult GetWorkerAdvanceList()
+        {
+            string sql = @"select * from [dbo].[WorkerAdvance]";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetWorkerAdvanceDetailCenter(string workAdvanceId)
+        {
+            string str = @"select wad.Id workAdvanceDetailId,wa.Id workAdvanceId,ei.EmployeeName,wad.PayDays,wad.Amount
+                            from [dbo].[WorkerAdvanceDetail] wad
+                            left join [dbo].[WorkerAdvance] wa on wa.Id=wad.WorkerAdvanceId
+                            left join EmployeeInformation ei on ei.SystemId=wad.EmpSystemId
+                            where wad.WorkerAdvanceId in ('" + workAdvanceId + "')";
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost]
+        public JsonResult CreateWorkerAdvance(Dictionary<string, object> data, List<Dictionary<string, object>> workerAdvanceDetail)
+        {
+            try
+            {
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+                DataSet dsMaster;
+                DataSet dsDetail;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [dbo].[WorkerAdvance] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+
+                string _Id = "";
+
+                #region data update Worker Advance
+                if (dsMaster.Tables[0].DefaultView.Count == 0)
+                {
+                    if (_Id == "")
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("WorkerAdvance", out _Id);
+                    }
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    data["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);
+                }
+
+                #endregion data update  Worker Advance
+
+                #region  Worker Advance Detail
+
+                string _MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                con.OpenDataSetThroughAdapter("select * from [dbo].[WorkerAdvanceDetail] where  WorkerAdvanceId='" + _MasterId + "'", out dsDetail, false, "1");
+                int ccount = 0;
+                if (workerAdvanceDetail != null)
+                {
+                    foreach (var item in workerAdvanceDetail)
+                    {
+                        DataView dv = new DataView(dsDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        if (dv.Count == 0)
+                        {
+                            ccount++;
+                            string detailId = materialCommonService.MakePK(_MasterId, ccount, 2);
+
+                            item["Id"] = detailId;
+                            item["WorkerAdvanceId"] = _MasterId;
+                            item["EmpSystemId"] = item["SystemId"];
+                            item["PayDays"] = item["PayDays"];
+                            //item["Amount"] = item["Amount"];
+
+                            materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
+                        }
+                        if (dv.Count > 0)
+                        {
+                            ccount++;
+                            string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
+                            DataRow drmo = dv[0].Row;
+                            drmo.BeginEdit();
+                            drmo["Id"] = detailid;
+                            drmo["WorkerAdvanceId"] = _MasterId;
+                            drmo["EmpSystemId"] = item["SystemId"];
+                            drmo["PayDays"] = item["PayDays"];
+                            drmo["Amount"] = item["Amount"];
+
+                            drmo.EndEdit();
+                        }
+                    }
+                }
+
+                #endregion  Worker Advance Detail
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, dsDetail);
+
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+
+        [HttpGet]
+        public ActionResult LoadPCAACEmployeelist()
+        {
+            string sql = string.Empty;
+            try
+            {
+                sql = @"SELECT '' Id,0 CheckBoxSelect, EI.SystemId
+                         ,EI.EmployeeCode
+                         ,EI.EmployeeName,ei.EmployeeCodePreFix,ei.EmployeeCodeNumeric
+                         , FORMAT(EI.DOB,'dd-MMM-yyyy') DOB
+                         , FORMAT(EI.DOJ,'dd-MMM-yyyy') DOJ
+                         , FORMAT(EI.DOS,'dd-MMM-yyyy') DOS
+                         , DG.UserName LegalDesignation
+                         ,S.UserName Section,SS.UserName SubSection, DP.UserName Department
+                         , PMB.Code,PR.UserName PositionName
+                         ,EI.EmployeeStatus
+						 ,OTTitle = case when EI.ExcludeOT=0 then 'Yes' else 'No' end
+                         FROM dbo.Employeeinformation EI
+                         LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
+                         LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
+                         LEFT JOIN ORG.Company COM ON EI.CompanyId=COM.Id
+                         LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id                       
+                         LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
+                         LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId	
+                         LEFT join MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
+						 LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
+                         LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
+                         LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                         where EI.employeeCode<>''
+                         ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            var data = _sqlRepository.GetDataCollection(sql);
+            JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+
+        [Authorize, HttpPost]
+        public ActionResult GetAmount(string data)
+        {
+            var ts = 0; /*Basic / 26 * PayDays * Percentage;*/
+            return Json(ts, JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion Payable Creation and Worker Advance
     }
 }

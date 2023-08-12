@@ -672,12 +672,12 @@ from [MST].[QualityIssueItem] IID where IID.Id='" + ItemId + @"'";
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetWorkCenterList(string IssueId)
+        public ActionResult GetWorkCenterList(string IssueId, string EntityId, string ProcessId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select QMW.WorkCenterMasterId as Value, WCM.UserName as Text from MST.QualityManagementWorkCenter QMW
 left join scs.WorkCenterMaster WCM on WCM.Id=QMW.WorkCenterMasterId
-where QMW.QMID ='" + IssueId + "'";
+where QMW.QMID ='" + IssueId + "' and WCM.EntityId='" + EntityId + "' and WCM.ProcessId='" + ProcessId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -1035,9 +1035,9 @@ where PO.ID= '" + POId + "'";
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetQualityWorkCenterList(string IssueId)
+        public JsonResult GetQualityWorkCenterList(string IssueId, string EntityId, string ProcessId)
         {
-            return Json(_productionSummaryData.GetQualityWorkCenterList(IssueId), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetQualityWorkCenterList(IssueId, EntityId, ProcessId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -1766,14 +1766,14 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                         AddNewRow(dsQualityControlData.Tables[0], QualityControlData);
                         ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                         conC.BeginTransaction();
-                        if (PlanType == "GeneralIssue")
-                        {
-                            conC.executeQuery("Update TRN.QualityIssueControl set QCId='" + QualityControlData["Id"] + "',RepeatEntry='Repeat' where Id='" + QualityPlanId + @"'");
-                        }
-                        if (PlanType == "POIssue")
-                        {
-                            conC.executeQuery("Update TRN.QualityPlanControl set QCId='" + QualityControlData["Id"] + "',RepeatEntry='Repeat' where Id='" + QualityPlanId + @"'");
-                        }
+                        //if (PlanType == "GeneralIssue")
+                        //{
+                        //    conC.executeQuery("Update TRN.QualityIssueControl set QCId='" + QualityControlData["Id"] + "',RepeatEntry='Repeat' where Id='" + QualityPlanId + @"'");
+                        //}
+                        //if (PlanType == "POIssue")
+                        //{
+                        //    conC.executeQuery("Update TRN.QualityPlanControl set QCId='" + QualityControlData["Id"] + "',RepeatEntry='Repeat' where Id='" + QualityPlanId + @"'");
+                        //}
                         conC.CommitTransaction();
                     }
                 }

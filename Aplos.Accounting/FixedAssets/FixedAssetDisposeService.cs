@@ -1895,6 +1895,33 @@ namespace Library.Accounting.FixedAssets
             }
         }
 
+        public void UpdateAssetRegister(List<Dictionary<string, object>> assetRegisterList)
+        {
+            try
+            {
+                AccountsCommonService _accountsCommonService = new AccountsCommonService(_sqlRepository);
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                
+                if (assetRegisterList != null)
+                {
+                    var rdBuilder = new System.Text.StringBuilder();
+                    var builderSql = "";
+                    foreach (var item in assetRegisterList)
+                    {
+                        builderSql = @"UPDATE [TRN].[AssetRegister] SET AssetSlNo='" + item["AssetSlNo"] + " ' ,RFId = '" + item["RFId"] + "' ,BarCode = '" + item["BarCode"] + "' ,Status = '" + item["Status"] + "' ,AssetCondition = '" + item["AssetCondition"] + "' ,UserReference = '" + item["UserReference"] + "' ,OldReference = '" + item["OldReference"] + "' ,UserGroup = '" + item["UserGroup"] + "' ,Remarks = '" + item["Remarks"] + "' ,UpdatedBy = '" + identity.Name + "' ,UpdatedDate = '" + System.DateTime.Now.ToString() + "' ,UpdatedFromIP = '" + identity.IPAddress + "' WHERE Id='" + item["AssetRegisterId"].ToString() + "'  ";
+                        rdBuilder.Append(builderSql);
+                    }
+                    _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
         private Dictionary<string, object> GetCapitalizeAssetRegisterPostHeader(string companyGroupId, string companyId, string plantId, string voucherId, SourceType sourceType)
         {
             var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
