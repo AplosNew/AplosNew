@@ -672,12 +672,12 @@ from [MST].[QualityIssueItem] IID where IID.Id='" + ItemId + @"'";
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetWorkCenterList(string IssueId)
+        public ActionResult GetWorkCenterList(string IssueId, string EntityId, string ProcessId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select QMW.WorkCenterMasterId as Value, WCM.UserName as Text from MST.QualityManagementWorkCenter QMW
 left join scs.WorkCenterMaster WCM on WCM.Id=QMW.WorkCenterMasterId
-where QMW.QMID ='" + IssueId + "'";
+where QMW.QMID ='" + IssueId + "' and WCM.EntityId='" + EntityId + "' and WCM.ProcessId='" + ProcessId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -686,7 +686,7 @@ where QMW.QMID ='" + IssueId + "'";
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select EI.EmployeeName  from EmployeeInformation EI where EmployeeStatus='Active' 
-and  PositionID in (select PositionCodeId from MST.QualityIssueDetails where Id='"+ IssueId + "')";
+and  PositionID in (select PositionCodeId from MST.QualityIssueDetails where Id='" + IssueId + "')";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -1035,9 +1035,9 @@ where PO.ID= '" + POId + "'";
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetQualityWorkCenterList(string IssueId)
+        public JsonResult GetQualityWorkCenterList(string IssueId, string EntityId, string ProcessId)
         {
-            return Json(_productionSummaryData.GetQualityWorkCenterList(IssueId), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetQualityWorkCenterList(IssueId, EntityId, ProcessId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -1145,7 +1145,7 @@ where PO.ID= '" + POId + "'";
             return Json(_ProductionSummaryService.GetCboIssueQIC(identity.PlantId, processid, entityId, productionDate, shiftId, ProductionInChargeId, IssueId, PeriodId, PId, POItemId), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet, Authorize] 
+        [HttpGet, Authorize]
         public JsonResult GetPOWiseData(string processid, string entityId, string POId, string Date, string POStatus, string CustomerId, string IssueId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1201,8 +1201,8 @@ where PO.ID= '" + POId + "'";
                         if (dv.Count == 0)
                         {
                             bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID(TableName, out _Id);
-                            item["Id"] = "QPC" + _Id;
+                            genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[TRN].[QualityPlanControl]", out _Id);
+                            item["Id"] = "P" + _Id;
                             AddNewRow(dsProdBooked.Tables[0], item);
                         }
                         else
@@ -1246,8 +1246,8 @@ where PO.ID= '" + POId + "'";
                         if (dv.Count == 0)
                         {
                             bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID(TableName, out _Id);
-                            item["Id"] = "QPC" + _Id;
+                            genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[TRN].[QualityPlanControl]", out _Id);
+                            item["Id"] = "P" + _Id;
                             AddNewRow(dsProdBooked.Tables[0], item);
                         }
                         else
@@ -1291,8 +1291,8 @@ where PO.ID= '" + POId + "'";
                         if (dv.Count == 0)
                         {
                             bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID(TableName, out _Id);
-                            item["Id"] = "QGI" + _Id;
+                            genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[TRN].[QualityIssueControl]", out _Id);
+                            item["Id"] = "G" + _Id;
                             AddNewRow(dsProdBooked.Tables[0], item);
                         }
                         else
@@ -1336,8 +1336,9 @@ where PO.ID= '" + POId + "'";
                         if (dv.Count == 0)
                         {
                             bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID(TableName, out _Id);
-                            item["Id"] = "QGI" + _Id;
+                            //genid.GenID(TableName, out _Id);
+                            genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[TRN].[QualityIssueControl]", out _Id);
+                            item["Id"] = "G" + _Id;
                             AddNewRow(dsProdBooked.Tables[0], item);
                         }
                         else
@@ -1350,7 +1351,7 @@ where PO.ID= '" + POId + "'";
                         obj.SaveDataSets(dsProdBooked);
                     }
                 }
-                return Json(new {Id = Id, Message = AplosMessage.Insert });
+                return Json(new { Id = Id, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
@@ -1639,15 +1640,15 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                     else
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("[TRN].[QualityControl]", out _Id);
-                        QualityControlData["Id"] = "QC" + _Id;
+                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[TRN].[QualityControl]", out _Id);
+                        QualityControlData["Id"] = _Id;
                         QualityControlData["QualityPlanId"] = QualityPlanId;
                         QualityControlData["PlanType"] = PlanType;
                         QualityControlData["PlantId"] = identity.PlantId;
                         AddNewRow(dsQualityControlData.Tables[0], QualityControlData);
                         ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                         conC.BeginTransaction();
-                        if(PlanType == "GeneralIssue")
+                        if (PlanType == "GeneralIssue")
                         {
                             conC.executeQuery("Update TRN.QualityIssueControl set QCId='" + QualityControlData["Id"] + "' where Id='" + QualityPlanId + @"'");
                         }
@@ -1686,7 +1687,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         public ActionResult UpdateQIC(List<Dictionary<string, object>> DataList, string PId)
         {
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsProdBooked;
+            DataSet dsProdBooked, dsChildId;
             string TableName = "[TRN].[QualityControlDetails]";
             string contId = string.Empty;
             string _Id, Id = string.Empty;
@@ -1697,16 +1698,18 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
                 if (DataList != null)
                 {
+                    objCon.OpenDataSetThroughAdapter("select count(Id) + 1 as QCDId from TRN.QualityControlDetails where QCId='" + PId + "'", out dsChildId, false, "1");
+                    int QCDId = Convert.ToInt32(dsChildId.Tables[0].Rows[0]["QCDId"].ToString());
                     foreach (var item in DataList)
                     {
                         objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and QCId='" + PId + "'", out dsProdBooked, false, "1");
+                       
                         DataView dv = new DataView(dsProdBooked.Tables[0]);
-
+                        
                         if (dv.Count == 0)
                         {
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID(TableName, out _Id);
-                            item["Id"] = "QCD" + _Id;
+                            //bplib.clsGenID genid = new bplib.clsGenID();
+                            item["Id"] = PId + "-" + QCDId++;
                             item["QCID"] = PId;
                             AddNewRow(dsProdBooked.Tables[0], item);
                         }
@@ -1734,7 +1737,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             string TableName = "[TRN].[QualityControlDetails]";
             string contId = string.Empty;
             string _QId = "", _QCId = "";
-            DataSet dsQualityControlData, dsProdBooked;
+            DataSet dsQualityControlData, dsProdBooked, dsChildId;
 
             try
             {
@@ -1756,8 +1759,9 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                     else
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("[TRN].[QualityControl]", out _Id);
-                        QualityControlData["Id"] = "QC" + _Id;
+                        //genid.GenID("[TRN].[QualityControl]", out _Id);
+                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[TRN].[QualityControl]", out _Id);
+                        QualityControlData["Id"] = _Id;
                         QualityControlData["QualityPlanId"] = QualityPlanId;
                         QualityControlData["PlanType"] = PlanType;
                         QualityControlData["PlantId"] = identity.PlantId;
@@ -1766,14 +1770,14 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                         AddNewRow(dsQualityControlData.Tables[0], QualityControlData);
                         ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                         conC.BeginTransaction();
-                        if (PlanType == "GeneralIssue")
-                        {
-                            conC.executeQuery("Update TRN.QualityIssueControl set QCId='" + QualityControlData["Id"] + "',RepeatEntry='Repeat' where Id='" + QualityPlanId + @"'");
-                        }
-                        if (PlanType == "POIssue")
-                        {
-                            conC.executeQuery("Update TRN.QualityPlanControl set QCId='" + QualityControlData["Id"] + "',RepeatEntry='Repeat' where Id='" + QualityPlanId + @"'");
-                        }
+                        //if (PlanType == "GeneralIssue")
+                        //{
+                        //    conC.executeQuery("Update TRN.QualityIssueControl set QCId='" + QualityControlData["Id"] + "',RepeatEntry='Repeat' where Id='" + QualityPlanId + @"'");
+                        //}
+                        //if (PlanType == "POIssue")
+                        //{
+                        //    conC.executeQuery("Update TRN.QualityPlanControl set QCId='" + QualityControlData["Id"] + "',RepeatEntry='Repeat' where Id='" + QualityPlanId + @"'");
+                        //}
                         conC.CommitTransaction();
                     }
                 }
@@ -1788,8 +1792,11 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
                 #region  
                 conRack.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  QCID='" + _QCId + "'", out dsProdBooked, false, "1");
+                conRack.OpenDataSetThroughAdapter("select count(Id) + 1 as QCDId from TRN.QualityControlDetails where QCId='" + _QCId + "'", out dsChildId, false, "1");
+                int QCDId = Convert.ToInt32(dsChildId.Tables[0].Rows[0]["QCDId"].ToString());
                 if (DataList != null)
                 {
+                   
                     foreach (var item in DataList)
                     {
                         DataView dv = new DataView(dsProdBooked.Tables[0]);
@@ -1799,8 +1806,8 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                         if (dv.Count == 0)
                         {
                             bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID(TableName, out _QId);
-                            item["Id"] = "QCD" + _QId;
+                            //genid.GenID(TableName, out _QId);
+                            item["Id"] = _QCId + "-" + QCDId++;
                             item["QCID"] = _QCId;
                             item["RepeatEntry"] = "Repeat";
                             AddNewRow(dsProdBooked.Tables[0], item);
@@ -1837,24 +1844,25 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             {
 
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                DataSet dsQualityControlDetailsData;
+                DataSet dsQualityControlDetailsData, dsChildId;
 
                 conRack = new ConnectionManager.DAL.ConManager("1");
                 conRack.OpenDataSetThroughAdapter("select * from [TRN].[QualityControlDetails] where Id='" + QualityControlDetailsData["Id"] + "'", out dsQualityControlDetailsData, false, "1");
+                conRack.OpenDataSetThroughAdapter("select count(Id) + 1 as QCDId from TRN.QualityControlDetails where QCId='" + QualityControlDetailsData["QCId"] + "'", out dsChildId, false, "1");
                 string _Id = "", Id = string.Empty;
 
                 #region data update
                 if (dsQualityControlDetailsData.Tables[0].Rows.Count == 0)
                 {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("[TRN].[QualityControlDetails]", out _Id);
-                        QualityControlDetailsData["Id"] = "QCD" + _Id;
-                        QualityControlDetailsData["PlantId"] = identity.PlantId;
-                        AddNewRow(dsQualityControlDetailsData.Tables[0], QualityControlDetailsData);
-                   
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    //genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[TRN].[QualityControlDetails]", out _Id);
+                    QualityControlDetailsData["Id"] = QualityControlDetailsData["QCId"] + "-" + dsChildId.Tables[0].Rows[0]["QCDId"].ToString();
+                    QualityControlDetailsData["PlantId"] = identity.PlantId;
+                    AddNewRow(dsQualityControlDetailsData.Tables[0], QualityControlDetailsData);
+
                 }
                 else
                 {
@@ -1889,7 +1897,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 IWorkbook workbook = _AttendanceManagementService.GetPOIssueJobCardReports(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, PlannedId, IssueId);
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + "Job Card Report";
                 return RenderReportAsPdf(workbook, reportFileName);
-               
+
             }
             catch (Exception ex)
             {
@@ -1937,7 +1945,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ps.PlantId = identity.PlantId;
-            _ProductionSummaryService.SaveMasterWC(ps,identity.CompanyGroupId);
+            _ProductionSummaryService.SaveMasterWC(ps, identity.CompanyGroupId);
             return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
         }
         [HttpPost]
@@ -3281,7 +3289,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 for (int i = 0; i < pivotTable.Fields.Count; i++)
                 {
                     if (i == colProcess - 1 || i == colEntity - 1 || i == colActualDate - 1)
-                    pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                        pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
                 }
 
                 pivotTable.ShowRowGrand = false;
@@ -3316,12 +3324,12 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 throw ex;
             }
         }
-        
 
- 
+
+
 
         [HttpPost, Authorize]
-        public ActionResult GetPerametreWiseOrderReport(string fromDate, string toDate, string EntityId, string ProcessId,string ShiftId)
+        public ActionResult GetPerametreWiseOrderReport(string fromDate, string toDate, string EntityId, string ProcessId, string ShiftId)
         {
             try
             {
@@ -3336,7 +3344,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
         }
 
-        public string PerametreWiseOrderReport(string fromDate, string toDate, string SheetName, string EntityId, string ProcessId,string ShiftId)
+        public string PerametreWiseOrderReport(string fromDate, string toDate, string SheetName, string EntityId, string ProcessId, string ShiftId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ExcelEngine excelEngine = null;
@@ -3787,13 +3795,13 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
                 for (int i = 0; i < pivotTable.Fields.Count; i++)
                 {
-                    if (i == colActualDate - 1 || i == colProcess - 1 || i == colEntity - 1|| i == colWorkCenter - 1 || i == colProductionShift - 1 || i == colDetentionInMin - 1
+                    if (i == colActualDate - 1 || i == colProcess - 1 || i == colEntity - 1 || i == colWorkCenter - 1 || i == colProductionShift - 1 || i == colDetentionInMin - 1
                         || i == colUtilization - 1 || i == colbuyer - 1 || i == colBuyerOrderNo - 1 || i == colPORefNo - 1 || i == colProductCode - 1 || i == colMaterial - 1
                         || i == colArticle - 1 || i == colEntryId - 1 || i == colEntryBy - 1 || i == colUOM - 1 || i == colProductionQty - 1 || i == colRemarks - 1 || i == colSequence - 1 || i == colParameter - 1)
-                    pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                        pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
                 }
-               
-        
+
+
                 pivotTable.ShowRowGrand = false;
                 pivotTable.ShowDrillIndicators = false;
                 pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;

@@ -30,19 +30,37 @@ function LeaveBalanceToDateReportController(commonMessage, $scope, $rootScope, b
 
 
     //#region Get Function
+    $scope.sqlInStatement = null;
     $scope.YearId = null;
     $scope.Report = function () {
+        var dataList = [];
         var reportFormat = "Excel";
         try {
+
+          var  g = $("#Grid").data("ejGrid");
+            dataList = g.getFilteredRecords();
+            if (dataList.length==0) {
+                dataList = $scope.EmpData;
+            }
+
+            if (dataList.length > 0) {
+                var wcId = "";
+                if (dataList.length > 0) {
+                    wcId = "IN(";
+                    wcId += Array.prototype.map.call(dataList, function (item) { return "'" + item.SystemID + "'"; }).join(",") + ")";
+                }
+                $scope.sqlInStatement = wcId;
+            
+            }
+
+
+
             var DropDownListObj = $("#ddlPlantList").data("ejDropDownList");
             var PlantId = DropDownListObj.getSelectedValue();
-            //if ($scope.YearId == "" || $scope.YearId == null) {
-            //    throw "Select Year";
-            //}
             if ($scope.selectedValues.ToDate == "" || $scope.selectedValues.ToDate == null) {
                 throw "Select Date";
             }
-            var url = $scope.path + '/GetReport?reportFormat=' + reportFormat + "&Year=" + $scope.YearId + "&ToDate=" + $scope.selectedValues.ToDate + '&PlantId=' + PlantId;
+            var url = $scope.path + '/GetReport?reportFormat=' + reportFormat + "&Year=" + $scope.YearId + "&ToDate=" + $scope.selectedValues.ToDate + '&PlantId=' + PlantId + '&empIds=' + $scope.sqlInStatement;
 
             $rootScope.report(url);
         } catch (e) {
