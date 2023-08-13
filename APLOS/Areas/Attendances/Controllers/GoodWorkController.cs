@@ -298,7 +298,8 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             string str = @"select GWD.Id,EI.SystemId,EI.EmployeeCode,EI.EmployeeName
 							,format(GWD.FromTime,'hh:m') FromTime,format(GWD.ToTime,'hh:m') ToTime,GWD.Minute CalculatedTime
-							,GWD.Purpose,GWD.PurposeCategory,EmI.SystemId ApprovedById,EmI.EmployeeCode ApprovedByCode
+							,GWD.Purpose,GWD.PurposeCategory,wa.Remarks
+                            ,EmI.SystemId ApprovedById,EmI.EmployeeCode ApprovedByCode
                             ,EmI.EmployeeName ApprovedByName,GWD.[Minute],GWD.Remarks
 							,S.UserName Section,SS.UserName SubSection,DEPT.UserName Department
                             from GoodworkDetail GWD 
@@ -425,14 +426,22 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult GetWorkerAdvanceList()
         {
-            string sql = @"select *,FORMAT(FromDate,'dd-MMM-yy')FromDate,FORMAT(ToDate,'dd-MMM-yy')ToDate from [dbo].[WorkerAdvance]";
-
+            string sql = @"select wa.Id,FORMAT(FromDate,'dd-MMM-yy')FromDate,FORMAT(ToDate,'dd-MMM-yy')ToDate,UserRef
+						        ,NoOfDays,Percentage,wa.Remarks
+                                ,ei.SystemId PreparedById,ei.EmployeeName PreparedBy
+						        ,ei2.SystemId CheckedById,ei2.EmployeeName CheckedBy
+						        ,ei3.SystemId ApprovedById,ei3.EmployeeName ApprovedBy
+                                  from [dbo].[WorkerAdvance] wa
+                                  LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId=wa.PreparedById
+                                  LEFT JOIN dbo.EmployeeInformation AS ei2 ON ei2.SystemId=wa.CheckedById
+                                  LEFT JOIN dbo.EmployeeInformation AS ei3 ON ei3.SystemId=wa.ApprovedById";
+             
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult GetWorkerAdvanceDetailCenter(string workAdvanceId)
         {
-            string str = @"select ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,s.UserName UserName,ss.UserName SubSection,wad.Id
+            string str = @"select ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,s.UserName Section,ss.UserName SubSection,wad.Id
 							,wa.Id workAdvanceId,d.UserName Department,wad.PayDays,wad.Amount,x.[Basic]
                             from [dbo].[WorkerAdvanceDetail] wad
                             left join [dbo].[WorkerAdvance] wa on wa.Id=wad.WorkerAdvanceId
@@ -538,12 +547,35 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
 
-        [HttpGet]
-        public ActionResult LoadPCAACEmployeelist()
+        [HttpPost]
+        public ActionResult LoadPCAACEmployeelist(string fromDate,string toDate,string payDaysType)
         {
             string sql = string.Empty;
             try
             {
+                string pDays = null;
+                if (payDaysType== "FinalOT")
+                {
+                    pDays = @"LEFT JOIN(select (SUM(NormalOTHr)/24) PayDays,EmpSystemID  from finalOT 
+                            where WorkDate between '" + fromDate + @"' and '" + toDate + @"'
+                            GROUP BY EmpSystemID)y on y.EmpSystemID = EI.SystemId ";
+                }
+                else if (payDaysType == "GoodWork")
+                {
+                    pDays = @"LEFT JOIN(select (SUM(Minute)/1440) PayDays,EmpSystemID  
+							from GoodWorkDetail gwd
+							LEFT JOIN GoodWork AS gw ON gw.Id=gwd.GoodWorkId
+                            where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"'
+                            GROUP BY EmpSystemID)y on y.EmpSystemID = EI.SystemId ";
+                }
+                else
+                {
+                    pDays = @"LEFT JOIN(  select SUM(PayDayValue) PayDays,EmpSystemID  
+							from AttdnProcessData 
+                            where WorkDate between '01-Apr-2021' and '30-Apr-2021'
+                            GROUP BY EmpSystemID)y on y.EmpSystemID = EI.SystemId ";
+                }
+
                 sql = @"SELECT '' Id,0 CheckBoxSelect, EI.SystemId
                          ,EI.EmployeeCode
                          ,EI.EmployeeName,ei.EmployeeCodePreFix,ei.EmployeeCodeNumeric
@@ -555,7 +587,7 @@ namespace Aplos.Areas.Attendances.Controllers
                          , PMB.Code,PR.UserName PositionName
                          ,EI.EmployeeStatus
 						 ,OTTitle = case when EI.ExcludeOT=0 then 'Yes' else 'No' END
-						 ,x.DefineAmount Basic,x.SalaryHead
+						 ,x.DefineAmount Basic,x.SalaryHead,y.PayDays
                          FROM dbo.Employeeinformation EI
                          LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
                          LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
@@ -574,8 +606,8 @@ namespace Aplos.Areas.Attendances.Controllers
                                       FROM SalaryInfoDefine SID 
                          LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                     WHERE SH.HeadCategory='Basic')x ON x.SalaryID = SIDM.SystemID
-                         
-                         where EI.employeeCode<>''
+                         " + pDays +@"
+                         where EI.employeeCode<>''  
                          ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
             }
             catch (Exception ex)
@@ -587,6 +619,24 @@ namespace Aplos.Areas.Attendances.Controllers
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
+
+        public ActionResult DeleteWorkerAdvanceChildUrl(string Id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.WorkerAdvanceDetail where Id='" + Id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+ 
 
         public class WorkerAdvanceTransaction
         {
