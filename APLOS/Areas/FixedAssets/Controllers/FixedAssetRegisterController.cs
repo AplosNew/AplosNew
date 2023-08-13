@@ -103,7 +103,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             return View("~/Areas/FixedAssets/Views/FixedAssetRegisterExpenseReport.cshtml");
         }
-        [Authorize]
+        [Authorize] 
         public ActionResult CARApproval()
         {
             return View("~/Areas/FixedAssets/Views/CARApproval.cshtml");
@@ -1739,6 +1739,46 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             return Json(_fixedAssetQueryService.GetAdditionalInfoItemSequence(), JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+
+        #region Fixed Asset Depreciation Process
+        public ActionResult AssetDepreciationProcess()
+        {
+            return View("~/Areas/FixedAssets/Views/AssetDepreciationProcess.cshtml");
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetAssetMastersListForProcess(string fiscalYearId, string toDate, string startDate)
+        {
+
+            FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(new { DATA = fixedAssetQueryService.GetfixedAssetMastersListForProcess(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fiscalYearId, toDate, startDate), Error = false }, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+
+        }
+        [HttpPost]
+        public JsonResult AssetDepreciationProcess(string[] selectedAssetMastersList, string fiscalYearId, string toDate)
+        {
+            string selectedAssetMastersLists = "";
+
+            foreach (var item in selectedAssetMastersList)
+            {
+                if (string.IsNullOrEmpty(selectedAssetMastersLists))
+                {
+                    selectedAssetMastersLists += item;
+                }
+                else
+                {
+                    selectedAssetMastersLists += "," + item;
+                }
+
+            }
+            FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            fixedAssetQueryService.FixedAssetDepreciationProcess(selectedAssetMastersLists, fiscalYearId, toDate);
+
+            return Json(new { Message = AplosMessage.Insert });
         }
         #endregion
     }

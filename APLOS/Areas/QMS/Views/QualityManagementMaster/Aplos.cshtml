@@ -193,7 +193,7 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">SNO<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="SNO" ng-disabled="true" ng-model="ItemNew.SNO" class="form-control" required maxlength="100" autocomplete="off">
+                                    <input type="text" name="SNO"  ng-model="ItemNew.SNO" class="form-control" required maxlength="100" autocomplete="off">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
@@ -477,6 +477,7 @@
                                 <div e-column e-field="WorkcenterCategory" e-headertext="WorkCenter Category" e-width="100"></div>
                                 <div e-column e-field="WorkcenterSubCategory" e-headertext="WorkCenter SubCategory" e-width="100"></div>
                                 <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
+                                <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
                                 <div e-column e-field="Capacity" e-headertext="Capacity" e-width="100"></div>
                                 <div e-column e-field="UOM" e-headertext="UOM" e-width="100"></div>
                             </div>
@@ -816,6 +817,7 @@
                         <ul class="list-inline text-right">
                             <li><button ng-click="SaveParameterData();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
                             <li><button ng-click="SaveParameterClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                            <li> <button ng-click="ParameterDelete();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Delete</button></li>
                         </ul>
                     </div>
                 </div>
