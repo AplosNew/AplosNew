@@ -822,7 +822,7 @@ namespace Library.Service.EmployeeServices
                     }
                     else
                     {
-                        ErrorList += item.RefNo + "...";
+                        ErrorList += item.RefNo + " , ";
                     }
 
 
@@ -846,7 +846,7 @@ namespace Library.Service.EmployeeServices
 
                 if (ErrorList != "")
                 {
-                    return "Their Cartons are not saled:- " + ErrorList;
+                    return "These Cartons are not Sold:- " + ErrorList;
                 }
 
                 return "true";
