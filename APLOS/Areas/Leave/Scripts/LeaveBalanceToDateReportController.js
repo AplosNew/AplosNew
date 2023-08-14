@@ -23,7 +23,7 @@ function LeaveBalanceToDateReportController(commonMessage, $scope, $rootScope, b
     //#endregion
 
     $scope.selectedValues = {
-       ToDate: null,        
+        ToDate: null,
     };
 
 
@@ -32,14 +32,14 @@ function LeaveBalanceToDateReportController(commonMessage, $scope, $rootScope, b
     //#region Get Function
     $scope.sqlInStatement = null;
     $scope.YearId = null;
-    $scope.Report = function () {
+    $scope.XReport = function () {
         var dataList = [];
         var reportFormat = "Excel";
         try {
 
-          var  g = $("#Grid").data("ejGrid");
+            var g = $("#Grid").data("ejGrid");
             dataList = g.getFilteredRecords();
-            if (dataList.length==0) {
+            if (dataList.length == 0) {
                 dataList = $scope.EmpData;
             }
 
@@ -50,7 +50,7 @@ function LeaveBalanceToDateReportController(commonMessage, $scope, $rootScope, b
                     wcId += Array.prototype.map.call(dataList, function (item) { return "'" + item.SystemID + "'"; }).join(",") + ")";
                 }
                 $scope.sqlInStatement = wcId;
-            
+
             }
 
 
@@ -67,6 +67,63 @@ function LeaveBalanceToDateReportController(commonMessage, $scope, $rootScope, b
             ShowResult(e, 'info');
         }
     };
+
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+
+    $scope.Report = function () {
+        var reportFormat = "Excel";
+        var dataList = [];
+        var g = $("#Grid").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        if (dataList.length == 0) {
+            dataList = $scope.EmpData;
+        }
+
+        if (dataList.length > 0) {
+            var wcId = "";
+            if (dataList.length > 0) {
+                wcId = "IN(";
+                wcId += Array.prototype.map.call(dataList, function (item) { return "'" + item.SystemID + "'"; }).join(",") + ")";
+            }
+            $scope.sqlInStatement = wcId;
+        }
+
+        var DropDownListObj = $("#ddlPlantList").data("ejDropDownList");
+        var PlantId = DropDownListObj.getSelectedValue();
+        if ($scope.selectedValues.ToDate == "" || $scope.selectedValues.ToDate == null) {
+            throw "Select Date";
+        }
+
+        $scope.fileName = 'Leave Register Report.xls';
+        $http({
+            method: "POST",
+            url: 'Leave/LeaveBalanceToDateReport/GetReport',
+            data: {
+                'reportFormat': reportFormat,
+                'Year': $scope.YearId,
+                'ToDate': $scope.selectedValues.ToDate,
+                'PlantId': PlantId,
+                'empIds': $scope.sqlInStatement,
+            },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+
+
+
 
     $scope.EmpData = [];
     $scope.LoadData = function () {

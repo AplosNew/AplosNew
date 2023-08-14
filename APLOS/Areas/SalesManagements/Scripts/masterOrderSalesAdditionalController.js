@@ -10,21 +10,21 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
     $scope.searchByPostedSalesList = [{ value: 'InvoiceNo', name: "Invoice No" }, { value: 'VoucherNo', name: "Voucher No" }, { value: 'PartyCode', name: "Party Code" }, { value: 'PartyName', name: "Party Name" }
         , { value: 'DocRefNo', name: "DocRef No" }
     ];
-
-    $scope.getMasterOrderSalesPostedList = [];
+    $scope.FromDate = null;    $scope.ToDate = null;
+    $scope.MasterOrderSalesPostedList = [];
     $scope.getMasterOrderSalesPosted = function () {
         $http({
             method: 'POST'
             , url: 'SalesManagements/Sales/GetPostedMasterOrderSalesList'
-            , data: { column: $scope.searchByPostedSales, value: $scope.searchSales }
+            , data: { column: $scope.searchByPostedSales, value: $scope.searchSales, 'FromDate': $scope.FromDate, 'ToDate': $scope.ToDate }
             , dataType: 'JSON'
         }).then(function (response) {
-            $scope.getMasterOrderSalesPostedList = response.data;
+            $scope.MasterOrderSalesPostedList = response.data;
         }), function (response) {
             ShowResult(response.data.Message, 'failure');
         };
     };
-    $scope.getMasterOrderSalesPosted();
+   // $scope.getMasterOrderSalesPosted();
 
     $scope.model = { Id: null, SalesId: null, PostCode: null, ShippingDate: null, ShippingBill: null, RodTepAmount: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
     $scope.modelNew = Object.assign({}, $scope.model);

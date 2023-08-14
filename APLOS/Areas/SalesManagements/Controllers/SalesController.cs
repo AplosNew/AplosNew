@@ -1341,10 +1341,10 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
 
         [HttpPost, Authorize]
-        public JsonResult GetPostedMasterOrderSalesList(string column, string value)
+        public JsonResult GetPostedMasterOrderSalesList(string column, string value, string FromDate, string ToDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            JsonResult json = Json(clsSales.GetMasterOrderSalesPostedList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(clsSales.GetMasterOrderSalesPostedList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value,FromDate,ToDate), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
