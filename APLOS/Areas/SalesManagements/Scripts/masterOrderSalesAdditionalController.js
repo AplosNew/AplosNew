@@ -10,21 +10,21 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
     $scope.searchByPostedSalesList = [{ value: 'InvoiceNo', name: "Invoice No" }, { value: 'VoucherNo', name: "Voucher No" }, { value: 'PartyCode', name: "Party Code" }, { value: 'PartyName', name: "Party Name" }
         , { value: 'DocRefNo', name: "DocRef No" }
     ];
-
-    $scope.getMasterOrderSalesPostedList = [];
+    $scope.FromDate = null;    $scope.ToDate = null;
+    $scope.MasterOrderSalesPostedList = [];
     $scope.getMasterOrderSalesPosted = function () {
         $http({
             method: 'POST'
             , url: 'SalesManagements/Sales/GetPostedMasterOrderSalesList'
-            , data: { column: $scope.searchByPostedSales, value: $scope.searchSales }
+            , data: { column: $scope.searchByPostedSales, value: $scope.searchSales, 'FromDate': $scope.FromDate, 'ToDate': $scope.ToDate }
             , dataType: 'JSON'
         }).then(function (response) {
-            $scope.getMasterOrderSalesPostedList = response.data;
+            $scope.MasterOrderSalesPostedList = response.data;
         }), function (response) {
             ShowResult(response.data.Message, 'failure');
         };
     };
-    $scope.getMasterOrderSalesPosted();
+   // $scope.getMasterOrderSalesPosted();
 
     $scope.model = { Id: null, SalesId: null, PostCode: null, ShippingDate: null, ShippingBill: null, RodTepAmount: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
     $scope.modelNew = Object.assign({}, $scope.model);
@@ -212,31 +212,50 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
         $scope.modelNew = Object.assign({}, $scope.model);
     }
 
-    $scope.message_detailconfirmation = null;
-    $scope.removeLineItem = function (data) {
-        $scope.modelNew = Object.assign({}, data);
-        if (!baseService.isUndefinedOrNull($scope.modelNew.Id))
-            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.modelNew.PostCode + ' ]';
-        angular.element(document.querySelector('#confirmBoMDetailPopUp')).modal('show');
-    }
+   
 
-    $scope.DeleteItem = function () {
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+
+    $scope.Report = function () {
+        var reportFormat = "Excel";
+        var dataList = [];
+        var g = $("#GridPost").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        if (dataList.length == 0) {
+            dataList = $scope.MasterOrderSalesPostedList;
+        }
+
+        if (dataList.length > 0) {
+            var wcId = "";
+            if (dataList.length > 0) {
+                wcId = "IN(";
+                wcId += Array.prototype.map.call(dataList, function (item) { return "'" + item.InvoiceNo + "'"; }).join(",") + ")";
+            }
+            $scope.sqlInStatement = wcId;
+        }
+
+        $scope.fileName = 'Invoice Report.xls';
         $http({
-            method: 'POST',
-            url: 'SalesManagements/Sales/DeleteItem?id=' + $scope.modelNew.Id
+            method: "POST",
+            url: 'Leave/LeaveBalanceToDateReport/GetReport',
+            data: {
+                'reportFormat': reportFormat,
+                'Ids': $scope.sqlInStatement,
+            },
+            dataType: 'JSON',
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                ShowResult(response.data.Message, 'success');
-                $scope.GetSalesAdditionalInfoData();
-                $scope.Clear();
+                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
             }
-        }, function () {
-            ShowResult(commonMessage.NetworkError, 'failure');
-        }).finally(function () {
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
         });
 
     };
+
 }

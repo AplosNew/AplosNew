@@ -1,7 +1,7 @@
 ﻿'use strict';
 jobWorkActivityController.$inject = ['addressService', '$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', '$controller'];
 function jobWorkActivityController(addressService, $window, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
-    $rootScope.title = "Job Work Activity";
+    $rootScope.title = "Jobwork/Outsource Activity";
     $scope.Action = 'Save';
     $scope.Action_Child = 'Add';
     $scope.path = 'Outsourcing/JobWorkActivity/';
@@ -14,6 +14,8 @@ function jobWorkActivityController(addressService, $window, cboService, commonMe
         StandardName: null,
         UserName: null,
         Type: null,
+        IsOutsource: false,
+        IsJobWork: false,
         IsActive: true,
         ResponsiblePersonId: '',
         ResponsiblePersonName: '',
