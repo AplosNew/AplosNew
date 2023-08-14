@@ -212,31 +212,50 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
         $scope.modelNew = Object.assign({}, $scope.model);
     }
 
-    $scope.message_detailconfirmation = null;
-    $scope.removeLineItem = function (data) {
-        $scope.modelNew = Object.assign({}, data);
-        if (!baseService.isUndefinedOrNull($scope.modelNew.Id))
-            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.modelNew.PostCode + ' ]';
-        angular.element(document.querySelector('#confirmBoMDetailPopUp')).modal('show');
-    }
+   
 
-    $scope.DeleteItem = function () {
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+
+    $scope.Report = function () {
+        var reportFormat = "Excel";
+        var dataList = [];
+        var g = $("#GridPost").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        if (dataList.length == 0) {
+            dataList = $scope.MasterOrderSalesPostedList;
+        }
+
+        if (dataList.length > 0) {
+            var wcId = "";
+            if (dataList.length > 0) {
+                wcId = "IN(";
+                wcId += Array.prototype.map.call(dataList, function (item) { return "'" + item.InvoiceNo + "'"; }).join(",") + ")";
+            }
+            $scope.sqlInStatement = wcId;
+        }
+
+        $scope.fileName = 'Invoice Report.xls';
         $http({
-            method: 'POST',
-            url: 'SalesManagements/Sales/DeleteItem?id=' + $scope.modelNew.Id
+            method: "POST",
+            url: 'Leave/LeaveBalanceToDateReport/GetReport',
+            data: {
+                'reportFormat': reportFormat,
+                'Ids': $scope.sqlInStatement,
+            },
+            dataType: 'JSON',
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                ShowResult(response.data.Message, 'success');
-                $scope.GetSalesAdditionalInfoData();
-                $scope.Clear();
+                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
             }
-        }, function () {
-            ShowResult(commonMessage.NetworkError, 'failure');
-        }).finally(function () {
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
         });
 
     };
+
 }
