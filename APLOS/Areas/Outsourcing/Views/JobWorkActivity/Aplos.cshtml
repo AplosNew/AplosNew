@@ -1,160 +1,151 @@
 ﻿
 <togglable name={{title}}></togglable>
-<div class="form-elements form-horizontal" ng-form name="jobWorkActivity">
-    <div class="row">
-        <input type="hidden" ng-model="JobWorkActivity.Id">
-        <div class="col-sm-12 col-md-3 col-lg-3">
-            <div class="form-group" show-errors>
-                <label class="control-label" for="txtCode">
-                    Sequence<sup>*</sup>
-                </label>
-                <div class="show-message">
-                    <input type="text" id="txtSequence" name="Sequence" class="form-control" ng-model="JobWorkActivity.Sequence" required tabindex="1" />
-                    <input type="hidden" id="txtId" name="txtId" ng-model="JobWorkActivity.Id" />
-                </div>
+<div class="form-elements" ng-form name="jobWorkActivity" id="jobWorkActivity">
+    <div class="col-xs-12 col-sm-4 col-md-4 form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="number" name="Sequence" ng-model="JobWorkActivity.Sequence" class="form-control" required placeholder="0.00" tabindex="1">
             </div>
         </div>
-        <div class="col-sm-12 col-md-3 col-lg-3">
-            <div class="form-group" show-errors>
-                <label class="control-label" for="txtCode">
-                    Code<sup>*</sup>
-                </label>
-                <div class="show-message">
-                    <input type="text" id="txtCode" name="Code" class="form-control" ng-model="JobWorkActivity.Code" required tabindex="2" />
-                </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="StandardName" maxlength="50" ng-model="JobWorkActivity.StandardName" class="form-control" required tabindex="4" autocomplete="off">
+                <input type="hidden" name="txtId" ng-model="JobWorkActivity.Id" />
             </div>
         </div>
-        <div class="col-sm-12 col-md-3 col-lg-3">
-            <div class="form-group" show-errors>
-                <label class="control-label" for="txtShortName">
-                    Short Name<sup>*</sup>
-                </label>
-                <div class="show-message">
-                    <input type="text" id="txtShortName" name="Short Name" class="form-control" ng-model="JobWorkActivity.ShortName" required tabindex="3" />
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-12 col-md-3 col-lg-3">
-            <div class="form-group" show-errors>
-                <label class="control-label" for="txtStandardName">
-                    Standard Name<sup>*</sup>
-                </label>
-                <div class="show-message">
-                    <input type="text" id="txtStandardName" name="Standard Name" class="form-control" ng-model="JobWorkActivity.StandardName" required tabindex="4" />
-                </div>
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="3" ng-model="JobWorkActivity.Remarks" name="Description" maxlength="250" tabindex="9" ng-trim="false"></textarea>
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-sm-12 col-md-3 col-lg-3">
-            <div class="form-group" show-errors>
-                <label class="control-label" for="txtUserName">
-                    User Define Name<sup>*</sup>
-                </label>
-                <div class="show-message">
-                    <input type="text" id="txtUserName" name="User Name" class="form-control" ng-model="JobWorkActivity.UserName" required tabindex="5" />
-                </div>
+    <div class="col-xs-12 col-sm-4 col-md-4 form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Sequence" ng-model="JobWorkActivity.Code" class="form-control" required tabindex="2" autocomplete="off">
             </div>
         </div>
-        <div class="col-sm-12 col-md-3 col-lg-3">
-            <div class="form-group" show-errors>
-                <label class="control-label" for="ddlType">
-                    Type<sup>*</sup>
-                </label>
-                <div class="show-message">
-                    <div class="select-style">
-                        <div class="select-style">
-                            <select id="ddlType" name="Type" tabindex="6" class="form-control" submit-required="true" ng-disabled="DisableType" ng-model="JobWorkActivity.Type" ng-options="item.name as item.name for item in jobWorkActivityTypeList" required></select>
-                        </div>
-                    </div>
-                </div>
+
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">UserName</label>
+            <div class="col-sm-8">
+                <input type="text" name="UserName" maxlength="50" ng-model="JobWorkActivity.UserName" class="form-control" required tabindex="5" autocomplete="off">
             </div>
         </div>
-        <div class="col-sm-12 col-md-3 col-lg-3">
-            <div class="form-group" show-errors>
-                <div class="row">
-                    <label class="col-sm-12 control-label">Responsible Person<sup></sup></label>
-                    <div class="col-sm-12 show-message">
-                        <div class="input-group">
-                            <input type="text" name="Responsible Person" ng-model="JobWorkActivity.ResponsiblePersonName" class="form-control" readonly />
-                            <input type="hidden" name="EmployeeId" ng-model="JobWorkActivity.ResponsiblePersonId" />
-                            <span class="input-group-btn">
-                                <button ng-click="showResponsiblePersonListPopUp()" tabindex="7" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                <button ng-click="clearResponsiblePerson()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-12 col-md-3 col-lg-3">
-            <div class="form-group">
-                <label class="control-label" for="chkActive">
-                    Active / In-Active
-                </label>
-                <div class="checkbox-site" style="padding-top: 5px;">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">JobWork</label>
+            <div class="col-sm-2">
+                <div class="checkbox-site">
                     <label>
-                        <input id="chkActive" tabindex="8" type="checkbox" ng-checked="true" ng-model="JobWorkActivity.IsActive" />
+                        <input tabindex="8" type="checkbox" ng-model="JobWorkActivity.IsJobWork">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+            <label class="col-sm-4 control-label">Outsource</label>
+            <div class="col-sm-2">
+                <div class="checkbox-site">
+                    <label>
+                        <input tabindex="8" type="checkbox" ng-model="JobWorkActivity.IsIsOutsource">
                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                     </label>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-12 col-md-3 col-lg-3">
+        <div class="form-group">
             <div class="form-group">
-                <label class="control-label">Remarks</label>
-                <textarea class="form-control" ng-model="JobWorkActivity.Remarks" tabindex="10" maxlength="250"></textarea>
+                <label class="col-sm-4 control-label">Active/In-Active</label>
+                <div class="col-sm-8">
+                    <div class="checkbox-site">
+                        <label>
+                            <input tabindex="8" type="checkbox" ng-model="JobWorkActivity.IsActive">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-sm-12 col-md-12 col-lg-12" style="padding-top: 20px;">
+    <div class="col-xs-12 col-sm-4 col-md-4 form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">ShortName<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="ShortName" maxlength="50" ng-model="JobWorkActivity.ShortName" class="form-control" required tabindex="3" autocomplete="off">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Type<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <div class="select-style">
+                        <select name="Type" tabindex="6" class="form-control" submit-required="true" ng-disabled="DisableType" ng-model="JobWorkActivity.Type" ng-options="item.name as item.name for item in jobWorkActivityTypeList" required></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input type="text" name="Responsible Person" ng-model="JobWorkActivity.ResponsiblePersonName" class="form-control" readonly />
+                    <span class="input-group-btn">
+                        <button ng-click="showResponsiblePersonListPopUp()" tabindex="7" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="clearResponsiblePerson()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{JobWorkActivity.Id==null?'Save':'Update'}}</button></li>
+            <li> <button ng-click="DeleteSelectedData();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+    @*<div class="row">*@
+    <div class="col-xs-12 col-sm-12 col-md-12" style="padding-top: 20px;">
         <div class="common-btn">
-            <ul class="list-inline text-right">
-                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{JobWorkActivity.Id==null?'Save':'Update'}}</button></li>
-                <li> <button ng-click="DeleteSelectedData();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            <ul class="list-inline text-left">
+                <li><button ng-click="AddNewItem();" ng-disabled="JobWorkActivity.Id==null" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i>Add JW Items</button></li>
             </ul>
         </div>
     </div>
-    <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12" style="padding-top: 20px;">
+
+    <div class="col-xs-12">
+        <div style="color:black;" id="GridSelectedEmpCategoryTab" ej-grid e-datasource="SelectedEmpCategoryTabList"
+             e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+             e-allowselection="false" e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-type="string" e-field="JobActivity" e-headertext="Job Activity Master" e-width="40"></div>
+                <div e-column e-type="string" e-field="JobWorkItem" e-headertext="Job Work Item" e-width="40"></div>
+                <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="40"></div>
+                <div e-column e-type="string" e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="40"></div>
+                <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material Master" e-width="40"></div>
+
+
+                <div e-column e-template="#DeleteEmpCategoryTab" e-width="40"></div>
+            </div>
+        </div>
+
+        <script type="text/template" id="DeleteEmpCategoryTab">
             <div class="common-btn">
                 <ul class="list-inline text-left">
-    
-                    <li><button ng-click="AddNewItem();" ng-disabled="JobWorkActivity.Id==null" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i>Add JW Items</button></li>
+                    <li><button ng-click="$parent.ConfirmDeleteEmpCategoryTab(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
                 </ul>
             </div>
-        </div>
+        </script>
 
-        <div class="col-xs-12">
-            <div style="color:black;" id="GridSelectedEmpCategoryTab" ej-grid e-datasource="SelectedEmpCategoryTabList"
-                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                 e-allowselection="false" e-filtersettings-filterType="excel">
-                <div e-columns>
-                    <div e-column e-type="string" e-field="JobActivity" e-headertext="Job Activity Master" e-width="40"></div>
-                    <div e-column e-type="string" e-field="JobWorkItem" e-headertext="Job Work Item" e-width="40"></div>
-                    <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="40"></div>
-                    <div e-column e-type="string" e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="40"></div>
-                    <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material Master" e-width="40"></div>
-
-
-                    <div e-column e-template="#DeleteEmpCategoryTab" e-width="40"></div>
-                </div>
-            </div>
-
-            <script type="text/template" id="DeleteEmpCategoryTab">
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li><button ng-click="$parent.ConfirmDeleteEmpCategoryTab(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
-                    </ul>
-                </div>
-            </script>
-
-        </div>
-      
     </div>
+
+    @*</div>*@
 </div>
 
 <div class="aplos-grid-toggle">
@@ -246,142 +237,142 @@
 <confirm-archive-generic modalid="confirmDelEmpCatPopUp" title="Confirmation" message="Are you sure want to Delete?" data-ng-click-right-button="DelActivityChild();"></confirm-archive-generic>
 
 
-<style type="text/css">
-    .inner-content .form-group {
-        margin-bottom: 0px;
-    }
+@*<style type="text/css">
+        .inner-content .form-group {
+            margin-bottom: 0px;
+        }
 
-    #ChildGridData .e-grid .e-rowcell {
-        padding-top: 15px !important;
-        padding-bottom: 15px !important;
-        padding-left: 4px !important;
-        padding-right: 4px !important;
-        font-size: 8.5pt;
-    }
+        #ChildGridData .e-grid .e-rowcell {
+            padding-top: 15px !important;
+            padding-bottom: 15px !important;
+            padding-left: 4px !important;
+            padding-right: 4px !important;
+            font-size: 8.5pt;
+        }
 
-    .form-horizontal .form-group {
-        margin-right: 0px;
-        margin-left: 0px;
-    }
+        .form-horizontal .form-group {
+            margin-right: 0px;
+            margin-left: 0px;
+        }
 
-    .table-condensed > tbody > tr > td, .table-condensed > tbody > tr > th, .table-condensed > tfoot > tr > td, .table-condensed > tfoot > tr > th, .table-condensed > thead > tr > td, .table-condensed > thead > tr > th {
-        padding: 5px;
-        vertical-align: middle;
-        font-size: 12px;
-    }
+        .table-condensed > tbody > tr > td, .table-condensed > tbody > tr > th, .table-condensed > tfoot > tr > td, .table-condensed > tfoot > tr > th, .table-condensed > thead > tr > td, .table-condensed > thead > tr > th {
+            padding: 5px;
+            vertical-align: middle;
+            font-size: 12px;
+        }
 
-    .btnGSD {
-        display: block;
-        height: 25px;
-        width: 100%;
-        padding: 0;
-        font-size: 10px;
-        border: none;
-        border-bottom: 1px solid #039;
-        background: none;
-        color: #039;
-        font-weight: bold;
-        border-radius: 1%;
-        font-family: Verdana;
-    }
+        .btnGSD {
+            display: block;
+            height: 25px;
+            width: 100%;
+            padding: 0;
+            font-size: 10px;
+            border: none;
+            border-bottom: 1px solid #039;
+            background: none;
+            color: #039;
+            font-weight: bold;
+            border-radius: 1%;
+            font-family: Verdana;
+        }
 
-    .btnET {
-        display: block;
-        height: 25px;
-        width: 100%;
-        padding: 0;
-        font-size: 10px;
-        border: none;
-        border-bottom: 1px solid #039;
-        background: none;
-        color: #039;
-        font-weight: bold;
-        border-radius: 1%;
-        font-family: Verdana;
-    }
+        .btnET {
+            display: block;
+            height: 25px;
+            width: 100%;
+            padding: 0;
+            font-size: 10px;
+            border: none;
+            border-bottom: 1px solid #039;
+            background: none;
+            color: #039;
+            font-weight: bold;
+            border-radius: 1%;
+            font-family: Verdana;
+        }
 
-    .table-bordered > thead > tr > td, .table-bordered > thead > tr > th {
-        border: none;
-        border-bottom: 2px solid #6678b1;
-        color: #039;
-        font-size: 11px;
-        text-align: center;
-        font-family: verdana;
-    }
+        .table-bordered > thead > tr > td, .table-bordered > thead > tr > th {
+            border: none;
+            border-bottom: 2px solid #6678b1;
+            color: #039;
+            font-size: 11px;
+            text-align: center;
+            font-family: verdana;
+        }
 
-    .form-control {
-        border-radius: 0;
-        box-shadow: none;
-        border: 1px solid #34495e;
-        font-size: 12px;
-        font-weight: bold;
-    }
+        .form-control {
+            border-radius: 0;
+            box-shadow: none;
+            border: 1px solid #34495e;
+            font-size: 12px;
+            font-weight: bold;
+        }
 
-    .tdAvg .form-control {
-        background: none;
-        border: none;
-        color: #000;
-        font-size: 13px;
-        border-bottom: 1.5px solid #2e3439;
-    }
+        .tdAvg .form-control {
+            background: none;
+            border: none;
+            color: #000;
+            font-size: 13px;
+            border-bottom: 1.5px solid #2e3439;
+        }
 
-    .tdRatings .form-control {
-        background: none;
-        border: none;
-        color: #000;
-        font-size: 13px;
-        border-bottom: 1.5px solid #2e3439;
-    }
+        .tdRatings .form-control {
+            background: none;
+            border: none;
+            color: #000;
+            font-size: 13px;
+            border-bottom: 1.5px solid #2e3439;
+        }
 
-    .tdBtSec .form-control {
-        background: none;
-        border: none;
-        color: #000;
-        font-size: 13px;
-        border-bottom: 1.5px solid #2e3439;
-    }
+        .tdBtSec .form-control {
+            background: none;
+            border: none;
+            color: #000;
+            font-size: 13px;
+            border-bottom: 1.5px solid #2e3439;
+        }
 
-    .tdTitle {
-        background: #fff;
-        text-transform: uppercase;
-        font-weight: bold;
-        vertical-align: middle;
-        text-align: center;
-        font-family: verdana;
-    }
+        .tdTitle {
+            background: #fff;
+            text-transform: uppercase;
+            font-weight: bold;
+            vertical-align: middle;
+            text-align: center;
+            font-family: verdana;
+        }
 
-    .radio label {
-        font-weight: 400;
-        padding-left: 5px;
-        font-family: verdana;
-        font-size: 10pt;
-    }
+        .radio label {
+            font-weight: 400;
+            padding-left: 5px;
+            font-family: verdana;
+            font-size: 10pt;
+        }
 
-    .form-elements .control-label, .master-details-search .control-label, .download-token .control-label, .form-element-ctrl .control-label {
-        font-family: verdana;
-        font-size: 9pt;
-        font-weight: 400;
-    }
+        .form-elements .control-label, .master-details-search .control-label, .download-token .control-label, .form-element-ctrl .control-label {
+            font-family: verdana;
+            font-size: 9pt;
+            font-weight: 400;
+        }
 
-    .site-tab ul li a {
-        font-family: verdana;
-        font-size: 10pt;
-    }
+        .site-tab ul li a {
+            font-family: verdana;
+            font-size: 10pt;
+        }
 
-    fieldset.scheduler-border {
-        border: 1px groove #ddd !important;
-        padding: 0 1.4em 1.4em 1.4em !important;
-        margin: 0 0 1.5em 0 !important;
-        -webkit-box-shadow: 0px 0px 0px 0px #000;
-        box-shadow: 0px 0px 0px 0px #000;
-    }
+        fieldset.scheduler-border {
+            border: 1px groove #ddd !important;
+            padding: 0 1.4em 1.4em 1.4em !important;
+            margin: 0 0 1.5em 0 !important;
+            -webkit-box-shadow: 0px 0px 0px 0px #000;
+            box-shadow: 0px 0px 0px 0px #000;
+        }
 
-    legend.scheduler-border {
-        font-size: 1.2em !important;
-        font-weight: bold !important;
-        text-align: left !important;
-        width: auto;
-        padding: 0 10px;
-        border-bottom: none;
-    }
-</style>
+        legend.scheduler-border {
+            font-size: 1.2em !important;
+            font-weight: bold !important;
+            text-align: left !important;
+            width: auto;
+            padding: 0 10px;
+            border-bottom: none;
+        }
+    </style>*@

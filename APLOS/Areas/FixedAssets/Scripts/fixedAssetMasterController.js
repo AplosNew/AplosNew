@@ -219,9 +219,9 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
         $scope.fixedAssetMaster = {};
         $scope.fixedAssetMaster.Active = true;
         $scope.glTag = {};
-        $scope.refreshAccGroup(0);
-        $scope.refreshAccGroup(1);
-        $scope.refreshAccGroup(2);
+        //$scope.refreshAccGroup(0);
+        //$scope.refreshAccGroup(1);
+        //$scope.refreshAccGroup(2);
     }
 
     $scope.fixedAssetMasterReport = function () {

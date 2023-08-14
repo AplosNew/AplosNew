@@ -170,6 +170,8 @@ namespace Aplos.Areas.Outsourcing.Controllers
                     dr["StandardName"] = saveData["StandardName"].ToString();
                     dr["UserName"] = saveData["UserName"].ToString();
                     dr["Type"] = saveData["Type"].ToString();
+                    dr["IsOutsource"] = saveData["IsOutsource"].ToString();
+                    dr["IsJobWork"] = saveData["IsJobWork"].ToString();
                     dr["IsActive"] = saveData["IsActive"].ToString();
                     dr["ResponsiblePersonId"] = saveData["ResponsiblePersonId"].ToString();
                     dr["Remarks"] = saveData["Remarks"].ToString();

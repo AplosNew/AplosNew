@@ -1,7 +1,7 @@
 ﻿'use strict';
 jobWorkTransformationMasterController.$inject = ['addressService', '$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', '$controller'];
 function jobWorkTransformationMasterController(addressService, $window, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
-    $rootScope.title = "Job Work Transformation Master";
+    $rootScope.title = "Jobwork/Outsource Transformation Master";
     $scope.Action = 'Save';
     $scope.tab = 1;
     $scope.ActionMaterialInput_Child = 'Add';
