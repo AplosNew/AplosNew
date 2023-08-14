@@ -96,7 +96,7 @@ namespace Aplos.Areas.Leave.Controllers
 
         #region Report
 
-        [HttpGet, Authorize]
+        [HttpPost, Authorize]
         public ActionResult GetReport(ReportFormat reportFormat, string Year,string ToDate,string PlantId, string empIds)
         {
             try
