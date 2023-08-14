@@ -1,7 +1,7 @@
 ﻿'use strict';
 jobWorkLocationController.$inject = ['addressService', '$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', '$controller'];
 function jobWorkLocationController(addressService, $window, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
-    $rootScope.title = "Job Work Location";
+    $rootScope.title = "Jobwork/Outsource Location";
     $scope.Action = 'Save';
     $scope.Action_Child = 'Add';
     $scope.path = 'Outsourcing/JobWorkLocation/';
