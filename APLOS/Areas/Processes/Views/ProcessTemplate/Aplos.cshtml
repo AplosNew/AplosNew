@@ -1,26 +1,26 @@
-﻿<div class="form-elements form-horizontal">
+﻿<togglable name="{{title}}"></togglable>
+<div class="form-elements form-horizontal">
     <div class="row" ng-form="ProcessManagementForm">
         <div class="col-xs-12 col-sm-6 col-md-6">
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Standared Name<sup>*</sup></label>
+                <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" name="Standared Nam" ng-model="ProcessManagementNew.StandaredName" class="form-control" maxlength="100" required autocomplete="off">
+                    <input type="text" name="Standared Nam" ng-model="ProcessManagementNew.StandardName" class="form-control" maxlength="100" required autocomplete="off">
                 </div>
             </div>
-
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="input-group">
-                        <span class="input-group-addon">{{ProcessManagementNew.ResponsiblePersonCode}}</span>
-                        <input type="text" name="Responsible Person" ng-model="ProcessManagementNew.EmployeeName" class="form-control" readonly required>
+                        <span class="input-group-addon">{{ProcessManagementNew.ResponsiblePersonId}}</span>
+                        <input type="text" name="Responsible Person" ng-model="ProcessManagementNew.ResponsiblePerson" class="form-control" readonly required>
                         <span class="input-group-btn">
                             <button name="submit" ng-click="LoadResponsiblePopupData()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                         </span>
                     </div>
                 </div>
             </div>
-
+            
         </div>
         <div class="col-xs-12 col-sm-6 col-md-6">
             <div class="form-group" show-errors>
@@ -52,7 +52,7 @@
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">Process</a></li>
-            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Process Material</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Saved Process</a></li>
             <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Process Utility</a></li>
         </ul>
     </div>
@@ -65,13 +65,11 @@
                     <div e-columns>
                         <div e-column e-headertext="" e-headertemplateid="#headerTemplatePM" e-template="#checkboxTemplatePM" e-textalign="center" e-width="30"></div>
                         <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
-                        <div e-column e-field="ProcessStdName" e-headertext="ProcessStdName" e-width="100"></div>
-                        <div e-column e-field="ProcessUserName" e-headertext="ProcessUserName" e-width="100"></div>
-                        <div e-column e-field="Process" e-headertext="WorkCenter Category" e-width="100"></div>
-                        <div e-column e-field="EmployeeName" e-headertext="ResponsiblePerson" e-width="100"></div>
-                        <div e-column e-field="MinSPTTime" e-headertext="MinSPTTime" e-width="100"></div>
-                        <div e-column e-field="MaxSPTTime" e-headertext="MaxSPTTime" e-width="100"></div>
-                        <div e-column e-field="StandardSPTTime" e-headertext="StandardSPTTime" e-width="100"></div>
+                        <div e-column e-field="ProcessCode" e-headertext="Process Code" e-width="100"></div>
+                        <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
+                        <div e-column e-field="SubProcess" e-headertext="Sub Process" e-width="100"></div>
+                        <div e-column e-field="ProcessGroupCode" e-headertext="Process Group Code" e-width="100"></div>
+                        <div e-column e-field="ProcessGroup" e-headertext="Process Group" e-width="100"></div>
                     </div>
                 </div>
                 <script type="text/template" id="checkboxTemplatePM">
@@ -83,37 +81,44 @@
 
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li> <button ng-click="SaveProcessEntity()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                        <li> <button ng-click="SaveProcess()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
                     </ul>
                 </div>
             </div>
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
             <div class="row">
-                <div id="GridMaterial" ej-grid e-datasource="MaterialList"
+                <div id="GridMaterial" ej-grid e-datasource="PMMaterialList"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                     <div e-columns>
-                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplateMaterial" e-template="#checkboxTemplateMaterial" e-textalign="center" e-width="30"></div>
+                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
                         <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
-                        <div e-column e-field="MaterialCode" e-headertext="Material Code" e-width="100"></div>
-                        <div e-column e-field="Material" e-headertext="Material" e-width="100"></div>
-                        <div e-column e-field="MaterialCategory" e-headertext="Material Category" e-width="100"></div>
-                        <div e-column e-field="MaterialGroup" e-headertext="MaterialGroup" e-width="100"></div>
-                        <div e-column e-field="ArticleCode" e-headertext="Article Code" e-width="100"></div>
-                        <div e-column e-field="MaterialArticle" e-headertext="Material Article" e-width="100"></div>
+                        <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
+                        <div e-column e-field="SubProcess" e-headertext="Sub Process" e-width="100"></div>
+                        <div e-column e-headertext="Process Parameter" e-template="#headerTemplateParameter" e-width="100"></div>
+                        <div e-column e-headertext="Process Material" e-template="#TemplateMaterial" e-width="100"></div>
+                        <div e-column e-headertext="Process Utility" e-template="#headerTemplateUtility" e-width="100"></div>
+
                     </div>
                 </div>
-                <script type="text/template" id="checkboxTemplateMaterial">
+                <script type="text/template" id="checkboxTemplate">
                     <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
                 </script>
-                <script type="text/x-jsrender" id="headerTemplateMaterial">
+                <script type="text/x-jsrender" id="headerTemplate">
                     <input type="checkbox" id="Materialheadchk" />
                 </script>
-                <script type="text/template" id="Remarks">
-                    <div class="col-sm-10" style="padding:0px;">
-                        <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
-                    </div>
+
+                <script type="text/template" id="headerTemplateParameter">
+                    <button ng-click="$parent.OpenProcessParamPopUp()" class="btn"><i class="glyphicon glyphicon-search" ng-click="$parent.OpenProcessParamPopUp()"></i></button>
+                </script>
+
+                <script type="text/template" id="TemplateMaterial">
+                    <button ng-click="$parent.OpenProcessMaterialPopUp()" class="btn"><i class="glyphicon glyphicon-search" ng-click="$parent.OpenProcessMaterialPopUp()"></i></button>
+                </script>
+
+                <script type="text/template" id="headerTemplateUtility">
+                    <button ng-click="$parent.OpenProcessUtilityPopUp()" class="btn"><i class="glyphicon glyphicon-search" ng-click="$parent.OpenProcessUtilityPopUp()"></i></button>
                 </script>
             </div>
             <div class="common-btn">
@@ -122,11 +127,214 @@
                 </ul>
             </div>
         </div>
+
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
-           
+            <div class="row">
+                <div id="GridUtility" ej-grid e-datasource="PMUtilityList"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplateUtility" e-template="#checkboxTemplateUtility" e-textalign="center" e-width="30"></div>*@
+                        <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                        <div e-column e-field="UtilityName" e-headertext="Utility User Name" e-width="100"></div>
+                        <div e-column e-field="UtilityStdName" e-headertext="Utility Standard Name" e-width="100"></div>
+                        <div e-column e-field="UtilityCategory" e-headertext="Utility Category" e-width="100"></div>
+                        <div e-column e-field="UtilitySubCategory" e-headertext="Utility Sub Category" e-width="100"></div>
+                        <div e-column e-field="Min" e-headertext="Min" e-width="100"></div>
+                        <div e-column e-field="Max" e-headertext="Max" e-width="100"></div>
+                        <div e-column e-field="UOM" e-headertext="UOM" e-width="100"></div>
+                        
+                    </div>
+                </div>
+                @*<script type="text/template" id="checkboxTemplateUtility">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                </script>
+                <script type="text/x-jsrender" id="headerTemplateUtility">
+                    <input type="checkbox" id="Materialheadchk" />
+                </script>*@
+               
+               
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                </ul>
+            </div>
         </div>
-        
+
     </div>
     @*---------------------------------------------------------------------------------------------------------------------------------------*@
 
+</div>
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit1" ej-grid e-datasource="ModelData" e-recorddoubleclick="Get" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
+            <div e-column e-field="UserName" e-headertext="UserName" e-width="2"></div>
+            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+            <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="5"></div>
+            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="5"></div>
+            
+        </div>
+    </div>
+</div>
+
+
+@*Employee Popup*@
+<div class="modal fade site-modal in" id="employeePopUps" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div id="GridRespPerson" ej-grid e-datasource="ResponsiblePersonList"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-recorddoubleclick="EmployeedblClick"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-field="SystemId" e-headertext="Id" e-width="50" e-visible="false"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Emp Code" e-width="100"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Name" e-width="100"></div>
+
+                            <div e-column e-field="Designation" e-headertext="Designation" e-width="100"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                            <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            @*<div class="modal-footer common-btn">
+                    <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
+                </div>*@
+        </div>
+    </div>
+</div>
+
+@*Process Parameter*@
+<div class="modal fade site-modal in" id="porcessparamPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Process Parameter
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div id="GridUtility" ej-grid e-datasource="ProcessParamList"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-headertext="All" e-headertemplateid="#headerTemplateProcessParam" e-template="#checkboxTemplateProcessParam" e-textalign="center" e-width="30"></div>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                            <div e-column e-field="ItemName" e-headertext="Item Name" e-width="100"></div>
+                            <div e-column e-field="UnitOfMeasurement" e-headertext="UOM" e-width="100"></div>
+                            <div e-column e-field="Min" e-headertext="Min" e-width="100"></div>
+                            <div e-column e-field="Max" e-headertext="Max" e-width="100"></div>
+                           
+                        </div>
+                    </div>
+                    <script type="text/template" id="checkboxTemplateProcessParam">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                    </script>
+                    <script type="text/x-jsrender" id="headerTemplateProcessParam">
+                        <input type="checkbox" id="ProcessParamheadchk" />
+                    </script>
+
+
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                    <button class="btn"><i class=""></i> Select</button>
+                </div>
+        </div>
+    </div>
+</div>
+
+@* Process Material *@
+<div class="modal fade site-modal in" id="porcessMaterialPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Process Parameter
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div id="GridMaterialPopup" ej-grid e-datasource="ProcessMaterialList"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-headertemplateid="#headerTemplateMaterialpopup" e-template="#chkboxTmpltMaterial" e-textalign="center" e-width="30"></div>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                            <div e-column e-field="MaterialCode" e-headertext="Material Code" e-width="100"></div>
+                            <div e-column e-field="Material" e-headertext="Material" e-width="100"></div>
+                            <div e-column e-field="MaterialType" e-headertext="MaterialType" e-width="100"></div>
+                            <div e-column e-field="MaterialCategory" e-headertext="Material Category" e-width="100"></div>
+                            <div e-column e-field="MaterialGroup" e-headertext="MaterialGroup" e-width="100"></div>
+                            <div e-column e-field="ArticleCode" e-headertext="Article Code" e-width="100"></div>
+                            <div e-column e-field="MaterialArticle" e-headertext="Material Article" e-width="100"></div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="chkboxTmpltMaterial">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                    </script>
+                    <script type="text/x-jsrender" id="headerTemplateMaterialpopup">
+                        <input type="checkbox" />
+                    </script>
+
+
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button class="btn"><i class=""></i> Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@* Process Utility *@
+<div class="modal fade site-modal in" id="porcessUtilityPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Process Utility
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div id="GridMaterialPopup" ej-grid e-datasource="ProcessUtilityList"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-headertext="All" e-headertemplateid="#headerTemplateUtilitypopup" e-template="#chkboxTempUtility" e-textalign="center" e-width="30"></div>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                            <div e-column e-field="UtilityName" e-headertext="Utility User Name" e-width="100"></div>
+                            <div e-column e-field="UtilityStdName" e-headertext="Utility Standard Name" e-width="100"></div>
+                            <div e-column e-field="UtilityCategory" e-headertext="Utility Category" e-width="100"></div>
+                            <div e-column e-field="UtilitySubCategory" e-headertext="Utility Sub Category" e-width="100"></div>                          
+                            <div e-column e-field="UOM" e-headertext="UOM" e-width="100"></div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="chkboxTempUtility">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                    </script>
+                    <script type="text/x-jsrender" id="headerTemplateUtilitypopup">
+                        <input type="checkbox" />
+                    </script>
+
+
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button class="btn"><i class=""></i> Select</button>
+            </div>
+        </div>
+    </div>
 </div>
