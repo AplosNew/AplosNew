@@ -10,7 +10,7 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
     $scope.searchByPostedSalesList = [{ value: 'InvoiceNo', name: "Invoice No" }, { value: 'VoucherNo', name: "Voucher No" }, { value: 'PartyCode', name: "Party Code" }, { value: 'PartyName', name: "Party Name" }
         , { value: 'DocRefNo', name: "DocRef No" }
     ];
-    $scope.FromDate = null;    $scope.ToDate = null;
+    $scope.FromDate = null; $scope.ToDate = null;
     $scope.MasterOrderSalesPostedList = [];
     $scope.getMasterOrderSalesPosted = function () {
         $http({
@@ -24,7 +24,7 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
             ShowResult(response.data.Message, 'failure');
         };
     };
-   // $scope.getMasterOrderSalesPosted();
+    // $scope.getMasterOrderSalesPosted();
 
     $scope.model = { Id: null, SalesId: null, PostCode: null, ShippingDate: null, ShippingBill: null, RodTepAmount: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
     $scope.modelNew = Object.assign({}, $scope.model);
@@ -212,13 +212,13 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
         $scope.modelNew = Object.assign({}, $scope.model);
     }
 
-   
+
 
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
-    $scope.Report = function () {
+    $scope.GetInvoiceReport = function () {
         var reportFormat = "Excel";
         var dataList = [];
         var g = $("#GridPost").data("ejGrid");
@@ -237,12 +237,15 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
         }
 
         $scope.fileName = 'Invoice Report.xls';
+        $scope.ReportFormat = 'Excel';
+        //var url = 'SalesManagements/Sales/GetInvoiceReport?reportFormat=' + $scope.ReportFormat + '&Ids=' + $scope.sqlInStatement;
+        //$rootScope.report(url);
         $http({
             method: "POST",
-            url: 'Leave/LeaveBalanceToDateReport/GetReport',
+            url: 'SalesManagements/Sales/GetInvoiceReport',
             data: {
                 'reportFormat': reportFormat,
-                'Ids': $scope.sqlInStatement,
+                'Ids': $scope.sqlInStatement
             },
             dataType: 'JSON',
         }).then(function successCallback(response) {
