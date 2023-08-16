@@ -1167,9 +1167,9 @@ where PO.ID= '" + POId + "'";
         }
 
         [HttpGet, Authorize]
-        public ActionResult LoadQualityPlan()
+        public ActionResult LoadQualityPlan(string POIssueDate)
         {
-            return Json(_productionSummaryData.GetQualityPlan(), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetQualityPlan(POIssueDate), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -1606,6 +1606,13 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         {
             return Json(_productionSummaryData.GetQualityProductionOrderList(entityid, productionLevel, processId, ToCloseAllowed), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet, Authorize]
+        public ActionResult GetQualityCompletePOList(string IssueId)
+        {
+            return Json(_productionSummaryData.GetQualityCompletePOList(IssueId), JsonRequestBehavior.AllowGet);
+        }
+
 
         [HttpGet, Authorize]
         public ActionResult GetSFGSOItem(string entityid, string workCenterMasterId, string productionLevel, string processId, string status, bool IsFirst, string ProductionOrderId)

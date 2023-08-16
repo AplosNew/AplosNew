@@ -1448,6 +1448,29 @@ namespace Library.OrderManagement.Production
             return _sqlRepository.GetDataCollection(CmdText);
         }
 
+        public IEnumerable<object> GetQualityCompletePOList(string IssueId)
+        {
+            string sql = @"SELECT distinct QC.ProductionOrderId POId,QC.LotNumber,Article=STUFF((select distinct ','+MMA.StandardName  from 
+                                                                 trn.SalesOrder XSO 
+                                                                 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+						                                         LEFT JOIN trn.MasterOrderItem moi ON moi.Id = XSO.MasterOrderItemId
+                                                                 LEFT JOIN MST.MaterialMasterArticle AS mma on mma.Id=MOI.ArticleId
+                                                                 WHERE QC.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+																 Customer= REPLACE(REPLACE(
+										              STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where QC.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										                        ,'&amp;','&'), 'amp;', '')	
+ FROM TRN.QualityControl QC
+ where QC.IssueId='" + IssueId + "'";
+
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
         public IEnumerable<object> GetSFGSOItem(string entityid, string workCenterMasterId, string productionLevel, string processId, string status, bool IsFirst, string ProductionOrderId)
         {
 
@@ -4028,7 +4051,7 @@ WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='" + productionDat
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public IEnumerable<object> GetQualityPlan()
+        public IEnumerable<object> GetQualityPlan(string POIssueDate)
         {
             string sql = @"select Format(PO.Date,'dd-MMM-yyyy') PODate,Format(PO.QualityPlanDate,'dd-MMM-yyyy') QPDate,PO.* from (select distinct QPC.Id Id,PD.Id QPId,PO.Id POId,PD.IssueId as IssueId,QMM.UserName as QPIssue,PD.ProcessId,P.UserName as Process,E.Id EntityId,E.UserName Entity,PD.DependentDate as DependentOn,PD.Legdays,
 (select RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' and RepeatEntry is not null) as RepeatEntry,
@@ -4069,7 +4092,7 @@ left join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POFirstProdBookDate,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) FBPPD ON FBPPD.ProductionOrderId=PO.Id
 LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=PO.Id
 where PS.UserName in ('Running','To Close') and E.Id in (select EntityId from MST.QualityManagementEntity where QMID=QMM.Id) and QPC.QCID is null or (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' order by AddedDate desc) is not null) PO
-order by PO.QualityPlanDate";
+where PO.QualityPlanDate < = '"+ POIssueDate + "' or PO.QualityPlanDate is null order by PO.QualityPlanDate";
              return _sqlRepository.GetDataCollection(sql);
         }
 
@@ -4089,8 +4112,7 @@ left join TRN.QualityIssueControl as QC on QC.IssueId=QID.IssueNameId and QC.Id 
 left join MST.QualityManagementMaster QMM on QMM.Id=QID.IssueNameId
 left join org.Entity E on E.Id=QID.EntityId
 left join hkp.Process P on P.Id=QID.ProcessId
---where QID.IssueType in ('General','Order') 
-order by (select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId order by AddedDate asc) asc";
+order by (select top 1 AddedDate + QID.CheckingInterval from TRN.QualityControl where IssueId=QID.IssueNameId order by AddedDate asc) asc";
              return _sqlRepository.GetDataCollection(sql);
         }
 

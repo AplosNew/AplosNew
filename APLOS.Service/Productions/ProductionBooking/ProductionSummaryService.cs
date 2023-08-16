@@ -626,7 +626,8 @@ QIC.Remarks,QIC.ActionToBeTaken,isnull(QIC.WorkCenterId,(select WorkCenterId fro
 isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.[QualityControlDetails] where ItemId=QII.Id order by AddedDate desc))) as ResponsiblePerson,
 isnull(QIC.ResponsiblePersonId,(select top 1 ResponsiblePersonId from TRN.[QualityControlDetails] where ItemId=QII.Id order by AddedDate desc)) as ResponsiblePersonId,
 reverse(stuff(reverse((select CheckPoints +',' from QualityManagementParameterCheckPoints where ParameterId=QII.ParameterId for xml path(''))),1,1,'')) as Checkpoints,
-QIC.QCId,QIC.Repeat from MST.QualityIssueItem QII
+QIC.QCId,QIC.Repeat,(select IsWorkCenter from MST.QualityManagementParameterItem where Id=QII.ParameterId) as IsWorkCenter
+from MST.QualityIssueItem QII
 LEFT JOIN TRN.QualityControl QC ON QC.IssueId=QII.IssueId
 LEFT JOIN TRN.[QualityControlDetails] QIC ON QIC.QCId='" + PId + @"' and QIC.ItemId=QII.Id
 LEFT JOIN SCS.UnitOfMeasurement U ON U.Id = QII.UOMId
@@ -780,19 +781,18 @@ QCD.Remarks as ParameterRemarks,QCD.Repeat,QCD.WorkCenterId as ParameterWorkCent
 (select UserName from  scs.UnitOfMeasurement where id = (select UOMId from MST.QualityIssueItem where Id=QCD.ItemId)) UOM,QGD.GradeValue,
 (select Max from MST.QualityIssueItem where Id=QCD.ItemId) MaxValue,(select Min from MST.QualityIssueItem where Id=QCD.ItemId) MinValue,
 EI.EmployeeName as ActionTobeTakenResponsible,QC.QualityPlanId,(select CriticalLevel from MST.QualityIssueItem where Id=QCD.ItemId) CriticalLevel,
-D.UserName as Department,QID.IssueType,QID.IssueCategory,QID.Period PeriodType,QID.Frequency,
---reverse(stuff(reverse((select top 2 EI.EmployeeName + ',' from EmployeeInformation EI where EmployeeStatus='Active' and  
---PositionID in (select PositionCodeId from HKP.ParameterMaster  where Id=QPM.ParameterId) order by DOJ asc  for xml path('') )),1,1,'')) as ParameterResponsilblePerson,
-(select top 1 EmployeeName from EmployeeInformation  where BudgetCode=QMM.ResponsiblePersoneBgtCodeId and EmployeeStatus='Active' order by DOJ asc) IssueResponsiblePerson
+D.UserName as Department,QID.IssueType,QID.IssueCategory,QID.Period PeriodType,QID.Frequency,QCD.ItemId,
+reverse(stuff(reverse((select top 2 EI.EmployeeName + ',' from EmployeeInformation EI where EmployeeStatus='Active' and  
+PositionID in (select PositionCodeId from HKP.ParameterMaster  where Id=(select ParameterId from MST.QualityManagementParameterItem where Id=(
+select ParameterId from MST.QualityIssueItem where Id=QCD.ItemId))) order by DOJ asc  for xml path('') )),1,1,'')) as ParameterResponsilblePerson,
+(select top 1 EmployeeName from EmployeeInformation  where BudgetCode=QMM.ResponsiblePersoneBgtCodeId and EmployeeStatus='Active' order by DOJ asc) IssueResponsiblePerson,
+reverse(stuff(reverse((select  CheckPoints +',' from QualityManagementParameterCheckPoints Q where Q.ParameterId = (select ParameterId from MST.QualityIssueItem where Id=QCD.ItemId) for xml path(''))),1,1,'')) as Checkpoints
 from TRN.QualityControl QC
 left join TRN.QualityControlDetails QCD on QCD.QCID=QC.Id
 left join MST.QualityIssueDetails QID on QID.IssueNameId=QC.IssueId
 left join MST.QualityManagementMaster QMM on QMM.Id=QC.IssueId
-left join MST.QualityManagementParameterItem QPM on QPM.QMID=QMM.Id
-left join MST.QualityIssueItem QII on QII.IssueId=QMM.Id and QPM.ParameterId=QII.ParameterId
 left join MST.QualityGradeDetails QGD on QGD.Id=QCD.GradeId
 left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
-left join scs.UnitOfMeasurement UM on UM.Id=QII.UOMId
 left join org.Entity E on E.Id=QC.EntityId
 left join org.Department D on D.Id=QID.DepartmentId
 left join hkp.Process P on P.Id=QC.ProcessId
