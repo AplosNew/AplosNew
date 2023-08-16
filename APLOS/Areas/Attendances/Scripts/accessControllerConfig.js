@@ -438,7 +438,7 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/GoodWork/Aplos',
             controller: 'GoodWorkController'
         })
-        .when('/payable-creation-worker-advance', {
+        .when('/payable-creation-employee-advance', {
             templateUrl: 'Attendances/GoodWork/PCAAC',
             controller: 'PayableCreationAndWorkerAdvanceController'
         })

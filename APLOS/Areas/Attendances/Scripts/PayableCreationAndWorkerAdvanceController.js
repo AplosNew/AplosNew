@@ -1,33 +1,47 @@
 ﻿'use strict';
 PayableCreationAndWorkerAdvanceController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', "$controller"];
 function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
-    $rootScope.title = 'Payable Creation & Worker Advance';
+    $rootScope.title = 'Payable Creation & Multiple Employee advance';
+    $rootScope.titleTab1 = 'Payable Creation';
+    $rootScope.titleTab2 = 'Multiple Employee advance';
     $scope.WorkerAdvanceList = [];
     $scope.path = 'Attendances/GoodWork/';
     $scope.saveUrl = $scope.path + 'CreateWorkerAdvance';
     $scope.UpdateUrl = $scope.path + 'UpdateGoodWorkDetailEdit';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
-    //$scope.deleteUrl = $scope.path + 'delete/';
-    $scope.deleteChildUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
-    $scope.LoadEmpListUrl = $scope.path + 'LoadPCAACEmployeelist';
+    //$scope.LoadEmpListUrl = $scope.path + 'LoadPCAACEmployeelist';
     $scope.Action = 'Save';
     $scope.passwordShow = true;
     $controller("employeeBaseController", { $scope: $scope, $http: $http });
-    //***********************************Good Work ********************************************************//
 
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+    //***********************************Worker Advance Start ********************************************************//
     $scope.ModelTemp = {
         Id: null,
         FromDate: null,
         ToDate: null,
         UserRef: null,
-        NoOfDays: 0,
+        NoOfDays: null,
         Percentage: 0,
         CheckedBy: null,
+        CheckedById: null,
         ApprovedBy: null,
+        ApprovedById: null,
         PreparedBy: null,
-        Remarks: null        
+        PreparedById: null,
+        Remarks: null,
+        RoundOff: null,
+        PayDaysType: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -38,7 +52,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         EmployeeCode: null,
         EmployeeName: null,
         PayDays: null,
-        Amount: null 
+        Amount: null
     };
     $scope.ModelWADNew = Object.assign({}, $scope.ModelWADTemp);
 
@@ -75,7 +89,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.closePopUp = function () {
         angular.element(document.querySelector('#popUp')).modal('hide');
     }
- 
+
     $scope.removeRow = function (data) {
         $scope.empSystemId = data.SystemId;
         $scope.Id = data.Id;
@@ -100,7 +114,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         else {
             $http({
                 method: 'GET',
-                url: 'Attendances/GoodWork/DeleteChildUrl?Id=' + $scope.Id,
+                url: 'Attendances/GoodWork/DeleteWorkerAdvanceChildUrl?Id=' + $scope.Id,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -184,23 +198,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         });
     }
  
-    // UserGroup
-    $scope.UserGroupList = [];
-    $scope.selectUserGroup = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'getUserGroupData',
-            dataType: 'JSON'
-        }).then(function succ(resp) {
-            $scope.UserGroupList = resp.data;
-        });
-    }
-    $scope.selectUserGroup();
 
-    // UserGroup
-
-    //***********************************Payable Creation And Worker Advance Start ********************************************************//
- 
     $scope.employeeParameters = {
         limit: 10,
         offset: 0,
@@ -218,12 +216,8 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.showEmployeeListPopUp = function (name) {
         try {
             $scope.Name = name;
-            //baseService.setCurrentPage('employeeDataList');
             $scope.searchEmployeeByList = [];
             $scope.getEmployeeData = function (pageno) {
-                //$scope.employeeParameters.plantId = $scope.fileNew.PlantId;
-                //$scope.employeeParameters.partyAccountGroupId = $scope.fileNew.PartyAccountGroupId;
-                //$scope.employeeParameters.partyId = $scope.fileNew.PartyId;
                 baseService.paginationBase($scope.employeeUrl, pageno, $scope.employeeParameters)
                     .then(function (result) {
                         $scope.employeeDataList = result.Rows;
@@ -268,25 +262,25 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.EmployeeList = [];
     $scope.EmployeeMainList = [];
     $scope.getEmploymeeList = function () {
-        try {
-            $http.get($scope.LoadEmpListUrl)
-                .then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.Message, 'failure');
-                    }
-                    else {
-                        $scope.EmployeeList = response.data;
-                        angular.element(document.querySelector("#dialogEmployeeInfo")).modal("show");
-                    }
-                },
-                    function errorCallBack(response) {
-                        ShowResult(response.Message, 'failure');
-                    });
+        if ($scope.ModelNew.ToDate === "" || $scope.ModelNew.ToDate === null || $scope.ModelNew.ToDate === undefined ) {
+            ShowResult('Select To Date', 'failure');
+            return false;
         }
-        catch (e) {
-            ShowResult(e, "failure");
+        if ($scope.ModelNew.FromDate === "" || $scope.ModelNew.FromDate === null || $scope.ModelNew.FromDate === undefined) {
+            ShowResult('Select From Date', 'failure');
+            return false;
         }
-    };
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "LoadPCAACEmployeelist",
+            data: { 'fromDate': $scope.ModelNew.FromDate, 'toDate': $scope.ModelNew.ToDate, 'payDaysType': $scope.ModelNew.PayDaysType},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.EmployeeList = response.data;
+            angular.element(document.querySelector("#dialogEmployeeInfo")).modal("show");
+        });
+    }
 
 
     $scope.refreshTemplateemployee4 = function (args) {
@@ -319,9 +313,6 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             for (var i = 0; i < $scope.EmployeeList.length; i++) {
                 if (checkItemExist($scope.EmployeeMainList, $scope.EmployeeList[i].SystemId) === false) {
                     if ($scope.EmployeeList[i].CheckBoxSelect === true) {
-                        $scope.EmployeeList[i].FromTime = $scope.ModelNew.FromTime;
-                        $scope.EmployeeList[i].ToTime = $scope.ModelNew.ToTime;
-                        $scope.EmployeeList[i].CalculatedTime = $scope.ModelNew.CalculatedTime;
                         $scope.EmployeeMainList.push($scope.EmployeeList[i]);
                     }
                 }
@@ -341,23 +332,50 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         return false;
     }
 
-    $scope.getAmount = function () {
-        try {
-                $http({
-                    method: 'POST',
-                    url: 'Attendances/GoodWork/GetAmount',
-                    data: { 'data': $scope.ModelNew },
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    $scope.ModelWADNew.Amount = response.data;
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-          
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
+    $scope.getAmount = function (index) {
+        var amountObj = $scope.EmployeeMainList[index];
+        amountObj.Amount = amountObj.Basic / 26 * amountObj.PayDays * $scope.ModelNew.Percentage;
     }
 
-    //***********************************Payable Creation And Worker Advance End********************************************************//
+    $scope.getRoundOffAmount = function () {
+        $scope.ModelNew.RoundOff = Math.floor(amountObj.Basic / 26 * amountObj.PayDays * $scope.ModelNew.Percentage);
+    }
+
+    $scope.getCalulationAmount = function () {
+        for (var i = 0; i < $scope.EmployeeMainList.length; i++) {
+            $scope.EmployeeMainList[i].Amount = $scope.EmployeeMainList[i].Basic / 26 * $scope.EmployeeMainList[i].PayDays * $scope.ModelNew.Percentage;
+        }
+    }
+    //*********************************** Worker Advance End********************************************************//
+
+    //***********************************Payable Creation Start*******************************************************//
+
+    $scope.ModelPCTemp = {
+        Id: null,
+        FromDate: null,
+        ToDate: null,
+        UserRef: null,
+        PaymentDueDate: null,
+        PreparedBy: null,
+        PreparedById: null,         
+        Remarks: null
+    };
+    $scope.ModelPCNew = Object.assign({}, $scope.ModelPCTemp);
+
+    $scope.ModelPCemp = {
+        Id: null,
+        GoodWorkPayableCreationId: null,
+        EmpSystemId: null,
+        EmployeeCode: null,
+        EmployeeName: null,
+        Amount: null,
+        OTHour: null,
+        Rate: null,
+        Payment: null
+    };
+    $scope.ModelPCEmpNew = Object.assign({}, $scope.ModelPCemp);
+
+
+  
+    //***********************************Payable Creation End********************************************************//
 }

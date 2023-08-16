@@ -162,6 +162,10 @@ function fixedAssetConfig($routeProvider, $locationProvider) {
             templateUrl: "FixedAssets/FixedAssetMaster/AdditionalInfoUpdate",
             controller: "AdditionalInfoUpdateController"
         })
+        .when("/fa-depreciation-process", {
+            templateUrl: "FixedAssets/FixedAssetRegister/AssetDepreciationProcess",
+            controller: "assetDepreciationProcessController"
+        })
 
         ;
 }

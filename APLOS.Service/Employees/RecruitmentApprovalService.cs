@@ -107,7 +107,7 @@ namespace Library.Service.Employees
         public GridModel GetData(GridParameter parameters, bool isControlAdmin, bool isSysAdmin, string companyGroupId, string companyId, string employeeId)
         {
             try
-            {
+            {//AND PRE.Submitted=1  AND PRE.IsDepartmentSubmit=1 AND PRE.IsApproved=1
                 var str = "";
                 if (!isControlAdmin && !isSysAdmin)
                     str = @" AND PRE.BudgetId IN (SELECT Id from mst.ManpowerBudget WHERE EntityId IN (SELECT entityid FROM [HKP].[ApprovalConfiguration] WHERE RecruitmentFinalConfirmationRP='" + employeeId + "'))";
@@ -130,7 +130,7 @@ namespace Library.Service.Employees
 									    LEFT JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
 									    LEFT JOIN HKP.[EmployeeCategory] et on et.Id=dm.EmployeeCategoryId
                                         LEFT JOIN PlantWiseHRMSSetting PS on PS.PlantID=PRE.PlantId
-									    Where PRE.GroupID='" + companyGroupId + @"' AND PRE.CompanyId='" + companyId + @"' AND PRE.Submitted=1 AND PRE.Completed=0 AND PRE.IsDepartmentSubmit=1 AND PRE.IsApproved=1 " + str;
+									    Where PRE.GroupID='" + companyGroupId + @"' AND PRE.CompanyId='" + companyId + @"' AND PRE.Completed=0" + str;
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)

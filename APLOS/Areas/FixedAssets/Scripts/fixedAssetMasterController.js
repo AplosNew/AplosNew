@@ -64,33 +64,34 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
 
     $scope.fixedAssetTypes = [
         {
-            Value: 'Building',
-            Text: 'Building'
+            Value: 'Tangible',
+            Text: 'Tangible'
         },
         {
-            Value: 'Machine',
-            Text: 'Machine'
-        },
-        {
-            Value: 'Equipment',
-            Text: 'Equipment'
-        },
-        {
-            Value: 'Land&SiteDevelopment',
-            Text: 'Land&SiteDevelopment'
-        },
-        {
-            Value: 'Plant',
-            Text: 'Plant'
-        },
-        {
-            Value: 'Vehicle',
-            Text: 'Vehicle'
-        },
-        {
-            Value: 'Other',
-            Text: 'Other'
+            Value: 'Intangible',
+            Text: 'Intangible'
         }
+        //,
+        //{
+        //    Value: 'Equipment',
+        //    Text: 'Equipment'
+        //},
+        //{
+        //    Value: 'Land&SiteDevelopment',
+        //    Text: 'Land&SiteDevelopment'
+        //},
+        //{
+        //    Value: 'Plant',
+        //    Text: 'Plant'
+        //},
+        //{
+        //    Value: 'Vehicle',
+        //    Text: 'Vehicle'
+        //},
+        //{
+        //    Value: 'Other',
+        //    Text: 'Other'
+        //}
     ];
 
     $scope.getListUrl = $scope.path + 'getlist';
@@ -218,9 +219,9 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
         $scope.fixedAssetMaster = {};
         $scope.fixedAssetMaster.Active = true;
         $scope.glTag = {};
-        $scope.refreshAccGroup(0);
-        $scope.refreshAccGroup(1);
-        $scope.refreshAccGroup(2);
+        //$scope.refreshAccGroup(0);
+        //$scope.refreshAccGroup(1);
+        //$scope.refreshAccGroup(2);
     }
 
     $scope.fixedAssetMasterReport = function () {

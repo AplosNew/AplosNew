@@ -1953,7 +1953,7 @@ Order by P.Sequence";
             }
         }
 
-        public List<Dictionary<string, object>> GetMasterOrderSalesPostedList(string companyGroupId, string companyId, string plantId, string column, string value)
+        public List<Dictionary<string, object>> GetMasterOrderSalesPostedList(string companyGroupId, string companyId, string plantId, string column, string value, string FromDate, string ToDate)
         {
             try
             {
@@ -1961,7 +1961,7 @@ Order by P.Sequence";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
                 var sql = @"DECLARE @plantId VARCHAR(10)='" + plantId + @"';
-                        select * from ( SELECT S.Id,S.Id AS SalesId, S.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, S.CurrencyId, C.Code AS CurrencyCode, S.DocRefNo, ISNULL(SM.Amount,0) + ISNULL(SS.Amount,0) AS Amount,
+                        select * from (SELECT S.Id,S.Id AS SalesId, S.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, S.CurrencyId, C.Code AS CurrencyCode, S.DocRefNo, ISNULL(SM.Amount,0) + ISNULL(SS.Amount,0) AS Amount,
 									Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') InvoiceDate,
 									Replace(CONVERT(VARCHAR(11), S.EntryDate, 106), ' ', '-') VoucherDate, Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') PostingDate
                                     , S.RowState, S.DeliveryPartyPlantId, S.InvoicingPartyPlantId AS PartyPlantId, S.InvoicingPartyPlantId, S.EntityId, S.PaymentTermId, S.BaseNoOfDays, S.BaseOnDueDate
@@ -1969,7 +1969,7 @@ Order by P.Sequence";
 									, PPD.UserName AS ShipTo, STD.UserName AS DeliveryState, PPD.GSTIN AS DeliveryGSTIN, S.InvoicingByAddress, S.DeliveryByAddress, S.MatureDate, S.ToCurrencyRate
 									, S.ToCurrencyRate AS CompanyCurrencyRate, S.Narration, S.PartyType, S.VoucherId, AMP.StateId AS PlantStateId
                                     , CASE  WHEN S.RowState='Parked' THEN 1 ELSE 0 END AS IsPark
-									,V.VoucherNo,SP.VoucherId SalesPackingVoucherId
+									,V.VoucherNo,PAG.UserName PartyAccountGroup
 									FROM [TRN].[Sales] AS S
                                     JOIN [HKP].[Party] AS P ON P.Id=S.PartyId
 									LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=S.InvoicingPartyPlantId
@@ -1981,11 +1981,12 @@ Order by P.Sequence";
                                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=S.CurrencyId
 									LEFT JOIN [ORG].[Plant] AS PT ON PT.Id=S.PlantId
 									LEFT JOIN [TRN].Voucher V ON V.Id=S.VoucherId
-									LEFT JOIN dbo.SalesPacking SP ON SP.SalesId=S.Id
+									LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId
 									LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PT.AddressMasterId
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=S.Id
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
-                                    WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + "' AND S.PlantId='" + plantId + "' AND S.VoucherId<>'' AND S.SourceType IN('MasterOrderSales','Packing') AND S.IsAdditionalInfoApplicable=1" +
+                                    WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + "' AND S.PlantId='" + plantId + "' AND S.VoucherId<>'' AND S.SourceType IN('MasterOrderSales','Packing') AND convert(date,S.AddedDate) between '" + FromDate+ "' AND '" + ToDate + "' AND S.IsAdditionalInfoApplicable=1" +
                                     ") AS TEMP WHERE " + strkey + " order by PostingDate DESC";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -1995,7 +1996,64 @@ Order by P.Sequence";
             }
         }
 
-        public DataTable GetInventorySalesReportData(string CompanyGroupId, string CompanyId, string PlantId, string fromDate, string toDate, string Qty, string Amount, string Summary, string Type, string partyId)
+		public List<Dictionary<string, object>> GetMasterOrderSalesPostedDataList(string plantId,string FromDate, string ToDate)
+		{
+			try
+			{
+				string sql = @"Select A.InvoiceNo,A.VoucherNo,A.PartyCode,A.PartyName,A.PartyAccountGroup,A.BillTo,A.DocRefNo,A.CurrencyCode,A.Amount,A.Value,A.UserName 
+into #tempOT from
+(
+
+SELECT S.Id,S.Id AS SalesId, S.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, S.CurrencyId, C.Code AS CurrencyCode, S.DocRefNo, ISNULL(SM.Amount,0) + ISNULL(SS.Amount,0) AS Amount,
+Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') InvoiceDate,
+Replace(CONVERT(VARCHAR(11), S.EntryDate, 106), ' ', '-') VoucherDate, Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') PostingDate
+, S.RowState, S.DeliveryPartyPlantId, S.InvoicingPartyPlantId AS PartyPlantId, S.InvoicingPartyPlantId, S.EntityId, S.PaymentTermId, S.BaseNoOfDays, S.BaseOnDueDate
+, S.InvoiceNo, PPI.UserName AS BillTo, AM.StateId AS InvoicingStateId, ST.UserName AS InvoicingState, PPI.GSTIN AS InvoicingGSTIN
+, PPD.UserName AS ShipTo, STD.UserName AS DeliveryState, PPD.GSTIN AS DeliveryGSTIN, S.InvoicingByAddress, S.DeliveryByAddress, S.MatureDate, S.ToCurrencyRate
+, S.ToCurrencyRate AS CompanyCurrencyRate, S.Narration, S.PartyType, S.VoucherId, AMP.StateId AS PlantStateId
+, CASE  WHEN S.RowState='Parked' THEN 1 ELSE 0 END AS IsPark,SAI.Value,AI.UserName
+,V.VoucherNo,PAG.UserName PartyAccountGroup
+FROM [TRN].[Sales] AS S
+JOIN [HKP].[Party] AS P ON P.Id=S.PartyId
+LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=S.InvoicingPartyPlantId
+LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
+LEFT JOIN [SCS].[State] AS ST ON ST.Id=AM.StateId
+LEFT JOIN [HKP].[PartyPlant] AS PPD ON PPD.Id=S.DeliveryPartyPlantId
+LEFT JOIN [MST].[AddressMaster] AS AMD ON AMD.Id=PPD.AddressMasterId
+LEFT JOIN [SCS].[State] AS STD ON STD.Id=AMD.StateId
+LEFT JOIN [SCS].[Currency] AS C ON C.Id=S.CurrencyId
+LEFT JOIN [ORG].[Plant] AS PT ON PT.Id=S.PlantId
+LEFT JOIN [TRN].Voucher V ON V.Id=S.VoucherId
+LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId
+LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PT.AddressMasterId
+LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=S.Id
+LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
+LEFT JOIN dbo.SalesAdditionalInfo SAI ON SAI.SalesId=S.Id
+LEFT JOIN hkp.AdditionalInfo AI ON AI.Id=SAI.AdditionalInfoId
+WHERE S.CompanyGroupId='CG20181' AND S.CompanyId='C20201' AND S.PlantId='202034' AND S.VoucherId<>'' AND S.SourceType IN('MasterOrderSales','Packing') 
+AND convert(date,S.AddedDate) between '01-May-2023' AND '14-Aug-2023' AND S.IsAdditionalInfoApplicable=1
+
+)A
+DECLARE @sql nvarchar(max), @col nvarchar(max)
+                            SELECT @col = (
+                                SELECT DISTINCT ','+QUOTENAME(REPLACE(CONVERT(VARCHAR(40), UserName, 113), ' ', ' '))    
+                                FROM #tempOT 
+                                FOR XML PATH ('')
+                            ) SELECT @sql = N'
+                            (SELECT * FROM #tempOT PIVOT (MAX([Value]) FOR [UserName] IN ('+STUFF(@col,1,1,'')+')) as pvt)' 
+                            EXEC sp_executesql @sql
+                            drop table #tempOT";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+
+		public DataTable GetInventorySalesReportData(string CompanyGroupId, string CompanyId, string PlantId, string fromDate, string toDate, string Qty, string Amount, string Summary, string Type, string partyId)
         {
 
             var CusAll = "";
