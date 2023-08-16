@@ -276,8 +276,8 @@
                         <ul class="list-inline action-list">
                             <li><a class="btn btn-action" href="Accounts/InventoryPayable/IssueJournalReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&inventoryIssueId={{x.IssueNo}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                             <li><a class="btn btn-action" href="Accounts/InventoryPayable/IssueJournalReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&inventoryIssueId={{x.IssueNo}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
-                            <li><a class="btn btn-action"  ng-click="issueReportDownload(x)" ><i class="glyphicon glyphicon-print"></i></a></li>
-                            <li ><a ng-show="x.IsPark" class="btn btn-action" ng-click="confirmDelete(x.IssueNo,x.VoucherId);" href="" ><i class="glyphicon glyphicon-trash"></i></a></li>
+                            <li><a class="btn btn-action" ng-click="issueReportDownload(x)"><i class="glyphicon glyphicon-print"></i></a></li>
+                            <li><a ng-show="x.IsPark" class="btn btn-action" ng-click="confirmDelete(x.IssueNo,x.VoucherId);" href=""><i class="glyphicon glyphicon-trash"></i></a></li>
                         </ul>
                     </td>
                 </tr>
@@ -291,87 +291,87 @@
 </div>
 
 <!-- #region Inventory Receive Data -->
-<div class="modal fade site-modal in" id="popUpId" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header"> {{popUpTitle}}<button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body">
-                <div class="row text-right">
-                    <div class="col-xs-12 col-sm-12 col-sm-12">
-                        <div class="search-form">
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-3 col-md-3">
-                                    <div class="select-style">
-                                        <select ng-model="popUpParameters.searchBy">
-                                            <option ng-repeat="option in searchByPopList" value="{{option.value}}">{{option.name}}</option>
-                                        </select>
+@*<div class="modal fade site-modal in" id="popUpId" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header"> {{popUpTitle}}<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                <div class="modal-body">
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="popUpParameters.searchBy">
+                                                <option ng-repeat="option in searchByPopList" value="{{option.value}}">{{option.name}}</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="getPopUpData();">
-                                </div>
-                                <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="getPopUpData();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="getPopUpData();">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="getPopUpData();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="table-responsive  modal-table ">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Issue No</th>
-                                <th>Storage Location</th>
-                                <th>Issue Date</th>
-                                <th>Employee</th>
-                                <th>Type</th>
-                                <th>PO No</th>
+                    <div class="table-responsive  modal-table ">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Issue No</th>
+                                    <th>Storage Location</th>
+                                    <th>Issue Date</th>
+                                    <th>Employee</th>
+                                    <th>Type</th>
+                                    <th>PO No</th>
 
-                                <th>OrderRefNo</th>
-                                <th>Qty</th>
-                                <th>Amount</th>
-                                <th>Contract</th>
-                                <th>LC</th>
-                                <th>Customer</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr dir-paginate="x in popUpDataList |itemsPerPage:popUpParameters.pageSize" pagination-id="metaData.name + 'popUpDataList'"
-                                total-items="popUpParameters.total_count" ng-dblclick="selectDoubleClick(x)">
-                                <td>{{x.Id}}</td>
-                                <td>{{x.MaterialStorage}}</td>
-                                <td>{{x.IssueDate}}</td>
-                                <td>{{x.EmployeeName}}</td>
-                                <td>{{x.Types}}</td>
-                                <td>{{x.SourceNo}}</td>
-                                <td>{{x.OrderRefNo}}</td>
+                                    <th>OrderRefNo</th>
+                                    <th>Qty</th>
+                                    <th>Amount</th>
+                                    <th>Contract</th>
+                                    <th>LC</th>
+                                    <th>Customer</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr dir-paginate="x in popUpDataList |itemsPerPage:popUpParameters.pageSize" pagination-id="metaData.name + 'popUpDataList'"
+                                    total-items="popUpParameters.total_count" ng-dblclick="selectDoubleClick(x)">
+                                    <td>{{x.Id}}</td>
+                                    <td>{{x.MaterialStorage}}</td>
+                                    <td>{{x.IssueDate}}</td>
+                                    <td>{{x.EmployeeName}}</td>
+                                    <td>{{x.Types}}</td>
+                                    <td>{{x.SourceNo}}</td>
+                                    <td>{{x.OrderRefNo}}</td>
 
-                                <td>{{x.Qty}}</td>
-                                <td>{{x.Amount | number| setDecimal:2}}</td>
-                                <td>{{x.ContractId}}</td>
-                                <td>{{x.LCRef}}</td>
-                                <td>{{x.Customer}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <dir-pagination-controls max-size="10"
-                                         pagination-id="metaData.name + 'popUpDataList'"
-                                         direction-links="true"
-                                         boundary-links="true"
-                                         on-page-change="getPopUpData(newPageNumber)">
-                </dir-pagination-controls>
+                                    <td>{{x.Qty}}</td>
+                                    <td>{{x.Amount | number| setDecimal:2}}</td>
+                                    <td>{{x.ContractId}}</td>
+                                    <td>{{x.LCRef}}</td>
+                                    <td>{{x.Customer}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'popUpDataList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getPopUpData(newPageNumber)">
+                    </dir-pagination-controls>
 
-                <div class="common-btn">
+                    <div class="common-btn">
+                    </div>
                 </div>
-            </div>
-            <div class="modal-footer  common-btn">
-                <button type="button" class="btn btn-default" ng-click="closeGltListPopUp()">Select</button>
+                <div class="modal-footer  common-btn">
+                    <button type="button" class="btn btn-default" ng-click="closeGltListPopUp()">Select</button>
+                </div>
             </div>
         </div>
-    </div>
-</div>
+    </div>*@
 <!-- #endregion -->
 <!-- #region GL -->
 <div class="modal fade site-modal in" id="gltListPopUp" role="dialog" data-backdrop="static">
@@ -430,6 +430,7 @@
     </div>
 </div>
 <!-- #endregion -->
+@Html.Partial("~/Areas/Accounts/Views/InventoryPayable/_InventoryIssuePendingPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_IssueAUCGLBudgetActivityPopUp.cshtml")
 

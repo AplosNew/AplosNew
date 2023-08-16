@@ -96,8 +96,8 @@ namespace Aplos.Areas.Leave.Controllers
 
         #region Report
 
-        [HttpGet, Authorize]
-        public ActionResult GetReport(ReportFormat reportFormat, string Year,string ToDate,string PlantId)
+        [HttpPost, Authorize]
+        public ActionResult GetReport(ReportFormat reportFormat, string Year,string ToDate,string PlantId, string empIds)
         {
             try
             {
@@ -105,7 +105,7 @@ namespace Aplos.Areas.Leave.Controllers
                 string PlantsId = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
                 clsLeaveBalanceToDate ep = new clsLeaveBalanceToDate();
                 var reportFileName = "Leave Register Report";
-                var workbook = ep.XlsLeaveBalanceRpt(PlantsId, identity.CompanyId ,Year,ToDate);
+                var workbook = ep.XlsLeaveBalanceRpt(PlantsId, identity.CompanyId ,Year,ToDate,empIds);
                 switch (reportFormat)
                 {
                     case ReportFormat.Pdf:

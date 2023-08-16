@@ -1194,12 +1194,14 @@ upanelApp.controller("faRegisterController", faRegisterController)
 upanelApp.controller("WeighingScaleMasterController", WeighingScaleMasterController)
 upanelApp.controller("LOTCreationController", LOTCreationController)
 upanelApp.controller("CapitalizeAssetRegisterPostingController", CapitalizeAssetRegisterPostingController)
+upanelApp.controller("assetDepreciationProcessController", assetDepreciationProcessController);
 upanelApp.controller("VehicleTripController", VehicleTripController)
 upanelApp.controller("ProcessManagementController", ProcessManagementController)
 upanelApp.controller("masterLCAmendmentController", masterLCAmendmentController)
 upanelApp.controller("AdditionalInfoUpdateController", AdditionalInfoUpdateController)
 upanelApp.controller("ProductParameterMasterController", ProductParameterMasterController)
 upanelApp.controller("ProcessTemplateController", ProcessTemplateController)
+upanelApp.controller("PayableCreationAndWorkerAdvanceController", PayableCreationAndWorkerAdvanceController)
 
 
 

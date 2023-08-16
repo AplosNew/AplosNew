@@ -42,6 +42,7 @@ function AdditionalInfoController(cboService, commonMessage, $scope, $rootScope,
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
     $scope.CategoryList = [
+        { Value: 'GRN', Text: 'GRN' },
         { Value: 'SalesOrder', Text: 'Sales Order' },
         { Value: 'SalesInvoice', Text: 'Sales Invoice' }
     ];

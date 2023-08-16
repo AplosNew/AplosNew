@@ -1902,6 +1902,7 @@
     <Content Include="Areas\Administration\Scripts\ServicesApprovingAuthorityController.js" />
     <Content Include="Areas\Attendances\Scripts\BuyerjobCardcomplianceReportController.js" />
     <Content Include="Areas\Attendances\Scripts\EOTController.js" />
+    <Content Include="Areas\Attendances\Scripts\PayableCreationAndWorkerAdvanceController.js" />
     <Content Include="Areas\Attendances\Scripts\MultipleEmployeeIndividualLockController.js" />
     <Content Include="Areas\Attendances\Scripts\LeaveYearEndProcessEncashmentApprovalController.js" />
     <Content Include="Areas\Attendances\Scripts\LeaveYearEndProcessNewController.js" />
@@ -2081,6 +2082,7 @@
     <Content Include="Areas\FixedAssets\Scripts\AdditionalInfoUpdateController.js" />
     <Content Include="Areas\FixedAssets\Scripts\CapitalizeAssetRegisterPostingController.js" />
     <Content Include="Areas\FixedAssets\Scripts\faRegisterController.js" />
+    <Content Include="Areas\FixedAssets\Scripts\assetDepreciationProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\BudgetCodeWiseHRReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\BudgetReportMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\DesignationSetupController.js" />
@@ -4767,6 +4769,9 @@
     <Content Include="Areas\FixedAssets\Views\CapitalizeAssetRegisterPostingNew.cshtml" />
     <Content Include="Areas\FixedAssets\Views\CapitalizeAssetRegisterPostingAddition.cshtml" />
     <Content Include="Areas\Processes\Views\ProcessTemplate\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\GoodWork\PCAAC.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\AssetDepreciationProcess.cshtml" />
+    <Content Include="Areas\Accounts\Views\InventoryPayable\_InventoryIssuePendingPopUp.cshtml" />
     <Content Include="Areas\Processes\Views\ProcessManagement\_OWM.cshtml" />
     <Content Include="Areas\Processes\Views\ProcessManagement\_GPL.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />

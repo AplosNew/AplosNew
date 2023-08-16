@@ -798,7 +798,7 @@ namespace Library.Service.EmployeeServices
 
                 var items = DataToSave.ToList();
 
-                var sqlx = @"select * from dbo.ItemScanChild where SalesReturnId is null and RefNo IN(" + RefNo + @")";
+                var sqlx = @"select * from dbo.ItemScanChild where SalesReturnId is null and Booked = 1 and IsDespatch = 1  and RefNo IN(" + RefNo + @")";
                 con.OpenDataSetThroughAdapter(sqlx, out dsMaster, false, "1");
 
                 double BkQty = 0.0;
@@ -822,7 +822,7 @@ namespace Library.Service.EmployeeServices
                     }
                     else
                     {
-                        ErrorList += item.RefNo + "...";
+                        ErrorList += item.RefNo + " , ";
                     }
 
 
@@ -846,7 +846,7 @@ namespace Library.Service.EmployeeServices
 
                 if (ErrorList != "")
                 {
-                    return "Their are issues with these Cartons:- " + ErrorList;
+                    return "These Cartons are not Sold:- " + ErrorList;
                 }
 
                 return "true";

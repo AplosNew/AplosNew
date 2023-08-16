@@ -1102,7 +1102,9 @@ namespace Library.Service.Banks
                 sheet.Range[reportUtility.GetColumnNameForXls(colPostingDate) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge();
 
                 // Get bank opening balance data.
-                var obVal = _bankJournalService.GetBankOpeningBalanceLedgerData(companyGroupId, companyId, plantId, bankMasterId, fromDate);
+                BankExtensionService bankExtensionService = new BankExtensionService();
+                //var obVal = _bankJournalService.GetBankOpeningBalanceLedgerData(companyGroupId, companyId, plantId, bankMasterId, fromDate);
+                var obVal = bankExtensionService.GetBankOpeningBalanceLedgerData(companyGroupId, companyId, plantId, bankMasterId, fromDate);
                 if (obVal.Count > 0)
                 {
                     // Set Opening Balance
@@ -1110,7 +1112,7 @@ namespace Library.Service.Banks
                     sheet.Range[row, 7].NumberFormat = reportUtility.NumberFormatDecimalTwo();
 
                     if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyCode != bankCurrencyId)
-                        reportUtility.SetText(ref sheet, row, 10, Convert.ToDouble(obVal[0]["CompanyCurrencyOB"]), true);
+                        reportUtility.SetText(ref sheet, row, 10, Convert.ToDouble(obVal[0]["OB"]), true);
                     sheet.Range[row, 10].NumberFormat = reportUtility.NumberFormatDecimalTwo();
                     colLast = 8;
                     if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyCode != bankCurrencyId)
@@ -1124,7 +1126,6 @@ namespace Library.Service.Banks
                 row++;
                 int StartRow = row;
                 // Get bank transaction data.
-                BankExtensionService bankExtensionService = new BankExtensionService();
 
                 int col = 0;
                 var ledgerData = bankExtensionService.GetBankLedgerData(companyGroupId, companyId, plantId, bankMasterId, fromDate, toDate);
@@ -1140,8 +1141,8 @@ namespace Library.Service.Banks
                         sheet.Range[row, 4].WrapText = true;
                         if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyCode == bankCurrencyId)
                         {
-                            reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(ledgerData.Rows[i]["CompanyCurrencyDrAmount"].ToString())); col++;
-                            reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(ledgerData.Rows[i]["CompanyCurrencyCrAmount"].ToString())); col++;
+                            reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(ledgerData.Rows[i]["DrAmount"].ToString())); col++;
+                            reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(ledgerData.Rows[i]["CrAmount"].ToString())); col++;
                         }
                         else
                         {
@@ -1155,8 +1156,8 @@ namespace Library.Service.Banks
                         // Base currency checking
                         if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyCode != bankCurrencyId)
                         {
-                            reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(ledgerData.Rows[i]["CompanyCurrencyDrAmount"].ToString())); col++;
-                            reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(ledgerData.Rows[i]["CompanyCurrencyCrAmount"].ToString())); col++;
+                            reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(ledgerData.Rows[i]["DrAmount"].ToString())); col++;
+                            reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(ledgerData.Rows[i]["CrAmount"].ToString())); col++;
                             sheet.Range[row, col].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(10) + (row - 1) + "+" + reportUtility.GetColumnNameForXls(8) + row + "-" + reportUtility.GetColumnNameForXls(9) + row + ")"; col++;
                             sheet.Range[row, col].NumberFormat = reportUtility.NumberFormatDecimalTwo();
                             colLast = col;
@@ -1864,7 +1865,7 @@ namespace Library.Service.Banks
                             reportUtility.SetText(ref sheet, row, 6, ob, true);
 
                             if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyId != cashCurrencyId)
-                                ob = Convert.ToDouble(obVal[0]["CompanyCurrencyOB"]);
+                                ob = Convert.ToDouble(obVal[0]["OB"]);
                             reportUtility.SetText(ref sheet, row, 9, ob, true);
                             sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
                             isOB = false;
@@ -1922,8 +1923,8 @@ namespace Library.Service.Banks
                             // Base currency checking
                             if (!string.IsNullOrEmpty(companyCurrencyId) && companyCurrencyId != cashCurrencyId)
                             {
-                                reportUtility.SetText(ref sheet, row, 7, Convert.ToDouble(data.Rows[i]["CompanyCurrencyDrAmount"].ToString()));
-                                reportUtility.SetText(ref sheet, row, 8, Convert.ToDouble(data.Rows[i]["CompanyCurrencyCrAmount"].ToString()));
+                                reportUtility.SetText(ref sheet, row, 7, Convert.ToDouble(data.Rows[i]["DrAmount"].ToString()));
+                                reportUtility.SetText(ref sheet, row, 8, Convert.ToDouble(data.Rows[i]["CrAmount"].ToString()));
                                 sheet.Range[row, 9].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(9) + (row - 1) + "+" + reportUtility.GetColumnNameForXls(7) + row + "-" + reportUtility.GetColumnNameForXls(8) + row + ")";
                                 sheet.Range[row, 9].NumberFormat = reportUtility.NumberFormatDecimalTwo();
                                 sheet.Range[row, 9].VerticalAlignment = ExcelVAlign.VAlignTop;

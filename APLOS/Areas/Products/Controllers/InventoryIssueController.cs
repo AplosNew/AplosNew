@@ -247,12 +247,14 @@ namespace Aplos.Areas.Products.Controllers
         /// </summary>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        [Authorize, HttpGet]
-        public JsonResult GetIssueList(GridParameter parameters)
+
+        [HttpPost, Authorize]
+        public JsonResult GetIssueList(string column, string value)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryIssueService.GetIssueList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(_inventoryIssueService.GetIssueList(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
+
         [Authorize, HttpGet]
         public JsonResult GetInventoryIssueReturnListForPosting(GridParameter parameters)
         {
