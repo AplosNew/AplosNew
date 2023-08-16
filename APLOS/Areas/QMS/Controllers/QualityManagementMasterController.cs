@@ -658,7 +658,7 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
         }
 
         [HttpPost]
-        public ActionResult ParameterDelete(string id)
+        public ActionResult CheckPointDelete(string id)
         {
             try
             {
@@ -942,9 +942,9 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
         {
             try
             {
-
+               
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from QualityManagementParameterCheckPoints where Id<>'" + ParameterData["Id"] + "'", out DataSet dsQualityManagementParameterCheckPointsValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from QualityManagementParameterCheckPoints where CheckPoints='" + ParameterData["CheckPoints"] + "' and ParameterId='" + Pid + "'", out DataSet dsQualityManagementParameterCheckPointsValidation, false, "1");
 
                 DataSet dsQualityManagementParameterCheckPoints;
 
@@ -953,20 +953,41 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
                 string _Id = "";
 
                 #region data update
-                if (dsQualityManagementParameterCheckPoints.Tables[0].Rows.Count == 0)
+                if (ParameterData["SNO"] == null)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("QualityManagementParameterCheckPoints", out _Id);
-                    _Id = "SIP" + _Id;
-                    ParameterData["Id"] = _Id;
-                    ParameterData["ParameterId"] = Pid;
-                    AddNewRow(dsQualityManagementParameterCheckPoints.Tables[0], ParameterData);
+                    throw new Exception("SNO is required");
                 }
                 else
                 {
-                    _Id = ParameterData["Id"].ToString();
-                    ParameterData["ParameterId"] = Pid;
-                    EditRow(dsQualityManagementParameterCheckPoints.Tables[0].Rows[0], ParameterData);
+                    if (ParameterData["CheckPoints"] == null)
+                    {
+                        throw new Exception("CheckPoints is required");
+                    }
+                    else
+                    {
+                        if (dsQualityManagementParameterCheckPoints.Tables[0].Rows.Count == 0)
+                        {
+                            if (dsQualityManagementParameterCheckPointsValidation.Tables[0].Rows.Count > 0)
+                            {
+                                throw new Exception("CheckPoints Already Exist.");
+                            }
+                            else
+                            {
+                                bplib.clsGenID genid = new bplib.clsGenID();
+                                genid.GenID("QualityManagementParameterCheckPoints", out _Id);
+                                _Id = "SIP" + _Id;
+                                ParameterData["Id"] = _Id;
+                                ParameterData["ParameterId"] = Pid;
+                                AddNewRow(dsQualityManagementParameterCheckPoints.Tables[0], ParameterData);
+                            }
+                        }
+                        else
+                        {
+                            _Id = ParameterData["Id"].ToString();
+                            ParameterData["ParameterId"] = Pid;
+                            EditRow(dsQualityManagementParameterCheckPoints.Tables[0].Rows[0], ParameterData);
+                        }
+                    }
                 }
                 #endregion data update
 

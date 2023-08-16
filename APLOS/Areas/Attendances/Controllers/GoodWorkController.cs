@@ -120,7 +120,13 @@ namespace Aplos.Areas.Attendances.Controllers
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
-
+        [HttpGet, Authorize]
+        public ActionResult GetAllActiveEmpData()
+        {
+            JsonResult json = Json(clsSales.GetAllEmployeeData(), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
         [HttpGet, Authorize]
         public ActionResult GetEmployeeCategoryList()
         {
@@ -224,15 +230,15 @@ namespace Aplos.Areas.Attendances.Controllers
                             DataRow drmo = dv[0].Row;
                             drmo.BeginEdit();
                             drmo["Id"] = detailid;
-                            drmo["goodWorkId"] = _MasterId;
-                            drmo["EmpSystemId"] = item["SystemId"];
-                            drmo["FromTime"] = item["FromTime"];
-                            drmo["ToTime"] = item["ToTime"];
-                            drmo["Purpose"] = item["Purpose"];
-                            drmo["PurposeCategory"] = item["PurposeCategory"];
-                            drmo["ApprovedById"] = item["ApprovedById"];
-                            drmo["Minute"] = item["CalculatedTime"];
-                            drmo["Remarks"] = item["Remarks"];
+                            //drmo["goodWorkId"] = _MasterId;
+                            //drmo["EmpSystemId"] = item["SystemId"];
+                            //drmo["FromTime"] = item["FromTime"];
+                            //drmo["ToTime"] = item["ToTime"];
+                            //drmo["Purpose"] = item["Purpose"];
+                            //drmo["PurposeCategory"] = item["PurposeCategory"];
+                            //drmo["ApprovedById"] = item["ApprovedById"];
+                            //drmo["Minute"] = item["CalculatedTime"];
+                            //drmo["Remark"] = item["Remark"];
                             drmo.EndEdit();
 
                         }
@@ -273,9 +279,10 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult GetGoodWorkList()
         {
-            string sql = @"select GW.Id,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,S.UserName Shift,GW.Remarks
+            string sql = @"select GW.Id,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,S.UserName Shift,GW.Remarks,gwd.EmpSystemId
                                     from GoodWork GW
-                                    left join ShiftDefination S on S.SystemId=GW.ShiftId";
+                                    left join ShiftDefination S on S.SystemId=GW.ShiftId
+                                    LEFT JOIN GoodWorkDetail AS gwd ON gwd.GoodWorkId=GW.Id";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -298,9 +305,9 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             string str = @"select GWD.Id,EI.SystemId,EI.EmployeeCode,EI.EmployeeName
 							,format(GWD.FromTime,'hh:m') FromTime,format(GWD.ToTime,'hh:m') ToTime,GWD.Minute CalculatedTime
-							,GWD.Purpose,GWD.PurposeCategory,wa.Remarks
+							,GWD.Purpose,GWD.PurposeCategory--,wa.Remarks
                             ,EmI.SystemId ApprovedById,EmI.EmployeeCode ApprovedByCode
-                            ,EmI.EmployeeName ApprovedByName,GWD.[Minute],GWD.Remarks
+                            ,EmI.EmployeeName ApprovedByName,GWD.[Minute],GWD.Remark
 							,S.UserName Section,SS.UserName SubSection,DEPT.UserName Department
                             from GoodworkDetail GWD 
                             left join EmployeeInformation EI on EI.SystemId=GWD.EmpSystemId
