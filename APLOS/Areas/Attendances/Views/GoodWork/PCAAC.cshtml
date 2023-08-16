@@ -195,12 +195,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
+                    @*<div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Round Off<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <input type="text" class="form-control" name="RoundOff" ng-model="ModelNew.RoundOff" e-width="100" />
                         </div>
-                    </div>
+                    </div>*@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Pay Days</label>
                      <div class="col-sm-8 show-message">
@@ -250,10 +250,10 @@
                                 <td>{{x.Department}}</td>
                                 <td>
                                     <span class="input-group-btn">
-                                        <input type="number" class="form-control" name="PayDays" ng-model="x.PayDays" ng-change="getAmount($index);" e-width="100" />
+                                        <input type="number" class="form-control" name="PayDays" ng-model="x.PayDays" e-width="100" ng-disabled="true"/>
                                     </span>
                                 </td>
-                                <td><input type="number" class="form-control" name="Amount" ng-model="x.Amount" e-width="100" /></td>
+                                <td><input type="number" class="form-control" name="Amount" ng-model="x.Amount" e-width="100" ng-disabled="true"/></td>
                                 <td class="text-right">
                                     <button ng-click="$parent.removeRow(x)" @*data-toggle="modal"*@ ng-="currencyDisable" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
                                         <i class="glyphicon glyphicon-remove"></i>

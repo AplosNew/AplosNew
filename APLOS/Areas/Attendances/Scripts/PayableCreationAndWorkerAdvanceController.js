@@ -1,9 +1,9 @@
 ﻿'use strict';
 PayableCreationAndWorkerAdvanceController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', "$controller"];
 function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
-    $rootScope.title = 'Payable Creation & Worker Advance';
+    $rootScope.title = 'Payable Creation & Multiple Employee advance';
     $rootScope.titleTab1 = 'Payable Creation';
-    $rootScope.titleTab2 = 'Multiple Worker Advance';
+    $rootScope.titleTab2 = 'Multiple Employee advance';
     $scope.WorkerAdvanceList = [];
     $scope.path = 'Attendances/GoodWork/';
     $scope.saveUrl = $scope.path + 'CreateWorkerAdvance';
@@ -318,6 +318,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
                 }
             }
             angular.element(document.querySelector("#dialogEmployeeInfo")).modal("hide");
+            $scope.getCalulationAmount();
         } catch (e) {
             ShowResult(e, "failure");
         }
@@ -331,19 +332,10 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         }
         return false;
     }
-
-    $scope.getAmount = function (index) {
-        var amountObj = $scope.EmployeeMainList[index];
-        amountObj.Amount = amountObj.Basic / 26 * amountObj.PayDays * $scope.ModelNew.Percentage;
-    }
-
-    $scope.getRoundOffAmount = function () {
-        $scope.ModelNew.RoundOff = Math.floor(amountObj.Basic / 26 * amountObj.PayDays * $scope.ModelNew.Percentage);
-    }
-
+ 
     $scope.getCalulationAmount = function () {
         for (var i = 0; i < $scope.EmployeeMainList.length; i++) {
-            $scope.EmployeeMainList[i].Amount = $scope.EmployeeMainList[i].Basic / 26 * $scope.EmployeeMainList[i].PayDays * $scope.ModelNew.Percentage;
+            $scope.EmployeeMainList[i].Amount = Math.floor($scope.EmployeeMainList[i].Basic / 26 * $scope.EmployeeMainList[i].PayDays * $scope.ModelNew.Percentage/100);
         }
     }
     //*********************************** Worker Advance End********************************************************//

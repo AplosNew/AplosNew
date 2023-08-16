@@ -1,0 +1,68 @@
+﻿<style>
+    .modellgModify1 {
+        width: 1300px;
+    }
+</style>
+
+<div class="modal fade site-modal in" id="popUpId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify1">
+        <div class="modal-content">
+            <div class="modal-header"> {{popUpTitle}} <button type="button" class="close" ng-click="closePopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="searchByIssue">
+                                                <option ng-repeat="option in searchByPopList" value="{{option.value}}">{{option.name}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="searchIssue" ng-enter="popUp();">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="popUp();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="content-container-fluid">
+                                    <div style="color:black;overflow:scroll" id="popUpGrid" ej-grid e-datasource="popUpDataList" e-recorddoubleclick="selectDoubleClick"
+                                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                         e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-allowscrolling="true">
+                                        <div e-columns>
+                                            <div e-column e-field="Id" e-headertext="Issue No" e-width="70" e-filter="false"></div>
+                                            <div e-column e-field="Storage Location" e-headertext="Storage Location" e-width="80"></div>
+                                            <div e-column e-field="IssueDate" e-headertext="Issue Date" e-width="80"></div>
+                                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="140" e-format="{0:dd-MMM-yyyy}" type="date"></div>
+                                            <div e-column e-field="Types" e-headertext="Types" e-width="80"></div>
+                                            <div e-column e-field="SourceNo" e-headertext="SourceNo" e-width="50"></div>
+                                            <div e-column e-field="OrderRefNo" e-headertext="OrderRefNo" e-width="80" textAlign='Right'></div>
+                                            <div e-column e-field="Qty" e-headertext="Qty" e-width="80" textAlign='Right'></div>
+                                            <div e-column e-field="Amount" e-headertext="Amount (BC)" e-width="80" textAlign='Right'></div>
+                                            <div e-column e-field="ContractId" e-headertext="ContractId" e-width="60" e-type='string'></div>
+                                            <div e-column e-field="LCRef" e-headertext="LCRef" e-width="90"></div>
+                                            <div e-column e-field="Customer" e-headertext="Customer" e-width="70" e-format="{0:dd-MMM-yyyy}" type="date"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                    <ul class="common-btn list-inline text-right">
+                        <li><button ng-click="closePopUp();" class="btn"> Close</button></li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
