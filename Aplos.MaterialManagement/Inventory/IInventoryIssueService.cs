@@ -14,7 +14,7 @@ namespace Library.MaterialManagement.Inventory
     {
         GridModel Query(GridParameter parameters, string plantId);
 
-        GridModel GetIssueList(GridParameter parameters, string plantId); 
+        IEnumerable<object> GetIssueList(string column, string value, string plantId); 
         GridModel GetInventoryIssueReturnListForPosting(GridParameter parameters, string plantId); 
 
         void InsertGraph(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus, IEnumerable<InventoryMaterialViewModel> entitiesAll);
