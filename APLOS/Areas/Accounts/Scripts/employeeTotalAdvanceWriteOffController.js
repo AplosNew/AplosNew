@@ -489,7 +489,23 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
         });
         return true;
     };
-
+    $scope.changeTransactionType = function () {
+        $scope.advance.Active = true;
+        $scope.advance.CurrencyId = null;
+        $scope.advance.PartyType = 'Customer';
+        $scope.advance.Type = 'Receivable';
+        $scope.advance.VoucherDate = $filter('date')(Date.now(), 'dd-MMM-yyyy');
+        $scope.voucherDetailList = [];
+        $scope.advance.SettlementType = "SetOff";
+        $scope.advance.PaymentSource = 'Bank';
+        $scope.advancePostingDate = null;
+        $scope.advanceDocRefNo = null;
+        $scope.advance.AdvanceAmount = null;
+        $scope.advance.Amount = null;
+        $scope.advance.VoucherNo = null;
+        $scope.advance.EmployeeName = null;
+        $scope.advance.EmployeeId = null;
+    }
     $scope.Clear = function () {
         ClearFields();
         return true;
@@ -652,21 +668,36 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
         angular.element(document.querySelector('#employeeTotalAdvancePopUp')).modal('show');
         $scope.getEmployeeTotalAdvanceData();
     };
-    $scope.showEmployeeAdvanceSalaryPopUpList = function (employeeId) {
+
+    $scope.searchByEmployeeAdvance = "EmployeeName"; $scope.searchAdvance = "";
+    $scope.showEmployeeAdvanceSalaryPopUpList = function () {
         $scope.compareCurrencyId = $scope.advance.CurrencyId;
-        $scope.getEmployeeAdvanceData = function (pageno) {
-            baseService.paginationBase($scope.employeeAdvanceSalaryUrl, pageno, $scope.employeeAdvanceParameters)
-                .then(function (response) {
-                    $scope.employeeAdvanceDataList = response.Rows;
-                    $scope.employeeAdvanceParameters.total_count = response.Total;
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, 'failure');
-                }).finally(function () {
-                });
-        };
+        $http({
+            method: 'POST',
+            url: 'accounts/Advance/GetEmployeeAvilabeAdvanceSalaryList',
+            data: { column: $scope.searchByEmployeeAdvance, value: $scope.searchAdvance },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.employeeAdvanceDataList = response.data;
+        });
         angular.element(document.querySelector('#employeeAdvancePopUp')).modal('show');
-        $scope.getEmployeeAdvanceData();
     };
+
+    //$scope.showEmployeeAdvanceSalaryPopUpList = function (employeeId) {
+    //    $scope.compareCurrencyId = $scope.advance.CurrencyId;
+    //    $scope.getEmployeeAdvanceData = function (pageno) {
+    //        baseService.paginationBase($scope.employeeAdvanceSalaryUrl, pageno, $scope.employeeAdvanceParameters)
+    //            .then(function (response) {
+    //                $scope.employeeAdvanceDataList = response.Rows;
+    //                $scope.employeeAdvanceParameters.total_count = response.Total;
+    //            }, function () {
+    //                ShowResult(commonMessage.NetworkError, 'failure');
+    //            }).finally(function () {
+    //            });
+    //    };
+    //    angular.element(document.querySelector('#employeeAdvancePopUp')).modal('show');
+    //    $scope.getEmployeeAdvanceData();
+    //};
 
     $scope.clearBankPopUp = function () {
         $scope.advance.BankMasterId = null;
@@ -701,7 +732,7 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
         angular.element(document.querySelector("#employeeAdvancePopUp")).modal("hide");
     };
     $scope.closeEmployeeSalaryAdvancePopUp = function (obj) {
-        var data = obj;
+        var data = obj.data;
 
         $scope.advance.EmployeeId = data.EmployeeId;
         $scope.advance.EmployeeName = data.EmployeeName;
