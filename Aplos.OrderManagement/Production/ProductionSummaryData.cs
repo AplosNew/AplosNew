@@ -4113,7 +4113,7 @@ left join MST.QualityManagementMaster QMM on QMM.Id=QID.IssueNameId
 left join org.Entity E on E.Id=QID.EntityId
 left join hkp.Process P on P.Id=QID.ProcessId
 order by (select top 1 AddedDate + QID.CheckingInterval from TRN.QualityControl where IssueId=QID.IssueNameId order by AddedDate asc) asc";
-              return _sqlRepository.GetDataCollection(sql);
+                return _sqlRepository.GetDataCollection(sql);
         }
 
         public IEnumerable<object> GetSFGMovementFromCbo(string entity)
