@@ -1,4 +1,5 @@
-﻿using Library.Core;
+﻿using ConnectionManager;
+using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.Service.Helpers;
@@ -1996,7 +1997,7 @@ Order by P.Sequence";
             }
         }
 
-		public List<Dictionary<string, object>> GetMasterOrderSalesPostedDataList(string plantId,string FromDate, string ToDate)
+		public DataTable GetMasterOrderSalesPostedDataList(string plantId,string FromDate, string ToDate,string Ids)
 		{
 			try
 			{
@@ -2031,9 +2032,9 @@ LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial
 LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
 LEFT JOIN dbo.SalesAdditionalInfo SAI ON SAI.SalesId=S.Id
 LEFT JOIN hkp.AdditionalInfo AI ON AI.Id=SAI.AdditionalInfoId
-WHERE S.CompanyGroupId='CG20181' AND S.CompanyId='C20201' AND S.PlantId='202034' AND S.VoucherId<>'' AND S.SourceType IN('MasterOrderSales','Packing') 
-AND convert(date,S.AddedDate) between '01-May-2023' AND '14-Aug-2023' AND S.IsAdditionalInfoApplicable=1
-
+WHERE  S.PlantId='"+ plantId + @"' AND S.VoucherId<>'' AND S.SourceType IN('MasterOrderSales','Packing') 
+AND convert(date,S.AddedDate) between '"+FromDate+@"' AND '"+ToDate+@"' AND S.IsAdditionalInfoApplicable=1
+AND S.Id "+Ids+@"
 )A
 DECLARE @sql nvarchar(max), @col nvarchar(max)
                             SELECT @col = (
@@ -2044,7 +2045,7 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
                             (SELECT * FROM #tempOT PIVOT (MAX([Value]) FOR [UserName] IN ('+STUFF(@col,1,1,'')+')) as pvt)' 
                             EXEC sp_executesql @sql
                             drop table #tempOT";
-				return _sqlRepository.GetDataCollection(sql);
+				return _sqlRepository.GetDataTable(sql);
 			}
 			catch (Exception ex)
 			{
@@ -4283,7 +4284,104 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
             }
         }
 
-    }
+
+		public void GetMasterData(string Ids, out DataTable dtOrder)
+		{
+			ConnectionManager.DAL.ConManager objCon;
+			string strSql = string.Empty;
+			try
+			{
+
+				strSql = @"SELECT S.Id,S.Id AS SalesId, S.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, S.CurrencyId, C.Code AS CurrencyCode, S.DocRefNo, ISNULL(SM.Amount,0) + ISNULL(SS.Amount,0) AS Amount,
+Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') InvoiceDate,
+Replace(CONVERT(VARCHAR(11), S.EntryDate, 106), ' ', '-') VoucherDate, Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') PostingDate
+, S.RowState, S.DeliveryPartyPlantId, S.InvoicingPartyPlantId AS PartyPlantId, S.InvoicingPartyPlantId, S.EntityId, S.PaymentTermId, S.BaseNoOfDays, S.BaseOnDueDate
+, S.InvoiceNo, PPI.UserName AS BillTo, AM.StateId AS InvoicingStateId, ST.UserName AS InvoicingState, PPI.GSTIN AS InvoicingGSTIN
+, PPD.UserName AS ShipTo, STD.UserName AS DeliveryState, PPD.GSTIN AS DeliveryGSTIN, S.InvoicingByAddress, S.DeliveryByAddress, S.MatureDate, S.ToCurrencyRate
+, S.ToCurrencyRate AS CompanyCurrencyRate, S.Narration, S.PartyType, S.VoucherId, AMP.StateId AS PlantStateId
+, CASE  WHEN S.RowState='Parked' THEN 1 ELSE 0 END AS IsPark--,SAI.Value,AI.UserName
+,V.VoucherNo,PAG.UserName PartyAccountGroup
+FROM [TRN].[Sales] AS S
+JOIN [HKP].[Party] AS P ON P.Id=S.PartyId
+LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=S.InvoicingPartyPlantId
+LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
+LEFT JOIN [SCS].[State] AS ST ON ST.Id=AM.StateId
+LEFT JOIN [HKP].[PartyPlant] AS PPD ON PPD.Id=S.DeliveryPartyPlantId
+LEFT JOIN [MST].[AddressMaster] AS AMD ON AMD.Id=PPD.AddressMasterId
+LEFT JOIN [SCS].[State] AS STD ON STD.Id=AMD.StateId
+LEFT JOIN [SCS].[Currency] AS C ON C.Id=S.CurrencyId
+LEFT JOIN [ORG].[Plant] AS PT ON PT.Id=S.PlantId
+LEFT JOIN [TRN].Voucher V ON V.Id=S.VoucherId
+LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId
+LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PT.AddressMasterId
+LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=S.Id
+LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
+WHERE  S.VoucherId<>'' AND S.SourceType IN('MasterOrderSales','Packing') AND S.IsAdditionalInfoApplicable=1
+AND S.Id "+ Ids + "";
+
+				dtOrder = _sqlRepository.GetDataTable(strSql);
+			}
+			catch (Exception ex)
+			{
+				throw (ex);
+			}
+			finally
+			{
+				objCon = null;
+			}
+		}//End Function
+
+		public Dictionary<string, List<DataRow>> GetParameterData(string Ids, out DataTable dtParameter)
+		{
+			ConnectionManager.DAL.ConManager objCon;
+			string strSql = string.Empty;
+			DataSet dsRef = null;
+			Dictionary<string, List<DataRow>> dicParameter = new Dictionary<string, List<DataRow>>();
+			dtParameter = new DataTable("Tmp");
+			try
+			{
+				strSql = @"select SAI.*,AI.UserName,AI.CharecterType from dbo.SalesAdditionalInfo SAI
+LEFT JOIN hkp.AdditionalInfo AI ON AI.Id=SAI.AdditionalInfoId
+Where SAI.SalesId " + Ids + @"
+order by SAI.SalesId";
+
+				ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+				con.getDataSet(strSql, out dsRef);
+
+				dtParameter = dsRef.Tables[0].DefaultView.ToTable(true, "AdditionalInfoId", "UserName", "CharecterType");
+				dtParameter = dtParameter.DefaultView.ToTable();
+
+				DataTable dt = dsRef.Tables[0];
+				List<DataRow> _data = new List<DataRow>();
+				string empId = "";
+				for (int i = 0; i < dt.Rows.Count; i++)
+				{
+					if (empId != dt.Rows[i]["SalesId"].ToString())
+					{
+						_data = new List<DataRow>();
+						dicParameter.Add(dt.Rows[i]["SalesId"].ToString(), _data);
+					}
+					_data.Add(dt.Rows[i]);
+
+					empId = dt.Rows[i]["SalesId"].ToString();
+				}
+
+				return dicParameter;
+
+			}
+			catch (Exception ex)
+			{
+				throw (ex);
+			}
+			finally
+			{
+				objCon = null;
+			}
+		}
+
+
+	}
 
 
 }

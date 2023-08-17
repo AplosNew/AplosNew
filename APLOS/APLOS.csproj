@@ -4771,6 +4771,9 @@
     <Content Include="Areas\Processes\Views\ProcessTemplate\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\GoodWork\PCAAC.cshtml" />
     <Content Include="Areas\FixedAssets\Views\AssetDepreciationProcess.cshtml" />
+    <Content Include="Areas\Accounts\Views\InventoryPayable\_InventoryIssuePendingPopUp.cshtml" />
+    <Content Include="Areas\Processes\Views\ProcessManagement\_OWM.cshtml" />
+    <Content Include="Areas\Processes\Views\ProcessManagement\_GPL.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

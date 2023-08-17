@@ -2114,12 +2114,15 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-
-        public GridModel GetIssueList(GridParameter parameters, string plantId)
+        
+        public IEnumerable<object> GetIssueList(string column, string value, string plantId)
         {
             try
             {
-                parameters.CmdText = @"SELECT II.Id,II.Id IssueNo, II.IssueDate,II.Remarks,II.EntityId,E.UserName  EntityName,II.IssueType
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"select  top (3500) Temp.* from (SELECT II.Id,II.Id IssueNo, II.IssueDate,II.Remarks,II.EntityId,E.UserName  EntityName,II.IssueType
                                     ,EI.EmployeeCode+' - '+EI.EmployeeName EmployeeName,SUM(IID.TransactionQty) Qty,SUM(IID.PolicyAmount) Amount
                                     ,ii.OrderRefNo, IsOrderSpecificy=  CASE WHEN ii.OrderRefNo <> '' THEN 1 ELSE 0 END,II.[Types]
 									,SourceNo=II.JWContractId,JW.ContractId,LC.LCRef,Customer=P.Code+' '+P.UserName 
@@ -2140,8 +2143,9 @@ namespace Library.MaterialManagement.Inventory
                             GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
 	                                 , II.IssueDate
 									 ,EI.EmployeeCode,EI.EmployeeName,II.Remarks,II.EntityId,E.UserName,II.IssueType
-									 , ii.OrderRefNo,II.[Types],II.JWContractId,JW.ContractId,LC.LCRef,P.Code,p.UserName";
-                return _sqlRepository.GetGridData(parameters);
+									 , ii.OrderRefNo,II.[Types],II.JWContractId,JW.ContractId,LC.LCRef,P.Code,p.UserName)  AS TEMP WHERE " + strkey + @"
+                                     order by TEMP.IssueDate desc";
+                return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
             {
