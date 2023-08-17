@@ -1910,6 +1910,8 @@ namespace Library.Accounting.FixedAssets
                     {
                         builderSql = @"UPDATE [TRN].[AssetRegister] SET AssetSlNo='" + item["AssetSlNo"] + " ' ,RFId = '" + item["RFId"] + "' ,BarCode = '" + item["BarCode"] + "' ,Status = '" + item["Status"] + "' ,AssetCondition = '" + item["AssetCondition"] + "' ,UserReference = '" + item["UserReference"] + "' ,OldReference = '" + item["OldReference"] + "' ,UserGroup = '" + item["UserGroup"] + "' ,Remarks = '" + item["Remarks"] + "' ,UpdatedBy = '" + identity.Name + "' ,UpdatedDate = '" + System.DateTime.Now.ToString() + "' ,UpdatedFromIP = '" + identity.IPAddress + "' WHERE Id='" + item["AssetRegisterId"].ToString() + "'  ";
                         rdBuilder.Append(builderSql);
+                        builderSql = @"UPDATE [TRN].[AssetRegisterChild] SET Amount='" + item["Amount"] + "' ,UpdatedBy = '" + identity.Name + "' ,UpdatedDate = '" + System.DateTime.Now.ToString() + "' ,UpdatedFromIP = '" + identity.IPAddress + "' WHERE Id='" + item["AssetRegisterChildId"].ToString() + "'  ";
+                        rdBuilder.Append(builderSql);
                     }
                     _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                 }
