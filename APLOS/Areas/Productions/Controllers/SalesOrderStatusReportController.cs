@@ -375,8 +375,7 @@ namespace Aplos.Areas.Productions.Controllers
             try {                
                 var strSQL = @"Select  p.UserName as Customer, mo.MasterOrderNo , format(mo.AddedDate,'dd-MMM-yyyy') as MasterOrderDate ,so.ContractId, moi.OwnReferenceNo , moi.BuyerReferenceNo as BuyerOrderNo , mma.StandardName as Article, moi.Id as ItemId , so.Id as SONo , so.Qty as SOQty , format(so.PlanExFactoryDate,'dd-MMM-yyyy') as ExFactoryDate , 
                             format(so.CommitmentDate , 'dd-MMM-yyyy') as CommitmentDate , format(so.DeliveryDate , 'dd-MMM-yyyy') as DeliveryDate , oc.UserName as SOCategory , so.Rate , so.CM , isnull(sm.DispatchQty,0) as DispatchQty , isnull(OtherDispatchQty.ScanQty,0) OtherDispatchQty
-                            ,case when isnull(sm.DispatchQty,0)>isnull(OtherDispatchQty.ScanQty,0) 
-						   then SO.Qty-isnull(DispatchQty,0) else SO.Qty-isnull(OtherDispatchQty.ScanQty,0)end as BalanceToDispatch  , moi.ProductLibraryId, PAG.UserName as CustomerGroup,pl.Code as ProductCode, pod.ProductionOrderId,format(mo.AddedDate,'dd-MMM-yyyy') as CreatedDate,
+                            ,SO.Qty-(isnull(OtherDispatchQty.ScanQty,0) + isnull(sm.DispatchQty,0)) as BalanceToDispatch   , moi.ProductLibraryId, PAG.UserName as CustomerGroup,pl.Code as ProductCode, pod.ProductionOrderId,format(mo.AddedDate,'dd-MMM-yyyy') as CreatedDate,
 
                              (Select Stuff((
                                                         Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue

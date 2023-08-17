@@ -2,6 +2,8 @@
     <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" ng-class="{ active: isSetUC(1) }"><a ng-click="SetUCTab(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">Process Management</a></li>
         <li role="presentation" ng-class="{ active: isSetUC(2) }"><a ng-click="SetUCTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Process Parameter</a></li>
+        <li role="presentation" ng-class="{ active: isSetUC(3) }"><a ng-click="SetUCTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">OWM</a></li>
+        <li role="presentation" ng-class="{ active: isSetUC(4) }"><a ng-click="SetUCTab(4)" href="" aria-controls="doc" role="tab" data-toggle="tab">GPL</a></li>
     </ul>
 </div>
 
@@ -21,7 +23,7 @@
                         <label class="col-sm-4 control-label">Process<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <div class="select-style">
-                                <select class="form-control" ng-model="ProcessManagementNew.Process" name="Process"
+                                <select class="form-control" ng-model="ProcessManagementNew.Process" name="Process" ng-change="GetWorkcenter()"
                                         tabindex="2" required>
                                     <option value="">--Select--</option>
                                     <option ng-repeat="option in ProcessList" value="{{option.Value}}">{{option.Text}}</option>
@@ -142,10 +144,10 @@
                             <input type="checkbox" id="Eheadchk" />
                         </script>
                         @*<script type="text/template" id="Remarks">
-                            <div class="col-sm-10" style="padding:0px;">
-                                <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
-                            </div>
-                        </script>*@
+                                <div class="col-sm-10" style="padding:0px;">
+                                    <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
+                                </div>
+                            </script>*@
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
@@ -163,6 +165,7 @@
                                 <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
                                 <div e-column e-field="MaterialCode" e-headertext="Material Code" e-width="100"></div>
                                 <div e-column e-field="Material" e-headertext="Material" e-width="100"></div>
+                                <div e-column e-field="MaterialType" e-headertext="MaterialType" e-width="100"></div>
                                 <div e-column e-field="MaterialCategory" e-headertext="Material Category" e-width="100"></div>
                                 <div e-column e-field="MaterialGroup" e-headertext="MaterialGroup" e-width="100"></div>
                                 <div e-column e-field="ArticleCode" e-headertext="Article Code" e-width="100"></div>
@@ -196,7 +199,7 @@
                                 <div e-column e-headertext="All" e-headertemplateid="#headerTemplateUtility" e-template="#checkboxTemplateUtility" e-textalign="center" e-width="30"></div>
                                 <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
                                 <div e-column e-field="UtilityName" e-headertext="Utility User Name" e-width="100"></div>
-                                <div e-column e-field="UtilityStdName" e-headertext="Material Standard Name" e-width="100"></div>
+                                <div e-column e-field="UtilityStdName" e-headertext="Utility Standard Name" e-width="100"></div>
                                 <div e-column e-field="UtilityCategory" e-headertext="Utility Category" e-width="100"></div>
                                 <div e-column e-field="UtilitySubCategory" e-headertext="Utility Sub Category" e-width="100"></div>
                                 <div e-column e-template="#Min" e-headertext="Min" e-width="100"></div>
@@ -229,7 +232,7 @@
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
-                            <li> <button class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                            <li> <button ng-click="SaveProcessUtility()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
                         </ul>
                     </div>
                 </div>
@@ -259,7 +262,7 @@
 
                         <div class="common-btn">
                             <ul class="list-inline text-right">
-                                <li> <button ng-click="SaveProcessEntity()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                                <li> <button ng-click="SaveProcessUtility()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
                             </ul>
                         </div>
                     </div>
@@ -297,6 +300,13 @@
                             <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="PMPModelNew.Sequence" e-width="100" required />
                         </div>
                     </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Min<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="number" name="Min" ng-model="PMPModelNew.Min" class="form-control" maxlength="100" required autocomplete="off">
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label class="col-sm-4 control-label">UoM<sup>*</sup> </label>
                         <div class="col-sm-8">
@@ -306,9 +316,9 @@
                         </div>
                     </div>
                     <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Max<sup>*</sup></label>
+                        <label class="col-sm-4 control-label">GPL (Gram per ltr.)<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Max" ng-model="PMPModelNew.Max" class="form-control" maxlength="100" required autocomplete="off">
+                            <input type="number" name="Min" ng-model="PMPModelNew.GPL" class="form-control" maxlength="100" required autocomplete="off">
                         </div>
                     </div>
                     <div class="form-group">
@@ -330,10 +340,17 @@
                             <input type="text" name="Item Name" ng-model="PMPModelNew.ItemName" class="form-control" maxlength="100" required autocomplete="off">
                         </div>
                     </div>
+
                     <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Min<sup>*</sup></label>
+                        <label class="col-sm-4 control-label">Max<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Min" ng-model="PMPModelNew.Min" class="form-control" maxlength="100" required autocomplete="off">
+                            <input type="number" name="Max" ng-model="PMPModelNew.Max" class="form-control" maxlength="100" required autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">OWM (Only Weight Material)<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="number" name="Min" ng-model="PMPModelNew.OWM" class="form-control" maxlength="100" required autocomplete="off">
                         </div>
                     </div>
                     <div class="form-group">
@@ -361,52 +378,60 @@
                     <div e-column e-field="Id" e-headertext="Id" e-width="2" e-visible="false" e-isprimarykey="true"></div>
                     <div e-column e-field="Sequence" e-headertext="SRL" e-width="2"></div>
                     <div e-column e-field="ItemName" e-headertext="Item Name" e-width="5"></div>
-                   @* <div e-column e-field="UOM" e-headertext="UOM" e-width="3"></div>*@
+                    @* <div e-column e-field="UOM" e-headertext="UOM" e-width="3"></div>*@
                     <div e-column e-field="Min" e-headertext="Min " e-width="5"></div>
-                    <div e-column e-field="Max" e-headertext="Max" e-width="5"></div>                    
+                    <div e-column e-field="Max" e-headertext="Max" e-width="5"></div>
                     <div e-column e-field="IsUtilityApplicable" e-headertext="Is Utility Applicable" e-width="5"></div>
 
                 </div>
             </div>
         </div>
     </div>
-</div>
 
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetUC(3), active: isSetUC(3) }">
+        @Html.Partial("~/Areas/Processes/Views/ProcessManagement/_OWM.cshtml")
+    </div>
 
-
-
-@*Employee Popup*@
-<div class="modal fade site-modal in" id="employeePopUps" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                Employee List
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div id="GridRespPerson" ej-grid e-datasource="ResponsiblePersonList"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-recorddoubleclick="EmployeedblClick"
-                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                        <div e-columns>
-                            <div e-column e-field="SystemId" e-headertext="Id" e-width="50" e-visible="false"></div>
-                            <div e-column e-field="EmployeeCode" e-headertext="Emp Code" e-width="100"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Name" e-width="100"></div>
-
-                            <div e-column e-field="Designation" e-headertext="Designation" e-width="100"></div>
-                            <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
-                            <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
-                            <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-            @*<div class="modal-footer common-btn">
-                    <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
-                </div>*@
-        </div>
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetUC(4), active: isSetUC(4) }">
+        @Html.Partial("~/Areas/Processes/Views/ProcessManagement/_GPL.cshtml")
     </div>
 </div>
 
-<confirm-archive-generic modalid="confirmDetailPopUp" title="Confirmation" message={{message_Detailconfirmation}} data-ng-click-right-button="DeleteProcessParameter();"></confirm-archive-generic>
+
+
+
+    @*Employee Popup*@
+    <div class="modal fade site-modal in" id="employeePopUps" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Employee List
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div id="GridRespPerson" ej-grid e-datasource="ResponsiblePersonList"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-recorddoubleclick="EmployeedblClick"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-field="SystemId" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Emp Code" e-width="100"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Name" e-width="100"></div>
+
+                                <div e-column e-field="Designation" e-headertext="Designation" e-width="100"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                @*<div class="modal-footer common-btn">
+                        <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
+                    </div>*@
+            </div>
+        </div>
+    </div>
+
+    <confirm-archive-generic modalid="confirmDetailPopUp" title="Confirmation" message={{message_Detailconfirmation}} data-ng-click-right-button="DeleteProcessParameter();"></confirm-archive-generic>

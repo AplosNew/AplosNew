@@ -117,7 +117,7 @@ namespace Aplos.Areas.Materials.Controllers
                 string strPath = "";
                 var fileName = "";
 
-                fileName = "QRCode" + identity.PlantId + langName + ".pptx";
+                fileName = "QRCode" + identity.PlantId  + ".pptx";
                 //fileName = "QRCode.pptx";
                 strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), fileName);  // IDCardEng.xlsx
                 File = fileName;
@@ -164,17 +164,17 @@ namespace Aplos.Areas.Materials.Controllers
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
                 //Opens a PowerPoint Presentation
-                presentation = Presentation.Open(fullPath);
+                //presentation = Presentation.Open(fullPath);
                 //Converts the PowerPoint Presentation into PDF document
-                PdfDocument pdfDocument = PresentationToPdfConverter.Convert(presentation);
+               // PdfDocument pdfDocument = PresentationToPdfConverter.Convert(presentation);
                 //Saves the PDF document
-                pdfDocument.Save(fullPath+".pdf");
+               // pdfDocument.Save(fullPath+".pdf");
                 //Closes the PDF document
-                pdfDocument.Close(true);
+               // pdfDocument.Close(true);
                 //Closes the Presentation
-                presentation.Close();
+               // presentation.Close();
                 //This will open the PDF file so, the result will be seen in default PDF viewer
-                System.Diagnostics.Process.Start(fullPath+".pdf");
+               // System.Diagnostics.Process.Start(fullPath+".pdf");
 
 
                 return presentation;
@@ -214,10 +214,7 @@ namespace Aplos.Areas.Materials.Controllers
                     genid.GenID(TableName, out _Id);
 
                     data["Id"] = _Id;
-                    //data["ProductCode"] = productcodeText;
-                    //data["NetWeight"] = NetWeightText;
-                    //data["Shade"] = ShadeText;
-                    //data["Article"] = ArticleName;
+                   
                     data["UserId"] = identity.UserId;
                     AddNewRow(dsMaster.Tables[0], data);
 
@@ -230,7 +227,8 @@ namespace Aplos.Areas.Materials.Controllers
                 }
                 #endregion data update
 
-                var fileName = "QRCode.pptx";
+                //var fileName = "QRCode.pptx";
+                var fileName = "QRCode" + identity.PlantId + ".pptx";
 
                 var datas = CreateQRCode(data, ShadeText, ArticleName, productcodeText, NetWeightText);
 
@@ -240,12 +238,9 @@ namespace Aplos.Areas.Materials.Controllers
 
                 _info.SaveDataSets(dsMaster);
                 
-                //datas.Save(fullPath);
-
-                
-
                 con.BeginTransaction();
-                
+                datas.Save(fullPath);
+
                 //con.executeQuery($"update dbo.WeighingScaleDataCapture set isQR = 1 where Id ='" + data["GrossWeightId"] + "'");
                 //con.CommitTransaction();
 

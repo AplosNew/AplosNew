@@ -52,10 +52,10 @@ namespace Aplos.Areas.Processes.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = "";
             if (headerId != null) {
-                sql = @"select PME.Id, Flag = convert(bit, PME.Id)  ,E.Id EntityId,E.EntityType,E.UserName Entity,E.Code
+                sql = @"select PME.Id, PME.IsActive, PME.IsActive Flag  ,E.Id EntityId,E.EntityType,E.UserName Entity,E.Code
                             from ORG.Entity E
                             left join dbo.ProcessManagementEntity PME on PME.EntityId = E.Id
-                            where E.Active = 1 order by E.Id desc";
+                            where E.Active = 1 order by PME.IsActive desc";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             else
@@ -86,23 +86,37 @@ namespace Aplos.Areas.Processes.Controllers
         }
 
         
-        public ActionResult LoadMaterialGrid()
+        public ActionResult LoadMaterialGrid(string headerId)
         {
             string sql = @"select distinct MM.Id, MM.Code MaterialCode ,MM.UserName Material, MC.UserName MaterialCategory, MGM.UserName MaterialGroup
-, MMA.Code ArticleCode,MMA.StandardName MaterialArticle
+, MMA.Code ArticleCode,MMA.StandardName MaterialArticle, MT.UserName MaterialType
 from MST.MaterialMaster MM
                             left join MST.MaterialGroupMaster MGM on MGM.Id = MM.MaterialGroupMasterId
+							left join HKP.MaterialType MT on MT.Id = MGM.MaterialTypeId
                             left join HKP.MaterialCategory MC on MC.ID = MM.MaterialCategoryId
 							left join MST.MaterialMasterArticle MMA on MMA.MaterialMasterId = MM.Id
                             where MM.Active = 1 and MGM.Active = 1 and MM.MaterialCategoryId is not null";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult LoadUtilityGrid()
+        public ActionResult LoadUtilityGrid(string headerId)
         {
-            string sql = @"select UM.Id, UM.UserName UtilityName, UM.StandardName UtilityStdName, UM.UtilityCategory, UM.UtilitySubCategory ,UOM.UserName UOM from UtilityMaster UM
+            string sql = "";
+            if (headerId != null)
+            {
+                sql = @"select PMU.Id, PMU.IsActive, PMU.IsActive Flag , PMU.[Min], PMU.[Max] , UM.Id, UM.UserName UtilityName, UM.StandardName UtilityStdName, UM.UtilityCategory, UM.UtilitySubCategory ,UOM.UserName UOM 
+from UtilityMaster UM
+left join [dbo].[ProcessManagementUtility] PMU on PMU.UtilityMasterId = UM.Id
+left join SCS.UnitOfMeasurement UOM on UOM.Id = UM.UoMId
+where UM.Active = 1 order by PMU.IsActive desc";
+            }
+            else
+            {
+                sql = @"select UM.Id, UM.UserName UtilityName, UM.StandardName UtilityStdName, UM.UtilityCategory, UM.UtilitySubCategory ,UOM.UserName UOM from UtilityMaster UM
                             left join SCS.UnitOfMeasurement UOM on UOM.Id = UM.UoMId
                             where UM.Active = 1";
+            }
+            
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -157,18 +171,18 @@ from MST.MaterialMaster MM
         }
 
         
-        public ActionResult LoadWorkCenterDetails()
+        public ActionResult LoadWorkCenterDetails(string processId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select WM.Id, WM.Code ,WM.UserName Workcenter, WC.UserName WorkcenterCategory, WCS.UserName WorkcenterSubCategory, P.UserName Process, WM.Capacity
-, UOM.UserName UOM 
+                            , UOM.UserName UOM 
                             from SCS.WorkCenterMaster WM
 							--LEFT JOIN [MST].[QualityManagementWorkCenter] QMW ON QMW.WorkCenterMasterId=WM.Id
 							LEFT JOIN HKP.WorkCenterCategory WC on WC.Id = WM.WorkCenterCategoryId
                             LEFT JOIN HKP.WorkCenterSubCategory WCS on WCS.Id = WM.WorkCenterSubcategoryId
                             left join HKP.Process P on P.Id = WM.ProcessId
                             LEFT JOIN SCS.UnitOfMeasurement UOM on UOM.Id = WM.UoMId 
-                            where WM.Active = 1 ";
+                            where WM.Active = 1 and WM.ProcessId = '"+ processId + "'-- and  WM.EntityId in ('118')";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
        
@@ -407,7 +421,7 @@ from MST.MaterialMaster MM
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsChild);
-                return Json(new { Error = false, Data = datalist, Sequence = GetSequence(), Message = AplosMessage.Insert });
+                return Json(new { Error = false, Data = datalist,  Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
@@ -445,7 +459,7 @@ from MST.MaterialMaster MM
                         DataRow dr = dv[0].Row;
                         dr.BeginEdit();
                         dr["ProcessManagementId"] = headerid;
-                        dr["MaterialId"] = item["Id"];
+                        dr["MaterialMasterId"] = item["Id"];
 
                         dr["IsActive"] = item["Flag"];
                         dr["UpdatedBy"] = identity.Name;
@@ -462,7 +476,7 @@ from MST.MaterialMaster MM
                         DataRow dr = dsChild.Tables[0].NewRow();
                         dr["Id"] = _UserGroupId;
                         dr["ProcessManagementId"] = headerid;
-                        dr["Id"] = item["MaterialId"];
+                        dr["MaterialMasterId"] = item["Id"];
 
                         dr["IsActive"] = item["Flag"];
                         dr["AddedBy"] = identity.Name;
@@ -475,7 +489,7 @@ from MST.MaterialMaster MM
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsChild);
-                return Json(new { Error = false, Data = datalist, Sequence = GetSequence(), Message = AplosMessage.Insert });
+                return Json(new { Error = false, Data = datalist, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
@@ -513,9 +527,10 @@ from MST.MaterialMaster MM
                         DataRow dr = dv[0].Row;
                         dr.BeginEdit();
                         dr["ProcessManagementId"] = headerid;
-                        dr["UtilityId"] = item["UtilityId"];
-
-                        // dr["IsActive"] = item["isSelected"];
+                        dr["UtilityMasterId"] = item["Id"];
+                        dr["Min"] = item["Min"];
+                        dr["Max"] = item["Max"];
+                        dr["IsActive"] = item["isSelected"];
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = identity.IPAddress;
@@ -530,9 +545,11 @@ from MST.MaterialMaster MM
                         DataRow dr = dsChild.Tables[0].NewRow();
                         dr["Id"] = _UserGroupId;
                         dr["ProcessManagementId"] = headerid;
-                        dr["UtilityId"] = item["UtilityId"];
-
-                        //dr["IsActive"] = item["isSelected"];
+                        dr["UtilityMasterId"] = item["Id"];
+                        dr["Min"] = item["Min"];
+                        dr["Max"] = item["Max"];
+                        //dr["Remarks"] = item["Remarks"];
+                        dr["IsActive"] = item["Flag"];
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
                         dr["AddedFromIP"] = identity.IPAddress;
@@ -543,7 +560,7 @@ from MST.MaterialMaster MM
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsChild);
-                return Json(new { Error = false, Data = datalist, Sequence = GetSequence(), Message = AplosMessage.Insert });
+                return Json(new { Error = false, Data = datalist, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
@@ -583,7 +600,7 @@ from MST.MaterialMaster MM
                         dr["ProcessManagementId"] = headerid;
                         dr["WorkcenterId"] = item["WorkcenterId"];
 
-                        // dr["IsActive"] = item["isSelected"];
+                        dr["IsActive"] = item["Flag"];
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = identity.IPAddress;
@@ -600,7 +617,7 @@ from MST.MaterialMaster MM
                         dr["ProcessManagementId"] = headerid;
                         dr["WorkcenterId"] = item["WorkcenterId"];
 
-                        //dr["IsActive"] = item["isSelected"];
+                        dr["IsActive"] = item["Flag"];
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
                         dr["AddedFromIP"] = identity.IPAddress;
@@ -611,7 +628,7 @@ from MST.MaterialMaster MM
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsChild);
-                return Json(new { Error = false, Data = datalist, Sequence = GetSequence(), Message = AplosMessage.Insert });
+                return Json(new { Error = false, Data = datalist, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
@@ -619,5 +636,238 @@ from MST.MaterialMaster MM
             }
 
         }
+
+        #region OWM
+        public ActionResult GetOWMData()
+        {
+            string sql = "select * from HKP.ProcessManagementOWM";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        public double GetSequenceOWM()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM hkp.ProcessManagementOWM");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
+        public ActionResult OWMSave(Dictionary<string,object>data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from HKP.ProcessManagementOWM where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("User Name already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from HKP.ProcessManagementOWM where StandardName='" + data["StandardName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Standard Name already exists!!!");
+
+
+
+                con.OpenDataSetThroughAdapter("select * from HKP.ProcessManagementOWM where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+
+
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(TableName), out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Error = false, Id = _Id, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+
+        #endregion OWM
+
+        #region GPL
+        public ActionResult GetGPLData()
+        {
+            string sql = @"select * from hkp.ProcessManagementGPL";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        public double GetSequenceGPL()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM hkp.ProcessManagementGPL");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+         }
+
+        public ActionResult GPLSave(Dictionary<string, object> data) 
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from HKP.ProcessManagementGPL where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("User Name already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from HKP.ProcessManagementGPL where StandardName='" + data["StandardName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Standard Name already exists!!!");
+
+
+
+                con.OpenDataSetThroughAdapter("select * from HKP.ProcessManagementGPL where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+
+
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(TableName), out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Error = false, Id = _Id, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpPost]
+        public ActionResult DeleteProcessManagementOWM(string id)
+        {
+            DeleteProcessManagementGPLData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        public void DeleteProcessManagementOWMData(string id)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+
+                strSQL = "DELETE FROM [HKP].[ProcessManagementOWM] WHERE Id = '" + id + "'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }
+
+        [HttpPost]
+        public ActionResult DeleteProcessManagementGPL(string id)
+        {
+            DeleteProcessManagementGPLData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+
+        public void DeleteProcessManagementGPLData(string id)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+
+                strSQL = "DELETE FROM [HKP].[ProcessManagementGPL] WHERE Id = '" + id + "'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
+        #endregion GPL
     }
 }

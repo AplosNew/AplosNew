@@ -33,6 +33,11 @@ using Library.Model.Parties;
 using Library.Model.Invoices;
 using Library.Model.Vouchers;
 using Library.Service.EmployeeServices;
+using Library.Service.Helpers;
+using System.Drawing;
+using Syncfusion.Pdf;
+using Syncfusion.ExcelToPdfConverter;
+//using OTSBD;
 
 namespace Aplos.Areas.SalesManagements.Controllers
 {
@@ -440,7 +445,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetPackingSalesDetailDataBySales(string salesId, string packingId,string smIds)
+        public ActionResult GetPackingSalesDetailDataBySales(string salesId, string packingId, string smIds)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
@@ -610,13 +615,13 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             {
                                 if (dsitemscanNew.Tables[0].Rows.Count == 0)
                                 {
-                                    DataRow dris= dsitemscanNew.Tables[0].NewRow();
+                                    DataRow dris = dsitemscanNew.Tables[0].NewRow();
                                     bplib.clsGenID id = new bplib.clsGenID();
                                     id.GenIDYearly(DateTime.Now.ToShortDateString(), "Item Scan", out string NewId);
 
                                     dris["Id"] = NewId;
                                     dris["WorkDate"] = ItemScandata["WorkDate"].ToString();
-                                    dris["Time"] =   Convert.ToDateTime(ItemScandata["WorkDate"].ToString() + " " + DateTime.Now.ToString("HH:mm:ss"));
+                                    dris["Time"] = Convert.ToDateTime(ItemScandata["WorkDate"].ToString() + " " + DateTime.Now.ToString("HH:mm:ss"));
                                     dris["ShiftId"] = ItemScandata["ShiftId"].ToString();
                                     dris["LocMasterId"] = ItemScandata["LocMasterId"].ToString();
                                     dris["PurposeId"] = ItemScandata["PurposeId"].ToString();
@@ -688,7 +693,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             dr["UpdatedBy"] = identity.Name;
             dt.Rows.Add(dr);
         }
-        
+
         private string GetSalesReturnPK()
         {
             string sID = string.Empty;
@@ -696,7 +701,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             materialCommonService.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "SalesReturn", out sID);
             return sID;
         }
-        
+
 
         [HttpGet, Authorize]
         public JsonResult GetSalesReturnLocationCbo()
@@ -705,12 +710,12 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
         public List<Dictionary<string, object>> GetSalesReturnLocationData()
         {
-                string sql = "";
-                sql = @"SELECT MMM.ToLocation [TEXT],MMM.Id [Value],MMM.PurposeId from MST.MaterialMovementMaster MMM 
+            string sql = "";
+            sql = @"SELECT MMM.ToLocation [TEXT],MMM.Id [Value],MMM.PurposeId from MST.MaterialMovementMaster MMM 
                         LEFT JOIN HKP.MaterialMovementPurpose MMP ON MMP.Id=MMM.PurposeId
                         WHERE MMP.UserName='Sales Return'";
-                return _sqlRepository.GetDataCollection(sql);
-            
+            return _sqlRepository.GetDataCollection(sql);
+
         }
 
         #endregion
@@ -1344,7 +1349,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         public JsonResult GetPostedMasterOrderSalesList(string column, string value, string FromDate, string ToDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            JsonResult json = Json(clsSales.GetMasterOrderSalesPostedList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value,FromDate,ToDate), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(clsSales.GetMasterOrderSalesPostedList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value, FromDate, ToDate), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
@@ -1835,14 +1840,14 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 {
                     DataSet dsMaster;
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.SalesAdditionalInfo Where SalesId='"+ salesId + "'", out dsMaster, false, "1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.SalesAdditionalInfo Where SalesId='" + salesId + "'", out dsMaster, false, "1");
 
                     foreach (var item in data)
                     {
-                        if (Convert.ToBoolean(item["Flag"])==true)
+                        if (Convert.ToBoolean(item["Flag"]) == true)
                         {
                             DataView dv = new DataView(dsMaster.Tables[0]);
-                            dv.RowFilter = "AdditionalInfoId='" + item["AdditionalInfoId"] + "' AND SalesId='"+ item["SalesId"] + "' ";
+                            dv.RowFilter = "AdditionalInfoId='" + item["AdditionalInfoId"] + "' AND SalesId='" + item["SalesId"] + "' ";
 
 
                             if (dv.Count == 0)
@@ -1856,7 +1861,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             {
                                 DataRow drmo = dv[0].Row;
                                 EditRow(drmo, item);
-                            } 
+                            }
                         }
                     }
 
@@ -1932,5 +1937,237 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
             return View();
         }
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetInvoiceReport(ReportFormat reportFormat, string Ids)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var reportFileName = "Invoice Report";
+                var fileName = GetInvoiceDataReport(reportFileName, Ids);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public string GetInvoiceDataReport(string SheetName, string Ids)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Data";
+                sheet = workbook.Worksheets[0];
+                DataTable dtOrder, dtParameter;
+                clsSales.GetMasterData(Ids, out dtOrder);
+                Dictionary<string, InvoiceParameter> shtListNew = null;
+                Dictionary<string, List<DataRow>> dicParameter = clsSales.GetParameterData(Ids, out dtParameter);
+                if (dtOrder.Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found.");
+                }
+                int ROW = 6; int COL = 1;
+
+                int endGenericColumn = 0;
+
+                #region ColumnsHeader
+
+                sheet[ROW, COL].Text = "InvoiceNo"; sheet[ROW, COL].ColumnWidth = 16; int colInvoiceNo = COL; COL++;
+                sheet[ROW, COL].Text = "VoucherNo"; sheet[ROW, COL].ColumnWidth = 16; int colVoucherNo = COL; COL++;
+                sheet[ROW, COL].Text = "PartyCode"; sheet[ROW, COL].ColumnWidth = 16; int colPartyCode = COL; COL++;
+                sheet[ROW, COL].Text = "Party"; sheet[ROW, COL].ColumnWidth = 16; int colParty = COL; COL++;
+                sheet[ROW, COL].Text = "Party Type"; sheet[ROW, COL].ColumnWidth = 35; int colPT = COL; COL++;
+                sheet[ROW, COL].Text = "BillTo"; sheet[ROW, COL].ColumnWidth = 25; int colBillTo = COL; COL++;
+                sheet[ROW, COL].Text = "DocRefNo"; sheet[ROW, COL].ColumnWidth = 12; int colDocRefNo = COL; COL++;
+                sheet[ROW, COL].Text = "Currency"; sheet[ROW, COL].ColumnWidth = 12; int colCurrency = COL; COL++;
+                sheet[ROW, COL].Text = "Amount"; sheet[ROW, COL].ColumnWidth = 8; int colAmount = COL;
+                endGenericColumn = COL;
+
+                CreateDynamicSHead(dtParameter, ref sheet, ref ROW, ref COL, ref colAmount, out shtListNew);
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                #endregion columns
+
+                ROW++;
+                int startRow = ROW;
+
+                #region DataPlot
+                for (int i = 0; i < dtOrder.Rows.Count; i++)
+                {
+                    sheet[ROW, colInvoiceNo].Text = dtOrder.Rows[i]["InvoiceNo"].ToString();
+                    sheet[ROW, colVoucherNo].Text = dtOrder.Rows[i]["VoucherNo"].ToString();
+                    sheet[ROW, colPartyCode].Text = dtOrder.Rows[i]["PartyCode"].ToString();
+                    sheet[ROW, colParty].Text = dtOrder.Rows[i]["PartyName"].ToString();
+                    sheet[ROW, colPT].Text = dtOrder.Rows[i]["PartyAccountGroup"].ToString();
+                    sheet[ROW, colBillTo].Text = dtOrder.Rows[i]["BillTo"].ToString();
+                    sheet[ROW, colDocRefNo].Text = dtOrder.Rows[i]["DocRefNo"].ToString();
+                    sheet[ROW, colCurrency].Text = dtOrder.Rows[i]["CurrencyCode"].ToString();
+                    sheet[ROW, colAmount].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["Amount"].ToString());
+
+                    if (dicParameter.ContainsKey(dtOrder.Rows[i]["InvoiceNo"].ToString()))
+                    {
+                        List<DataRow> drSalaryHeadCollection = dicParameter[dtOrder.Rows[i]["InvoiceNo"].ToString()];
+                        for (int CI = 0; CI < drSalaryHeadCollection.Count; CI++)
+                        {
+                            try
+                            {
+                                InvoiceParameter xx = shtListNew[drSalaryHeadCollection[CI]["AdditionalInfoId"].ToString()];
+                                if (xx != null)
+                                {
+                                    if (xx.CharecterType== "Decimal")
+                                    {
+                                        sheet.Range[ROW, xx.XLColIndex].Number = Library.Security.Core.clsStaticInfo.dbl(drSalaryHeadCollection[CI]["Value"].ToString());
+                                        sheet.Range[ROW, xx.XLColIndex].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                                        sheet.Range[ROW, xx.XLColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    }
+                                    else
+                                    {
+                                        sheet.Range[ROW, xx.XLColIndex].Text = drSalaryHeadCollection[CI]["Value"].ToString();
+                                        sheet.Range[ROW, xx.XLColIndex].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+
+                                throw ex;
+                            }
+
+                        }
+                    }
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+                #endregion
+
+                #region ReportHeader
+                IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
+                table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Production Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+                #endregion
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+                //return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private void CreateDynamicSHead(DataTable dtSalaryHead, ref IWorksheet sheet1, ref int xlsRow, ref int xlsCol, ref int ColGrs, out Dictionary<string, InvoiceParameter> list)
+        {
+            try
+            {
+                list = new Dictionary<string, InvoiceParameter>();
+                int countGrossPostion = 0;
+
+
+                xlsCol += 0;
+                countGrossPostion++;
+
+                int countCTCPosition = countGrossPostion;
+
+                for (int ci = 0; ci < dtSalaryHead.Rows.Count; ci++)
+                {
+                    xlsCol++;
+                    #region loop ctc
+                    if (dtSalaryHead.Rows[ci]["UserName"].ToString().Trim().Length > 0)
+                    {
+
+                        sheet1.Range[xlsRow, ColGrs + countCTCPosition].Text = dtSalaryHead.Rows[ci]["UserName"].ToString();
+                        sheet1.Range[xlsRow, ColGrs + countCTCPosition].CellStyle.Font.FontName = "Arial Narrow";
+                        sheet1.Range[xlsRow, ColGrs + countCTCPosition].CellStyle.Font.Size = 10;
+                        sheet1.Range[xlsRow, ColGrs + countCTCPosition].CellStyle.ShrinkToFit = true;
+
+                        InvoiceParameter HeadSequence = new InvoiceParameter();
+
+                        HeadSequence.AdditionalInfoId = dtSalaryHead.Rows[ci]["AdditionalInfoId"].ToString();
+                        HeadSequence.UserName = dtSalaryHead.Rows[ci]["UserName"].ToString();
+                        HeadSequence.CharecterType = dtSalaryHead.Rows[ci]["CharecterType"].ToString();
+
+                        HeadSequence.XLColIndex = ColGrs + countCTCPosition;
+
+                        list.Add(dtSalaryHead.Rows[ci]["AdditionalInfoId"].ToString(), HeadSequence);
+                        countCTCPosition++;
+
+
+
+                    }//Parameter 
+                    #endregion
+
+                }//for
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+    }
+
+    public class InvoiceParameter
+    {
+        public string Invoiced { get; set; }
+        public string AdditionalInfoId { get; set; }
+        public string CharecterType { get; set; }
+        public string UserName { get; set; }
+        public string Value { get; set; }
+        public int XLColIndex { get; set; }
     }
 }

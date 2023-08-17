@@ -1450,7 +1450,7 @@ namespace Library.OrderManagement.Production
 
         public IEnumerable<object> GetQualityCompletePOList(string IssueId)
         {
-            string sql = @"SELECT distinct QC.ProductionOrderId POId,QC.LotNumber,Article=STUFF((select distinct ','+MMA.StandardName  from 
+            string sql = @"SELECT distinct QC.ProductionOrderId POId,Article=STUFF((select distinct ','+MMA.StandardName  from 
                                                                  trn.SalesOrder XSO 
                                                                  JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 						                                         LEFT JOIN trn.MasterOrderItem moi ON moi.Id = XSO.MasterOrderItemId
@@ -1466,7 +1466,7 @@ namespace Library.OrderManagement.Production
 			                                                    where QC.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 										                        ,'&amp;','&'), 'amp;', '')	
  FROM TRN.QualityControl QC
- where QC.IssueId='" + IssueId + "'";
+ where QC.IssueId='" + IssueId + "' and ProductionOrderId is not null";
 
             return _sqlRepository.GetDataCollection(sql);
         }
@@ -4113,7 +4113,7 @@ left join MST.QualityManagementMaster QMM on QMM.Id=QID.IssueNameId
 left join org.Entity E on E.Id=QID.EntityId
 left join hkp.Process P on P.Id=QID.ProcessId
 order by (select top 1 AddedDate + QID.CheckingInterval from TRN.QualityControl where IssueId=QID.IssueNameId order by AddedDate asc) asc";
-             return _sqlRepository.GetDataCollection(sql);
+              return _sqlRepository.GetDataCollection(sql);
         }
 
         public IEnumerable<object> GetSFGMovementFromCbo(string entity)
