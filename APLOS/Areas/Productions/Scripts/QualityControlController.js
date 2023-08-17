@@ -26,7 +26,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
 
     var date = new Date(), y = date.getFullYear(), m = date.getMonth();
-    date.setDate(date.getDate() + 7);
+    date.setDate(date.getDate());
     var CurrentDate = new Date();
 
     $scope.CriticalLevelLists = [
@@ -88,6 +88,11 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     };
     $scope.POCompleteNew = Object.assign({}, $scope.POComplete);
 
+    $scope.POIssue = {
+        ToDate: $filter('dateFiltering')(date, 'dd-MM-yyyy')
+    };
+    $scope.POIssueNew = Object.assign({}, $scope.POIssue);
+
     $scope.POSummary = {
         Id: null,
         //FromDate: $filter('dateFiltering')(CurrentDate, 'dd-MM-yyyy'),
@@ -129,7 +134,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.ProcessQualityPlan = function () {
         try {
             $scope.QualityPlanList = [];
-            $http.get('Productions/QualityControl/LoadQualityPlan')
+            $http.get('Productions/QualityControl/LoadQualityPlan?POIssueDate='+$scope.POIssueNew.ToDate)
                 .then(function (response) {
                     $scope.QualityPlanList = response.data;
                 });
@@ -1106,7 +1111,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         try {
             $scope.SaveList = [];
             for (var i = 0; i < $scope.wcList.length; i++) {
-                if (!baseService.isUndefinedOrNull($scope.wcList[i].Value)) {
+                if (!baseService.isUndefinedOrNull($scope.wcList[i].Value) && !baseService.isUndefinedOrNull($scope.wcList[i].IsWorkCenter)) {
                     $scope.SaveList.push($scope.wcList[i]);
                 }
             }
@@ -1140,6 +1145,9 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         try {
             if (baseService.isUndefinedOrNull(data.data.Value)) {
                 throw "Please enter Value and proceed";
+            }
+            if (baseService.isUndefinedOrNull(data.data.IsWorkCenter)) {
+                throw "Please select workcenter and proceed";
             }
             data.data.QCId = $scope.QCId;
             $http({
@@ -1990,6 +1998,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         try {
             ValidationPreMaster();
             $scope.SaveQC();
+            $scope.SaveGI();
             $scope.SetGo(isdisabled);
             if ($scope.IsParameterBased == true) {
                 $scope.IsVisible = false;
@@ -2147,6 +2156,22 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
 
     };
 
+    $scope.CompletePOList = [];
+    $scope.getCompletePOPopUp = function () {
+        $scope.CompletePOList = [];
+        $http.get('Productions/QualityControl/GetQualityCompletePOList?IssueId=' + $scope.POCompleteNew.POIssueId)
+            .then(
+                function successCallback(response) {
+                    $scope.CompletePOList = response.data;
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
+        angular.element(document.querySelector('#CompletePOPopup')).modal('show');
+
+    };
+
 
     $scope.SetPrOData = function ($event) {
         $scope.productionSummaryNew.ProductionOrderId = $event.data.POId;
@@ -2154,6 +2179,12 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
         $scope.GetQBookingLevel();
     }
+
+    $scope.SetCompletePOData = function ($event) {
+        $scope.POCompleteNew.POId = $event.data.POId;
+        angular.element(document.querySelector('#CompletePOPopup')).modal('hide');
+    }
+
     $scope.POItemId = null;
     $scope.SetPOSelectData = function ($event) {
         $scope.productionSummaryNew.ProductionOrderId = $event.data.POId;

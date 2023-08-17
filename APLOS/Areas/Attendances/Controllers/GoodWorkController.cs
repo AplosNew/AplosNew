@@ -107,7 +107,7 @@ namespace Aplos.Areas.Attendances.Controllers
 						 LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
                          LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
                          LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-                         WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec +@"  " + dep + @"  " + sec +@"   " + subsec +@"   " + des + @" " + userGr +@"
+                         WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec + @"  " + dep + @"  " + sec + @"   " + subsec + @"   " + des + @" " + userGr + @"
                          ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
             }
             catch (Exception ex)
@@ -120,7 +120,13 @@ namespace Aplos.Areas.Attendances.Controllers
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
-
+        [HttpGet, Authorize]
+        public ActionResult GetAllActiveEmpData()
+        {
+            JsonResult json = Json(clsSales.GetAllEmployeeData(), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
         [HttpGet, Authorize]
         public ActionResult GetEmployeeCategoryList()
         {
@@ -224,15 +230,15 @@ namespace Aplos.Areas.Attendances.Controllers
                             DataRow drmo = dv[0].Row;
                             drmo.BeginEdit();
                             drmo["Id"] = detailid;
-                            drmo["goodWorkId"] = _MasterId;
-                            drmo["EmpSystemId"] = item["SystemId"];
-                            drmo["FromTime"] = item["FromTime"];
-                            drmo["ToTime"] = item["ToTime"];
-                            drmo["Purpose"] = item["Purpose"];
-                            drmo["PurposeCategory"] = item["PurposeCategory"];
-                            drmo["ApprovedById"] = item["ApprovedById"];
-                            drmo["Minute"] = item["CalculatedTime"];
-                            drmo["Remarks"] = item["Remarks"];
+                            //drmo["goodWorkId"] = _MasterId;
+                            //drmo["EmpSystemId"] = item["SystemId"];
+                            //drmo["FromTime"] = item["FromTime"];
+                            //drmo["ToTime"] = item["ToTime"];
+                            //drmo["Purpose"] = item["Purpose"];
+                            //drmo["PurposeCategory"] = item["PurposeCategory"];
+                            //drmo["ApprovedById"] = item["ApprovedById"];
+                            //drmo["Minute"] = item["CalculatedTime"];
+                            //drmo["Remark"] = item["Remark"];
                             drmo.EndEdit();
 
                         }
@@ -273,9 +279,10 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult GetGoodWorkList()
         {
-            string sql = @"select GW.Id,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,S.UserName Shift,GW.Remarks
+            string sql = @"select GW.Id,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,S.UserName Shift,GW.Remarks,gwd.EmpSystemId
                                     from GoodWork GW
-                                    left join ShiftDefination S on S.SystemId=GW.ShiftId";
+                                    left join ShiftDefination S on S.SystemId=GW.ShiftId
+                                    LEFT JOIN GoodWorkDetail AS gwd ON gwd.GoodWorkId=GW.Id";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -298,8 +305,9 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             string str = @"select GWD.Id,EI.SystemId,EI.EmployeeCode,EI.EmployeeName
 							,format(GWD.FromTime,'hh:m') FromTime,format(GWD.ToTime,'hh:m') ToTime,GWD.Minute CalculatedTime
-							,GWD.Purpose,GWD.PurposeCategory,EmI.SystemId ApprovedById,EmI.EmployeeCode ApprovedByCode
-                            ,EmI.EmployeeName ApprovedByName,GWD.[Minute],GWD.Remarks
+							,GWD.Purpose,GWD.PurposeCategory--,wa.Remarks
+                            ,EmI.SystemId ApprovedById,EmI.EmployeeCode ApprovedByCode
+                            ,EmI.EmployeeName ApprovedByName,GWD.[Minute],GWD.Remark
 							,S.UserName Section,SS.UserName SubSection,DEPT.UserName Department
                             from GoodworkDetail GWD 
                             left join EmployeeInformation EI on EI.SystemId=GWD.EmpSystemId
@@ -421,22 +429,40 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         #region Payable Creation and Worker Advance
-        
+
         [HttpGet, Authorize]
         public ActionResult GetWorkerAdvanceList()
         {
-            string sql = @"select * from [dbo].[WorkerAdvance]";
-
+            string sql = @"select wa.Id,FORMAT(FromDate,'dd-MMM-yy')FromDate,FORMAT(ToDate,'dd-MMM-yy')ToDate,UserRef
+						        ,NoOfDays,Percentage,wa.Remarks
+                                ,ei.SystemId PreparedById,ei.EmployeeName PreparedBy
+						        ,ei2.SystemId CheckedById,ei2.EmployeeName CheckedBy
+						        ,ei3.SystemId ApprovedById,ei3.EmployeeName ApprovedBy
+                                  from [dbo].[WorkerAdvance] wa
+                                  LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId=wa.PreparedById
+                                  LEFT JOIN dbo.EmployeeInformation AS ei2 ON ei2.SystemId=wa.CheckedById
+                                  LEFT JOIN dbo.EmployeeInformation AS ei3 ON ei3.SystemId=wa.ApprovedById";
+             
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult GetWorkerAdvanceDetailCenter(string workAdvanceId)
         {
-            string str = @"select wad.Id workAdvanceDetailId,wa.Id workAdvanceId,ei.EmployeeName,wad.PayDays,wad.Amount
+            string str = @"select ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,s.UserName Section,ss.UserName SubSection,wad.Id
+							,wa.Id workAdvanceId,d.UserName Department,wad.PayDays,wad.Amount,x.[Basic]
                             from [dbo].[WorkerAdvanceDetail] wad
                             left join [dbo].[WorkerAdvance] wa on wa.Id=wad.WorkerAdvanceId
                             left join EmployeeInformation ei on ei.SystemId=wad.EmpSystemId
+                            left join org.Section AS s ON s.Id=ei.SectionId
+                            left join org.SubSection AS ss ON ss.Id=ei.SubSectionId
+                            left join org.Department d on d.Id=ei.DepartmentId
+                            LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = ei.SystemId
+                            LEFT JOIN (SELECT SID.DefineAmount Basic,SH.SalaryHead,SID.SalaryID
+                                      FROM SalaryInfoDefine SID 
+                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+                                      WHERE SH.HeadCategory='Basic')x ON x.SalaryID = SIDM.SystemID
                             where wad.WorkerAdvanceId in ('" + workAdvanceId + "')";
+
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
@@ -504,9 +530,9 @@ namespace Aplos.Areas.Attendances.Controllers
                             string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
                             DataRow drmo = dv[0].Row;
                             drmo.BeginEdit();
-                            drmo["Id"] = detailid;
+                            
                             drmo["WorkerAdvanceId"] = _MasterId;
-                            drmo["EmpSystemId"] = item["SystemId"];
+                            drmo["EmpSystemId"] = item["EmpSystemId"];
                             drmo["PayDays"] = item["PayDays"];
                             drmo["Amount"] = item["Amount"];
 
@@ -528,12 +554,35 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
 
-        [HttpGet]
-        public ActionResult LoadPCAACEmployeelist()
+        [HttpPost]
+        public ActionResult LoadPCAACEmployeelist(string fromDate,string toDate,string payDaysType)
         {
             string sql = string.Empty;
             try
             {
+                string pDays = null;
+                if (payDaysType== "FinalOT")
+                {
+                    pDays = @"LEFT JOIN(select (SUM(NormalOTHr)/24) PayDays,EmpSystemID  from finalOT 
+                            where WorkDate between '" + fromDate + @"' and '" + toDate + @"'
+                            GROUP BY EmpSystemID)y on y.EmpSystemID = EI.SystemId ";
+                }
+                else if (payDaysType == "GoodWork")
+                {
+                    pDays = @"LEFT JOIN(select (SUM(Minute)/1440) PayDays,EmpSystemID  
+							from GoodWorkDetail gwd
+							LEFT JOIN GoodWork AS gw ON gw.Id=gwd.GoodWorkId
+                            where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"'
+                            GROUP BY EmpSystemID)y on y.EmpSystemID = EI.SystemId ";
+                }
+                else
+                {
+                    pDays = @"LEFT JOIN(  select SUM(PayDayValue) PayDays,EmpSystemID  
+							from AttdnProcessData 
+                            where WorkDate between '01-Apr-2021' and '30-Apr-2021'
+                            GROUP BY EmpSystemID)y on y.EmpSystemID = EI.SystemId ";
+                }
+
                 sql = @"SELECT '' Id,0 CheckBoxSelect, EI.SystemId
                          ,EI.EmployeeCode
                          ,EI.EmployeeName,ei.EmployeeCodePreFix,ei.EmployeeCodeNumeric
@@ -544,7 +593,8 @@ namespace Aplos.Areas.Attendances.Controllers
                          ,S.UserName Section,SS.UserName SubSection, DP.UserName Department
                          , PMB.Code,PR.UserName PositionName
                          ,EI.EmployeeStatus
-						 ,OTTitle = case when EI.ExcludeOT=0 then 'Yes' else 'No' end
+						 ,OTTitle = case when EI.ExcludeOT=0 then 'Yes' else 'No' END
+						 ,x.DefineAmount Basic,x.SalaryHead,y.PayDays
                          FROM dbo.Employeeinformation EI
                          LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
                          LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
@@ -558,7 +608,13 @@ namespace Aplos.Areas.Attendances.Controllers
 						 LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
                          LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
                          LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-                         where EI.employeeCode<>''
+                         LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
+                         LEFT JOIN (SELECT SID.DefineAmount,SH.SalaryHead,SID.SalaryID
+                                      FROM SalaryInfoDefine SID 
+                         LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+                                    WHERE SH.HeadCategory='Basic')x ON x.SalaryID = SIDM.SystemID
+                         " + pDays +@"
+                         where EI.employeeCode<>''  
                          ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
             }
             catch (Exception ex)
@@ -571,12 +627,112 @@ namespace Aplos.Areas.Attendances.Controllers
             return json;
         }
 
-
-        [Authorize, HttpPost]
-        public ActionResult GetAmount(string data)
+        public ActionResult DeleteWorkerAdvanceChildUrl(string Id)
         {
-            var ts = 0; /*Basic / 26 * PayDays * Percentage;*/
-            return Json(ts, JsonRequestBehavior.AllowGet);
+            try
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.WorkerAdvanceDetail where Id='" + Id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+ 
+
+        public class WorkerAdvanceTransaction
+        {
+            #region Scalar Properties
+            public int Percentage { get; set; }
+
+            #endregion Scalar Properties
+
+            #region Audit Properties
+
+            /// <summary>
+            ///This is  AddedBy.Who add data keep track by AddedBy.
+            /// </summary>
+            [NeverUpdate]
+            public string AddedBy { get; set; }
+
+            /// <summary>
+            ///This is  AddedDate.Added date keep track by AddedDate.
+            /// </summary>
+            [NeverUpdate]
+            public DateTime AddedDate { get; set; }
+
+            /// <summary>
+            /// Record insert by user from IP address.
+            /// </summary>
+            [NeverUpdate]
+            public string AddedFromIP { get; set; }
+
+            /// <summary>
+            /// Record updated user name.
+            /// </summary>
+            public string UpdatedBy { get; set; }
+
+            /// <summary>
+            /// Record updated by user date and time.
+            /// </summary>
+            public DateTime? UpdatedDate { get; set; }
+
+            /// <summary>
+            /// Record updated by user IP address.
+            /// </summary>
+            public string UpdatedFromIP { get; set; }
+
+            #endregion Audit Properties
+        }
+        public class WorkerAdvanceDetailTransaction
+        {
+            #region Scalar Properties
+            public double Basic { get; set; }
+            public int PayDays { get; set; }
+
+            #endregion Scalar Properties
+
+            #region Audit Properties
+
+            /// <summary>
+            ///This is  AddedBy.Who add data keep track by AddedBy.
+            /// </summary>
+            [NeverUpdate]
+            public string AddedBy { get; set; }
+
+            /// <summary>
+            ///This is  AddedDate.Added date keep track by AddedDate.
+            /// </summary>
+            [NeverUpdate]
+            public DateTime AddedDate { get; set; }
+
+            /// <summary>
+            /// Record insert by user from IP address.
+            /// </summary>
+            [NeverUpdate]
+            public string AddedFromIP { get; set; }
+
+            /// <summary>
+            /// Record updated user name.
+            /// </summary>
+            public string UpdatedBy { get; set; }
+
+            /// <summary>
+            /// Record updated by user date and time.
+            /// </summary>
+            public DateTime? UpdatedDate { get; set; }
+
+            /// <summary>
+            /// Record updated by user IP address.
+            /// </summary>
+            public string UpdatedFromIP { get; set; }
+
+            #endregion Audit Properties
         }
 
         #endregion Payable Creation and Worker Advance

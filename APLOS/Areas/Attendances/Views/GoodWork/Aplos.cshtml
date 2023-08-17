@@ -103,12 +103,6 @@
             </div>
         </div>
         <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">Calculated Minute<sup>*</sup></label>
-            <div class="col-sm-6 show-message">
-                <input type="number" class="form-control" name="CalculatedTime" ng-model="ModelNew.CalculatedTime" e-width="100" disabled />
-            </div>
-        </div>
-        <div class="form-group" show-errors>
             <label class="col-sm-3 control-label">User Group<sup>*</sup></label>
             <div class="col-sm-6 show-message"> 
                 <div class="select-style">
@@ -117,6 +111,12 @@
                         <option ng-repeat="option in UserGroupList" value="{{option.Id}}">{{option.UserReportGroup}}</option>
                     </select>
                 </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Calculated Minute<sup>*</sup></label>
+            <div class="col-sm-6 show-message">
+                <input type="number" class="form-control" name="CalculatedTime" ng-model="ModelNew.CalculatedTime" e-width="100" disabled />
             </div>
         </div>
 
@@ -175,7 +175,7 @@
                             <button ng-click="clearEmp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                         </span>
                     </td>
-                    <td><input type="text" name="Remarks" ng-model="x.Remarks" class="form-control" maxlength="15" required tabindex="3"></td>
+                    <td><input type="text" name="Remarks" ng-model="x.Remark" class="form-control" maxlength="15" required tabindex="3"></td>
                     <td><input type="number" class="form-control" name="CalculatedTime" ng-model="x.CalculatedTime" e-width="100" disabled /></td>
                     <td>{{x.Section}}</td>
                     <td>{{x.SubSection}}</td>

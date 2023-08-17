@@ -274,7 +274,8 @@ from [MST].[QualityIssueDetails] ID where ID.Id='" + IssueId + @"'";
             {
 
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityIssueDetails] where IssueName='" + IssueData["IssueName"] + "' and ProcessId='" + IssueData["ProcessId"] + "'", out DataSet dsItemDetailsIssueNameValidation, false, "1");
+                //conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityIssueDetails] where IssueNameId='" + IssueData["IssueNameId"] + "' and EntityId='" + IssueData["EntityId"] + "' and ProcessId='" + IssueData["ProcessId"] + "'", out DataSet dsItemDetailsIssueNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityIssueDetails] where IssueNameId='" + IssueData["IssueNameId"] + "'", out DataSet dsItemDetailsIssueNameValidation, false, "1");
 
                 DataSet dsIssueDetails;
 
@@ -287,7 +288,7 @@ from [MST].[QualityIssueDetails] ID where ID.Id='" + IssueId + @"'";
                 {
                     if (dsItemDetailsIssueNameValidation.Tables[0].Rows.Count > 0)
                     {
-                        throw new Exception("Issue Name Already Exist.");
+                        throw new Exception("This Information Already Exist.");
                     }
                     else
                     {

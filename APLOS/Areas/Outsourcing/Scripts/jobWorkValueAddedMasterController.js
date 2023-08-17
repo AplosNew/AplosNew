@@ -1,7 +1,7 @@
 ﻿'use strict';
 jobWorkValueAddedMasterController.$inject = ['addressService', '$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', '$controller'];
 function jobWorkValueAddedMasterController(addressService, $window, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
-    $rootScope.title = "Job Work Value Added Master";
+    $rootScope.title = "Jobwork/Outsource Value Added Master";
     $scope.Action = 'Save';
     $scope.path = 'Outsourcing/JobWorkValueAddedMaster/';
     $controller("currencyBaseController", { $scope: $scope, $http: $http });

@@ -985,10 +985,10 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
-        public List<QualityPOIssue> GetQualityPOWiseIssue()
+        public List<QualityPOIssue> GetQualityPOWiseIssue(string POIssueDate)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetQualityPOWiseIssue(out List<QualityPOIssue> activelists);
+            clsData.GetQualityPOWiseIssue(out List<QualityPOIssue> activelists, POIssueDate);
             return activelists;
         }
         #endregion Quality control 

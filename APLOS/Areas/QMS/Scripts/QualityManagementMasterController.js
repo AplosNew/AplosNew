@@ -111,6 +111,8 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         , ResponsiblePersoneBgtCodeId: null
         , ResponsiblePersoneBgtCode: null
         , Remarks: null
+        , StandardTime: null
+        , MaximumTime: null
     };
     $scope.scheduleNew = Object.assign({}, $scope.schedule);
 
@@ -366,6 +368,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         , UOM: null
         , Max: null
         , Min: null
+        , IsWorkCenter: true
     };
     $scope.ItemNew = Object.assign({}, $scope.Item);
 
@@ -491,10 +494,10 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         });
     };
 
-    $scope.ParameterDelete = function () {
+    $scope.CheckPointDelete = function () {
         $http({
             method: 'POST',
-            url: 'QMS/QualityManagementMaster/ParameterDelete?id=' + $scope.ParameterNew.Id,
+            url: 'QMS/QualityManagementMaster/CheckPointDelete?id=' + $scope.ParameterNew.Id,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {

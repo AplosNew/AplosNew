@@ -1,7 +1,7 @@
 ﻿'use strict';
 JobWorkItemController.$inject = ['addressService', '$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', '$controller'];
 function JobWorkItemController(addressService, $window, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
-    $rootScope.title = "Job Work Item";
+    $rootScope.title = "Jobwork/Outsource Item";
     $scope.Action = 'Save';
     $scope.path = 'Outsourcing/JobWorkItem/';
 
