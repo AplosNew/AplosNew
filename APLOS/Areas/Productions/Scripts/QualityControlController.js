@@ -2174,7 +2174,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
 
 
     $scope.SetPrOData = function ($event) {
-        $scope.POCompleteNew.ProductionOrderId = $event.data.POId;
+        $scope.productionSummaryNew.ProductionOrderId = $event.data.POId;
         $scope.productionSummaryNew.Article = $event.data.Article;
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
         $scope.GetQBookingLevel();
