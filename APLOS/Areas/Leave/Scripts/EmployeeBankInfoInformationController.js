@@ -49,7 +49,10 @@ function EmployeeBankInfoInformationController(commonMessage, $scope, $rootScope
         BankAccNo: null,
         SalaryPercentage: 0,
         IsApproved: false,
-        ApprovedDateTime: 0
+        ApprovedDateTime: 0,
+        PaymentMode: null,
+        IFSCCode:null,
+        MICRCode:null
     }
 
     $scope.employeeInfo = {};
@@ -78,6 +81,12 @@ function EmployeeBankInfoInformationController(commonMessage, $scope, $rootScope
         var Bankinfo = obj.data;
         $scope.BankInfo.UserName = Bankinfo.UserName;
         $scope.BankInfo.BankBranch = Bankinfo.BankBranch;
+
+        $scope.EmpBankInfoModel.UserName = Bankinfo.UserName;
+        $scope.EmpBankInfoModel.BankBranch = Bankinfo.BankBranch;
+        $scope.EmpBankInfoModel.BankSystemID = Bankinfo.BankSystemID;
+        $scope.EmpBankInfoModel.BankBranchId = Bankinfo.BankBranchId;
+
         angular.element(document.querySelector('#BankInFoPopUp')).modal('hide');       
     };
 
@@ -126,7 +135,10 @@ function EmployeeBankInfoInformationController(commonMessage, $scope, $rootScope
     $scope.Save = function () {
         try {
             $scope.EmpBankInfoModel.EmpSystemId = $scope.employeeInfo.EmpSystemID
-            ValidationMaster();
+            //ValidationMaster();
+            if ($scope.EmpBankInfoModel.SalaryPercentage > 100) {
+                throw "Salary percentage can't greater than 100";
+            }
             if ($scope.OffDutyHoursForm.$valid) {
                 if ($scope.Action === 'Save') {
                     $http({

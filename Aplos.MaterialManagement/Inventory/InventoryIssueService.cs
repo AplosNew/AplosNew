@@ -2122,7 +2122,7 @@ namespace Library.MaterialManagement.Inventory
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
-                var sql = @"select  top (3500) Temp.* from (SELECT II.Id,II.Id IssueNo, II.IssueDate,II.Remarks,II.EntityId,E.UserName  EntityName,II.IssueType
+                var sql = @"select  top (500) Temp.* from (SELECT II.Id,II.Id IssueNo, II.IssueDate,II.Remarks,II.EntityId,E.UserName  EntityName,II.IssueType
                                     ,EI.EmployeeCode+' - '+EI.EmployeeName EmployeeName,SUM(IID.TransactionQty) Qty,SUM(IID.PolicyAmount) Amount
                                     ,ii.OrderRefNo, IsOrderSpecificy=  CASE WHEN ii.OrderRefNo <> '' THEN 1 ELSE 0 END,II.[Types]
 									,SourceNo=II.JWContractId,JW.ContractId,LC.LCRef,Customer=P.Code+' '+P.UserName 
