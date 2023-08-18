@@ -213,10 +213,16 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["RosterShiftID"] = clsWebLib.RetValidLen(RosterShift);
                                 dr["ProfileShiftID"] = clsWebLib.RetValidLen(ProfileShift);
                                 dr["BudgetedShiftID"] = clsWebLib.RetValidLen(BudgetShift);
-                                dr["BudgetId"] = clsWebLib.RetValidLen(BudgetId);
+                                if (string.IsNullOrEmpty(dr["BudgetId"].ToString()))
+                                {
+                                    dr["BudgetId"] = clsWebLib.RetValidLen(BudgetId); 
+                                }
                                 dr["RosterId"] = clsWebLib.RetValidLen(RosterId);
                                 dr["PlantInPunchStartTime"] = clsWebLib.RetValidLen(PlantInPunchStartTime);
-                                dr["GivenDesignationId"] = clsWebLib.RetValidLen(GivenDesignationId);
+                                if (string.IsNullOrEmpty(dr["GivenDesignationId"].ToString()))
+                                {
+                                    dr["GivenDesignationId"] = clsWebLib.RetValidLen(GivenDesignationId); 
+                                }
                                 #region ManualData Entry
                                 if (clsWebLib.RetValidLen(ManualInTime).ToString() != "")
                                 {

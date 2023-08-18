@@ -734,7 +734,7 @@ where QID.IssueType in ('Order','General') " + QCDate + " " + QCProcess + " " + 
             }
             if (fromDate != "null" && todate != "null" && fromDate != "undefined" && todate != "undefined")
             {
-                QCDate = @"and CONVERT(DATE,QC.AddedDate)  between '" + fromDate + "' and '" + todate + "'";
+                QCDate = @"CONVERT(DATE,QC.AddedDate)  between '" + fromDate + "' and '" + todate + "'";
             }
             
             var sql = @"select distinct QC.Id TransactionHeaderId,(select SNO from MST.QualityIssueItem where Id=QCD.ItemId) as ParameterSNO,format(QC.AddedDate,'dd-MMM-yyyy') as ActualDate,
@@ -813,7 +813,7 @@ left join (select Sum(QD.Value) ProducedQty,Q.ProductionOrderId from TRN.Quality
 left join TRN.QualityControl Q on Q.Id=QD.QCId
 GROUP BY Q.ProductionOrderId
 ) AS ProdQ ON ProdQ.ProductionOrderId = QC.ProductionOrderId
-where QCD.Id is not null " + QCDate + "  " + QCIssue + " " + QCPONO + "";
+where " + QCDate + "  " + QCIssue + " " + QCPONO + "";
              return _sqlRepository.GetDataCollection(sql);
         }
 

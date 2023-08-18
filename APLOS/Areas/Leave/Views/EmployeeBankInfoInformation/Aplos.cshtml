@@ -74,7 +74,13 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label">Account No</label>
                 <div class="col-sm-6">
-                    <input type="text" ng-model="EmpBankInfoModel.ShiftDefinationDescription" class="form-control" maxlength="100" tabindex="2" only-numbers>
+                    <input type="text" ng-model="EmpBankInfoModel.BankAccNo" class="form-control" maxlength="100" tabindex="2" only-numbers>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">IFSCCode</label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="EmpBankInfoModel.IFSCCode" class="form-control" maxlength="100" tabindex="2">
                 </div>
             </div>
 
@@ -100,11 +106,11 @@
                 <label class="col-sm-4 control-label">Payment Mode<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select id="LeaveTypeID" class="form-control" ng-model="LeaveTypeModel.LeaveType" name="Leave Type" required tabindex="1">
+                        <select id="PaymentMode" class="form-control" ng-model="EmpBankInfoModel.PaymentMode" name="Payment Mode" required tabindex="1">
                             <option value="">-Select-</option>
                             <option Value="Bank">Bank</option>
                             <option Value="Check">Check</option>
-                            <option Value="Maternity">Cash</option>
+                            <option Value="Cash">Cash</option>
                             <option Value="Transfer">Transfer</option>
                         </select>
                     </div>
