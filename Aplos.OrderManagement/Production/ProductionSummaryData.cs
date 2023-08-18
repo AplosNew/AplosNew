@@ -4077,7 +4077,7 @@ left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
 where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 PS.UserName as POStatus,
-QPC.QPEmployeeId,(select EmployeeName from EmployeeInformation where SystemId=QPC.QPEmployeeId) as QPEmployee
+isnull(QPC.QPEmployeeId,PD.ResponsiblePersonId) as QPEmployeeId,isnull((select EmployeeName from EmployeeInformation where SystemId=QPC.QPEmployeeId),(select EmployeeName from EmployeeInformation where SystemId=PD.ResponsiblePersonId)) as QPEmployee
 from TRN.ProductionOrder PO
 left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
 left join MST.POQualityPlanDetails PD on 1=1
@@ -4106,7 +4106,7 @@ format(DATEADD(hour, QID.CheckingInterval, CAST((select top 1 AddedDate from TRN
 E.Id  EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,QID.IssueNameId IssueId,QID.Id DefineIssueId,
 QMM.UserName QGIssue,
 reverse(stuff(reverse((select EI.EmployeeName + ',' from EmployeeInformation EI where EmployeeStatus='Active' and PositionID in (select PositionCodeId from MST.QualityManagementPositionCode where QMID=QID.IssueNameId) for xml path(''))),1,1,'')) as PositionEmployee,
-QC.QGIEmployeeId,(select EmployeeName from EmployeeInformation where SystemId=QC.QGIEmployeeId) as QGIEmployee
+isnull(QC.QGIEmployeeId,QID.ResponsiblePersonId) as QGIEmployeeId,isnull((select EmployeeName from EmployeeInformation where SystemId=QC.QGIEmployeeId),(select EmployeeName from EmployeeInformation where SystemId=QID.ResponsiblePersonId)) as QGIEmployee
 from MST.QualityIssueDetails  QID
 left join TRN.QualityIssueControl as QC on QC.DefineIssueId=QID.Id and QC.Id = (select top 1 Id from TRN.QualityIssueControl where DefineIssueId=QID.Id order by AddedDate desc) 
 left join MST.QualityManagementMaster QMM on QMM.Id=QID.IssueNameId

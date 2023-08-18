@@ -241,6 +241,7 @@ from [MST].[QualityIssueDetails] ID";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             string sql = @"select ID.*,(select P.UserName from HKP.Process P where P.Id=ID.ProcessId) as Process,
+(select EI.EmployeeName from EmployeeInformation  EI where EI.SystemId=ID.ResponsiblePersonId) as ResponsiblePerson,
 (select E.UserName from Org.Entity E where E.Id=ID.EntityId) as Entity,
 (select D.UserName from ORG.Department D where D.Id=ID.DepartmentId) as Department,
 (select P.Code from ORG.Position P where P.Id=ID.PositionCodeId) as PositionCode,
@@ -1024,7 +1025,7 @@ from [MST].[QualityIssueItem] IID where IID.Id='" + ItemId + @"'";
         }
 
         [Authorize, HttpPost]
-        public ActionResult GetEmployee()
+        public ActionResult GetEmployee(string IssueId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"SELECT EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
@@ -1039,7 +1040,26 @@ from [MST].[QualityIssueItem] IID where IID.Id='" + ItemId + @"'";
                             LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
                             WHERE EI.EmployeeStatus='Active'";
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
 
+        [Authorize, HttpPost]
+        public ActionResult GetResponsiblePerson(string IssueId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"SELECT EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                                    , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
+                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
+                            FROM dbo.EmployeeInformation AS EI
+                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            WHERE EI.EmployeeStatus='Active' 
+							and EI.PositionID in (select PositionCodeId from MST.QualityManagementPositionCode where QMID='" + IssueId + "')";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 

@@ -789,7 +789,7 @@ select ParameterId from MST.QualityIssueItem where Id=QCD.ItemId))) order by DOJ
 reverse(stuff(reverse((select  CheckPoints +',' from QualityManagementParameterCheckPoints Q where Q.ParameterId = (select ParameterId from MST.QualityIssueItem where Id=QCD.ItemId) for xml path(''))),1,1,'')) as Checkpoints
 from TRN.QualityControl QC
 left join TRN.QualityControlDetails QCD on QCD.QCID=QC.Id
-left join MST.QualityIssueDetails QID on QID.IssueNameId=QC.IssueId
+left join MST.QualityIssueDetails QID on QID.IssueNameId=QC.IssueId and QID.EntityId=QC.EntityId
 left join MST.QualityManagementMaster QMM on QMM.Id=QC.IssueId
 left join MST.QualityGradeDetails QGD on QGD.Id=QCD.GradeId
 left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
