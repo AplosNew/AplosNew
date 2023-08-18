@@ -4054,7 +4054,7 @@ WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='" + productionDat
         public IEnumerable<object> GetQualityPlan(string POIssueDate)
         {
             string sql = @"select Format(PO.Date,'dd-MMM-yyyy') PODate,Format(PO.QualityPlanDate,'dd-MMM-yyyy') QPDate,PO.* from (select distinct QPC.Id Id,PD.Id QPId,PO.Id POId,PD.IssueId as IssueId,QMM.UserName as QPIssue,PD.ProcessId,P.UserName as Process,E.Id EntityId,E.UserName Entity,PD.DependentDate as DependentOn,PD.Legdays,
-(select RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' and RepeatEntry is not null) as RepeatEntry,
+(select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' and RepeatEntry is not null) as RepeatEntry,
 convert(Date,case 
 when PD.DependentDate='ItemDate' then format(MOI.AddedDate,'dd-MMM-yyyy')
 when PD.DependentDate='ExFactoryDate' then format((select top 1 PlanExFactoryDate from TRN.SalesOrder where Id=SO.Id order by PlanExFactoryDate desc),'dd-MMM-yyyy')
@@ -4092,27 +4092,27 @@ left join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POFirstProdBookDate,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) FBPPD ON FBPPD.ProductionOrderId=PO.Id
 LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=PO.Id
 where PS.UserName in ('Running','To Close') and E.Id in (select EntityId from MST.QualityManagementEntity where QMID=QMM.Id) and QPC.QCID is null or (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' order by AddedDate desc) is not null) PO
-where PO.QualityPlanDate < = '"+ POIssueDate + "' or PO.QualityPlanDate is null order by PO.QualityPlanDate";
+where PO.QualityPlanDate < = '" + POIssueDate + "' or PO.QualityPlanDate is null order by PO.QualityPlanDate";
              return _sqlRepository.GetDataCollection(sql);
         }
 
         public IEnumerable<object> GetGeneralIssue()
         {
-            string sql = @"select  QC.Id,QID.IssueNameId,(select top 1 RepeatEntry from TRN.QualityControl where IssueId=QID.IssueNameId and PlanType='GeneralIssue' order by AddedDate desc) as RepeatEntry,
-case when (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QID.IssueNameId and PlanType='GeneralIssue' order by AddedDate desc)='Repeat' then format((select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId and PlanType='GeneralIssue' order by AddedDate desc),'dd-MMM-yyyy') else
-format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId and PlanType='GeneralIssue' order by AddedDate desc)),'dd-MMM-yyyy') end as QualityIssueDate,
-case when (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QID.IssueNameId and PlanType='GeneralIssue' order by AddedDate desc)='Repeat' then format((select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId and PlanType='GeneralIssue' order by AddedDate desc),'hh:mm tt') else
-format(DATEADD(hour, QID.CheckingInterval, CAST((select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId and PlanType='GeneralIssue' order by AddedDate desc) AS DATETIME)),'hh:mm tt') end as QualityIssueTime,
+            string sql = @"select  QC.Id,QID.IssueNameId,(select top 1 RepeatEntry from TRN.QualityControl where IssueId=QID.IssueNameId and EntityId=QID.EntityId and PlanType='GeneralIssue' order by AddedDate desc) as RepeatEntry,
+case when (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QID.IssueNameId and EntityId=QID.EntityId and PlanType='GeneralIssue' order by AddedDate desc)='Repeat' then format((select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId and EntityId=QID.EntityId and PlanType='GeneralIssue' order by AddedDate desc),'dd-MMM-yyyy') else
+format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId and EntityId=QID.EntityId and PlanType='GeneralIssue' order by AddedDate desc)),'dd-MMM-yyyy') end as QualityIssueDate,
+case when (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QID.IssueNameId and EntityId=QID.EntityId and PlanType='GeneralIssue' order by AddedDate desc)='Repeat' then format((select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId and EntityId=QID.EntityId and PlanType='GeneralIssue' order by AddedDate desc),'hh:mm tt') else
+format(DATEADD(hour, QID.CheckingInterval, CAST((select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId and EntityId=QID.EntityId and PlanType='GeneralIssue' order by AddedDate desc) AS DATETIME)),'hh:mm tt') end as QualityIssueTime,
 E.Id  EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,QID.IssueNameId IssueId,QID.Id DefineIssueId,
 QMM.UserName QGIssue,
 reverse(stuff(reverse((select EI.EmployeeName + ',' from EmployeeInformation EI where EmployeeStatus='Active' and PositionID in (select PositionCodeId from MST.QualityManagementPositionCode where QMID=QID.IssueNameId) for xml path(''))),1,1,'')) as PositionEmployee,
 QC.QGIEmployeeId,(select EmployeeName from EmployeeInformation where SystemId=QC.QGIEmployeeId) as QGIEmployee
 from MST.QualityIssueDetails  QID
-left join TRN.QualityIssueControl as QC on QC.IssueId=QID.IssueNameId and QC.Id = (select top 1 Id from TRN.QualityIssueControl where IssueId=QID.IssueNameId order by AddedDate desc) 
+left join TRN.QualityIssueControl as QC on QC.DefineIssueId=QID.Id and QC.Id = (select top 1 Id from TRN.QualityIssueControl where DefineIssueId=QID.Id order by AddedDate desc) 
 left join MST.QualityManagementMaster QMM on QMM.Id=QID.IssueNameId
 left join org.Entity E on E.Id=QID.EntityId
 left join hkp.Process P on P.Id=QID.ProcessId
-order by (select top 1 AddedDate + QID.CheckingInterval from TRN.QualityControl where IssueId=QID.IssueNameId order by AddedDate asc) asc";
+order by (select top 1 AddedDate + QID.CheckingInterval from TRN.QualityControl where IssueId=QID.IssueNameId and EntityId=QID.EntityId order by AddedDate asc) asc";
                 return _sqlRepository.GetDataCollection(sql);
         }
 

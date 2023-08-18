@@ -274,8 +274,8 @@ from [MST].[QualityIssueDetails] ID where ID.Id='" + IssueId + @"'";
             {
 
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                //conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityIssueDetails] where IssueNameId='" + IssueData["IssueNameId"] + "' and EntityId='" + IssueData["EntityId"] + "' and ProcessId='" + IssueData["ProcessId"] + "'", out DataSet dsItemDetailsIssueNameValidation, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityIssueDetails] where IssueNameId='" + IssueData["IssueNameId"] + "'", out DataSet dsItemDetailsIssueNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityIssueDetails] where IssueNameId='" + IssueData["IssueNameId"] + "' and EntityId='" + IssueData["EntityId"] + "' and ProcessId='" + IssueData["ProcessId"] + "'", out DataSet dsItemDetailsIssueNameValidation, false, "1");
+                //conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityIssueDetails] where IssueNameId='" + IssueData["IssueNameId"] + "'", out DataSet dsItemDetailsIssueNameValidation, false, "1");
 
                 DataSet dsIssueDetails;
 

@@ -1112,17 +1112,17 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
             $scope.SaveList = [];
             for (var i = 0; i < $scope.wcList.length; i++) {
                 if (!baseService.isUndefinedOrNull($scope.wcList[i].Value)) {
-                    if ($scope.wcList[i].IsWorkCenter == true && baseService.isUndefinedOrNull($scope.wcList[i].WorkCenterId)) {
-                        throw "Please Select WorkCenter and Proceed";
-                    }
-                    else
-                    { 
+                    //if ($scope.wcList[i].IsWorkCenter == true && baseService.isUndefinedOrNull($scope.wcList[i].WorkCenterId)) {
+                    //    throw "Please Select WorkCenter and Proceed";
+                    //}
+                    //else
+                    //{ 
                         $scope.SaveList.push($scope.wcList[i]);
-                    }
-                }
-                else
-                {
-                        throw "Please enter Value and Proceed";
+                //    }
+                //}
+                //else
+                //{
+                //        throw "Please enter Value and Proceed";
                 }
             }
             $http({
@@ -2252,9 +2252,9 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.NewObject = { Id: null };
     $scope.SetQGISelectData = function ($event) {
         try {
-            //if (baseService.isUndefinedOrNull($scope.NewObject.Id)) {
-            //    throw "Please save record and proceed";
-            //}
+            if (baseService.isUndefinedOrNull($event.data.Id)) {
+                throw "Please save record and proceed";
+            }
             $scope.productionSummaryNew.EntityId = $event.data.EntityId;
             $scope.productionSummaryNew.ProcessId = $event.data.ProcessId;
             if (baseService.isUndefinedOrNull($event.data.QualityIssueDate)) { $scope.productionSummaryNew.ProductionDate = $filter("date")(Date.now(), 'dd-MMM-yyyy'); }
