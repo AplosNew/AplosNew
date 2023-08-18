@@ -774,7 +774,7 @@ left outer join[MST].[ProductMaster] PM on pm.id = pd.ProductMasterId
 where Pod.ProductionOrderId = QC.ProductionOrderId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 POQ.POQty,PQ.Qty ScheduleQty,ProdQ.ProducedQty as ProducedQty,POQ.POQty-ProdQ.ProducedQty RemainingQty,
 QC.PlanType as PType,QC.MasterOrderItemId,QC.SalesOrderId,QC.QualityPlanId,QC.WorkCenterId,WC.UserName WorkCenter,
-QCD.Id QCDId,QCD.ItemId,QCD.Value,QCD.GradeId,QGD.GradeName,QCD.ActionToBeTaken as ActionToBeTakenId,
+QCD.Id QCDId,(case when QCD.Id is null then 'Pending' else 'Completed' end) as Status,QCD.ItemId,QCD.Value,QCD.GradeId,QGD.GradeName,QCD.ActionToBeTaken as ActionToBeTakenId,
 (select ActionToBeTakenName from MST.QualityActionToBeTakenDetails where Id=QCD.ActionToBeTaken) as ActionToBeTaken,
 QCD.ResponsiblePersonId,
 QCD.Remarks as ParameterRemarks,QCD.Repeat,QCD.WorkCenterId as ParameterWorkCenterId,WCD.UserName ParameterWorkCenter,(select ItemName from MST.QualityIssueItem where Id=QCD.ItemId) as ParameterName,

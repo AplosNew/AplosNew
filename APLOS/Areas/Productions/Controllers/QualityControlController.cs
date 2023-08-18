@@ -833,7 +833,7 @@ and  PositionID in (select PositionCodeId from MST.QualityIssueDetails where Id=
                                 LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
                                 LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
                                 LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
-                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + ProductionOrderId + "'";
+                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName in ('Running','To Close')	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + ProductionOrderId + "'";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -894,9 +894,9 @@ and  PositionID in (select PositionCodeId from MST.QualityIssueDetails where Id=
                                 LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
                                 LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
                                 LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
-                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + ProductionOrderId + "'";
+                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName in ('Running','To Close') AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + ProductionOrderId + "'";
 
-            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
@@ -982,7 +982,7 @@ and  PositionID in (select PositionCodeId from MST.QualityIssueDetails where Id=
 								   LEFT JOIN [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                    LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
 								   ) PD ON PD.ProductionOrderId=PO.Id
-								   WHERE PO.EntityId='" + entityid + "' AND PS.UserName = 'Running'  AND PO.Id='" + ProductionOrderId + "'";
+								   WHERE PO.EntityId='" + entityid + "' AND PS.UserName in ('Running','To Close')  AND PO.Id='" + ProductionOrderId + "'";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }

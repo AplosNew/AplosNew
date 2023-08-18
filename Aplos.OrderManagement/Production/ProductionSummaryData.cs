@@ -1339,14 +1339,14 @@ namespace Library.OrderManagement.Production
         public IEnumerable<object> GetQualityProductionOrderList(string entityid, string productionLevel, string processId, bool ToCloseAllowed)
         {
             string wcpr;
-            if (ToCloseAllowed)
-            {
-                wcpr = @"PS.UserName IN('Running','To Close')";
-            }
-            else
-            {
-                wcpr = @"PS.UserName = 'Running'";
-            }
+            //if (ToCloseAllowed)
+            //{
+            //    wcpr = @"PS.UserName IN('Running','To Close')";
+            //}
+            //else
+            //{
+                wcpr = @"PS.UserName in ('Running','To Close')";
+            //}
             string CmdText = @"SELECT distinct PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
                                    ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName Entity
 									,SONo=STUFF((select distinct ','+XSO.Id from 
@@ -4054,7 +4054,7 @@ WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='" + productionDat
         public IEnumerable<object> GetQualityPlan(string POIssueDate)
         {
             string sql = @"select Format(PO.Date,'dd-MMM-yyyy') PODate,Format(PO.QualityPlanDate,'dd-MMM-yyyy') QPDate,PO.* from (select distinct QPC.Id Id,PD.Id QPId,PO.Id POId,PD.IssueId as IssueId,QMM.UserName as QPIssue,PD.ProcessId,P.UserName as Process,E.Id EntityId,E.UserName Entity,PD.DependentDate as DependentOn,PD.Legdays,
-(select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' and RepeatEntry is not null) as RepeatEntry,
+(select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' and RepeatEntry is not null order by AddedDate desc) as RepeatEntry,
 convert(Date,case 
 when PD.DependentDate='ItemDate' then format(MOI.AddedDate,'dd-MMM-yyyy')
 when PD.DependentDate='ExFactoryDate' then format((select top 1 PlanExFactoryDate from TRN.SalesOrder where Id=SO.Id order by PlanExFactoryDate desc),'dd-MMM-yyyy')
