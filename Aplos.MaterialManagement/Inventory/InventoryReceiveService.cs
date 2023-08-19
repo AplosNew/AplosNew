@@ -853,7 +853,7 @@ namespace Library.MaterialManagement.Inventory
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
                                          WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq')
-                                AND IR.IsClosed= 0 and   pod.TransactionQty+(case when pod.ToleranceQty<>0 then pod.ToleranceQty else ((pod.TransactionQty*ir.Tolerance)/100) end) > ISNULL(pod.GRNQty,0)  AND IR.PartyId='" + vendorId + @"'
+                                AND IR.IsClosed= 0 and   pod.TransactionQty+(case when pod.ToleranceQty<>0 then pod.ToleranceQty else ((pod.TransactionQty*ir.Tolerance)/100) end) > ISNULL(pod.GRNQty,0)-ISNULL(pod.PurchaseReturnQty,0)  AND IR.PartyId='" + vendorId + @"'
                                          AND IR.CheckedByStatus= 'Checked' AND IR.AuthorizedByStatus= 'Approved'
                                          AND isnull(PT.PaymentMode,'') <> 'LC'
 								UNION All

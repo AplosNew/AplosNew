@@ -396,13 +396,13 @@
                                         <th>Article</th>
                                         <th>Item Costing</th>
                                         <th>Buyer Ref.No</th>
-                                        <th>Own Ref.No</th>
+                                        <th>Production Group</th>
+                                        <th>Production/Own #</th>
                                         <th>Order Wastage Percentage</th>
                                         <th>Extra Order Percentage</th>
                                         <th>Inquiry</th>
                                         <th>Sample No</th>
                                         <th>Testing Std</th>
-                                        <th>Production Grouping</th>
 
                                         <th>Repeat</th>
                                         <th>Product Library</th>
@@ -484,7 +484,10 @@
                                             <input type="text" ng-model=" x.BuyerReferenceNo" class="form-control" style="width: 105px;" ng-maxlength="50">
                                         </td>
                                         <td>
-                                            <input type="text" ng-model=" x.OwnReferenceNo" class="form-control" style="width: 105px;" ng-maxlength="50">
+                                            <input type="text" ng-model=" x.ProductionGrouping" class="form-control" ng-keyup="SetProductionRef($index);">
+                                        </td>
+                                        <td>
+                                            <input type="text" ng-model=" x.OwnReferenceNo" class="form-control" ng-disabled="x.ProductionGrouping==null" style="width: 105px;" ng-maxlength="50">
                                         </td>
                                         <td>
                                             <input type="text" n-decimals="2" ng-model=" x.OrderWastagePercentage" class="form-control text-right">
@@ -505,9 +508,7 @@
                                                 </select>
                                             </div>
                                         </td>
-                                        <td>
-                                            <input type="text" ng-model=" x.ProductionGrouping" class="form-control">
-                                        </td>
+
 
                                         <td>
                                             <div class="checkbox-site">
