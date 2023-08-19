@@ -1400,6 +1400,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
             url: 'QMS/QualityManagementMaster/LoadItemEditData?ItemId=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.ItemNew = response.data.item[0];
+            $scope.GetParameterProcessList($scope.ItemNew.QMID);
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }

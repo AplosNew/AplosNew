@@ -56,8 +56,12 @@ namespace Aplos.Areas.Leave.Controllers
         public ActionResult GetList(string EmpSystemId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" select RowID,EmpSystemID,BankSystemID,BankBranchId,BankAccNo,SalaryPercentage,IsApproved,format(ApprovedDateTime,'dd-MMM-yyyy hh:mm tt')as ApprovedDateTime
-                             from [dbo].[EmployeeBankInfo] where EmpSystemID='" + EmpSystemId + @"'";
+            string sql = @" select RowID,EmpSystemID,BankSystemID,BankBranchId,BankAccNo,SalaryPercentage,IsApproved,format(ApprovedDateTime,'dd-MMM-yyyy hh:mm tt')as ApprovedDateTime,B.UserName, bb.UserName BankBranch
+                             from [dbo].[EmployeeBankInfo] EB
+							 inner join  [HKP].Bank b on EB.BankSystemID=b.Id
+							 inner join  [HKP].[BankBranch] bb on bb.BankId=b.Id
+                            where EmpSystemID='" + EmpSystemId + @"'";
+
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
         }

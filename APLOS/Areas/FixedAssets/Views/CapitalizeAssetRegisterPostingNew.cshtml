@@ -372,7 +372,6 @@
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                         <div e-columns>
-                            <div e-column e-template="#checkboxTemplateMasterUpdate" e-headertext="Check" e-textalign="center" e-width="1"></div>
                             <div e-column e-field="AssetRegisterId" e-headertext="Asset Register Id" e-width="3"></div>
                             <div e-column e-field="FixedAssetItemId" e-headertext="Asset Item Id" e-width="3"></div>
                             <div e-column e-field="FixedAssetItem" e-headertext="Asset Item" e-width="4"></div>
@@ -385,11 +384,9 @@
                             <div e-column e-template="#oldReference" e-headertext="Old Reference" e-type='string' e-width="3"></div>
                             <div e-column e-template="#userGroup" e-headertext="User Group" e-type='string' e-width="3"></div>
                             <div e-column e-template="#remarks" e-headertext="Remarks" e-type='string' e-width="3"></div>
+                            <div e-column e-template="#amount" e-headertext="Amount" e-type="numeric" e-format="{0:0.00}" e-width="3"></div>
                         </div>
                     </div>
-                    <script type="text/template" id="checkboxTemplateMasterUpdate">
-                        <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
-                    </script>
                     <script type="text/template" id="assetSlNo">
                         <input type="text" ng-model="data.AssetSlNo" class="form-control">
                     </script>
@@ -416,6 +413,9 @@
                     </script>
                     <script type="text/template" id="remarks">
                         <input type="text" ng-model="data.Remarks" class="form-control">
+                    </script>
+                    <script type="text/template" id="amount">
+                        <input type="text" ng-model="data.Amount" class="form-control" ng-disabled="data.DepreciationAmount">
                     </script>
 
                 </div>

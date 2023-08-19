@@ -734,7 +734,7 @@ where QID.IssueType in ('Order','General') " + QCDate + " " + QCProcess + " " + 
             }
             if (fromDate != "null" && todate != "null" && fromDate != "undefined" && todate != "undefined")
             {
-                QCDate = @"and CONVERT(DATE,QC.AddedDate)  between '" + fromDate + "' and '" + todate + "'";
+                QCDate = @"CONVERT(DATE,QC.AddedDate)  between '" + fromDate + "' and '" + todate + "'";
             }
             
             var sql = @"select distinct QC.Id TransactionHeaderId,(select SNO from MST.QualityIssueItem where Id=QCD.ItemId) as ParameterSNO,format(QC.AddedDate,'dd-MMM-yyyy') as ActualDate,
@@ -774,7 +774,7 @@ left outer join[MST].[ProductMaster] PM on pm.id = pd.ProductMasterId
 where Pod.ProductionOrderId = QC.ProductionOrderId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 POQ.POQty,PQ.Qty ScheduleQty,ProdQ.ProducedQty as ProducedQty,POQ.POQty-ProdQ.ProducedQty RemainingQty,
 QC.PlanType as PType,QC.MasterOrderItemId,QC.SalesOrderId,QC.QualityPlanId,QC.WorkCenterId,WC.UserName WorkCenter,
-QCD.Id QCDId,QCD.ItemId,QCD.Value,QCD.GradeId,QGD.GradeName,QCD.ActionToBeTaken as ActionToBeTakenId,
+QCD.Id QCDId,(case when QCD.Id is null then 'Pending' else 'Completed' end) as Status,QCD.ItemId,QCD.Value,QCD.GradeId,QGD.GradeName,QCD.ActionToBeTaken as ActionToBeTakenId,
 (select ActionToBeTakenName from MST.QualityActionToBeTakenDetails where Id=QCD.ActionToBeTaken) as ActionToBeTaken,
 QCD.ResponsiblePersonId,
 QCD.Remarks as ParameterRemarks,QCD.Repeat,QCD.WorkCenterId as ParameterWorkCenterId,WCD.UserName ParameterWorkCenter,(select ItemName from MST.QualityIssueItem where Id=QCD.ItemId) as ParameterName,
@@ -789,7 +789,7 @@ select ParameterId from MST.QualityIssueItem where Id=QCD.ItemId))) order by DOJ
 reverse(stuff(reverse((select  CheckPoints +',' from QualityManagementParameterCheckPoints Q where Q.ParameterId = (select ParameterId from MST.QualityIssueItem where Id=QCD.ItemId) for xml path(''))),1,1,'')) as Checkpoints
 from TRN.QualityControl QC
 left join TRN.QualityControlDetails QCD on QCD.QCID=QC.Id
-left join MST.QualityIssueDetails QID on QID.IssueNameId=QC.IssueId
+left join MST.QualityIssueDetails QID on QID.IssueNameId=QC.IssueId and QID.EntityId=QC.EntityId
 left join MST.QualityManagementMaster QMM on QMM.Id=QC.IssueId
 left join MST.QualityGradeDetails QGD on QGD.Id=QCD.GradeId
 left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
@@ -813,7 +813,7 @@ left join (select Sum(QD.Value) ProducedQty,Q.ProductionOrderId from TRN.Quality
 left join TRN.QualityControl Q on Q.Id=QD.QCId
 GROUP BY Q.ProductionOrderId
 ) AS ProdQ ON ProdQ.ProductionOrderId = QC.ProductionOrderId
-where QCD.Id is not null " + QCDate + "  " + QCIssue + " " + QCPONO + "";
+where " + QCDate + "  " + QCIssue + " " + QCPONO + "";
              return _sqlRepository.GetDataCollection(sql);
         }
 
