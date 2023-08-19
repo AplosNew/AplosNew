@@ -879,7 +879,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
 
                     if (id == "")
-                        id = $scope.recipeMaterialList[i].MaterialMasterId;
+                        id = $scope.recipeMaterialList[i].ArticleId;
 
                     if (productid == "")
                         productid = $scope.recipeMaterialList[i].ProductID;
@@ -892,16 +892,16 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                     if ($scope.recipeMaterialList[i].ProductionGrouping != groupid)
                         throw "Selecting different group materials are not allowed";
 
-                    if ($scope.recipeMaterialList[i].ProductID != productid)
-                        throw "Selecting different products are not allowed";
+                    //if ($scope.recipeMaterialList[i].ProductID != productid)
+                    //    throw "Selecting different products are not allowed";
 
-                    //if ($scope.recipeMaterialList[i].ArticleId != id)
-                    //    throw "Selecting different articles are not allowed";
+                   
+                     if ($scope.recipeMaterialList[i].ArticleId != id)
+                        throw "Selecting different articles are not allowed";
 
 
-
-                    if ($scope.recipeMaterialList[i].MaterialMasterId != id)
-                        throw "Selecting different material are not allowed";
+                    //if ($scope.recipeMaterialList[i].MaterialMasterId != id)
+                    //    throw "Selecting different material are not allowed";
 
 
 
