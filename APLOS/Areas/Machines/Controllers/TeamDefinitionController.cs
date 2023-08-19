@@ -397,7 +397,7 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection from 
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"Select CAST (CASE WHEN TDE.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,TDE.Id,MB.Code Budgetcode,EI.SystemId as EmployeeId,EI.EmployeeName as EmployeeName,DEG.UserName as Designation,TDE.PlanHours,TDE.ResponsibilityLevel,TDE.EmployeeActiviyCategory,
-TDE.Remarks,SD.UserName as Shift,S.UserName as Section,SS.UserName as SubSection,DEP.UserName AS Department,format(EI.DOJ,'dd-MMM-yyyy') as DOJ,EI.EmployeeStatus,EI.EmployeeCurrentStatus EmplCurrentStatus,P.Activity EmployeeActivity,EC.UserName EmployeeCategory
+TDE.Remarks,SD.UserName as Shift,S.UserName as Section,SS.UserName as SubSection,DEP.UserName AS Department,format(EI.DOJ,'dd-MMM-yyyy') as DOJ,EI.EmployeeStatus,EI.EmployeeCurrentStatus EmplCurrentStatus,P.Activity EmployeeActivity,EC.UserName EmployeeCategory,EI.BudgetCode as BudgetCodeId
 FROM dbo.EmployeeInformation AS EI
 LEFT JOIN [MST].[ManpowerBudget]  MB ON MB.Id=EI.BudgetCode
 LEFT JOIN ShiftDefination SD ON SD.SystemID=MB.ShiftDefinationId
@@ -414,7 +414,7 @@ where EI.EmployeeStatus='Active' and EI.BudgetCode in (select BudgetCodeId from 
         }
 
         [Authorize, HttpPost]
-        public ActionResult createBudgetCode(List<Dictionary<string, object>> DataList)
+        public ActionResult createBudgetCode(List<Dictionary<string, object>> DataList, string Pid)
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsProdBooked;
@@ -428,6 +428,11 @@ where EI.EmployeeStatus='Active' and EI.BudgetCode in (select BudgetCodeId from 
 
                 if (DataList != null)
                 {
+                    ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                    conC.BeginTransaction();
+                    conC.executeQuery("delete from " + TableName + " where TeamDefinitionId='" + Pid + "'");
+                    conC.CommitTransaction();
+                  
                     foreach (var item in DataList)
                     {
                         objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and TeamDefinitionId='" + item["TeamDefinitionId"] + "'", out dsProdBooked, false, "1");
@@ -445,9 +450,15 @@ where EI.EmployeeStatus='Active' and EI.BudgetCode in (select BudgetCodeId from 
                             DataRow drpb = dv[0].Row;
                             EditRow(drpb, item);
                         }
+
                         clsStaticInfo obj = new clsStaticInfo();
                         obj.SaveDataSets(dsProdBooked);
                     }
+
+                    ConnectionManager.clsConnection conC1 = new ConnectionManager.clsConnection();
+                    conC1.BeginTransaction();
+                    conC1.executeQuery("delete from [TRN].[TeamDefinitionEmployee] where TeamDefinitionId = '" + Pid + "' and BudgetCodeId not in (select BudgetCodeId from[TRN].[TeamBudgetCode] where TeamDefinitionId = '" + Pid + "')");
+                    conC1.CommitTransaction();
                 }
                 return Json(new { Message = AplosMessage.Insert });
 
@@ -459,7 +470,7 @@ where EI.EmployeeStatus='Active' and EI.BudgetCode in (select BudgetCodeId from 
         }
 
         [Authorize, HttpPost]
-        public ActionResult createEntity(List<Dictionary<string, object>> DataList)
+        public ActionResult createEntity(List<Dictionary<string, object>> DataList, string Pid)
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsProdBooked;
@@ -473,6 +484,11 @@ where EI.EmployeeStatus='Active' and EI.BudgetCode in (select BudgetCodeId from 
 
                 if (DataList != null)
                 {
+                    ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                    conC.BeginTransaction();
+                    conC.executeQuery("delete from " + TableName + " where TeamDefinitionId='" + Pid + "'");
+                    conC.CommitTransaction();
+
                     foreach (var item in DataList)
                     {
                         objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and TeamDefinitionId='" + item["TeamDefinitionId"] + "'", out dsProdBooked, false, "1");
@@ -504,7 +520,7 @@ where EI.EmployeeStatus='Active' and EI.BudgetCode in (select BudgetCodeId from 
         }
 
         [Authorize, HttpPost]
-        public ActionResult createTeamDefinitionCategory(List<Dictionary<string, object>> DataList)
+        public ActionResult createTeamDefinitionCategory(List<Dictionary<string, object>> DataList, string Pid)
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsProdBooked;
@@ -517,6 +533,11 @@ where EI.EmployeeStatus='Active' and EI.BudgetCode in (select BudgetCodeId from 
 
                 if (DataList != null)
                 {
+                    ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                    conC.BeginTransaction();
+                    conC.executeQuery("delete from " + TableName + " where TeamDefinitionId='" + Pid + "'");
+                    conC.CommitTransaction();
+
                     foreach (var item in DataList)
                     {
                         objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and TeamDefinitionId='" + item["TeamDefinitionId"] + "'", out dsProdBooked, false, "1");
@@ -686,7 +707,7 @@ where EI.EmployeeStatus='Active' and EI.BudgetCode in (select BudgetCodeId from 
         }
 
         [Authorize, HttpPost]
-        public ActionResult createEmployee(List<Dictionary<string, object>> DataList)
+        public ActionResult createEmployee(List<Dictionary<string, object>> DataList, string Pid)
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsProdBooked;
@@ -700,6 +721,11 @@ where EI.EmployeeStatus='Active' and EI.BudgetCode in (select BudgetCodeId from 
 
                 if (DataList != null)
                 {
+                    ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                    conC.BeginTransaction();
+                    conC.executeQuery("delete from " + TableName + " where TeamDefinitionId='" + Pid + "'");
+                    conC.CommitTransaction();
+
                     foreach (var item in DataList)
                     {
                         objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and TeamDefinitionId='" + item["TeamDefinitionId"] + "'", out dsProdBooked, false, "1");
