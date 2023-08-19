@@ -916,7 +916,14 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         });
         return true;
     };
-
+    // #region TAB CHANGE Main
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
     $scope.clearSourceInfo = function () {
         $scope.advance.Amount = 0;
         $scope.advance.BankAmount = 0;
