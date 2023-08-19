@@ -128,7 +128,9 @@ function EmployeeBankInfoInformationController(commonMessage, $scope, $rootScope
     }
 
     $scope.recorddoubleclick = function (args) {
-        $scope.OffDutyHoursModel = Object.assign({}, args.data); // gridObj.getSelectedRecords()[0];
+        $scope.EmpBankInfoModel = Object.assign({}, args.data); // gridObj.getSelectedRecords()[0];
+        $scope.BankInfo.UserName = $scope.EmpBankInfoModel.UserName;
+        $scope.BankInfo.BankBranch = $scope.EmpBankInfoModel.BankBranch;
         $scope.Action = 'Update';
     };
 

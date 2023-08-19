@@ -595,8 +595,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                 }
                 isBaseProcess = false;
             }
-            if (!isBaseProcess)
-            {
+            if (!isBaseProcess) {
                 $scope.btndisable = false;
                 throw 'Please select base process';
             }
@@ -879,7 +878,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
 
                     if (id == "")
-                        id = $scope.recipeMaterialList[i].MaterialMasterId;
+                        id = $scope.recipeMaterialList[i].ArticleId;
 
                     if (productid == "")
                         productid = $scope.recipeMaterialList[i].ProductID;
@@ -889,19 +888,23 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
 
 
-                    if ($scope.recipeMaterialList[i].ProductionGrouping != groupid)
-                        throw "Selecting different group materials are not allowed";
+                    if (!baseService.isUndefinedOrNull($scope.recipeMaterialList[i].ProductionGrouping)){
+                        if ($scope.recipeMaterialList[i].ProductionGrouping != groupid)
+                            throw "Selecting different group materials are not allowed";
 
-                    if ($scope.recipeMaterialList[i].ProductID != productid)
-                        throw "Selecting different products are not allowed";
+                    } else {
+                        if ($scope.recipeMaterialList[i].ArticleId != id)
+                            throw "Selecting different articles are not allowed";
 
-                    //if ($scope.recipeMaterialList[i].ArticleId != id)
-                    //    throw "Selecting different articles are not allowed";
+                    }
+                    //if ($scope.recipeMaterialList[i].ProductID != productid)
+                    //    throw "Selecting different products are not allowed";
 
 
 
-                    if ($scope.recipeMaterialList[i].MaterialMasterId != id)
-                        throw "Selecting different material are not allowed";
+
+                    //if ($scope.recipeMaterialList[i].MaterialMasterId != id)
+                    //    throw "Selecting different material are not allowed";
 
 
 
@@ -1750,7 +1753,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
     $scope.SaveFP = function () {
         try {
-            if (baseService.arrayLength($scope.productionFPWorkCenterList)>0) {
+            if (baseService.arrayLength($scope.productionFPWorkCenterList) > 0) {
                 $http({
                     method: 'POST',
                     url: 'OrderManagements/ProductionOrder/SaveWCFPData',
