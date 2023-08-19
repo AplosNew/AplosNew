@@ -444,6 +444,17 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     // #endregion Ddl
 
+    $scope.index = -1;
+    $scope.SetProductionRef = function (ind) {
+        $scope.index = ind;
+       
+        $http.get("OrderManagements/MasterOrder/GetProductionRef?pg=" + $scope.itemList[$scope.index].ProductionGrouping)
+            .then(function (response) {
+                $scope.itemList[$scope.index].OwnReferenceNo = response.data[0].OwnReferenceNo;
+            });
+    }
+
+
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
