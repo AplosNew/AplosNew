@@ -6,7 +6,7 @@ function jobWorkActivityController(addressService, $window, cboService, commonMe
     $scope.Action_Child = 'Add';
     $scope.path = 'Outsourcing/JobWorkActivity/';
 
-    $scope.JobWorkActivity = {
+    $scope.model = {
         Id: null,
         Code: null,
         ShortName: null,
@@ -22,6 +22,8 @@ function jobWorkActivityController(addressService, $window, cboService, commonMe
         Remarks: '',
         Sequence: ''
     };
+    $scope.JobWorkActivity = Object.assign({}, $scope.model);
+
     $scope.JobWorkActivityChild = {
         Id: '',
         ItemName: ''
@@ -47,13 +49,14 @@ function jobWorkActivityController(addressService, $window, cboService, commonMe
     };
     $scope.childGridDataList = [];
     $scope.Save = function () {
+        angular.copy($scope.model, $scope.JobWorkActivity);
         $scope.$broadcast('show-errors-check-validity');
         try {
             if ($scope.jobWorkActivity.$valid) {
                 $http({
                     method: 'POST',
                     url: $scope.path + "SaveData",
-                    data: { 'saveData': $scope.JobWorkActivity },
+                    data: { 'saveData': $scope.model },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {

@@ -2524,7 +2524,7 @@ format((select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNa
 QIC.IssueId,QMM.UserName IssueName,E.UserName Entity,
 P.UserName as Process,EI.EmployeeName as AllotedPlanEmployee
 from TRN.QualityIssueControl QIC
-left join MST.QualityIssueDetails QID on QID.IssueNameId=QIC.IssueId
+left join MST.QualityIssueDetails QID on QID.Id=QIC.DefineIssueId
 left join MST.QualityManagementMaster QMM on QMM.Id = QIC.IssueId
 left join ORG.Entity  E on E.Id=QId.EntityId
 left join hkp.Process P on P.Id=QID.ProcessId

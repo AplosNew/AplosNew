@@ -34,7 +34,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
         public JsonResult GetAllData()
         {
             string sql = "";
-            sql = @"SELECT A.Id,A.Code,CAST(A.Sequence AS DECIMAL(18,2))Sequence,A.ShortName,A.StandardName,A.UserName,A.Type,A.IsActive,A.ResponsiblePersonId,E.EmployeeName ResponsiblePersonName,A.Remarks 
+            sql = @"SELECT A.Id,A.Code,CAST(A.Sequence AS DECIMAL(18,2))Sequence,A.ShortName,A.StandardName,A.UserName,A.Type,A.IsActive,A.IsOutsource,A.IsJobWork,A.ResponsiblePersonId,E.EmployeeName ResponsiblePersonName,A.Remarks 
                     FROM HKP.JobWorkActivity A
                     LEFT JOIN [dbo].[EmployeeInformation] E ON E.SystemId = A.ResponsiblePersonId
                     ORDER BY UserName";
@@ -196,6 +196,8 @@ namespace Aplos.Areas.Outsourcing.Controllers
                     dr["UserName"] = saveData["UserName"].ToString();
                     dr["Type"] = saveData["Type"].ToString();
                     dr["IsActive"] = saveData["IsActive"].ToString();
+                    dr["IsOutsource"] = saveData["IsOutsource"].ToString();
+                    dr["IsJobWork"] = saveData["IsJobWork"].ToString();
                     dr["ResponsiblePersonId"] = saveData["ResponsiblePersonId"].ToString();
                     dr["Remarks"] = saveData["Remarks"].ToString();
                     dr["UpdatedBy"] = identity.Name;

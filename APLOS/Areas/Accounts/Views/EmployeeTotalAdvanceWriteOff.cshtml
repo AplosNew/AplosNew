@@ -5,9 +5,9 @@
             <label class="col-sm-4 control-label">Transaction Type<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select name="Transaction Type" class="form-control" ng-model="advance.EmployeeTransactionTypeId" tabindex="7" required>
+                    <select name="Transaction Type" class="form-control" ng-model="advance.EmployeeTransactionTypeId" tabindex="7" ng-change="changeTransactionType()" required>
                         <option value="">--Select--</option>
-                        <option ng-repeat="option in employeeTransactionTypeList" value="{{option.EmployeeTransactionTypeId}}">{{option.EmployeeTransactionTypeName}}</option>
+                        <option ng-repeat="option in employeeTransactionTypeList"  value="{{option.EmployeeTransactionTypeId}}">{{option.EmployeeTransactionTypeName}}</option>
                     </select>
                 </div>
             </div>
