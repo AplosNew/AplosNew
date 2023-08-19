@@ -5094,7 +5094,7 @@ namespace Library.Service.Invoices
                     var grnBuilder = new System.Text.StringBuilder();
                     var buildergrnSql = @"UPDATE [TRN].InventoryReceive set VoucherId =NULL,Status=NULL WHERE Id='" + grnId + "'";
                     var buildergrnDetailSql = @"UPDATE [TRN].InventoryReceiveDetail set VoucherDetailId =NULL WHERE InventoryReceiveId='" + grnId + "'";
-                    var buildergrnTaxSql = @"UPDATE [TRN].InventoryReceiveTax set DrVoucherDetailId =NULL WHERE InventoryReceiveId='" + grnId + "'";
+                    var buildergrnTaxSql = @"UPDATE [TRN].InventoryReceiveTax set DrVoucherDetailId =NULL,CrVoucherDetailId=NULL WHERE InventoryReceiveId='" + grnId + "'";
                     var buildergrnmapSql = @"delete trn.GRNAcceptanceMap  where InvoiceId='" + invoiceId + "'";
                     grnBuilder.Append(buildergrnSql);
                     grnBuilder.Append(buildergrnDetailSql);
