@@ -15,6 +15,8 @@ using System.Data.SqlClient;
 using System.Reflection;
 using System.Threading;
 using OTSBD;
+using Library.Accounting.Accounts;
+using System.Linq;
 
 namespace Library.Accounting.FixedAssets
 {
@@ -2271,6 +2273,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsMaster, dsChild = null;
+            DataSet _assetRegisterData, _assetRegisterChildData = null;
             string _Id = string.Empty;
             string _CId = string.Empty;
             try
@@ -2287,8 +2290,6 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "CapitalizationMaster", out _Id);
 
                     data["Id"] = _Id;
-                    //data["Type"] = "New";
-
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -2326,14 +2327,74 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
 
                 #endregion
 
+                #region items AssetRegister_AssetRegisterChild
+                string _AssetRegisterId = string.Empty;
+                genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "AssetRegister", out _AssetRegisterId);
+                string sqlAssetRegister = "SELECT * FROM [TRN].[AssetRegister] WHERE 1=2 ";
+                string sqlAssetRegisterChild = "SELECT * FROM [TRN].[AssetRegisterChild] WHERE 1=2 ";
+                objCon.OpenDataSetThroughAdapter(sqlAssetRegister, out _assetRegisterData, false, "1");
+                objCon.OpenDataSetThroughAdapter(sqlAssetRegisterChild, out _assetRegisterChildData, false, "1");
+                AccountsCommonService _accountsCommonService = new AccountsCommonService(_sqlRepository);
+
+                for (int i = 0; i < Int32.Parse(data["Qty"].ToString()); i++)
+                {
+                    var id = _accountsCommonService.MakePK(_AssetRegisterId, i + 1, 4);
+                    var assetRegisterData = new
+                    {
+                        Id = id,
+                        FixedAssetItemId = data["FixedAssetItemId"].ToString(),
+                        AddedBy = identity.Name,
+                        AddedDate = System.DateTime.Now.ToString(),
+                        AddedFromIP = identity.IPAddress,
+                    };
+                    AddNewRowAssetRegister(_assetRegisterData.Tables[0], assetRegisterData);
+
+                    var assetRegisterChildData = new
+                    {
+                        Id = _accountsCommonService.MakePK(id, 1, 2),
+                        AssetRegisterId = id,
+                        CapitalizationMasterId = masterId,
+                        Amount = Math.Round(decimal.Parse(data["TotalAmount"].ToString()) / Int32.Parse(data["Qty"].ToString()), 2),
+                        CompanyGroupId = identity.CompanyGroupId,
+                        CompanyId = identity.CompanyId,
+                        PlantId = identity.PlantId,
+                        AddedBy = identity.Name,
+                        AddedDate = System.DateTime.Now.ToString(),
+                        AddedFromIP = identity.IPAddress,
+                    };
+                    AddNewRowAssetRegister(_assetRegisterChildData.Tables[0], assetRegisterChildData);
+
+                }
+
+                #endregion
+
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsChild);
+                obj.SaveDataSets(dsMaster, dsChild, _assetRegisterData, _assetRegisterChildData);
 
             }
             catch (Exception ex)
             {
                 throw (ex);
             }
+        }
+        private void AddNewRowAssetRegister<T>(DataTable dt, T Data)
+        {
+            Dictionary<string, object> sourceData = Data.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).ToDictionary(prop => prop.Name, prop => prop.GetValue(Data, null));
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dt.Rows.Add(dr);
         }
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
