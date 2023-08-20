@@ -484,7 +484,7 @@
                                             <input type="text" ng-model=" x.BuyerReferenceNo" class="form-control" style="width: 105px;" ng-maxlength="50">
                                         </td>
                                         <td>
-                                            <input type="text" ng-model=" x.ProductionGrouping" class="form-control" ng-keyup="SetProductionRef($index);">
+                                            <input type="text" ng-model=" x.ProductionGrouping" class="form-control" ng-keyup="SetProductionRef($index);CheckSpecialCharecter($index);">
                                         </td>
                                         <td>
                                             <input type="text" ng-model=" x.OwnReferenceNo" class="form-control" ng-disabled="x.ProductionGrouping==null" style="width: 105px;" ng-maxlength="50">

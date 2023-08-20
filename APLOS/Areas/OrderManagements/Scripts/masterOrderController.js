@@ -1656,6 +1656,25 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.removeLineItem = function (index) {
         $scope.itemList.splice(index, 1);
     };
+
+
+    function containsSpecialChars(str) {
+        const specialChars = /[`!@#$%^&*()_+\=\[\]{};':"\\|,.<>\/?~]/;
+        return specialChars.test(str);
+    }
+
+    $scope.CheckSpecialCharecter = function (index) {
+        try {
+            if (containsSpecialChars($scope.itemList[index].ProductionGrouping)) {
+                $scope.itemList[index].ProductionGrouping.replace($scope.itemList[index].ProductionGrouping, "");
+                throw "No special characters allowed for Production Group.";
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+
     //#region Party plant 
 
     $scope.invoicingPartyPopUp = function () {

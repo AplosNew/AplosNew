@@ -158,19 +158,35 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     //change list: data,Id,Active,GridName
     $scope.MaterialID = "";
     $scope.isAlternative = -1;
+    //$scope.rowDataBound = function rowDataBound(e) {
+
+    //    if ($scope.MaterialID != e.data.ProductionGrouping + e.data.MaterialMasterId) {
+    //        $scope.isAlternative = $scope.isAlternative * -1;
+    //        $scope.MaterialID = e.data.ProductionGrouping + e.data.MaterialMasterId;
+    //    }
+    //    if ($scope.isAlternative > 0)
+    //        e.row.css("background-color", '#fff6b7');
+    //    else
+    //        e.row.css("background-color", '#d1e5ff');
+
+
+    //}
+
     $scope.rowDataBound = function rowDataBound(e) {
+        if (angular.isUndefinedOrNull($scope.recipeMaterialList) == false) {
+            for (var i = 0; i < $scope.recipeMaterialList.length; i++) {
+                if ($scope.recipeMaterialList[i].ProductionGrouping == e.data.ProductionGrouping) {
+                    e.row.css("background-color", "#90EE90");
+                }
+                else {
+                    e.row.css("background-color", '##013220');
+                }
 
-        if ($scope.MaterialID != e.data.ProductionGrouping + e.data.MaterialMasterId) {
-            $scope.isAlternative = $scope.isAlternative * -1;
-            $scope.MaterialID = e.data.ProductionGrouping + e.data.MaterialMasterId;
+            }
         }
-        if ($scope.isAlternative > 0)
-            e.row.css("background-color", '#fff6b7');
-        else
-            e.row.css("background-color", '#d1e5ff');
-
-
     }
+
+
     //$scope.rowDataBoundOrder = function rowDataBoundOrder(e) {
 
     //    e.row.css("background-color", e.data.color);
