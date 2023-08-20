@@ -249,6 +249,14 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetAvilabeCustomerAdvanceByCustomerList(GridParameter parameters,string CustomerId)
+        {
+            AccountsAdvanceService _accountsAdvanceService = new AccountsAdvanceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsAdvanceService.GetAvilabeCustomerAdvanceByCustomerList(parameters, CustomerId, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.CustomerAdvance), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetAvilabeCustomerAdvance(string partyId, string advanceId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
