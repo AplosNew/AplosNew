@@ -814,6 +814,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
 
                     ShowResult(response.data.Message, 'success');
                     $scope.LoadProcessDetails($scope.scheduleNew.Id);
+                    $scope.GetParameterProcessList($scope.scheduleNew.Id);
                     $scope.Action = 'Save';
                 }
 
