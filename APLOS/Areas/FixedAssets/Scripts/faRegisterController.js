@@ -237,6 +237,8 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
     $scope.CloseMMPopUp = function () {
         MakeData();
         angular.element(document.querySelector("#assetmodal")).modal("hide");
+        angular.element(document.querySelector("#assetmodalCI")).modal("hide");
+        angular.element(document.querySelector("#assetmodalEx")).modal("hide");
     }
 
     function MakeData() {
