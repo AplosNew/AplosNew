@@ -1596,8 +1596,8 @@ namespace Library.Accounting.FixedAssets
                 DataSet _drvDetailCurrencyData = null;
                 DataSet _crvDetailData = null;
                 DataSet _crvDetailCurrencyData = null;
-                DataSet _assetRegisterData = null;
-                DataSet _assetRegisterChildData = null;
+                //DataSet _assetRegisterData = null;
+                //DataSet _assetRegisterChildData = null;
                 var voucherDrId = "";
 
 
@@ -1689,47 +1689,9 @@ namespace Library.Accounting.FixedAssets
                         }, ref _crvDetailCurrencyData);
                     }
                 }
-                bplib.clsGenID genid = new bplib.clsGenID();
-                string _AssetRegisterId = string.Empty;
-                genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "AssetRegister", out _AssetRegisterId);
-                ConnectionManager.DAL.ConManager objCon;
-                string sql = "SELECT * FROM [TRN].[AssetRegister] WHERE 1=2 ";
-                string sqlChild = "SELECT * FROM [TRN].[AssetRegisterChild] WHERE 1=2 ";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out _assetRegisterData, false, "1");
-                objCon.OpenDataSetThroughAdapter(sqlChild, out _assetRegisterChildData, false, "1");
-
-                for (int i = 0; i < Int32.Parse(capitalizationMasterdata["Qty"].ToString()); i++)
-                {
-                    var id = _accountsCommonService.MakePK(_AssetRegisterId, i+1, 4);
-                    var assetRegisterData = new 
-                    {
-                        Id = id,
-                        FixedAssetItemId = capitalizationMasterdata["FixedAssetItemId"].ToString(),
-                        AddedBy = identity.Name,
-                        AddedDate = System.DateTime.Now.ToString(),
-                        AddedFromIP = identity.IPAddress,
-                };
-                    AddNewRow(_assetRegisterData.Tables[0], assetRegisterData);
-
-                    var assetRegisterChildData = new
-                    {
-                        Id = _accountsCommonService.MakePK(id, 1, 2),
-                        AssetRegisterId = id,
-                        CapitalizationMasterId = capitalizationMasterdata["Id"].ToString(),
-                        Amount = Math.Round(voucherVM.Amount/ Int32.Parse(capitalizationMasterdata["Qty"].ToString()),2),
-                        AddedBy = identity.Name,
-                        AddedDate = System.DateTime.Now.ToString(),
-                        AddedFromIP = identity.IPAddress,
-                    };
-                    AddNewRow(_assetRegisterChildData.Tables[0], assetRegisterChildData);
-
-                }
                 
-
-
                 clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_vdataset, _crvDetailData, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, _assetRegisterData, _assetRegisterChildData);
+                objApp.SaveDataSets(_vdataset, _crvDetailData, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData);
                 if (capitalizationMasterdata != null)
                 {
                     var rdBuilder = new System.Text.StringBuilder();

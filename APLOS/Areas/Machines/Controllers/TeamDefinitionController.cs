@@ -330,7 +330,7 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection from 
 							LEFT JOIN ORG.Department AS DEP ON DEP.Id=P.DepartmentId
 							LEFT OUTER JOIN ORG.Section S ON S.Id=P.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
-							LEFT JOIN TRN.TeamBudgetCode TBC ON TBC.BudgetCodeId=MP.Id and TBC.TeamDefinitionId='TD1'
+							LEFT JOIN TRN.TeamBudgetCode TBC ON TBC.BudgetCodeId=MP.Id and TBC.TeamDefinitionId='"+ TeamId + @"'
                             where MP.Active = 1 
 							order by TBC.Id  desc";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
