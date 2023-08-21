@@ -1666,7 +1666,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.CheckSpecialCharecter = function (index) {
         try {
             if (containsSpecialChars($scope.itemList[index].ProductionGrouping)) {
-                $scope.itemList[index].ProductionGrouping.replace($scope.itemList[index].ProductionGrouping, "");
+                $scope.itemList[index].ProductionGrouping = $scope.itemList[index].ProductionGrouping.substring(0, $scope.itemList[index].ProductionGrouping.length - 1);
                 throw "No special characters allowed for Production Group.";
             }
         } catch (e) {
