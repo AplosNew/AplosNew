@@ -444,6 +444,17 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     // #endregion Ddl
 
+    $scope.index = -1;
+    $scope.SetProductionRef = function (ind) {
+        $scope.index = ind;
+       
+        $http.get("OrderManagements/MasterOrder/GetProductionRef?pg=" + $scope.itemList[$scope.index].ProductionGrouping)
+            .then(function (response) {
+                $scope.itemList[$scope.index].OwnReferenceNo = response.data[0].OwnReferenceNo;
+            });
+    }
+
+
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -1645,6 +1656,25 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.removeLineItem = function (index) {
         $scope.itemList.splice(index, 1);
     };
+
+
+    function containsSpecialChars(str) {
+        const specialChars = /[`!@#$%^&*()_+\=\[\]{};':"\\|,.<>\/?~]/;
+        return specialChars.test(str);
+    }
+
+    $scope.CheckSpecialCharecter = function (index) {
+        try {
+            if (containsSpecialChars($scope.itemList[index].ProductionGrouping)) {
+                $scope.itemList[index].ProductionGrouping = $scope.itemList[index].ProductionGrouping.substring(0, $scope.itemList[index].ProductionGrouping.length - 1);
+                throw "No special characters allowed for Production Group.";
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+
     //#region Party plant 
 
     $scope.invoicingPartyPopUp = function () {

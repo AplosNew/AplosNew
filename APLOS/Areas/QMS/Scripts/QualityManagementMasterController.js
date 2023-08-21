@@ -814,6 +814,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
 
                     ShowResult(response.data.Message, 'success');
                     $scope.LoadProcessDetails($scope.scheduleNew.Id);
+                    $scope.GetParameterProcessList($scope.scheduleNew.Id);
                     $scope.Action = 'Save';
                 }
 
@@ -1400,6 +1401,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
             url: 'QMS/QualityManagementMaster/LoadItemEditData?ItemId=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.ItemNew = response.data.item[0];
+            $scope.GetParameterProcessList($scope.ItemNew.QMID);
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }

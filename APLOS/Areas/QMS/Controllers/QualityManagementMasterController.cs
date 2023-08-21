@@ -457,8 +457,16 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
         public ActionResult LoadPositionCodeDetails(string ScheduleId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select CAST (CASE WHEN QPC.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,QPC.Id,P.Id PositionCodeId,P.Code PositionCode,P.UserName Position,QPC.Remarks 
+            string sql = @"select CAST (CASE WHEN QPC.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,QPC.Id,P.Id PositionCodeId,P.Code PositionCode,P.UserName Position,
+D.UserName Division,DEP.UserName Department,S.UserName Section,SS.UserName SUbSection,P.Activity,DEG.UserName Designation,PRO.UserName Process,
+P.UserReportGroup,QPC.Remarks 
                             from ORG.Position P
+							LEFT JOIN ORG.Division D on D.Id=P.DivisionId
+							LEFT JOIN ORG.Department DEP on DEP.Id=P.DepartmentId
+							LEFT JOIN ORG.Section S on S.Id=P.SectionId
+							LEFT JOIN ORG.SubSection SS on SS.Id=P.SubSectionId
+							LEFT JOIN hkp.Designation DEG on DEG.Id=P.DesignationId
+							LEFT JOIN hkp.Process PRO on PRO.Id=P.ProcessId
 							LEFT JOIN [MST].[QualityManagementPositionCode] QPC ON QPC.PositionCodeId=P.Id and QPC.QMID='" + ScheduleId + @"'
                             where P.Active = 1 order by QPC.Id desc";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);

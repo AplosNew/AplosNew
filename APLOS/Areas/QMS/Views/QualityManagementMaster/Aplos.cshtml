@@ -86,7 +86,7 @@
                     <li role="presentation" ng-class="{ active: isSet(0) }"><a ng-click="setTab(0)" href="" aria-controls="doc" role="tab" data-toggle="tab">Entity</a></li>
                     <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">Activity Group</a></li>
                     <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetActivityGroupList()" href="" aria-controls="doc" role="tab" data-toggle="tab">Process</a></li>
-                    <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);GetParameterProcessList()" href="" aria-controls="doc" role="tab" data-toggle="tab">Parameter</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);" href="" aria-controls="doc" role="tab" data-toggle="tab">Parameter</a></li>
                     <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="doc" role="tab" data-toggle="tab">Machine</a></li>
                     <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="doc" role="tab" data-toggle="tab">Product</a></li>
                     <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" aria-controls="doc" role="tab" data-toggle="tab">WorkCenter</a></li>
@@ -527,6 +527,14 @@
                                 <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
                                 <div e-column e-field="PositionCode" e-headertext="Position Code" e-width="100"></div>
                                 <div e-column e-field="Position" e-headertext="Position" e-width="100"></div>
+                                <div e-column e-field="Division" e-headertext="Division" e-width="100"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                                <div e-column e-field="SUbSection" e-headertext="SUb Section" e-width="100"></div>
+                                <div e-column e-field="Activity" e-headertext="Activity" e-width="100"></div>
+                                <div e-column e-field="Designation" e-headertext="Designation" e-width="100"></div>
+                                <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
+                                <div e-column e-field="UserReportGroup" e-headertext="User Report Group" e-width="100"></div>
                                 <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>
                             </div>
                         </div>

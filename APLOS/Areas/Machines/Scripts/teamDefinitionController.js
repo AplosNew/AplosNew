@@ -575,6 +575,7 @@ function teamDefinitionController(cboService, commonMessage, $scope, $rootScope,
                 url: $scope.saveUrlBudgetCode,
                 data: {
                     "DataList": $scope.SaveList,
+                    "Pid": $scope.ModelNew.Id,
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -612,6 +613,7 @@ function teamDefinitionController(cboService, commonMessage, $scope, $rootScope,
                 url: $scope.saveUrlEmployee,
                 data: {
                     "DataList": $scope.SaveList,
+                    "Pid": $scope.ModelNew.Id,
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -648,6 +650,7 @@ function teamDefinitionController(cboService, commonMessage, $scope, $rootScope,
                 url: $scope.saveUrlEntity,
                 data: {
                     "DataList": $scope.SaveList,
+                    "Pid": $scope.ModelNew.Id,
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -684,6 +687,7 @@ function teamDefinitionController(cboService, commonMessage, $scope, $rootScope,
                 url: $scope.saveUrlTeamDefinitionCategory,
                 data: {
                     "DataList": $scope.SaveList,
+                    "Pid": $scope.ModelNew.Id,
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {

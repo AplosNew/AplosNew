@@ -314,10 +314,12 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         IsMandatory: true,
         IsWorkCenter: true,
         Period: null,
-        Frequency: null
+        Frequency: null,
+        ResponsiblePersonId: null,
+        ResponsiblePerson: null
     };
     $scope.IssueNew = Object.assign({}, $scope.Issue);
-    console.log($scope.IssueNew);
+   /* console.log($scope.IssueNew);*/
     $scope.Reason = {
         Id: null,
         IssueId: null,
@@ -3498,7 +3500,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.getResponsible = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'GetEmployee',
+            url: $scope.path + 'GetResponsiblePerson?IssueId=' + $scope.POQualityNew.IssueId,
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.ResponsibleList = resp.data;
@@ -3513,6 +3515,32 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
 
     $scope.closeResponsiblePopUp = function () {
         angular.element(document.querySelector('#ResponsiblePopup')).modal('hide');
+    }
+
+    $scope.selectIssueResponsible = function () {
+        $scope.getIssueResponsible();
+        angular.element(document.querySelector('#IssueResponsiblePopup')).modal('show');
+    }
+
+    $scope.IssueResponsibleList = [];
+    $scope.getIssueResponsible = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetResponsiblePerson?IssueId=' + $scope.IssueNew.IssueNameId,
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.IssueResponsibleList = resp.data;
+        });
+    }
+
+    $scope.doubleIssueResponsible = function (e) {
+        $scope.IssueNew.ResponsiblePersonId = e.data.SystemId;
+        $scope.IssueNew.ResponsiblePerson = e.data.EmployeeName;
+        angular.element(document.querySelector('#IssueResponsiblePopup')).modal('hide');
+    }
+
+    $scope.closeIssueResponsiblePopUp = function () {
+        angular.element(document.querySelector('#IssueResponsiblePopup')).modal('hide');
     }
 
     $scope.getSalesOrderPopUp = function (data) {
