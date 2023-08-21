@@ -315,6 +315,7 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
     }
 
     $scope.downloadgriddataUrlPath = 'GridReports/PPTFileDownLoad';
+    $scope.FN = null;
     $scope.SendDataToGenerateQR = function () {
 
         try {
@@ -342,7 +343,8 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
                 else {
 
                     //$rootScope.report($scope.downloadgriddataUrlPath + "?FileName=" + response.data.FileName);//downloadgriddataUrlPath
-                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                   // $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    $scope.FN = $scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName;
                     ShowResult(response.data.Message, 'success');
                 }
 
