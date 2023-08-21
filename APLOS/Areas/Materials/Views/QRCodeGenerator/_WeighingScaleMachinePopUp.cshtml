@@ -1,8 +1,9 @@
-﻿<div class="modal fade site-modal in" id="weighingmachinepopup" role="dialog" data-backdrop="static">
+﻿<script src="~/Scripts/print.js"></script>
+<div class="modal fade site-modal in" id="weighingmachinepopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-xl" style="width:1140px !important">
         <div class="modal-content">
             <div class="modal-header">
-               Weighing Machine Details
+                Weighing Machine Details
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
@@ -32,14 +33,13 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">PO</label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="PO" ng-model="QRCodeGenerateModel.PO" class="form-control" tabindex="5" maxlength="50" ng-disabled="true">
+                                    <input type="text" name="PO" ng-model="QRCodeGenerateModel.PO" class="form-control" id="po" tabindex="5" maxlength="50" ng-disabled="true">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Product Code</label>
                                 <div class="col-sm-8 show-message">
-
-                                    <input type="text" name="PO" ng-model="QRCodeGenerateModel.ProductCode" class="form-control" tabindex="5" maxlength="50" ng-disabled="true">
+                                    <input type="text" name="PO" ng-model="QRCodeGenerateModel.ProductCode" class="form-control" id="productcode" tabindex="5" maxlength="50" ng-disabled="true">
                                 </div>
                             </div>
 
@@ -55,7 +55,7 @@
                                 <div class="col-sm-8 show-message">
                                     <div class="input-group">
                                         <span>
-                                            <input type="text" name="MinWeight" ng-model="QRCodeGenerateModel.GrossWeight" class="form-control" tabindex="5" maxlength="50" ng-disabled="false">
+                                            <input type="text" name="MinWeight" ng-model="QRCodeGenerateModel.GrossWeight" class="form-control" id="grossweight" tabindex="5" maxlength="50" ng-disabled="false">
                                             @*<button ng-click="RefereshGrossWeight();" class="btn" tabindex="9"><i class="glyphicon glyphicon-refresh"></i></button>*@
                                         </span>
 
@@ -72,9 +72,9 @@
                             </div>
 
                             <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">No. of Cones</label>
+                                <label class="col-sm-4 control-label">No. of Packets</label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="NumberOfCones" ng-model="QRCodeGenerateModel.NumberOfCones" class="form-control" tabindex="5" maxlength="50">
+                                    <input type="text" name="NumberOfCones" ng-model="QRCodeGenerateModel.NumberOfCones" class="form-control" id="noofpackets" tabindex="5" maxlength="50">
                                 </div>
                             </div>
                         </div>
@@ -83,7 +83,7 @@
                                 <label class="col-sm-4 control-label">Article</label>
                                 <div class="col-sm-8 show-message">
 
-                                    <input type="text" name="NumberOfCones" ng-model="QRCodeGenerateModel.Article" class="form-control" tabindex="5" maxlength="50" readonly>
+                                    <input type="text" name="NumberOfCones" ng-model="QRCodeGenerateModel.Article" class="form-control" id="article" tabindex="5" maxlength="50" readonly>
 
                                 </div>
                             </div>
@@ -91,7 +91,7 @@
                                 <label class="col-sm-4 control-label">Shade</label>
                                 <div class="col-sm-8 show-message">
 
-                                    <input type="text" name="NumberOfCones" ng-model="QRCodeGenerateModel.Shade" class="form-control" tabindex="5" maxlength="50" readonly>
+                                    <input type="text" name="NumberOfCones" ng-model="QRCodeGenerateModel.Shade" class="form-control" id="shade" tabindex="5" maxlength="50" readonly>
 
                                 </div>
                             </div>
@@ -105,14 +105,14 @@
                                 <label class="col-sm-4 control-label">Net Wt.</label>
                                 <div class="col-sm-8 show-message">
 
-                                    <input type="text" name="NumberOfCones" ng-model="QRCodeGenerateModel.NetWeight" class="form-control" tabindex="5" maxlength="50" readonly>
+                                    <input type="text" name="NumberOfCones" ng-model="QRCodeGenerateModel.NetWeight" class="form-control" id="netwt" tabindex="5" maxlength="50" readonly>
 
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">LOT</label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="LOT" ng-model="QRCodeGenerateModel.LOT" class="form-control" tabindex="5" maxlength="50">
+                                    <input type="text" name="LOT" ng-model="QRCodeGenerateModel.LOT" class="form-control" id="lot" tabindex="5" maxlength="50">
                                 </div>
                             </div>
 
@@ -206,13 +206,17 @@
                         </td>
                     </tr>
 
-                </tbody>
-            </table>
-            <!--<div class="common-btn">
-                <ul class="list-inline text-right">-->
+                            </tbody>
+                        </table>
+                        <!--<div class="common-btn">
+                            <ul class="list-inline text-right">-->
                 @*<li> <button ng-click="SaveRequisitionChild();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{MovementChildAction}}</button></li>*@
                 <!--<li> <button ng-click="CreateAnotherRows();" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign"></i> Add New Rows</button></li>
 
+                    </ul>
+                </div>-->
+                <!--</div>
+                </div>-->
         </ul>
     </div>-->
                 <!--</div>
@@ -227,7 +231,8 @@
             <div class="modal-footer common-btn">
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li> <button ng-click="SendDataToGenerateQR();" class="btn" tabindex="9"><i class="glyphicon glyphicon-print"></i> Generate QR</button></li>
+                        @*<li> <button ng-click="SendDataToGenerateQR();" class="btn" tabindex="9"><i class="glyphicon glyphicon-print"></i> Generate QR</button></li>*@
+                        <li> <button ng-click="generateQRCode()" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> PREVIEW</button></li>
 
 
                     </ul>
@@ -236,4 +241,5 @@
         </div>
     </div>
 </div>
- 
+
+@Html.Partial("~/Areas/Materials/Views/QRCodeGenerator/_PreviewScreen.cshtml")

@@ -1597,7 +1597,7 @@ where VIO.OutReading is null and VA.Id is not null and VA.VehicleMasterId is not
         [AllowAnonymous]
         public JsonResult GetPurposeList()
         {
-            string sql = @"Select Id Value, UserName Text from HKP.PurposeMaster order by Text ";
+            string sql = @"Select Id Value, UserName Text from HKP.PurposeMaster Where Active = 1 order by Text ";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -1743,6 +1743,14 @@ left join EmployeeInformation EI on EI.SystemId = DM.DriverId";
                     Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
             }
+        }
+
+        [AllowAnonymous]
+        public JsonResult GetDefaultLoginEmployee()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select  EI.SystemId, EI.EmployeeCode ,EI.EmployeeName from EmployeeInformation EI Where EI.SystemId = '"+ identity.UserId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         #endregion Get

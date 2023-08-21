@@ -430,5 +430,89 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
         
     }, 10000)
 
+    $scope.generateQRCode = function () {
+        angular.element(document.querySelector('#PreviewScreenpopup')).modal('show');
+        //let website = document.getElementById("website").value;
+        let PO = document.getElementById("po").value;
+        let productcode = document.getElementById("productcode").value;
+        let noofpackets = document.getElementById("noofpackets").value;
+        let article = document.getElementById("article").value;
+        let shade = document.getElementById("shade").value;
+        let netwt = document.getElementById("netwt").value;
+        let lot = document.getElementById("lot").value;
+
+        let contStr = PO.concat('#', productcode, '#', noofpackets, '#', article, '#', shade, '#', netwt, '#', lot);
+        if (contStr) {
+            let qrcodeContainer = document.getElementById("qrcode");
+            document.getElementById("poText").innerHTML = "PO :  " + PO;
+            document.getElementById("productcodeText").innerHTML = "PROD. CODE :  " + productcode;
+            document.getElementById("noofpacketsText").innerHTML = "NO. OF PACKETS :  " + noofpackets;
+            document.getElementById("articleText").innerHTML = "ARTICLE :  " + article;
+            document.getElementById("shadeText").innerHTML = "SHADE :  " + shade;
+            document.getElementById("netwtText").innerHTML = "NET WT. :  " + netwt;
+            document.getElementById("lotText").innerHTML = "LOT :  " + lot;
+            qrcodeContainer.innerHTML = "";
+            new QRCode(qrcodeContainer, contStr);
+            /*With some styles*/
+            let qrcodeContainer2 = document.getElementById("qrcode");
+               qrcodeContainer2.innerHTML = "";
+               new QRCode(qrcodeContainer2, {
+                 text: contStr,
+                 width: 100,
+                 height: 100,                 
+                 margin:"auto",
+                 //colorDark: "#5868bf",
+                 colorDark: "#000",
+                 //colorLight: "#ffffff",
+                 correctLevel: QRCode.CorrectLevel.H
+                 
+               });
+            document.getElementById("qrcode-container").style.display = "block";
+            
+        } else {
+            alert("Please enter a valid URL");
+        }
+
+        // window.print()
+    }
+
+    $scope.getPrint = function (divName) {
+        
+        const printSection = document.getElementById("qrcode").innerHTML;
+
+        let PO = document.getElementById("po").value;
+        let productcode = document.getElementById("productcode").value;
+        let noofpackets = document.getElementById("noofpackets").value;
+        let article = document.getElementById("article").value;
+        let shade = document.getElementById("shade").value;
+        let netwt = document.getElementById("netwt").value;
+        let lot = document.getElementById("lot").value;
+
+        let POText = document.getElementById("poText").innerHTML = "PO :  " + PO;
+        let productcodeText = document.getElementById("productcodeText").innerHTML = "PROD. CODE :  " + productcode;
+        let noofpacketsText = document.getElementById("noofpacketsText").innerHTML = "NO. OF PACKETS :  " + noofpackets;
+        let articleText = document.getElementById("articleText").innerHTML = "ARTICLE :  " + article;
+        let shadeText = document.getElementById("shadeText").innerHTML = "SHADE :  " + shade;
+        let netwtText = document.getElementById("netwtText").innerHTML = "NET WT. :  " + netwt;
+        let lotText = document.getElementById("lotText").innerHTML = "LOT :  " + lot;
+
+      
+        let view = window.open();
+
+        view.document.write('<div class="align-center" style="margin-left:auto !important">' + printSection+'</div>'
+            , '<p id="poText" class="font-black font-weight txt-block" style="line-height:.1; margin-bottom:20px; font-size:15px">' + POText + '</p>'
+            , '<p id="poText" class="font-black font-weight txt-block" style="line-height:.1; margin-bottom:20px">' + productcodeText + '</p>'
+            , '<p id="poText" class="font-black font-weight txt-block" style="line-height:.1; margin-bottom:20px">' + noofpacketsText + '</p>'
+            , '<p id="poText" class="font-black font-weight txt-block" style="line-height:.7; margin-bottom:20px">' + articleText + '</p>'
+            , '<p id="poText" class="font-black font-weight txt-block" style="line-height:.1; margin-bottom:20px">' + shadeText + '</p>'
+            , '<p id="poText" class="font-black font-weight txt-block" style="line-height:.1; margin-bottom:20px">' + netwtText + '</p>'
+            , '<p id="poText" class="font-black font-weight txt-block" style="line-height:.1; margin-bottom:20px">' + lotText + '</p>'
+            
+        );
+        
+        view.print();
+        view.close();
+    }
+
    
 }
