@@ -1,0 +1,60 @@
+﻿<style>
+    .qrcode {
+        padding: 16px;
+    }
+
+        .qrcode img {
+            margin: 0 auto;
+            height:  100px;
+        }
+    .font-black{
+        color:#000;
+    }
+        .font-black.font-black{
+            font-weight:600;
+            font-size:16px;
+            display:block
+           
+        }
+
+    
+    
+</style>
+
+<div class="modal fade site-modal in" id="PreviewScreenpopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog " style="width:384px !important; height:288px !important">
+        <div class="modal-content">
+            <div class="modal-header">
+                Preview Screen
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-elements form-horizontal" ng-form name="QRCodeGenerateForm">
+                    <div id="qrcode-container">
+                        <div id="qrcode" class="qrcode"></div>
+                        
+                            <h4 id="poText" class="font-black font-weight"></h4>
+                            <h4 id="productcodeText" class="font-black font-weight"></h4>
+                            <h4 id="noofpacketsText" class="font-black font-weight"></h4>
+                            <h4 id="articleText" class="font-black font-weight"></h4>
+                            <h4 id="shadeText" class="font-black font-weight"></h4>
+                            <h4 id="netwtText" class="font-black font-weight"></h4>
+                            <h4 id="lotText" class="font-black font-weight"></h4>
+                        
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        @*<li> <button ng-click="SendDataToGenerateQR();" class="btn" tabindex="9"><i class="glyphicon glyphicon-print"></i> Generate QR</button></li>*@
+                        <li> <button ng-click="getPrint()"  class="btn" tabindex="9"><i class="glyphicon glyphicon-print"></i> PRINT</button></li>
+
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

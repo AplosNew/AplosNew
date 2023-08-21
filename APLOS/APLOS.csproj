@@ -4774,6 +4774,7 @@
     <Content Include="Areas\Accounts\Views\InventoryPayable\_InventoryIssuePendingPopUp.cshtml" />
     <Content Include="Areas\Processes\Views\ProcessManagement\_OWM.cshtml" />
     <Content Include="Areas\Processes\Views\ProcessManagement\_GPL.cshtml" />
+    <Content Include="Areas\Materials\Views\QRCodeGenerator\_PreviewScreen.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -5208,6 +5209,7 @@
     <Content Include="Scripts\MyApp\myAppCalendarController.js" />
     <Content Include="Scripts\navAccordion.min.js" />
     <Content Include="Scripts\preRecruitmentDocumentApprovalController.js" />
+    <Content Include="Scripts\print.js" />
     <Content Include="Scripts\select2.js" />
     <Content Include="Scripts\select2.min.js" />
     <Content Include="Scripts\SignalR-factory.js" />
