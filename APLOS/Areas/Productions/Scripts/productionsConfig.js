@@ -370,5 +370,9 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/QualityControl/AplosWC',
             controller: 'QualityControlController'
         })
+        .when('/quality-action-update', {
+            templateUrl: 'Productions/QualityActionUpdate/Aplos',
+            controller: 'QualityActionUpdateController'
+        })
         ;
 }

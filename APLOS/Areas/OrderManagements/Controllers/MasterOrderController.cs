@@ -95,6 +95,19 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetProductionRef(string pg)
+        {
+            try
+            {
+                return Json(MasterOrder.GetProductionRef(pg), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetOrderCostingMasterTemplateDataByArticle(string articleId)
         {
             try

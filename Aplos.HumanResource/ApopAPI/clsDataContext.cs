@@ -5788,7 +5788,7 @@ where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select Id as Value, StandardName as Name from HKP.PurposeMaster";
+                strSQL = @"select Id as Value, StandardName as Name from HKP.PurposeMaster where Active = 1";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);

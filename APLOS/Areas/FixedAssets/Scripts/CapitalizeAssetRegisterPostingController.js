@@ -106,8 +106,10 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
         $scope.capitalizationMaster.Qty = data.Qty;
         $scope.capitalizationMaster.TotalAmount = data.TotalAmount;
 
+        $scope.getAssetRegister(data.Id);
         $scope.GetCapitalizationMasterDetail();
         $scope.getCapitalizationJV(data.Id);
+       
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -129,6 +131,43 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
         };
 
     };
+    $scope.AssetRegisterList = [];
+    $scope.getAssetRegister = function (Id) {
+        $scope.AssetRegisterList = [];
+        $http({
+            method: 'POST',
+            url: 'fixedassets/FixedAssetRegister/GetAssetRegisterUpdateList',
+            data: { column: $scope.searchByAssetRegisterUpdate, value: $scope.searchAssetRegisterUpdate, capitalizationMasterId: Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.AssetRegisterList = response.data;
+        });
+
+    };
+    var FixedAssetindex = 0;
+    $scope.FixedAssetMasterItemList = [];
+    $scope.ShowFixedAssetMasterItem = function (index) {
+        FixedAssetindex = index;
+        $scope.Url = 'FixedAssets/FixedAssetRegister/GetFixedAssetMasterItem';
+        $http({
+            method: 'Get',
+            url: $scope.Url,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.FixedAssetMasterItemList = response.data;
+        });
+        angular.element(document.querySelector('#fixedAssetMasterItemPoUp')).modal('show');
+    };
+
+    $scope.SetFAMI = function (obj) {
+        //$scope.register.FixedAssetItem = obj.data.UserName;
+        //$scope.register.FixedAssetItemId = obj.data.Id;
+        $scope.AssetRegisterList[FixedAssetindex].FixedAssetItemId = obj.data.Id;
+        $scope.AssetRegisterList[FixedAssetindex].FixedAssetItem = obj.data.UserName;
+        $scope.AssetRegisterList[FixedAssetindex].FixedAssetMaster = obj.data.FixedAssetMaster;
+        angular.element(document.querySelector('#fixedAssetMasterItemPoUp')).modal('hide');
+
+    }
     // #region TAB CHANGE Main
     $scope.tabMain = 1;
     $scope.setTabMain = function (newTab) {
@@ -347,27 +386,29 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
     $scope.hideAssetRegisterUpdatePopUp = function () {
         angular.element(document.querySelector("#AssetRegisterUpdatePopUp")).modal("hide");
     };
+    $scope.TotalAssetAmount = 0;
     $scope.AddAssetRegisterUpdate = function () {
         if (baseService.arrayLength($scope.AssetRegisterUpdateAvailableList) > 0) {
             $scope.checkedAssetRegisterUpdateList = [];
             angular.forEach($scope.AssetRegisterUpdateAvailableList, function (a) {
-                if (a.Active) {
-                    $scope.checkedAssetRegisterUpdateList.push({
-                        AssetRegisterId: a.AssetRegisterId
-                        , FixedAssetItemId: a.FixedAssetItemId
-                        , FixedAssetItem: a.FixedAssetItem
-                        , AssetSlNo: a.AssetSlNo
-                        , RFId: a.RFId
-                        , BarCode: a.BarCode
-                        , Status: a.Status
-                        , AssetCondition: a.AssetCondition
-                        , UserReference: a.UserReference
-                        , OldReference: a.OldReference
-                        , UserGroup: a.UserGroup
-                        , Remarks: a.Remarks
-                        , Active: true
-                    });
-                }
+                $scope.TotalAssetAmount = a.TotalAmount;
+                $scope.checkedAssetRegisterUpdateList.push({
+                    AssetRegisterId: a.AssetRegisterId
+                    , FixedAssetItemId: a.FixedAssetItemId
+                    , FixedAssetItem: a.FixedAssetItem
+                    , AssetSlNo: a.AssetSlNo
+                    , RFId: a.RFId
+                    , BarCode: a.BarCode
+                    , Status: a.Status
+                    , AssetCondition: a.AssetCondition
+                    , UserReference: a.UserReference
+                    , OldReference: a.OldReference
+                    , UserGroup: a.UserGroup
+                    , Remarks: a.Remarks
+                    , Amount: a.Amount
+                    , AssetRegisterChildId: a.AssetRegisterChildId
+                    , Active: true
+                });
             });
         }
 
@@ -377,7 +418,12 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
             ShowResult("Please select Asset Register!", "failure");
             return true;
         }
+        if (parseFloat($filter("sumByKey")($filter("filter")($scope.AssetRegisterUpdateAvailableList), "Amount")) !== parseFloat($scope.TotalAssetAmount)) {
+            ShowResult("Asset Register Amount must be equal Total Amount " + $scope.TotalAssetAmount, "failure");
+            return true;
+        }
     };
+    
     $scope.UpdateAssetRegister = function () {
         $scope.AddAssetRegisterUpdate();
         $scope.validationUpdateAssetRegister();

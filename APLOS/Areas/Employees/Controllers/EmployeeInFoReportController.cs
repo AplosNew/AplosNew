@@ -178,6 +178,8 @@ namespace Aplos.Areas.Employees.Controllers
                 int cGivenDesignationGroup = 0;
                 int cGivenSalaryRule = 0;
                 int cSalaryRule = 0;
+                int cWeekOff = 0;
+                int cIFSCCode = 0;
                 //bc
                 int cEntityCode = 0;
                 int cEntity = 0;
@@ -309,10 +311,11 @@ namespace Aplos.Areas.Employees.Controllers
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shift Effective Date"); cEDate = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Roster Shift Name"); cRoster = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Assign Shift Name", 30); cShift = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Week Off Effective Date"); cWEDate = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Week Off", 25); cWeekOff = xlsCol; xlsCol++;
+                //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Week Off Effective Date"); cWEDate = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Align With Company", 11); cAlignWithCC = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Individual Week Off", 9); cIndv = xlsCol; xlsCol++;
-                // oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Min. OT"); cMaxOtHour = xlsCol; xlsCol++;
+               // oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Individual Week Off", 9); cIndv = xlsCol; xlsCol++;
+               //  oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Min. OT"); cMaxOtHour = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Job Location", 14); cJL = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Company", 25); cCompany = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Department", 30); cDepartment = xlsCol; xlsCol++;
@@ -380,6 +383,7 @@ namespace Aplos.Areas.Employees.Controllers
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Payment Mode"); cPM = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bank Name", 25); cBN = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Account No"); cB = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "IFSC Code", 25); cIFSCCode = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PF", 6); colPF = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PF No"); cPF = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ESIC", 6); colESIC = xlsCol; xlsCol++;
@@ -431,6 +435,8 @@ namespace Aplos.Areas.Employees.Controllers
                     oRU.SetText(ref sheet1, xlsRow, cDOS, dsEmpInfo.Tables[0].Rows[i]["DOS"].ToString());
                     oRU.SetText(ref sheet1, xlsRow, cProbPeriod, dsEmpInfo.Tables[0].Rows[i]["ProbationPeriod"].ToString());
                     oRU.SetText(ref sheet1, xlsRow, cDOC, dsEmpInfo.Tables[0].Rows[i]["DOC"].ToString());
+                    oRU.SetText(ref sheet1, xlsRow, cWeekOff, dsEmpInfo.Tables[0].Rows[i]["WeekOff"].ToString());
+                    oRU.SetText(ref sheet1, xlsRow, cIFSCCode, dsEmpInfo.Tables[0].Rows[i]["IFSCCode"].ToString());
                     if (bplib.clsWebLib.GetBoolData(dsEmpInfo.Tables[0].Rows[i]["IsConfirmed"].ToString()) == false)
                     {
                         sheet1.Range[xlsRow, cDOC].CellStyle.Font.Color = ExcelKnownColors.Red;
@@ -529,9 +535,9 @@ namespace Aplos.Areas.Employees.Controllers
                     {
                         DataRow drTemp = dsAlignWithCompany[dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()];
 
-                        oRU.SetText(ref sheet1, xlsRow, cWEDate, drTemp["WeekOffEffectiveDate"].ToString());
+                       // oRU.SetText(ref sheet1, xlsRow, cWEDate, drTemp["WeekOffEffectiveDate"].ToString());
                         oRU.SetText(ref sheet1, xlsRow, cAlignWithCC, drTemp["AlignWithCC"].ToString());
-                        oRU.SetText(ref sheet1, xlsRow, cIndv, drTemp["FstOffDay"].ToString());
+                        /*oRU.SetText(ref sheet1, xlsRow, cIndv, drTemp["FstOffDay"].ToString());
                         if (drTemp["AlignWithCC"].ToString() == "Yes")
                         {
                             oRU.SetText(ref sheet1, xlsRow, cIndv, "");
@@ -539,7 +545,7 @@ namespace Aplos.Areas.Employees.Controllers
                         else
                         {
                             oRU.SetText(ref sheet1, xlsRow, cIndv, drTemp["FstOffDay"].ToString());
-                        }
+                        }*/
                     }
 
                     if (dsMinimumWage.ContainsKey(dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()))
@@ -809,7 +815,17 @@ namespace Aplos.Areas.Employees.Controllers
                                         WHERE E.SystemId=BTP.EmpSystemId order by BTP.Sequence for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                         , PF.DocNumber PFNumber, ESIC.DocNumber ESICNumber, PF = CASE WHEN PFE.EmpSystemID IS NULL THEN '' WHEN PFE.IsEligible = 1 THEN 'YES' ELSE 'NO' END
                         , ESIC = CASE WHEN ESICE.EmpSystemID IS NULL THEN 'NO' WHEN ESICE.IsEligible = 1 THEN 'YES' ELSE 'NO' END,  IsPositionCodeApplicable=1
-                        ,TenureMonth=DATEDIFF(month, FORMAT(DOJ,'dd-MMM-yyyy'), FORMAT(GETDATE(),'dd-MMM-yyyy')),Ref.RefEmpCode,REF.Ref1Name,REF.Ref1CellPhnNo
+                        ,TenureMonth=DATEDIFF(month, FORMAT(DOJ,'dd-MMM-yyyy'), FORMAT(GETDATE(),'dd-MMM-yyyy')),Ref.RefEmpCode,REF.Ref1Name,REF.Ref1CellPhnNo,
+					   case When
+					   (select top 1 WOH.STANDARDNAME from EmployeeWeeklyOff wo
+							left join WeekOffHeader WOH on WOH.Id = WO.WOHeaderId
+								where wo.EmpSystemID = e.SystemId
+								order by effectivedate desc) is null then  (select Top 1 DefaultWeekOff from dbo.PlantWiseHRMSSetting)
+								else (select top 1 WOH.STANDARDNAME from EmployeeWeeklyOff wo
+							left join WeekOffHeader WOH on WOH.Id = WO.WOHeaderId
+								where wo.EmpSystemID = e.SystemId
+								order by effectivedate desc)
+					   end WeekOff,  EB.IFSCCode
                             FROM EmployeeInformation e
 							LEFT JOIN MST.ManpowerBudget mpb ON mpb.Id = e.BudgetCode
                             LEFT JOIN ORG.Company C ON C.Id = E.CompanyId
@@ -939,7 +955,7 @@ namespace Aplos.Areas.Employees.Controllers
 	                            ) ESICE ON ESICE.EmpSystemID = E.SystemId
                             LEFT JOIN PlantWiseHRMSSetting hs ON hs.PlantID = e.PlantId
 LEFT JOIN (SELECT R.EmpSystemID,B.EmployeeCode RefEmpCode,R.Ref1Name,R.Ref1CellPhnNo FROM [dbo].[EmpReferenceInformation] R LEFT JOIN dbo.EmployeeInformation B ON B.SystemId=R.RefEmpSystemID) REF ON REF.EmpSystemID=E.SystemId
-                            WHERE E.EmpType <> 'Guest' " + wc + @" " + CS + @" " + plant + @"
+                            WHERE E.EmpType <> 'Guest'  " + wc + @" " + CS + @" " + plant + @"
                             ORDER BY ISNULL(e.EmployeeCodePreFix,''), e.EmployeeCodeNumeric";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");

@@ -249,6 +249,14 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetAvilabeCustomerAdvanceByCustomerList(GridParameter parameters,string CustomerId)
+        {
+            AccountsAdvanceService _accountsAdvanceService = new AccountsAdvanceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsAdvanceService.GetAvilabeCustomerAdvanceByCustomerList(parameters, CustomerId, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.CustomerAdvance), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetAvilabeCustomerAdvance(string partyId, string advanceId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -674,12 +682,12 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_accountsAdvanceService.EmployeeAdvanceQuery(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.EmployeeAdvance), JsonRequestBehavior.AllowGet);
         }
-        [Authorize, HttpGet]
-        public JsonResult GetEmployeeAvilabeAdvanceSalaryList(GridParameter parameters)
+        [HttpPost, Authorize]
+        public JsonResult GetEmployeeAvilabeAdvanceSalaryList(string column, string value)
         {
             AccountsAdvanceService _accountsAdvanceService = new AccountsAdvanceService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_accountsAdvanceService.EmployeeAdvanceSalaryQuery(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.EmployeeAdvance), JsonRequestBehavior.AllowGet);
+            return Json(_accountsAdvanceService.EmployeeAdvanceSalaryQuery(column, value, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.EmployeeAdvance), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
         public JsonResult GetEmployeeAvilabeTotalAdvanceList(GridParameter parameters)

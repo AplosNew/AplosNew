@@ -12,22 +12,43 @@
                             <div class="row">
                                 <div class="col-xs-12 col-sm-3 col-md-3">
                                     <div class="select-style">
-                                        <select ng-model="employeeAdvanceParameters.searchBy">
+                                        <select ng-model="searchByEmployeeAdvance">
                                             <option ng-repeat="option in employeeAdvanceSearchList" value="{{option.Value}}">{{option.Text}}</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="employeeAdvanceParameters.search" ng-enter="getEmployeeAdvanceData()">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchAdvance" ng-enter="showEmployeeAdvanceSalaryPopUpList()">
                                 </div>
                                 <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="getEmployeeAdvanceData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    <button type="button" ng-click="showEmployeeAdvanceSalaryPopUpList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive modal-table">
+                <div class="modal-body">
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="GridEmpSalary" ej-grid e-datasource="employeeAdvanceDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-recorddoubleclick="closeEmployeeSalaryAdvancePopUp" e-allowselection="true" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                @*<div e-column e-field="EmployeeName" e-headertext="Employee" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>*@
+                                <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="80"></div>
+                                <div e-column e-field="EmployeeCode" e-headertext="EmployeeCode" e-width="80"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                <div e-column e-field="DocDate" e-headertext="DocDate" e-width="80"></div>
+                                <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="80"></div>
+                                <div e-column e-field="EntityName" e-headertext="Entity" e-width="60"></div>
+                                <div e-column e-field="EmployeeTransactionTypeName" e-headertext="Transaction Type" e-width="60"></div>
+                                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="60"></div>
+                                <div e-column e-field="Receivable" e-headertext="Advanced" e-width="60"></div>
+                                <div e-column e-field="Received" e-headertext="Write-off" e-width="60"></div>
+                                <div e-column e-field="Balance" e-headertext="Balance" e-width="60"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>
                             <tr>
@@ -61,7 +82,7 @@
                     </table>
                     <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'employeeAdvanceDataList'"
                                              direction-links="true" boundary-links="true" on-page-change="getEmployeeAdvanceData(newPageNumber)"></dir-pagination-controls>
-                </div>
+                </div>*@
             </div>
 
 
