@@ -2171,9 +2171,9 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById Order by CM.Ad
 FROM [TRN].[CapitalizationMaster] CM
 LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById
-Where CM.Type='" + type + "' AND CM.IsApproved=1 AND CM.VoucherRowId IS NULL";
+Where CM.Type='" + type + "' AND CM.IsApproved=1 AND CM.VoucherId IS NULL";
 
-            return _sqlRepository.GetDataCollection(sql);
+             return _sqlRepository.GetDataCollection(sql);
         }
         public List<Dictionary<string, object>> GetFixedAssetMasterItem()
         {
@@ -2495,11 +2495,12 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
-                var sql = @"SELECT TOP 500 * from ( SELECT 0 Active, AR.Id AssetRegisterId, AR.FixedAssetItemId,FAI.UserName FixedAssetItem, AR.AssetSlNo, AR.RFId, AR.BarCode
+                var sql = @"SELECT TOP 500 * from ( SELECT 0 Active, AR.Id AssetRegisterId, AR.FixedAssetItemId,FAI.UserName FixedAssetItem,FAM.UserName FixedAssetMaster, AR.AssetSlNo, AR.RFId, AR.BarCode
                             ,AR.AdditionalInfoUpdateId, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks 
                             ,ARC.Id AssetRegisterChildId,ARC.Amount,ARC.DepreciationAmount,CM.TotalAmount
                             FROM TRN.AssetRegister AR
                             LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
+                            LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
                             LEFT JOIN TRN.AssetRegisterChild ARC ON ARC.AssetRegisterId=AR.Id AND ARC.CapitalizationMasterId='" + capitalizationMasterId + @"'
                             LEFT JOIN [TRN].[CapitalizationMaster] CM ON CM.Id=ARC.CapitalizationMasterId
                             WHERE AR.Id in(SELECT AssetRegisterId FROM [TRN].[AssetRegisterChild] where CapitalizationMasterId='" + capitalizationMasterId + @"')
