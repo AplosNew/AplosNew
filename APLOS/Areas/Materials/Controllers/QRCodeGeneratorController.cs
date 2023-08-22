@@ -22,6 +22,9 @@ using System.IO.Ports;
 using System.Drawing;
 using Syncfusion.Pdf;
 using Syncfusion.PresentationToPdfConverter;
+using Syncfusion.DocIO.DLS;
+using System.Text.RegularExpressions;
+using Syncfusion.DocToPDFConverter;
 
 namespace Aplos.Areas.Materials.Controllers
 {
@@ -101,14 +104,186 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-       
+        private void CreateIDCardInWord(Dictionary<string, object> data)
+        {
+            try
+            {
 
-        public IPresentation CreateQRCode(Dictionary<string, object> data, string ShadeText, string ArticleName, string productcodeText, string NetWeightText)
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility oRU = new ReportUtility();
+                string File = "";
+                string strPath = "";
+                string language = "";
+                var fileName = "QRCode.docx";
+                string filepath = "";
+
+                
+
+                DataTable dt = new DataTable("DD");
+
+                foreach (string item in data.Keys)
+
+                {
+
+                    if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+
+                        continue;
+
+
+
+                    dt.Columns.Add(item);
+
+                }
+
+
+
+
+
+                for (int i = 0; i < data.Count; i++)
+
+                {
+
+                    DataRow dr = dt.NewRow();
+
+                    foreach (string item in data.Keys)
+
+                    {
+
+                        if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+
+                            continue;
+
+
+
+                        dr[item] = data[item];
+
+                    }
+
+
+
+                    dt.Rows.Add(dr);
+
+                }
+
+
+                strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), fileName);
+                    File = fileName;
+                    if (!System.IO.File.Exists(strPath))
+                    {
+                        throw new CustomException("File Not Found");
+                    }
+                
+
+                filepath = "";
+                if (System.IO.File.Exists(strPath))
+                {
+                    filepath = strPath;
+                }
+
+                FileInfo DocFile = new FileInfo(filepath);
+                if (DocFile.Exists == false)
+                {
+                    //DocFile = new FileInfo(System.Web.HttpContext.Current.Server.MapPath(".") + "\\Doc1.docx");
+                    throw new CustomException("File Not Found");
+                }
+
+                
+                ////A opens input document.
+                WordDocument document = new WordDocument(DocFile.FullName);
+
+
+
+                TextSelection[] X = document.FindAll(new Regex("{.*?}")).ToArray();
+                List<string> allresult = new List<string>();
+                for (int i = 0; i < X.Length; i++)
+                    allresult.Add(X[i].SelectedText);
+
+
+                Dictionary<string, int> replaced = new Dictionary<string, int>();
+
+                string value = "";
+                for (int i = 0; i < allresult.Count; i++)
+                {
+                    try
+                    {
+                        string foundText = allresult[i];
+
+                        if (replaced.ContainsKey(foundText) == false)
+                            replaced.Add(foundText, 0);
+
+                        //for fixed info
+                        string colName = foundText.Trim().Replace("{", "").Replace("}", "");
+
+                        if (dt.Columns.Contains(colName))
+                        {
+
+                            value = dt.Rows[0][dt.Columns[colName].ColumnName].ToString();
+                            
+                            replaced[foundText] = document.Replace(foundText, value, false, false);
+                        }
+
+
+                    }
+                    catch (Exception ex)
+                    {
+
+                        throw ex;
+                    }
+                }
+               
+              
+
+                foreach (string item in replaced.Keys)
+                {
+                    if (replaced[item] == 0)
+                        document.Replace(item, "", false, true);
+
+                }
+
+                string fileNames = string.Empty;
+                                  
+                fileNames = "QRCode.docx";
+                   
+                
+                //document.Save(fileNames, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
+               // document.Close();
+
+                ////Creates an instance of the DocToPDFConverter
+                ///
+
+                DocToPDFConverter converter = new DocToPDFConverter();
+                converter.Settings.EmbedFonts = false;
+
+
+                ////Converts Word document into PDF document
+                PdfDocument pdfDocument = converter.ConvertToPDF(document);
+
+                ////Releases all resources used by DocToPDFConverter
+                converter.Dispose();
+
+                ////Closes the instance of document objects
+                document.Close();
+
+                ////Saves the PDF file 
+                pdfDocument.Save(fileNames + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
+                ////Closes the instance of document objects
+                pdfDocument.Close(true);
+
+                document.Close();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public IPresentation CreateQRCode(Dictionary<string, object> data)
         {
            
             try
             {
-                
+                   
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ReportUtility oRU = new ReportUtility();
                 string File = "";
@@ -164,17 +339,17 @@ namespace Aplos.Areas.Materials.Controllers
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
                 //Opens a PowerPoint Presentation
-                //presentation = Presentation.Open(fullPath);
+                presentation = Presentation.Open(fullPath);
                 //Converts the PowerPoint Presentation into PDF document
-               // PdfDocument pdfDocument = PresentationToPdfConverter.Convert(presentation);
+               PdfDocument pdfDocument = PresentationToPdfConverter.Convert(presentation);
                 //Saves the PDF document
-               // pdfDocument.Save(fullPath+".pdf");
+               pdfDocument.Save(fullPath+".pdf");
                 //Closes the PDF document
-               // pdfDocument.Close(true);
+               pdfDocument.Close(true);
                 //Closes the Presentation
-               // presentation.Close();
+               presentation.Close();
                 //This will open the PDF file so, the result will be seen in default PDF viewer
-               // System.Diagnostics.Process.Start(fullPath+".pdf");
+               System.Diagnostics.Process.Start(fullPath+".pdf");
 
 
                 return presentation;
@@ -227,19 +402,21 @@ namespace Aplos.Areas.Materials.Controllers
                 }
                 #endregion data update
 
-                //var fileName = "QRCode.pptx";
-                var fileName = "QRCode" + identity.PlantId + ".pptx";
+                var fileName = "QRCode.docx";
+                //var fileName = "QRCode" + identity.PlantId + ".pptx";
 
-                var datas = CreateQRCode(data, ShadeText, ArticleName, productcodeText, NetWeightText);
+                //var datas = CreateQRCode(data);
 
-                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+                CreateIDCardInWord(data);
+
+                //string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
                 clsStaticInfo _info = new clsStaticInfo();
 
                 _info.SaveDataSets(dsMaster);
                 
                 con.BeginTransaction();
-                datas.Save(fullPath);
+                //datas.Save(fullPath);
 
                 //con.executeQuery($"update dbo.WeighingScaleDataCapture set isQR = 1 where Id ='" + data["GrossWeightId"] + "'");
                 //con.CommitTransaction();
