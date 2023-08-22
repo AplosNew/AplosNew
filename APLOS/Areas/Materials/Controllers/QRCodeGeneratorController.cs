@@ -30,11 +30,11 @@ namespace Aplos.Areas.Materials.Controllers
 {
     public class QRCodeGeneratorController : Controller
     {
-        
+
         private readonly SqlRepository _sqlRepository;
         public string DataReceived = "";
 
-        
+
 
         SerialPort serialPort = new SerialPort("COM9", 19200, Parity.None, 8, StopBits.One);
         public QRCodeGeneratorController()
@@ -63,7 +63,8 @@ namespace Aplos.Areas.Materials.Controllers
                             left join HKP.ProductionStatus PS on PS.Id = PO.ProductionStatusId
                             where PS.UserName in ('Running', 'ToClose') and PO.Id = '" + poid + "'";
             }
-            else if (customerId != null) {
+            else if (customerId != null)
+            {
                 sql = @"select distinct ''Id, MMA.StandardName Article, MMA.Id ArticleId, PL.Code ProductCode, PLA.AttributeValue Shade, PO.Id PO, PS.UserName ProductionStatus
                             from TRN.ProductionOrder PO
                             left join TRN.ProductionOrderDetail POD on POD.ProductionOrderId = PO.Id
@@ -92,11 +93,12 @@ namespace Aplos.Areas.Materials.Controllers
                             where PS.UserName in ('Running', 'ToClose')";
 
             }
-            
+
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult GetEntity() { 
+        public ActionResult GetEntity()
+        {
             string sql = @"select Id Value, UserName Text from org.Entity
                             where Active = 1
                             order by Text
@@ -104,195 +106,23 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        private void CreateIDCardInWord(Dictionary<string, object> data)
-        {
-            try
-            {
-
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                ReportUtility oRU = new ReportUtility();
-                string File = "";
-                string strPath = "";
-                string language = "";
-                var fileName = "QRCode.docx";
-                string filepath = "";
-
-                
-
-                DataTable dt = new DataTable("DD");
-
-                foreach (string item in data.Keys)
-
-                {
-
-                    if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
-
-                        continue;
-
-
-
-                    dt.Columns.Add(item);
-
-                }
-
-
-
-
-
-                for (int i = 0; i < data.Count; i++)
-
-                {
-
-                    DataRow dr = dt.NewRow();
-
-                    foreach (string item in data.Keys)
-
-                    {
-
-                        if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
-
-                            continue;
-
-
-
-                        dr[item] = data[item];
-
-                    }
-
-
-
-                    dt.Rows.Add(dr);
-
-                }
-
-
-                strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), fileName);
-                    File = fileName;
-                    if (!System.IO.File.Exists(strPath))
-                    {
-                        throw new CustomException("File Not Found");
-                    }
-                
-
-                filepath = "";
-                if (System.IO.File.Exists(strPath))
-                {
-                    filepath = strPath;
-                }
-
-                FileInfo DocFile = new FileInfo(filepath);
-                if (DocFile.Exists == false)
-                {
-                    //DocFile = new FileInfo(System.Web.HttpContext.Current.Server.MapPath(".") + "\\Doc1.docx");
-                    throw new CustomException("File Not Found");
-                }
-
-                
-                ////A opens input document.
-                WordDocument document = new WordDocument(DocFile.FullName);
-
-
-
-                TextSelection[] X = document.FindAll(new Regex("{.*?}")).ToArray();
-                List<string> allresult = new List<string>();
-                for (int i = 0; i < X.Length; i++)
-                    allresult.Add(X[i].SelectedText);
-
-
-                Dictionary<string, int> replaced = new Dictionary<string, int>();
-
-                string value = "";
-                for (int i = 0; i < allresult.Count; i++)
-                {
-                    try
-                    {
-                        string foundText = allresult[i];
-
-                        if (replaced.ContainsKey(foundText) == false)
-                            replaced.Add(foundText, 0);
-
-                        //for fixed info
-                        string colName = foundText.Trim().Replace("{", "").Replace("}", "");
-
-                        if (dt.Columns.Contains(colName))
-                        {
-
-                            value = dt.Rows[0][dt.Columns[colName].ColumnName].ToString();
-                            
-                            replaced[foundText] = document.Replace(foundText, value, false, false);
-                        }
-
-
-                    }
-                    catch (Exception ex)
-                    {
-
-                        throw ex;
-                    }
-                }
-               
-              
-
-                foreach (string item in replaced.Keys)
-                {
-                    if (replaced[item] == 0)
-                        document.Replace(item, "", false, true);
-
-                }
-
-                string fileNames = string.Empty;
-                                  
-                fileNames = "QRCode.docx";
-                   
-                
-                //document.Save(fileNames, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
-               // document.Close();
-
-                ////Creates an instance of the DocToPDFConverter
-                ///
-
-                DocToPDFConverter converter = new DocToPDFConverter();
-                converter.Settings.EmbedFonts = false;
-
-
-                ////Converts Word document into PDF document
-                PdfDocument pdfDocument = converter.ConvertToPDF(document);
-
-                ////Releases all resources used by DocToPDFConverter
-                converter.Dispose();
-
-                ////Closes the instance of document objects
-                document.Close();
-
-                ////Saves the PDF file 
-                pdfDocument.Save(fileNames + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
-                ////Closes the instance of document objects
-                pdfDocument.Close(true);
-
-                document.Close();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-
-        }
+  
 
         public IPresentation CreateQRCode(Dictionary<string, object> data)
         {
-           
+
             try
             {
-                   
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ReportUtility oRU = new ReportUtility();
                 string File = "";
-               
+
                 string langName = "";
                 string strPath = "";
                 var fileName = "";
 
-                fileName = "QRCode" + identity.PlantId  + ".pptx";
+                fileName = "QRCode" + identity.PlantId + ".pptx";
                 //fileName = "QRCode.pptx";
                 strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), fileName);  // IDCardEng.xlsx
                 File = fileName;
@@ -341,30 +171,30 @@ namespace Aplos.Areas.Materials.Controllers
                 //Opens a PowerPoint Presentation
                 presentation = Presentation.Open(fullPath);
                 //Converts the PowerPoint Presentation into PDF document
-               PdfDocument pdfDocument = PresentationToPdfConverter.Convert(presentation);
+                PdfDocument pdfDocument = PresentationToPdfConverter.Convert(presentation);
                 //Saves the PDF document
-               pdfDocument.Save(fullPath+".pdf");
+                pdfDocument.Save(fullPath + ".pdf");
                 //Closes the PDF document
-               pdfDocument.Close(true);
+                pdfDocument.Close(true);
                 //Closes the Presentation
-               presentation.Close();
+                presentation.Close();
                 //This will open the PDF file so, the result will be seen in default PDF viewer
-               System.Diagnostics.Process.Start(fullPath+".pdf");
+                System.Diagnostics.Process.Start(fullPath + ".pdf");
 
 
                 return presentation;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
-            
+
         }
 
         public ActionResult GenerateQRCode(Dictionary<string, object> data, string ShadeText, string ArticleName, string productcodeText, string NetWeightText)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            
+
             try
             {
 
@@ -380,7 +210,7 @@ namespace Aplos.Areas.Materials.Controllers
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
 
-                string _Id = "";
+                string _Id,Id = "";
 
                 #region data Master update
                 if (dsMaster.Tables[0].Rows.Count == 0)
@@ -389,7 +219,7 @@ namespace Aplos.Areas.Materials.Controllers
                     genid.GenID(TableName, out _Id);
 
                     data["Id"] = _Id;
-                   
+
                     data["UserId"] = identity.UserId;
                     AddNewRow(dsMaster.Tables[0], data);
 
@@ -400,6 +230,7 @@ namespace Aplos.Areas.Materials.Controllers
 
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
+                Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
                 #endregion data update
 
                 var fileName = "QRCode.docx";
@@ -407,14 +238,14 @@ namespace Aplos.Areas.Materials.Controllers
 
                 //var datas = CreateQRCode(data);
 
-                CreateIDCardInWord(data);
+                
 
                 //string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
                 clsStaticInfo _info = new clsStaticInfo();
 
                 _info.SaveDataSets(dsMaster);
-                
+
                 con.BeginTransaction();
                 //datas.Save(fullPath);
 
@@ -422,14 +253,128 @@ namespace Aplos.Areas.Materials.Controllers
                 //con.CommitTransaction();
 
 
-                return Json(new { FileName = fileName, Error = false, Message = AplosMessage.Insert });
+                return Json(new { Id, Error = false, Message = AplosMessage.Insert });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
-            
-            
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetGeneratedQRCode(string Id)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            CreateIDCardInWord(Id);
+            return View();
+        }
+
+        private void CreateIDCardInWord(string Id)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility oRU = new ReportUtility();
+                string File = "";
+                string strPath = "";
+                string language = "";
+                var fileName = "QRCode.docx";
+                string filepath = "";
+
+                DataTable dt = _sqlRepository.GetDataTable(@"Select * from [dbo].[WeighingScaleData] Where Id='"+Id+"'");
+
+               
+                strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), fileName);
+                File = fileName;
+                if (!System.IO.File.Exists(strPath))
+                {
+                    throw new CustomException("File Not Found");
+                }
+
+                filepath = "";
+                if (System.IO.File.Exists(strPath))
+                {
+                    filepath = strPath;
+                }
+
+                FileInfo DocFile = new FileInfo(filepath);
+                if (DocFile.Exists == false)
+                {
+                    //DocFile = new FileInfo(System.Web.HttpContext.Current.Server.MapPath(".") + "\\Doc1.docx");
+                    throw new CustomException("File Not Found");
+                }
+
+                ////A opens input document.
+                WordDocument document = new WordDocument(DocFile.FullName);
+                TextSelection[] X = document.FindAll(new Regex("{.*?}")).ToArray();
+                List<string> allresult = new List<string>();
+                for (int i = 0; i < X.Length; i++)
+                    allresult.Add(X[i].SelectedText);
+
+                Dictionary<string, int> replaced = new Dictionary<string, int>();
+
+                string value = "";
+                for (int i = 0; i < allresult.Count; i++)
+                {
+                    try
+                    {
+                        string foundText = allresult[i];
+                        if (replaced.ContainsKey(foundText) == false)
+                            replaced.Add(foundText, 0);
+                        //for fixed info
+                        string colName = foundText.Trim().Replace("{", "").Replace("}", "");
+                        if (dt.Columns.Contains(colName))
+                        {
+                            value = dt.Rows[0][dt.Columns[colName].ColumnName].ToString();
+                            replaced[foundText] = document.Replace(foundText, value, false, false);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
+                    }
+                }
+
+                foreach (string item in replaced.Keys)
+                {
+                    if (replaced[item] == 0)
+                        document.Replace(item, "", false, true);
+                }
+
+                string fileNames = string.Empty;
+                fileNames = "QRCode.docx";
+
+
+                //document.Save(fileNames, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
+                // document.Close();
+
+                ////Creates an instance of the DocToPDFConverter
+                ///
+
+                DocToPDFConverter converter = new DocToPDFConverter();
+                converter.Settings.EmbedFonts = false;
+
+                ////Converts Word document into PDF document
+                PdfDocument pdfDocument = converter.ConvertToPDF(document);
+
+                ////Releases all resources used by DocToPDFConverter
+                converter.Dispose();
+
+                ////Closes the instance of document objects
+                //document.Close();
+
+                ////Saves the PDF file 
+                pdfDocument.Save(fileNames + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
+                ////Closes the instance of document objects
+                pdfDocument.Close(true);
+                document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
+                document.Close();
+            }
+            catch (Exception ex)
+            {
+                //throw ex;
+            }
+
         }
 
         #region GeFun
@@ -464,16 +409,16 @@ namespace Aplos.Areas.Materials.Controllers
         {
             string sql = @"
                     Select PL.Id Value,  PL.Code, ArticleId from ProductLibrary PL
-                    where PL.ArticleId = '"+ articleid + "'";
+                    where PL.ArticleId = '" + articleid + "'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult GetShade(string prodId)
         {
-            string sql = @"select Id Value, AttributeValue Text from ProductLibraryAttribute where ProductLibraryId = '"+ prodId + "'";
+            string sql = @"select Id Value, AttributeValue Text from ProductLibraryAttribute where ProductLibraryId = '" + prodId + "'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
-        
+
         public ActionResult GetNetWeight()
         {
             string sql = @"select top(1) Id Value, [NET WEIGHT06] Text from WeighingScaleDataCapture where isQR = 0 order by AddedDate desc";
@@ -482,7 +427,7 @@ namespace Aplos.Areas.Materials.Controllers
 
         public ActionResult GetGrossWeight(int mno)
         {
-            string sql = @"select top(1) Id Value, [G. WEIGHT07] Text from WeighingScaleDataCapture where isQR = 0 and MNo = '"+mno+"' order by AddedDate desc";
+            string sql = @"select top(1) Id Value, [G. WEIGHT07] Text from WeighingScaleDataCapture where isQR = 0 and MNo = '" + mno + "' order by AddedDate desc";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -537,7 +482,8 @@ namespace Aplos.Areas.Materials.Controllers
             DataTable pref_dt = _sqlRepository.GetDataTable("SELECT Prefix FROM MST.MaterialMovementMaster");
             if (dt.Rows.Count > 0)
             {
-                if(pref_dt.Rows.Count > 0) {
+                if (pref_dt.Rows.Count > 0)
+                {
                     return clsStaticInfo.dbl(pref_dt.Rows[0]["Prefix"].ToString()) + clsStaticInfo.dbl(dt.Rows[0]["StartRefNo"].ToString()) + 1;
 
                 }
@@ -548,20 +494,20 @@ namespace Aplos.Areas.Materials.Controllers
 
         public ActionResult GetPort()
         {
-            
-            
+
+
             try
             {
-               
+
                 List<Item> items = new List<Item>();
-               
+
                 foreach (var item in SerialPort.GetPortNames())
                 {
                     items.Add(new Item() { Text = item, Value = item });
                 }
-                
-                
-                
+
+
+
                 return Json(items, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -580,7 +526,7 @@ namespace Aplos.Areas.Materials.Controllers
                     serialPort.Open();
 
                 }
-                
+
                 //var data = Read();
                 return true;
             }
@@ -600,7 +546,7 @@ namespace Aplos.Areas.Materials.Controllers
                     serialPort.Open();
 
                 }
-               
+
                 var data = Read();
                 Disconnect();
                 return data;
@@ -633,13 +579,13 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-               
-                    this.DataReceived = serialPort.ReadLine().ToString();
-               
-                
+
+                this.DataReceived = serialPort.ReadLine().ToString();
+
+
                 return (this.DataReceived);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw;
             }
@@ -651,20 +597,20 @@ namespace Aplos.Areas.Materials.Controllers
         SerialPort oSerialPort = new SerialPort();
 
         // Allow the user to set the appropriate properties. 
-	    public int BaudRate = 9600; 
-	    public int DataBits = 8; 
-	    public int ReadTimeout = 500; 
-	    public int WriteTimeout = 500; 
-	    public string PortName = "COM4"; 
-	    public string Handshake = ""; 
-	    public string Name = "user"; 
-	    public string DataReceived = ""; 
-	    public string sParity = "none"; 
-	    public int iStopBits = 1;
+        public int BaudRate = 9600;
+        public int DataBits = 8;
+        public int ReadTimeout = 500;
+        public int WriteTimeout = 500;
+        public string PortName = "COM4";
+        public string Handshake = "";
+        public string Name = "user";
+        public string DataReceived = "";
+        public string sParity = "none";
+        public int iStopBits = 1;
 
         public HyperTerminalAdapter()
         {
-           this.Configure();
+            this.Configure();
         }
 
         public void Configure()
@@ -674,48 +620,48 @@ namespace Aplos.Areas.Materials.Controllers
             oSerialPort.DataBits = this.DataBits;
             oSerialPort.ReadTimeout = this.ReadTimeout;
             oSerialPort.WriteTimeout = this.WriteTimeout;
-            
+
             oSerialPort.Handshake = System.IO.Ports.Handshake.None;
-            
-          if (this.sParity == "even")
+
+            if (this.sParity == "even")
             {
-              oSerialPort.Parity = Parity.Even;
+                oSerialPort.Parity = Parity.Even;
             }
             else if (this.sParity == "odd")
             {
-               oSerialPort.Parity = Parity.Odd;
+                oSerialPort.Parity = Parity.Odd;
             }
             else if (this.sParity == "mark")
             {
-              oSerialPort.Parity = Parity.Mark;
+                oSerialPort.Parity = Parity.Mark;
             }
             else if (this.sParity == "space")
             {
-               oSerialPort.Parity = Parity.Space;
+                oSerialPort.Parity = Parity.Space;
             }
             else
             {
-               oSerialPort.Parity = Parity.None;
-             }
-            
-          if (this.iStopBits == 0)
+                oSerialPort.Parity = Parity.None;
+            }
+
+            if (this.iStopBits == 0)
             {
-              oSerialPort.StopBits = StopBits.None;
+                oSerialPort.StopBits = StopBits.None;
             }
             else if (this.iStopBits == 1.5)
             {
-              oSerialPort.StopBits = StopBits.OnePointFive;
+                oSerialPort.StopBits = StopBits.OnePointFive;
             }
             else if (this.iStopBits == 2)
             {
-              oSerialPort.StopBits = StopBits.Two;
+                oSerialPort.StopBits = StopBits.Two;
             }
             else
             {
-              oSerialPort.StopBits = StopBits.One;
+                oSerialPort.StopBits = StopBits.One;
             }
-            
-          //MessageBox.Show("Configured");
+
+            //MessageBox.Show("Configured");
         }
 
         public void Connect()
@@ -730,8 +676,8 @@ namespace Aplos.Areas.Materials.Controllers
             }
             catch (Exception)
             {
-               // MessageBox.Show("Error: Connection is in use or is not available: \n\n" + e1);
-                
+                // MessageBox.Show("Error: Connection is in use or is not available: \n\n" + e1);
+
             }
         }
 
@@ -761,13 +707,13 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-                              this.DataReceived = oSerialPort.ReadLine().ToString();
-                             // MessageBox.Show(this.DataReceived);
-                              return (this.DataReceived);
+                this.DataReceived = oSerialPort.ReadLine().ToString();
+                // MessageBox.Show(this.DataReceived);
+                return (this.DataReceived);
             }
             catch
             {
-               return "";
+                return "";
             }
         }
 
