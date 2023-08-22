@@ -386,7 +386,17 @@ namespace Library.Service.Extension.Accounts
                 throw new CustomException("This Transaction Type GL not Found!.");
             return glTemp;
         }
+        public Dictionary<string, object> GetDiscountGL(string companyId, string sourceType)
+        {
+            var sql = @"SELECT TOP(1) FTGL.* FROM [HKP].[FinancingTypeGL] AS FTGL JOIN [HKP].[FinancingType] FT ON FT.Id=FTGL.FinancingTypeId
+                        INNER JOIN [ORG].[Company] AS C ON C.COAId=FTGL.COAId
+                        WHERE C.Id='"+ companyId + "' AND FT.SourceType='" + sourceType + "'";
+            var glTemp = _sqlRepository.GetData(sql);
 
+            if (null == sql || glTemp.Count == 0)
+                throw new CustomException("There is no  Discount GL Found!.");
+            return glTemp;
+        }
         public Dictionary<string, object> GetTaxCode(string id)
         {
             var sql = @"SELECT TOP(1) TCGL.*,TC.TaxCategoryType  FROM [MST].[TaxCode] AS TCGL 
