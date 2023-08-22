@@ -314,7 +314,8 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
         }
     }
 
-    $scope.downloadgriddataUrlPath = 'GridReports/PPTFileDownLoad';
+    //$scope.downloadgriddataUrlPath = 'GridReports/PPTFileDownLoad';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
     $scope.FN = null;
     $scope.SendDataToGenerateQR = function () {
 
@@ -486,6 +487,7 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
         let article = document.getElementById("article").value;
         let shade = document.getElementById("shade").value;
         let netwt = document.getElementById("netwt").value;
+        let grosswt = document.getElementById("grossweight").value;
         let lot = document.getElementById("lot").value;
 
         let POText = document.getElementById("poText").innerHTML = "PO :  " + PO;
@@ -494,19 +496,24 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
         let articleText = document.getElementById("articleText").innerHTML = "ARTICLE :  " + article;
         let shadeText = document.getElementById("shadeText").innerHTML = "SHADE :  " + shade;
         let netwtText = document.getElementById("netwtText").innerHTML = "NET WT. :  " + netwt;
+        let grossText = document.getElementById("grosswtText").innerHTML = "GROSS WT. :  " + grosswt;
         let lotText = document.getElementById("lotText").innerHTML = "LOT :  " + lot;
 
       
         let view = window.open();
 
-        view.document.write('<div class="align-center" style="margin-left:auto !important">' + printSection+'</div>'
+        view.document.write('<div class="align-center" style="margin-left:auto !important">' + printSection + '</div>'
+            , '<p id="productText" class="font-black font-weight txt-block" style="line-height:.1; margin-bottom:20px">' + productcodeText + '</p>'
             , '<p id="poText" class="font-black font-weight txt-block" style="line-height:.1; margin-bottom:20px; font-size:15px">' + POText + '</p>'
-            , '<p id="poText" class="font-black font-weight txt-block" style="line-height:.1; margin-bottom:20px">' + productcodeText + '</p>'
-            , '<p id="poText" class="font-black font-weight txt-block" style="line-height:.1; margin-bottom:20px">' + noofpacketsText + '</p>'
-            , '<p id="poText" class="font-black font-weight txt-block" style="line-height:.7; margin-bottom:20px">' + articleText + '</p>'
-            , '<p id="poText" class="font-black font-weight txt-block" style="line-height:.1; margin-bottom:20px">' + shadeText + '</p>'
-            , '<p id="poText" class="font-black font-weight txt-block" style="line-height:.1; margin-bottom:20px">' + netwtText + '</p>'
-            , '<p id="poText" class="font-black font-weight txt-block" style="line-height:.1; margin-bottom:20px">' + lotText + '</p>'
+            , '<p id="lotText" class="font-black font-weight txt-block" style="line-height:.1; margin-bottom:20px">' + lotText + '</p>'
+            , '<p id="noofconesText" class="font-black font-weight txt-block" style="line-height:.1; margin-bottom:20px">' + noofpacketsText + '</p>'
+            , '<p id="netwtText" class="font-black font-weight txt-block" style="line-height:.1; margin-bottom:20px">' + netwtText + '</p>'
+            , '<p id="grosswtText" class="font-black font-weight txt-block" style="line-height:.1; margin-bottom:20px">' + grossText + '</p>'
+            , '<p id="shadeText" class="font-black font-weight txt-block" style="line-height:.1; margin-bottom:20px">' + shadeText + '</p>'
+            , '<p id="articleText" class="font-black font-weight txt-block" style="line-height:.7; margin-bottom:20px">' + articleText + '</p>'
+            
+            
+            
             
         );
         
