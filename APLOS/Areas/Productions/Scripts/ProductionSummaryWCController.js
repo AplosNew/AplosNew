@@ -2278,9 +2278,13 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.getProcessParaPopupPoPUp = function (data) {
         try {
             $scope.NewObject = data.data;
-            if (baseService.isUndefinedOrNull($scope.NewObject.MasterOrderItemId)) {
-                throw "Select MO Item please.";
+
+            if ($scope.NewObject.BookingLevel === 'MasterOrderItem') {
+                if (baseService.isUndefinedOrNull($scope.NewObject.MasterOrderItemId)) {
+                    throw "Select MO Item please.";
+                }
             }
+           
         var processid = $scope.productionSummaryNew.ProcessId;
         var entityid = $scope.productionSummaryNew.EntityId;
         var productiondate = $scope.productionSummaryNew.ProductionDate;
