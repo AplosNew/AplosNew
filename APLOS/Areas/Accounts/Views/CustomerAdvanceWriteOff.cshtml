@@ -356,7 +356,7 @@
                             <label class="col-sm-4 control-label">Payment Source<sup>*</sup></label>
                             <div class="col-sm-8 radio">
                                 <label>
-                                    <input ng-click="clearSourceInfo()" type="radio" name="source" ng-model="advanceNew.PaymentSource" value="@Library.Model.Payments.PaymentSource.Bank.ToString()">
+                                    <input ng-click="clearSourceInfo()" type="radio" name="SourceNew" ng-model="advanceNew.PaymentSource" value="@Library.Model.Payments.PaymentSource.Bank.ToString()">
                                     <span class="cr" tabindex="8"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Bank.ToString()
                                 </label>
                             </div>
@@ -365,7 +365,7 @@
                             <label class="col-sm-4 control-label">Settlement Type<sup>*</sup></label>
                             <div class="col-sm-8 radio">
                                 <label>
-                                    <input ng-click="changeSettlementType()" type="radio" name="SettlementType" ng-model="advanceNew.SettlementType" value="@Library.Model.Payments.SettlementType.SetOff.ToString()">
+                                    <input ng-click="changeSettlementType()" type="radio" name="SettlementTypeNew" ng-model="advanceNew.SettlementType" value="@Library.Model.Payments.SettlementType.SetOff.ToString()">
                                     <span class="cr" tabindex="8"><i class="cr-icon"></i></span>Set-off
                                 </label>
                             </div>
@@ -515,7 +515,7 @@
                 </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li><button ng-click="MultiAdvanceSetOffSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                        <li><button ng-click="MultiAdvanceSetOffSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
                         <li ng-hide="advanceNew.Id==null"><button ng-click="confirmPost(advanceNew.Id);" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
                         <li><button ng-click="clear();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="8"></i> Clear</button></li>
                     </ul>

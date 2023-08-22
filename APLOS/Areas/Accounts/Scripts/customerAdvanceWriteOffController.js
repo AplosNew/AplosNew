@@ -113,8 +113,8 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         GLGeneralInfoId: null,
         CurrencyId: null,
         VoucherTypeId: null,
-        PartyType: "Customer",
-        SettlementType: "SetOff",
+        PartyType: 'Customer',
+        SettlementType: 'SetOff',
         PaymentSource: 'Invoice',
         Type: null,
         VoucherNo: null,
@@ -176,8 +176,8 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         GLGeneralInfoId: null,
         CurrencyId: null,
         VoucherTypeId: null,
-        PartyType: "Customer",
-        SettlementType: "SetOff",
+        PartyType: 'Customer',
+        SettlementType: 'SetOff',
         PaymentSource: 'Bank',
         Type: null,
         VoucherNo: null,
@@ -200,7 +200,8 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         BankName: null,
         BankAccountNumber: null,
         BankGL: null,
-        BankGLGeneralInfoId: null
+        BankGLGeneralInfoId: null,
+        DiscountAmount:0
     };
     $scope.voucherDetailCurrency = {
         Id: null,
@@ -382,17 +383,26 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
     $scope.clear = function () {
         $scope.Action = "Save";
         $scope.advance = {};
+        $scope.advanceNew = {};
         $scope.advance.Active = true;
         if ($scope.voucherTypeList.length === 1) {
             $scope.advance.VoucherTypeId = $scope.voucherTypeList[0].Value;
+            $scope.advanceNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
         }
         $scope.advance.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.advance.PostingDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.advance.DocDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
+        $scope.advanceNew.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
+        $scope.advanceNew.PostingDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
+        $scope.advanceNew.DocDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucherDetailCurrencyList = [];
         $scope.voucherDetailList = [];
+        $scope.advanceDetailList = [];
         $scope.partyPlantList = [];
+        $scope.advance.PaymentSource = "Invoice";
+        $scope.advanceNew.PaymentSource = "Bank";
         $scope.advance.SettlementType = "SetOff";
+        $scope.advanceNew.SettlementType = "SetOff";
         $scope.advance.PartyType= "Customer";
     };
 
@@ -1132,7 +1142,7 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
                 $scope.advanceNew.CurrencyCode = $scope.currencyExchangeRate.ToCurrencyCode;
                 $scope.advanceNew.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
             });
-            $scope.AdvanceExchangeGainLossAmount();
+            //$scope.AdvanceExchangeGainLossAmount();
         }
         else {
             $scope.currencyExchangeRate = [];
