@@ -313,10 +313,14 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $scope.CountryId = response.data[0].CountryId;
             $scope.DOJpastDays = response.data[0].PastDOJDaysAllowed;
 
-            if ($scope.DOJpastDays!=0) {
+            var _date = new Date();
+            var _fdate = $filter('dateFiltering')(new Date(_date.setDate(_date.getDate() - $scope.DOJpastDays)), 'dd-MM-yyyy');
+            var _ldate = $filter('dateFiltering')(new Date(), 'dd-MM-yyyy');
+
+            if ($scope.DOJpastDays != 0) {
                 $('.datepic').datepicker({
-                    startDate: '-' + $scope.DOJpastDays + 1 + 'd',
-                    endDate: '-' + $scope.DOJpastDays + 'd',
+                    startDate: _fdate,
+                    endDate: _ldate,
                     datesDisabled: $scope.DisabledDates,
                     format: 'dd-M-yyyy',
                     todayHighlight: true,
@@ -381,18 +385,6 @@ function employeeInformationController(addressService, fileReader, cboService, c
     $scope.GetPlantWiseHRMSSetting();
 
     $scope.DisabledDates = [];
-    //$('.datepic').datepicker({
-    //    startDate: '-' + $scope.DOJpastDays + 1 + 'd',
-    //    endDate: '-' + $scope.DOJpastDays + 'd',
-    //    datesDisabled: $scope.DisabledDates,
-    //    format: 'dd-M-yyyy',
-    //    todayHighlight: true,
-    //    autoclose: true,
-    //    inline: true,
-    //    changeMonth: true
-    //});
-
-
 
     $scope.ShowDOCIsDayInPut = function () {
         if ($scope.employeeNew.DOCIsDay === true) {
