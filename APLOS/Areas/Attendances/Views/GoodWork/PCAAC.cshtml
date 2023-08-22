@@ -33,7 +33,7 @@
                         <div class="col-sm-8 show-message">
                             <input type="text" name="PaymentDueDate" ng-model="ModelPCNew.PaymentDueDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="3">
                         </div>
-                    </div> 
+                    </div>
                 </div>
                 <div class="col-xs-12 col-sm-6 col-md-6">
                     <div class="form-group" show-errors>
@@ -52,8 +52,8 @@
                                 </span>
                             </div>
                         </div>
-                    </div> 
-                 
+                    </div>
+
                 </div>
 
                 <ul class="col-md-6 common-btn list-inline text-left">
@@ -84,7 +84,7 @@
                                 <td>{{x.Department}}</td>
                                 <td>
                                     <span class="input-group-btn">
-                                        <input type="number" class="form-control" name="PayDays" ng-model="x.PayDays" ng-change="getAmount($index);" e-width="100" />
+                                        <input type="number" class="form-control" name="PayDays" ng-model="x.PayDays" e-width="100" />
                                     </span>
                                 </td>
                                 <td><input type="number" class="form-control" name="Amount" ng-model="x.Amount" e-width="100" /></td>
@@ -125,15 +125,21 @@
             </div>
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-
             <togglable name="{{titleTab2}}"></togglable>
-            <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+            <div class="form-elements form-horizontal" ng-form name="ModelNewForm"> 
                 <input type="hidden" ng-model="ModelNew.Id">
                 <div class="col-xs-12 col-sm-6 col-md-6">
                     <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Year<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input id="ddlYearList" e-watermarktext="Year" ej-dropdownlist e-datasource="yearList" e-enablefiltersearch="true" e-value="year" e-databound="SelectDefaultValue" e-fields-value="Text" e-fields-text="Text" e-width="100%" />
+                        </div>
+                    </div>
+                                       
+                    <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="FromDate" ng-model="ModelNew.FromDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="3">
+                            <input type="text" name="FromDate" ng-model="ModelNew.FromDate" datepicker class="form-control datepic" placeholder="dd-Mmm-yyyy" tabindex="3">
                         </div>
                     </div>
                     <div class="form-group" show-errors>
@@ -173,9 +179,15 @@
                 </div>
                 <div class="col-xs-12 col-sm-6 col-md-6">
                     <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Month<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input id="ddlMonthList" e-watermarktext="Month" ej-dropdownlist e-datasource="monthList" e-value="month" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="ToDate" ng-model="ModelNew.ToDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="3">
+                            <input type="text" name="ToDate" ng-model="ModelNew.ToDate" datepicker class="form-control datepic" placeholder="dd-Mmm-yyyy" tabindex="3">
                         </div>
                     </div>
                     <div class="form-group" show-errors>
@@ -196,23 +208,23 @@
                         </div>
                     </div>
                     @*<div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Round Off<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" class="form-control" name="RoundOff" ng-model="ModelNew.RoundOff" e-width="100" />
-                        </div>
-                    </div>*@
+            <label class="col-sm-4 control-label">Round Off<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" class="form-control" name="RoundOff" ng-model="ModelNew.RoundOff" e-width="100" />
+            </div>
+        </div>*@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Pay Days</label>
-                     <div class="col-sm-8 show-message">
-                        <div class="select-style">
-                            <select name="PayDaysType" ng-model="ModelNew.PayDaysType">
-                                <option value="">--Select--</option>
-                                <option value="FinalOT">Final OT</option>
-                                <option value="GoodWork">Good Work</option>
-                                <option value="Attendance">Attendance</option>
-                            </select>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select name="PayDaysType" ng-model="ModelNew.PayDaysType">
+                                    <option value="">--Select--</option>
+                                    <option value="FinalOT">Final OT</option>
+                                    <option value="GoodWork">Good Work</option>
+                                    <option value="Attendance">Attendance</option>
+                                </select>
+                            </div>
                         </div>
-                     </div>
                     </div>
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Remarks</label>
@@ -237,7 +249,11 @@
                                 <th>SubSection</th>
                                 <th>Department</th>
                                 <th>Pay Days</th>
+                                <th>Rate Per Day</th>
+                                <th>Rate Per Hour</th>
                                 <th>Amount</th>
+                                <th>AdvanceGiven</th>
+                                <th>NetPayable</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -250,10 +266,14 @@
                                 <td>{{x.Department}}</td>
                                 <td>
                                     <span class="input-group-btn">
-                                        <input type="number" class="form-control" name="PayDays" ng-model="x.PayDays" e-width="100" ng-disabled="true"/>
+                                        <input type="number" class="form-control" name="PayDays" ng-model="x.PayDays" e-width="100" ng-disabled="true" />
                                     </span>
                                 </td>
-                                <td><input type="number" class="form-control" name="Amount" ng-model="x.Amount" e-width="100" ng-disabled="true"/></td>
+                                <td><input type="number" class="form-control" name="Rate Per Day" ng-model="x.RatePerDay" e-width="100" ng-disabled="true" /></td>
+                                <td><input type="number" class="form-control" name="Rate Per Hour" ng-model="x.RatePerHour" e-width="100" ng-disabled="true" /></td>
+                                <td><input type="number" class="form-control" name="Amount" ng-model="x.Amount" e-width="100" ng-disabled="true" /></td>
+                                <td><input type="number" class="form-control" name="AdvanceGiven" ng-model="x.AdvanceGiven" e-width="100" ng-disabled="true" /></td>
+                                <td><input type="number" class="form-control" name="NetPayable" ng-model="x.NetPayable" e-width="100" ng-disabled="true" /></td>
                                 <td class="text-right">
                                     <button ng-click="$parent.removeRow(x)" @*data-toggle="modal"*@ ng-="currencyDisable" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
                                         <i class="glyphicon glyphicon-remove"></i>
@@ -303,7 +323,7 @@
 
 <confirm-modal></confirm-modal>
 
- 
+
 <script type="text/javascript">
     $('[id*=FromTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
         var hours = e.time.hours, //Returns a string

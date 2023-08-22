@@ -56,6 +56,109 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     };
     $scope.ModelWADNew = Object.assign({}, $scope.ModelWADTemp);
 
+
+    $scope.yearList = [];
+    cboService.getCboLeaveYear(function (result) {
+        $scope.yearList = result;
+    });
+    $scope.SelectDefaultValue = function (args) {
+        var x = new Date();
+        x.setDate(10);
+        x.setMonth(x.getMonth());
+
+        for (var i = 0; i < $scope.yearList.length; i++) {
+            if ($scope.yearList[i].Text === x.getFullYear().toString()) {
+                $scope.year = $scope.yearList[i].Text;
+                $scope.month = (x.getMonth() + 1).toString();
+                continue;
+            }
+        }
+
+        //$scope.year = "2018";
+        var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
+        DropDownListYear.selectItemByText($scope.year);
+
+    };
+
+    $scope.monthList = [
+        {
+            Value: 1,
+            Text: 'January'
+        },
+        {
+            Value: 2,
+            Text: 'February'
+        },
+        {
+            Value: 3,
+            Text: 'March'
+        },
+        {
+            Value: 4,
+            Text: 'April'
+        },
+        {
+            Value: 5,
+            Text: 'May'
+        },
+        {
+            Value: 6,
+            Text: 'June'
+        },
+        {
+            Value: 7,
+            Text: 'July'
+        },
+        {
+            Value: 8,
+            Text: 'August'
+        },
+        {
+            Value: 9,
+            Text: 'September'
+        },
+        {
+            Value: 10,
+            Text: 'October'
+        },
+        {
+            Value: 11,
+            Text: 'November'
+        },
+        {
+            Value: 12,
+            Text: 'December'
+        }
+    ];
+
+    var _fdate = $filter('dateFiltering')($scope.year, 'dd-MM-yyyy');
+    var _ldate = $filter('dateFiltering')($scope.month, 'dd-MM-yyyy');
+
+
+    $scope.DisabledDates = [];
+    $('.datepic').datepicker({
+        startDate: '_fdate',
+        endDate: '_ldate',
+        datesDisabled: $scope.DisabledDates,
+        format: 'dd-M-yyyy',
+        todayHighlight: true,
+        autoclose: true,
+        inline: true,
+        changeMonth: true
+    });
+
+
+    //$('.datepicker').datepicker({
+    //    startDate: '-1d',
+    //    endDate: '31d',
+    //    datesDisabled: $scope.DisabledDates,
+    //    format: 'dd-M-yyyy',
+    //    todayHighlight: true,
+    //    autoclose: true,
+    //    inline: true,
+    //    changeMonth: true
+    //});
+
     $scope.popUpDataList = [];
     $scope.showByWhomEmployeeListPopUp = function (index) {
         try {
@@ -363,11 +466,15 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         Amount: null,
         OTHour: null,
         Rate: null,
-        Payment: null
+        Payment: null,
+        RatePerDay: null,
+        RatePerHour: null,
+        AdvanceGiven: null,
+        NetPayable: null,
+        PaymentChildId:null
     };
     $scope.ModelPCEmpNew = Object.assign({}, $scope.ModelPCemp);
 
 
-  
     //***********************************Payable Creation End********************************************************//
 }
