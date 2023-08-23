@@ -1122,7 +1122,17 @@ namespace Library.Service.Helpers
 				throw new CustomException(ServiceResources.FilePathNotFound);
 			}
 		}
-
+		public static string GetQRPdfDocument()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/QRPdfDocument/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
 
 	}
 }

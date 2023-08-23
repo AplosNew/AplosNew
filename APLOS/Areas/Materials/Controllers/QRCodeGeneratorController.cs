@@ -106,7 +106,7 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-  
+
 
         public IPresentation CreateQRCode(Dictionary<string, object> data)
         {
@@ -166,20 +166,20 @@ namespace Aplos.Areas.Materials.Controllers
                     System.Drawing.Image barcodeImg = qrCode.Draw(concatdata, 200, 2);
                     ConvertPresentationToPdf.SetQRCode(presentation.Slides[i], "EmpQR", barcodeImg);
                 }
-                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+                //string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
-                //Opens a PowerPoint Presentation
-                presentation = Presentation.Open(fullPath);
-                //Converts the PowerPoint Presentation into PDF document
-                PdfDocument pdfDocument = PresentationToPdfConverter.Convert(presentation);
-                //Saves the PDF document
-                pdfDocument.Save(fullPath + ".pdf");
-                //Closes the PDF document
-                pdfDocument.Close(true);
-                //Closes the Presentation
-                presentation.Close();
-                //This will open the PDF file so, the result will be seen in default PDF viewer
-                System.Diagnostics.Process.Start(fullPath + ".pdf");
+                ////Opens a PowerPoint Presentation
+                //presentation = Presentation.Open(fullPath);
+                ////Converts the PowerPoint Presentation into PDF document
+                //PdfDocument pdfDocument = PresentationToPdfConverter.Convert(presentation);
+                ////Saves the PDF document
+                //pdfDocument.Save(fullPath + ".pdf");
+                ////Closes the PDF document
+                //pdfDocument.Close(true);
+                ////Closes the Presentation
+                //presentation.Close();
+                ////This will open the PDF file so, the result will be seen in default PDF viewer
+                //System.Diagnostics.Process.Start(fullPath + ".pdf");
 
 
                 return presentation;
@@ -210,7 +210,7 @@ namespace Aplos.Areas.Materials.Controllers
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
 
-                string _Id,Id = "";
+                string _Id, Id = "";
 
                 #region data Master update
                 if (dsMaster.Tables[0].Rows.Count == 0)
@@ -233,27 +233,53 @@ namespace Aplos.Areas.Materials.Controllers
                 Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
                 #endregion data update
 
-                var fileName = "QRCode.docx";
+                var fileName = "QRCode.pptx";
                 //var fileName = "QRCode" + identity.PlantId + ".pptx";
 
-                //var datas = CreateQRCode(data);
+                var datas = CreateQRCode(data);
 
-                
 
-                //string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
                 clsStaticInfo _info = new clsStaticInfo();
 
                 _info.SaveDataSets(dsMaster);
 
                 con.BeginTransaction();
-                //datas.Save(fullPath);
+
+                if (System.IO.File.Exists(fullPath))
+                    System.IO.File.Delete(fullPath);
+                datas.Save(fullPath);
+
+                var pdffileName = "QRCode.pdf";
+                //string pdffullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + pdffileName;
+
+                string pdffullPath = Path.Combine(ResourcesPathReader.GetQRPdfDocument(), pdffileName);
+
+                //Opens a PowerPoint Presentation
+                IPresentation presentation = Presentation.Open(fullPath);
+                //Converts the PowerPoint Presentation into PDF document
+                PdfDocument pdfDocument = PresentationToPdfConverter.Convert(presentation);
+                //Saves the PDF document
+
+                if (System.IO.File.Exists(pdffullPath))
+                    System.IO.File.Delete(pdffullPath);
+
+                pdfDocument.Save(pdffullPath);
+                //Closes the PDF document
+                pdfDocument.Close(true);
+                //Closes the Presentation
+                presentation.Close();
+                //This will open the PDF file so, the result will be seen in default PDF viewer
+                //System.Diagnostics.Process.Start(pdffullPath);
+
 
                 //con.executeQuery($"update dbo.WeighingScaleDataCapture set isQR = 1 where Id ='" + data["GrossWeightId"] + "'");
                 //con.CommitTransaction();
 
 
-                return Json(new { Id, Error = false, Message = AplosMessage.Insert });
+                return Json(new { FileName = pdffullPath, Id, Error = false, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
@@ -281,9 +307,9 @@ namespace Aplos.Areas.Materials.Controllers
                 var fileName = "QRCode.docx";
                 string filepath = "";
 
-                DataTable dt = _sqlRepository.GetDataTable(@"Select * from [dbo].[WeighingScaleData] Where Id='"+Id+"'");
+                DataTable dt = _sqlRepository.GetDataTable(@"Select * from [dbo].[WeighingScaleData] Where Id='" + Id + "'");
 
-               
+
                 strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), fileName);
                 File = fileName;
                 if (!System.IO.File.Exists(strPath))
