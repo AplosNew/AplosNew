@@ -200,9 +200,12 @@ namespace Aplos.Areas.Employees.Controllers
             string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
 
             if (System.IO.File.Exists(fullPath))
-            System.IO.File.Delete(fullPath);
+                System.IO.File.Delete(fullPath);
 
             workbook.Save(fullPath);
+            
+
+
             return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
 
         }

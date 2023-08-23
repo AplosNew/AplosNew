@@ -2276,7 +2276,15 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.TotalPreviousProcessQty = 0;
     $scope.ProcessParaList = [];
     $scope.getProcessParaPopupPoPUp = function (data) {
-        $scope.NewObject = data.data;
+        try {
+            $scope.NewObject = data.data;
+
+            if ($scope.NewObject.BookingLevel === 'MasterOrderItem') {
+                if (baseService.isUndefinedOrNull($scope.NewObject.MasterOrderItemId)) {
+                    throw "Select MO Item please.";
+                }
+            }
+           
         var processid = $scope.productionSummaryNew.ProcessId;
         var entityid = $scope.productionSummaryNew.EntityId;
         var productiondate = $scope.productionSummaryNew.ProductionDate;
@@ -2291,7 +2299,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         $scope.productionSummaryNew.ProductionInChargeId = PInChargId;
         $scope.productionSummaryNew.ProductionInCharge = PInCharg;
         $scope.TotalPreviousProcessQty = $scope.NewObject.POPreviousProdQty;
-        try {
+        
             $scope.ProcessParaList = [];
             $http.get('Productions/ProductionSummary/GetProcessParaData?processId=' + $scope.productionSummaryNew.ProcessId + '&masterId=' + data.data.Id + '&ProductionOrderId=' + data.data.ProductionOrderId)
                 .then(
