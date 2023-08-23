@@ -62,9 +62,9 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         $scope.yearList = result;
     });
     $scope.SelectDefaultValue = function (args) {
-        var x = new Date();
-        x.setDate(10);
-        x.setMonth(x.getMonth());
+        var x = args.selectedValue;
+        //x.setDate(10);
+        //x.setMonth(x.getMonth());
 
         for (var i = 0; i < $scope.yearList.length; i++) {
             if ($scope.yearList[i].Text === x.getFullYear().toString()) {
@@ -73,11 +73,10 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
                 continue;
             }
         }
-
+        $scope.CalenderFunc();
         //$scope.year = "2018";
         var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
         DropDownListYear.selectItemByText($scope.year);
-
     };
 
     $scope.monthList = [
@@ -131,14 +130,14 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         }
     ];
 
-    var _fdate = $filter('dateFiltering')($scope.year, 'dd-MM-yyyy');
-    var _ldate = $filter('dateFiltering')($scope.month, 'dd-MM-yyyy');
-
-
     $scope.DisabledDates = [];
+    $scope.CalenderFunc = function () {
+        var date = new Date();
+        var _firstDay = new Date($scope.year, $scope.month, 1);
+        var _lastDay = new Date($scope.year, $scope.month + 1, 0);
     $('.datepic').datepicker({
-        startDate: '_fdate',
-        endDate: '_ldate',
+        startDate: _firstDay,
+        endDate: _lastDay,
         datesDisabled: $scope.DisabledDates,
         format: 'dd-M-yyyy',
         todayHighlight: true,
@@ -146,6 +145,8 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         inline: true,
         changeMonth: true
     });
+    };
+
 
 
     //$('.datepicker').datepicker({
