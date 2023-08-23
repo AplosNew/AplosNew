@@ -345,10 +345,9 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
 
                     //$rootScope.report($scope.downloadgriddataUrlPath + "?FileName=" + response.data.FileName);//downloadgriddataUrlPath
                    // $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-                   // $scope.FN = $scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName;
+                    $scope.FN = virtualPath.QRPdfDocument + "QRCode.pdf";
                     ShowResult(response.data.Message, 'success');
                     $scope.QRCodeGenerateModel.Id = response.data.Id;
-                    $scope.LocalTaxInvoiceReport();
                 }
 
             }), function errorCallBack(response) {
@@ -358,12 +357,6 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
         } catch (e) {
             ShowResult(e, 'failure');
         }
-
-        
-    }
-
-    $scope.LocalTaxInvoiceReport = function () {
-       location.href = "Materials/QRCodeGenerator/GetGeneratedQRCode?Id=" + $scope.QRCodeGenerateModel.Id;
     }
 
     $scope.PortNoList = [];

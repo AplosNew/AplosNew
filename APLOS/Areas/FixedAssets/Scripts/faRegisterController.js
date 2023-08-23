@@ -40,20 +40,25 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         { Value: "Addition", Text: "Addition" }
     ];
 
-    $scope.masterList = [];
-    $scope.getSavedData = function () {
-        $scope.purchaseLCList = [];
-        $http.get("fixedassets/fixedassetregister/GetCapitalizeData")
-            .then(
-                function successCallback(response) {
-                    $scope.masterList = response.data;
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
-    };
-    $scope.getSavedData();
+    $scope.searchByCapitalizeData = "FixedAssetItem"; $scope.searchCapitalizeData = "";
+    $scope.searchByListCapitalizeData = [{ value: 'Id', name: "Master Id" }, { value: 'CapitalizationDate', name: "Capitalization Date" }, { value: 'AddedDate', name: "Added Date" }, { value: 'FixedAssetMasterId', name: "Asset Master Id" }, { value: 'FixedAssetItemId', name: "Asset Item Id" }, { value: 'FixedAssetMaster', name: "Asset Master" }, { value: 'FixedAssetItem', name: "Asset Item" }, { value: 'Type', name: "Type" }, { value: 'CMStatus', name: "Status" }];
 
+    $scope.masterList = [];
+    $scope.getData = function () {
+        $scope.masterList = [];
+        $http({
+            method: 'Post'
+            , url: 'FixedAssets/FixedAssetRegister/GetCapitalizeDataList'
+            , data: { column: $scope.searchByCapitalizeData, value: $scope.searchCapitalizeData }
+            , dataType: 'JSON'
+        }).then(function (response) {
+            $scope.masterList = response.data;
+        }), function (response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+    };
+    $scope.getData();
+    
     $scope.selectedmaterialMasterList = [];
     $scope.GetCapitalizationMasterDetail = function () {
         $scope.purchaseLCList = [];
@@ -413,7 +418,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                     else {
                         ShowResult(response.data.Message, "success");
                         $scope.register.Id = response.data.Id;
-                        $scope.getSavedData();
+                        $scope.getData();
                         $scope.saveBtnDisable = false;
                     }
                 }, function errorCallback(response) {
@@ -510,7 +515,161 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         });
 
     };
+    $scope.checkedAssetRegisterUpdateList = [];
+    $scope.AssetRegisterUpdateAvailableList = [];
+    $scope.searchByAssetRegisterUpdate = "AssetRegisterId"; $scope.searchAssetRegisterUpdate = "";
+    $scope.searchByAssetRegisterUpdateList = [{ value: 'AssetRegisterId', name: "AssetRegisterId" }, { value: 'FixedAssetItemId', name: "FixedAssetItemId" }, { value: 'FixedAssetItem', name: "FixedAssetItem" }, { value: 'AssetSlNo', name: "AssetSlNo" }];
+    $scope.searchCapitalizationMasterId = "";
+    $scope.onClickAssetRegisterpopUpByCapitalizationMasterId = function (args) {
+        $scope.searchCapitalizationMasterId = args.Id;
+        $http({
+            method: 'POST',
+            url: 'fixedassets/FixedAssetRegister/GetAssetRegisterUpdateList',
+            data: { column: $scope.searchByAssetRegisterUpdate, value: $scope.searchAssetRegisterUpdate, capitalizationMasterId: $scope.searchCapitalizationMasterId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.AssetRegisterUpdateAvailableList = response.data;
+        });
 
+        angular.element(document.querySelector('#AssetRegisterUpdatePopUp')).modal('show');
 
+    };
+
+    $scope.showAssetRegisterUpdatePopUp = function () {
+        $http({
+            method: 'POST',
+            url: 'fixedassets/FixedAssetRegister/GetAssetRegisterUpdateList',
+            data: { column: $scope.searchByAssetRegisterUpdate, value: $scope.searchAssetRegisterUpdate, capitalizationMasterId: $scope.searchCapitalizationMasterId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.AssetRegisterUpdateAvailableList = response.data;
+        });
+
+        angular.element(document.querySelector('#AssetRegisterUpdatePopUp')).modal('show');
+
+    };
+
+    $scope.hideAssetRegisterUpdatePopUp = function () {
+        angular.element(document.querySelector("#AssetRegisterUpdatePopUp")).modal("hide");
+    };
+    $scope.TotalAssetAmount = 0;
+    $scope.AddAssetRegisterUpdate = function () {
+        if (baseService.arrayLength($scope.AssetRegisterUpdateAvailableList) > 0) {
+            $scope.checkedAssetRegisterUpdateList = [];
+            angular.forEach($scope.AssetRegisterUpdateAvailableList, function (a) {
+                $scope.TotalAssetAmount = a.TotalAmount;
+                $scope.checkedAssetRegisterUpdateList.push({
+                    AssetRegisterId: a.AssetRegisterId
+                    , FixedAssetItemId: a.FixedAssetItemId
+                    , FixedAssetItem: a.FixedAssetItem
+                    , AssetSlNo: a.AssetSlNo
+                    , RFId: a.RFId
+                    , BarCode: a.BarCode
+                    , Status: a.Status
+                    , AssetCondition: a.AssetCondition
+                    , UserReference: a.UserReference
+                    , OldReference: a.OldReference
+                    , UserGroup: a.UserGroup
+                    , Remarks: a.Remarks
+                    , Amount: a.Amount
+                    , AssetRegisterChildId: a.AssetRegisterChildId
+                    , Active: true
+                });
+            });
+        }
+
+    };
+    $scope.validationUpdateAssetRegister = function () {
+        if ($scope.checkedAssetRegisterUpdateList.length === 0) {
+            ShowResult("Please select Asset Register!", "failure");
+            return true;
+        }
+        if (parseFloat($filter("sumByKey")($filter("filter")($scope.AssetRegisterUpdateAvailableList), "Amount")) !== parseFloat($scope.TotalAssetAmount)) {
+            ShowResult("Asset Register Amount must be equal Total Amount " + $scope.TotalAssetAmount, "failure");
+            return true;
+        }
+    };
+
+    $scope.UpdateAssetRegister = function () {
+        $scope.AddAssetRegisterUpdate();
+        $scope.validationUpdateAssetRegister();
+        if (!$scope.validationUpdateAssetRegister()) {
+            $scope.SaveUrl = "fixedassets/FixedAssetRegister/UpdateAssetRegister"
+            $http({
+                method: "POST",
+                url: $scope.SaveUrl,
+                data: {
+                    "assetRegisterList": $scope.checkedAssetRegisterUpdateList
+                },
+                dataType: "JSON"
+                , contentType: "application/json charset=utf-8"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                   
+
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, "failure");
+            });
+            return true;
+        }
+    };
+
+    var FixedAssetindex = 0;
+    var AssetRegisterIdItem = "";
+    $scope.ShowFixedAssetMasterItemAssetRegisterUpdate = function ( index, AssetRegisterId) {
+        $scope.FixedAssetMasterItemList = [];
+        FixedAssetindex = index;
+        AssetRegisterIdItem = AssetRegisterId;
+        $scope.Url = 'FixedAssets/FixedAssetRegister/GetFixedAssetMasterItem';
+        $http({
+            method: 'Get',
+            url: $scope.Url,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.FixedAssetMasterItemList = response.data;
+        });
+        angular.element(document.querySelector('#fixedAssetMasterItemAssetRegisterUpdatePoUp')).modal('show');
+    };
+
+    $scope.SetFAMIAssetRegisterUpdate = function (obj) {
+        $scope.AssetRegisterUpdateAvailableList[FixedAssetindex].FixedAssetItemId = obj.data.Id;
+        $scope.AssetRegisterUpdateAvailableList[FixedAssetindex].FixedAssetItem = obj.data.UserName;
+        $scope.AssetRegisterUpdateAvailableList[FixedAssetindex].FixedAssetMaster = obj.data.FixedAssetMaster;
+        $scope.UpdateAssetRegisterItem(obj.data.Id);
+        angular.element(document.querySelector('#fixedAssetMasterItemAssetRegisterUpdatePoUp')).modal('hide');
+
+    }
+    $scope.hideAssetRegisterItemUpdatePopUp = function () {
+        angular.element(document.querySelector("#fixedAssetMasterItemAssetRegisterUpdatePoUp")).modal("hide");
+    };
+    
+    $scope.UpdateAssetRegisterItem = function (Id) {
+        $scope.SaveUrl = "fixedassets/FixedAssetRegister/UpdateAssetRegisterItem"
+        $http({
+            method: "POST",
+            url: $scope.SaveUrl,
+            data: {
+                "assetRegisterId": AssetRegisterIdItem,
+                "fixedAssetItemId": Id
+            },
+            dataType: "JSON"
+            , contentType: "application/json charset=utf-8"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                //ShowResult(response.data.Message, "success");
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+
+    };
 
 }

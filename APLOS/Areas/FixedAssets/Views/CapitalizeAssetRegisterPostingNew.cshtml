@@ -151,7 +151,7 @@
         </div>
     </fieldset>
 
-    <div class="clearfix"></div>
+    @*<div class="clearfix"></div>
     <div class="col-xs-12 col-sm-12 col-md-12" style="margin-bottom:10px">
         <div class="table-responsive modal-table">
             <table class="table table-striped">
@@ -172,10 +172,12 @@
                         <td>{{x.FixedAssetItemId}}</td>
                         <td>{{x.FixedAssetItem}}</td>
                         <td>{{x.FixedAssetMaster}}</td>
-                        <td>{{x.Amount|  number:2}}</td>
+                        <td>
+                            <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" readonly name="Amount" autocomplete="off" ng-model="x.Amount">
+                        </td>
                         <td class="text-right">
                             <ul class="list-inline action-list">
-                                <li><button ng-click="ShowFixedAssetMasterItem($index)"  class="btn btn-action tooltip-here" data-placement="top" title="Modify"><i class="glyphicon glyphicon-search"></i></button></li>
+                                <li><button ng-click="ShowFixedAssetMasterItem($index,x.AssetRegisterId)" class="btn btn-action tooltip-here" data-placement="top" title="Modify"><i class="glyphicon glyphicon-search"></i></button></li>
                             </ul>
                         </td>
 
@@ -183,7 +185,14 @@
                 </tbody>
             </table>
         </div>
-    </div>
+        <div class="clearfix"></div>
+
+        <div class="common-btn" style="margin-top:5px;">
+            <ul class="common-btn list-inline text-right">
+                <li> <button ng-click="UpdateAssetRegisterAmount();" class="btn"> Update Asset Register</button></li>
+            </ul>
+        </div>
+    </div>*@
     <div class="clearfix"></div>
 
     <div class="tab-design">
@@ -331,11 +340,11 @@
                         <button class="btn" style="background-color: #1c1f32;"><i class="fa fa-file-pdf-o"></i></button>
                     </div>
                 </li>
-                <li>
+                @*<li>
                     <div ej-tooltip e-showshadow="true" e-content="Asset Register" ng-click="$parent.onClickAssetRegisterpopUpByCapitalizationMasterId(data);" e-width="width">
                         <button class="btn" style="background-color: #1c1f32;"><i class="glyphicon glyphicon-floppy-disk"></i></button>
                     </div>
-                </li>
+                </li>*@
 
             </ul>
         </div>
@@ -464,25 +473,3 @@
     </div>
 </div>
 
-<div class="modal fade site-modal in" id="fixedAssetMasterItemPoUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content row">
-            <div class="modal-header">Fixed Asset Master Item <button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <div style="color:black;" id="Grid" ej-grid e-datasource="FixedAssetMasterItemList" e-recorddoubleclick="SetFAMI" e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                    <div e-columns>
-                        <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
-                        <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="60"></div>
-                        <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
-                        <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="80"></div>
-                        <div e-column e-type="string" e-field="FixedAssetMaster" e-headertext="Fixed Asset Master" e-width="80"></div>
-                        <div e-column e-type="string" e-field="FixedAssetCategory" e-headertext="Fixed Asset Category" e-width="80"></div>
-                        <div e-column e-type="string" e-field="FixedAssetSubCategory" e-headertext="Fixed Asset Subcategory" e-width="80"></div>
-                        <div e-column e-type="string" e-field="Active" e-headertext="Active" e-width="30"></div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
