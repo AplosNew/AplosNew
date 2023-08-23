@@ -1451,7 +1451,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
         }
         [HttpPost]
-        public JsonResult FixedAssetDepreciationProcess(string[] selectedAssetMastersList, string fiscalYearId, string toDate)
+        public JsonResult SaveFixedAssetDepreciationProcess(string[] selectedAssetMastersList, string fiscalYearId, string toDate)
         {
             string selectedAssetMastersLists = "";
 
@@ -1759,7 +1759,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
         }
         [HttpPost]
-        public JsonResult AssetDepreciationProcess(string[] selectedAssetMastersList, string fiscalYearId, string toDate)
+        public JsonResult SaveAssetDepreciationProcess(string[] selectedAssetMastersList, string fiscalYearId, string toDate)
         {
             string selectedAssetMastersLists = "";
 
