@@ -1194,7 +1194,7 @@ namespace Library.Accounting.FixedAssets
             var sql = @"DECLARE @capitalizationMasterId varchar(50)='" + capitalizationMasterId + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
 
 						SELECT X.* FROM(
-						SELECT  'Asset' AS OtherName, 'Dr' AS TrnType
+						SELECT  'Asset' AS OtherName, 'Dr' AS TrnType,AR.FixedAssetItemId
 							,GLGeneralInfoId =BM.GLGeneralInfoId        
 							,GLGeneralInfoCode =GL.AccountCode 
 							,GLGeneralInfoName =GL.UserName
@@ -1219,10 +1219,10 @@ namespace Library.Accounting.FixedAssets
 						LEFT JOIN [HKP].[Activity] AS A ON FAMG.AssetUnderConstructionActivityId= A.Id
 						LEFT JOIN [MST].[BudgetMasterActivity] AS BMA ON FAMG.AssetUnderConstructionActivityId= BMA.ActivityId AND FAMG.AssetUnderConstructionBudgetMasterId= BMA.BudgetMasterId
 					    WHERE ARC.CapitalizationMasterId=@capitalizationMasterId 
-						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, B.Code, B.UserName, A.Code, A.UserName,FAMG.AssetUnderConstructionBudgetMasterId,FAMG.AssetUnderConstructionActivityId,BMA.Id
+						GROUP BY  AR.FixedAssetItemId, BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, B.Code, B.UserName, A.Code, A.UserName,FAMG.AssetUnderConstructionBudgetMasterId,FAMG.AssetUnderConstructionActivityId,BMA.Id
 						
 						UNION
-						SELECT  'Capitalization' AS OtherName, 'Cr' AS TrnType
+						SELECT  'Capitalization' AS OtherName, 'Cr' AS TrnType,'' FixedAssetItemId
 							,GLGeneralInfoId =BM.GLGeneralInfoId        
 							,GLGeneralInfoCode =GL.AccountCode 
 							,GLGeneralInfoName =GL.UserName
@@ -2441,6 +2441,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                     var assetRegisterChildData = new
                         {
                             Id = _accountsCommonService.MakePK(id, 1, 2),
+                            FixedAssetItemId = data["FixedAssetItemId"].ToString(),
                             AssetRegisterId = id,
                             CapitalizationMasterId = masterId,
                             CapitalizationChildId = masterId+"-"+ (i + 1),

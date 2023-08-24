@@ -621,10 +621,13 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
 
     var FixedAssetindex = 0;
     var AssetRegisterIdItem = "";
-    $scope.ShowFixedAssetMasterItemAssetRegisterUpdate = function ( index, AssetRegisterId) {
+    var AssetRegisterChildIdItem = "";
+    
+    $scope.ShowFixedAssetMasterItemAssetRegisterUpdate = function (index, AssetRegisterId, AssetRegisterChildId) {
         $scope.FixedAssetMasterItemList = [];
         FixedAssetindex = index;
         AssetRegisterIdItem = AssetRegisterId;
+        AssetRegisterChildIdItem = AssetRegisterChildId;
         $scope.Url = 'FixedAssets/FixedAssetRegister/GetFixedAssetMasterItem';
         $http({
             method: 'Get',
@@ -655,6 +658,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
             url: $scope.SaveUrl,
             data: {
                 "assetRegisterId": AssetRegisterIdItem,
+                "assetRegisterChildId": AssetRegisterChildIdItem,
                 "fixedAssetItemId": Id
             },
             dataType: "JSON"

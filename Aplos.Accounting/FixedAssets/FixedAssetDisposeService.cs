@@ -1596,8 +1596,8 @@ namespace Library.Accounting.FixedAssets
                 DataSet _drvDetailCurrencyData = null;
                 DataSet _crvDetailData = null;
                 DataSet _crvDetailCurrencyData = null;
-                //DataSet _assetRegisterData = null;
-                //DataSet _assetRegisterChildData = null;
+                var rdBuilder = new System.Text.StringBuilder();
+                var builderSql = "";
                 var voucherDrId = "";
 
 
@@ -1658,7 +1658,14 @@ namespace Library.Accounting.FixedAssets
                             ToCurrencyConversion = 1,
                             DrAmount = voucherDr.DrAmount
                         }, ref _drvDetailCurrencyData);
+
                         voucherDrId = voucherDr.Id;
+                        if (capitalizationMasterdata != null)
+                        {
+                            builderSql = "";
+                            builderSql = @"UPDATE [TRN].[AssetRegisterChild] SET VoucherDetailId='" + voucherDr.Id + "'  where CapitalizationMasterId = '" + capitalizationMasterdata["Id"].ToString() + "' AND FixedAssetItemId = '" + voucherDetailVM.FixedAssetItemId + "'  ";
+                            rdBuilder.Append(builderSql);
+                        }
                     }
                     else if (voucherDetailVM.TrnType == "Cr" && voucherDetailVM.Amount > 0)
                     {
@@ -1691,11 +1698,11 @@ namespace Library.Accounting.FixedAssets
                 }
                 
                 clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_vdataset, _crvDetailData, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData);
+                objApp.SaveDataSets(_vdataset, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData);
                 if (capitalizationMasterdata != null)
                 {
-                    var rdBuilder = new System.Text.StringBuilder();
-                    var builderSql = @"UPDATE [TRN].[CapitalizationMaster] SET VoucherRowId='" + voucherDrId + "' WHERE Id='" + capitalizationMasterdata["Id"].ToString() + "'  ";
+                    builderSql = "";
+                    builderSql = @"UPDATE [TRN].[CapitalizationMaster] SET VoucherId='" + voucher.Id + "' WHERE Id='" + capitalizationMasterdata["Id"].ToString() + "'  ";
                     rdBuilder.Append(builderSql);
                     _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                 }
@@ -1844,7 +1851,7 @@ namespace Library.Accounting.FixedAssets
                 if (capitalizationMasterdata != null)
                 {
                     var rdBuilder = new System.Text.StringBuilder();
-                    var builderSql = @"UPDATE [TRN].[CapitalizationMaster] SET VoucherRowId='" + voucherDrId + "' WHERE Id='" + capitalizationMasterdata["Id"].ToString() + "'  ";
+                    var builderSql = @"UPDATE [TRN].[CapitalizationMaster] SET VoucherId='" + voucher.Id + "' WHERE Id='" + capitalizationMasterdata["Id"].ToString() + "'  ";
                     rdBuilder.Append(builderSql);
                     _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                 }
@@ -1886,7 +1893,7 @@ namespace Library.Accounting.FixedAssets
             }
         }
 
-        public void UpdateAssetRegisterItem(string assetRegisterId, string fixedAssetItemId)
+        public void UpdateAssetRegisterItem(string assetRegisterId,string assetRegisterChildId, string fixedAssetItemId)
         {
             try
             {
@@ -1899,7 +1906,9 @@ namespace Library.Accounting.FixedAssets
                     var builderSql = "";
                     builderSql = @"UPDATE [TRN].[AssetRegister] SET FixedAssetItemId='" + fixedAssetItemId + "'  ,UpdatedBy = '" + identity.Name + "' ,UpdatedDate = '" + System.DateTime.Now.ToString() + "' ,UpdatedFromIP = '" + identity.IPAddress + "' WHERE Id='" + assetRegisterId + "'  ";
                     rdBuilder.Append(builderSql);
-                   
+                    builderSql = @"UPDATE [TRN].[AssetRegisterChild] SET FixedAssetItemId='" + fixedAssetItemId + "'  ,UpdatedBy = '" + identity.Name + "' ,UpdatedDate = '" + System.DateTime.Now.ToString() + "' ,UpdatedFromIP = '" + identity.IPAddress + "' WHERE Id='" + assetRegisterChildId + "'  ";
+                    rdBuilder.Append(builderSql);
+
                     _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                 }
             }
@@ -1920,10 +1929,9 @@ namespace Library.Accounting.FixedAssets
             , UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
 			, V.CurrencyId, C.Code AS CurrencyCode,CM.FixedAssetItemId
             ,FAM.UserName FixedAssetMaster,FAI.UserName FixedAssetItem
-            FROM [TRN].[CapitalizationMaster] CM
+            FROM TRN.Voucher V 
+		    INNER JOIN [TRN].[CapitalizationMaster] CM ON CM.VoucherId=V.Id
 			LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
-			INNER JOIN TRN.VoucherDetail VD ON VD.Id=CM.VoucherRowId
-			INNER JOIN TRN.Voucher V ON V.Id=VD.VoucherId
 			LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
             LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId

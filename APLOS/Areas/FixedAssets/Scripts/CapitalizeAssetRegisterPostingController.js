@@ -106,7 +106,7 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
         $scope.capitalizationMaster.Qty = data.Qty;
         $scope.capitalizationMaster.TotalAmount = data.TotalAmount;
 
-        $scope.getAssetRegister(data.Id);
+        //$scope.getAssetRegister(data.Id);
         $scope.GetCapitalizationMasterDetail();
         $scope.getCapitalizationJV(data.Id);
        
