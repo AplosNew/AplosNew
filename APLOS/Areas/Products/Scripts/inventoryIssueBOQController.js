@@ -1748,6 +1748,30 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
         eDialog.close();
     }
 
+    $scope.refreshMaterialTemplate = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxAllSelectedMaterial });
+    };
+
+    function CheckBoxAllSelectedMaterial(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+        var filtered = $("#GridMaterialdataSelecteds").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.MaterialPopUpList.length; i++) {
+                $scope.MaterialPopUpList[i].IsSelect = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].IsSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridMaterialdataSelecteds").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
     $scope.ShowDiv = false;
     $scope.SearchPopup = function () {
 
