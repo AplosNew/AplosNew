@@ -1765,7 +1765,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
         #endregion
 
-        #region Fixed Asset Depreciation Process
+        #region Asset Depreciation Process
         public ActionResult AssetDepreciationProcess()
         {
             return View("~/Areas/FixedAssets/Views/AssetDepreciationProcess.cshtml");
