@@ -6,6 +6,7 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
     $scope.url = 'accounts/Advance';
     $scope.listUrl = $scope.url + '/GetCustomerAdvanceWriteOffList';
     $scope.parkUrl = $scope.url + '/ParkCustomerAdvanceWriteOff';
+    $scope.parkUrlMultiAdvance = $scope.url + '/ParkMultiCustomerAdvanceWriteOff';
     $scope.updateUrl = $scope.url + '/UpdateCustomerAdvanceWriteOff';
     $scope.postUrl = $scope.url + '/PostCustomerAdvanceWriteOff';
     $scope.reportUrl = $scope.url + '/ReportCustomerAdvanceWriteOff?voucherId=';
@@ -27,6 +28,8 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
     $controller("bankBaseController", { $scope: $scope, $http: $http });
     $controller("cashBaseController", { $scope: $scope, $http: $http });
 
+   
+   
     baseService.init($scope.listUrl, null, null, "DESC", "PostingDate", "VoucherNo");
     $scope.getData = function (pageno) {
         baseService.pagination(pageno)
@@ -110,8 +113,8 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         GLGeneralInfoId: null,
         CurrencyId: null,
         VoucherTypeId: null,
-        PartyType: "Customer",
-        SettlementType: "SetOff",
+        PartyType: 'Customer',
+        SettlementType: 'SetOff',
         PaymentSource: 'Invoice',
         Type: null,
         VoucherNo: null,
@@ -163,7 +166,43 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         NetAmount: 0,
         Active: true
     };
-
+    $scope.advanceNew = {
+        Id: null,
+        CompanyGroupId: null,
+        CompanyId: null,
+        PartyId: null,
+        PartyName: null,
+        PartyGLGeneralInfoId: null,
+        GLGeneralInfoId: null,
+        CurrencyId: null,
+        VoucherTypeId: null,
+        PartyType: 'Customer',
+        SettlementType: 'SetOff',
+        PaymentSource: 'Bank',
+        Type: null,
+        VoucherNo: null,
+        VoucherDate: $filter("dateFiltering")(Date.now()),
+        PostingDate: null,
+        DocDate: null,
+        DocRefNo: null,
+        FiscalYearId: null,
+        FiscalYearName: null,
+        FiscalYearPeriodId: null,
+        FiscalYearPeriodName: null,
+        IsExcludingTax: false,
+        VoucherDetailId: null,
+        Amount: 0,
+        BaseOnDueDate: $filter("dateFiltering")(Date.now()),
+        BaseNoOfDays: null,
+        PaymentTermId: null,
+        Narration: null,
+        Remarks: null,
+        BankName: null,
+        BankAccountNumber: null,
+        BankGL: null,
+        BankGLGeneralInfoId: null,
+        DiscountAmount:0
+    };
     $scope.voucherDetailCurrency = {
         Id: null,
         VoucherId: null,
@@ -344,17 +383,26 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
     $scope.clear = function () {
         $scope.Action = "Save";
         $scope.advance = {};
+        $scope.advanceNew = {};
         $scope.advance.Active = true;
         if ($scope.voucherTypeList.length === 1) {
             $scope.advance.VoucherTypeId = $scope.voucherTypeList[0].Value;
+            $scope.advanceNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
         }
         $scope.advance.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.advance.PostingDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.advance.DocDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
+        $scope.advanceNew.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
+        $scope.advanceNew.PostingDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
+        $scope.advanceNew.DocDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucherDetailCurrencyList = [];
         $scope.voucherDetailList = [];
+        $scope.advanceDetailList = [];
         $scope.partyPlantList = [];
+        $scope.advance.PaymentSource = "Invoice";
+        $scope.advanceNew.PaymentSource = "Bank";
         $scope.advance.SettlementType = "SetOff";
+        $scope.advanceNew.SettlementType = "SetOff";
         $scope.advance.PartyType= "Customer";
     };
 
@@ -627,6 +675,9 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
             $scope.advance.VoucherTypeId = $scope.voucherTypeList[0].Value;
             $scope.advance.PostingDate = $filter('dateFiltering')($scope.voucherTypeList[0].LastPostingDate);
             $scope.advance.DocDate = $scope.advance.PostingDate;
+            $scope.advanceNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
+            $scope.advanceNew.PostingDate = $filter('dateFiltering')($scope.voucherTypeList[0].LastPostingDate);
+            $scope.advanceNew.DocDate = $scope.advanceNew.PostingDate;
         }
     });
 
@@ -736,10 +787,10 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
     $scope.closeBankPopUp = function () {
         if ($scope.bankIndex !== -1) {
             var bank = $scope.bankList[$scope.bankIndex];
-            if (baseService.isUndefinedOrNull($scope.advance.CurrencyId)) {
-                ShowResult("Please select currency!", "failure", "bankPopUp");
-                return;
-            }
+            //if (baseService.isUndefinedOrNull($scope.advance.CurrencyId)) {
+            //    ShowResult("Please select currency!", "failure", "bankPopUp");
+            //    return;
+            //}
             if (baseService.isUndefinedOrNull(bank.GLGeneralInfoId)) {
                 ShowResult("Bank GL not found!", "failure", "bankPopUp");
                 return;
@@ -756,6 +807,9 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
                 $scope.advance.AccountTitle = bank.AccountTitle;
                 $scope.advance.BankName = bank.AccountTitle;
                 $scope.advance.BankMasterId = bank.BankMasterId;
+                $scope.advanceNew.AccountTitle = bank.AccountTitle;
+                $scope.advanceNew.BankName = bank.AccountTitle;
+                $scope.advanceNew.BankMasterId = bank.BankMasterId;
                 setBankGL(bank);
             }
         }
@@ -774,6 +828,7 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         $scope.advance.ActivityCode = bank.ActivityCode;
         $scope.advance.ActivityName = bank.ActivityName;
         $scope.advance.InvoiceDetailId = bank.BankMasterId;
+        $scope.advanceNew.BankCurrencyId = bank.CurrencyId;
         $scope.advance.TrnType = "Cr";
         $scope.advance.CompanyCurrencyRate = 1;
     }
@@ -918,11 +973,17 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
     };
     // #region TAB CHANGE Main
     $scope.tab = 1;
-    $scope.setTab = function (newTab) {
-        $scope.tab = newTab;
-    };
+    
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
+    };
+    $scope.setTabSingle = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.setTabMultiple = function (newTab) {
+        $scope.tab = newTab;
+        $scope.getFiscalYearPeriodNew($scope.advanceNew.PostingDate);
+        $scope.TrnCurrency();
     };
     $scope.clearSourceInfo = function () {
         $scope.advance.Amount = 0;
@@ -947,4 +1008,330 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         $scope.advance.ActivityName = null;
         $scope.voucherDetailList = [];
     }
+
+    
+
+    $scope.closePartyPopUp = function (x) {
+        var party = x.data;
+        if (baseService.isUndefinedOrNull(party.DownPaymentGLId)) {
+            ShowResult("Customer DownPaymentGL not found!", "failure", "partyPopUp");
+            return;
+        }
+        else if ($scope.companyConfig.IsVoucherFromBudget && baseService.isUndefinedOrNull(party.ReconciliationBudgetId)) {
+            ShowResult($scope.partyType + " Budget not found!", "failure", "partyPopUp");
+            return;
+        }
+        else {
+            $scope.advanceNew.PartyName = party.Code + " - " + party.UserName;
+            $scope.advanceNew.PartyId = party.Id;
+            $scope.advanceNew.PartyType = $scope.partyType;
+            $scope.advanceNew.CurrencyId = party.CurrencyId;
+            $scope.partyPlantList = [];
+            $scope.getPartyPlantListNew(party.Id);
+            $scope.GetCurrencyExchangeRateList();
+            $scope.voucherDetailList = [];
+        }
+        $scope.hidePartyPopUp();
+    };
+
+    $scope.getPartyPlantListNew = function (partyId) {
+        $scope.partyPlantList = [];
+        $http.get('Parties/party/GetPartyPlantCbo?partyId=' + partyId)
+            .then(function (response) {
+                angular.forEach(response.data, function (item, i) {
+                    $scope.partyPlantList.push(item);
+                    if (item.IsDefault) {
+                        $scope.partyPlantId = item.Value;
+                        $scope.advanceNew.PartyPlantId = item.Value;
+                        $scope.advanceNew.DeliveryPartyPlantId = item.Value;
+                        $scope.billToAddress = item.Address1;
+                        $scope.shipToAddress = item.Address1;
+                    }
+                });
+            });
+    };
+    $scope.invalidPostingDateNew = false;
+    $scope.checkPostingDateNew = function () {
+        var msg = "";
+        if (new Date($scope.advance.PostingDate) > new Date()) {
+            msg = "Posting date must be below or equal to current Date!";
+            $scope.advanceNew.FiscalYearId = null;
+            $scope.advanceNew.FiscalYearName = null;
+            $scope.advanceNew.FiscalYearPeriodId = null;
+            $scope.advanceNew.FiscalYearPeriodName = null;
+            $scope.currencyExchangeRate = [];
+            $scope.invalidPostingDateNew = true;
+        }
+        else if (new Date($scope.advance.PostingDate) < new Date($scope.advance.DocDate)) {
+            msg = "Posting date must be below or equal to Doc Date!";
+            $scope.advance.FiscalYearId = null;
+            $scope.advance.FiscalYearName = null;
+            $scope.advance.FiscalYearPeriodId = null;
+            $scope.advance.FiscalYearPeriodName = null;
+            $scope.currencyExchangeRate = [];
+            $scope.invalidPostingDate = true;
+        } else {
+            $scope.invalidPostingDate = false;
+        }
+        return manualValidation("div_PostingDate", $scope.invalidPostingDate, msg);
+    };
+
+    $scope.getFiscalYearPeriodNew = function (date) {
+        if (!baseService.isUndefinedOrNull(date) && !$scope.invalidPostingDateNew) {
+            $http({
+                method: "get",
+                url: "accounts/CompanyFiscalYear/CheckingFiscalYearPeriod?postingDate=" + $filter("dateFiltering")(date)
+            }).then(
+                function successCallback(response) {
+                    if (response.data.Error === true) {
+                        $scope.currencyExchangeRate = [];
+                        ShowResult(response.data.Message, "failure");
+                    }
+                    else {
+                        var result = response.data;
+                        if (result.IsTransationLocked === true) {
+                            ShowResult(commonMessage.FiscalPeriodTransactionLocked, "failure");
+                            $scope.advanceNew.PostingDate = "";
+                            $scope.advanceNew.FiscalYearId = null;
+                            $scope.advanceNew.FiscalYearName = null;
+                            $scope.advanceNew.FiscalYearPeriodId = null;
+                            $scope.advanceNew.FiscalYearPeriodName = null;
+                            $scope.currencyExchangeRate = [];
+                        }
+                        else if (result.IsExchangeRateConfirmed === false) {
+                            ShowResult(commonMessage.FiscalPeriodExchangeRateConfirmed, "failure");
+                            $scope.advanceNew.PostingDate = "";
+                            $scope.advanceNew.FiscalYearId = null;
+                            $scope.advanceNew.FiscalYearName = null;
+                            $scope.advanceNew.FiscalYearPeriodId = null;
+                            $scope.advanceNew.FiscalYearPeriodName = null;
+                            $scope.currencyExchangeRate = [];
+                        }
+                        else {
+                            $scope.advanceNew.FiscalYearId = result.FiscalYearId;
+                            $scope.advanceNew.FiscalYearName = result.FiscalYearName;
+                            $scope.advanceNew.FiscalYearPeriodId = result.FiscalYearPeriodId;
+                            $scope.advanceNew.FiscalYearPeriodName = result.PeriodName;
+                        }
+                    }
+                },
+                function errorCallback() {
+                });
+        }
+        else {
+            $scope.currencyExchangeRate = [];
+        }
+    };
+
+    
+
+    $scope.tranCurrencyListNew = [];
+    $scope.TrnCurrency = function () {
+        cboService.getCboTransactionCurrencyByCompany('', function (result) {
+            $scope.tranCurrencyListNew = result;
+        });
+    }
+    
+    $scope.GetCurrencyExchangeRateList = function () {
+        if (!baseService.isUndefinedOrNull($scope.advanceNew.PostingDate) && !baseService.isUndefinedOrNull($scope.advanceNew.CurrencyId)) {
+            $http({
+                method: "GET",
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $scope.advanceNew.PostingDate + "&currencyId=" + $scope.advanceNew.CurrencyId
+            }).then(function successCallback(response) {
+                $scope.currencyExchangeRate = response.data;
+                $scope.advanceNew.CurrencyCode = $scope.currencyExchangeRate.ToCurrencyCode;
+                $scope.advanceNew.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
+            });
+            //$scope.AdvanceExchangeGainLossAmount();
+        }
+        else {
+            $scope.currencyExchangeRate = [];
+        }
+    };
+
+    //*********************** Customer Advance PopUp Start *************************************
+    $scope.customerAdvanceSearchList = [];
+    $scope.customerAdvanceNewList = [];
+    $scope.customerAdvanceNewSearch = [];
+    $scope.customerAdvanceNewSelectedIndex = -1;
+    $scope.customerAdvanceParametersNew = {
+        limit: 10,
+        offset: 0,
+        order: "ASC",
+        sort: "VoucherNo",
+        searchBy: "VoucherNo",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+    $scope.showCustomerAdvanceNewPopUpNew = function (partyId) {
+        if (baseService.isUndefinedOrNull(partyId)) {
+            $scope.customerAdvanceNewList = [];
+            ShowResult("Please select Customer.", "failure");
+            return;
+        }
+        else {
+            $scope.compareCurrencyId = $scope.advanceNew.CurrencyId;
+            $scope.customerAdvanceParameters.partyId = partyId;
+            $scope.customerAdvanceGLDataNew = function (pageno) {
+                baseService.paginationBase("accounts/Advance/GetAvilabeCustomerAdvanceByCustomerList?CustomerId=" + partyId, pageno, $scope.customerAdvanceParameters)
+                    .then(function (response) {
+                        $scope.customerAdvanceNewList = response.Rows;
+                        $scope.customerAdvanceParametersNew.total_count = response.Total;
+                        if (baseService.arrayLength($scope.customerAdvanceSearchList) === 0) {
+                            baseService.getDDLSearchColumn($scope.customerAdvanceNewList, $scope.customerAdvanceNewSearch);
+                        }
+                    }, function () {
+                        ShowResult(commonMessage.NetworkError, "failure");
+                    }).finally(function () {
+                    });
+            };
+            angular.element(document.querySelector("#customerAdvancePopUpNew")).modal("show");
+            $scope.customerAdvanceGLDataNew();
+        }
+    };
+    $scope.advanceDetailList = [];
+    $scope.closeAdvancePopUpNewselected = function (x) {
+        x.TrnType = "Cr";
+        x.PartyPlantName = x.PartyPlantName;
+        var getRow = $filter("filter")($scope.advanceDetailList, { "TrnType": "Dr", "DocRefNo": x.DocRefNo });
+        if (getRow.length === 0) {
+            x.Amount = x.Receivable;
+            x.WriteOff = x.Received;
+            x.Advilable = x.Balance;
+            x.CrAmount = '';
+            x.DrAmount = x.Balance;
+            $scope.advanceDetailList.push(x);
+            if ($scope.advanceDetailList.length > 0)
+                $scope.isReadOnly = true;
+            else
+                $scope.isReadOnly = false;
+            angular.element(document.querySelector("#customerAdvancePopUpNew")).modal("hide");
+            $scope.convertAmountCr(x);
+        }
+        else {
+            ShowResult(data.DocRefNo + " already  Exist", "failure", "customerAdvancePopUpNew");
+        }
+    };
+
+    $scope.closeAdvanceNewPopUp = function () {
+        angular.element(document.querySelector("#customerAdvancePopUpNew")).modal("hide");
+    };
+
+    //*********************** Customer Advance PopUp End ***************************************
+    $scope.removeAdvanceRow = function (index) {
+        $scope.advanceDetailList.splice(index, 1);
+    };
+    $scope.AdvanceExchangeGainLossAmount = function (data) {
+        var balance = parseFloat(data.Advilable), dramount = parseFloat(data.DrAmount);
+        if (dramount > balance) {
+            data.DrAmount = data.Balance;
+            ShowResult("Payment Amount should not exceed Balance Amount.", "failure");
+        }
+        else {
+            CloseShowResult();
+        }
+        $scope.DrAmountSubTotal = $filter("sumByKey")($filter("filter")($scope.advanceDetailList), "DrAmount");
+        if (parseFloat($scope.advanceNew.PaymentAmount) < $scope.DrAmountSubTotal) {
+            data.DrAmount = 0;
+            ShowResult("Total Received Amount should not exceed Payment Amount.", "failure");
+        }
+        else {
+            CloseShowResult();
+        }
+        if (data.CompanyCurrencyRate > $scope.advanceNew.CompanyCurrencyRate) {
+            data.ExchangeAmount = Math.abs(data.DrAmount * ($scope.advanceNew.CompanyCurrencyRate - data.CompanyCurrencyRate)).toFixed(2);
+            data.ExchangeType = "ExchangeLoss";
+        }
+        else if (data.CompanyCurrencyRate < $scope.advanceNew.CompanyCurrencyRate) {
+            data.ExchangeAmount = Math.abs(data.DrAmount * (data.CompanyCurrencyRate - $scope.advanceNew.CompanyCurrencyRate)).toFixed(2);
+            data.ExchangeType = "ExchangeGain";
+        }
+        else {
+            data.ExchangeAmount = 0;
+            data.ExchangeType = null;
+        }
+    };
+
+    $scope.AdvanceExchangeGainLossAmount = function () {
+        for (var i = 0; i < $scope.advanceDetailList.length; i++) {
+            if ($scope.advanceDetailList[i].CompanyCurrencyRate > $scope.advanceNew.CompanyCurrencyRate) {
+                $scope.advanceDetailList[i].ExchangeAmount = Math.abs($scope.advanceDetailList[i].DrAmount * ($scope.advanceNew.CompanyCurrencyRate - $scope.advanceDetailList[i].CompanyCurrencyRate)).toFixed(2);
+                $scope.advanceDetailList[i].ExchangeType = "ExchangeLoss";
+            }
+            else if ($scope.advanceDetailList[i].CompanyCurrencyRate < $scope.advanceNew.CompanyCurrencyRate) {
+                $scope.advanceDetailList[i].ExchangeAmount = Math.abs($scope.advanceDetailList[i].DrAmount * ($scope.advanceDetailList[i].CompanyCurrencyRate - $scope.advanceNew.CompanyCurrencyRate)).toFixed(2);
+                $scope.advanceDetailList[i].ExchangeType = "ExchangeGain";
+            }
+            else {
+                $scope.advanceDetailList[i].ExchangeAmount = 0;
+                $scope.advanceDetailList[i].ExchangeType = null;
+            }
+        }
+       
+    };
+
+    $scope.MultiAdvanceValidation = function () {
+        if (baseService.isUndefinedOrNull($scope.advanceNew.CurrencyId)) {
+            ShowResult("Please select Currency!", "failure");
+            return true;
+        }
+        if ($scope.partyType === "Customer") {
+            if ($scope.advanceNew.PartyId === null) {
+                ShowResult("Please select Customer!", "failure");
+                return true;
+            }
+            if ($scope.advanceDetailList.length === 0 && $scope.advanceNew.SettlementType === 'SetOff' && $scope.advanceNew.PaymentSource === 'Bank') {
+                ShowResult("Please select Advance !", "failure");
+                return true;
+            }
+            if ($scope.advanceNew.PaymentSource === 'Bank' && $scope.advanceNew.SettlementType === 'Return' && $scope.advanceNew.BankMasterId == null) {
+                ShowResult("Please select Bank!", "failure");
+                return true;
+            }
+            if ($scope.advanceNew.PaymentSource === 'Bank' && $scope.advanceNew.SettlementType === 'SetOff' && $scope.advanceNew.BankMasterId == null) {
+                ShowResult("Please select Bank!", "failure");
+                return true;
+            }
+            if ($scope.advanceNew.PaymentSource === 'Cash' && $scope.advanceNew.SettlementType === 'Return' && $scope.advanceNew.CashMasterId == null) {
+                ShowResult("Please select Cash!", "failure");
+                return true;
+            }
+        }
+        return false;
+    };
+
+    $scope.MultiAdvanceSetOffSave = function () {
+        $scope.$broadcast("show-errors-check-validity");
+       /* $scope.checkPostingDate();*/
+        if ($scope.form2.$valid && !$scope.MultiAdvanceValidation()) {
+            if ($scope.Action === "Save") {
+                $http({
+                    method: "POST",
+                    url: $scope.parkUrlMultiAdvance,
+                    data: {
+                        "advanceVM": $scope.advanceNew,
+                        "advanceDetailVMList": $scope.advanceDetailList
+                    },
+                    dataType: "JSON"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
+                    }
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        $scope.clear();
+                        $scope.getData();
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, "failure");
+                });
+                return true;
+            }
+            return true;
+        }
+        return true;
+    };
 }

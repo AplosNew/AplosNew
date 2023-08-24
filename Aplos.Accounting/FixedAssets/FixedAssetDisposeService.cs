@@ -1596,8 +1596,8 @@ namespace Library.Accounting.FixedAssets
                 DataSet _drvDetailCurrencyData = null;
                 DataSet _crvDetailData = null;
                 DataSet _crvDetailCurrencyData = null;
-                DataSet _assetRegisterData = null;
-                DataSet _assetRegisterChildData = null;
+                //DataSet _assetRegisterData = null;
+                //DataSet _assetRegisterChildData = null;
                 var voucherDrId = "";
 
 
@@ -1689,47 +1689,9 @@ namespace Library.Accounting.FixedAssets
                         }, ref _crvDetailCurrencyData);
                     }
                 }
-                bplib.clsGenID genid = new bplib.clsGenID();
-                string _AssetRegisterId = string.Empty;
-                genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "AssetRegister", out _AssetRegisterId);
-                ConnectionManager.DAL.ConManager objCon;
-                string sql = "SELECT * FROM [TRN].[AssetRegister] WHERE 1=2 ";
-                string sqlChild = "SELECT * FROM [TRN].[AssetRegisterChild] WHERE 1=2 ";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out _assetRegisterData, false, "1");
-                objCon.OpenDataSetThroughAdapter(sqlChild, out _assetRegisterChildData, false, "1");
-
-                for (int i = 0; i < Int32.Parse(capitalizationMasterdata["Qty"].ToString()); i++)
-                {
-                    var id = _accountsCommonService.MakePK(_AssetRegisterId, i+1, 4);
-                    var assetRegisterData = new 
-                    {
-                        Id = id,
-                        FixedAssetItemId = capitalizationMasterdata["FixedAssetItemId"].ToString(),
-                        AddedBy = identity.Name,
-                        AddedDate = System.DateTime.Now.ToString(),
-                        AddedFromIP = identity.IPAddress,
-                };
-                    AddNewRow(_assetRegisterData.Tables[0], assetRegisterData);
-
-                    var assetRegisterChildData = new
-                    {
-                        Id = _accountsCommonService.MakePK(id, 1, 2),
-                        AssetRegisterId = id,
-                        CapitalizationMasterId = capitalizationMasterdata["Id"].ToString(),
-                        Amount = Math.Round(voucherVM.Amount/ Int32.Parse(capitalizationMasterdata["Qty"].ToString()),2),
-                        AddedBy = identity.Name,
-                        AddedDate = System.DateTime.Now.ToString(),
-                        AddedFromIP = identity.IPAddress,
-                    };
-                    AddNewRow(_assetRegisterChildData.Tables[0], assetRegisterChildData);
-
-                }
                 
-
-
                 clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_vdataset, _crvDetailData, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData, _assetRegisterData, _assetRegisterChildData);
+                objApp.SaveDataSets(_vdataset, _crvDetailData, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData);
                 if (capitalizationMasterdata != null)
                 {
                     var rdBuilder = new System.Text.StringBuilder();
@@ -1908,11 +1870,36 @@ namespace Library.Accounting.FixedAssets
                     var builderSql = "";
                     foreach (var item in assetRegisterList)
                     {
-                        builderSql = @"UPDATE [TRN].[AssetRegister] SET AssetSlNo='" + item["AssetSlNo"] + " ' ,RFId = '" + item["RFId"] + "' ,BarCode = '" + item["BarCode"] + "' ,Status = '" + item["Status"] + "' ,AssetCondition = '" + item["AssetCondition"] + "' ,UserReference = '" + item["UserReference"] + "' ,OldReference = '" + item["OldReference"] + "' ,UserGroup = '" + item["UserGroup"] + "' ,Remarks = '" + item["Remarks"] + "' ,UpdatedBy = '" + identity.Name + "' ,UpdatedDate = '" + System.DateTime.Now.ToString() + "' ,UpdatedFromIP = '" + identity.IPAddress + "' WHERE Id='" + item["AssetRegisterId"].ToString() + "'  ";
+                        builderSql = @"UPDATE [TRN].[AssetRegister] SET AssetSlNo='" + item["AssetSlNo"] + " ' ,Status = '" + item["Status"] + "' ,AssetCondition = '" + item["AssetCondition"] + "' ,UserReference = '" + item["UserReference"] + "' ,OldReference = '" + item["OldReference"] + "' ,UserGroup = '" + item["UserGroup"] + "' ,Remarks = '" + item["Remarks"] + "' ,UpdatedBy = '" + identity.Name + "' ,UpdatedDate = '" + System.DateTime.Now.ToString() + "' ,UpdatedFromIP = '" + identity.IPAddress + "' WHERE Id='" + item["AssetRegisterId"].ToString() + "'  ";
                         rdBuilder.Append(builderSql);
                         builderSql = @"UPDATE [TRN].[AssetRegisterChild] SET Amount='" + item["Amount"] + "' ,UpdatedBy = '" + identity.Name + "' ,UpdatedDate = '" + System.DateTime.Now.ToString() + "' ,UpdatedFromIP = '" + identity.IPAddress + "' WHERE Id='" + item["AssetRegisterChildId"].ToString() + "'  ";
                         rdBuilder.Append(builderSql);
                     }
+                    _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+        public void UpdateAssetRegisterItem(string assetRegisterId, string fixedAssetItemId)
+        {
+            try
+            {
+                AccountsCommonService _accountsCommonService = new AccountsCommonService(_sqlRepository);
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                if (assetRegisterId != null && fixedAssetItemId != null)
+                {
+                    var rdBuilder = new System.Text.StringBuilder();
+                    var builderSql = "";
+                    builderSql = @"UPDATE [TRN].[AssetRegister] SET FixedAssetItemId='" + fixedAssetItemId + "'  ,UpdatedBy = '" + identity.Name + "' ,UpdatedDate = '" + System.DateTime.Now.ToString() + "' ,UpdatedFromIP = '" + identity.IPAddress + "' WHERE Id='" + assetRegisterId + "'  ";
+                    rdBuilder.Append(builderSql);
+                   
                     _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                 }
             }

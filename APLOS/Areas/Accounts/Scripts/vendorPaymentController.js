@@ -393,18 +393,6 @@ function vendorPaymentController(bankService, accountService, cboService, common
         angular.element(document.querySelector("#partyAdvanceAmountPopUp")).modal("hide");
     };
 
-    //Debit Note
-
-
-    //$scope.confirmSave = function () {
-    //    if ($scope.Action === "Save" && $scope.TotalAdvanceAmount > 0) {
-    //        $scope.message_confirmation = "This Vendor have advance. Are you sure to Save?";
-    //        angular.element(document.querySelector("#confirmSavePopUp")).modal("show");
-    //    } else {
-    //        $scope.Save();
-    //    }
-    //};
-
     $scope.getPartyWiseOutstandingDebitNote = function (id) {
         $scope.partyWiseOutstandingDebitNoteList = [];
         $http({
@@ -834,9 +822,6 @@ function vendorPaymentController(bankService, accountService, cboService, common
                 if ($scope.BaseAmountList[i].Type == 'BankCharges') {
                     $scope.BaseAmountList[i].BaseDrAmount = $scope.BaseAmountObj.BaseDrAmount;
                 }
-                //if ($scope.BaseAmountList[i].Type == 'Bank') {
-                //    $scope.BaseAmountList[i].BaseCrAmount += $scope.BaseAmountObj.BaseDrAmount;
-                //}
             }
             $scope.BaseAmountObj = {};
         }
@@ -846,23 +831,11 @@ function vendorPaymentController(bankService, accountService, cboService, common
     $scope.caltaxBaseAmount = function () {
         if ($scope.TDSList.length > 0) {
             $scope.BaseAmountObj.Type = 'Tax';
-            //$scope.BaseAmountObj.BaseCrAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.TDSList), "TaxAmount")).toFixed(4);
             $scope.BaseAmountObj.BaseCrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 1000 + Number.EPSILON) / 1000;
             $scope.BaseAmountObj.BaseDrAmount = null;
             $scope.BaseAmountList.push($scope.BaseAmountObj);
             $scope.BaseAmountObj = {};
         }
-        //else if ($scope.TDSList.length > 1) {
-        //    $scope.BaseAmountObj.Type = 'Tax';
-        //    $scope.BaseAmountObj.BaseCrAmount = $filter("sumByKey")($filter("filter")($scope.TDSList), "TaxAmount");
-        //    $scope.BaseAmountObj.BaseDrAmount = null;
-        //    for (var i = 0; i < $scope.BaseAmountList.length; i++) {
-        //        if ($scope.BaseAmountList[i].Type == 'Tax') {
-        //            $scope.BaseAmountList[i].BaseCrAmount = $scope.BaseAmountObj.BaseCrAmount;
-        //        }
-        //    }
-        //    $scope.BaseAmountObj = {};
-        //}
     }
 
     $scope.calGLBaseAmount = function () {

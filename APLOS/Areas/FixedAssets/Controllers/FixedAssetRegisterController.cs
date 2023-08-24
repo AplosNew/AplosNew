@@ -1146,6 +1146,13 @@ namespace Aplos.Areas.FixedAssets.Controllers
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             return Json(_fixedAssetQueryService.GetCapitalizationSingleJVList(capitalizationMasterId,  identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
+        [HttpPost, Authorize]
+        public ActionResult GetCapitalizationSingleJVListFromAssetRegister(string capitalizationMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetCapitalizationSingleJVListFromAssetRegister(capitalizationMasterId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
 
         [Authorize, HttpPost]
         public ActionResult GetFixedAssetDisposePostedList(string column, string value, string companyId)
@@ -1451,7 +1458,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
         }
         [HttpPost]
-        public JsonResult FixedAssetDepreciationProcess(string[] selectedAssetMastersList, string fiscalYearId, string toDate)
+        public JsonResult SaveFixedAssetDepreciationProcess(string[] selectedAssetMastersList, string fiscalYearId, string toDate)
         {
             string selectedAssetMastersLists = "";
 
@@ -1559,6 +1566,14 @@ namespace Aplos.Areas.FixedAssets.Controllers
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             return Json(_fixedAssetQueryService.GetCapitalizeData(), JsonRequestBehavior.AllowGet);
         }
+        [Authorize, HttpPost]
+        public ActionResult GetCapitalizeDataList(string column, string value)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            return Json(_fixedAssetQueryService.GetCapitalizeDataList(column, value, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public JsonResult GetApprovedCapitalizeData(string type)
@@ -1663,6 +1678,14 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
             return Json(new { Message = AplosMessage.Updated });
         }
+        [HttpPost]
+        public JsonResult UpdateAssetRegisterItem(string assetRegisterId, string fixedAssetItemId)
+        {
+            FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
+            _fixedAssetDisposeService.UpdateAssetRegisterItem(assetRegisterId, fixedAssetItemId);
+
+            return Json(new { Message = AplosMessage.Updated });
+        }
         [HttpGet, Authorize]
         public ActionResult CapitalizeAssetRegisterPostReport(ReportFormat reportFormat, string voucherId)
         {
@@ -1742,7 +1765,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
         #endregion
 
-        #region Fixed Asset Depreciation Process
+        #region Asset Depreciation Process
         public ActionResult AssetDepreciationProcess()
         {
             return View("~/Areas/FixedAssets/Views/AssetDepreciationProcess.cshtml");
@@ -1759,7 +1782,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
         }
         [HttpPost]
-        public JsonResult AssetDepreciationProcess(string[] selectedAssetMastersList, string fiscalYearId, string toDate)
+        public JsonResult SaveAssetDepreciationProcess(string[] selectedAssetMastersList, string fiscalYearId, string toDate)
         {
             string selectedAssetMastersLists = "";
 

@@ -217,6 +217,21 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
+        public JsonResult ParkMultiCustomerAdvanceWriteOff(VoucherViewModel advanceVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList, IEnumerable<VoucherDetailCurrencyViewModel> currencyList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            advanceVM.CompanyGroupId = identity.CompanyGroupId;
+            advanceVM.CompanyId = identity.CompanyId;
+            advanceVM.PlantId = identity.PlantId;
+            advanceVM.IsPark = true;
+            advanceVM.SourceType = SourceType.CustomerAdvanceWriteOff.ToString();
+            advanceVM.PartyType = PartyType.Customer.ToString();
+            if (advanceVM.PaymentSource == PaymentSource.Bank.ToString() && advanceVM.CurrencyId != advanceVM.BankCurrencyId && advanceVM.BankAmount == 0)
+                throw new CustomException("Please Input BankAmount !");
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceWriteOffService.InsertMultiCustomerAdvanceWriteOff(advanceVM, advanceDetailVMList, currencyList)) });
+        }
+
+        [HttpPost]
         public JsonResult UpdateCustomerAdvanceWriteOff()
         {
             return Json(new { Message = AplosMessage.Updated });
@@ -246,6 +261,14 @@ namespace Aplos.Areas.Accounts.Controllers
             AccountsAdvanceService _accountsAdvanceService = new AccountsAdvanceService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_accountsAdvanceService.GetAvilabeCustomerAdvanceList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.CustomerAdvance), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetAvilabeCustomerAdvanceByCustomerList(GridParameter parameters,string CustomerId)
+        {
+            AccountsAdvanceService _accountsAdvanceService = new AccountsAdvanceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsAdvanceService.GetAvilabeCustomerAdvanceByCustomerList(parameters, CustomerId, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.CustomerAdvance), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]

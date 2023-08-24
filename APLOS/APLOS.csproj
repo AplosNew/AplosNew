@@ -553,6 +553,7 @@
     <Compile Include="Areas\Materials\Controllers\QRCodeGeneratorController.cs" />
     <Compile Include="Areas\Materials\Controllers\WeighingScaleMasterController.cs" />
     <Compile Include="Areas\Processes\Controllers\ProcessManagementController.cs" />
+    <Compile Include="Areas\Processes\Controllers\ProcessManagementRecepieController.cs" />
     <Compile Include="Areas\Processes\Controllers\ProcessTemplateController.cs" />
     <Compile Include="Areas\Productions\Controllers\DailyPlanningAndProductionReportController.cs" />
     <Compile Include="Areas\Employees\Controllers\TransportGroupController.cs" />
@@ -4777,6 +4778,8 @@
     <Content Include="Areas\Processes\Views\ProcessManagement\_OWM.cshtml" />
     <Content Include="Areas\Processes\Views\ProcessManagement\_GPL.cshtml" />
     <Content Include="Areas\Productions\Views\QualityActionUpdate\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\QRCodeGenerator\_PreviewScreen.cshtml" />
+    <Content Include="Areas\Processes\Views\ProcessManagementRecepie\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -5211,6 +5214,7 @@
     <Content Include="Scripts\MyApp\myAppCalendarController.js" />
     <Content Include="Scripts\navAccordion.min.js" />
     <Content Include="Scripts\preRecruitmentDocumentApprovalController.js" />
+    <Content Include="Scripts\print.js" />
     <Content Include="Scripts\select2.js" />
     <Content Include="Scripts\select2.min.js" />
     <Content Include="Scripts\SignalR-factory.js" />

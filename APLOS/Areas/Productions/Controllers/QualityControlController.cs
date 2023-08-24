@@ -1156,7 +1156,10 @@ where PO.ID= '" + POId + "'";
         public JsonResult LoadQCComplete(string IssueId, string todate, string fromDate, string POId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_ProductionSummaryService.GetQCComplete(IssueId, todate, fromDate, POId), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_ProductionSummaryService.GetQCComplete(IssueId, todate, fromDate, POId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+
         }
 
         [HttpGet, Authorize]

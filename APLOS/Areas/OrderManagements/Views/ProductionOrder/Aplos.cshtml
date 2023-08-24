@@ -901,7 +901,7 @@
             <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Order#" e-width="80"></div>
             <div e-column e-type="string" e-field="BuyerRefNo" e-headertext="Customer Ord#" e-width="80"></div>
             <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="150"></div>
-            <div e-column e-type="string" e-field="SODesc" e-headertext="So.Description" e-width="150"></div>
+            <div e-column e-type="string" e-field="SONo" e-headertext="SONo" e-width="150"></div>
             <div e-column e-type="number" e-field="Qty" e-headertext="Qty" e-width="60"></div>
             <div e-column e-type="string" e-field="DeliveryDate" e-headertext="So.Delivery Date" e-width="80"></div>
             <div e-column e-type="string" e-field="ProductionStatus" e-headertext="Production Status" e-width="90"></div>
@@ -980,7 +980,7 @@
 
                             <div e-column e-field="SalesOrderId" e-headertext="SO. ID" e-width="70"></div>
                             <div e-column e-field="ArticleName" e-headertext="Article" e-width="120"></div>
-                            <div e-column e-field="OwnReferenceNo" e-headertext="Production/Own #" e-width="100"></div>
+                            <div e-column e-field="OwnReferenceNo" e-headertext="Production Own #" e-width="100"></div>
                             <div e-column e-field="ProductionGrouping" e-headertext="Product Grouping" e-width="120" e></div>
                             <div e-column e-field="Qty" e-headertext="Qty" e-width="80" e-textalign="right"></div>
                             <div e-column e-field="MasterOrderItemId" e-headertext="M. Order Item" e-width="70"></div>
@@ -999,6 +999,8 @@
                             <div e-column e-field="ProductName" e-headertext="Product" e-width="180" e></div>
                             <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="180" e></div>
                             <div e-column e-field="ShipmentModeName" e-headertext="Ship.Mode" e-width="80"></div>
+                            <div e-column e-field="ProductionType" e-headertext="ProductionType" e-width="50"></div>
+                            <div e-column e-field="ShipmentFromStock" e-headertext="ShipmentFromStock" e-width="50"></div>
                             <div e-column e-field="PONumber" e-headertext="PO No" e-width="80"></div>
                             <div e-column e-field="OrderStatusName" e-headertext="Ord. Status" e-width="80"></div>
                             <div e-column e-field="OrderCategoryName" e-headertext="Ord. Cat." e-width="80"></div>
@@ -2479,3 +2481,5 @@
 @*<confirm-archive-generic modalid="confirmBulletinSavePopUp" title="Confirmation" message={{message_BulletinSave}} data-ng-click-right-button="SaveBulletin();"></confirm-archive-generic>*@
 <confirm-archive-generic modalid="confirmPBProcessPopUp" title="Confirmation" message={{message_PBconfirmation}} data-ng-click-right-button="DeleteProductionBulletin();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmBoMDetailPopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteFPWCDetail();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDiffArticlePopUp" title="Confirmation" message={{message_DiffArticleconfirmation}} data-ng-click-right-button="ConDiffArticle();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDiffArticle1PopUp" title="Confirmation" message={{message_DiffArticle1confirmation}} data-ng-click-right-button="OverConDiffArticle();"></confirm-archive-generic>

@@ -106,8 +106,10 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
         $scope.capitalizationMaster.Qty = data.Qty;
         $scope.capitalizationMaster.TotalAmount = data.TotalAmount;
 
+        $scope.getAssetRegister(data.Id);
         $scope.GetCapitalizationMasterDetail();
         $scope.getCapitalizationJV(data.Id);
+       
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -117,7 +119,7 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
     $scope.capitalizationJVList = [];
     $scope.getCapitalizationJV = function (Id) {
         $scope.capitalizationJVList = [];
-        $scope.jvurl = 'FixedAssets/FixedAssetRegister/GetCapitalizationSingleJVList?capitalizationMasterId=' + Id
+        $scope.jvurl = 'FixedAssets/FixedAssetRegister/GetCapitalizationSingleJVListFromAssetRegister?capitalizationMasterId=' + Id
         $http({
             method: 'Post'
             , url: $scope.jvurl
@@ -129,6 +131,20 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
         };
 
     };
+    $scope.AssetRegisterList = [];
+    $scope.getAssetRegister = function (Id) {
+        $scope.AssetRegisterList = [];
+        $http({
+            method: 'POST',
+            url: 'fixedassets/FixedAssetRegister/GetAssetRegisterUpdateList',
+            data: { column: $scope.searchByAssetRegisterUpdate, value: $scope.searchAssetRegisterUpdate, capitalizationMasterId: Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.AssetRegisterList = response.data;
+        });
+
+    };
+    
     // #region TAB CHANGE Main
     $scope.tabMain = 1;
     $scope.setTabMain = function (newTab) {

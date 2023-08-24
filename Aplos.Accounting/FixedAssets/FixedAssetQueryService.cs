@@ -15,6 +15,8 @@ using System.Data.SqlClient;
 using System.Reflection;
 using System.Threading;
 using OTSBD;
+using Library.Accounting.Accounts;
+using System.Linq;
 
 namespace Library.Accounting.FixedAssets
 {
@@ -1187,6 +1189,67 @@ namespace Library.Accounting.FixedAssets
 						ORDER BY 2 DESC";
             return _sqlRepository.GetDataCollection(sql);
         }
+        public List<Dictionary<string, object>> GetCapitalizationSingleJVListFromAssetRegister(string capitalizationMasterId, string companyId, string plantId)
+        {
+            var sql = @"DECLARE @capitalizationMasterId varchar(50)='" + capitalizationMasterId + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
+
+						SELECT X.* FROM(
+						SELECT  'Asset' AS OtherName, 'Dr' AS TrnType
+							,GLGeneralInfoId =BM.GLGeneralInfoId        
+							,GLGeneralInfoCode =GL.AccountCode 
+							,GLGeneralInfoName =GL.UserName
+							,BudgetMasterId =FAMG.AssetUnderConstructionBudgetMasterId
+							,BudgetCode = B.Code
+							,BudgetName =B.UserName 
+							,ActivityId = FAMG.AssetUnderConstructionActivityId
+							,ActivityCode = A.Code
+							,ActivityName =A.UserName
+							,BudgetMasterActivityId =BMA.Id
+							, SUM( ISNULL(ARC.Amount,0)) AS Dr
+							, NULL Cr
+							, SUM( ISNULL(ARC.Amount,0)) AS Amount
+					    FROM [TRN].[AssetRegister] AR
+						LEFT JOIN [TRN].[AssetRegisterChild] ARC ON AR.Id=ARC.AssetRegisterId
+						LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
+						LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAI.FixedAssetMasterId
+						LEFT JOIN HKP.FixedAssetMasterGL AS FAMG  ON FAMG.FixedAssetMasterId=FAM.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON FAMG.AssetUnderConstructionBudgetMasterId= BM.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON FAMG.AssetUnderConstructionGLId=GL.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON FAMG.AssetUnderConstructionActivityId= A.Id
+						LEFT JOIN [MST].[BudgetMasterActivity] AS BMA ON FAMG.AssetUnderConstructionActivityId= BMA.ActivityId AND FAMG.AssetUnderConstructionBudgetMasterId= BMA.BudgetMasterId
+					    WHERE ARC.CapitalizationMasterId=@capitalizationMasterId 
+						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, B.Code, B.UserName, A.Code, A.UserName,FAMG.AssetUnderConstructionBudgetMasterId,FAMG.AssetUnderConstructionActivityId,BMA.Id
+						
+						UNION
+						SELECT  'Capitalization' AS OtherName, 'Cr' AS TrnType
+							,GLGeneralInfoId =BM.GLGeneralInfoId        
+							,GLGeneralInfoCode =GL.AccountCode 
+							,GLGeneralInfoName =GL.UserName
+							,BudgetMasterId =VD.BudgetMasterId
+							,BudgetCode = B.Code
+							,BudgetName =B.UserName 
+							,ActivityId = VD.ActivityId
+							,ActivityCode = A.Code
+							,ActivityName =A.UserName
+							,BudgetMasterActivityId =BMA.Id
+							, NULL Dr
+							,  SUM( ISNULL(CD.Amount,0)) AS Cr
+							,  SUM( ISNULL(CD.Amount,0)) AS Amount
+						FROM [TRN].[CapitalizationMasterDetail] CD
+						LEFT JOIN TRN.VoucherDetail VD	 ON VD.Id=CD.VoucherDetailId
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON VD.BudgetMasterId= BM.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON VD.GLGeneralInfoId=GL.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON VD.ActivityId= A.Id
+						LEFT JOIN [MST].[BudgetMasterActivity] AS BMA ON VD.ActivityId= BMA.ActivityId AND VD.BudgetMasterId= BMA.BudgetMasterId
+						WHERE CD.CapitalizationMasterId=@capitalizationMasterId 
+						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, VD.BudgetMasterId, B.Code, B.UserName, VD.ActivityId, A.Code, A.UserName,BMA.Id
+						) X 
+                        WHERE X.Amount>0
+						ORDER BY 2 DESC";
+            return _sqlRepository.GetDataCollection(sql);
+        }
         public GridModel GetFixedAssetAccDepGL(GridParameter parameters, string companyId)
         {
             try
@@ -2157,21 +2220,37 @@ namespace Library.Accounting.FixedAssets
         public List<Dictionary<string, object>> GetCapitalizeData()
         {
             string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode,Approved=CASE WHEN CM.IsApproved=1 THEN 'Approved' ELSE '' END
-FROM [TRN].[CapitalizationMaster] CM
-LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById Order by CM.AddedDate DESC";
+                            FROM [TRN].[CapitalizationMaster] CM
+                            LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
+                            LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById Order by CM.AddedDate DESC";
 
             return _sqlRepository.GetDataCollection(sql);
         }
+        public List<Dictionary<string, object>> GetCapitalizeDataList(string column, string value, string companyId)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+            var sql = @"select top 100 * from (SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName
+                        ,E.EmployeeCode ApprovedByEmployeeCode,Approved=CASE WHEN CM.IsApproved=1 THEN 'Approved' ELSE '' END,FAI.FixedAssetMasterId,FAM.UserName FixedAssetMaster
+                        ,CMStatus = case when CM.VoucherId is not null then 'Posted' else 'Parked' end
+                        FROM [TRN].[CapitalizationMaster] CM
+                        LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
+                        LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
+                        LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById
+                ) AS TEMP WHERE " + strkey + " order by AddedDate DESC   ";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
         public List<Dictionary<string, object>> GetApprovedCapitalizeData(string type)
         {
             string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode,Approved=CASE WHEN CM.IsApproved=1 THEN 'Approved' ELSE '' END
 FROM [TRN].[CapitalizationMaster] CM
 LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById
-Where CM.Type='" + type + "' AND CM.IsApproved=1 AND CM.VoucherRowId IS NULL";
+Where CM.Type='" + type + "' AND CM.IsApproved=1 AND CM.VoucherId IS NULL";
 
-            return _sqlRepository.GetDataCollection(sql);
+             return _sqlRepository.GetDataCollection(sql);
         }
         public List<Dictionary<string, object>> GetFixedAssetMasterItem()
         {
@@ -2271,6 +2350,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsMaster, dsChild = null;
+            DataSet _assetRegisterData, _assetRegisterChildData = null;
             string _Id = string.Empty;
             string _CId = string.Empty;
             try
@@ -2287,8 +2367,6 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "CapitalizationMaster", out _Id);
 
                     data["Id"] = _Id;
-                    //data["Type"] = "New";
-
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -2326,14 +2404,89 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
 
                 #endregion
 
+                #region AssetRegister_AssetRegisterChild
+                string _AssetRegisterId = string.Empty;
+                decimal AssetRegisterAmount = 0;
+                decimal AssetRegisterTotalAmount = 0;
+                genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "AssetRegister", out _AssetRegisterId);
+                string sqlAssetRegister = "SELECT * FROM [TRN].[AssetRegister] WHERE 1=2 ";
+                string sqlAssetRegisterChild = "SELECT * FROM [TRN].[AssetRegisterChild] WHERE 1=2 ";
+                objCon.OpenDataSetThroughAdapter(sqlAssetRegister, out _assetRegisterData, false, "1");
+                objCon.OpenDataSetThroughAdapter(sqlAssetRegisterChild, out _assetRegisterChildData, false, "1");
+                AccountsCommonService _accountsCommonService = new AccountsCommonService(_sqlRepository);
+
+                if(data["Type"].ToString()== "New")
+                { 
+                    for (int i = 0; i < Int32.Parse(data["Qty"].ToString()); i++)
+                    {
+                        var id = _accountsCommonService.MakePK(_AssetRegisterId, i + 1, 4);
+                        var assetRegisterData = new
+                        {
+                            Id = id,
+                            FixedAssetItemId = data["FixedAssetItemId"].ToString(),
+                            AddedBy = identity.Name,
+                            AddedDate = System.DateTime.Now.ToString(),
+                            AddedFromIP = identity.IPAddress,
+                        };
+                        AddNewRowAssetRegister(_assetRegisterData.Tables[0], assetRegisterData);
+
+                        if (Int32.Parse(data["Qty"].ToString()) - 1 == i) {
+                                AssetRegisterAmount = decimal.Parse(data["TotalAmount"].ToString()) - AssetRegisterTotalAmount;
+                        }
+                            else
+                        {
+                                AssetRegisterAmount = Math.Round(decimal.Parse(data["TotalAmount"].ToString()) / decimal.Parse(data["Qty"].ToString()), 2);
+                        }
+
+                    var assetRegisterChildData = new
+                        {
+                            Id = _accountsCommonService.MakePK(id, 1, 2),
+                            AssetRegisterId = id,
+                            CapitalizationMasterId = masterId,
+                            CapitalizationChildId = masterId+"-"+ (i + 1),
+                            Amount = AssetRegisterAmount,
+                            CompanyGroupId = identity.CompanyGroupId,
+                            CompanyId = identity.CompanyId,
+                            PlantId = identity.PlantId,
+                            AddedBy = identity.Name,
+                            AddedDate = System.DateTime.Now.ToString(),
+                            AddedFromIP = identity.IPAddress,
+                        };
+                        AssetRegisterTotalAmount += AssetRegisterAmount;
+                        AddNewRowAssetRegister(_assetRegisterChildData.Tables[0], assetRegisterChildData);
+
+                    }
+                }
+
+                #endregion
+
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsChild);
+                obj.SaveDataSets(dsMaster, dsChild, _assetRegisterData, _assetRegisterChildData);
 
             }
             catch (Exception ex)
             {
                 throw (ex);
             }
+        }
+        private void AddNewRowAssetRegister<T>(DataTable dt, T Data)
+        {
+            Dictionary<string, object> sourceData = Data.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).ToDictionary(prop => prop.Name, prop => prop.GetValue(Data, null));
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dt.Rows.Add(dr);
         }
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
@@ -2389,16 +2542,16 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
 									,FAI.UserName FixedAssetItem
 									,FAC.UserName FixedAssetCategory
 									,FASC.UserName FixedAssetSubCategory
-                                    ,ISNULL(VD.DrAmount,0) Amount,CM.Qty
-									,V.VoucherNo,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate
-                FROM [TRN].[CapitalizationMaster] CM
+									,CM.Qty,V.VoucherNo,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate
+									,(SELECT SUM(ISNULL(DrAmount,0))DrAmount FROM TRN.VoucherDetail 
+									WHERE VoucherId=V.Id AND ISNULL(DrAmount,0)>0 GROUP BY VoucherId) Amount
+				FROM TRN.Voucher V 
+				INNER JOIN [TRN].[CapitalizationMaster] CM ON CM.VoucherId=V.Id
 				LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
-				INNER JOIN TRN.VoucherDetail VD ON VD.Id=CM.VoucherRowId
-				INNER JOIN TRN.Voucher V ON V.Id=VD.VoucherId
 				LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
                 LEFT  JOIN  HKP.[FixedAssetCategory]  FAC ON FAM.FixedAssetCategoryId=FAC.Id
                 LEFT  JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
-                WHERE CM.Type='" + type + @"' AND V.CompanyId='" + companyId + @"' AND V.Archive=0 AND CM.VoucherRowId IS NOT NULL
+                WHERE CM.Type='" + type + @"' AND V.CompanyId='" + companyId + @"' AND V.Archive=0 
                 ) AS TEMP WHERE " + strkey + " order by PostingDate DESC   ";
             return _sqlRepository.GetDataCollection(sql);
         }
@@ -2431,15 +2584,16 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
-                var sql = @"SELECT TOP 500 * from ( SELECT 0 Active, AR.Id AssetRegisterId, AR.FixedAssetItemId,FAI.UserName FixedAssetItem, AR.AssetSlNo, AR.RFId, AR.BarCode
+                var sql = @"SELECT TOP 100 * from ( SELECT 0 Active, AR.Id AssetRegisterId, AR.FixedAssetItemId,FAI.UserName FixedAssetItem,FAM.UserName FixedAssetMaster, AR.AssetSlNo, AR.RFId, AR.BarCode
                             ,AR.AdditionalInfoUpdateId, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks 
-                            ,ARC.Id AssetRegisterChildId,ARC.Amount,ARC.DepreciationAmount,CM.TotalAmount
+                            ,ARC.Id AssetRegisterChildId,ARC.Amount,ARC.DepreciationAmount,CM.TotalAmount,ARC.CapitalizationMasterId,ARC.CapitalizationChildId
                             FROM TRN.AssetRegister AR
                             LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
+                            LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
                             LEFT JOIN TRN.AssetRegisterChild ARC ON ARC.AssetRegisterId=AR.Id AND ARC.CapitalizationMasterId='" + capitalizationMasterId + @"'
                             LEFT JOIN [TRN].[CapitalizationMaster] CM ON CM.Id=ARC.CapitalizationMasterId
                             WHERE AR.Id in(SELECT AssetRegisterId FROM [TRN].[AssetRegisterChild] where CapitalizationMasterId='" + capitalizationMasterId + @"')
-                            ) AS TEMP WHERE " + strkey + " order by FixedAssetItem ASC ";
+                            ) AS TEMP WHERE " + strkey + " order by AssetRegisterId ASC ";
                 return _sqlRepository.GetDataCollection(sql);
 
             }

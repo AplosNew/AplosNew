@@ -155,7 +155,7 @@ LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
 	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
 	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
 	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
-	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription
+	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
                        FROM [TRN].[SalesOrder] AS SO 
                        JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
                        JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
@@ -193,7 +193,7 @@ LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
 	                            , isnull(DEST.UserName,'') AS DestinationName, isnull(SHP.UserName,'') AS ShipmentModeName
 	                            , isnull(PO.PONumber,'') AS PONumber, OS.UserName AS OrderStatusName, OC.UserName AS OrderCategoryName
 	                            , SO.Qty, SO.Rate,SO.Description,CASE WHEN isnull(so.WeekNo,0)=0 THEN  DATEPART(week,so.DeliveryDate) ELSE so.WeekNo END AS DeliveryWeek
-	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription
+	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
                        FROM [TRN].[SalesOrder] AS SO 
                         left outer join [TRN].[ProductionOrderDetail] POD on POD.SalesOrderId=SO.Id and POD.ProductionOrderID='" + productionorderid + @"'
                        JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
@@ -223,7 +223,7 @@ LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
 							LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
 							LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
 
-WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEMP.ArticleId";
+WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
