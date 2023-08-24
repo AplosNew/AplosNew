@@ -563,7 +563,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 string pDays = null;
                 if (payDaysType== "FinalOT")
                 {
-                    pDays = @"LEFT JOIN(select (SUM(NormalOTHr)/24) PayDays,EmpSystemID  from finalOT 
+                    pDays = @"LEFT JOIN(select (SUM(StandardOT)/24) PayDays,EmpSystemID  from AttdnProcessData 
                             where WorkDate between '" + fromDate + @"' and '" + toDate + @"'
                             GROUP BY EmpSystemID)y on y.EmpSystemID = EI.SystemId ";
                 }
@@ -577,7 +577,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 }
                 else
                 {
-                    pDays = @"LEFT JOIN(  select SUM(PayDayValue) PayDays,EmpSystemID  
+                    pDays = @"LEFT JOIN(  select SUM(AdditionalOT/24) PayDays,EmpSystemID  
 							from AttdnProcessData 
                             where WorkDate between '01-Apr-2021' and '30-Apr-2021'
                             GROUP BY EmpSystemID)y on y.EmpSystemID = EI.SystemId ";
@@ -595,6 +595,7 @@ namespace Aplos.Areas.Attendances.Controllers
                          ,EI.EmployeeStatus
 						 ,OTTitle = case when EI.ExcludeOT=0 then 'Yes' else 'No' END
 						 ,x.DefineAmount Basic,x.SalaryHead,y.PayDays
+                         ,g.RatePerHour,g.RatePerDay
                          FROM dbo.Employeeinformation EI
                          LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
                          LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
@@ -613,6 +614,10 @@ namespace Aplos.Areas.Attendances.Controllers
                                       FROM SalaryInfoDefine SID 
                          LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                     WHERE SH.HeadCategory='Basic')x ON x.SalaryID = SIDM.SystemID
+                        LEFT JOIN(SELECT ((SID.DefineAmount/208)*2) RatePerHour,(((SID.DefineAmount/208)*2)*2) RatePerDay,SH.SalaryHead,SID.SalaryID
+                                      FROM SalaryInfoDefine SID 
+                         LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+                                    WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
                          " + pDays +@"
                          where EI.employeeCode<>''  
                          ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
