@@ -1980,12 +1980,12 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Description");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 180;
+            wTable.Rows[ROW].Cells[colArticle].Width = 175;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Shade");
             range.ApplyCharacterFormat(FontBold);
             int colShade = COL; COL++;
-            wTable.Rows[ROW].Cells[colShade].Width = 50;
+            wTable.Rows[ROW].Cells[colShade].Width = 55;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Lot");
             range.ApplyCharacterFormat(FontBold);
@@ -2067,7 +2067,7 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
                 IWTextRange textRangeRate = TROW.Cells[colRate].AddParagraph().AppendText(dsOrderMaster.Rows[i]["BooksCurrencyBaseRate"].ToString());
                 textRangeRate.CharacterFormat.FontSize = 8;
 
-                IWTextRange textRangeTrnAmount = TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TrnAmount"].ToString());
+                IWTextRange textRangeTrnAmount = TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(dsOrderMaster.Rows[i]["BooksCurrencyTransactionAmount"].ToString());
                 textRangeTrnAmount.CharacterFormat.FontSize = 8;
 
             }
@@ -5553,11 +5553,11 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                 strSQL = @"Select CONVERT(NUMERIC(10,2),SUM(ST.Amount)) TaxAmount,CONVERT(NUMERIC(10,2),SUM(ISNULL(ST.BooksCurrencyTransactionAmount,0))) BooksCurrencyTransactionAmount
 ,ST.SalesId,ST.TaxCategoryId,TC.Code TaxCode,CONVERT(NUMERIC(10,2),ST.Percentage)Percentage
 ,CONVERT(NUMERIC(10,2),SUM(SM.TransactionAmount)) TaxON
-from TRN.SalesTax ST
+from TRN.SalesMaterial SM 
+left join TRN.SalesTax ST ON ST.SalesMaterialId=SM.Id
 left join TRN.Sales S ON S.Id=ST.SalesId
-left join TRN.SalesMaterial SM ON S.Id=SM.SalesId
 LEFT JOIN MST.TaxCategory TC ON TC.Id=ST.TaxCategoryId
-Where S.SourceType='Packing' AND ST.SalesId='" + SalesId + @"'
+Where S.SourceType='Packing' AND ST.SalesId='"+ SalesId + @"'
 Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
 
                 return _sqlRepository.GetDataTable(strSQL);

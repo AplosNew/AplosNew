@@ -1679,10 +1679,10 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return Json(new { Message = AplosMessage.Updated });
         }
         [HttpPost]
-        public JsonResult UpdateAssetRegisterItem(string assetRegisterId, string fixedAssetItemId)
+        public JsonResult UpdateAssetRegisterItem(string assetRegisterId,string assetRegisterChildId, string fixedAssetItemId)
         {
             FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
-            _fixedAssetDisposeService.UpdateAssetRegisterItem(assetRegisterId, fixedAssetItemId);
+            _fixedAssetDisposeService.UpdateAssetRegisterItem(assetRegisterId, assetRegisterChildId, fixedAssetItemId);
 
             return Json(new { Message = AplosMessage.Updated });
         }
@@ -1765,7 +1765,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
         #endregion
 
-        #region Fixed Asset Depreciation Process
+        #region Asset Depreciation Process
         public ActionResult AssetDepreciationProcess()
         {
             return View("~/Areas/FixedAssets/Views/AssetDepreciationProcess.cshtml");
