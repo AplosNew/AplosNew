@@ -1980,12 +1980,12 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Description");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 180;
+            wTable.Rows[ROW].Cells[colArticle].Width = 175;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Shade");
             range.ApplyCharacterFormat(FontBold);
             int colShade = COL; COL++;
-            wTable.Rows[ROW].Cells[colShade].Width = 50;
+            wTable.Rows[ROW].Cells[colShade].Width = 55;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Lot");
             range.ApplyCharacterFormat(FontBold);
@@ -2067,7 +2067,7 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
                 IWTextRange textRangeRate = TROW.Cells[colRate].AddParagraph().AppendText(dsOrderMaster.Rows[i]["BooksCurrencyBaseRate"].ToString());
                 textRangeRate.CharacterFormat.FontSize = 8;
 
-                IWTextRange textRangeTrnAmount = TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TrnAmount"].ToString());
+                IWTextRange textRangeTrnAmount = TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(dsOrderMaster.Rows[i]["BooksCurrencyTransactionAmount"].ToString());
                 textRangeTrnAmount.CharacterFormat.FontSize = 8;
 
             }
