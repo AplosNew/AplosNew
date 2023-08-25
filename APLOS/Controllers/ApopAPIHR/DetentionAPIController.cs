@@ -1013,6 +1013,19 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+        public string PostQualityHeader([FromBody] IEnumerable<QualityHeader> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostQualityHeader(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
         #endregion Quality control 
     }
 }
