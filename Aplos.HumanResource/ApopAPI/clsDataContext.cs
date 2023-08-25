@@ -6935,6 +6935,112 @@ where PO.QualityPlanDate < = '" + POIssueDate + "' or PO.QualityPlanDate is null
                 objCon = null;
             }
         }
+
+        public void GetQualityShift(out List<Default> DataList, string processId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"SELECT distinct sd.SystemID [Value],sd.UserName [Text] FROM [dbo].[WorkCenterWiseShift] WCS
+                                        LEFT JOIN dbo.ShiftDefination AS sd ON sd.SystemID = WCS.ShiftDefinationID
+                                        WHERE WorkCenterMasterId IN(SELECT Id FROM SCS.WorkCenterMaster AS wcm  WHERE wcm.ProcessId='" + processId + "')";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Text = dsRef.Tables[0].Rows[i]["Text"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetQualityPO(out List<Default> DataList, string IssueId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"SELECT distinct QC.ProductionOrderId [Value],QC.ProductionOrderId [Text] FROM TRN.QualityControl QC WHERE QC.IssueId='" + IssueId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Text = dsRef.Tables[0].Rows[i]["Text"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetQualityPeriod(out List<Default> DataList, string IssueId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select  Top 1 WTD.Id [Value],WTD.PeriodName +' (' + format(WTD.FromTime,'hh:mm tt')+' - ' + format(WTD.ToTime,'hh:mm tt')+')' as  [Text] from [MST].[QualityTimeDetails] WTD
+where WTD.IssueId='" + IssueId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Text = dsRef.Tables[0].Rows[i]["Text"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         #endregion Quality Control
     }
 
