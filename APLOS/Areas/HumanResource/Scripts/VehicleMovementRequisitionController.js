@@ -474,4 +474,18 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
         }
     };
 
+    $scope.GetDefaultLoginEmployee = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetDefaultLoginEmployee',
+            dataType:'JSON'
+        })
+            .then(function successCallback(response) {
+                $scope.VehicleRequisitionModel.EmpSystemId = response.data[0].SystemId;
+                $scope.VehicleRequisitionModel.EmployeeName = response.data[0].EmployeeName;
+                $scope.VehicleRequisitionModel.ResponsiblePersonCode = response.data[0].EmployeeCode;
+            })
+    }
+    $scope.GetDefaultLoginEmployee();
+
 }

@@ -499,7 +499,8 @@ namespace Aplos.Areas.Productions.Controllers
             sheet.UsedRange.CellStyle.Font.Size = 8;
 
             ReportUtility reportUtility = new ReportUtility();
-            reportUtility.CompanyHeader(ref sheet, endCol, "Packing List", identity.CompanyId);
+            reportUtility.CompanyHeader(ref sheet, 1, "Packing List", identity.CompanyId);
+            //reportUtility.PlantHeader(ref sheet, 1, "Packing List", identity.PlantId);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Portrait);
 
             return workbook;
@@ -622,7 +623,7 @@ namespace Aplos.Areas.Productions.Controllers
             }
             catch (Exception ex)
             {
-                throw ex;
+                //throw ex;
 
             }
 

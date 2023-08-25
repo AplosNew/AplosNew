@@ -635,6 +635,7 @@ function issueAUCCapitalizeController(cboService, commonMessage, $scope, $rootSc
                     BaseQty: item.BaseQty,
                     BaseCurrencyRate: item.BaseCurrencyRate,
                     Amount: item.GRNAmount,
+                    GRNBooksAmount: item.Amount,
                     BaseUOMId: item.BaseUOMId,
                     TransactionUoMId: item.TransactionUoMId,
                     MaterialMasterId: item.MaterialMasterId,
