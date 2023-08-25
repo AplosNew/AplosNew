@@ -171,6 +171,12 @@
                     </div>
                 </div>
             </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="2" ng-model="masterLC.Remarks" maxlength="250" tabindex="7"></textarea>
+                </div>
+            </div>
         </div>
     </div>
     <div class="common-btn">
@@ -216,8 +222,9 @@
                 <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="20" e-visible="false"></div>
                 <div e-column e-type="string" e-field="LCRef" e-headertext="LC Ref No" e-width="30"></div>
                 <div e-column e-type="string" e-field="PartyName" e-headertext="Customer" e-width="40"></div>
-                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LCDate" e-headertext="Opening Date" e-width="20"></div>
                 <div e-column e-type="string" e-field="OpeningBank" e-headertext="Opening Bank" e-width="50"></div>
+                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LCDate" e-headertext="Opening Date" e-width="20"></div>
+                <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="ExpiryDate" e-headertext="Expiry Date" e-width="20"></div>
                 <div e-column e-type="number" e-field="Amount" e-headertext="Opening Value" e-width="30" e-textalign="right"></div>
                 <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="30"></div>
 
