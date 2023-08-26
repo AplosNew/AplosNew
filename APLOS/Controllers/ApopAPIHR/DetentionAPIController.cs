@@ -1026,6 +1026,34 @@ namespace Aplos.Controllers.ApopAPIHR
 
             }
         }
+
+        public List<Default> GetQualityGrade()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetQualityGrade(out List<Default> activelists);
+            return activelists;
+        }
+
+        public List<Default> GetQualityActionToBeTaken()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetQualityActionToBeTaken(out List<Default> activelists);
+            return activelists;
+        }
+
+        public List<Default> GetQualityWorkCenter(string IssueId, string EntityId, string ProcessId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetQualityWorkCenter(out List<Default> activelists, IssueId, EntityId, ProcessId);
+            return activelists;
+        }
+
+        public List<QualityChild> GetQualityChildList(string IssueId, string PId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetQualityChildList(out List<QualityChild> activelists, IssueId, PId);
+            return activelists;
+        }
         #endregion Quality control 
     }
 }
