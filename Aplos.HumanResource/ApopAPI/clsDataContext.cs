@@ -6935,6 +6935,179 @@ where PO.QualityPlanDate < = '" + POIssueDate + "' or PO.QualityPlanDate is null
                 objCon = null;
             }
         }
+
+        public void GetQualityShift(out List<Default> DataList, string processId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"SELECT distinct sd.SystemID [Value],sd.UserName [Text] FROM [dbo].[WorkCenterWiseShift] WCS
+                                        LEFT JOIN dbo.ShiftDefination AS sd ON sd.SystemID = WCS.ShiftDefinationID
+                                        WHERE WorkCenterMasterId IN(SELECT Id FROM SCS.WorkCenterMaster AS wcm  WHERE wcm.ProcessId='" + processId + "')";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Text = dsRef.Tables[0].Rows[i]["Text"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetQualityPO(out List<Default> DataList, string IssueId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"SELECT distinct QC.ProductionOrderId [Value],QC.ProductionOrderId [Text] FROM TRN.QualityControl QC WHERE QC.IssueId='" + IssueId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Text = dsRef.Tables[0].Rows[i]["Text"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetQualityPeriod(out List<Default> DataList, string IssueId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select  Top 1 WTD.Id [Value],WTD.PeriodName +' (' + format(WTD.FromTime,'hh:mm tt')+' - ' + format(WTD.ToTime,'hh:mm tt')+')' as  [Text] from [MST].[QualityTimeDetails] WTD
+where WTD.IssueId='" + IssueId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Text = dsRef.Tables[0].Rows[i]["Text"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public string PostQualityHeader(IEnumerable<QualityHeader> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.QualityControl";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<QualityHeader> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from TRN.QualityControl where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                foreach (QualityHeader item in DataToSave)
+                {
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+
+                        dr["Id"] = "22" + _Id;
+                        dr["PlantId"] = item.PlantId;
+                        dr["EntityId"] = item.EntityId;
+                        dr["ProcessId"] = item.ProcessId;
+                        dr["ProductionDate"] = item.ProductionDate;
+                        dr["ProductionShiftId"] = item.ProductionShiftId;
+                        dr["ProductionOrderId"] = item.ProductionOrderId;
+                        dr["IssueId"] = item.IssueId;
+                        dr["PeriodId"] = item.PeriodId;
+                        dr["ProductionInchargeId"] = item.ProductionInchargeId;
+                        dr["LotNumber"] = item.LotNumber;
+                        dr["Remarks"] = item.Remarks;
+                        dr["MasterOrderItemId"] = item.MasterOrderItemId;
+                        dr["SalesOrderId"] = item.SalesOrderId;
+                        dr["QualityPlanId"] = item.QualityPlanId;
+                        dr["PlanType"] = item.PlanType;
+                        dr["WorkCenterId"] = item.WorkCenterId;
+                        dr["RepeatEntry"] = item.RepeatEntry;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
         #endregion Quality Control
     }
 
@@ -7851,6 +8024,34 @@ where PO.QualityPlanDate < = '" + POIssueDate + "' or PO.QualityPlanDate is null
         public string QPEmployeeId { get; set; }
         public string QPEmployee { get; set; }
 
+    }
+
+    public class QualityHeader
+    {
+        public string Id { get; set; }
+        public string PlantId { get; set; }
+        public string EntityId { get; set; }
+        public string ProcessId { get; set; }
+        public string ProductionDate { get; set; }
+        public string ProductionShiftId { get; set; }
+        public string ProductionOrderId { get; set; }
+        public string IssueId { get; set; }
+        public string PeriodId { get; set; }
+        public string ProductionInchargeId { get; set; }
+        public string LotNumber { get; set; }
+        public string Remarks { get; set; }
+        public string MasterOrderItemId { get; set; }
+        public string SalesOrderId { get; set; }
+        public string QualityPlanId { get; set; }
+        public string PlanType { get; set; }
+        public string WorkCenterId { get; set; }
+        public string RepeatEntry { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
     }
 
 }

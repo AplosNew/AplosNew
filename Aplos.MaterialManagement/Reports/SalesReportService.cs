@@ -5553,11 +5553,11 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                 strSQL = @"Select CONVERT(NUMERIC(10,2),SUM(ST.Amount)) TaxAmount,CONVERT(NUMERIC(10,2),SUM(ISNULL(ST.BooksCurrencyTransactionAmount,0))) BooksCurrencyTransactionAmount
 ,ST.SalesId,ST.TaxCategoryId,TC.Code TaxCode,CONVERT(NUMERIC(10,2),ST.Percentage)Percentage
 ,CONVERT(NUMERIC(10,2),SUM(SM.TransactionAmount)) TaxON
-from TRN.SalesTax ST
+from TRN.SalesMaterial SM 
+left join TRN.SalesTax ST ON ST.SalesMaterialId=SM.Id
 left join TRN.Sales S ON S.Id=ST.SalesId
-left join TRN.SalesMaterial SM ON S.Id=SM.SalesId
 LEFT JOIN MST.TaxCategory TC ON TC.Id=ST.TaxCategoryId
-Where S.SourceType='Packing' AND ST.SalesId='" + SalesId + @"'
+Where S.SourceType='Packing' AND ST.SalesId='"+ SalesId + @"'
 Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
 
                 return _sqlRepository.GetDataTable(strSQL);

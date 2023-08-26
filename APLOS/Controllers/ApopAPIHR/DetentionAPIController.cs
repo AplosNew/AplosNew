@@ -991,6 +991,41 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetQualityPOWiseIssue(out List<QualityPOIssue> activelists, POIssueDate);
             return activelists;
         }
+
+        public List<Default> GetQualityShift(string processId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetQualityShift(out List<Default> activelists, processId);
+            return activelists;
+        }
+
+        public List<Default> GetQualityPO(string IssueId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetQualityPO(out List<Default> activelists, IssueId);
+            return activelists;
+        }
+
+        public List<Default> GetQualityPeriod(string IssueId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetQualityPeriod(out List<Default> activelists, IssueId);
+            return activelists;
+        }
+
+        public string PostQualityHeader([FromBody] IEnumerable<QualityHeader> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostQualityHeader(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
         #endregion Quality control 
     }
 }
