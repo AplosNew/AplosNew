@@ -2199,7 +2199,7 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
                 IWTextRange textRange = TAXROW.Cells[colTaxCode].AddParagraph().AppendText(materialTax.Rows[i]["TaxCode"].ToString());
                 IWTextRange textRangeP = TAXROW.Cells[colPercentage].AddParagraph().AppendText(materialTax.Rows[i]["Percentage"].ToString());
                 IWTextRange textRangeT = TAXROW.Cells[colTaxON].AddParagraph().AppendText(materialTax.Rows[i]["TaxON"].ToString());
-                IWTextRange textRangeTA = TAXROW.Cells[colTaxAmount].AddParagraph().AppendText(materialTax.Rows[i]["TaxAmount"].ToString());
+                IWTextRange textRangeTA = TAXROW.Cells[colTaxAmount].AddParagraph().AppendText(materialTax.Rows[i]["BooksCurrencyTransactionAmount"].ToString());
                 textRange.CharacterFormat.FontSize = 8;
                 textRangeP.CharacterFormat.FontSize = 8;
                 textRangeT.CharacterFormat.FontSize = 8;
@@ -5552,12 +5552,12 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
             {
                 strSQL = @"Select CONVERT(NUMERIC(10,2),SUM(ST.Amount)) TaxAmount,CONVERT(NUMERIC(10,2),SUM(ISNULL(ST.BooksCurrencyTransactionAmount,0))) BooksCurrencyTransactionAmount
 ,ST.SalesId,ST.TaxCategoryId,TC.Code TaxCode,CONVERT(NUMERIC(10,2),ST.Percentage)Percentage
-,CONVERT(NUMERIC(10,2),SUM(SM.TransactionAmount)) TaxON
+,CONVERT(NUMERIC(10,2),SUM(SM.BooksCurrencyTransactionAmount)) TaxON
 from TRN.SalesMaterial SM 
 left join TRN.SalesTax ST ON ST.SalesMaterialId=SM.Id
 left join TRN.Sales S ON S.Id=ST.SalesId
 LEFT JOIN MST.TaxCategory TC ON TC.Id=ST.TaxCategoryId
-Where S.SourceType='Packing' AND ST.SalesId='"+ SalesId + @"'
+Where S.SourceType='Packing' AND ST.SalesId='" + SalesId + @"'
 Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
 
                 return _sqlRepository.GetDataTable(strSQL);

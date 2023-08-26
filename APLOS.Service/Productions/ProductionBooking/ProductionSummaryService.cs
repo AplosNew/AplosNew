@@ -621,19 +621,20 @@ where wc.Active = 1 and wc.ProcessId = '" + ProcessId + "'  and wc.EntityId = '"
             {
                 QCItemId = @"and QII.Id='" + POItemId + "'";
             }
-            var sql = @"select distinct QIC.Id,QII.Id ItemId,QII.SNO,QII.ItemName,QII.UOMId,U.UserName as UOM,QIC.Value,QGD.Id as GradeId,QII.Max as MaxValue,QII.Min as MinValue,
+            var sql = @"select distinct QIC.Id,QII.Id ItemId,QII.SNO,PM.UserName ItemName,QII.UOMId,U.UserName as UOM,QIC.Value,QGD.Id as GradeId,QII.Max as MaxValue,QII.Min as MinValue,
 QIC.Remarks,QIC.ActionToBeTaken,isnull(QIC.WorkCenterId,(select WorkCenterId from TRN.QualityControl where Id='" + PId + @"')) as WorkCenterId,
 isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.[QualityControlDetails] where ItemId=QII.Id order by AddedDate desc))) as ResponsiblePerson,
 isnull(QIC.ResponsiblePersonId,(select top 1 ResponsiblePersonId from TRN.[QualityControlDetails] where ItemId=QII.Id order by AddedDate desc)) as ResponsiblePersonId,
-reverse(stuff(reverse((select CheckPoints +',' from QualityManagementParameterCheckPoints where ParameterId=QII.ParameterId for xml path(''))),1,1,'')) as Checkpoints,
-QIC.QCId,QIC.Repeat,(select IsWorkCenter from MST.QualityManagementParameterItem where Id=QII.ParameterId) as IsWorkCenter
-from MST.QualityIssueItem QII
-LEFT JOIN TRN.QualityControl QC ON QC.IssueId=QII.IssueId
+reverse(stuff(reverse((select CheckPoints +',' from QualityManagementParameterCheckPoints where ParameterId=QII.Id for xml path(''))),1,1,'')) as Checkpoints,
+QIC.QCId,QIC.Repeat,(select IsWorkCenter from MST.QualityManagementParameterItem where Id=QII.Id) as IsWorkCenter
+from MST.QualityManagementParameterItem QII
+LEFT JOIN TRN.QualityControl QC ON QC.IssueId=QII.QMID
 LEFT JOIN TRN.[QualityControlDetails] QIC ON QIC.QCId='" + PId + @"' and QIC.ItemId=QII.Id
 LEFT JOIN SCS.UnitOfMeasurement U ON U.Id = QII.UOMId
 left Join MST.QualityGradeDetails QGD ON QGD.Id=QIC.GradeId
 LEFT JOIN EmployeeInformation R ON  R.SystemId = QIC.ResponsiblePersonId
-where QII.IssueId='" + IssueId + "' " + QCItemId + " order by QII.SNO";
+left join hkp.ParameterMaster PM on PM.Id=QII.ParameterId
+where QII.QMID='" + IssueId + "' and QII.IsActive = 1 " + QCItemId + " order by QII.SNO";
             return _sqlRepository.GetDataCollection(sql);
         }
 
@@ -737,7 +738,7 @@ where QID.IssueType in ('Order','General') " + QCDate + " " + QCProcess + " " + 
                 QCDate = @"CONVERT(DATE,QC.AddedDate)  between '" + fromDate + "' and '" + todate + "'";
             }
             
-            var sql = @"select distinct QC.Id TransactionHeaderId,(select SNO from MST.QualityIssueItem where Id=QCD.ItemId) as ParameterSNO,format(QC.AddedDate,'dd-MMM-yyyy') as ActualDate,
+            var sql = @"select distinct QC.Id TransactionHeaderId,(select SNO from MST.QualityManagementParameterItem where Id=QCD.ItemId) as ParameterSNO,format(QC.AddedDate,'dd-MMM-yyyy') as ActualDate,
 format(QC.AddedDate,'hh:mm tt') as ActualTime,QID.CheckingInterval as Interval,
 format(DATEADD(hour, QID.CheckingInterval, QC.AddedDate),'dd-MMM-yyyy') as DueDate,
 format(DATEADD(hour, QID.CheckingInterval, CAST(QC.AddedDate AS DATETIME)),'hh:mm tt')  DueTime,
@@ -777,16 +778,15 @@ QC.PlanType as PType,QC.MasterOrderItemId,QC.SalesOrderId,QC.QualityPlanId,QC.Wo
 QCD.Id QCDId,(case when QCD.Id is null then 'Pending' else 'Completed' end) as Status,QCD.ItemId,QCD.Value,QCD.GradeId,QGD.GradeName,QCD.ActionToBeTaken as ActionToBeTakenId,
 (select ActionToBeTakenName from MST.QualityActionToBeTakenDetails where Id=QCD.ActionToBeTaken) as ActionToBeTaken,
 QCD.ResponsiblePersonId,
-QCD.Remarks as ParameterRemarks,QCD.Repeat,QCD.WorkCenterId as ParameterWorkCenterId,WCD.UserName ParameterWorkCenter,(select ItemName from MST.QualityIssueItem where Id=QCD.ItemId) as ParameterName,
-(select UserName from  scs.UnitOfMeasurement where id = (select UOMId from MST.QualityIssueItem where Id=QCD.ItemId)) UOM,QGD.GradeValue,
-(select Max from MST.QualityIssueItem where Id=QCD.ItemId) MaxValue,(select Min from MST.QualityIssueItem where Id=QCD.ItemId) MinValue,
-EI.EmployeeName as ActionTobeTakenResponsible,QC.QualityPlanId,(select CriticalLevel from MST.QualityIssueItem where Id=QCD.ItemId) CriticalLevel,
+QCD.Remarks as ParameterRemarks,QCD.Repeat,QCD.WorkCenterId as ParameterWorkCenterId,WCD.UserName ParameterWorkCenter,(select UserName from hkp.ParameterMaster where id=(select ParameterId from MST.QualityManagementParameterItem where Id=QCD.ItemId)) as ParameterName,
+(select UserName from  scs.UnitOfMeasurement where id = (select UOMId from MST.QualityManagementParameterItem where Id=QCD.ItemId)) UOM,QGD.GradeValue,
+(select Max from MST.QualityManagementParameterItem where Id=QCD.ItemId) MaxValue,(select Min from MST.QualityManagementParameterItem where Id=QCD.ItemId) MinValue,
+EI.EmployeeName as ActionTobeTakenResponsible,QC.QualityPlanId,(select CriticalLevel from MST.QualityManagementParameterItem where Id=QCD.ItemId) CriticalLevel,
 D.UserName as Department,QID.IssueType,QID.IssueCategory,QID.Period PeriodType,QID.Frequency,QCD.ItemId,
 reverse(stuff(reverse((select top 2 EI.EmployeeName + ',' from EmployeeInformation EI where EmployeeStatus='Active' and  
-PositionID in (select PositionCodeId from HKP.ParameterMaster  where Id=(select ParameterId from MST.QualityManagementParameterItem where Id=(
-select ParameterId from MST.QualityIssueItem where Id=QCD.ItemId))) order by DOJ asc  for xml path('') )),1,1,'')) as ParameterResponsilblePerson,
+PositionID in (select PositionCodeId from HKP.ParameterMaster  where Id=(select ParameterId from MST.QualityManagementParameterItem where Id=QCD.ItemId)) order by DOJ asc  for xml path('') )),1,1,'')) as ParameterResponsilblePerson,
 (select top 1 EmployeeName from EmployeeInformation  where BudgetCode=QMM.ResponsiblePersoneBgtCodeId and EmployeeStatus='Active' order by DOJ asc) IssueResponsiblePerson,
-reverse(stuff(reverse((select  CheckPoints +',' from QualityManagementParameterCheckPoints Q where Q.ParameterId = (select ParameterId from MST.QualityIssueItem where Id=QCD.ItemId) for xml path(''))),1,1,'')) as Checkpoints
+reverse(stuff(reverse((select  CheckPoints +',' from QualityManagementParameterCheckPoints Q where Q.ParameterId = (select Id from MST.QualityManagementParameterItem where Id=QCD.ItemId) for xml path(''))),1,1,'')) as Checkpoints
 from TRN.QualityControl QC
 left join TRN.QualityControlDetails QCD on QCD.QCID=QC.Id
 left join MST.QualityIssueDetails QID on QID.IssueNameId=QC.IssueId and QID.EntityId=QC.EntityId
@@ -825,13 +825,13 @@ where " + QCDate + "  " + QCIssue + " " + QCPONO + "";
             {
                 QCIssue = @"and QC.IssueId='" + IssueId + "'";
             }
-            if (POId != "null")
+            if (POId != "null" && POId != "undefined")
             {
                 QCPONO = @"and QC.ProductionOrderId='" + POId + "'";
             }
             if (fromDate != "null" && todate != "null" && fromDate != "undefined" && todate != "undefined")
             {
-                QCDate = @"and (CONVERT(DATE,QC.AddedDate) between '" + fromDate + "' and '" + todate + "'  or QII.ItemName is null)";
+                QCDate = @"and (CONVERT(DATE,QC.AddedDate) between '" + fromDate + "' and '" + todate + "'  or QII.Id is null)";
             }
 
             var sql = @"select B.IssueApplicable,B.Customer,B.POId,B.LotNumber,B.Entity,B.ProcessSeq,B.Process,B.Shift,B.IssueDetails,B.Parameter,B.ItemUOM,B.Remarks,B.DateShiftTime,B.Value
@@ -852,14 +852,15 @@ P.UserName Process,
 QMM.UserName IssueDetails,
 QID.IssueType IssueApplicable,
 SD.ShiftDefinationDescription as Shift,
-QII.ItemName as Parameter,
+PM.UserName as Parameter,
 UM.UserName ItemUOM,
 (select Remarks + ',' from TRN.QualityControlDetails where ItemId=QII.Id for xml path('')) Remarks,	
 format(QCD.AddedDate,'dd-MM-yy')+'/'+ format(QCD.AddedDate,'HH:mm') as DateShiftTime,
 QCD.Value
 from MST.QualityIssueDetails  QID
 left join MST.QualityManagementMaster QMM on QMM.Id=QID.IssueNameId
-left join MST.QualityIssueItem QII on QII.IssueId=QID.IssueNameId
+left join MST.QualityManagementParameterItem QII on QII.QMID=QID.IssueNameId
+left join hkp.ParameterMaster PM on PM.Id=QII.ParameterId
 left join scs.UnitOfMeasurement UM on UM.Id=QII.UOMId
 left join TRN.QualityControl QC on QC.IssueId=QID.IssueNameId
 left join TRN.QualityControlDetails QCD on QCD.QCId=QC.Id and QCD.ItemId=QII.Id
