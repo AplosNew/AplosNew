@@ -362,6 +362,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         , ExceptionDays: null
         , ReportApplicable: true
         , IsStdApplicable: true
+        , IsActive: true
         , OrderSpecific: false
         , General: true
         , UOMId: null

@@ -482,17 +482,15 @@ P.UserReportGroup,QPC.Remarks
             string _Id, Id = string.Empty;
             try
             {
-
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from " + TableName + " where QMID='" + Pid + "'");
+                conC.CommitTransaction();
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 
                 if (DataList != null)
                 {
-                    ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
-                    conC.BeginTransaction();
-                    conC.executeQuery("delete from " + TableName + " where QMID='" + Pid + "'");
-                    conC.CommitTransaction();
-
                     foreach (var item in DataList)
                     {
                         objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and QMID='" + item["QMID"] + "'", out dsProdBooked, false, "1");
@@ -533,16 +531,15 @@ P.UserReportGroup,QPC.Remarks
             string _Id, Id = string.Empty;
             try
             {
-
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from " + TableName + " where QMID='" + Pid + "'");
+                conC.CommitTransaction();
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
 
                 if (DataList != null)
                 {
-                    ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
-                    conC.BeginTransaction();
-                    conC.executeQuery("delete from " + TableName + " where QMID='" + Pid + "'");
-                    conC.CommitTransaction();
 
                     foreach (var item in DataList)
                     {
@@ -694,15 +691,13 @@ P.UserReportGroup,QPC.Remarks
             try
             {
                 objCon = new ConnectionManager.DAL.ConManager("1");
-
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from " + TableName + " where QMID='" + Pid + "'");
+                conC.CommitTransaction();
 
                 if (DataList != null)
                 {
-                    ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
-                    conC.BeginTransaction();
-                    conC.executeQuery("delete from " + TableName + " where QMID='" + Pid + "'");
-                    conC.CommitTransaction();
-
                     foreach (var item in DataList)
                     {
                         objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and QMID='" + item["QMID"] + "'", out dsProdBooked, false, "1");
@@ -1127,17 +1122,16 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
             string _Id, Id = string.Empty;
             try
             {
-
+                
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from " + TableName + " where QMID='" + Pid + "'");
+                conC.CommitTransaction();
 
                 if (DataList != null)
                 {
-                    ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
-                    conC.BeginTransaction();
-                    conC.executeQuery("delete from " + TableName + " where QMID='" + Pid + "'");
-                    conC.CommitTransaction();
-
                     foreach (var item in DataList)
                     {
                         objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and QMID='" + item["QMID"] + "'", out dsProdBooked, false, "1");
@@ -1181,14 +1175,13 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
 
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from " + TableName + " where QMID='" + Pid + "'");
+                conC.CommitTransaction();
 
                 if (DataList != null)
                 {
-                    ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
-                    conC.BeginTransaction();
-                    conC.executeQuery("delete from " + TableName + " where QMID='" + Pid + "'");
-                    conC.CommitTransaction();
-
                     foreach (var item in DataList)
                     {
                         objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and QMID='" + item["QMID"] + "'", out dsProdBooked, false, "1");
@@ -1232,13 +1225,14 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
 
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from " + TableName + " where QMID='" + Pid + "'");
+                conC.CommitTransaction();
 
                 if (DataList != null)
                 {
-                    ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
-                    conC.BeginTransaction();
-                    conC.executeQuery("delete from " + TableName + " where QMID='" + Pid + "'");
-                    conC.CommitTransaction();
+                    
 
                     foreach (var item in DataList)
                     {
