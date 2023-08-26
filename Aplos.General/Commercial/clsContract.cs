@@ -281,7 +281,7 @@ where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1
 							PR.UserName PortOfLanding, MLC.AddedBy,FORMAT(MLC.AddedDate,'dd-MMM-yyyy') AddedDate, MLC.AddedFromIP, MLC.UpdatedBy, 
 							FORMAT(MLC.UpdatedDate,'dd-MMM-yyyy') UpdatedDate, MLC.UpdatedFromIP, MLC.CurrencyId,LB.UserName BenificiaryBank,CN.Code Currency, 
 							MLC.CustomerId, P.UserName PartyName,MLC.Version,mlc.LCShipmentDate,mlc.ShipmentModeId,sm.UserName ShipmentMode,mlc.AmendmentDate
-							,mlc.PortOfLoadingId,prl.UserName PortOfLoading
+							,mlc.PortOfLoadingId,prl.UserName PortOfLoading,MLC.Remarks
                          FROM [dbo].[MasterLC] MLC
                          LEFT JOIN MST.BankMaster OB  ON OB.Id=MLC.BenificiaryBankId
                          LEFT JOIN HKP.Bank LB ON LB.Id=OB.BankId
