@@ -2567,6 +2567,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                             ,AR.AdditionalInfoUpdateId, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks 
                             FROM TRN.AssetRegister AR
                             LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
+                            WHERE AR.Id IN(	SELECT AssetRegisterId FROM [TRN].[AssetRegisterChild] WHERE VoucherDetailId is not null)
                             ) AS TEMP WHERE " + strkey + " order by FixedAssetItem ASC ";
                 return _sqlRepository.GetDataCollection(sql);
 
