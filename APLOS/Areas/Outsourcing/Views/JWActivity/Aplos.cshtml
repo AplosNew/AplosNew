@@ -1,11 +1,11 @@
 ﻿<togglable name="{{title}}"></togglable>
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
-    <input type="hidden" ng-model="ModelNew.Id">
+    <input type="hidden" ng-model="JobWorkActivity.Id">
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence" e-width="100" required tabindex="1" />
+                <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="JobWorkActivity.Sequence" e-width="100" required tabindex="1" />
             </div>
         </div>
 
@@ -13,21 +13,21 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Short Name" ng-model="ModelNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
+                <input type="text" name="Short Name" ng-model="JobWorkActivity.ShortName" class="form-control" maxlength="15" required tabindex="3">
             </div>
         </div>
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">User  Name<sup>*</sup></label>
 
             <div class="col-sm-8 show-message">
-                <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required maxlength="50" tabindex="5">
+                <input type="text" name="User Name" ng-model="JobWorkActivity.UserName" class="form-control" required maxlength="50" tabindex="5">
             </div>
         </div>
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Job Work Type<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select class="form-control" ng-model="ModelNew.Type" name="Job Work Type" required tabindex="5">
+                    <select class="form-control" ng-model="JobWorkActivity.Type" name="Job Work Type" required tabindex="5">
                         <option value="">--Select--</option>
                         <option ng-repeat="option in jobWorkTypeList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
@@ -39,7 +39,7 @@
             <label class="col-sm-4 control-label">Service<sup></sup></label>
             <div class="col-sm-8">
                 <div class="select-style">
-                    <select class="form-control" ng-model="ModelNew.ServiceId" name="Service" tabindex="7">
+                    <select class="form-control" ng-model="JobWorkActivity.ServiceId" name="Service" tabindex="7">
                         <option value="">--Select--</option>
                         <option ng-repeat="option in serviceCboList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
@@ -50,7 +50,7 @@
             <label class="col-sm-4 control-label">Production Process<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select class="form-control" ng-model="ModelNew.ProcessId" name="Production Process" tabindex="8">
+                    <select class="form-control" ng-model="JobWorkActivity.ProcessId" name="Production Process" tabindex="8">
                         <option value="">--Select--</option>
                         <option ng-repeat="option in productionPrcoessList" value="{{option.Id}}">{{option.UserName}}</option>
                     </select>
@@ -63,21 +63,21 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Code<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="2" maxlength="10">
+                <input type="text" name="Code" ng-model="JobWorkActivity.Code" class="form-control" required tabindex="2" maxlength="10">
             </div>
         </div>
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required maxlength="50" tabindex="3">
+                <input type="text" name="Standard Name" ng-model="JobWorkActivity.StandardName" class="form-control" required maxlength="50" tabindex="3">
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-4 control-label">Responsible Person<sup></sup></label>
             <div class="col-sm-8 ">
                 <div class="input-group">
-                    <input type="text" name="Responsible Person" ng-model="ModelNew.ResponsiblePersonName" class="form-control" readonly tabindex="8">
-                    <input type="hidden" name="EmployeeId" ng-model="ModelNew.ResponsiblePersonId" />
+                    <input type="text" name="Responsible Person" ng-model="JobWorkActivity.ResponsiblePersonName" class="form-control" readonly tabindex="8">
+                    <input type="hidden" name="EmployeeId" ng-model="JobWorkActivity.ResponsiblePersonId" />
                     <span class="input-group-btn">
                         <button ng-click="showAllEmployeeListPopUp()" tabindex="8" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                         <button ng-click="clearResponsiblePerson()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
@@ -88,7 +88,7 @@
         <div class="form-group">
             <label class="col-sm-4 control-label">Remarks</label>
             <div class="col-sm-8">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="9"></textarea>
+                <textarea class="form-control" rows="3" ng-model="JobWorkActivity.Remarks" maxlength="250" tabindex="9"></textarea>
             </div>
         </div>
 

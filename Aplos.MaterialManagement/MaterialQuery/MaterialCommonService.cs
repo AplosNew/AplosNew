@@ -225,15 +225,21 @@ namespace Aplos.MaterialManagement.MaterialQuery
             }
         }
 
-        public IEnumerable<object> GetMaterialMasterWithArticlePopUpData(string column, string value, string materialGroupId)
+        public IEnumerable<object> GetMaterialMasterWithArticlePopUpData(string column, string value, string materialGroupId, string type)
         {
             try
             {
+                var ctype = "";
+                if (!string.IsNullOrEmpty(type) && type != "null")
+                    ctype = @"AND M.Id IN(SELECT MBP.MaterialMasterId FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+                        LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
+                        WHERE BP.BusinessProcessName ='" + type + "')";
+
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
                 var sql = @"DECLARE @materialGroupId VARCHAR(10)='" + materialGroupId + @"';
-                        select top 600 * from (SELECT MMA.Id, MGP.UserName AS MaterialGroupMasterName,MT.UserName MaterialTypeName,M.Code MaterialCode,MMA.MaterialMasterId,M.UserName MaterialMasterName
+                        select  * from (SELECT MMA.Id, MGP.UserName AS MaterialGroupMasterName,MT.UserName MaterialTypeName,M.Code MaterialCode,MMA.MaterialMasterId,M.UserName MaterialMasterName
                            , MMA.Code, MMA.StandardName,HSNCode=CASE WHEN HC.Code<>'' THEN ISNULL(HC.Code,NULL) ELSE ISNULL(MHC.Code,NULL) END 
 ,                           HSNCodeId=CASE WHEN ISNULL(MMA.HSNCodeId,'')<>'' THEN ISNULL(MMA.HSNCodeId,NULL) ELSE ISNULL(MMA.HSNCodeId,NULL) END
                             ,MMA.RPM, MMA.MachineAllowance,MMA.StitchCodeId,MMA.MachineMasterId,MM.UserName MachineMaster,MMA.OrderLevel
@@ -261,7 +267,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								LEFT JOIN (SELECT distinct MaterialMasterId FROM TRN.InventoryMaterial) AS IM ON IM.MaterialMasterId=M.Id
 LEFT JOIN (SELECT distinct MBP.MaterialMasterId, BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
 JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id) BPM ON BPM.MaterialMasterId=M.Id
-								WHERE  M.Archive=0 AND M.Active=1 and M.CompanyGroupId=@materialGroupId) AS TEMP WHERE " + strkey + " ";
+								WHERE  M.Archive=0 AND M.Active=1 and M.CompanyGroupId=@materialGroupId "+ctype+") AS TEMP WHERE " + strkey + " ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
