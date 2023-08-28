@@ -267,7 +267,7 @@ namespace Aplos.Areas.Materials.Controllers
                 // var fileName = "QRCode.pptx";
                 //var fileName = "QRCode" + identity.PlantId + ".pptx";
 
-                var datas = CreateQRCode(data);
+                //var datas = CreateQRCode(data);
 
                 //string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
                 #endregion unuseddcmnt
