@@ -11,6 +11,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.PeriodList = [];
     $scope.FrequencyList = [];
     $scope.DependentDateList = [];
+    $scope.EntryLevelList = [];
     $scope.path = 'Productions/ProcessQualityControl/';
     $scope.saveUrlIssue = $scope.path + 'createIssue';
     $scope.saveUrlReason = $scope.path + 'createReason';
@@ -139,6 +140,17 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         {
             'Value': 'POEndDate',
             'Text': 'PO End Date'
+        }
+    ];
+
+    $scope.EntryLevelList = [
+        {
+            'Value': 'PO',
+            'Text': 'PO'
+        },
+        {
+            'Value': 'LOT',
+            'Text': 'LOT'
         }
     ];
 
@@ -349,7 +361,8 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         ResponsiblePerson: null,
         PositionCodeId: null,
         PositionCode: null,
-        Remarks: null
+        Remarks: null,
+        EntryLevel: null
     };
     $scope.POQualityNew = Object.assign({}, $scope.POQuality);
 
