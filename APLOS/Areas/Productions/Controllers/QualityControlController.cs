@@ -1630,7 +1630,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             {
 
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from MST.QualityIssueItem where IssueId='" + QualityControlData["IssueId"] + "'", out DataSet dsItemIssueValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from MST.QualityManagementParameterItem where QMID='" + QualityControlData["IssueId"] + "'", out DataSet dsItemIssueValidation, false, "1");
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 

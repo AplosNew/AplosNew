@@ -1666,6 +1666,8 @@ namespace Aplos.Areas.FixedAssets.Controllers
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
+            if ((assetRegisterList == null))
+                throw new CustomException("Please select Asset Register!");
             _fixedAssetDisposeService.InsertCapitalizeAssetRegisterPostingAddition(voucherVM, voucherDetailVMList, assetRegisterList, capitalizationMasterdata);
 
             return Json(new { Message = AplosMessage.Insert });

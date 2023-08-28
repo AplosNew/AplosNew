@@ -1826,20 +1826,27 @@ namespace Library.Accounting.FixedAssets
                 string sqlChild = "SELECT * FROM [TRN].[AssetRegisterChild] WHERE 1=2 ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sqlChild, out _assetRegisterChildData, false, "1");
-
+                var i = 0;
                 foreach (var item in assetRegisterList)
                 {
                     objCon.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[AssetRegisterChild] where  AssetRegisterId='" + item["AssetRegisterId"].ToString() + "'", out _assetRegisterData, false, "1");
                     var assetRegisterChildData = new
                     {
-                        Id = _accountsCommonService.MakePK(item["AssetRegisterId"].ToString(), _assetRegisterData.Tables[0].Rows.Count+1, 2),
+                        Id = _accountsCommonService.MakePK(item["AssetRegisterId"].ToString(), _assetRegisterData.Tables[0].Rows.Count + 1, 2),
+                        FixedAssetItemId = item["FixedAssetItemId"].ToString(),
                         AssetRegisterId = item["AssetRegisterId"].ToString(),
                         CapitalizationMasterId = capitalizationMasterdata["Id"].ToString(),
+                        CapitalizationChildId = capitalizationMasterdata["Id"].ToString() + "-" + (i + 1),
                         Amount = item["Amount"].ToString(),
+                        CompanyGroupId = identity.CompanyGroupId,
+                        CompanyId = identity.CompanyId,
+                        PlantId = identity.PlantId,
+                        VoucherDetailId = voucherDrId,
                         AddedBy = identity.Name,
                         AddedDate = System.DateTime.Now.ToString(),
                         AddedFromIP = identity.IPAddress,
                     };
+                    i++;
                     AddNewRow(_assetRegisterChildData.Tables[0], assetRegisterChildData);
 
                 }

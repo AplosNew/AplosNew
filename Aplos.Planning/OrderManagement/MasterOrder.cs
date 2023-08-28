@@ -1521,5 +1521,193 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
             string sql = @"Select  top(1)OwnReferenceNo  from TRN.MasterOrderItem Where ProductionGrouping='"+ pg + "'";
             return _sqlRepository.GetDataCollection(sql);
         }
+
+       
+        public IEnumerable<object> GetSavedPackingTypeChild(string PTId)
+        {
+            string sql = @"select Sku.Id,Sku.FGFirstCharacteristicsValueId,CV1.UserName Color,Sku.FGSecondCharacteristicsValueId
+													,CV2.UserName Size,Sku.Quantity,Sku.[Plan],Sku.ToPlanQuantity
+													from  [dbo].[SKUDetail] Sku
+													                        
+													left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=Sku.FGFirstCharacteristicsValueId								
+													left join [hkp].[CharacteristicsValue] CV2 on CV2.Id=Sku.FGSecondCharacteristicsValueId
+                                Where Sku.PackingTypeChildId = '" + PTId + "'";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public IEnumerable<object> GetSavedSKUDetail(string PackingTypeId)
+        {
+            string sql = @"select Sku.Id,PT.Id PackingType,PT.UserName PackingType,Sku.FGFirstCharacteristicsValueId,CV1.UserName FirstCharacteristics,Sku.FGSecondCharacteristicsId
+													,CV2.UserName SecondCharacteristics,Sku.Quantity,Sku.[Plan],Sku.ToPlanQuantity
+													from  [dbo].[SKUDetail] Sku
+													left join [dbo].[PackingTypeChild] PTC on PTC.Id=Sku.PackingTypeChildId  
+													left join [hkp].[PackingType] PT on PT.Id=PTC.PackingTypeId                                
+													left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=Sku.FGFirstCharacteristicsValueId								
+													left join [hkp].[CharacteristicsValue] CV2 on CV2.Id=Sku.FGSecondCharacteristicsId
+                                Where Sku.PackingTypeChildId = '" + PackingTypeId + "'";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public IEnumerable<object> GetSKU2List(string SOId)
+        {
+            string sql = @"select distinct CV.Id as Value,CV.UserName as Text
+                                from trn.SecondCharacteristics sku2
+                                left join HKP.CharacteristicsValue CV on CV.Id=sku2.CharacteristicsValueId
+                                where sku2.SalesOrderId " + SOId + "";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public IEnumerable<object> GetSKU1List(string SOId)
+        {
+            string sql = @"select distinct CV.Id as Value,CV.UserName as Text
+                                from trn.FirstCharacteristics sku1
+                                left join HKP.CharacteristicsValue CV on CV.Id=sku1.CharacteristicsValueId
+                                where sku1.SalesOrderId " + SOId + "";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        public IEnumerable<object> GetSavedPackingType(string PackingDetailId)
+        {
+            string sql = @"select PTC.*,PT.UserName PackingType
+                                --,sku.Id SKUDetailId,sku.FGFirstCharacteristicsValueId
+								--,CV1.UserName FirstCharacteristics,Sku.FGSecondCharacteristicsValueId
+								--,CV2.UserName SecondCharacteristics,Sku.Quantity,Sku.[Plan],sku.ToPlanQuantity
+
+                                from  [dbo].[PackingTypeChild] PTC
+                                left join [hkp].[PackingType] PT on PT.Id=PTC.PackingTypeId
+								--left join SKUDetail sku on sku.PackingTypeChildId=PTC.Id
+								--left join [hkp].[CharacteristicsValue] CV1 on CV1.Id=Sku.FGFirstCharacteristicsValueId								
+								--left join [hkp].[CharacteristicsValue] CV2 on CV2.Id=Sku.FGSecondCharacteristicsValueId
+                                Where PackingDetailId='" + PackingDetailId + "'";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public IEnumerable<object> GetSODataList(string masterid)
+        {
+            string sql = @"Select * from [dbo].[BOMSODetail] Where BOMDetailChild1Id IN(Select ID from BOMDetailChild1 Where BOMDetailMasterId='" + masterid + "')";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public IEnumerable<object> GetSavedSOData(string PackingDetailId)
+        {
+            string sql = @"select * from  [dbo].[PackingSODetail] Where PackingDetailId='" + PackingDetailId + "'";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public IEnumerable<object> GetAutoSequence(string itemId)
+        {
+            string sql = @"SELECT (ISNULL((MAX(ISNULL(Sequence,0))),0)+1) Sequence FROM [dbo].[QuickBOQ] Where MasterOrderItemId='" + itemId + "'";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public bool CheckCombination(Dictionary<string, object> data)
+        {
+            try
+            {
+
+                var _sql = @"SELECT * FROM [dbo].[QuickBOQ] where id<>'" + data["Id"] + "' and ArticleId='" + data["ArticleId"] + "' AND MasterOrderItemId='" + data["MasterOrderItemId"] + "' AND MaterialMasterId='" + data["MaterialMasterId"] + "' AND CostingItemId='" + data["CostingItemId"] + "'";
+                var list = _sqlRepository.GetDataCollection(_sql, null);
+
+                if (list.Count > 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public DataTable GetOrderMaster(string MasterOrderId)
+        {
+           return _sqlRepository.GetDataTable(@"select mo.Id, mo.type, b.UserName as Buyer, p.UserName as Customer
+                ,  mo.OrderYear as Year, mo.TotalQty as TotalQuantity
+                    , uom.UserName as UnitOfMeasurement, mo.NoOfLineItem, mo.OrderWastagePercentage
+                    , mo.ExtraOrderPercentage, mo.BuyerReferenceNo, mo.OwnReferenceNo, BDept.UserName as BuyerDepartment
+                    , BDev.UserName as BuyerDevision, MoCur.Code MasterOrderCurrency from trn.MasterOrder MO 
+                    left join scs.Currency MoCur on MoCur.id = mo.CurrencyId 
+                    left join scs.UnitOfMeasurement UOM on uom.id = mo.TotalQtyUOMId 
+                    left join hkp.buyer B on b.id = mo.buyerid 
+                    left join hkp.party p on p.id = mo.partyid 
+                    left join hkp.BuyerDepartment BDept on BDept.id = mo.buyerDepartmentid 
+                    left join HKP.buyerdivision BDev on BDev.id = mo.BuyerDivisionId where mo.Id='" + MasterOrderId + "'");
+        }
+
+        public DataTable GetMasterOrderItem(string MasterOrderId)
+        {
+            return _sqlRepository.GetDataTable(@"select moi.id as MasterOrderItemNo,moi.BuyerReferenceNo
+                 ,moi.OwnReferenceNo,moi.TotalQty as TotalMOIQuantity, moi.MasterOrderId
+                 ,moi.OrderWastagePercentage, moi.ExtraOrderPercentage ,mm.UserName as Material ,mma.StandardName as Article, moi.Type
+                 from trn.MasterOrderItem MOI
+                 left join TRN.MasterOrder mo  on mo.id=moi.MasterOrderId
+                 left join MST.MaterialMaster MM on mm.id = moi.MaterialMasterId
+                 left join MST.MaterialMasterArticle mma on mma.id= moi.ArticleId
+                 left join scs.TestingStandard ts on ts.id=moi.TestingStandardId
+
+                 where moi.MasterOrderId='" + MasterOrderId + "'");
+        }
+
+        public DataTable GetSalesOrderItem(string MasterOrderId)
+        {
+            return _sqlRepository.GetDataTable(@"SELECT K.MasterOrderItemId, K.SalesOrderNo, K.PONumber, K.PODate, K.OrderStatus,
+                                           K.Destination, K.UpCharge, K.MainRawMaterialInhouseDate,
+                                           K.[Description], K.SOType, K.OrderCategory, K.DeliveryDate, K.ShipmentMode,
+                                           K.Rate, K.Discount, K.CM, K.LSD, K.OtherRawMaterialInhouseDate, K.Reason,
+                                           K.CommitmentDate, K.FirstCharacteristics, K.FirstCharacteristicsValue,
+                                           K.SecondCharacteristics, K.SecondCharacteristicsValue,
+                                           K.ThirdCharacteristics, K.ThirdCharacteristicsValue, sum(K.Qty) AS Qty, K.Quantity
+                                      from (select so.MasterOrderItemId, so.id as SalesOrderNo
+                ,cpo.PONumber , Replace(CONVERT(VARCHAR(11),  CPO.PODate, 106), ' ', '-') AS PODate
+                    ,os.UserName as OrderStatus --,d.UserName as Destination
+                   ,Destination= CASE WHEN so.DestinationDescription IS NULL THEN d.UserName  ELSE d.UserName+' ('+ISNULL(so.DestinationDescription,'')+')'  END
+                ,so.Qty as Quantity, so.UpCharge, so.MainRawMaterialInhouseDate, so.Description
+                ,so.SOType, oc.username as OrderCategory
+                ,so.DeliveryDate, sm.UserName as ShipmentMode
+                ,so.Rate, so.Discount,so.CM,so.LSD, so.OtherRawMaterialInhouseDate , so.Reason , so.CommitmentDate
+
+                ,c1.username as FirstCharacteristics, isnull(fcs.ValueFreeText,CV1.UserName) as FirstCharacteristicsValue
+                ,c2.username as SecondCharacteristics ,isnull(SCS.ValueFreeText, CV2.UserName) as SecondCharacteristicsValue
+                ,c3.username as ThirdCharacteristics , isnull(ThirdCS.ValueFreeText,CV3.UserName) as ThirdCharacteristicsValue
+                ,case when isnull(thirdCs.Id,'')<>'' THEN ThirdCs.Qty
+                ELSE case when isnull(scs.id,'')<>'' THEN scs.Qty
+                ELSE case when isnull(fcs.Id,'')<>'' THEN fcs.Qty
+                ELSE 0 END END END AS Qty
+                from trn.SalesOrder SO
+                left join trn.masterorderitem moi on moi.id= so.masterorderitemid
+                left join HKP.OrderCategory OC on oc.id = so.OrderCategoryId
+                left join hkp.OrderStatus OS on os.id = so.OrderStatusId
+                left join mst.shipMode SM on sm.id = so.shipmentModeId
+                left join mst.Destination d on d.id =so.DestinationId
+                left join trn.CustomerPO CPO on cpo.id =so.CustomerPOId
+
+                left join TRN.FirstCharacteristics FCS on fcs.SalesOrderId = so.id
+                left join hkp.Characteristics C1 on c1.id = fcs.CharacteristicsId
+                left join HKP.CharacteristicsValue CV1 on cv1.id= fcs.CharacteristicsValueId
+
+                left join TRN.SecondCharacteristics SCS on scs.SalesOrderId=so.id and scs.FirstCharacteristicsId=fcs.Id
+                left join hkp.Characteristics C2 on c2.id = scs.CharacteristicsId
+                left join HKP.CharacteristicsValue CV2 on cv2.id= scs.CharacteristicsValueId
+
+                left join TRN.ThirdCharacteristics ThirdCS on ThirdCS.SalesOrderId=so.id and scs.id=ThirdCS.SecondCharacteristicsId
+                left join hkp.Characteristics C3 on c3.id = ThirdCS.CharacteristicsId
+                left join HKP.CharacteristicsValue CV3 on CV3.id= ThirdCS.CharacteristicsValueId
+
+                 where moi.MasterOrderId='" + MasterOrderId + @"'
+
+					 ) AS K
+					 
+                GROUP BY K.MasterOrderItemId, K.SalesOrderNo, K.PONumber, K.PODate, K.OrderStatus,
+                       K.Destination, K.UpCharge, K.MainRawMaterialInhouseDate,
+                       K.[Description], K.SOType, K.OrderCategory, K.DeliveryDate, K.ShipmentMode,
+                       K.Rate, K.Discount, K.CM, K.LSD, K.OtherRawMaterialInhouseDate, K.Reason,
+                       K.CommitmentDate, K.FirstCharacteristics, K.FirstCharacteristicsValue,
+                       K.SecondCharacteristics, K.SecondCharacteristicsValue,
+                       K.ThirdCharacteristics, K.ThirdCharacteristicsValue, K.Quantity");
+        }
+
     }
 }

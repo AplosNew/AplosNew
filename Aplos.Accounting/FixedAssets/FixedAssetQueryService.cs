@@ -2567,6 +2567,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                             ,AR.AdditionalInfoUpdateId, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks 
                             FROM TRN.AssetRegister AR
                             LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
+                            WHERE AR.Id IN(	SELECT AssetRegisterId FROM [TRN].[AssetRegisterChild] WHERE VoucherDetailId is not null)
                             ) AS TEMP WHERE " + strkey + " order by FixedAssetItem ASC ";
                 return _sqlRepository.GetDataCollection(sql);
 
@@ -2587,13 +2588,13 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                     strkey = column + " like '%" + value + "%'";
                 var sql = @"SELECT TOP 100 * from ( SELECT 0 Active, AR.Id AssetRegisterId, AR.FixedAssetItemId,FAI.UserName FixedAssetItem,FAM.UserName FixedAssetMaster, AR.AssetSlNo, AR.RFId, AR.BarCode
                             ,AR.AdditionalInfoUpdateId, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks 
-                            ,ARC.Id AssetRegisterChildId,ARC.Amount,ARC.DepreciationAmount,CM.TotalAmount,ARC.CapitalizationMasterId,ARC.CapitalizationChildId
-                            FROM TRN.AssetRegister AR
+                            ,ARC.Id AssetRegisterChildId,ARC.Amount,ARC.DepreciationAmount,CM.TotalAmount,ARC.CapitalizationMasterId,ARC.CapitalizationChildId,ARC.VoucherDetailId
+                            FROM TRN.AssetRegisterChild ARC
+							LEFT JOIN TRN.AssetRegister AR ON AR.Id=ARC.AssetRegisterId
                             LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
                             LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
-                            LEFT JOIN TRN.AssetRegisterChild ARC ON ARC.AssetRegisterId=AR.Id AND ARC.CapitalizationMasterId='" + capitalizationMasterId + @"'
                             LEFT JOIN [TRN].[CapitalizationMaster] CM ON CM.Id=ARC.CapitalizationMasterId
-                            WHERE AR.Id in(SELECT AssetRegisterId FROM [TRN].[AssetRegisterChild] where CapitalizationMasterId='" + capitalizationMasterId + @"')
+                            WHERE ARC.CapitalizationMasterId='" + capitalizationMasterId + @"'
                             ) AS TEMP WHERE " + strkey + " order by AssetRegisterId ASC ";
                 return _sqlRepository.GetDataCollection(sql);
 
