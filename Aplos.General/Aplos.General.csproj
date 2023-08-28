@@ -82,6 +82,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Drawing.Common">
       <HintPath>..\APLOS.Service\bin\Debug\System.Drawing.Common.dll</HintPath>
     </Reference>
@@ -112,6 +113,7 @@
     <Compile Include="PerformanceManagement\JobEvaluationReportService.cs" />
     <Compile Include="PerformanceManagement\JobEvaluationService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Setups\clsPrint.cs" />
     <Compile Include="Setups\ProcessLock.cs" />
     <Compile Include="TaskScheduler\TasksService.cs" />
   </ItemGroup>

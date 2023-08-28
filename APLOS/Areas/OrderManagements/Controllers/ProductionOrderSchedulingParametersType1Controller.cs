@@ -322,13 +322,13 @@ EN.UserName AS EntityName, S.UserName AS ProductionStatusName,isnull(PO.Qty,0) A
 		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
 		                                                    left outer join mst.MaterialMaster mm on mm.id=XMOI.MaterialMasterId
+                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                                     ,NoOfArticle=(select COUNT(mm.StandardName) from 
 		                                                    trn.SalesOrder XSO 
 		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
 		                                                    left outer join mst.MaterialMasterarticle mm on mm.id=XMOI.ArticleId
 			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId)
-			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                                     ,Article=STUFF((select distinct ', '+mm.StandardName from 
 		                                                    trn.SalesOrder XSO 
 		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
