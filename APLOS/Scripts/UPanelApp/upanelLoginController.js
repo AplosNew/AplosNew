@@ -74,6 +74,7 @@ function upanelLoginController($scope, $rootScope, $routeParams, $http, $filter,
                         $cookies.put("panel", "upanel");
                         $cookies.put("authToken", $scope.authenticationToken);
                         $cookies.put("employeeId", response.data.EmployeeId);
+                        $cookies.put("FullName", response.data.UserFullName);
                         $cookies.put("groupId", $scope.companyGroupId);
                         $cookies.put("companyId", $scope.companyId);
 

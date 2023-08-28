@@ -1326,6 +1326,7 @@ upanelApp.run(["$rootScope", "$cookies", "$window", "$location", "$filter", "bas
         $window.companyId = $cookies.get("companyId");
         $window.plantId = $cookies.get("plantId");
         $window.employeeId = $cookies.get("employeeId");
+        $window.employeeName = $cookies.get("FullName");
         $rootScope.CompanyLogo = null;
         $rootScope.CompanyFullName = null;
         $rootScope.companyGroupLogo = virtualPath.LogoOrImage + $cookies.get("gImage");
