@@ -41,13 +41,13 @@ namespace Aplos.Areas.Materials.Controllers
 
         SerialPort serialPort = new SerialPort("COM9", 19200, Parity.None, 8, StopBits.One);
         Dictionary<string, object> data;
-        string ProductCode, PO ,LOT, NumberOfCones, NetWeight, GrossWeight, Shade, Article = null;
+        string ProductCode, PO, LOT, NumberOfCones, NetWeight, GrossWeight, Shade, Article = null;
         CustomIdentity identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-        public QRCodeGeneratorController(Dictionary<string, object>  dta)
+        public QRCodeGeneratorController(Dictionary<string, object> dta)
         {
             _sqlRepository = new SqlRepository();
-            
+
         }
         public ActionResult Aplos()
         {
@@ -174,7 +174,7 @@ namespace Aplos.Areas.Materials.Controllers
                     System.Drawing.Image barcodeImg = qrCode.Draw(concatdata, 200, 2);
                     ConvertPresentationToPdf.SetQRCode(presentation.Slides[i], "EmpQR", barcodeImg);
                 }
-                
+
 
                 return presentation;
             }
@@ -198,7 +198,7 @@ namespace Aplos.Areas.Materials.Controllers
                 //    throw new Exception(NetWeightText + " must be match with define min and max weight");
                 //}
 
-                if(!String.IsNullOrEmpty(data["ProductCode"].ToString()))
+                if (!String.IsNullOrEmpty(data["ProductCode"].ToString()))
                 {
                     ProductCode = data["ProductCode"].ToString();
                 }
@@ -318,13 +318,13 @@ namespace Aplos.Areas.Materials.Controllers
                 var paperSize = new PaperSize("Custom", 520, 820);
                 doc.DefaultPageSettings.PaperSize = paperSize;
 
-                doc.PrintPage += PrintPicture;
+                // doc.PrintPage += PrintPicture;
                 doc.PrintPage += new PrintPageEventHandler(ProvideContent);
-                
-                
+
+
                 doc.Print();
 
-                return Json(new {Id, Error = false, Message = AplosMessage.Insert });
+                return Json(new { Id, Error = false, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
@@ -332,7 +332,6 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-       
 
         private void PrintPicture(object sender, PrintPageEventArgs e)
         {
@@ -358,11 +357,16 @@ namespace Aplos.Areas.Materials.Controllers
 
         }
 
+
         public void ProvideContent(object sender, PrintPageEventArgs e)
-        {           
+        {
             const int FIRST_COL_PAD = 5;
             const int SECOND_COL_PAD = 7;
             const int THIRD_COL_PAD = 8;
+            int itemHeight = 0;
+            var curX = e.MarginBounds.X;
+            var curY = e.MarginBounds.Y;
+           
 
             string concatdata = Convert.ToString(
                     string.Concat(
@@ -380,10 +384,9 @@ namespace Aplos.Areas.Materials.Controllers
             CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
             var barcodeImg = qrCode.Draw(concatdata, 200, 2);
 
+            //ConvertImagePNGToBMP(concatdata);
 
             var sb = new StringBuilder();
-
-            
 
             sb.AppendLine(($"PRD.CD:  {ProductCode}"));
             sb.AppendLine(($"PO: {PO} "));
@@ -395,12 +398,27 @@ namespace Aplos.Areas.Materials.Controllers
             sb.AppendLine(($"PACKED BY:  {identity.UserId}"));
             sb.AppendLine(("SHADE:  "));
             sb.AppendLine(("ARTICLE:  "));
-           
-            
-            
-            
+
+
             var printText = new PrintText(sb.ToString(), new Font(System.Drawing.FontFamily.GenericSansSerif, 9, System.Drawing.FontStyle.Bold));
             Graphics graphics = e.Graphics;
+
+            using (var fontNormal = new Font("Arial", 9))
+            using (var sf = new StringFormat())
+            {
+                sf.Alignment = sf.LineAlignment = StringAlignment.Far;
+                itemHeight = (int)fontNormal.GetHeight(e.Graphics) + 10;
+
+
+                var imgRect = new Rectangle(150, 50, 90, 90);
+                //var labelRect = new Rectangle(150, 50, imgRect.Width, itemHeight);
+
+                using (var qrImage = barcodeImg)
+                    e.Graphics.DrawImage(qrImage, imgRect);
+               
+            }
+
+
             int startX = 0;
             int startY = 0;
             int Offset = 20;
