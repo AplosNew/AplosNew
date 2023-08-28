@@ -302,6 +302,7 @@ namespace Aplos.Areas.Commercial.Controllers
                         dr["LCShipmentDate"] = dsMaster.Tables[0].Rows[0]["LCShipmentDate"];
                         dr["ShipmentModeId"] = dsMaster.Tables[0].Rows[0]["ShipmentModeId"];
                         dr["PortOfLoadingId"] = dsMaster.Tables[0].Rows[0]["PortOfLoadingId"];
+                        dr["Remarks"] = dsMaster.Tables[0].Rows[0]["Remarks"];
 
                         dr["AddedBy"] = dsMaster.Tables[0].Rows[0]["AddedBy"];
                         dr["AddedDate"] = dsMaster.Tables[0].Rows[0]["AddedDate"];
@@ -342,6 +343,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["LCShipmentDate"] = data.LCShipmentDate;
                     dr["ShipmentModeId"] = data.ShipmentModeId;
                     dr["PortOfLoadingId"] = data.PortOfLoadingId;
+                    dr["Remarks"] = data.Remarks;
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
@@ -377,6 +379,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["LCShipmentDate"] = data.LCShipmentDate;
                     dr["ShipmentModeId"] = data.ShipmentModeId;
                     dr["PortOfLoadingId"] = data.PortOfLoadingId;
+                    dr["Remarks"] = data.Remarks;
 
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
@@ -456,6 +459,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["LCShipmentDate"] = data.LCShipmentDate;
                     dr["ShipmentModeId"] = data.ShipmentModeId;
                     dr["PortOfLoadingId"] = data.PortOfLoadingId;
+                    dr["Remarks"] = data.Remarks;
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
@@ -493,6 +497,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["LCShipmentDate"] = data.LCShipmentDate;
                     dr["ShipmentModeId"] = data.ShipmentModeId;
                     dr["PortOfLoadingId"] = data.PortOfLoadingId;
+                    dr["Remarks"] = data.Remarks;
 
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
@@ -1149,6 +1154,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["LCShipmentDate"] = data.LCShipmentDate;
                     dr["ShipmentModeId"] = data.ShipmentModeId;
                     dr["PortOfLoadingId"] = data.PortOfLoadingId;
+                    dr["Remarks"] = data.Remarks;
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
@@ -1183,6 +1189,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["LCShipmentDate"] = data.LCShipmentDate;
                     dr["ShipmentModeId"] = data.ShipmentModeId;
                     dr["PortOfLoadingId"] = data.PortOfLoadingId;
+                    dr["Remarks"] = data.Remarks;
 
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
@@ -3711,6 +3718,7 @@ namespace Aplos.Areas.Commercial.Controllers
         public DateTime? LCShipmentDate { get; set; }
         public string ShipmentModeId { get; set; }
         public string PortOfLoadingId { get; set; }
+        public string Remarks { get; set; }
 
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }
@@ -3770,6 +3778,7 @@ namespace Aplos.Areas.Commercial.Controllers
         public DateTime? LCShipmentDate { get; set; }
         public string ShipmentModeId { get; set; }
         public string PortOfLoadingId { get; set; }
+        public string Remarks { get; set; }
 
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }

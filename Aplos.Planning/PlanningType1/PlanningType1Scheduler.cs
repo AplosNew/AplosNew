@@ -44,7 +44,7 @@ namespace Library.Planning.PlanningType1
                     GROUP BY ppt.WorkCenterMasterId
                     ) AS PL ON pl.WorkCenterMasterId=wcm.Id
 
-                    WHERE wcm.EntityId='" + EntityId + @"' AND wcm.ProcessId=(SELECT pt.BaseProcessId FROM PlanningTypes AS pt WHERE pt.PlanningType='PlanningType1')
+                    WHERE wcm.EntityId='" + EntityId + @"' AND wcm.ProcessId IN(SELECT pt.BaseProcessId FROM PlanningTypes AS pt WHERE pt.PlanningType='PlanningType1')
                     ORDER BY wcm.Sequence
                     ";
 

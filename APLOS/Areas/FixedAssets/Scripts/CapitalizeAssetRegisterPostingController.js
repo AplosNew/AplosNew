@@ -106,7 +106,7 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
         $scope.capitalizationMaster.Qty = data.Qty;
         $scope.capitalizationMaster.TotalAmount = data.TotalAmount;
 
-        $scope.getAssetRegister(data.Id);
+        //$scope.getAssetRegister(data.Id);
         $scope.GetCapitalizationMasterDetail();
         $scope.getCapitalizationJV(data.Id);
        
@@ -119,7 +119,7 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
     $scope.capitalizationJVList = [];
     $scope.getCapitalizationJV = function (Id) {
         $scope.capitalizationJVList = [];
-        $scope.jvurl = 'FixedAssets/FixedAssetRegister/GetCapitalizationSingleJVList?capitalizationMasterId=' + Id
+        $scope.jvurl = 'FixedAssets/FixedAssetRegister/GetCapitalizationSingleJVListFromAssetRegister?capitalizationMasterId=' + Id
         $http({
             method: 'Post'
             , url: $scope.jvurl
@@ -144,30 +144,7 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
         });
 
     };
-    var FixedAssetindex = 0;
-    $scope.FixedAssetMasterItemList = [];
-    $scope.ShowFixedAssetMasterItem = function (index) {
-        FixedAssetindex = index;
-        $scope.Url = 'FixedAssets/FixedAssetRegister/GetFixedAssetMasterItem';
-        $http({
-            method: 'Get',
-            url: $scope.Url,
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.FixedAssetMasterItemList = response.data;
-        });
-        angular.element(document.querySelector('#fixedAssetMasterItemPoUp')).modal('show');
-    };
-
-    $scope.SetFAMI = function (obj) {
-        //$scope.register.FixedAssetItem = obj.data.UserName;
-        //$scope.register.FixedAssetItemId = obj.data.Id;
-        $scope.AssetRegisterList[FixedAssetindex].FixedAssetItemId = obj.data.Id;
-        $scope.AssetRegisterList[FixedAssetindex].FixedAssetItem = obj.data.UserName;
-        $scope.AssetRegisterList[FixedAssetindex].FixedAssetMaster = obj.data.FixedAssetMaster;
-        angular.element(document.querySelector('#fixedAssetMasterItemPoUp')).modal('hide');
-
-    }
+    
     // #region TAB CHANGE Main
     $scope.tabMain = 1;
     $scope.setTabMain = function (newTab) {
@@ -645,7 +622,7 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
 
     $scope.PostAddition = function () {
         $scope.validation();
-        if ($scope.formAddition.$valid) {
+        if ($scope.formAddition.$valid && !$scope.validation()) {
             $scope.SaveUrl = "fixedassets/FixedAssetRegister/CreatetCapitalizeAssetRegisterPostAddition"
             if ($scope.Action === "Save") {
                 $http({

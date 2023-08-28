@@ -5,7 +5,7 @@ function assetDepreciationProcessController(cboService, commonMessage, $scope, $
     $scope.Action = 'Save';
     $scope.path = 'FixedAssets/FixedAssetRegister/';
     $scope.url = "FixedAssets/FixedAssetRegister";
-    $scope.saveUrl = $scope.path + 'AssetDepreciationProcess';
+    $scope.saveUrl = $scope.path + 'SaveAssetDepreciationProcess';
 
     $scope.depreciationProcess = {
         FiscalYearId: null,

@@ -28,6 +28,8 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     //***********************************Worker Advance Start ********************************************************//
     $scope.ModelTemp = {
         Id: null,
+        year: null,
+        month: null,
         FromDate: null,
         ToDate: null,
         UserRef: null,
@@ -61,24 +63,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     cboService.getCboLeaveYear(function (result) {
         $scope.yearList = result;
     });
-    $scope.SelectDefaultValue = function (args) {
-        var x = args.selectedValue;
-        //x.setDate(10);
-        //x.setMonth(x.getMonth());
-
-        for (var i = 0; i < $scope.yearList.length; i++) {
-            if ($scope.yearList[i].Text === x.getFullYear().toString()) {
-                $scope.year = $scope.yearList[i].Text;
-                $scope.month = (x.getMonth() + 1).toString();
-                continue;
-            }
-        }
-        $scope.CalenderFunc();
-        //$scope.year = "2018";
-        var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
-        DropDownListYear.selectItemByText($scope.year);
-    };
-
+     
     $scope.monthList = [
         {
             Value: 1,
@@ -128,25 +113,22 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             Value: 12,
             Text: 'December'
         }
-    ];
-
-    $scope.DisabledDates = [];
+    ]; 
+    //$scope.DisabledDates = [];
     $scope.CalenderFunc = function () {
-        var date = new Date();
-        var _firstDay = new Date($scope.year, $scope.month, 1);
-        var _lastDay = new Date($scope.year, $scope.month + 1, 0);
-    $('.datepic').datepicker({
-        startDate: _firstDay,
-        endDate: _lastDay,
-        datesDisabled: $scope.DisabledDates,
-        format: 'dd-M-yyyy',
-        todayHighlight: true,
-        autoclose: true,
-        inline: true,
-        changeMonth: true
-    });
+        $scope._firstDay = $filter('dateFiltering')(new Date($scope.ModelNew.year, $scope.ModelNew.month - 1, 1), 'dd-MM-yyyy');
+        $scope._lastDay = $filter('dateFiltering')(new Date($scope.ModelNew.year, $scope.ModelNew.month, 0), 'dd-MM-yyyy');
+        $('.datepic').datepicker({
+            startDate: $scope._firstDay,
+            endDate: $scope._lastDay,
+            //datesDisabled: $scope.DisabledDates,
+            format: 'dd-MM-yyyy',
+            todayHighlight: true,
+            autoclose: true,
+            inline: true,
+            changeMonth: true
+        }); 
     };
-
 
 
     //$('.datepicker').datepicker({
@@ -238,7 +220,14 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
 
     $scope.Save = function () {
         try {
+            $scope.FD = $filter('dateFiltering')(new Date($scope.ModelNew.FromDate), 'dd-MM-yyyy');
+            $scope.TD = $filter('dateFiltering')(new Date($scope.ModelNew.ToDate), 'dd-MM-yyyy');
+
             $scope.$broadcast('show-errors-check-validity');
+            if ($scope._firstDay == $scope.FD || $scope._lastDay == $scope.TD) {
+                ShowResult('You can not select 1st Date & Last Date of the Month!', 'failure');
+                return false;
+            }
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -301,7 +290,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             $scope.EmployeeMainList = resp.data;
         });
     }
- 
+
 
     $scope.employeeParameters = {
         limit: 10,
@@ -366,7 +355,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.EmployeeList = [];
     $scope.EmployeeMainList = [];
     $scope.getEmploymeeList = function () {
-        if ($scope.ModelNew.ToDate === "" || $scope.ModelNew.ToDate === null || $scope.ModelNew.ToDate === undefined ) {
+        if ($scope.ModelNew.ToDate === "" || $scope.ModelNew.ToDate === null || $scope.ModelNew.ToDate === undefined) {
             ShowResult('Select To Date', 'failure');
             return false;
         }
@@ -378,7 +367,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         $http({
             method: 'POST',
             url: $scope.path + "LoadPCAACEmployeelist",
-            data: { 'fromDate': $scope.ModelNew.FromDate, 'toDate': $scope.ModelNew.ToDate, 'payDaysType': $scope.ModelNew.PayDaysType},
+            data: { 'fromDate': $scope.ModelNew.FromDate, 'toDate': $scope.ModelNew.ToDate, 'payDaysType': $scope.ModelNew.PayDaysType },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.EmployeeList = response.data;
@@ -436,10 +425,10 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         }
         return false;
     }
- 
+
     $scope.getCalulationAmount = function () {
         for (var i = 0; i < $scope.EmployeeMainList.length; i++) {
-            $scope.EmployeeMainList[i].Amount = Math.floor($scope.EmployeeMainList[i].Basic / 26 * $scope.EmployeeMainList[i].PayDays * $scope.ModelNew.Percentage/100);
+            $scope.EmployeeMainList[i].Amount = Math.floor($scope.EmployeeMainList[i].Basic / 26 * $scope.EmployeeMainList[i].PayDays * $scope.ModelNew.Percentage / 100);
         }
     }
     //*********************************** Worker Advance End********************************************************//
@@ -453,7 +442,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         UserRef: null,
         PaymentDueDate: null,
         PreparedBy: null,
-        PreparedById: null,         
+        PreparedById: null,
         Remarks: null
     };
     $scope.ModelPCNew = Object.assign({}, $scope.ModelPCTemp);
@@ -472,7 +461,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         RatePerHour: null,
         AdvanceGiven: null,
         NetPayable: null,
-        PaymentChildId:null
+        PaymentChildId: null
     };
     $scope.ModelPCEmpNew = Object.assign({}, $scope.ModelPCemp);
 

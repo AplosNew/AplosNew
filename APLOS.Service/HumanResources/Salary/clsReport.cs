@@ -2488,14 +2488,15 @@ where QPC.Id='" + PlannedId + @"'";
             string strSql = string.Empty;
             try
             {
-                strSql = @"select QII.Id,QII.SNO,QMM.UserName IssueName,QII.ItemName,UOM.UserName UOM,QII.Max,QII.Min,QII.CriticalLevel,
+                strSql = @"select QII.Id,QII.SNO,QMM.UserName IssueName,PM.UserName ItemName,UOM.UserName UOM,QII.Max,QII.Min,QII.CriticalLevel,
 '' Value,'' GradeDetails,'' Remarks,'' ActionToBeTaken,'' ResponsiblePerson,
-reverse(stuff(reverse((select  CheckPoints +' [ ]' +',' from QualityManagementParameterCheckPoints where ParameterId=QII.ParameterId for xml path(''))),1,1,'')) as Checkpoints
-from MST.QualityIssueItem QII
+reverse(stuff(reverse((select  CheckPoints +' [ ]' +',' from QualityManagementParameterCheckPoints where ParameterId=QII.Id for xml path(''))),1,1,'')) as Checkpoints
+from MST.QualityManagementParameterItem QII
 left join SCS.UnitOfMeasurement UOM on UOM.Id=QII.UOMId
-left join TRN.QualityPlanControl QPC on QII.IssueId=QPC.IssueId
+left join TRN.QualityPlanControl QPC on QII.QMID=QPC.IssueId
 left join MST.QualityManagementMaster QMM on QMM.Id = QPC.IssueId
-where QPC.Id='" + PlannedId + @"' order by QII.SNO";
+left join hkp.ParameterMaster PM on PM.Id=QII.ParameterId
+where QPC.Id='" + PlannedId + @"' and QII.IsActive = 1 order by QII.SNO";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.BeginTransaction();
@@ -2554,14 +2555,15 @@ where QIC.Id='" + PlannedId + @"'";
             string strSql = string.Empty;
             try
             {
-                strSql = @"select QII.Id,QII.SNO,QMM.UserName IssueName,QII.ItemName,UOM.UserName UOM,QII.Max,QII.Min,QII.CriticalLevel,
+                strSql = @"select QII.Id,QII.SNO,QMM.UserName IssueName,PM.UserName ItemName,UOM.UserName UOM,QII.Max,QII.Min,QII.CriticalLevel,
 '' Value,'' GradeDetails,'' Remarks,'' ActionToBeTaken,'' ResponsiblePerson,
-reverse(stuff(reverse((select  CheckPoints +' [ ]' +',' from QualityManagementParameterCheckPoints where ParameterId=QII.ParameterId for xml path(''))),1,1,'')) as Checkpoints
-from MST.QualityIssueItem QII
+reverse(stuff(reverse((select  CheckPoints +' [ ]' +',' from QualityManagementParameterCheckPoints where ParameterId=QII.Id for xml path(''))),1,1,'')) as Checkpoints
+from MST.QualityManagementParameterItem QII
 left join SCS.UnitOfMeasurement UOM on UOM.Id=QII.UOMId
-left join TRN.QualityIssueControl QIC on QII.IssueId=QIC.IssueId
+left join TRN.QualityIssueControl QIC on QII.QMID=QIC.IssueId
 left join MST.QualityManagementMaster QMM on QMM.Id = QIC.IssueId
-where QIC.Id='" + PlannedId + @"' order by QII.SNO";
+left join hkp.ParameterMaster PM on PM.Id=QII.ParameterId
+where QIC.Id='" + PlannedId + @"' and QII.IsActive = 1 order by QII.SNO";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.BeginTransaction();
@@ -2624,17 +2626,17 @@ where QC.Id='" + PlannedId + @"'";
             string strSql = string.Empty;
             try
             {
-                strSql = @"select QII.Id,QII.SNO,QMM.UserName IssueName,QII.ItemName,UOM.UserName UOM,QII.Max,QII.Min,P.Code as PositionCode,QII.CriticalLevel,
+                strSql = @"select QII.Id,QII.SNO,QMM.UserName IssueName,PM.UserName ItemName,UOM.UserName UOM,QII.Max,QII.Min,QII.CriticalLevel,
 QCD.Value,(select GradeName from MST.QualityGradeDetails where id=QCD.GradeId) as GradeDetails,QCD.Remarks,(select ActionToBeTakenName from MST.QualityActionToBeTakenDetails where id=QCD.ActionToBeTaken) as ActionToBeTaken,QCD.ResponsiblePersonId as ResponsiblePerson,
-reverse(stuff(reverse((select CheckPoints +',' from QualityManagementParameterCheckPoints where ParameterId=QII.ParameterId for xml path(''))),1,1,'')) as Checkpoints,
+reverse(stuff(reverse((select CheckPoints +',' from QualityManagementParameterCheckPoints where ParameterId=QII.Id for xml path(''))),1,1,'')) as Checkpoints,
 WCD.Username ParameterWC
 from TRN.QualityControlDetails QCD 
 left join TRN.QualityControl QC on QC.id=QCD.QCId
-left join MST.QualityIssueItem QII on QII.Id=QCD.ItemId
+left join MST.QualityManagementParameterItem QII on QII.Id=QCD.ItemId
 left join MST.QualityManagementMaster QMM on QMM.Id = QC.IssueId
 left join SCS.UnitOfMeasurement UOM on UOM.Id=QII.UOMId
-left join Org.Position P on P.Id=QII.PositionCodeId
 left join SCS.WorkCenterMaster WCD on WCD.Id=QCD.WorkCenterId
+left join hkp.ParameterMaster PM on PM.Id=QII.ParameterId
 where QCD.QCId='" + PlannedId + @"' order by QII.SNO";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
