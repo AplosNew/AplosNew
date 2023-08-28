@@ -25,6 +25,9 @@ using Syncfusion.PresentationToPdfConverter;
 using Syncfusion.DocIO.DLS;
 using System.Text.RegularExpressions;
 using Syncfusion.DocToPDFConverter;
+using System.Diagnostics;
+using System.Text;
+using System.Drawing.Imaging;
 
 namespace Aplos.Areas.Materials.Controllers
 {
@@ -37,9 +40,14 @@ namespace Aplos.Areas.Materials.Controllers
 
 
         SerialPort serialPort = new SerialPort("COM9", 19200, Parity.None, 8, StopBits.One);
-        public QRCodeGeneratorController()
+        Dictionary<string, object> data;
+        string ProductCode, PO ,LOT, NumberOfCones, NetWeight, GrossWeight, Shade, Article = null;
+        CustomIdentity identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+        public QRCodeGeneratorController(Dictionary<string, object>  dta)
         {
             _sqlRepository = new SqlRepository();
+            
         }
         public ActionResult Aplos()
         {
@@ -118,7 +126,7 @@ namespace Aplos.Areas.Materials.Controllers
                 ReportUtility oRU = new ReportUtility();
                 string File = "";
 
-                string langName = "";
+                //string langName = "";
                 string strPath = "";
                 var fileName = "";
 
@@ -166,21 +174,7 @@ namespace Aplos.Areas.Materials.Controllers
                     System.Drawing.Image barcodeImg = qrCode.Draw(concatdata, 200, 2);
                     ConvertPresentationToPdf.SetQRCode(presentation.Slides[i], "EmpQR", barcodeImg);
                 }
-                //string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
-
-                ////Opens a PowerPoint Presentation
-                //presentation = Presentation.Open(fullPath);
-                ////Converts the PowerPoint Presentation into PDF document
-                //PdfDocument pdfDocument = PresentationToPdfConverter.Convert(presentation);
-                ////Saves the PDF document
-                //pdfDocument.Save(fullPath + ".pdf");
-                ////Closes the PDF document
-                //pdfDocument.Close(true);
-                ////Closes the Presentation
-                //presentation.Close();
-                ////This will open the PDF file so, the result will be seen in default PDF viewer
-                //System.Diagnostics.Process.Start(fullPath + ".pdf");
-
+                
 
                 return presentation;
             }
@@ -191,7 +185,7 @@ namespace Aplos.Areas.Materials.Controllers
 
         }
 
-        public ActionResult GenerateQRCode(Dictionary<string, object> data, string ShadeText, string ArticleName, string productcodeText, string NetWeightText)
+        public ActionResult GenerateQRCode(Dictionary<string, object> data)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -203,6 +197,42 @@ namespace Aplos.Areas.Materials.Controllers
                 //    //NetWeightText = NetWeightText.Remove(2, 4);
                 //    throw new Exception(NetWeightText + " must be match with define min and max weight");
                 //}
+
+                if(!String.IsNullOrEmpty(data["ProductCode"].ToString()))
+                {
+                    ProductCode = data["ProductCode"].ToString();
+                }
+
+                if (!String.IsNullOrEmpty(data["PO"].ToString()))
+                {
+                    PO = data["PO"].ToString();
+                }
+                if (!String.IsNullOrEmpty(data["LOT"].ToString()))
+                {
+                    LOT = data["LOT"].ToString();
+                }
+
+                if (!String.IsNullOrEmpty(data["NumberOfCones"].ToString()))
+                {
+                    NumberOfCones = data["NumberOfCones"].ToString();
+                }
+                if (!String.IsNullOrEmpty(data["NetWeight"].ToString()))
+                {
+                    NetWeight = data["NetWeight"].ToString();
+                }
+                if (!String.IsNullOrEmpty(data["GrossWeight"].ToString()))
+                {
+                    GrossWeight = data["GrossWeight"].ToString();
+                }
+                if (!String.IsNullOrEmpty(data["Shade"].ToString()))
+                {
+                    Shade = data["Shade"].ToString();
+                }
+                if (!String.IsNullOrEmpty(data["Article"].ToString()))
+                {
+                    Article = data["Article"].ToString();
+                }
+
                 string TableName = "[dbo].[WeighingScaleData]";
                 DataSet dsMaster;
 
@@ -233,14 +263,14 @@ namespace Aplos.Areas.Materials.Controllers
                 Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
                 #endregion data update
 
-                var fileName = "QRCode.pptx";
+                #region unuseddcmnt
+                // var fileName = "QRCode.pptx";
                 //var fileName = "QRCode" + identity.PlantId + ".pptx";
 
                 var datas = CreateQRCode(data);
 
-
-
-                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+                //string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+                #endregion unuseddcmnt
 
                 clsStaticInfo _info = new clsStaticInfo();
 
@@ -248,38 +278,53 @@ namespace Aplos.Areas.Materials.Controllers
 
                 con.BeginTransaction();
 
-                if (System.IO.File.Exists(fullPath))
-                    System.IO.File.Delete(fullPath);
-                datas.Save(fullPath);
+                #region comment
+                //if (System.IO.File.Exists(fullPath))
+                //    System.IO.File.Delete(fullPath);
+                //datas.Save(fullPath);
 
-                var pdffileName = "QRCode.pdf";
+                //var pdffileName = "QRCode.pdf";
                 //string pdffullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + pdffileName;
 
-                string pdffullPath = Path.Combine(ResourcesPathReader.GetQRPdfDocument(), pdffileName);
+                //string pdffullPath = Path.Combine(ResourcesPathReader.GetQRPdfDocument(), pdffileName);
+
+
+
 
                 //Opens a PowerPoint Presentation
-                IPresentation presentation = Presentation.Open(fullPath);
+                // IPresentation presentation = Presentation.Open(fullPath);
                 //Converts the PowerPoint Presentation into PDF document
-                PdfDocument pdfDocument = PresentationToPdfConverter.Convert(presentation);
+                //PdfDocument pdfDocument = PresentationToPdfConverter.Convert(presentation);
                 //Saves the PDF document
 
-                if (System.IO.File.Exists(pdffullPath))
-                    System.IO.File.Delete(pdffullPath);
+                //if (System.IO.File.Exists(pdffullPath))
+                //    System.IO.File.Delete(pdffullPath);
 
-                pdfDocument.Save(pdffullPath);
+                //pdfDocument.Save(pdffullPath);
                 //Closes the PDF document
-                pdfDocument.Close(true);
+                //pdfDocument.Close(true);
                 //Closes the Presentation
-                presentation.Close();
+                //presentation.Close();
                 //This will open the PDF file so, the result will be seen in default PDF viewer
                 //System.Diagnostics.Process.Start(pdffullPath);
 
 
                 //con.executeQuery($"update dbo.WeighingScaleDataCapture set isQR = 1 where Id ='" + data["GrossWeightId"] + "'");
                 //con.CommitTransaction();
+                //PrintFiles(pdffullPath);
+                #endregion comment
 
+                var doc = new PrintDocument();
+                var paperSize = new PaperSize("Custom", 520, 820);
+                doc.DefaultPageSettings.PaperSize = paperSize;
 
-                return Json(new { FileName = pdffullPath, Id, Error = false, Message = AplosMessage.Insert });
+                doc.PrintPage += PrintPicture;
+                doc.PrintPage += new PrintPageEventHandler(ProvideContent);
+                
+                
+                doc.Print();
+
+                return Json(new {Id, Error = false, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
@@ -287,121 +332,84 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-        [Authorize, HttpGet]
-        public ActionResult GetGeneratedQRCode(string Id)
+       
+
+        private void PrintPicture(object sender, PrintPageEventArgs e)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            CreateIDCardInWord(Id);
-            return View();
+            string concatdata = Convert.ToString(
+                    string.Concat(
+                     //productcodeText, "#"
+                     ProductCode, "#"
+                    , PO, "#"
+                    , LOT, "#"
+                    , NumberOfCones, "#"
+                    , NetWeight, "#"
+                    , GrossWeight, "#"
+                    , identity.UserId
+
+                    ));
+
+            CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
+            System.Drawing.Image barcodeImg = qrCode.Draw(concatdata, 200, 2);
+
+            Bitmap bmp = new Bitmap(barcodeImg.Width, barcodeImg.Height);
+            e.Graphics.DrawImage(bmp, 0, 0);
+            bmp.Dispose();
+
         }
 
-        private void CreateIDCardInWord(string Id)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                ReportUtility oRU = new ReportUtility();
-                string File = "";
-                string strPath = "";
-                string language = "";
-                var fileName = "QRCode.docx";
-                string filepath = "";
+        public void ProvideContent(object sender, PrintPageEventArgs e)
+        {           
+            const int FIRST_COL_PAD = 5;
+            const int SECOND_COL_PAD = 7;
+            const int THIRD_COL_PAD = 8;
 
-                DataTable dt = _sqlRepository.GetDataTable(@"Select * from [dbo].[WeighingScaleData] Where Id='" + Id + "'");
+            string concatdata = Convert.ToString(
+                    string.Concat(
+                     //productcodeText, "#"
+                     ProductCode, "#"
+                    , PO, "#"
+                    , LOT, "#"
+                    , NumberOfCones, "#"
+                    , NetWeight, "#"
+                    , GrossWeight, "#"
+                    , identity.UserId
 
+                    ));
 
-                strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), fileName);
-                File = fileName;
-                if (!System.IO.File.Exists(strPath))
-                {
-                    throw new CustomException("File Not Found");
-                }
-
-                filepath = "";
-                if (System.IO.File.Exists(strPath))
-                {
-                    filepath = strPath;
-                }
-
-                FileInfo DocFile = new FileInfo(filepath);
-                if (DocFile.Exists == false)
-                {
-                    //DocFile = new FileInfo(System.Web.HttpContext.Current.Server.MapPath(".") + "\\Doc1.docx");
-                    throw new CustomException("File Not Found");
-                }
-
-                ////A opens input document.
-                WordDocument document = new WordDocument(DocFile.FullName);
-                TextSelection[] X = document.FindAll(new Regex("{.*?}")).ToArray();
-                List<string> allresult = new List<string>();
-                for (int i = 0; i < X.Length; i++)
-                    allresult.Add(X[i].SelectedText);
-
-                Dictionary<string, int> replaced = new Dictionary<string, int>();
-
-                string value = "";
-                for (int i = 0; i < allresult.Count; i++)
-                {
-                    try
-                    {
-                        string foundText = allresult[i];
-                        if (replaced.ContainsKey(foundText) == false)
-                            replaced.Add(foundText, 0);
-                        //for fixed info
-                        string colName = foundText.Trim().Replace("{", "").Replace("}", "");
-                        if (dt.Columns.Contains(colName))
-                        {
-                            value = dt.Rows[0][dt.Columns[colName].ColumnName].ToString();
-                            replaced[foundText] = document.Replace(foundText, value, false, false);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        throw ex;
-                    }
-                }
-
-                foreach (string item in replaced.Keys)
-                {
-                    if (replaced[item] == 0)
-                        document.Replace(item, "", false, true);
-                }
-
-                string fileNames = string.Empty;
-                fileNames = "QRCode.docx";
+            CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
+            var barcodeImg = qrCode.Draw(concatdata, 200, 2);
 
 
-                //document.Save(fileNames, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
-                // document.Close();
+            var sb = new StringBuilder();
 
-                ////Creates an instance of the DocToPDFConverter
-                ///
+            
 
-                DocToPDFConverter converter = new DocToPDFConverter();
-                converter.Settings.EmbedFonts = false;
+            sb.AppendLine(($"PRD.CD:  {ProductCode}"));
+            sb.AppendLine(($"PO: {PO} "));
+            sb.AppendLine(($"LOT: {LOT} "));
+            sb.AppendLine(($"REF.NO: "));
+            sb.AppendLine(($"NO.OFCONES: {NumberOfCones} "));
+            sb.AppendLine(($"NET WEIGHT: {NetWeight} "));
+            sb.AppendLine(($"GRS. WEIGHT: {GrossWeight} "));
+            sb.AppendLine(($"PACKED BY:  {identity.UserId}"));
+            sb.AppendLine(("SHADE:  "));
+            sb.AppendLine(("ARTICLE:  "));
+           
+            
+            
+            
+            var printText = new PrintText(sb.ToString(), new Font(System.Drawing.FontFamily.GenericSansSerif, 9, System.Drawing.FontStyle.Bold));
+            Graphics graphics = e.Graphics;
+            int startX = 0;
+            int startY = 0;
+            int Offset = 20;
 
-                ////Converts Word document into PDF document
-                PdfDocument pdfDocument = converter.ConvertToPDF(document);
-
-                ////Releases all resources used by DocToPDFConverter
-                converter.Dispose();
-
-                ////Closes the instance of document objects
-                //document.Close();
-
-                ////Saves the PDF file 
-                pdfDocument.Save(fileNames + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
-                ////Closes the instance of document objects
-                pdfDocument.Close(true);
-                document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
-                document.Close();
-            }
-            catch (Exception ex)
-            {
-                //throw ex;
-            }
-
+            graphics.DrawString(printText.Text, new Font(System.Drawing.FontFamily.GenericMonospace, 9, System.Drawing.FontStyle.Bold),
+                                new SolidBrush(System.Drawing.Color.Black), startX, startY + Offset);
+            Offset = Offset + 20;
         }
+
 
         #region GeFun
         public ActionResult GetPO()
@@ -459,6 +467,7 @@ namespace Aplos.Areas.Materials.Controllers
 
         #endregion GeFun
 
+        #region Add & Edit Row
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -501,7 +510,9 @@ namespace Aplos.Areas.Materials.Controllers
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
+        #endregion Add & Edit Row
 
+        #region WeighingScal Con & Read
         public double GenerateReferenceNumber()
         {
             DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(StartRefNo),0) AS Sequence FROM MST.MaterialMovementMaster");
@@ -616,8 +627,10 @@ namespace Aplos.Areas.Materials.Controllers
                 throw;
             }
         }
+        #endregion WeighingScal Con & Read
     }
 
+    #region HyperTerminalAdapter
     public class HyperTerminalAdapter
     {
         SerialPort oSerialPort = new SerialPort();
@@ -745,7 +758,9 @@ namespace Aplos.Areas.Materials.Controllers
 
 
     }
+    #endregion HyperTerminalAdapter
 
+    #region Item Properties class
     public class Item
     {
         public Item() { }
@@ -753,4 +768,26 @@ namespace Aplos.Areas.Materials.Controllers
         public string Value { set; get; }
         public string Text { set; get; }
     }
+    #endregion Item Properties class
+
+    #region PrintText
+    public class PrintText
+    {
+        public PrintText(string text, Font font) : this(text, font, new StringFormat()) { }
+
+        public PrintText(string text, Font font, StringFormat stringFormat)
+        {
+            Text = text;
+            Font = font;
+            StringFormat = stringFormat;
+        }
+
+        public string Text { get; set; }
+
+        public Font Font { get; set; }
+
+        /// <summary> Default is horizontal string formatting </summary>
+        public StringFormat StringFormat { get; set; }
+    }
+    #endregion PrintText
 }

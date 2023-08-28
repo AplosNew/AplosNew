@@ -622,7 +622,7 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
 
     $scope.PostAddition = function () {
         $scope.validation();
-        if ($scope.formAddition.$valid) {
+        if ($scope.formAddition.$valid && !$scope.validation()) {
             $scope.SaveUrl = "fixedassets/FixedAssetRegister/CreatetCapitalizeAssetRegisterPostAddition"
             if ($scope.Action === "Save") {
                 $http({
