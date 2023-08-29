@@ -1,7 +1,7 @@
 ﻿'use strict';
 ManagementChartAccountSetupController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-
+    $scope.searchBy = "Sequence"; $scope.search = "";
     // #region TAB CHANGE
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -549,7 +549,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
     $scope.deleteUrlBgt = $scope.pathBgt + "delete/";
     // #endregion
 
-    $scope.searchBy = "Sequence"; $scope.search = "";
+    
     $scope.searchByBgtList = [
         {
             'name': 'Sequence',
