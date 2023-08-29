@@ -14,7 +14,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
         return $scope.tab === tabNum;
     };
         // #endregion TAB CHANGE
-    $scope.searchBy = "Sequence"; $scope.search = "";
+
     // #region BudgetGroup
     $scope.ActionBG = "Save";
     $scope.index = -1;
@@ -116,7 +116,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                     else {
                         ShowResult(response.data.Message, "success");
                         $scope.budgetGroups.push(response.data.BudgetGroup);
-                        $scope.getDataBG();
+                        baseService.paginationAdd();
                         ClearFieldsBG(response.data.Sequence);
                     }
                 }), function errorCallback(response) {
@@ -135,7 +135,9 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                     }
                     else {
                         ShowResult(response.data.Message, "success");
-                        $scope.getDataBG();
+                        if ($scope.index > -1) {
+                            $scope.budgetGroups[$scope.index] = $scope.budgetGroup;
+                        }
                         ClearFieldsBG(response.data.Sequence);
                     }
                 }, function errorCallback(response) {
@@ -157,7 +159,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                 else {
                     ShowResult(response.data.Message, "success");
                     $scope.budgetGroups.splice($scope.index, 1);
-                    $scope.getDataBG();
+                    baseService.paginationRemove();
                     ClearFieldsBG(response.data.Sequence);
                 }
             });
@@ -280,7 +282,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                     else {
                         ShowResult(response.data.Message, "success");
                         $scope.budgetCategories.push(response.data.BudgetCategory);
-                        $scope.getDataBC();
+                        baseService.paginationAdd();
                         ClearFieldsBC(response.data.Sequence);
                     }
                 }, function errorCallback(response) {
@@ -300,7 +302,9 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                     }
                     else {
                         ShowResult(response.data.Message, "success");
-                        $scope.getDataBC();
+                        if ($scope.index > -1) {
+                            $scope.budgetCategories[$scope.index] = $scope.budgetCategory;
+                        }
                         ClearFieldsBC(response.data.Sequence);
                     }
                 }, function errorCallback(response) {
@@ -325,7 +329,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                 else {
                     ShowResult(response.data.Message, "success");
                     $scope.budgetCategories.splice($scope.index, 1);
-                    $scope.getDataBC();
+                    baseService.paginationRemove();
                     ClearFieldsBC(response.data.Sequence);
                 }
             }, function errorCallback(response) {
@@ -408,7 +412,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                 $scope.budgetSubCategories = response.data;
             });
     };
-   // 
+   // $scope.getDataBSC();
 
     $scope.budgetSubCategory = {
         Id: null,
@@ -458,7 +462,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                     } else {
                         ShowResult(response.data.Message, "success");
                         $scope.budgetSubCategories.push(response.data.BudgetSubCategory);
-                        $scope.getDataBSC();
+                        baseService.paginationAdd();
                         ClearFieldsBSC(response.data.Sequence);
                     }
                 },
@@ -477,7 +481,9 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                         ShowResult(response.data.Message, "failure");
                     } else {
                         ShowResult(response.data.Message, "success");
-                        $scope.getDataBSC();
+                        if ($scope.index > -1) {
+                            $scope.budgetSubCategories[$scope.index] = $scope.budgetSubCategory;
+                        }
                         ClearFieldsBSC(response.data.Sequence);
                     }
                 },
@@ -502,7 +508,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                 } else {
                     ShowResult(response.data.Message, "success");
                     $scope.budgetSubCategories.splice($scope.index, 1);
-                    $scope.getDataBSC();
+                    baseService.paginationRemove();
                     ClearFieldsBSC(response.data.Sequence);
                 }
             },
@@ -543,7 +549,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
     $scope.deleteUrlBgt = $scope.pathBgt + "delete/";
     // #endregion
 
-   
+    $scope.searchBy = "Sequence"; $scope.search = "";
     $scope.searchByBgtList = [
         {
             'name': 'Sequence',
@@ -625,7 +631,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                     else {
                         ShowResult(response.data.Message, "success");
                         $scope.budgets.push(response.data.Budget);
-                        $scope.getDataBgt();
+                        baseService.paginationAdd();
                         ClearFieldsBgt(response.data.Sequence);
                     }
                 }, function errorCallback(response) {
@@ -645,7 +651,9 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                     }
                     else {
                         ShowResult(response.data.Message, "success");
-                        $scope.getDataBgt();
+                        if ($scope.index > -1) {
+                            $scope.budgets[$scope.index] = $scope.budget;
+                        }
                         ClearFieldsBgt(response.data.Sequence);
                     }
                 }, function errorCallback(response) {
@@ -670,7 +678,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                 else {
                     ShowResult(response.data.Message, "success");
                     $scope.budgets.splice($scope.index, 1);
-                    $scope.getDataBgt();
+                    baseService.paginationRemove();
                     ClearFieldsBgt(response.data.Sequence);
                 }
             }, function errorCallback(response) {
