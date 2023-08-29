@@ -97,7 +97,7 @@
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                     <div e-columns>
-                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                       @* <div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>*@
                         <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
                         <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
                         <div e-column e-field="SubProcess" e-headertext="Sub Process" e-width="100"></div>
@@ -107,30 +107,26 @@
 
                     </div>
                 </div>
-                <script type="text/template" id="checkboxTemplate">
+                @*<script type="text/template" id="checkboxTemplate">
                     <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
                 </script>
                 <script type="text/x-jsrender" id="headerTemplate">
                     <input type="checkbox" id="Materialheadchk" />
-                </script>
+                </script>*@
 
                 <script type="text/template" id="headerTemplateParameter">
-                    <button ng-click="$parent.OpenProcessParamPopUp()" class="btn clr-darkblue"><i class="glyphicon glyphicon-search" ng-click="$parent.OpenProcessParamPopUp()"></i></button>
+                    <button ng-click="$parent.OpenProcessParamPopUp(this)" class="btn clr-darkblue"><i class="glyphicon glyphicon-search" ng-click="$parent.OpenProcessParamPopUp(this)"></i></button>
                 </script>
 
                 <script type="text/template" id="TemplateMaterial">
-                    <button ng-click="$parent.OpenProcessMaterialPopUp()" class="btn clr-darkblue"><i class="glyphicon glyphicon-search" ng-click="$parent.OpenProcessMaterialPopUp()"></i></button>
+                    <button ng-click="$parent.OpenProcessMaterialPopUp(this)" class="btn clr-darkblue"><i class="glyphicon glyphicon-search" ng-click="$parent.OpenProcessMaterialPopUp(this)"></i></button>
                 </script>
 
                 <script type="text/template" id="headerTemplateUtility">
-                    <button ng-click="$parent.OpenProcessUtilityPopUp()" class="btn clr-darkblue"><i class="glyphicon glyphicon-search" ng-click="$parent.OpenProcessUtilityPopUp()"></i></button>
+                    <button ng-click="$parent.OpenProcessUtilityPopUp(this)" class="btn clr-darkblue"><i class="glyphicon glyphicon-search" ng-click="$parent.OpenProcessUtilityPopUp(this)"></i></button>
                 </script>
             </div>
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button class="btn" ng-click="SaveProcessParamChild()"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                </ul>
-            </div>
+            
         </div>
     </div>
     @*---------------------------------------------------------------------------------------------------------------------------------------*@
@@ -220,7 +216,7 @@
                 </div>
             </div>
             <div class="modal-footer common-btn">
-                    <button ng-click="SelectProcessParameter()" class="btn"><i class=""></i> Select</button>
+                    <button ng-click="Select_Save_ProcessParameter()" class="btn"><i class=""></i> Save</button>
                 </div>
         </div>
     </div>
@@ -262,7 +258,7 @@
                 </div>
             </div>
             <div class="modal-footer common-btn">
-                <button ng-click="selectMaterial();" class="btn"><i class=""></i> Select</button>
+                <button ng-click="select_Save_Material();" class="btn"><i class=""></i> Save</button>
             </div>
         </div>
     </div>
@@ -303,7 +299,7 @@
                 </div>
             </div>
             <div class="modal-footer common-btn">
-                <button ng-click="selectUtility()" class="btn"><i class=""></i> Select</button>
+                <button ng-click="select_Save_Utility()" class="btn"><i class=""></i> Save</button>
             </div>
         </div>
     </div>
