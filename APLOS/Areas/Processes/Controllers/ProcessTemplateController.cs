@@ -271,15 +271,82 @@ where UM.Active = 1 order by PMU.IsActive desc";
         }
         #endregion ProcessTab Save
 
+        #region ProcessParam
+        public ActionResult SaveProcessTempParam(string rowId, string headerid, List<Dictionary<string, object>> processParamList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+
+            DataSet dsChild;
+            string id = string.Empty;
+
+            string _Id = "";
+            string _UserGroupId = string.Empty;
+
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                objCon.OpenDataSetThroughAdapter("select * from [dbo].[ProcecessManagementTempParam]  where ProcessTemplateId = '" + headerid + "'", out dsChild, false, "1");
+                foreach (var item in processParamList)
+                {
+                    DataView dv = new DataView(dsChild.Tables[0]);
+
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+                    if (dv.Count > 0)
+                    {
+                        DataRow dr = dv[0].Row;
+                        dr.BeginEdit();
+                        dr["ProcessParameterId"] = item["Id"];
+                        dr["ProcessTemplateId"] = headerid;
+                        dr["ProcessTempProcessId"] = rowId;
+                        dr["IsActive"] = item["Flag"];
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dr.EndEdit();
+
+                    }
+                    else
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("dbo.ProcessTemplateProcess", out _UserGroupId);
+                        DataRow dr = dsChild.Tables[0].NewRow();
+                        dr["Id"] = _UserGroupId;
+                        dr["ProcessParameterId"] = item["Id"];
+                        dr["ProcessTemplateId"] = headerid;
+                        dr["ProcessTempProcessId"] = rowId;
+                        dr["IsActive"] = item["Flag"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dsChild.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsChild);
+                return Json(new { Error = false, Data = processParamList, Message = AplosMessage.Insert });
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion ProcessParam
+
         #region MaterialTab Save
-        public ActionResult SaveProcessParamChild(List<Dictionary<string, object>> datalist, List<Dictionary<string, object>> processParamList, List<Dictionary<string,object>> processutlity, List<Dictionary<string, object>> processMaterial, string headerid)
+        public ActionResult SaveProcesMaterial(string rowId, string headerid, List<Dictionary<string, object>> processMaterialList)
         {
 
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
 
-            DataSet dsprocessParam ,dsprocessutlity, dsprocessMaterial;
+            DataSet dsprocessutlity;
             string id = string.Empty;
 
             string _Id = "";
@@ -291,11 +358,10 @@ where UM.Active = 1 order by PMU.IsActive desc";
                 objCon = new ConnectionManager.DAL.ConManager("1");
 
                 #region Utility
-                objCon.OpenDataSetThroughAdapter("select * from [dbo].[ProcessManagementMaterial]  where ProcessManagementId = '" + headerid + "'", out dsprocessutlity, false, "1");
-                foreach (var item in processutlity)
+                objCon.OpenDataSetThroughAdapter("select * from [dbo].[ProcessManagementTemptMaterial]  where ProcessManagementId = '" + headerid + "'", out dsprocessutlity, false, "1");
+                foreach (var item in processMaterialList)
                 {
-                    foreach(var dataItem in datalist)
-                    {
+                    
                         DataView dv = new DataView(dsprocessutlity.Tables[0]);
 
                         dv.RowFilter = "Id='" + item["Id"] + "'";
@@ -303,10 +369,9 @@ where UM.Active = 1 order by PMU.IsActive desc";
                         {
                             DataRow dr = dv[0].Row;
                             dr.BeginEdit();
+                            dr["MaterialMasterId"] = item["Id"];
                             dr["ProcessTemplateId"] = headerid;
-                            dr["UtilityId"] = item["Id"];
-                            dr["ProcessTemplateProcessId"] = dataItem["Id"];
-
+                            dr["ProcessTempProcessId"] = rowId;
                             dr["IsActive"] = item["Flag"];
                             dr["UpdatedBy"] = identity.Name;
                             dr["UpdatedDate"] = DateTime.Now.ToString();
@@ -318,110 +383,27 @@ where UM.Active = 1 order by PMU.IsActive desc";
                         else
                         {
                             bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID("TRN.VehiclePurposeResponsiblePerson", out _UserGroupId);
+                            genid.GenID("dbo.ProcessManagementTemptMaterial", out _UserGroupId);
                             DataRow dr = dsprocessutlity.Tables[0].NewRow();
                             dr["Id"] = _UserGroupId;
-                            dr["ProcessTemplateId"] = headerid;
                             dr["MaterialMasterId"] = item["Id"];
-                            dr["ProcessTemplateProcessId"] = dataItem["Id"];
-
+                            dr["ProcessTemplateId"] = headerid;
+                            dr["ProcessTempProcessId"] = rowId;
                             dr["IsActive"] = item["Flag"];
                             dr["AddedBy"] = identity.Name;
                             dr["AddedDate"] = System.DateTime.Now.ToString();
                             dr["AddedFromIP"] = identity.IPAddress;
                             dsprocessutlity.Tables[0].Rows.Add(dr);
                         }
-                    }
+                    
                     
                 }
                 #endregion Utility
 
-                #region Material
-
-                objCon.OpenDataSetThroughAdapter("select * from [dbo].[ProcessManagementMaterial]  where ProcessManagementId = '" + headerid + "'", out dsprocessMaterial, false, "1");
-                foreach (var item in processMaterial)
-                {
-                    DataView dv = new DataView(dsprocessMaterial.Tables[0]);
-
-                    dv.RowFilter = "Id='" + item["Id"] + "'";
-                    if (dv.Count > 0)
-                    {
-                        DataRow dr = dv[0].Row;
-                        dr.BeginEdit();
-                        dr["ProcessManagementId"] = headerid;
-                        dr["MaterialMasterId"] = item["Id"];
-
-                        dr["IsActive"] = item["Flag"];
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = DateTime.Now.ToString();
-                        dr["UpdatedFromIP"] = identity.IPAddress;
-
-                        dr.EndEdit();
-
-                    }
-                    else
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("TRN.VehiclePurposeResponsiblePerson", out _UserGroupId);
-                        DataRow dr = dsprocessMaterial.Tables[0].NewRow();
-                        dr["Id"] = _UserGroupId;
-                        dr["ProcessManagementId"] = headerid;
-                        dr["MaterialMasterId"] = item["Id"];
-
-                        dr["IsActive"] = item["Flag"];
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
-                        dr["AddedFromIP"] = identity.IPAddress;
-                        dsprocessMaterial.Tables[0].Rows.Add(dr);
-                    }
-                }
-                #endregion Material
-
-                #region Parameter
-                objCon.OpenDataSetThroughAdapter("select * from [dbo].[ProcessManagementMaterial]  where ProcessManagementId = '" + headerid + "'", out dsprocessParam, false, "1");
-                foreach (var item in processMaterial)
-                {
-                    DataView dv = new DataView(dsprocessParam.Tables[0]);
-
-                    dv.RowFilter = "Id='" + item["Id"] + "'";
-                    if (dv.Count > 0)
-                    {
-                        DataRow dr = dv[0].Row;
-                        dr.BeginEdit();
-                        dr["ProcessManagementId"] = headerid;
-                        dr["MaterialMasterId"] = item["Id"];
-
-                        dr["IsActive"] = item["Flag"];
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = DateTime.Now.ToString();
-                        dr["UpdatedFromIP"] = identity.IPAddress;
-
-                        dr.EndEdit();
-
-                    }
-                    else
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("TRN.VehiclePurposeResponsiblePerson", out _UserGroupId);
-                        DataRow dr = dsprocessMaterial.Tables[0].NewRow();
-                        dr["Id"] = _UserGroupId;
-                        dr["ProcessManagementId"] = headerid;
-                        dr["MaterialMasterId"] = item["Id"];
-
-                        dr["IsActive"] = item["Flag"];
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
-                        dr["AddedFromIP"] = identity.IPAddress;
-                        dsprocessParam.Tables[0].Rows.Add(dr);
-                    }
-                }
-                #endregion Parameter
-
-
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsprocessParam,dsprocessutlity, dsprocessMaterial);
-                return Json(new { Error = false, Data = datalist, Message = AplosMessage.Insert });
+                _info.SaveDataSets(dsprocessutlity);
+                return Json(new { Error = false, Data = processMaterialList, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
@@ -432,7 +414,7 @@ where UM.Active = 1 order by PMU.IsActive desc";
         #endregion MaterialTab Save
 
         #region UtilityTab Save
-        public ActionResult SaveProcessUtility(List<Dictionary<string, object>> datalist, string headerid)
+        public ActionResult SaveProcessUtility(string rowId, string headerid, List<Dictionary<string, object>> processutlityList)
         {
 
 
@@ -450,8 +432,8 @@ where UM.Active = 1 order by PMU.IsActive desc";
             {
                 objCon = new ConnectionManager.DAL.ConManager("1");
 
-                objCon.OpenDataSetThroughAdapter("select * from [dbo].[ProcessManagementUtility]  where ProcessManagementId = '" + headerid + "'", out dsChild, false, "1");
-                foreach (var item in datalist)
+                objCon.OpenDataSetThroughAdapter("select * from [dbo].[ProcessManagementTempUtility]  where ProcessManagementId = '" + headerid + "'", out dsChild, false, "1");
+                foreach (var item in processutlityList)
                 {
                     DataView dv = new DataView(dsChild.Tables[0]);
 
@@ -460,10 +442,10 @@ where UM.Active = 1 order by PMU.IsActive desc";
                     {
                         DataRow dr = dv[0].Row;
                         dr.BeginEdit();
-                        dr["ProcessManagementId"] = headerid;
-                        dr["UtilityId"] = item["UtilityId"];
-
-                        // dr["IsActive"] = item["isSelected"];
+                        dr["UtilityMasterId"] = item["Id"];
+                        dr["ProcessTemplateId"] = headerid;
+                        dr["ProcessTempProcessId"] = rowId;
+                        dr["IsActive"] = item["Flag"];
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = identity.IPAddress;
@@ -474,13 +456,13 @@ where UM.Active = 1 order by PMU.IsActive desc";
                     else
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("TRN.VehiclePurposeResponsiblePerson", out _UserGroupId);
+                        genid.GenID("dbo.ProcessManagementTempUtility", out _UserGroupId);
                         DataRow dr = dsChild.Tables[0].NewRow();
                         dr["Id"] = _UserGroupId;
-                        dr["ProcessManagementId"] = headerid;
-                        dr["UtilityId"] = item["UtilityId"];
-
-                        //dr["IsActive"] = item["isSelected"];
+                        dr["UtilityMasterId"] = item["Id"];
+                        dr["ProcessTemplateId"] = headerid;
+                        dr["ProcessTempProcessId"] = rowId;
+                        dr["IsActive"] = item["Flag"];
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
                         dr["AddedFromIP"] = identity.IPAddress;
@@ -491,7 +473,7 @@ where UM.Active = 1 order by PMU.IsActive desc";
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsChild);
-                return Json(new { Error = false, Data = datalist, Message = AplosMessage.Insert });
+                return Json(new { Error = false, Data = processutlityList, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
