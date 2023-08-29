@@ -1848,7 +1848,7 @@ left join hkp.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
             var CmpName = string.Empty;
 
             int xlsRow = 1, xlsCol = 1, endXlsCol = 1;
-            int endGenericColumn = 0;
+           // int endGenericColumn = 0;
             #endregion Variable
 
             try
