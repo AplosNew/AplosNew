@@ -618,6 +618,10 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
             ShowResult("Please select " + $scope.voucherAddition.Qty +" Asset Register!", "failure");
             return true;
         }
+        if (parseFloat($filter("sumByKey")($filter("filter")($scope.checkedAssetRegisterList), "Amount")) !== parseFloat($scope.voucherAddition.Amount)) {
+            ShowResult("Distributed Amount must be equal Total Amount.!", "failure");
+            return true;
+        }
     };
 
     $scope.PostAddition = function () {
@@ -714,10 +718,19 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
             angular.forEach($scope.AssetRegisterAvailableList, function (a) {
                 if (a.Active) {
                     $scope.checkedAssetRegisterList.push({
-                        AssetRegisterId: a.AssetRegisterId
-                        , FixedAssetItemId: a.FixedAssetItemId
+                          CapitalizationMasterId: a.CapitalizationMasterId
+                        , CapitalizationChildId: a.CapitalizationChildId
+                        , AssetAmount: a.AssetAmount
                         , FixedAssetItem: a.FixedAssetItem
+                        , FixedAssetItemId: a.FixedAssetItemId
+                        , AssetRegisterId: a.AssetRegisterId
                         , AssetSlNo: a.AssetSlNo
+                        , Status: a.Status
+                        , AssetCondition: a.AssetCondition
+                        , UserReference: a.UserReference
+                        , OldReference: a.OldReference
+                        , UserGroup: a.UserGroup
+                        , Remarks: a.Remarks
                         , Amount: 0
                         , Active: true
                     });

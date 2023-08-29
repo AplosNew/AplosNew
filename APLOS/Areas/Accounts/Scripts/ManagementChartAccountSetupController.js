@@ -587,8 +587,8 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
     ];
 
     $scope.getDataBgt = function () {
-        $scope.FixedAssetMasterItemList = [];
-        $http.get('accounts/companygroupbudget/getlist?column='+ $scope.searchBy + '&value'+ $scope.search)
+        $scope.budgets = [];
+        $http.get('accounts/companygroupbudget/getlist?column='+ $scope.searchBy + '&value='+ $scope.search)
             .then(function (response) {
                 $scope.budgets = response.data;
             });
@@ -718,7 +718,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
     // #endregion Budget
 
     //  #region Activity
-    $rootScope.title = "Activity";
+    $rootScope.title = "Budget";
     $scope.Action = "Save";
     $scope.index = -1;
     $scope.activities = [];

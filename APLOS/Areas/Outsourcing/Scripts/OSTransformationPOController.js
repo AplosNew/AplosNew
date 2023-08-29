@@ -2810,6 +2810,8 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             ShowResult(e, '', 'rarticleSearchPop');
         }
     };
+
+    $scope.materialType = null;
     $scope.getRMArticleSearchList = function (id) {
         try {
             $scope.productNew.TaxOptionMat = 'Yes';

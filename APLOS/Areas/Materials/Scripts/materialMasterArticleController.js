@@ -857,8 +857,9 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             Id: null
             , ArticleId: $scope.articleId
             , Code: null
-            , VendorId: null
-            , VendorName: null
+            , PartyId: null
+            , PartyName: null
+            , ArticlePartyName: null
             , UserGroup: null
             , Remark: null
         };

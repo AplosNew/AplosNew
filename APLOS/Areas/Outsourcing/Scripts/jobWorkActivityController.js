@@ -49,14 +49,23 @@ function jobWorkActivityController(addressService, $window, cboService, commonMe
     };
     $scope.childGridDataList = [];
     $scope.Save = function () {
-        angular.copy($scope.model, $scope.JobWorkActivity);
+
+        if ($scope.JobWorkActivity.IsOutsource != true)
+            $scope.JobWorkActivity.IsOutsource = false;
+        if ($scope.JobWorkActivity.IsJobWork != true)
+            $scope.JobWorkActivity.IsJobWork = false;
+        $scope.JWOSMessage = true;
+        if ($scope.JobWorkActivity.IsOutsource == false && $scope.JobWorkActivity.IsJobWork == false) {
+            $scope.JWOSMessage= false;
+            ShowResult('Please check either Outsource OR Jobwork !! ', 'failure');
+        }
         $scope.$broadcast('show-errors-check-validity');
         try {
-            if ($scope.jobWorkActivity.$valid) {
+            if ($scope.jobWorkActivity.$valid && $scope.JWOSMessage) {
                 $http({
                     method: 'POST',
                     url: $scope.path + "SaveData",
-                    data: { 'saveData': $scope.model },
+                    data: { 'saveData': $scope.JobWorkActivity },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
