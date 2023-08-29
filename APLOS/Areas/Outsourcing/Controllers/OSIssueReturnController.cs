@@ -5445,16 +5445,16 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             {
                 int ColValueAddedDateHeader = 1;
                 int ColValueAddedDateEnd;
-                int ColVACTimeHeader;
-                int ColVACTimeEnd;
-                int ColVACTimeName;
+               // int ColVACTimeHeader;
+                //int ColVACTimeEnd;
+               // int ColVACTimeName;
                 int ColEntityHeader;
                 int ColEntityEnd;
                 int ColEntityName;
-                int ColPartyNameHeader;
+                //int ColPartyNameHeader;
                 //    int ColPartyNameEnd;
-                int ColPartyNameName;
-                int ColVAProcessStartDateHeader = 1;
+               // int ColPartyNameName;
+               // int ColVAProcessStartDateHeader = 1;
                 int ColVAProcessStartDateEnd;
 
 
