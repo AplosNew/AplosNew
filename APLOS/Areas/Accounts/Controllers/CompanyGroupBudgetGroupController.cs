@@ -27,11 +27,21 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new SelectList(_companyGroupBudgetGroupService.GetCbo(companyGroupId), "Value", "Text"), JsonRequestBehavior.AllowGet);
         }
 
+        //[HttpGet]
+        //public ActionResult GetList(GridParameter parameters)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    return Json(_companyGroupBudgetGroupService.Query(parameters, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+        //}
+
         [HttpGet]
-        public ActionResult GetList(GridParameter parameters)
+        public ActionResult GetList(string column, string value)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_companyGroupBudgetGroupService.Query(parameters, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(_companyGroupBudgetGroupService.Query(column, value, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
+
     }
 }

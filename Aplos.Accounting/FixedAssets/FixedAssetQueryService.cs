@@ -2563,11 +2563,13 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
-                var sql = @"SELECT TOP 500 * from ( SELECT 0 Active, AR.Id AssetRegisterId, AR.FixedAssetItemId,FAI.UserName FixedAssetItem, AR.AssetSlNo, AR.RFId, AR.BarCode
-                            ,AR.AdditionalInfoUpdateId, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks 
-                            FROM TRN.AssetRegister AR
+                var sql = @"SELECT TOP 500 * from ( SELECT 0 Active, ARC.CapitalizationMasterId,ARC.CapitalizationChildId,ARC.Amount AssetAmount,FAI.UserName FixedAssetItem, AR.FixedAssetItemId,ARC.AssetRegisterId
+							,AR.AssetSlNo, AR.RFId, AR.BarCode, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks 
+                            FROM TRN.AssetRegisterChild ARC
+							LEFT JOIN TRN.AssetRegister AR ON AR.Id=ARC.AssetRegisterId
                             LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
-                            WHERE AR.Id IN(	SELECT AssetRegisterId FROM [TRN].[AssetRegisterChild] WHERE VoucherDetailId is not null)
+							LEFT JOIN [TRN].[CapitalizationMaster] CM ON CM.Id=ARC.CapitalizationMasterId
+                            WHERE ARC.VoucherDetailId is not null AND CM.Type='New'
                             ) AS TEMP WHERE " + strkey + " order by FixedAssetItem ASC ";
                 return _sqlRepository.GetDataCollection(sql);
 
