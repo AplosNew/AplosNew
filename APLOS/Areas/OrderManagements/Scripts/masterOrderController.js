@@ -1097,7 +1097,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     function GetArticleAlias() {
         $http.get("Materials/materialmasterarticle/getArticleAliaslist?articleId=" + $scope.ArticleId)
             .then(function (response) {
-                $scope.itemList[$scope.itemIndex].CustomerArticle = response.data[0].PartyName;
+                $scope.itemList[$scope.itemIndex].CustomerArticle = response.data[0].ArticlePartyName;
             });
     }
 
@@ -6177,23 +6177,31 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.articleId = null;
     $scope.ind = -1;
     $scope.GetArticleAliasData = function (index) {
-        $scope.ind = index;
-        $scope.articleId = $scope.itemList[$scope.ind].ArticleId;
-        $scope.ArticleName = $scope.itemList[$scope.ind].ArticleName;
-        $scope.articleAliasModel = {
-            Id: null
-            , ArticleId: $scope.articleId
-            , Code: $scope.fileNew.CustomerCode
-            , PartyId: $scope.fileNew.PartyId
-            , PartyName: $scope.fileNew.CustomerName
-            , ArticlePartyName: null
-            , UserGroup: null
-            , Remark: null
-        };
-        $scope.articleAlias = Object.assign({}, $scope.articleAliasModel);
+        try {
+            $scope.ind = index;
+            $scope.articleId = $scope.itemList[$scope.ind].ArticleId;
+            $scope.ArticleName = $scope.itemList[$scope.ind].ArticleName;
+            if (baseService.isUndefinedOrNull($scope.articleId)) {
+                throw "Select Article first.";
+            }
 
-        $scope.GetArticleAliasDatas();
-        angular.element(document.querySelector('#ArticleAliasPoUp')).modal('show');
+            $scope.articleAliasModel = {
+                Id: null
+                , ArticleId: $scope.articleId
+                , Code: $scope.fileNew.CustomerCode
+                , PartyId: $scope.fileNew.PartyId
+                , PartyName: $scope.fileNew.CustomerName
+                , ArticlePartyName: $scope.ArticleName
+                , UserGroup: null
+                , Remark: null
+            };
+            $scope.articleAlias = Object.assign({}, $scope.articleAliasModel);
+
+            $scope.GetArticleAliasDatas();
+            angular.element(document.querySelector('#ArticleAliasPoUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     };
 
     $scope.closePartyPopUp = function (x) {
@@ -6215,7 +6223,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             //  $scope.aliasList = response.data;
             if (baseService.arrayLength(response.data) > 0) {
                 $scope.articleAlias = Object.assign({}, response.data[0]);
-                $scope.itemList[$scope.ind].CustomerArticle = response.data[0].PartyName;
+                $scope.itemList[$scope.ind].CustomerArticle = response.data[0].ArticlePartyName;
             }
         });
     }
