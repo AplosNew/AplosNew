@@ -313,6 +313,32 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
     // #endregion Employee popup
 
     // #region Save
+    $scope.refreshTemplateWorkcenter = function (args) {
+        $("#Workcenterheadchk").ejCheckBox({ "change": CheckBoxSelectAllWorkcenter });
+    };
+
+    function CheckBoxSelectAllWorkcenter(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#workcenterGrid").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.WorkcenterList.length; i++) {
+                $scope.WorkcenterList[i].isSelected = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].isSelected = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#workcenterGrid").data("ejGrid");
+        gridObj.refreshContent();
+        gridObj.refreshTemplate();
+    };
+
     $scope.CheckedDetentionWorkList = [];
     $scope.Save = function () {
        
