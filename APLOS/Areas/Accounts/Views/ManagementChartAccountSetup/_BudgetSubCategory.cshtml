@@ -1,5 +1,5 @@
 ﻿<togglable name="Budget Subcategory"></togglable>
-<div class="form-elements form-horizontal" ng-form id="budgetSubCategory" name="budgetSubCategoryForm">
+    <div class="form-elements form-horizontal" ng-form id="budgetSubCategory" name="budgetSubCategoryForm">
     <input type="hidden" ng-model="budgetSubCategory.Id">
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
@@ -73,13 +73,13 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-3 col-md-3">
                     <div class="select-style">
-                        <select ng-model="searchBy">
+                        <select ng-model="searchBSCBy">
                             <option ng-repeat="option in searchByBgtList" value="{{option.value}}">{{option.name}}</option>
                         </select>
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getDataBSC()">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="searchBSC" ng-enter="getDataBSC()">
                 </div>
                 <div class="col-xs-12 col-sm-2 col-md-2">
                     <button type="button" ng-click="getDataBSC()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
