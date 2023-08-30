@@ -22,10 +22,12 @@ namespace Aplos.Areas.Accounts.Controllers
         #endregion Constructor
 
         [HttpGet]
-        public ActionResult GetList(GridParameter parameters)
+        public ActionResult GetList(string column, string value)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_companyGroupBudgetSubCategoryService.Query(parameters, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(_companyGroupBudgetSubCategoryService.Query(column, value, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
     }
 }

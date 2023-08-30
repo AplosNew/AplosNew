@@ -930,10 +930,10 @@ namespace Aplos.Areas.Attendances.Controllers
                     int intRow = 0;
 
                     string strSubSec = "0";
-                    string strSec = "0";
-                    string strUnit = "0";
+                    //string strSec = "0";
+                   // string strUnit = "0";
                     int strCount = 0;
-                    string strLateBy = "00:00:00";
+                    //string strLateBy = "00:00:00";
 
                     #region ------------------Column Header------------------
                     xlsCol = 1;
