@@ -2765,5 +2765,58 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
         }
 
         #endregion
+
+        #region Asset Depreciation Process
+        public IEnumerable<object> GetAssetMastersListForProcess(string companyGroupId, string companyId, string plantId, string fiscalYearId, string toDate, string startDate)
+        {
+            var sql = @"DECLARE @FromDate NVARCHAR(20) = DATEADD(day,-1,'" + startDate + @"');
+						DECLARE @FiscalYearId AS [varchar](20)
+						select @FiscalYearId=Id from [SCS].[FiscalYear] where @FromDate BETWEEN StartDate AND EndDate
+						SELECT FAM.*,
+                        FAC.UserName 'FixedAssetCategory',
+                        FASC.UserName 'FixedAssetSubCategory'
+						,CASE WHEN ( select TOP 1 AD.FiscalYearId from [TRN].[AssetDepreciation] AD 
+							INNER JOIN [TRN].[AssetDepreciationDetail] ADDS ON ADDS.AssetDepreciationId=AD.Id   where AD.FiscalYearId='" + fiscalYearId + @"'	AND ADDS.FixedAssetMasterId=FAM.Id)>0 
+					    THEN 'Processed upto '+ CAST(( select TOP 1 AD.ProcessDate from [TRN].[AssetDepreciation] AD 
+							INNER JOIN [TRN].[AssetDepreciationDetail] ADDS ON ADDS.AssetDepreciationId=AD.Id   where AD.FiscalYearId='" + fiscalYearId + @"'	AND ADDS.FixedAssetMasterId=FAM.Id ORDER BY AD.Id DESC) AS varchar)
+						ELSE   'Not Process' END ProcessStatus
+						,(select COUNT(ARC.Id) from [TRN].[AssetRegisterChild] ARC
+								LEFT JOIN [TRN].[CapitalizationMaster] CM  ON  CM.Id = ARC.CapitalizationMasterId
+								LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=ARC.FixedAssetItemId where CM.CapitalizationDate<=@FromDate AND FAI.FixedAssetMasterId=FAM.Id)PreviousYearAsset
+						,(select COUNT(AD.Id) from [TRN].[AssetDepreciation] AD 
+							INNER JOIN [TRN].[AssetDepreciationDetail] ADDS ON ADDS.AssetDepreciationId=AD.Id  where AD.FiscalYearId=@FiscalYearId AND ADDS.FixedAssetMasterId=FAM.Id)PreviousYearAssetProcess
+						,CASE WHEN (select TOP 1 AD.ProcessDate from [TRN].[AssetDepreciation] AD 
+							INNER JOIN [TRN].[AssetDepreciationDetail] ADDS ON ADDS.AssetDepreciationId=AD.Id  where AD.FiscalYearId=@FiscalYearId AND ADDS.FixedAssetMasterId=FAM.Id ORDER BY AD.Id DESC)=@FromDate THEN 'Yes' ELSE 'No' END PreviousYearAssetFullProcess
+                        FROM  MST.[FixedAssetMaster]  FAM
+                        LEFT OUTER JOIN  HKP.[FixedAssetCategory]  FAC ON FAM.FixedAssetCategoryId=FAC.Id
+                        LEFT OUTER JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
+                     WHERE FAM.CompanyGroupId='" + companyGroupId + @"' 
+					 AND FAM.Id IN(select FAI.FixedAssetMasterId from [TRN].[AssetRegisterChild] ARC
+									LEFT JOIN [TRN].[CapitalizationMaster] CM  ON  CM.Id = ARC.CapitalizationMasterId
+									LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=ARC.FixedAssetItemId where CM.CapitalizationDate<='" + toDate + @"')";
+            return _sqlRepository.GetDataCollection(sql);
+
+        }
+        public void AssetDepreciationProcess(string selectedAssetMastersLists, string fiscalYearId, string toDate, string processName)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var rdBuilder = new System.Text.StringBuilder();
+                var builderSql = @"EXEC SP_AssetDepreciationProcess '" + selectedAssetMastersLists + "' ,'" + fiscalYearId + "' ,'" + toDate + "' ,'" + identity.FullName + "' ,'" + identity.IPAddress + "' ,'" + processName + "' ,'" + identity.CompanyGroupId + "' ,'" + identity.CompanyId + "' ,'" + identity.PlantId + "'";
+                rdBuilder.Append(builderSql);
+                _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+
+
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        #endregion
     }
 }

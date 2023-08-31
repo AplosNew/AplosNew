@@ -40,6 +40,10 @@ function EmployeeLeaveApprovalNewController(commonMessage, $scope, $rootScope, b
         var gridObj = $("#Grid").data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
         $scope.LeaveBalanceList = [];
+
+        const d = new Date();
+        let year = d.getFullYear();
+
         //$http.get($scope.getlvBalanceUrl + '?EmpsystemId=' + data.EmployeeID)
         //    .then(
         //        function successCallback(response) {
@@ -53,12 +57,15 @@ function EmployeeLeaveApprovalNewController(commonMessage, $scope, $rootScope, b
 
 
 
-        $http.get('HumanResource/LeaveApplicationNew/GetEmpLeaveBalance?EmpsystemId=' + data.EmployeeID + '&calanderYearId=')
+        //$http.get('HumanResource/LeaveApplicationNew/GetEmpLeaveBalance?EmpsystemId=' + data.EmployeeID + '&calanderYearId=')
+        //    .then(function (response) {
+        //        $scope.LeaveBalanceList = response.data;
+        //    });
+
+        $http.get('HumanResource/LeaveApplicationNew/GetEmpLeaveBalanceNew?EmpsystemId=' + data.EmployeeID + '&calanderYearId=' + year)
             .then(function (response) {
                 $scope.LeaveBalanceList = response.data;
             });
-
-
     };
     $scope.refreshTemplateemployee = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
