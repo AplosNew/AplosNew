@@ -1752,7 +1752,7 @@ namespace Library.Service.Advances
 
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
-            report.CompanyPlantHeader(ref sheet, shet2EndxlsCol, "Employee Advance", companyId, plantId, plantName, null);
+            report.CompanyPlantHeader(ref sheet, shet2EndxlsCol, "Employee Advance Money Requisition", companyId, plantId, plantName, null);
             report.PageSetup(ref sheet, 5, ExcelPageOrientation.Portrait);
             return workbook;
         }
