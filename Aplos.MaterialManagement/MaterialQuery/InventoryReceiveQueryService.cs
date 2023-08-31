@@ -4184,6 +4184,11 @@ namespace Aplos.MaterialManagement
 				int ColPartyCode = COL;
 				COL++;
 
+				sheet[ROW, COL].Text = "Beneficiary";
+				sheet[ROW, COL].ColumnWidth = 10;
+				int ColBeneficiary = COL;
+				COL++;
+
 				sheet[ROW, COL].Text = "Tax ID";
 				sheet[ROW, COL].ColumnWidth = 15;
 				int ColTaxID = COL;
@@ -4289,6 +4294,7 @@ namespace Aplos.MaterialManagement
 				{
 					sheet[ROW, ColPartyName].Text = data.Rows[i]["PartyName"].ToString();
 					sheet[ROW, ColPartyCode].Text = data.Rows[i]["PartyCode"].ToString();
+					sheet[ROW, ColBeneficiary].Text = data.Rows[i]["Beneficiary"].ToString();
 					sheet[ROW, ColTaxID].Text = data.Rows[i]["TaxID"].ToString();
 					sheet[ROW, ColBaseCurrency].Text = data.Rows[i]["Currency"].ToString();
 					sheet[ROW, ColBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["BaseAmount"].ToString());
@@ -4307,70 +4313,6 @@ namespace Aplos.MaterialManagement
 					sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
 					ROW++;
 				}
-
-				//if (data.Rows[i]["FromDate"] != "" && data.ToDate != "")
-				//{
-
-
-				//reportUtility.SetText(ref sheet, ROW, Convert.ToInt32(ColBaseAmount) - 1, "Total");
-				//sheet.Range[ROW, Convert.ToInt32(ColBaseAmount) - 1].CellStyle.Font.Bold = true;
-				////sheet.Range[1, ROW, Convert.ToInt32(ColTotalMaterialTranAmount) - 1, ROW].Merge();
-				//var sumObject = 0.0;
-
-				//sumObject = clsStaticInfo.dbl(data.Compute("Sum(BaseAmount)", null));
-				//sheet.Range[ROW, Convert.ToInt32(ColBaseAmount)].CellStyle.Font.Bold = true;
-				//reportUtility.SetText(ref sheet, ROW, Convert.ToInt32(ColBaseAmount), Convert.ToDouble(sumObject).ToString("0.##"));
-				//sheet.Range[ROW, Convert.ToInt32(ColBaseAmount)].HorizontalAlignment = ExcelHAlign.HAlignRight;
-				//sheet.Range[ROW, Convert.ToInt32(ColBaseAmount)].VerticalAlignment = ExcelVAlign.VAlignTop;
-
-				//sumObject = clsStaticInfo.dbl(data.Compute("Sum(TaxAmount)", null));
-				//sheet.Range[ROW, Convert.ToInt32(ColTaxAmount)].CellStyle.Font.Bold = true;
-				//reportUtility.SetText(ref sheet, ROW, Convert.ToInt32(ColTaxAmount), Convert.ToDouble(sumObject).ToString("0.##"));
-				//sheet.Range[ROW, Convert.ToInt32(ColTaxAmount)].HorizontalAlignment = ExcelHAlign.HAlignRight;
-				//sheet.Range[ROW, Convert.ToInt32(ColTaxAmount)].VerticalAlignment = ExcelVAlign.VAlignTop;
-
-				//sumObject = clsStaticInfo.dbl(data.Compute("Sum(TotalBaseAmount)", null));
-				//sheet.Range[ROW, Convert.ToInt32(ColTotalBaseAmount)].CellStyle.Font.Bold = true;
-				//reportUtility.SetText(ref sheet, ROW, Convert.ToInt32(ColTotalBaseAmount), Convert.ToDouble(sumObject).ToString("0.##"));
-				//sheet.Range[ROW, Convert.ToInt32(ColTotalBaseAmount)].HorizontalAlignment = ExcelHAlign.HAlignRight;
-				//sheet.Range[ROW, Convert.ToInt32(ColTotalBaseAmount)].VerticalAlignment = ExcelVAlign.VAlignTop;
-
-				//sumObject = clsStaticInfo.dbl(data.Compute("Sum(Payment)", null));
-				//sheet.Range[ROW, Convert.ToInt32(ColPayment)].CellStyle.Font.Bold = true;
-				//reportUtility.SetText(ref sheet, ROW, Convert.ToInt32(ColPayment), Convert.ToDouble(sumObject).ToString("0.##"));
-				//sheet.Range[ROW, Convert.ToInt32(ColPayment)].HorizontalAlignment = ExcelHAlign.HAlignRight;
-				//sheet.Range[ROW, Convert.ToInt32(ColPayment)].VerticalAlignment = ExcelVAlign.VAlignTop;
-
-				//sumObject = clsStaticInfo.dbl(data.Compute("Sum(Balance)", null));
-				//sheet.Range[ROW, Convert.ToInt32(ColBalance)].CellStyle.Font.Bold = true;
-				//reportUtility.SetText(ref sheet, ROW, Convert.ToInt32(ColBalance), Convert.ToDouble(sumObject).ToString("0.##"));
-				//sheet.Range[ROW, Convert.ToInt32(ColBalance)].HorizontalAlignment = ExcelHAlign.HAlignRight;
-				//sheet.Range[ROW, Convert.ToInt32(ColBalance)].VerticalAlignment = ExcelVAlign.VAlignTop;
-				//}
-
-
-				//ArrayList al = new ArrayList();
-				//al.Add(ROW);
-				//#region Grand Total
-				//SetHeadText(sheet, ROW, 1, "Grand Total:");
-				//sheet.Range[ROW, 1, ROW, (ColBaseAmount - 1)].Merge();
-
-
-				//sheet.Range[ROW, ColBaseAmount].Formula = GetFormulaGrandTotal(al, ColBaseAmount);
-				//sheet.Range[ROW, ColTaxAmount].Formula = GetFormulaGrandTotal(al, ColTaxAmount);
-				//sheet.Range[ROW, ColTotalBaseAmount].Formula = GetFormulaGrandTotal(al, ColTotalBaseAmount);
-				//sheet.Range[ROW, ColPayment].Formula = GetFormulaGrandTotal(al, ColPayment);
-				//sheet.Range[ROW, ColBalance].Formula = GetFormulaGrandTotal(al, ColBalance); 
-
-				//sheet.Range[ROW, ColBaseAmount, ROW, ColBalance].CellStyle.Font.Bold = true;
-
-				//sheet[startRow, ColBaseAmount, ROW - 1, ColBaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-				//sheet[startRow, ColTaxAmount, ROW - 1, ColTaxAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-				//sheet[startRow, ColTotalBaseAmount, ROW - 1, ColTotalBaseAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-				//sheet[startRow, ColPayment, ROW - 1, ColPayment].NumberFormat = "#,##0.00;(#,##0.00)";
-				//sheet[startRow, ColBalance, ROW - 1, ColBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-
-				//#endregion
 
 				
 
@@ -4397,12 +4339,6 @@ namespace Aplos.MaterialManagement
 				sheet[ROW, ColBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
 				sheet.Range[ROW, ColBaseAmount - 1, ROW, COL].CellStyle.Font.Bold = true;
-
-				//sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, ROW, endCol];
-				//sheet.UsedRange.WrapText = true;
-				//sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-				//sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-				//sheet["A" + startRow.ToString()].FreezePanes();
 
 				sheet.AutoFilters.FilterRange = sheet.Range[StartDataRow - 1, 1, ROW, endCol];
 				sheet.UsedRange.WrapText = true;
@@ -5807,14 +5743,16 @@ namespace Aplos.MaterialManagement
 		{
 			try
 			{
-				var str = @"SELECT X.PartyId,X.PartyName,X.PartyCode,X.GSTINNo TaxID
+				var str = @"SELECT X.PartyId,ISNULL(X.PartyName,'') PartyName,ISNULL(X.PartyCode,'') PartyCode,X.Beneficiary,X.GSTINNo TaxID
                             ,SUM(X.TotalMaterialBooksCurrencyAmount) BaseAmount,X.Currency,SUM(X.TotalTaxAmount) TaxAmount
                             ,TotalBaseAmount=SUM(X.TotalMaterialBooksCurrencyAmount)+SUM(X.TotalTaxAmount)
                             ,SUM(X.WrittenOffAmount) Payment
                             ,Balance=SUM(X.TotalMaterialBooksCurrencyAmount)+SUM(X.TotalTaxAmount)-SUM(X.WrittenOffAmount)
 							,X.PartyGroup,X.PartyCategory,X.PartySubCategory,X.PartyType,X.PartyAccountGroup
                             FROM 
-                            (select  ir.PartyId,ISNULL(p.UserName,'') AS PartyName,ISNULL(P.Code,'') PartyCode,isnull(PP.GSTIN,'') GSTINNo, SUM(IRD.MaterialTranAmount) MaterialTranAmount
+                            (select  ir.PartyId,PartyName=CASE WHEN ir.PartyId<>'' THEN p.UserName ELSE EI.EmployeeName END
+							,Beneficiary=CASE WHEN IR.PartyId<>'' THEN 'Vendor' ELSE 'Employee' END 
+							,P.Code PartyCode,isnull(PP.GSTIN,'') GSTINNo, SUM(IRD.MaterialTranAmount) MaterialTranAmount
 						                            , SUM(IRD.TotalMaterialTranAmount)TotalMaterialTranAmount,C.Code Currency 
 													,SUM(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate) TotalMaterialBooksCurrencyAmount
 						                            , SUM(IRD.TotalTaxAmount+IRD.ChargesTaxTranAmount*IR.ToCurrencyRate)  TotalTaxAmount
@@ -5830,7 +5768,8 @@ namespace Aplos.MaterialManagement
 													left join trn.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId
 													where convert(Date,Iw.PostingDate) BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' and iv.InventoryReceiveId<>''
 													group by iv.InventoryReceiveId,iv.PartyId
-													) inv on inv.InventoryReceiveId=ir.Id and inv.PartyId=IR.PartyId  
+													) inv on inv.InventoryReceiveId=ir.Id and inv.PartyId=IR.PartyId
+													LEFT JOIN EmployeeInformation AS EI ON EI.SystemId=IR.EmployeeId
 						                            LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
 						                            LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
 						                            LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
@@ -5842,9 +5781,9 @@ namespace Aplos.MaterialManagement
 						                            where   IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' 
                                                 AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
 
-						                            GROUP BY  ir.PartyId,inv.WrittenOffAmount,p.UserName,P.Code,PP.GSTIN,C.Code,PC.UserName,PSC.UserName,PG.UserName,CP.PartyType,PAG.UserName
+						                            GROUP BY  ir.PartyId,inv.WrittenOffAmount,EI.EmployeeName,p.UserName,P.Code,PP.GSTIN,C.Code,PC.UserName,PSC.UserName,PG.UserName,CP.PartyType,PAG.UserName
                             )X
-                            GROUP BY X.PartyId,X.PartyName,X.PartyCode,X.GSTINNo,X.Currency,X.PartyGroup,X.PartyCategory,X.PartySubCategory,X.PartyType,X.PartyAccountGroup";
+                            GROUP BY X.PartyId,X.PartyName,X.Beneficiary,X.PartyCode,X.GSTINNo,X.Currency,X.PartyGroup,X.PartyCategory,X.PartySubCategory,X.PartyType,X.PartyAccountGroup";
 
                 if (isreport)
                 {

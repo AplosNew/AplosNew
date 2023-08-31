@@ -1018,7 +1018,7 @@ namespace Library.Service.Advances
                             , V.VoucherNo, UPPER(V.Narration) AS Narration, V.CurrencyId, CU1.Code AS TrnCurrency, V.AddedBy, V.PostedBy, VDC.ParallelCurrencyId, CU.Code AS CurrencyCode, VDC.FromCurrencyId, VDC.ToCurrencyId
                             , VDC.ToCurrencyRate, VD.DrAmount, VD.CrAmount, VDC.DrAmount as CompanyCurrencyDrAmount, VDC.CrAmount as CompanyCurrencyCrAmount, V.SourceType, [DRCR]=CASE WHEN VDC.DrAmount>0 THEN '1' ELSE '2' END, VD.GLGeneralInfoId
                             , GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,GL.AccountCode+' - '+ BM.AccountTitle AS BankMain, P.UserName AS Customer, PP.UserName AS PartyPlant, VD.RefCode AS Ref
-                            , BUD.UserName AS Budget, ACT.UserName AS Activity
+                            , BUD.UserName AS Budget, Activity=case when VD.BankMasterId<>'' then BM.AccountTitle else  ACT.UserName end 
                             FROM [TRN].[VoucherDetailCurrency] AS VDC
                             JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=VDC.VoucherDetailId
                             JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
