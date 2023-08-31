@@ -1679,7 +1679,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT* FROM(SELECT CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
+            string sql = @"SELECT* FROM(SELECT  CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
                             Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate,EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy,EAR.ApprovalStatus, EEA. EmployeeName ApprovedBy  
                             FROM [TRN].[EmployeeAdvanceRequisition] EAR 
                             LEFT JOIN SCS.Currency CURR ON CURR.Id = EAR.CurrencyId
@@ -1699,7 +1699,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT* FROM(SELECT CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
+            string sql = @"SELECT* FROM(SELECT  CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
                             Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate, EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy,EAR.ApprovalStatus, EEA. EmployeeName ApprovedBy    FROM [TRN].[EmployeeAdvanceRequisition] EAR 
                             LEFT JOIN SCS.Currency CURR ON CURR.Id = EAR.CurrencyId
                             LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = EAR.EmpSystemId
@@ -1718,7 +1718,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT* FROM(SELECT CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
+            string sql = @"SELECT* FROM(SELECT  CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
                             Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate, EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy,EAR.ApprovalStatus, EEA. EmployeeName ApprovedBy    FROM [TRN].[EmployeeAdvanceRequisition] EAR 
                             LEFT JOIN SCS.Currency CURR ON CURR.Id = EAR.CurrencyId
                             LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = EAR.EmpSystemId
@@ -1737,7 +1737,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT* FROM(SELECT CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
+            string sql = @"SELECT* FROM(SELECT  CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
                             Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate, EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy,EAR.ApprovalStatus, EEA. EmployeeName ApprovedBy    FROM [TRN].[EmployeeAdvanceRequisition] EAR 
                             LEFT JOIN SCS.Currency CURR ON CURR.Id = EAR.CurrencyId
                             LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = EAR.EmpSystemId
@@ -1757,7 +1757,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT* FROM(SELECT CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
+            string sql = @"SELECT* FROM(SELECT  CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
                             Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate, EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy,EAR.ApprovalStatus, EEA. EmployeeName ApprovedBy    FROM [TRN].[EmployeeAdvanceRequisition] EAR 
                             LEFT JOIN SCS.Currency CURR ON CURR.Id = EAR.CurrencyId
                             LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = EAR.EmpSystemId
@@ -1775,7 +1775,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT* FROM(SELECT CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
+            string sql = @"SELECT* FROM(SELECT  CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
                             Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate, EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy
                             , 'Posted' ApprovalStatus, EEA. EmployeeName ApprovedBy,V.VoucherNo    FROM [TRN].[EmployeeAdvanceRequisition] EAR 
                             LEFT JOIN SCS.Currency CURR ON CURR.Id = EAR.CurrencyId
@@ -1797,7 +1797,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT* FROM(SELECT CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
+            string sql = @"SELECT* FROM(SELECT  CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
                             Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate, EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy,EAR.ApprovalStatus, EEA. EmployeeName ApprovedBy    FROM [TRN].[EmployeeAdvanceRequisition] EAR 
                             LEFT JOIN SCS.Currency CURR ON CURR.Id = EAR.CurrencyId
                             LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = EAR.EmpSystemId
@@ -1835,7 +1835,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT* FROM(SELECT CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
+            string sql = @"SELECT* FROM(SELECT  CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
                             Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate,EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy,EAR.ApprovalStatus, EEA. EmployeeName ApprovedBy ,EAR.AddedDate  
                             FROM [TRN].[EmployeeAdvanceRequisition] EAR 
                             LEFT JOIN SCS.Currency CURR ON CURR.Id = EAR.CurrencyId
