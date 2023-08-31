@@ -788,7 +788,7 @@ namespace Library.Service.Helpers
 			try
 			{
 				var formate = false;
-				var validFileFormate = new[] { "png", "jpg", "jpeg", "gif", "doc", "docx", "xls", "xlsx", "xlx", "ppt", "pptx", "pdf" };
+				var validFileFormate = new[] { "png", "jpg", "jpeg", "gif", "doc", "docx", "xls", "xlsx", "xlx", "ppt", "pptx", "pdf","mp4", "wmv" };
 				for (var i = 0; i < validFileFormate.Length; i++)
 				{
 					var vF = "." + validFileFormate[i];

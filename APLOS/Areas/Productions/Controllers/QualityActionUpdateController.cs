@@ -64,6 +64,171 @@ where EI.EmployeeStatus='Active' and QCD.ResponsiblePersonId is not null";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpPost]
+        public ActionResult GetActionBy()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"SELECT EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                                    , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
+                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
+                            FROM dbo.EmployeeInformation AS EI
+                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            WHERE EI.EmployeeStatus='Active'";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult LoadQualityActionUpdateHeader(string FromDate, string ToDate, string ResponsiblePersonId)
+        {
+            string FilterDate = string.Empty;
+            string ResponsiblePerson = string.Empty;
+
+            if (FromDate != null && ToDate != null && FromDate != "undefined" && ToDate != "undefined")
+            {
+                FilterDate = " and convert(Date,QCD.AddedDate) between '"+ FromDate + "' and '" + ToDate + "'";
+            }
+
+            if (ResponsiblePersonId != null && ResponsiblePersonId != "undefined")
+            {
+                ResponsiblePerson = " and ResponsiblePersonId = '" + ResponsiblePersonId + "'";
+            }
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select distinct QC.Id as HeaderId,format(QC.AddedDate,'dd-MMM-yyyy') as Date,E.Id EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,
+QC.IssueId,QMM.UserName Issue,EI.SystemId CheckedById,EI.EmployeeName CheckedBy,QC.ProductionOrderId PONo,QC.LotNumber,
+Article=STUFF((select distinct ','+MA.StandardName from trn.ProductionOrderDetail Pod 
+left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId=so.Id
+left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+left outer join [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
+where Pod.ProductionOrderId=QC.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+PS.UserName POStatus from TRN.QualityControlDetails QCD
+left join TRN.QualityControl QC on QC.Id=QCD.QCId
+left join ORG.Entity E on E.Id=QC.EntityId
+left join hkp.Process P on P.Id=QC.ProcessId
+left join MST.QualityManagementMaster QMM on QMM.Id=QC.IssueId
+left join EmployeeInformation EI on EI.SystemId=QC.ProductionInchargeId
+left join TRN.ProductionOrder PO on PO.Id=QC.ProductionOrderId
+left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
+where QCD.Status='InProgress' and QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1) " + FilterDate + @" " + ResponsiblePerson + @"";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadQualityActionUpdateParameterListGetDetails(string HeaderId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select QCD.Id ParameterId,PM.UserName Parameter,QCD.Status,UOM.UserName UOM,QCD.Value,QMP.Max,QMP.Min,WC.UserName WorkCenter,QGD.GradeName,
+QAD.ActionToBeTakenName,EI.EmployeeName ResponsiblePerson,QCD.Remarks,QCD.ItemId  from TRN.QualityControlDetails QCD
+left join MST.QualityManagementParameterItem QMP on QMP.Id=QCD.ItemId
+left join hkp.ParameterMaster PM on PM.Id=QMP.ParameterId
+left join SCS.UnitOfMeasurement UOM on UOM.Id=QMP.UOMId
+left join SCS.WorkCenterMaster WC on WC.Id=QCD.WorkCenterId
+left join MST.QualityGradeDetails QGD on QGD.Id=QCD.GradeId
+left join MST.QualityActionToBeTakenDetails QAD on QAD.Id=QCD.ActionToBeTaken
+left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
+where QCD.Status='InProgress' and QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1)
+and QCD.QCId='" + HeaderId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadQualityActionTakenListGetDetails(string ParameterId, string ItemId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select QPR.SNO,QPR.ReasonId,QRM.UserName ReasonName,QAT.ActionTaken,QAT.ActionById,EI.EmployeeName ActionBy,QAT.Remarks from [MST].[QualityManagementParameterReason] QPR 
+	left join [HKP].[QualityManagementReasonMaster] QRM on QRM.Id=QPR.ReasonId
+	left join [TRN].[QualityActionTakenUpdate] QAT on QAT.ParameterId='"+ ParameterId + @"' 
+	left join EmployeeInformation EI on EI.SystemId=QAT.ActionById
+	where QPR.IsActive=1 and QPR.ParameterId='"+ ItemId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetReasonNameLists()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var sql = @"select Id as Value,ReasonName as Text from [MST].[QualityManagementParameterReason]";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult createActionTaken(Dictionary<string, object> ActionTakenData, string Pid)
+        {
+            try
+            {
+
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[QualityActionTakenUpdate] where ReasonId='" + ActionTakenData["ReasonId"] + "' and ParameterId='" + Pid + "'", out DataSet dsQualityActionTakenUpdateReasonValidation, false, "1");
+
+                DataSet dsQualityActionTakenUpdate;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[QualityActionTakenUpdate] where Id='" + ActionTakenData["Id"] + "'", out dsQualityActionTakenUpdate, false, "1");
+                string _Id = "";
+
+                #region data update
+                if (ActionTakenData["SNO"] == null)
+                {
+                    throw new Exception("SNO is required");
+                }
+                else
+                {
+                    if (ActionTakenData["ReasonId"] == null)
+                    {
+                        throw new Exception("Reason is required");
+                    }
+                    else
+                    {
+                        if (dsQualityActionTakenUpdate.Tables[0].Rows.Count == 0)
+                        {
+                            if (dsQualityActionTakenUpdateReasonValidation.Tables[0].Rows.Count > 0)
+                            {
+                                throw new Exception("Reason Name Already Exist.");
+                            }
+                            else
+                            {
+                                bplib.clsGenID genid = new bplib.clsGenID();
+                                genid.GenID("QualityActionTakenUpdate", out _Id);
+                                _Id = "QAT" + _Id;
+                                ActionTakenData["Id"] = _Id;
+                                ActionTakenData["ParameterId"] = Pid;
+                                AddNewRow(dsQualityActionTakenUpdate.Tables[0], ActionTakenData);
+                            }
+                        }
+                        else
+                        {
+                            _Id = ActionTakenData["Id"].ToString();
+                            ActionTakenData["ParameterId"] = Pid;
+                            EditRow(dsQualityActionTakenUpdate.Tables[0].Rows[0], ActionTakenData);
+                        }
+                    }
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsQualityActionTakenUpdate);
+
+                return Json(new { Error = false, Data = ActionTakenData, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
 
         [Authorize, HttpGet]
         public ActionResult LoadMaintenanceStatusDetailsList(string ToDate,string FromDate,string Status)
