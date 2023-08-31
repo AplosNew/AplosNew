@@ -563,7 +563,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 string pDays = null;
                 if (payDaysType== "FinalOT")
                 {
-                    pDays = @"LEFT JOIN(select (SUM(StandardOT)/24) PayDays,EmpSystemID  from AttdnProcessData 
+                    pDays = @"LEFT JOIN(select (SUM(PresentValue) PayDays,EmpSystemID  from AttdnProcessData 
                             where WorkDate between '" + fromDate + @"' and '" + toDate + @"'
                             GROUP BY EmpSystemID)y on y.EmpSystemID = EI.SystemId ";
                 }
@@ -577,9 +577,9 @@ namespace Aplos.Areas.Attendances.Controllers
                 }
                 else
                 {
-                    pDays = @"LEFT JOIN(  select SUM(AdditionalOT/24) PayDays,EmpSystemID  
+                    pDays = @"LEFT JOIN(  select SUM(PresentValue) PayDays,EmpSystemID  
 							from AttdnProcessData 
-                            where WorkDate between '01-Apr-2021' and '30-Apr-2021'
+                            where WorkDate between '" + fromDate + @"' and '" + toDate + @"'
                             GROUP BY EmpSystemID)y on y.EmpSystemID = EI.SystemId ";
                 }
 
@@ -595,7 +595,7 @@ namespace Aplos.Areas.Attendances.Controllers
                          ,EI.EmployeeStatus
 						 ,OTTitle = case when EI.ExcludeOT=0 then 'Yes' else 'No' END
 						 ,x.DefineAmount Basic,x.SalaryHead,y.PayDays
-                         ,g.RatePerHour,g.RatePerDay
+                         ,g.RatePerHour,g.RatePerDay,0 AdvanceGiven
                          FROM dbo.Employeeinformation EI
                          LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
                          LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
