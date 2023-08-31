@@ -180,6 +180,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         , ShortName: null
         , GradeValue: null
         , Remarks: null
+        , ActionApplicable: false
     };
     $scope.GradeNew = Object.assign({}, $scope.Grade);
 
