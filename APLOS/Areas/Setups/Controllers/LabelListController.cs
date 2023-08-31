@@ -22,7 +22,7 @@ namespace Aplos.Areas.Setups.Controllers
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
-        string DTableName = "dbo.LabelList";
+        //string DTableName = "dbo.LabelList";
         public LabelListController(
             IUnitOfWork U
             , ISqlRepository R

@@ -71,13 +71,13 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-3 col-md-3">
                     <div class="select-style">
-                        <select ng-model="searchBy">
+                        <select ng-model="searchBGBy">
                             <option ng-repeat="option in searchByBgtList" value="{{option.value}}">{{option.name}}</option>
                         </select>
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getDataBG()">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="searchBG" ng-enter="getDataBG()">
                 </div>
                 <div class="col-xs-12 col-sm-2 col-md-2">
                     <button type="button" ng-click="getDataBG()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>

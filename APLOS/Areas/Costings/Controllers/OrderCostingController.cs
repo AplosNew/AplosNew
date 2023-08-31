@@ -1467,6 +1467,45 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
 
                         dr["Value"] = "0";
                         dsMaster.Tables[0].Rows.Add(dr);
+
+
+                        if (item["Code"].ToString().ToUpper() == "CM")
+                        {
+                            double additionalCost = 0;
+                            double StandardWorkingHours = clsStaticInfo.dbl(dsTemplateMaster.Tables[0].Rows[0]["StandardWorkingHours"].ToString());
+                            double StandardWorkingHoursForProduct = clsStaticInfo.dbl(dtTempProductConfig.Rows[0]["StandardWorkingHours"].ToString());
+
+
+                            if (StandardWorkingHours > StandardWorkingHoursForProduct)
+                            {
+                                additionalCost = (StandardWorkingHours - StandardWorkingHoursForProduct) * clsStaticInfo.dbl(dsTemplateMaster.Tables[0].Rows[0]["AdditionalWorkingHourCostPerHour"].ToString());
+                            }
+
+                            CMValue = ((clsStaticInfo.dbl(dsTemplateMaster.Tables[0].Rows[0]["StandardWorkingHourCost"].ToString()) + additionalCost) /
+                               clsStaticInfo.dbl(dsTemplateMaster.Tables[0].Rows[0]["StandardWorkingHours"].ToString())) /
+                               clsStaticInfo.dbl(dsTemplateMaster.Tables[0].Rows[0]["MKTTargetPerHour"].ToString());
+                            dr["Value"] = CMValue;
+                        }
+                        else if (item["Code"].ToString().ToUpper() == "UPC")
+                        {
+                            double _workdays = clsStaticInfo.dbl(dsTemplateMaster.Tables[0].Rows[0]["OrderSize"].ToString()) /
+                                (clsStaticInfo.dbl(dsTemplateMaster.Tables[0].Rows[0]["StandardWorkingHours"].ToString()) *
+                                 clsStaticInfo.dbl(dsTemplateMaster.Tables[0].Rows[0]["MKTTargetPerHour"].ToString()));
+
+                            int WorkDysRequired = Convert.ToInt32(Math.Ceiling(_workdays));
+
+                            DataTable UpChargeMatrix = _sqlRepository.GetDataTable("SELECT TOP 1 * FROM hkp.CostingUpchargeMatrix AS cum WHERE cum.WorkCenterDays=" + WorkDysRequired.ToString());
+                            if (UpChargeMatrix.Rows.Count == 0)
+                                UpChargeMatrix = _sqlRepository.GetDataTable("SELECT TOP 1 * FROM hkp.CostingUpchargeMatrix AS cum WHERE cum.WorkCenterDays<=" + WorkDysRequired.ToString() + " ORDER BY WorkCenterDays desc");
+
+                            if (UpChargeMatrix.Rows.Count > 0)
+                            {
+                                dr["Value"] = CMValue * clsStaticInfo.dbl(UpChargeMatrix.Rows[0][dsTemplateMaster.Tables[0].Rows[0]["CriticalLevel"].ToString()].ToString()) / 100;
+                            }
+
+                        }
+
+
                     }
                     else
                     {
@@ -1480,48 +1519,14 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = identity.IPAddress;
 
-                        dr["Value"] = "0";
+                        //dr["Value"] = "0";
 
                         dr.EndEdit();
                     }
 
 
 
-                    if (item["Code"].ToString().ToUpper() == "CM")
-                    {
-                        double additionalCost = 0;
-                        double StandardWorkingHours = clsStaticInfo.dbl(dsTemplateMaster.Tables[0].Rows[0]["StandardWorkingHours"].ToString());
-                        double StandardWorkingHoursForProduct = clsStaticInfo.dbl(dtTempProductConfig.Rows[0]["StandardWorkingHours"].ToString());
-
-
-                        if (StandardWorkingHours > StandardWorkingHoursForProduct)
-                        {
-                            additionalCost = (StandardWorkingHours - StandardWorkingHoursForProduct) * clsStaticInfo.dbl(dsTemplateMaster.Tables[0].Rows[0]["AdditionalWorkingHourCostPerHour"].ToString());
-                        }
-
-                        CMValue = ((clsStaticInfo.dbl(dsTemplateMaster.Tables[0].Rows[0]["StandardWorkingHourCost"].ToString()) + additionalCost) /
-                           clsStaticInfo.dbl(dsTemplateMaster.Tables[0].Rows[0]["StandardWorkingHours"].ToString())) /
-                           clsStaticInfo.dbl(dsTemplateMaster.Tables[0].Rows[0]["MKTTargetPerHour"].ToString());
-                        dr["Value"] = CMValue;
-                    }
-                    else if (item["Code"].ToString().ToUpper() == "UPC")
-                    {
-                        double _workdays = clsStaticInfo.dbl(dsTemplateMaster.Tables[0].Rows[0]["OrderSize"].ToString()) /
-                            (clsStaticInfo.dbl(dsTemplateMaster.Tables[0].Rows[0]["StandardWorkingHours"].ToString()) *
-                             clsStaticInfo.dbl(dsTemplateMaster.Tables[0].Rows[0]["MKTTargetPerHour"].ToString()));
-
-                        int WorkDysRequired = Convert.ToInt32(Math.Ceiling(_workdays));
-
-                        DataTable UpChargeMatrix = _sqlRepository.GetDataTable("SELECT TOP 1 * FROM hkp.CostingUpchargeMatrix AS cum WHERE cum.WorkCenterDays=" + WorkDysRequired.ToString());
-                        if (UpChargeMatrix.Rows.Count == 0)
-                            UpChargeMatrix = _sqlRepository.GetDataTable("SELECT TOP 1 * FROM hkp.CostingUpchargeMatrix AS cum WHERE cum.WorkCenterDays<=" + WorkDysRequired.ToString() + " ORDER BY WorkCenterDays desc");
-
-                        if (UpChargeMatrix.Rows.Count > 0)
-                        {
-                            dr["Value"] = CMValue * clsStaticInfo.dbl(UpChargeMatrix.Rows[0][dsTemplateMaster.Tables[0].Rows[0]["CriticalLevel"].ToString()].ToString()) / 100;
-                        }
-
-                    }
+                  
                 }
 
 

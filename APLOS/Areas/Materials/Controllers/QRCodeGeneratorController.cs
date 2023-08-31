@@ -37,8 +37,6 @@ namespace Aplos.Areas.Materials.Controllers
         private readonly SqlRepository _sqlRepository;
         public string DataReceived = "";
 
-
-
         SerialPort serialPort = new SerialPort("COM9", 19200, Parity.None, 8, StopBits.One);
         Dictionary<string, object> data;
         string ProductCode, PO, LOT, NumberOfCones, NetWeight, GrossWeight, Shade, Article = null;
@@ -115,7 +113,7 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
 
-
+        #region Unused PDFConverter
         public IPresentation CreateQRCode(Dictionary<string, object> data)
         {
 
@@ -184,7 +182,9 @@ namespace Aplos.Areas.Materials.Controllers
             }
 
         }
+        #endregion Unused PDFConverter
 
+        #region Save & Generate
         public ActionResult GenerateQRCode(Dictionary<string, object> data)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -360,17 +360,14 @@ namespace Aplos.Areas.Materials.Controllers
 
         public void ProvideContent(object sender, PrintPageEventArgs e)
         {
-            const int FIRST_COL_PAD = 5;
-            const int SECOND_COL_PAD = 7;
-            const int THIRD_COL_PAD = 8;
+           
             int itemHeight = 0;
             var curX = e.MarginBounds.X;
             var curY = e.MarginBounds.Y;
            
 
             string concatdata = Convert.ToString(
-                    string.Concat(
-                     //productcodeText, "#"
+                    string.Concat(                     
                      ProductCode, "#"
                     , PO, "#"
                     , LOT, "#"
@@ -388,16 +385,16 @@ namespace Aplos.Areas.Materials.Controllers
 
             var sb = new StringBuilder();
 
-            sb.AppendLine(($"PRD.CD:  {ProductCode}"));
+            sb.AppendLine(($"PRD.CD: {ProductCode}"));
             sb.AppendLine(($"PO: {PO} "));
             sb.AppendLine(($"LOT: {LOT} "));
             sb.AppendLine(($"REF.NO: "));
             sb.AppendLine(($"NO.OFCONES: {NumberOfCones} "));
             sb.AppendLine(($"NET WEIGHT: {NetWeight} "));
             sb.AppendLine(($"GRS. WEIGHT: {GrossWeight} "));
-            sb.AppendLine(($"PACKED BY:  {identity.UserId}"));
-            sb.AppendLine(("SHADE:  "));
-            sb.AppendLine(("ARTICLE:  "));
+            sb.AppendLine(($"PACKED BY: {identity.UserId}"));
+            sb.AppendLine(($"SHADE: {Shade}"));
+            sb.AppendLine(($"ARTICLE: {Article}"));
 
 
             var printText = new PrintText(sb.ToString(), new Font(System.Drawing.FontFamily.GenericSansSerif, 9, System.Drawing.FontStyle.Bold));
@@ -427,7 +424,7 @@ namespace Aplos.Areas.Materials.Controllers
                                 new SolidBrush(System.Drawing.Color.Black), startX, startY + Offset);
             Offset = Offset + 20;
         }
-
+        #endregion Save & Generate
 
         #region GeFun
         public ActionResult GetPO()

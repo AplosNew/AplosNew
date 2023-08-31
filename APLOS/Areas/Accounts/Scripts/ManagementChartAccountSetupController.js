@@ -1,7 +1,10 @@
 ﻿'use strict';
 ManagementChartAccountSetupController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-
+    $scope.searchBy = "Sequence"; $scope.search = "";
+    $scope.searchBGBy = "Sequence"; $scope.searchBG = "";
+    $scope.searchBCBy = "Sequence"; $scope.searchBC = "";
+    $scope.searchBSCBy = "Sequence"; $scope.searchBSC = "";
     // #region TAB CHANGE
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -60,7 +63,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
     };
     $scope.getDataBG = function () {
         $scope.budgetGroups = [];
-        $http.get('accounts/companygroupbudgetgroup/getlist?column=' + $scope.searchBy + '&value=' + $scope.search)
+        $http.get('accounts/companygroupbudgetgroup/getlist?column=' + $scope.searchBGBy + '&value=' + $scope.searchBG)
             .then(function (response) {
                 $scope.budgetGroups = response.data;
             });
@@ -116,7 +119,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                     else {
                         ShowResult(response.data.Message, "success");
                         $scope.budgetGroups.push(response.data.BudgetGroup);
-                        baseService.paginationAdd();
+                        $scope.getDataBG();
                         ClearFieldsBG(response.data.Sequence);
                     }
                 }), function errorCallback(response) {
@@ -135,9 +138,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                     }
                     else {
                         ShowResult(response.data.Message, "success");
-                        if ($scope.index > -1) {
-                            $scope.budgetGroups[$scope.index] = $scope.budgetGroup;
-                        }
+                        $scope.getDataBG();
                         ClearFieldsBG(response.data.Sequence);
                     }
                 }, function errorCallback(response) {
@@ -159,7 +160,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                 else {
                     ShowResult(response.data.Message, "success");
                     $scope.budgetGroups.splice($scope.index, 1);
-                    baseService.paginationRemove();
+                    $scope.getDataBG();
                     ClearFieldsBG(response.data.Sequence);
                 }
             });
@@ -228,7 +229,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
     };
     $scope.getDataBC = function () {
         $scope.budgetCategories = [];
-        $http.get('accounts/companygroupbudget/getlist?column=' + $scope.searchBy + '&value=' + $scope.search)
+        $http.get('accounts/companygroupbudget/getlist?column=' + $scope.searchBCBy + '&value=' + $scope.searchBC)
             .then(function (response) {
                 $scope.budgetCategories = response.data;
             });
@@ -282,7 +283,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                     else {
                         ShowResult(response.data.Message, "success");
                         $scope.budgetCategories.push(response.data.BudgetCategory);
-                        baseService.paginationAdd();
+                        $scope.getDataBC();
                         ClearFieldsBC(response.data.Sequence);
                     }
                 }, function errorCallback(response) {
@@ -302,9 +303,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                     }
                     else {
                         ShowResult(response.data.Message, "success");
-                        if ($scope.index > -1) {
-                            $scope.budgetCategories[$scope.index] = $scope.budgetCategory;
-                        }
+                        $scope.getDataBC();
                         ClearFieldsBC(response.data.Sequence);
                     }
                 }, function errorCallback(response) {
@@ -329,7 +328,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                 else {
                     ShowResult(response.data.Message, "success");
                     $scope.budgetCategories.splice($scope.index, 1);
-                    baseService.paginationRemove();
+                    $scope.getDataBC();
                     ClearFieldsBC(response.data.Sequence);
                 }
             }, function errorCallback(response) {
@@ -407,7 +406,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
 
     $scope.getDataBSC = function () {
         $scope.budgetSubCategories = [];
-        $http.get('accounts/CompanyGroupBudgetSubCategory/getlist?column=' + $scope.searchBy + '&value=' + $scope.search)
+        $http.get('accounts/CompanyGroupBudgetSubCategory/getlist?column=' + $scope.searchBSCBy + '&value=' + $scope.searchBSC)
             .then(function (response) {
                 $scope.budgetSubCategories = response.data;
             });
@@ -462,7 +461,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                     } else {
                         ShowResult(response.data.Message, "success");
                         $scope.budgetSubCategories.push(response.data.BudgetSubCategory);
-                        baseService.paginationAdd();
+                        $scope.getDataBSC();
                         ClearFieldsBSC(response.data.Sequence);
                     }
                 },
@@ -481,9 +480,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                         ShowResult(response.data.Message, "failure");
                     } else {
                         ShowResult(response.data.Message, "success");
-                        if ($scope.index > -1) {
-                            $scope.budgetSubCategories[$scope.index] = $scope.budgetSubCategory;
-                        }
+                        $scope.getDataBSC();
                         ClearFieldsBSC(response.data.Sequence);
                     }
                 },
@@ -508,7 +505,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
                 } else {
                     ShowResult(response.data.Message, "success");
                     $scope.budgetSubCategories.splice($scope.index, 1);
-                    baseService.paginationRemove();
+                    $scope.getDataBSC();
                     ClearFieldsBSC(response.data.Sequence);
                 }
             },
@@ -549,7 +546,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
     $scope.deleteUrlBgt = $scope.pathBgt + "delete/";
     // #endregion
 
-    $scope.searchBy = "Sequence"; $scope.search = "";
+    
     $scope.searchByBgtList = [
         {
             'name': 'Sequence',

@@ -358,7 +358,7 @@ where UM.Active = 1 order by PMU.IsActive desc";
                 objCon = new ConnectionManager.DAL.ConManager("1");
 
                 #region Utility
-                objCon.OpenDataSetThroughAdapter("select * from [dbo].[ProcessManagementTemptMaterial]  where ProcessManagementId = '" + headerid + "'", out dsprocessutlity, false, "1");
+                objCon.OpenDataSetThroughAdapter("select * from [dbo].[ProcessManagementTemptMaterial]  where ProcessTemplateId = '" + headerid + "'", out dsprocessutlity, false, "1");
                 foreach (var item in processMaterialList)
                 {
                     
@@ -414,7 +414,7 @@ where UM.Active = 1 order by PMU.IsActive desc";
         #endregion MaterialTab Save
 
         #region UtilityTab Save
-        public ActionResult SaveProcessUtility(string rowId, string headerid, List<Dictionary<string, object>> processutlityList)
+        public ActionResult SaveProcessUtility(string rowId, string headerid, List<Dictionary<string, object>> processutilityList)
         {
 
 
@@ -432,8 +432,8 @@ where UM.Active = 1 order by PMU.IsActive desc";
             {
                 objCon = new ConnectionManager.DAL.ConManager("1");
 
-                objCon.OpenDataSetThroughAdapter("select * from [dbo].[ProcessManagementTempUtility]  where ProcessManagementId = '" + headerid + "'", out dsChild, false, "1");
-                foreach (var item in processutlityList)
+                objCon.OpenDataSetThroughAdapter("select * from [dbo].[ProcessManagementTempUtility]  where ProcessTemplateId = '" + headerid + "'", out dsChild, false, "1");
+                foreach (var item in processutilityList)
                 {
                     DataView dv = new DataView(dsChild.Tables[0]);
 
@@ -473,7 +473,7 @@ where UM.Active = 1 order by PMU.IsActive desc";
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsChild);
-                return Json(new { Error = false, Data = processutlityList, Message = AplosMessage.Insert });
+                return Json(new { Error = false, Data = processutilityList, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {

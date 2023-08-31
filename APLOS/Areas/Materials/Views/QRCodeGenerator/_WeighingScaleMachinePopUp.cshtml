@@ -65,9 +65,11 @@
                             </div>
 
                             <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Tier Wt.</label>
+                                <label class="col-sm-4 control-label">Net Wt.</label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="TierWeiht" ng-model="QRCodeGenerateModel.TierWeight" ng-change="CalcNetWeight();" class="form-control" tabindex="5" maxlength="50">
+
+                                    <input type="text" name="NumberOfCones" ng-model="QRCodeGenerateModel.NetWeight" class="form-control" id="netwt" tabindex="5" maxlength="50" readonly>
+
                                 </div>
                             </div>
 
@@ -101,12 +103,11 @@
                                     <input type="text" name="MaxWeight" ng-model="QRCodeGenerateModel.MaxWeight" ng-change="validateMaxWeight();" class="form-control" tabindex="5" maxlength="50">
                                 </div>
                             </div>
+                            
                             <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Net Wt.</label>
+                                <label class="col-sm-4 control-label">Tier Wt.</label>
                                 <div class="col-sm-8 show-message">
-
-                                    <input type="text" name="NumberOfCones" ng-model="QRCodeGenerateModel.NetWeight" class="form-control" id="netwt" tabindex="5" maxlength="50" readonly>
-
+                                    <input type="text" name="TierWeiht" ng-model="QRCodeGenerateModel.TierWeight" ng-change="CalcNetWeight();" class="form-control" tabindex="5" maxlength="50">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
