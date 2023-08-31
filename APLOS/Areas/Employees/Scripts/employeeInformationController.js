@@ -3251,6 +3251,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         var str = data.FileName;
         var extention = str.substr(str.indexOf('.'));
         $scope.dwonloadUrl = virtualPath.EmployeeDocument + '/' + data.FileId + extention;
+        angular.element(document.querySelector('#DocShowPopUp')).modal('show');
     };
 
     // #region Document
