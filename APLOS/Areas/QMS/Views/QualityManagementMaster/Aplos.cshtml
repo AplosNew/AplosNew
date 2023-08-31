@@ -780,7 +780,11 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label">Type</label>
                 <div class="col-sm-8">
-                    <input type="text" name="Remarks" ng-model="ReasonMasterNew.Type" class="form-control" maxlength="100" autocomplete="off">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ReasonMasterNew.Type" name="Type"
+                                ng-options="item.Value as item.Text for item in TypeLists">
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
