@@ -5814,7 +5814,7 @@ namespace Aplos.MaterialManagement
                             ,Balance=SUM(X.TotalMaterialBooksCurrencyAmount)+SUM(X.TotalTaxAmount)-SUM(X.WrittenOffAmount)
 							,X.PartyGroup,X.PartyCategory,X.PartySubCategory,X.PartyType,X.PartyAccountGroup
                             FROM 
-                            (select  ir.PartyId,p.UserName AS PartyName,P.Code PartyCode,isnull(PP.GSTIN,'') GSTINNo, SUM(IRD.MaterialTranAmount) MaterialTranAmount
+                            (select  ir.PartyId,ISNULL(p.UserName,'') AS PartyName,ISNULL(P.Code,'') PartyCode,isnull(PP.GSTIN,'') GSTINNo, SUM(IRD.MaterialTranAmount) MaterialTranAmount
 						                            , SUM(IRD.TotalMaterialTranAmount)TotalMaterialTranAmount,C.Code Currency 
 													,SUM(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate) TotalMaterialBooksCurrencyAmount
 						                            , SUM(IRD.TotalTaxAmount+IRD.ChargesTaxTranAmount*IR.ToCurrencyRate)  TotalTaxAmount
