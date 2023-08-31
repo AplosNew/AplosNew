@@ -3245,13 +3245,24 @@ function employeeInformationController(addressService, fileReader, cboService, c
         document.getElementById("uploadImage").value = '';
         document.getElementById("uploadImageSrc").setAttribute('src', null);
     };
-
+    $scope.FileNam = null;
+    $scope.tempdata = {};
     $scope.DocDownload = function (data) {
+        $scope.tempdata = data;
         $scope.dwonloadUrl = null;
         var str = data.FileName;
+        $scope.FileNam = data.FileName;
         var extention = str.substr(str.indexOf('.'));
         $scope.dwonloadUrl = virtualPath.EmployeeDocument + '/' + data.FileId + extention;
         angular.element(document.querySelector('#DocShowPopUp')).modal('show');
+    };
+
+    $scope.DownloadImageFile = function (data) {
+        $scope.dwonloadUrl = null;
+        var str = data.FileName;
+        $scope.FileNam = data.FileName;
+        var extention = str.substr(str.indexOf('.'));
+        $scope.dwonloadUrl = virtualPath.EmployeeDocument + '/' + data.FileId + extention;
     };
 
     // #region Document
