@@ -117,6 +117,17 @@ where P.Id='" + Pid + "'";
             }
         }
 
+
+        [Authorize, HttpGet]
+        public JsonResult GetReasonNameLists()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var sql = @"select Id as Value,UserName as Text from [HKP].[QualityManagementReasonMaster]";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
         public ActionResult createParaMaster(Dictionary<string, object> data)
         {
@@ -681,6 +692,24 @@ P.UserReportGroup,QPC.Remarks
         }
 
         [HttpPost]
+        public ActionResult ReasonDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from [MST].[QualityManagementParameterReason] where Id ='" + id + @"'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost]
         public ActionResult createProcess(List<Dictionary<string, object>> DataList,string Pid)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -764,6 +793,24 @@ P.UserReportGroup,QPC.Remarks
             }
         }
 
+        [HttpPost]
+        public ActionResult ReasonMasterDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from [HKP].[QualityManagementReasonMaster] where Id ='" + id + @"'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         [Authorize, HttpGet]
         public ActionResult LoadFrequencyList(string ParameterId)
         {
@@ -836,6 +883,15 @@ FROM [MST].[QualityManagementParameterItem] QMP where Id ='" + ItemId + "'";
         }
 
         [Authorize, HttpGet]
+        public ActionResult LoadReasonEditData(string ReasonId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"select * from [MST].[QualityManagementParameterReason] where Id='" + ReasonId + @"'";
+            return Json(new { Reason = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public ActionResult LoadItemDetails(string ScheduleId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -858,10 +914,28 @@ FROM [MST].[QualityManagementParameterItem] QMP where QMID ='" + ScheduleId + "'
         }
 
         [Authorize, HttpGet]
+        public ActionResult getReasonData(string ParameterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT QPR.*,QRM.UserName ReasonName FROM [MST].[QualityManagementParameterReason] QPR
+left join [HKP].[QualityManagementReasonMaster] QRM on QRM.Id=QPR.ReasonId
+where QPR.ParameterId ='" + ParameterId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public ActionResult getFrequency()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT * FROM [HKP].[QualityManagementFrequency] order by SNO";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult getReasonMaster()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT * FROM [HKP].[QualityManagementReasonMaster] order by SNO";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -872,6 +946,15 @@ FROM [MST].[QualityManagementParameterItem] QMP where QMID ='" + ScheduleId + "'
 
             string sql = @"select * FROM [HKP].[QualityManagementFrequency] QMF where QMF.Id='" + FrequencyId + @"' order by SNO";
             return Json(new { frequency = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult getReasonMasterData(string ReasonId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"select * FROM [HKP].[QualityManagementReasonMaster] QMR where QMR.Id='" + ReasonId + @"' order by SNO";
+            return Json(new { ReasonMaster = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
@@ -1011,6 +1094,76 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
         }
 
         [HttpPost]
+        public JsonResult CreateReason(Dictionary<string, object> ReasonData, string Pid)
+        {
+            try
+            {
+
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementParameterReason] where ReasonId='" + ReasonData["ReasonId"] + "' and ParameterId='" + Pid + "'", out DataSet dsQualityManagementParameterReasonValidation, false, "1");
+
+                DataSet dsQualityManagementParameterReason;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementParameterReason] where Id='" + ReasonData["Id"] + "'", out dsQualityManagementParameterReason, false, "1");
+                string _Id = "";
+
+                #region data update
+                if (ReasonData["SNO"] == null)
+                {
+                    throw new Exception("SNO is required");
+                }
+                else
+                {
+                    if (ReasonData["ReasonId"] == null)
+                    {
+                        throw new Exception("Reason is required");
+                    }
+                    else
+                    {
+                        if (dsQualityManagementParameterReason.Tables[0].Rows.Count == 0)
+                        {
+                            if (dsQualityManagementParameterReasonValidation.Tables[0].Rows.Count > 0)
+                            {
+                                throw new Exception("Reason Name Already Exist.");
+                            }
+                            else
+                            {
+                                bplib.clsGenID genid = new bplib.clsGenID();
+                                genid.GenID("QualityManagementParameterReason", out _Id);
+                                _Id = "QPR" + _Id;
+                                ReasonData["Id"] = _Id;
+                                ReasonData["ParameterId"] = Pid;
+                                AddNewRow(dsQualityManagementParameterReason.Tables[0], ReasonData);
+                            }
+                        }
+                        else
+                        {
+                            _Id = ReasonData["Id"].ToString();
+                            ReasonData["ParameterId"] = Pid;
+                            EditRow(dsQualityManagementParameterReason.Tables[0].Rows[0], ReasonData);
+                        }
+                    }
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsQualityManagementParameterReason);
+
+                return Json(new { Error = false, Data = ReasonData, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpPost]
         public JsonResult createFrequency(Dictionary<string, object> FrequencyData)
         {
             try
@@ -1047,6 +1200,53 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
                 _info.SaveDataSets(dsQualityManagementFrequency);
 
                 return Json(new { Error = false, Data = FrequencyData, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpPost]
+        public JsonResult createReasonMaster(Dictionary<string, object> ReasonMasterData)
+        {
+            try
+            {
+
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [HKP].[QualityManagementReasonMaster] where UserName='" + ReasonMasterData["UserName"] + "'", out DataSet dsQualityManagementReasonMasterReasonValidation, false, "1");
+
+                DataSet dsQualityManagementReasonMaster;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [HKP].[QualityManagementReasonMaster] where Id='" + ReasonMasterData["Id"] + "'", out dsQualityManagementReasonMaster, false, "1");
+                string _Id = "";
+
+                #region data update
+                if (dsQualityManagementReasonMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("QualityManagementReasonMaster", out _Id);
+                    _Id = "QMR" + _Id;
+                    ReasonMasterData["Id"] = _Id;
+                    AddNewRow(dsQualityManagementReasonMaster.Tables[0], ReasonMasterData);
+                }
+                else
+                {
+                    _Id = ReasonMasterData["Id"].ToString();
+                    EditRow(dsQualityManagementReasonMaster.Tables[0].Rows[0], ReasonMasterData);
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsQualityManagementReasonMaster);
+
+                return Json(new { Error = false, Data = ReasonMasterData, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)

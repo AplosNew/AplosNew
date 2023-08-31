@@ -57,25 +57,58 @@
                     <thead>
                         <tr>
                             <th>Leave Name</th>
-                            <th>Opeaning Balance</th>
-                            <th>Allocated</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Brought Forward</th>
+                            <th>Current Period Allocation</th>
+                            <th>Leave Days Allowed</th>
                             <th>Applied</th>
                             <th>Availed</th>
-                            <th>Closing Balance</th>
+                            <th>Encashed</th>
+                            <th>Balance</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr ng-repeat="x in LeaveBalanceList">
                             <td>{{x.LeaveName}}</td>
-                            <td>{{(x.CarryForwardOpeningBalance+x.BroughtForward).toFixed(2)}}</td>
-                            <td>{{(x.CurrentYearAllocation).toFixed(2)}}</td>
-                            <td>{{(x.AppliedLeave).toFixed(2)}}</td>
-                            <td>{{(x.AvailedDays).toFixed(2)}}</td>
-                            <td>{{(x.CarryForwardOpeningBalance+x.BroughtForward+x.CurrentYearAllocation-x.AvailedDays).toFixed(2)}}</td>
+                            <td>{{x.FromDate}}</td>
+                            <td>{{x.ToDate}}</td>
+                            <td>{{x.BroughtForward}}</td>
+                            <td>{{x.CurrentAllocation}}</td>
+                            <td>{{x.LeaveDays}}</td>
+                            <td>{{x.Applied}}</td>
+                            <td>{{x.Availed}}</td>
+                            <td>{{x.EncashedInbetween}}</td>
+                            <td>{{x.Balance}}</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+
+            @*<div class="table-responsive modal-table">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Leave Name</th>
+                        <th>Opeaning Balance</th>
+                        <th>Allocated</th>
+                        <th>Applied</th>
+                        <th>Availed</th>
+                        <th>Closing Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in LeaveBalanceList">
+                        <td>{{x.LeaveName}}</td>
+                        <td>{{(x.CarryForwardOpeningBalance+x.BroughtForward).toFixed(2)}}</td>
+                        <td>{{(x.CurrentYearAllocation).toFixed(2)}}</td>
+                        <td>{{(x.AppliedLeave).toFixed(2)}}</td>
+                        <td>{{(x.AvailedDays).toFixed(2)}}</td>
+                        <td>{{(x.CarryForwardOpeningBalance+x.BroughtForward+x.CurrentYearAllocation-x.AvailedDays).toFixed(2)}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>*@
             @*<label ng-model="leaveApplicationNew.ExceptionLeave">You are taking  exception  leave  </label>*@
         </div>
     </div>
