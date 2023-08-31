@@ -781,9 +781,10 @@ LEFT JOIN
 										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
 											)ALP ON ALP.EmployeeId=els.EmployeeId AND lt.Id=ALP.LeaveTypeId
 										 left outer join (
-															select sum(m.LeaveDays) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m
-                            where  (FromDate between '" + _FromDate + @"' and '" + _ToDate + @"') and (ToDate between '" + _FromDate + @"' and '" + _ToDate + @"')
-                                                    group by EmpSystemID,LTSystemID
+															Select Sum(LTD.LeaveDuration) ldays,LT.EmpSystemID,LT.LTSystemID  from LeaveTransaction LT
+                                                            Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
+                                                            Where WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
+                                                            group by LT.EmpSystemID,LT.LTSystemID
 														)ltrn on ltrn.EmpSystemID = els.EmployeeId and ltrn.LTSystemId = els.LeaveTypeId
 										 left outer join (
 																select sum(c) av,EmpSystemID,LTSystemID from
