@@ -6,7 +6,8 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
     $scope.path = 'Productions/QualityActionUpdate/';
     $scope.saveUrlActionTaken = $scope.path + 'createActionTaken';
     $scope.ParameterStatusLists = [];
-
+    var date = new Date(), y = date.getFullYear(), m = date.getMonth();
+    date.setDate(date.getDate() - 10);
     $scope.ParameterStatusLists = [
         {
             'Value': 'InProgress',
@@ -35,8 +36,8 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
    
     $scope.status = {
         Id: null,
-        FromDate: null,
-        ToDate: null,
+        FromDate: $filter('dateFiltering')(date, 'dd-MM-yyyy'),
+        ToDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy'),
         ActResponsiblePerson: $window.employeeName,
         ActResponsiblePersonId: $window.employeeId
     };
@@ -116,8 +117,8 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
     function ClearFields() {
         $scope.status = {
             Id: null,
-            FromDate: null,
-            ToDate: null,
+            FromDate: $filter('dateFiltering')(date, 'dd-MM-yyyy'),
+            ToDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy'),
             ActResponsiblePerson: null,
             ActResponsiblePerson: null
         };
@@ -178,27 +179,62 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
         )
     }
 
+    //$scope.ActionTakenSave = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.saveUrlActionTaken,
+    //        data: { 
+    //            'ActionTakenData': $scope.ActionTakenUpdateNew,
+    //            'Pid': $scope.QAUParameterId
+    //        },
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        if (response.data.Error === true) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
+    //        else {
+    //            ShowResult(response.data.Message, 'success');
+    //            $scope.getActionTaken($scope.QAUParameterId);
+    //            ActionTakenClearFields();
+
+    //        }
+    //    }), function errorCallBack(response) {
+    //        ShowResult(response.data.Message, 'failure');
+    //    }
+    //};
+
     $scope.ActionTakenSave = function () {
-        $http({
-            method: 'POST',
-            url: $scope.saveUrlActionTaken,
-            data: { 
-                'ActionTakenData': $scope.ActionTakenUpdateNew,
-                'Pid': $scope.QAUParameterId
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
+        try {
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.QualityActionTakenDetailsList.length; i++) {
+                if (!baseService.isUndefinedOrNull($scope.QualityActionTakenDetailsList[i].ActionTaken)) {
+                    $scope.SaveList.push($scope.QualityActionTakenDetailsList[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlActionTaken,
+                data: {
+                    'DataList': $scope.SaveList,
+                    'PId': $scope.QAUParameterId,
+                    'Status': $scope.ActionTakenUpdateNew.ParameterStatus
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    //$scope.getActionTaken($scope.QAUParameterId, $scope.QAUItemId);
+                    //ActionTakenClearFields();
+                }
+            }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.getActionTaken($scope.QAUParameterId);
-                ActionTakenClearFields();
-
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
+        }
+        catch (ex) {
+            ShowResult(ex, 'Info');
         }
     };
 
