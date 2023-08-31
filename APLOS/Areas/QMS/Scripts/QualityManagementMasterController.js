@@ -6,6 +6,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.CategoryLists = [];
     $scope.ModelList = [];
     $scope.ReasonCategoryLists = [];
+    $scope.TypeLists = [];
     $scope.Action = 'Save';
     $scope.path = 'QMS/QualityManagementMaster/';
     $scope.saveUrl = $scope.path + 'create';
@@ -84,6 +85,29 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         {
             'Value': 'Other',
             'Text': 'Other'
+        }
+    ];
+
+    $scope.TypeLists = [
+        {
+            'Value': 'HighlyCritical',
+            'Text': 'Highly Critical'
+        },
+        {
+            'Value': 'Critical',
+            'Text': 'Critical'
+        },
+        {
+            'Value': 'SemiCritical',
+            'Text': 'Semi Critical'
+        },
+        {
+            'Value': 'Important',
+            'Text': 'Important'
+        },
+        {
+            'Value': 'Normal',
+            'Text': 'Normal'
         }
     ];
     

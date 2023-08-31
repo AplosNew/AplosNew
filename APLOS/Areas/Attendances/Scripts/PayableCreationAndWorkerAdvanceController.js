@@ -54,7 +54,11 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         EmployeeCode: null,
         EmployeeName: null,
         PayDays: null,
-        Amount: null
+        RatePerDay: null,
+        RatePerHour: null,
+        Amount: null,
+        AdvanceGiven: 0,
+        NetPayable: null,
     };
     $scope.ModelWADNew = Object.assign({}, $scope.ModelWADTemp);
 
@@ -429,6 +433,8 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.getCalulationAmount = function () {
         for (var i = 0; i < $scope.EmployeeMainList.length; i++) {
             $scope.EmployeeMainList[i].Amount = Math.floor($scope.EmployeeMainList[i].Basic / 26 * $scope.EmployeeMainList[i].PayDays * $scope.ModelNew.Percentage / 100);
+            $scope.EmployeeMainList[i].NetPayable = $scope.EmployeeMainList[i].Amount - $scope.EmployeeMainList[i].AdvanceGiven;
+
         }
     }
     //*********************************** Worker Advance End********************************************************//
@@ -459,7 +465,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         Payment: null,
         RatePerDay: null,
         RatePerHour: null,
-        AdvanceGiven: null,
+        AdvanceGiven: 0,
         NetPayable: null,
         PaymentChildId: null
     };

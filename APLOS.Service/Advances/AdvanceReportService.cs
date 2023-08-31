@@ -1644,47 +1644,23 @@ namespace Library.Service.Advances
 
             var _row = 5;
             var shet2EndxlsCol = 1;
-
-            //report.SetMasterHeaderText(ref sheet, _row, 1, "InvoiceNumber");
-            //report.SetText(ref sheet, _row, 2, headerData["InvoiceNumber"].ToString());
-            //sheet[report.GetColumnNameForXls(2) + _row + ":" + report.GetColumnNameForXls(3) + _row].Merge();
-            //_row++;
-            //report.SetMasterHeaderText(ref sheet, _row, 1, "Expeses Date");
-            //report.SetText(ref sheet, _row, 2, headerData["InvoiceDate"].ToString());
-            //sheet[report.GetColumnNameForXls(2) + _row + ":" + report.GetColumnNameForXls(3) + _row].Merge();
-            //_row++;
-
+                       
             report.SetMasterHeaderText(ref sheet, _row, 1, "Employee");
             report.SetText(ref sheet, _row, 2, headerData["EmployeeName"].ToString());
             sheet[report.GetColumnNameForXls(2) + _row + ":" + report.GetColumnNameForXls(3) + _row].Merge();
             _row++;
 
+            report.SetMasterHeaderText(ref sheet, _row, 1, "Requisition No");
+            report.SetText(ref sheet, _row, 2, employeeAdvanceRequisitionId);
+            sheet[report.GetColumnNameForXls(1) + _row + ":" + report.GetColumnNameForXls(3) + _row].Merge();
+            _row++;
+
             var _rowL = 11;
 
-            //report.SetMasterHeaderText(ref sheet, _row, 1, "Narration");
-            //report.SetText(ref sheet, _row, 2, headerData["Narration"].ToString());
-            //sheet.Range[_row, 2].RowHeight = 45;
-            //sheet[report.GetColumnNameForXls(2) + _row + ":" + report.GetColumnNameForXls(3) + _row].Merge();
-            //sheet.Range[_row, 1, _row, 3].VerticalAlignment = ExcelVAlign.VAlignTop;
-
-            //_row++;
+            
             var _rowR = 5;
 
-            //report.SetMasterHeaderText(ref sheet, _rowR, 4, "Voucher Date");
-            //report.SetText(ref sheet, _rowR, 5, headerData["VoucherDate"].ToString());
-            //sheet[report.GetColumnNameForXls(5) + _rowR + ":" + report.GetColumnNameForXls(6) + _rowR].Merge();
-
-            //_rowR++;
-            //report.SetMasterHeaderText(ref sheet, _rowR, 4, "Approved By");
-            //report.SetText(ref sheet, _rowR, 5, headerData["ApprovedByName"].ToString());
-            //sheet[report.GetColumnNameForXls(5) + _rowR + ":" + report.GetColumnNameForXls(6) + _rowR].Merge();
-
-            //_rowR++;
-            //report.SetMasterHeaderText(ref sheet, _rowR, 4, "Checked By");
-            //report.SetText(ref sheet, _rowR, 5, headerData["ResponsiblePersonName"].ToString());
-            //sheet[report.GetColumnNameForXls(5) + _rowR + ":" + report.GetColumnNameForXls(6) + _rowR].Merge();
-
-            //_rowR++;
+            
             report.SetMasterHeaderText(ref sheet, _rowR, 4, "Status");
             report.SetText(ref sheet, _rowR, 5, headerData["ApprovalStatus"].ToString());
             sheet[report.GetColumnNameForXls(5) + _rowR + ":" + report.GetColumnNameForXls(6) + _rowR].Merge();
@@ -1721,7 +1697,10 @@ namespace Library.Service.Advances
                 report.SetText(ref sheet, _rowL, drcrCol, data[n]["RequisitionAddedDate"].ToString()); drcrCol++;
                 report.SetText(ref sheet, _rowL, drcrCol, data[n]["RequisitionRequiredDate"].ToString()); drcrCol++;
                 report.SetText(ref sheet, _rowL, drcrCol, data[n]["AdvanceType"].ToString()); drcrCol++;
-                report.SetText(ref sheet, _rowL, drcrCol, data[n]["Remarks"].ToString()); drcrCol++;
+                report.SetText(ref sheet, _rowL, drcrCol, data[n]["Remarks"].ToString());
+                sheet[_rowL, drcrCol].RowHeight = 27;
+                sheet[_rowL, drcrCol].WrapText = true;
+                drcrCol++;
                 report.SetText(ref sheet, _rowL, drcrCol, Convert.ToDouble(data[n]["Amount"].ToString())); drcrCol++;
                 _Total_Amount += Convert.ToDouble(data[n]["Amount"].ToString());
             }
@@ -1753,6 +1732,17 @@ namespace Library.Service.Advances
             sheet.Range[report.GetColumnNameForXls(2) + _rowL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
             sheet.Range[report.GetColumnNameForXls(2) + _rowL].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[report.GetColumnNameForXls(2) + _rowL].CellStyle.Font.Bold = true;
+            _rowL++;
+            _rowL++;
+            _rowR= _rowL;
+            report.SetSignatureText(ref sheet, _rowL - 1, 3, headerData["CheckedBy"].ToString());
+            sheet.Range[_rowL, 3].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+            report.SetTextMiddle(ref sheet, _rowL, 3, "Checked By", true);
+            sheet[_rowL, 3].ColumnWidth = 25;
+
+            report.SetSignatureText(ref sheet, _rowR - 1, 5, headerData["ApprovedBy"].ToString());
+            sheet.Range[_rowR, 5].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+            report.SetTextMiddle(ref sheet, _rowR, 5, "Approved By", true);
 
             _rowL = _rowL + 4;
 
