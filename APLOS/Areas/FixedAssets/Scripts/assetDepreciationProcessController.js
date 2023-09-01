@@ -9,10 +9,10 @@ function assetDepreciationProcessController(cboService, commonMessage, $scope, $
 
     $scope.depreciationProcess = {
         FiscalYearId: null,
-        //FromDate: $filter("dateFiltering")(Date.now()),
         ToDate: $filter("dateFiltering")(Date.now()),
         StartDate: null,
-        EndDate: null
+        EndDate: null,
+        ProcessName: null
     };
 
     $http({
@@ -43,139 +43,6 @@ function assetDepreciationProcessController(cboService, commonMessage, $scope, $
         }
     }
 
-    $scope.tempList = [];
-    $scope.paymentSelectedList = [];
-    $scope.multiplevendorInvoiceSearchList = [
-        {
-            "name": "Customer Code",
-            "value": "PartyCode"
-        },
-        {
-            "name": "Customer Name",
-            "value": "PartyName"
-        }
-
-    ];
-    $scope.popUpParameters = {
-        limit: 10,
-        offset: 0,
-        order: 'ASC',
-        sort: 'PartyName',
-        searchBy: 'PartyName',
-        pageSize: 10,
-        total_count: 0,
-        search: null,
-        serverPagination: true
-    };
-
-    function avoidCheckList(id) {
-        for (var i = 0; i < $scope.paymentSelectedList.length; i++) {
-            if ($scope.paymentSelectedList[i].PartyCode === id) {
-                return true;
-                break;
-            }
-        }
-        return false;
-    }
-    $scope.getPopupCustomerList = function () {
-        $scope.tempList = [];
-        $scope.customerreceivableGLData = function (pageno) {
-            $scope.customerReceivableGLUrl1 = 'accounts/AccountStatusDashboard/GetCustomerListForConfirmation?fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&paymentStatus=' + $scope.report.PaymentStatus;
-            baseService.paginationBase($scope.customerReceivableGLUrl1, pageno, $scope.popUpParameters)
-                .then(function (result) {
-                    try {
-                        $scope.paymentList = [];
-                        angular.forEach(result.DATA.Rows, function (item) {
-                            if (avoidCheckList(item.PartyCode) === false) {
-                                $scope.paymentList.push(item);
-                            }
-                        })
-                        $scope.popUpParameters.total_count = result.Total;
-                        for (var i = 0; i < $scope.paymentList.length; i++) {
-                            $scope.paymentList[i].Active = getActive($scope.tempList, $scope.paymentList[i].PartyCode);
-                        }
-                    } catch (e) {
-                        ShowResult(e, 'Error');
-                    }
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, 'failure');
-                }).finally(function () {
-                });
-        };
-        angular.element(document.querySelector('#CustomerListPopUP')).modal('show');
-        $scope.customerreceivableGLData();
-    };
-    $scope.closePopUp = function () {
-        angular.element(document.querySelector('#CustomerListPopUP')).modal('hide');
-    };
-    $scope.changeDateType = function (type) {
-        $scope.multiplePayment.DateType = type;
-    }
-    function getActive(list, id) {
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].PartyCode === id) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-    $scope.pushInTempList = function (event, data) {
-        try {
-            if (event.currentTarget.checked) {
-                if (checkExistTempList($scope.tempList, data.PartyCode) === false) {
-                    $scope.tempList.push(data);
-                }
-                else {
-                    for (var i = 0; i < baseService.arrayLength($scope.tempList); i++) {
-                        if ($scope.tempList[i].PartyCode === data.PartyCode) {
-                            $scope.tempList.splice(i, 1);
-                            break;
-                        }
-                    }
-
-                    $scope.tempList.push(data);
-                }
-            }
-            else {
-                for (var t = 0; t < baseService.arrayLength($scope.tempList); t++) {
-                    if ($scope.tempList[t].PartyCode === data.PartyCode) {
-                        $scope.tempList.splice(t, 1);
-                        break;
-                    }
-                }
-            }
-        } catch (e) {
-            event.currentTarget.checked = false;
-            ShowResult(e, "failure");
-        }
-    }
-
-    function checkExistTempList(list, id) {
-        for (var i = 0; i < baseService.arrayLength(list); i++) {
-            if (list[i].PartyCode === id) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    var NewCustomerSelectedList = [];
-    $scope.closePopUp = function () {
-        NewCustomerSelectedList = [];
-        for (var i = 0; i < $scope.tempList.length; i++) {
-
-            if (NewCustomerSelectedList, $scope.tempList[i].PartyId) {
-                NewCustomerSelectedList.push($scope.tempList[i].PartyId);
-            }
-
-        }
-        if (NewCustomerSelectedList.length > 0) {
-            $scope.getcustomerInvoiceList();
-        }
-
-        angular.element(document.querySelector('#CustomerListPopUP')).modal('hide');
-    };
     $scope.fixedAssetMastersList = [];
     $scope.getFixedAssetMastersData = function () {
         $scope.ToDatevalidation();
@@ -280,35 +147,34 @@ function assetDepreciationProcessController(cboService, commonMessage, $scope, $
         if (baseService.isUndefinedOrNull($scope.depreciationProcess.ToDate)) {
             ShowResult('Please select To Date!', 'failure');
             $scope.invalidDocDate = true;
-            //msg = "Please select To Date!";
             return;
         }
         else if (baseService.isUndefinedOrNull($scope.depreciationProcess.FiscalYearId)) {
             ShowResult('Please select Fiscal Year!', 'failure');
             $scope.invalidDocDate = true;
-            //msg = "Please select To Date!";
+            return;
+        }
+        else if (baseService.isUndefinedOrNull($scope.depreciationProcess.ProcessName) || $scope.depreciationProcess.ProcessName==="") {
+            ShowResult('Please Insert User Name!', 'failure');
+            $scope.invalidDocDate = true;
             return;
         }
         else if (new Date($scope.depreciationProcess.ToDate) > new Date()) {
             ShowResult('ToDate must be below or equal to current Date!', 'failure');
             $scope.invalidDocDate = true;
-            //msg = "ToDate must be below or equal to current Date!";
             return;
         }
         else if (new Date($scope.depreciationProcess.StartDate) > new Date($scope.depreciationProcess.ToDate)) {
             ShowResult('To Date must be greater or equal to Fiscal Year Start Date!', 'failure');
-            //msg = "To Date must be greater or equal to Fiscal Year Start Date!";
             $scope.invalidDocDate = true;
             return;
         }
         else if (new Date($scope.depreciationProcess.EndDate) < new Date($scope.depreciationProcess.ToDate)) {
             ShowResult('To Date must be less or equal to Fiscal Year End Date!', 'failure');
-            //msg = "To Date must be less or equal to Fiscal Year End Date!";
             $scope.invalidDocDate = true;
             return;
         }
-        //else $scope.invalidDocDate = false;
-        //return manualValidation("div_ToDate", $scope.invalidDocDate, msg);
+        
     }
     $scope.Save = function () {
         $scope.ToDatevalidation();
@@ -340,7 +206,8 @@ function assetDepreciationProcessController(cboService, commonMessage, $scope, $
                 data: {
                     selectedAssetMastersList: selectedAssetMastersList,
                     fiscalYearId: $scope.depreciationProcess.FiscalYearId,
-                    toDate: $scope.depreciationProcess.ToDate
+                    toDate: $scope.depreciationProcess.ToDate,
+                    processName: $scope.depreciationProcess.ProcessName
                 },
                 dataType: 'JSON'
             }).then(function (response) {

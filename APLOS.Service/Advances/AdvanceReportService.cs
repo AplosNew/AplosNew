@@ -1642,49 +1642,26 @@ namespace Library.Service.Advances
 
             var headerData = EmployeeAdvanceReportHeaderPortal(companyGroupId, companyId, plantId, employeeAdvanceRequisitionId);
 
-            var _row = 5;
+            //report.SetText(ref sheet, 5, 3, "MONEY REQUISITION");
+            //sheet[5, 3]. = true;
+            var _row = 6;
             var shet2EndxlsCol = 1;
-
-            //report.SetMasterHeaderText(ref sheet, _row, 1, "InvoiceNumber");
-            //report.SetText(ref sheet, _row, 2, headerData["InvoiceNumber"].ToString());
-            //sheet[report.GetColumnNameForXls(2) + _row + ":" + report.GetColumnNameForXls(3) + _row].Merge();
-            //_row++;
-            //report.SetMasterHeaderText(ref sheet, _row, 1, "Expeses Date");
-            //report.SetText(ref sheet, _row, 2, headerData["InvoiceDate"].ToString());
-            //sheet[report.GetColumnNameForXls(2) + _row + ":" + report.GetColumnNameForXls(3) + _row].Merge();
-            //_row++;
-
+                       
             report.SetMasterHeaderText(ref sheet, _row, 1, "Employee");
             report.SetText(ref sheet, _row, 2, headerData["EmployeeName"].ToString());
             sheet[report.GetColumnNameForXls(2) + _row + ":" + report.GetColumnNameForXls(3) + _row].Merge();
             _row++;
 
+            report.SetMasterHeaderText(ref sheet, _row, 1, "Requisition No");
+            report.SetText(ref sheet, _row, 2, employeeAdvanceRequisitionId);
+            _row++;
+
             var _rowL = 11;
 
-            //report.SetMasterHeaderText(ref sheet, _row, 1, "Narration");
-            //report.SetText(ref sheet, _row, 2, headerData["Narration"].ToString());
-            //sheet.Range[_row, 2].RowHeight = 45;
-            //sheet[report.GetColumnNameForXls(2) + _row + ":" + report.GetColumnNameForXls(3) + _row].Merge();
-            //sheet.Range[_row, 1, _row, 3].VerticalAlignment = ExcelVAlign.VAlignTop;
-
-            //_row++;
+            
             var _rowR = 5;
 
-            //report.SetMasterHeaderText(ref sheet, _rowR, 4, "Voucher Date");
-            //report.SetText(ref sheet, _rowR, 5, headerData["VoucherDate"].ToString());
-            //sheet[report.GetColumnNameForXls(5) + _rowR + ":" + report.GetColumnNameForXls(6) + _rowR].Merge();
-
-            //_rowR++;
-            //report.SetMasterHeaderText(ref sheet, _rowR, 4, "Approved By");
-            //report.SetText(ref sheet, _rowR, 5, headerData["ApprovedByName"].ToString());
-            //sheet[report.GetColumnNameForXls(5) + _rowR + ":" + report.GetColumnNameForXls(6) + _rowR].Merge();
-
-            //_rowR++;
-            //report.SetMasterHeaderText(ref sheet, _rowR, 4, "Checked By");
-            //report.SetText(ref sheet, _rowR, 5, headerData["ResponsiblePersonName"].ToString());
-            //sheet[report.GetColumnNameForXls(5) + _rowR + ":" + report.GetColumnNameForXls(6) + _rowR].Merge();
-
-            //_rowR++;
+            
             report.SetMasterHeaderText(ref sheet, _rowR, 4, "Status");
             report.SetText(ref sheet, _rowR, 5, headerData["ApprovalStatus"].ToString());
             sheet[report.GetColumnNameForXls(5) + _rowR + ":" + report.GetColumnNameForXls(6) + _rowR].Merge();
@@ -1707,7 +1684,7 @@ namespace Library.Service.Advances
             report.SetHeaderText(ref sheet, _rowL - 1, headreColIndex, companyCurrencyCode, 11, ExcelHAlign.HAlignCenter);
 
             report.SetHeaderText(ref sheet, _rowL, headreColIndex, "Amount", ExcelHAlign.HAlignCenter);
-
+            sheet.Range[_rowL, headreColIndex].ColumnWidth = 18;
             shet2EndxlsCol = headreColIndex;
 
             double vAmount = 0;
@@ -1721,7 +1698,10 @@ namespace Library.Service.Advances
                 report.SetText(ref sheet, _rowL, drcrCol, data[n]["RequisitionAddedDate"].ToString()); drcrCol++;
                 report.SetText(ref sheet, _rowL, drcrCol, data[n]["RequisitionRequiredDate"].ToString()); drcrCol++;
                 report.SetText(ref sheet, _rowL, drcrCol, data[n]["AdvanceType"].ToString()); drcrCol++;
-                report.SetText(ref sheet, _rowL, drcrCol, data[n]["Remarks"].ToString()); drcrCol++;
+                report.SetText(ref sheet, _rowL, drcrCol, data[n]["Remarks"].ToString());
+                sheet[_rowL, drcrCol].RowHeight = 27;
+                sheet[_rowL, drcrCol].WrapText = true;
+                drcrCol++;
                 report.SetText(ref sheet, _rowL, drcrCol, Convert.ToDouble(data[n]["Amount"].ToString())); drcrCol++;
                 _Total_Amount += Convert.ToDouble(data[n]["Amount"].ToString());
             }
@@ -1746,19 +1726,33 @@ namespace Library.Service.Advances
 
             vAmount = vAmount / 2;
             _rowL += 1;
-
+            _rowL++;
             report.SetText(ref sheet, _rowL, 1, "In Word:", true);
             sheet.Range[report.GetColumnNameForXls(2) + _rowL].Text = report.InWord(_Total_Amount, companyCurrencyId);
             sheet.Range[report.GetColumnNameForXls(2) + _rowL + ":" + report.GetColumnNameForXls(shet2EndxlsCol) + _rowL].Merge();
             sheet.Range[report.GetColumnNameForXls(2) + _rowL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
             sheet.Range[report.GetColumnNameForXls(2) + _rowL].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[report.GetColumnNameForXls(2) + _rowL].CellStyle.Font.Bold = true;
+            _rowL++;
+            _rowL++;
+            _rowL++;
+            _rowL++;
+            _rowR= _rowL;
+            report.SetSignatureText(ref sheet, _rowL - 1, 2, headerData["CheckedBy"].ToString());
+            sheet.Range[_rowL, 2].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+            report.SetTextMiddle(ref sheet, _rowL, 2, "Checked By", true);
+            //sheet[_rowL, 2].ColumnWidth = 25;
+
+            report.SetSignatureText(ref sheet, _rowR - 1, 4, headerData["ApprovedBy"].ToString());
+            //sheet.Range[_rowR, 4].ColumnWidth = 18;
+            sheet.Range[_rowR, 4].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+            report.SetTextMiddle(ref sheet, _rowR, 4, "Approved By", true);
 
             _rowL = _rowL + 4;
 
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
-            report.CompanyPlantHeader(ref sheet, shet2EndxlsCol, "Employee Advance", companyId, plantId, plantName, null);
+            report.CompanyPlantHeader(ref sheet, shet2EndxlsCol, "Employee Advance Money Requisition", companyId, plantId, plantName, null);
             report.PageSetup(ref sheet, 5, ExcelPageOrientation.Portrait);
             return workbook;
         }
