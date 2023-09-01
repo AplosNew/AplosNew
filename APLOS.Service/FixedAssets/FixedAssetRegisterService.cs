@@ -3032,7 +3032,8 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN ORG.Entity EN  ON EN.Id=VD.EntityId
 									LEFT JOIN [ORG].[CostCenter] CC ON CC.Id=VD.CostCenterId
                                    WHERE V.SourceType IN('VendorInvoice','JournalVoucher','EmployeePayable') AND V.IsPark=0 AND VD.DrAmount>0
-								   AND ATY.Id='Expense' AND VD.Id NOT IN (Select ISNULL([VoucherDetailId],'') from [TRN].[CapitalizationMasterDetail])) AS TEMP WHERE " + strkey + "";
+								   --AND ATY.Id='Expense' 
+                                   AND VD.Id NOT IN (Select ISNULL([VoucherDetailId],'') from [TRN].[CapitalizationMasterDetail])) AS TEMP WHERE " + strkey + "";
                 }
 
                 return _sqlRepository.GetDataCollection(CmdText);

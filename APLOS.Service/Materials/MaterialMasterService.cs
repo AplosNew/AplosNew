@@ -1584,10 +1584,15 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 							,BM.RefNo BudgetRefNo,B.UserName BudgetName
 							,A.Code ActivityCode,A.UserName AcitivtyName
 							,FM.UserName FixedAssetMaster
-,MachineDefinition=CASE WHEN BB.BusinessProcessName='MachineDefinition' THEN 'Yes' ELSE 'No' END
-                            ,Active = case when M.Active=0 then 'No' else 'Yes' end
+                            ,MachineDefinition=CASE WHEN BB.BusinessProcessName='MachineDefinition' THEN 'Yes' ELSE 'No' END
+                            ,Active = case when M.Active=0 then 'No' else 'Yes' end,HSN.Code HSNCode,HSNP.Percentage TaxPercentage
 							FROM MST.MaterialMaster M
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.MaterialMasterId=M.Id
+                            LEFT JOIN HKP.HSNCode HSN ON HSN.Id=MMA.HSNCodeId
+                            LEFT JOIN (
+							SELECT P.Percentage,P.HSNCodeId,TC.Code FROM [MST].[HSNTaxPercentage] P 
+							LEFT JOIN [MST].[TaxCategory] TC ON TC.Id=P.TaxCategoryId 
+							) HSNP ON HSN.Id=HSNP.HSNCodeId AND HSNP.Code='IGST'
 							LEFT JOIN [MST].[MaterialGroupMaster] MGM ON M.MaterialGroupMasterid=MGM.id
 							LEFT JOIN [HKP].[MaterialType] T ON T.Id=MGM.MaterialTypeId
 							LEFT JOIN [HKP].[MaterialCategory] MC ON MC.Id=M.MaterialCategoryId

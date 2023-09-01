@@ -238,7 +238,7 @@ function assetInventoryIssueController($window,cboService, commonMessage, $scope
         $scope.detailPopUp();
         var gridObj = $("#popUpData").data("ejGrid");
         var ob = gridObj.getSelectedRecords()[0];
-        var getRow = $filter("filter")($scope.detailList, { "InventoryReceiveDetailId": ob.InventoryReceiveDetailId });
+        var getRow = $filter("filter")($scope.detailList, { "InventoryReceiveDetailId": ob.InventoryReceiveDetailId, "MaterialMasterId": ob.MaterialMasterId, "ArticleId":ob.ArticleId});
 
         // if (!ob.hasInventory) return ShowResult('Material stock does not exist.', '', 'materialMasterbyTypePopup');
         if (getRow.length == 0) {

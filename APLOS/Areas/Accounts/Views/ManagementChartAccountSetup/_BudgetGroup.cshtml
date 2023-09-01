@@ -71,13 +71,13 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-3 col-md-3">
                     <div class="select-style">
-                        <select ng-model="BGparameters.searchBy">
-                            <option ng-repeat="option in searchByBGList" value="{{option.value}}">{{option.name}}</option>
+                        <select ng-model="searchBGBy">
+                            <option ng-repeat="option in searchByBgtList" value="{{option.value}}">{{option.name}}</option>
                         </select>
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="BGparameters.search" ng-enter="getDataBG()">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="searchBG" ng-enter="getDataBG()">
                 </div>
                 <div class="col-xs-12 col-sm-2 col-md-2">
                     <button type="button" ng-click="getDataBG()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
@@ -85,30 +85,21 @@
             </div>
         </div>
     </div>
+    
 </div>
 <div class="table-responsive modal-table aplos-grid-toggle">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Sequence</th>
-                <th>Code</th>
-                <th>Short Name</th>
-                <th>Standard Name</th>
-                <th>User Name</th>
-                <th>Active</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr dir-paginate="x in budgetGroups |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="GetBG(x.Id, $index);">
-                <td>{{x.Sequence}}</td>
-                <td>{{x.Code}}</td>
-                <td>{{x.ShortName}}</td>
-                <td>{{x.StandardName}}</td>
-                <td>{{x.UserName}}</td>
-                <td>{{x.Active?'Yes':'No'}}</td>
-            </tr>
-        </tbody>
-    </table>
-    <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getDataBG(newPageNumber)"></dir-pagination-controls>
+    <div id="GridBG" ng-init="chkinit2()" ej-grid e-datasource="budgetGroups" e-recorddoubleclick="GetBG"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="5"></div>
+            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+            <div e-column e-field="UserName" e-headertext="User Name" e-width="4"></div>
+            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="4"></div>
+            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="4"></div>
+            <div e-column e-field="UserName" e-headertext="UserName" e-width="4"></div>
+            <div e-column e-field="Active" e-headertext="Active" e-width="4"></div>
+        </div>
+    </div>
 </div>
 <confirm-archive-generic modalid="confirmDetailPopUpBudgetGroup" title="Confirmation" message={{message_Detailconfirmation}} data-ng-click-right-button="DeleteBG();"></confirm-archive-generic>

@@ -1666,6 +1666,8 @@ namespace Aplos.Areas.FixedAssets.Controllers
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
+            if ((assetRegisterList == null))
+                throw new CustomException("Please select Asset Register!");
             _fixedAssetDisposeService.InsertCapitalizeAssetRegisterPostingAddition(voucherVM, voucherDetailVMList, assetRegisterList, capitalizationMasterdata);
 
             return Json(new { Message = AplosMessage.Insert });
@@ -1776,13 +1778,13 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
             FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var jsondata = Json(new { DATA = fixedAssetQueryService.GetfixedAssetMastersListForProcess(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fiscalYearId, toDate, startDate), Error = false }, JsonRequestBehavior.AllowGet);
+            var jsondata = Json(new { DATA = fixedAssetQueryService.GetAssetMastersListForProcess(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fiscalYearId, toDate, startDate), Error = false }, JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
 
         }
         [HttpPost]
-        public JsonResult SaveAssetDepreciationProcess(string[] selectedAssetMastersList, string fiscalYearId, string toDate)
+        public JsonResult SaveAssetDepreciationProcess(string[] selectedAssetMastersList, string fiscalYearId, string toDate, string processName)
         {
             string selectedAssetMastersLists = "";
 
@@ -1799,7 +1801,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
             }
             FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
-            fixedAssetQueryService.FixedAssetDepreciationProcess(selectedAssetMastersLists, fiscalYearId, toDate);
+            fixedAssetQueryService.AssetDepreciationProcess(selectedAssetMastersLists, fiscalYearId, toDate, processName);
 
             return Json(new { Message = AplosMessage.Insert });
         }

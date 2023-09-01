@@ -31,7 +31,7 @@ namespace Aplos.Areas.Accounts.Controllers
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
 
-            string sql = @"select top 100 * from (select * from hkp.Budget where Archive=0) AS TEMP WHERE " + strkey + " ORDER BY TEMP.AddedDate desc";
+            string sql = @"select  * from (select * from hkp.Budget where Archive=0) AS TEMP WHERE " + strkey + " ORDER BY TEMP.AddedDate desc";
              
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;

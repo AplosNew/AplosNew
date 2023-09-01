@@ -431,7 +431,7 @@ function baseMaterialAndArticleController(cboService, commonMessage, $scope, $ro
     $scope.getMaterialMasterWithArticle = function (data) {
         $http({
             method: 'POST',
-            url: 'Materials/MaterialMasterArticle/GetMaterialMasterWithArticlePopUpData',
+            url: 'Materials/MaterialMasterArticle/GetMaterialMasterWithArticlePopUpData?type=' + $scope.materialType,
             data: { column: $scope.searchByMaterial, value: $scope.search },
             dataType: 'JSON',
         }).then(function successCallback(response) {

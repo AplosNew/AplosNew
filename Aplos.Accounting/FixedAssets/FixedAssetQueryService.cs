@@ -2563,10 +2563,13 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
-                var sql = @"SELECT TOP 500 * from ( SELECT 0 Active, AR.Id AssetRegisterId, AR.FixedAssetItemId,FAI.UserName FixedAssetItem, AR.AssetSlNo, AR.RFId, AR.BarCode
-                            ,AR.AdditionalInfoUpdateId, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks 
-                            FROM TRN.AssetRegister AR
+                var sql = @"SELECT TOP 500 * from ( SELECT 0 Active, ARC.CapitalizationMasterId,ARC.CapitalizationChildId,ARC.Amount AssetAmount,FAI.UserName FixedAssetItem, AR.FixedAssetItemId,ARC.AssetRegisterId
+							,AR.AssetSlNo, AR.RFId, AR.BarCode, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks 
+                            FROM TRN.AssetRegisterChild ARC
+							LEFT JOIN TRN.AssetRegister AR ON AR.Id=ARC.AssetRegisterId
                             LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
+							LEFT JOIN [TRN].[CapitalizationMaster] CM ON CM.Id=ARC.CapitalizationMasterId
+                            WHERE ARC.VoucherDetailId is not null AND CM.Type='New'
                             ) AS TEMP WHERE " + strkey + " order by FixedAssetItem ASC ";
                 return _sqlRepository.GetDataCollection(sql);
 
@@ -2587,13 +2590,13 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                     strkey = column + " like '%" + value + "%'";
                 var sql = @"SELECT TOP 100 * from ( SELECT 0 Active, AR.Id AssetRegisterId, AR.FixedAssetItemId,FAI.UserName FixedAssetItem,FAM.UserName FixedAssetMaster, AR.AssetSlNo, AR.RFId, AR.BarCode
                             ,AR.AdditionalInfoUpdateId, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks 
-                            ,ARC.Id AssetRegisterChildId,ARC.Amount,ARC.DepreciationAmount,CM.TotalAmount,ARC.CapitalizationMasterId,ARC.CapitalizationChildId
-                            FROM TRN.AssetRegister AR
+                            ,ARC.Id AssetRegisterChildId,ARC.Amount,ARC.DepreciationAmount,CM.TotalAmount,ARC.CapitalizationMasterId,ARC.CapitalizationChildId,ARC.VoucherDetailId
+                            FROM TRN.AssetRegisterChild ARC
+							LEFT JOIN TRN.AssetRegister AR ON AR.Id=ARC.AssetRegisterId
                             LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
                             LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
-                            LEFT JOIN TRN.AssetRegisterChild ARC ON ARC.AssetRegisterId=AR.Id AND ARC.CapitalizationMasterId='" + capitalizationMasterId + @"'
                             LEFT JOIN [TRN].[CapitalizationMaster] CM ON CM.Id=ARC.CapitalizationMasterId
-                            WHERE AR.Id in(SELECT AssetRegisterId FROM [TRN].[AssetRegisterChild] where CapitalizationMasterId='" + capitalizationMasterId + @"')
+                            WHERE ARC.CapitalizationMasterId='" + capitalizationMasterId + @"'
                             ) AS TEMP WHERE " + strkey + " order by AssetRegisterId ASC ";
                 return _sqlRepository.GetDataCollection(sql);
 
@@ -2761,6 +2764,59 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
+        #endregion
+
+        #region Asset Depreciation Process
+        public IEnumerable<object> GetAssetMastersListForProcess(string companyGroupId, string companyId, string plantId, string fiscalYearId, string toDate, string startDate)
+        {
+            var sql = @"DECLARE @FromDate NVARCHAR(20) = DATEADD(day,-1,'" + startDate + @"');
+						DECLARE @FiscalYearId AS [varchar](20)
+						select @FiscalYearId=Id from [SCS].[FiscalYear] where @FromDate BETWEEN StartDate AND EndDate
+						SELECT FAM.*,
+                        FAC.UserName 'FixedAssetCategory',
+                        FASC.UserName 'FixedAssetSubCategory'
+						,CASE WHEN ( select TOP 1 AD.FiscalYearId from [TRN].[AssetDepreciation] AD 
+							INNER JOIN [TRN].[AssetDepreciationDetail] ADDS ON ADDS.AssetDepreciationId=AD.Id   where AD.FiscalYearId='" + fiscalYearId + @"'	AND ADDS.FixedAssetMasterId=FAM.Id)>0 
+					    THEN 'Processed upto '+ CAST(( select TOP 1 AD.ProcessDate from [TRN].[AssetDepreciation] AD 
+							INNER JOIN [TRN].[AssetDepreciationDetail] ADDS ON ADDS.AssetDepreciationId=AD.Id   where AD.FiscalYearId='" + fiscalYearId + @"'	AND ADDS.FixedAssetMasterId=FAM.Id ORDER BY AD.Id DESC) AS varchar)
+						ELSE   'Not Process' END ProcessStatus
+						,(select COUNT(ARC.Id) from [TRN].[AssetRegisterChild] ARC
+								LEFT JOIN [TRN].[CapitalizationMaster] CM  ON  CM.Id = ARC.CapitalizationMasterId
+								LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=ARC.FixedAssetItemId where CM.CapitalizationDate<=@FromDate AND FAI.FixedAssetMasterId=FAM.Id)PreviousYearAsset
+						,(select COUNT(AD.Id) from [TRN].[AssetDepreciation] AD 
+							INNER JOIN [TRN].[AssetDepreciationDetail] ADDS ON ADDS.AssetDepreciationId=AD.Id  where AD.FiscalYearId=@FiscalYearId AND ADDS.FixedAssetMasterId=FAM.Id)PreviousYearAssetProcess
+						,CASE WHEN (select TOP 1 AD.ProcessDate from [TRN].[AssetDepreciation] AD 
+							INNER JOIN [TRN].[AssetDepreciationDetail] ADDS ON ADDS.AssetDepreciationId=AD.Id  where AD.FiscalYearId=@FiscalYearId AND ADDS.FixedAssetMasterId=FAM.Id ORDER BY AD.Id DESC)=@FromDate THEN 'Yes' ELSE 'No' END PreviousYearAssetFullProcess
+                        FROM  MST.[FixedAssetMaster]  FAM
+                        LEFT OUTER JOIN  HKP.[FixedAssetCategory]  FAC ON FAM.FixedAssetCategoryId=FAC.Id
+                        LEFT OUTER JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
+                     WHERE FAM.CompanyGroupId='" + companyGroupId + @"' 
+					 AND FAM.Id IN(select FAI.FixedAssetMasterId from [TRN].[AssetRegisterChild] ARC
+									LEFT JOIN [TRN].[CapitalizationMaster] CM  ON  CM.Id = ARC.CapitalizationMasterId
+									LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=ARC.FixedAssetItemId where CM.CapitalizationDate<='" + toDate + @"')";
+            return _sqlRepository.GetDataCollection(sql);
+
+        }
+        public void AssetDepreciationProcess(string selectedAssetMastersLists, string fiscalYearId, string toDate, string processName)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var rdBuilder = new System.Text.StringBuilder();
+                var builderSql = @"EXEC SP_AssetDepreciationProcess '" + selectedAssetMastersLists + "' ,'" + fiscalYearId + "' ,'" + toDate + "' ,'" + identity.FullName + "' ,'" + identity.IPAddress + "' ,'" + processName + "' ,'" + identity.CompanyGroupId + "' ,'" + identity.CompanyId + "' ,'" + identity.PlantId + "'";
+                rdBuilder.Append(builderSql);
+                _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+
+
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
         #endregion
     }
 }

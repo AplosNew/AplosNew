@@ -5,6 +5,8 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.CriticalLevelLists = [];
     $scope.CategoryLists = [];
     $scope.ModelList = [];
+    $scope.ReasonCategoryLists = [];
+    $scope.TypeLists = [];
     $scope.Action = 'Save';
     $scope.path = 'QMS/QualityManagementMaster/';
     $scope.saveUrl = $scope.path + 'create';
@@ -22,6 +24,8 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.saveUrlProduct = $scope.path + 'createProduct';
     $scope.saveUrlWorkCenter = $scope.path + 'createWorkCenter';
     $scope.saveUrlPositionCode = $scope.path + 'createPositionCode';
+    $scope.saveUrlReason = $scope.path + 'createReason';
+    $scope.saveUrlReasonMaster = $scope.path + 'createReasonMaster';
    
     $scope.CriticalLevelLists = [
         {
@@ -56,6 +60,56 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
             'Text': 'Other'
         }
     ];
+
+    $scope.ReasonCategoryLists = [
+        {
+            'Value': 'Man',
+            'Text': 'Man'
+        },
+        {
+            'Value': 'Machine',
+            'Text': 'Machine'
+        },
+        {
+            'Value': 'Material',
+            'Text': 'Material'
+        },
+        {
+            'Value': 'Method',
+            'Text': 'Method'
+        },
+        {
+            'Value': 'Process',
+            'Text': 'Process'
+        },
+        {
+            'Value': 'Other',
+            'Text': 'Other'
+        }
+    ];
+
+    $scope.TypeLists = [
+        {
+            'Value': 'HighlyCritical',
+            'Text': 'Highly Critical'
+        },
+        {
+            'Value': 'Critical',
+            'Text': 'Critical'
+        },
+        {
+            'Value': 'SemiCritical',
+            'Text': 'Semi Critical'
+        },
+        {
+            'Value': 'Important',
+            'Text': 'Important'
+        },
+        {
+            'Value': 'Normal',
+            'Text': 'Normal'
+        }
+    ];
     
     $scope.ParameterProcessList = [];
     $scope.GetParameterProcessList = function (pid) {
@@ -80,12 +134,37 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     }
     $scope.getFrequency();
 
+    $scope.ReasonMasterList = [];
+    $scope.getReasonMaster = function () {
+        $http({
+            method: 'Get',
+            url: 'QMS/QualityManagementMaster/getReasonMaster'
+        }).then(function successCallback(response) {
+            $scope.ReasonMasterList = response.data;
+        }
+        )
+    }
+    $scope.getReasonMaster();
+
     $scope.GetFrequencyDetails = function (args) {
         $http({
             method: 'Get',
             url: 'QMS/QualityManagementMaster/getFrequencyData?FrequencyId=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.FrequencyNew = response.data.frequency[0];
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        }
+        )
+    }
+
+    $scope.GetReasonMasterDetails = function (args) {
+        $http({
+            method: 'Get',
+            url: 'QMS/QualityManagementMaster/getReasonMasterData?ReasonId=' + args.data.Id
+        }).then(function successCallback(response) {
+            $scope.ReasonMasterNew = response.data.ReasonMaster[0];
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
@@ -290,6 +369,18 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         }
     };
 
+    $scope.removeReasonMaster = function (index, data) {
+        try {
+            $scope.popUpIndex = index;
+            $scope.tempRMId = data;
+            $scope.message_confirmation = "Are you sure you want to delete?";
+            angular.element(document.querySelector('#confirmRemoveReasonMaster')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
     $scope.DeleteFrequency = function () {
         $http({
             method: 'POST',
@@ -303,6 +394,26 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
                 ShowResult(response.data.Message, 'success');
                 $scope.getFrequency();
                 FrequencyClearFields();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
+    $scope.DeleteReasonMaster = function () {
+        $http({
+            method: 'POST',
+            url: 'QMS/QualityManagementMaster/ReasonMasterDelete?id=' + $scope.tempRMId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getReasonMaster();
+                ReasonMasterClearFields();
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -389,6 +500,37 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         , Remarks: null
     }
     $scope.FrequencyNew = Object.assign({}, $scope.Frequency);
+
+    $scope.ReasonMaster = {
+        Id: null
+        , SNO: null
+        , UserName: null
+        , ReasonCategory: null
+        , Type: null
+        , Remarks: null
+    }
+    $scope.ReasonMasterNew = Object.assign({}, $scope.ReasonMaster);
+
+    $scope.Reason = {
+        Id: null
+        , SNO: null
+        , ReasonId: null
+        , Remarks: null
+        , ParameterId: null
+        , IsActive: true
+    }
+    $scope.ReasonNew = Object.assign({}, $scope.Reason);
+
+    $scope.ReasonNameLists = [];
+    $scope.GetReasonNameLists = function () {
+        $http({
+            method: 'GET',
+            url: 'QMS/QualityManagementMaster/GetReasonNameLists'
+        }).then(function successCallback(response) {
+            $scope.ReasonNameLists = response.data;
+        });
+    }
+    $scope.GetReasonNameLists();
 
     $scope.ProcessList = [];
     $scope.GetProcessList = function () {
@@ -508,6 +650,26 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
                 ShowResult(response.data.Message, 'success');
                 $scope.getParameter($scope.ItemNew.Id);
                 ParameterClearFields();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
+    $scope.ReasonDelete = function () {
+        $http({
+            method: 'POST',
+            url: 'QMS/QualityManagementMaster/ReasonDelete?id=' + $scope.ReasonNew.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getReason($scope.ParameterId);
+                ReasonClearFields();
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -1246,6 +1408,29 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
 
     };
 
+    $scope.ReasonLists = [];
+    $scope.ParameterId = null;
+    $scope.getReasonPopup = function (data) {
+        $scope.NewObject = data.data;
+        var ItemId = $scope.NewObject.Id;
+        $scope.ParameterId = ItemId;
+        try {
+            $http.get('QMS/QualityManagementMaster/getReasonData?ParameterId=' + $scope.NewObject.Id)
+                .then(
+                    function successCallback(response) {
+                        $scope.ReasonLists = response.data;
+                    },
+                    function errorCallback(response) {
+                        ShowResult(response, 'failure');
+                    });
+            var gridObj = $("#GridReason").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#ReasonPopUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    };
+
     $scope.getParameter = function (data) {
         try {
             $http.get('QMS/QualityManagementMaster/getParameterData?ParameterId=' + data)
@@ -1257,6 +1442,22 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
                         ShowResult(response, 'failure');
                     });
             var gridObj = $("#GridParameter").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.getReason = function (data) {
+        try {
+            $http.get('QMS/QualityManagementMaster/getReasonData?ParameterId=' + data)
+                .then(
+                    function successCallback(response) {
+                        $scope.ReasonLists = response.data;
+                    },
+                    function errorCallback(response) {
+                        ShowResult(response, 'failure');
+                    });
+            var gridObj = $("#GridReason").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         } catch (e) {
             ShowResult(e, 'failure');
         }
@@ -1274,6 +1475,17 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         }
         )
     }
+
+    $scope.GetReasonDetails = function (args) {
+        $http({
+            method: 'Get',
+            url: 'QMS/QualityManagementMaster/LoadReasonEditData?ReasonId=' + args.data.Id
+        }).then(function successCallback(response) {
+            $scope.ReasonNew = response.data.Reason[0];
+        }
+        )
+    }
+
     $scope.SaveParameterData = function () {
             $http({
                 method: 'POST',
@@ -1320,6 +1532,54 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
             ShowResult(response.data.Message, 'failure');
         }
     };
+
+    $scope.ReasonMasterSave = function () {
+        $http({
+            method: 'POST',
+            url: $scope.saveUrlReasonMaster,
+            data: {
+                'ReasonMasterData': $scope.ReasonMasterNew
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getReasonMaster();
+                ReasonMasterClearFields();
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    $scope.SaveReasonData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.saveUrlReason,
+            data: {
+                'ReasonData': $scope.ReasonNew,
+                'Pid': $scope.ParameterId
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getReason($scope.ParameterId);
+                ReasonClearFields();
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
 
 
     $scope.ParameterId = null;
@@ -1426,8 +1686,14 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.SaveParameterClear = function () {
         ParameterClearFields();
     };
+    $scope.ReasonClear = function () {
+        ReasonClearFields();
+    };
     $scope.FrequencyClear = function () {
         FrequencyClearFields();
+    };
+    $scope.ReasonMasterClear = function () {
+        ReasonMasterClearFields();
     };
    
     function ScheduleClearFields() {
@@ -1454,6 +1720,16 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     function FrequencyClearFields() {
         $scope.Action = "Save";
         $scope.FrequencyNew = Object.assign({}, $scope.Frequency);
+    }
+
+    function ReasonMasterClearFields() {
+        $scope.Action = "Save";
+        $scope.ReasonMasterNew = Object.assign({}, $scope.ReasonMaster);
+    }
+
+    function ReasonClearFields() {
+        $scope.Action = "Save";
+        $scope.ReasonNew = Object.assign({}, $scope.Reason);
     }
   
     $scope.removeItemRow = function () {

@@ -1,4 +1,10 @@
-﻿<togglable name="{{title}}"></togglable>
+﻿<style>
+    .btn.clr-darkblue {
+        background: #242841 !important;
+        color:#fff !important
+    }
+</style>
+<togglable name="{{title}}"></togglable>
 <div class="form-elements form-horizontal">
     <div class="row" ng-form="ProcessManagementForm">
         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -53,7 +59,6 @@
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">Process</a></li>
             <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Saved Process</a></li>
-            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Process Utility</a></li>
         </ul>
     </div>
     <div class="tab-content">
@@ -92,7 +97,7 @@
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                     <div e-columns>
-                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                       @* <div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>*@
                         <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
                         <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
                         <div e-column e-field="SubProcess" e-headertext="Sub Process" e-width="100"></div>
@@ -102,66 +107,27 @@
 
                     </div>
                 </div>
-                <script type="text/template" id="checkboxTemplate">
+                @*<script type="text/template" id="checkboxTemplate">
                     <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
                 </script>
                 <script type="text/x-jsrender" id="headerTemplate">
                     <input type="checkbox" id="Materialheadchk" />
-                </script>
+                </script>*@
 
                 <script type="text/template" id="headerTemplateParameter">
-                    <button ng-click="$parent.OpenProcessParamPopUp()" class="btn"><i class="glyphicon glyphicon-search" ng-click="$parent.OpenProcessParamPopUp()"></i></button>
+                    <button ng-click="$parent.OpenProcessParamPopUp(this)" class="btn clr-darkblue"><i class="glyphicon glyphicon-search" ng-click="$parent.OpenProcessParamPopUp(this)"></i></button>
                 </script>
 
                 <script type="text/template" id="TemplateMaterial">
-                    <button ng-click="$parent.OpenProcessMaterialPopUp()" class="btn"><i class="glyphicon glyphicon-search" ng-click="$parent.OpenProcessMaterialPopUp()"></i></button>
+                    <button ng-click="$parent.OpenProcessMaterialPopUp(this)" class="btn clr-darkblue"><i class="glyphicon glyphicon-search" ng-click="$parent.OpenProcessMaterialPopUp(this)"></i></button>
                 </script>
 
                 <script type="text/template" id="headerTemplateUtility">
-                    <button ng-click="$parent.OpenProcessUtilityPopUp()" class="btn"><i class="glyphicon glyphicon-search" ng-click="$parent.OpenProcessUtilityPopUp()"></i></button>
+                    <button ng-click="$parent.OpenProcessUtilityPopUp(this)" class="btn clr-darkblue"><i class="glyphicon glyphicon-search" ng-click="$parent.OpenProcessUtilityPopUp(this)"></i></button>
                 </script>
             </div>
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                </ul>
-            </div>
+            
         </div>
-
-        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
-            <div class="row">
-                <div id="GridUtility" ej-grid e-datasource="PMUtilityList"
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                    <div e-columns>
-                        @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplateUtility" e-template="#checkboxTemplateUtility" e-textalign="center" e-width="30"></div>*@
-                        <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
-                        <div e-column e-field="UtilityName" e-headertext="Utility User Name" e-width="100"></div>
-                        <div e-column e-field="UtilityStdName" e-headertext="Utility Standard Name" e-width="100"></div>
-                        <div e-column e-field="UtilityCategory" e-headertext="Utility Category" e-width="100"></div>
-                        <div e-column e-field="UtilitySubCategory" e-headertext="Utility Sub Category" e-width="100"></div>
-                        <div e-column e-field="Min" e-headertext="Min" e-width="100"></div>
-                        <div e-column e-field="Max" e-headertext="Max" e-width="100"></div>
-                        <div e-column e-field="UOM" e-headertext="UOM" e-width="100"></div>
-                        
-                    </div>
-                </div>
-                @*<script type="text/template" id="checkboxTemplateUtility">
-                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
-                </script>
-                <script type="text/x-jsrender" id="headerTemplateUtility">
-                    <input type="checkbox" id="Materialheadchk" />
-                </script>*@
-               
-               
-            </div>
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                </ul>
-            </div>
-        </div>
-
     </div>
     @*---------------------------------------------------------------------------------------------------------------------------------------*@
 
@@ -250,7 +216,7 @@
                 </div>
             </div>
             <div class="modal-footer common-btn">
-                    <button class="btn"><i class=""></i> Select</button>
+                    <button ng-click="Select_Save_ProcessParameter()" class="btn"><i class=""></i> Save</button>
                 </div>
         </div>
     </div>
@@ -261,7 +227,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                Process Parameter
+               Material
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
@@ -292,7 +258,7 @@
                 </div>
             </div>
             <div class="modal-footer common-btn">
-                <button class="btn"><i class=""></i> Select</button>
+                <button ng-click="select_Save_Material();" class="btn"><i class=""></i> Save</button>
             </div>
         </div>
     </div>
@@ -333,7 +299,7 @@
                 </div>
             </div>
             <div class="modal-footer common-btn">
-                <button class="btn"><i class=""></i> Select</button>
+                <button ng-click="select_Save_Utility()" class="btn"><i class=""></i> Save</button>
             </div>
         </div>
     </div>

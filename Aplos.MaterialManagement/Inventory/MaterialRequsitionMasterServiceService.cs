@@ -1311,9 +1311,9 @@ namespace Library.MaterialManagement.Inventory
                                         Group by  MRD.CurrencyId,C.Code,MR.ReqEmpId,EI.EmployeeName
 
                                         UNION All
-                                        Select  MRD.CurrencyId,C.Code, MR.ReqEmpId,EI.EmployeeName, 0 RequisitionId,Sum(CONVERT(NUMERIC(10,2),MRD.TotalAmount)) ReqTotalAmount,0 POTotalAmount,0 GRNTOtalAmount 
+                                        Select  MRD.CurrencyId,C.Code, MR.ReqEmpId,EI.EmployeeName, 0 RequisitionId,Sum(ISNULL(MRD.TotalAmount,0)) ReqTotalAmount,0 POTotalAmount,0 GRNTOtalAmount 
                                         from trn.MaterialRequsitionMaster MR
-                                        LEFT JOIN(select Id,MaterialReqqusitionMasterId,CurrencyId ,Sum(TotalAmount) TotalAmount 
+                                        LEFT JOIN(select Id,MaterialReqqusitionMasterId,CurrencyId ,Sum(isnull(TotalAmount,0)) TotalAmount 
 		                                        FROM trn.MaterialRequsitionDetails group by Id,MaterialReqqusitionMasterId,CurrencyId) MRD ON MRD.MaterialReqqusitionMasterId=MR.Id
                                         LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=MR.ReqEmpId
 										left join scs.Currency C On MRD.CurrencyId=C.Id
@@ -1321,11 +1321,11 @@ namespace Library.MaterialManagement.Inventory
                                         Group by  MRD.CurrencyId,C.Code,MR.ReqEmpId,EI.EmployeeName
 
                                         UNION All
-                                        Select  MRD.CurrencyId,C.Code,MR.ReqEmpId,EI.EmployeeName, 0 RequisitionId,0 ReqTotalAmount,sum(CONVERT(NUMERIC(10,2),BaseAmount)) POTotalAmount,0 GRNTOtalAmount 
+                                        Select  MRD.CurrencyId,C.Code,MR.ReqEmpId,EI.EmployeeName, 0 RequisitionId,0 ReqTotalAmount,sum(ISNULL(BaseAmount,0)) POTotalAmount,0 GRNTOtalAmount 
                                         from trn.MaterialRequsitionMaster MR
-                                        LEFT JOIN(select Id,MaterialReqqusitionMasterId,CurrencyId ,Sum(TotalAmount) TotalAmount 
+                                        LEFT JOIN(select Id,MaterialReqqusitionMasterId,CurrencyId ,Sum(ISNULL(TotalAmount,0)) TotalAmount 
                                         FROM trn.MaterialRequsitionDetails group by Id,MaterialReqqusitionMasterId,CurrencyId) MRD ON MRD.MaterialReqqusitionMasterId=MR.Id
-                                        LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=MR.ReqEmpId                               
+                                        LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=MR.ReqEmpId                            
                                         left JOIN(select Id, RequisitionDetailId ,Sum(BaseAmount) BaseAmount from trn.PurchaseOrderDetail where RequisitionDetailId is not NULL  group by RequisitionDetailId,Id)PO ON PO.RequisitionDetailId=MRD.Id
                                         	left join scs.Currency C On MRD.CurrencyId=C.Id
                                         where MR.ReqEmpId='" + empId + "' and  MR.RequisitionDate between '" + startDate + "' AND '" + endDate + @"'
@@ -2378,7 +2378,7 @@ namespace Library.MaterialManagement.Inventory
                                        Group by  MRD.CurrencyId,C.Code,MR.ReqEmpId,EI.EmployeeName
 
                                        UNION All
-                                       Select  MRD.CurrencyId,C.Code, MR.ReqEmpId,EI.EmployeeName, 0 RequisitionId,Sum(CONVERT(NUMERIC(10,2),MRD.TotalAmount)) ReqTotalAmount,0 POTotalAmount,0 GRNTOtalAmount 
+                                       Select  MRD.CurrencyId,C.Code, MR.ReqEmpId,EI.EmployeeName, 0 RequisitionId,Sum(ISNULL(MRD.TotalAmount,0)) ReqTotalAmount,0 POTotalAmount,0 GRNTOtalAmount 
                                        from trn.MaterialRequsitionMaster MR
                                        LEFT JOIN(select Id,MaterialReqqusitionMasterId,CurrencyId ,Sum(TotalAmount) TotalAmount 
                                          FROM trn.MaterialRequsitionDetails group by Id,MaterialReqqusitionMasterId,CurrencyId) MRD ON MRD.MaterialReqqusitionMasterId=MR.Id
@@ -2388,7 +2388,7 @@ namespace Library.MaterialManagement.Inventory
                                        Group by  MRD.CurrencyId,C.Code,MR.ReqEmpId,EI.EmployeeName
 
                                        UNION All
-                                       Select  MRD.CurrencyId,C.Code,MR.ReqEmpId,EI.EmployeeName, 0 RequisitionId,0 ReqTotalAmount,sum(CONVERT(NUMERIC(10,2),BaseAmount)) POTotalAmount,0 GRNTOtalAmount 
+                                       Select  MRD.CurrencyId,C.Code,MR.ReqEmpId,EI.EmployeeName, 0 RequisitionId,0 ReqTotalAmount,sum(ISNULL(BaseAmount,0)) POTotalAmount,0 GRNTOtalAmount 
                                        from trn.MaterialRequsitionMaster MR
                                        LEFT JOIN(select Id,MaterialReqqusitionMasterId,CurrencyId ,Sum(TotalAmount) TotalAmount 
                                        FROM trn.MaterialRequsitionDetails group by Id,MaterialReqqusitionMasterId,CurrencyId) MRD ON MRD.MaterialReqqusitionMasterId=MR.Id

@@ -21,11 +21,14 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #endregion Constructor
 
+       
         [HttpGet]
-        public ActionResult GetList(GridParameter parameters)
+        public ActionResult GetList(string column, string value)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_companyGroupBudgetCategoryService.Query(parameters, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(_companyGroupBudgetCategoryService.Query(column, value, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
     }
 }

@@ -14,7 +14,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.personList = [];
 
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
-   
 
     $scope.path = 'OrderManagements/masterorder/';
     $scope.getListUrl = $scope.path + 'getlist';
@@ -29,9 +28,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $controller("MasterOrderTaskTemplateController", { cboService: cboService, $scope: $scope, $http: $http });
     $controller("TaskScheduleController", { cboService: cboService, $scope: $scope, $http: $http });
-
     $controller("CurrencyExchangeController", { cboService: cboService, $scope: $scope, $http: $http, TableName: 'MasterOrderExchangeRates' });
-
 
     $scope.SearchColumn = 'Entity';
     $scope.SearchValue = null;
@@ -447,7 +444,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.index = -1;
     $scope.SetProductionRef = function (ind) {
         $scope.index = ind;
-       
+
         $http.get("OrderManagements/MasterOrder/GetProductionRef?pg=" + $scope.itemList[$scope.index].ProductionGrouping)
             .then(function (response) {
                 $scope.itemList[$scope.index].OwnReferenceNo = response.data[0].OwnReferenceNo;
@@ -1075,22 +1072,35 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.itemIndex = index;
         if (!baseService.isUndefinedOrNull($scope.itemList[$scope.itemIndex].MaterialMasterId) && !$scope.itemList[$scope.itemIndex].HasAttribute)
             return ShowResult('This material has no attribute', 'failure');
-        $scope.getArticleSearchList($scope.itemList[$scope.itemIndex].MaterialMasterId);
+        // $scope.getArticleSearchList($scope.itemList[$scope.itemIndex].MaterialMasterId);
+        $scope.getMaterialMasterWithArticle(null);
     };
 
-    $scope.selectarticle = function (ob) {
+    $scope.ArticleId = null;
+    // selectarticle setInputeMaterialArticleData
+    $scope.setInputeMaterialArticleData = function (ob) {
         try {
-            $scope.itemList[$scope.itemIndex].MaterialMasterId = ob.MaterialMasterId;
-            $scope.itemList[$scope.itemIndex].MaterialMasterName = ob.MaterialMasterName;
-            $scope.itemList[$scope.itemIndex].ArticleId = ob.Id;
-            $scope.itemList[$scope.itemIndex].ArticleName = ob.StandardName;
-            angular.element(document.querySelector('#articleSearchPop')).modal('hide');
-            $scope.itemIndex = -1;
+            $scope.itemList[$scope.itemIndex].MaterialMasterId = ob.data.MaterialMasterId;
+            $scope.itemList[$scope.itemIndex].MaterialMasterName = ob.data.MaterialMasterName;
+            $scope.itemList[$scope.itemIndex].ArticleId = ob.data.Id;
+            $scope.ArticleId = ob.data.Id;
+            $scope.itemList[$scope.itemIndex].ArticleName = ob.data.StandardName;
+            angular.element(document.querySelector('#materialarticleNewPopUp')).modal('hide');
+
             $scope.mmChangeFlag = true;
+            GetArticleAlias();
         } catch (e) {
             ShowResult(e, '', 'articleSearchPop');
         }
     };
+
+    function GetArticleAlias() {
+        $http.get("Materials/materialmasterarticle/getArticleAliaslist?articleId=" + $scope.ArticleId)
+            .then(function (response) {
+                $scope.itemList[$scope.itemIndex].CustomerArticle = response.data[0].ArticlePartyName;
+            });
+    }
+
 
     $scope.clearArticle = function (index) {
         $scope.itemList[index].ArticleId = null;
@@ -1502,6 +1512,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 if (baseService.arrayLength($scope.itemList) > 0) {
                     for (var i = 0; i < $scope.itemList.length; i++) {
                         $scope.itemList[i].TempList = [];
+
                         if ($scope.itemList[i].Type == 'JobWork' || $scope.itemList[i].Type == 'OutSource') {
                             $scope.enableJobOrOutSource = false;
                         } else {
@@ -1657,7 +1668,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.itemList.splice(index, 1);
     };
 
-
     function containsSpecialChars(str) {
         const specialChars = /[`!@#$%^&*()_+\=\[\]{};':"\\|,.<>\/?~]/;
         return specialChars.test(str);
@@ -1673,7 +1683,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             ShowResult(e, 'failure');
         }
     }
-
 
     //#region Party plant 
 
@@ -2761,7 +2770,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         angular.element(document.querySelector('#removPopUp')).modal('hide');
     };
 
-
     $scope.Del = function (id, delindex) {
         $scope.dindex = delindex;
         for (var i = 0; i < $scope.taxList.length; i++) {
@@ -2773,8 +2781,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
         $scope.dindex = -1;
     };
-
-
 
     //#endregion Sales Order Tax
 
@@ -3926,7 +3932,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     };
 
-
     $scope.UpdateLoggedTnA = function () {
 
         $http({
@@ -4326,7 +4331,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         eDialog.close();
     };
 
-
     $scope.DeleteBOQ = function () {
         $http({
             method: 'POST',
@@ -4370,7 +4374,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         angular.element(document.querySelector('#QBOQPoUp')).modal('hide');
     }
 
-    //#region Quick BOQ Job Work Type
+
     $scope.popUpDataList = [];
     $scope.popUpTitle = '';
     $scope.valueData = '';
@@ -4532,7 +4536,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     };
     $scope.modelNew = Object.assign({}, $scope.model);
 
-    $scope.showPartyPopUpNew = function () {
+    $scope.XshowPartyPopUpNew = function () {
         $scope.partyType = 'Vendor';
         $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
         if (baseService.isUndefinedOrNull($scope.fileNew.CompanyId)) {
@@ -4744,6 +4748,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         });
     };
 
+    //#region
+
     //$scope.buyerDeductionList = [];
     //cboService.getEnumCbo("enum/GetBuyerDeductionEnumCbo", function (result) {
     //    $scope.buyerDeductionList = result;
@@ -4776,6 +4782,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     //        }
     //    });
     //};
+
+    //#endregion
 
     // #region checkbox all for TermsAndConditions
 
@@ -4817,7 +4825,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         gridObj.clearFiltering();  // clears all the filtering
 
     };
-
 
     $scope.refreshTemplateemployee = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
@@ -4994,8 +5001,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         angular.element(document.querySelector('#masterItemListPopUpId')).modal('show');
     };
 
-
-
     $scope.closeItemListPopUp = function (data) {
         $scope.modelNewPD.MasterOrderItemId = data.MasterOrderItemId;
         $scope.hideItemListPopUp();
@@ -5089,7 +5094,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 });
         }
     };
-
 
     $scope.PackingDetailList = [];
     $scope.GetPackingDetailData = function () {
@@ -5382,7 +5386,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     };
 
-
     $scope.GetPackingTypeChildData = function () {
         $scope.packingTypeDataList = [];
         $http.get('OrderManagements/MasterOrder/GetSavedPackingTypeChild?PTId=' + $scope.ModelPTNew.Id)
@@ -5392,7 +5395,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 }
             });
     }
-
 
     $scope.removeChild2 = function (obj) {
         $scope.packingTypeNew = obj.data;
@@ -5506,8 +5508,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     };
 
-
-
     $scope.GetSKUDetailDblClick = function (args) {
         try {
             $scope.Action = 'Update';
@@ -5521,15 +5521,12 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     };
 
-
     $scope.removeSKUDetail = function (obj) {
         $scope.SKUDetailNew = obj.data;
         if (!baseService.isUndefinedOrNull($scope.SKUDetailNew.Id))
             $scope.message_confirmation = 'Are you sure want to delete permanently ?';
         angular.element(document.querySelector('#confirmSKUDetailPopUp')).modal('show');
     }
-
-
 
     //#region   SO Copy    
     $scope.CopySO = function (data) {
@@ -6173,6 +6170,134 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     }
 
+    //#region ArticleAlias
+
+    $scope.partyType = 'Party';
+
+    $scope.articleId = null;
+    $scope.ind = -1;
+    $scope.GetArticleAliasData = function (index) {
+        try {
+            $scope.ind = index;
+            $scope.articleId = $scope.itemList[$scope.ind].ArticleId;
+            $scope.ArticleName = $scope.itemList[$scope.ind].ArticleName;
+            if (baseService.isUndefinedOrNull($scope.articleId)) {
+                throw "Select Article first.";
+            }
+
+            $scope.articleAliasModel = {
+                Id: null
+                , ArticleId: $scope.articleId
+                , Code: $scope.fileNew.CustomerCode
+                , PartyId: $scope.fileNew.PartyId
+                , PartyName: $scope.fileNew.CustomerName
+                , ArticlePartyName: $scope.ArticleName
+                , UserGroup: null
+                , Remark: null
+            };
+            $scope.articleAlias = Object.assign({}, $scope.articleAliasModel);
+
+            $scope.GetArticleAliasDatas();
+            angular.element(document.querySelector('#ArticleAliasPoUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.closePartyPopUp = function (x) {
+        var party = x.data;
+        $scope.articleAlias.PartyName = party.UserName;
+        $scope.articleAlias.PartyId = party.Id;
+        $scope.articleAlias.Code = party.Code;
+
+        $scope.hidePartyPopUp();
+    };
+
+
+    $scope.aliasList = [];
+    $scope.GetArticleAliasDatas = function () {
+        $http({
+            method: 'GET',
+            url: 'Materials/materialmasterarticle/getArticleAliaslist?articleId=' + $scope.articleId
+        }).then(function successCallback(response) {
+            //  $scope.aliasList = response.data;
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.articleAlias = Object.assign({}, response.data[0]);
+                $scope.itemList[$scope.ind].CustomerArticle = response.data[0].ArticlePartyName;
+            }
+        });
+    }
+    $scope.articleAliasModel = {
+        Id: null
+        , ArticleId: $scope.articleId
+        , Code: $scope.fileNew.CustomerCode
+        , PartyId: $scope.fileNew.PartyId
+        , PartyName: $scope.fileNew.CustomerName
+        , ArticlePartyName: null
+        , UserGroup: null
+        , Remark: null
+    };
+    $scope.articleAlias = Object.assign({}, $scope.articleAliasModel);
+
+
+    $scope.closePartyPopUp = function (x) {
+        var party = x.data;
+
+        $scope.articleAlias.PartyName = party.UserName;
+        $scope.articleAlias.PartyId = party.Id;
+        $scope.articleAlias.Code = party.Code;
+
+        $scope.hidePartyPopUp();
+    };
+
+    $scope.GetArticleAlias = function (args) {
+
+        $scope.articleAlias = Object.assign({}, args);
+        $scope.GetArticleAliasDatas(args.Id);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+
+    $scope.SaveArticleAlias = function () {
+        try {
+            $scope.articleAlias.Id = baseService.isUndefinedOrNull($scope.articleAlias.Id) == null ? null : $scope.articleAlias.Id;
+            $scope.articleAlias.ArticleId = $scope.articleId;
+            if (baseService.isUndefinedOrNull($scope.articleAlias.PartyId)) {
+                throw "Party is required.";
+            }
+            if (baseService.isUndefinedOrNull($scope.articleAlias.ArticlePartyName)) {
+                throw "Article Party Name is required.";
+            }
+            if (baseService.isUndefinedOrNull($scope.articleAlias.UserGroup)) {
+                throw "User Group is required.";
+            }
+
+            $http({
+                method: 'POST',
+                url: 'Materials/materialmasterarticle/CreateArticleAlias',
+                data: { 'data': $scope.articleAlias },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetArticleAliasDatas();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'failure', 'ArticleAliasPoUp');
+        }
+    };
+
+
+    //#endregion
 
 
 }

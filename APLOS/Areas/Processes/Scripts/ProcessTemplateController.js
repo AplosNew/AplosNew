@@ -57,19 +57,7 @@ function ProcessTemplateController(commonMessage, $scope, $rootScope, baseServic
         }
     }
 
-    $scope.ddProcessManagementList = [];
-    $scope.ProcessManagementDD = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + 'ProcessManagementDD',
-            dataType: 'JSON'
-        })
-            .then(function successCallback(response) {
-                $scope.ddProcessManagementList = response.data;
-
-            });
-    }
-    $scope.ProcessManagementDD();
+   
 
     $scope.ProcessManagementList = [];
     $scope.GetProcessManagementDataList = function () {
@@ -147,7 +135,6 @@ function ProcessTemplateController(commonMessage, $scope, $rootScope, baseServic
                 $scope.SelectedProcessList.push($scope.ProcessManagementList[i]);
             }
            
-
         }
 
         $http({
@@ -183,105 +170,29 @@ function ProcessTemplateController(commonMessage, $scope, $rootScope, baseServic
     }
 
     $scope.SelectedProcessParamList = [];
-    $scope.SaveProcessParam = function () {
+    $scope.ChkdMaterialList = [];
+    $scope.checkUtilityList = [];
+
+    $scope.Select_Save_ProcessParameter = function () {
         for (var i = 0; i < $scope.ProcessParamList.length; i++) {
             if ($scope.ProcessParamList[i].Flag) {
                 $scope.SelectedProcessParamList.push($scope.ProcessParamList[i])
             }
         }
-        //$http({
-        //    method: 'POST',
-        //    url: $scope.path + 'SaveProcessParam',
-        //    data: {
-                
-        //    },
-        //    dataType: 'JSON'
-        //})
-        //    .then(function successCallback(response) {
-        //        if (response.data.Error === true) {
-        //            ShowResult(response.data.Message, 'failure');
-        //        }
-        //        else {
-        //            ShowResult(response.data.Message, 'success');
-
-        //        }
-        //    })
-    }
-
-
-    $scope.ChkdMaterialList = [];
-    $scope.SaveProcessMaterial = function () {
-        for (var i = 0; i < $scope.MaterialList.length; i++) {
-            if ($scope.MaterialList[i].Flag ) {
-                $scope.ChkdMaterialList.push($scope.MaterialList[i]);
-            }
-            //else if($scope.MaterialList[i].Flag == false){
-            //    $scope.ChkdMaterialList.push($scope.MaterialList[i]);
-            //}
-
-        }
-
-        //$http({
-        //    method: 'POST',
-        //    url: $scope.path + 'SaveProcessMaterial',
-        //    data: {
-        //        'datalist': $scope.ChkdMaterialList,
-        //        'headerid': $scope.ProcessManagementNew.Id
-        //    },
-        //    dataType: 'JSON'
-        //})
-        //    .then(function successCallback(response) {
-        //        if (response.data.Error === true) {
-        //            ShowResult(response.data.Message, 'failure');
-        //        }
-        //        else {
-        //            ShowResult(response.data.Message, 'success');
-
-        //        }
-        //    })
-
-    }
-
-    $scope.checkUtilityList = [];
-    $scope.SaveProcessUtility = function () {
-        for (var i = 0; i < $scope.UtilityList.length; i++) {
-            if ($scope.UtilityList[i].Flag) {
-                $scope.checkUtilityList.push($scope.UtilityList[i]);
-            }
-        }
-        //$http({
-        //    method: 'POST',
-        //    url: $scope.path + 'SaveProcessUtility',
-        //    data: { 'datalist': $scope.checkUtilityList },
-        //    dataType: 'JSON'
-        //})
-        //    .then(function successCallback(response) {
-        //        if (response.data.Error === true) {
-        //            ShowResult(response.data.Message, 'failure');
-        //        }
-        //        else {
-        //            ShowResult(response.data.Message, 'success');
-
-        //        }
-        //    })
-
-    }
-
-    $scope.SaveProcessParamChild = function () {
+        angular.element(document.querySelector('#porcessparamPopUp')).modal('hide');
         $http({
             method: 'POST',
-            url: $scope.path + 'SaveProcessParamChild',
+            url: $scope.path + 'SaveProcessTempParam',
             data: {
-                'datalist': $scope.SelectedProcessParamList,
-                'processutlity': $scope.checkUtilityList,
-                'processMaterial': $scope.ChkdMaterialList,
+                'rowId': rowId,
+                'processParamList': $scope.SelectedProcessParamList,               
                 'headerid': $scope.ProcessManagementNew.Id
             },
-            dataType:'JSON'
+            dataType: 'JSON'
         })
             .then(function successCallback(response) {
                 if (response.data.Error === true) {
-                   ShowResult(response.data.Message, 'failure');
+                    ShowResult(response.data.Message, 'failure');
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
@@ -289,6 +200,67 @@ function ProcessTemplateController(commonMessage, $scope, $rootScope, baseServic
                 }
             })
     }
+
+    $scope.select_Save_Material = function () {
+        for (var i = 0; i < $scope.ProcessMaterialList.length; i++) {
+            if ($scope.ProcessMaterialList[i].Flag) {
+                $scope.ChkdMaterialList.push($scope.ProcessMaterialList[i]);
+            }
+        }
+        angular.element(document.querySelector('#porcessMaterialPopUp')).modal('hide');
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'SaveProcesMaterial',
+            data: {
+                'rowId': rowId,
+                'processMaterialList': $scope.ChkdMaterialList,
+                'headerid': $scope.ProcessManagementNew.Id
+            },
+            dataType: 'JSON'
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+
+                }
+            })
+    }
+
+    $scope.select_Save_Utility = function () {
+        for (var i = 0; i < $scope.ProcessUtilityList.length; i++) {
+            if ($scope.ProcessUtilityList[i].Flag) {
+                $scope.checkUtilityList.push($scope.ProcessUtilityList[i]);
+            }
+        }
+        angular.element(document.querySelector('#porcessUtilityPopUp')).modal('hide');
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'SaveProcessUtility',
+            data: {
+                'rowId': rowId,
+                'processutilityList': $scope.checkUtilityList,
+                'headerid': $scope.ProcessManagementNew.Id
+            },
+            dataType: 'JSON'
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+
+                }
+            })
+    }
+
+
+    // #region Employee
 
     $scope.ResponsiblePersonList = [];
     $scope.LoadResponsiblePopupData = function () {
@@ -308,10 +280,27 @@ function ProcessTemplateController(commonMessage, $scope, $rootScope, baseServic
         $scope.ProcessManagementNew.ResponsiblePerson = args.data.EmployeeName;
         angular.element(document.querySelector('#employeePopUps')).modal('hide');
     }
+    // #endregion Employee
+
+    $scope.ProcessParamList = [];
+    var rowId = null;
+    $scope.OpenProcessParamPopUp = function (x) {
+        angular.element(document.querySelector('#porcessparamPopUp')).modal('show');
+        rowId = x.data.Id
+        $http({
+            method: 'POST',
+            url: 'Processes/ProcessTemplate/GetProcessParamaData'
+        })
+            .then(function successCallback(response) {
+                $scope.ProcessParamList = response.data;
+            });
+    }
 
     $scope.ProcessMaterialList = [];
-    $scope.OpenProcessMaterialPopUp = function () {
+    $scope.OpenProcessMaterialPopUp = function (x) {
         angular.element(document.querySelector('#porcessMaterialPopUp')).modal('show');
+        rowId = null;
+        rowId = x.data.Id;
         $http({
             method: 'POST',
             url:'Processes/ProcessManagement/LoadMaterialGrid'
@@ -322,8 +311,10 @@ function ProcessTemplateController(commonMessage, $scope, $rootScope, baseServic
     }
 
     $scope.ProcessUtilityList = [];
-    $scope.OpenProcessUtilityPopUp = function () {
+    $scope.OpenProcessUtilityPopUp = function (x) {
         angular.element(document.querySelector('#porcessUtilityPopUp')).modal('show');
+        rowId = null;
+        rowId = x.data.Id;
         $http({
             method: 'POST',
             url: 'Processes/ProcessManagement/LoadUtilityGrid'

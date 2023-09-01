@@ -3,12 +3,6 @@
 <div class="form-elements form-horizontal" ng-form="from0">
     <div class="row">
         <div class="col-md-12 col-sm-6 col-md-6">
-            @*<div class="form-group" show-errors id="div_FromDate">
-                <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
-                <div class="col-sm-9 show-message">
-                    <input type="text" name="Form Date" ng-model="report.FromDate" datepicker tabindex="2" class="form-control">
-                </div>
-            </div>*@
             <div class="form-group" show-errors>
                 <label class="col-sm-3  control-label">Fiscal Year<sup>*</sup></label>
                 <div class="col-sm-9 show-message">
@@ -24,6 +18,12 @@
                 <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
                 <div class="col-sm-9  show-message">
                     <input type="text" name="To Date" ng-model="depreciationProcess.ToDate" datepicker tabindex="3" class="form-control">
+                </div>
+            </div>
+            <div class="form-group" show-errors id="div_ProcessName">
+                <label class="col-sm-3 control-label">User Name<sup>*</sup></label>
+                <div class="col-sm-9  show-message">
+                    <input type="text" name="User Name" ng-model="depreciationProcess.ProcessName"  tabindex="3" class="form-control" required>
                 </div>
             </div>
             <div class="common-btn">
@@ -64,7 +64,7 @@
                 <div e-columns>
                     <div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkdepreciationProcess" e-textalign="center" e-width="30"></div>
                     <div e-column e-field="Code" e-headertext="Code" e-width="30" e-textalign="center"></div>
-                    <div e-column e-field="UserName" e-headertext="User Name" e-width="50" e-textalign="center"></div>
+                    <div e-column e-field="UserName" e-headertext="Asset Master" e-width="50" e-textalign="center"></div>
                     <div e-column e-field="FixedAssetCategory" e-headertext="Category" e-width="50" e-textalign="center"></div>
                     <div e-column e-field="FixedAssetSubCategory" e-headertext="Sub Category" e-width="40" e-textalign="center"></div>
                     <div e-column e-field="AssetType" e-headertext="Asset Type" e-width="40" e-textalign="center"></div>

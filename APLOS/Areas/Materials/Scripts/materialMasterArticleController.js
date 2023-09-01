@@ -857,8 +857,9 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             Id: null
             , ArticleId: $scope.articleId
             , Code: null
-            , VendorId: null
-            , VendorName: null
+            , PartyId: null
+            , PartyName: null
+            , ArticlePartyName: null
             , UserGroup: null
             , Remark: null
         };
@@ -874,8 +875,8 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             method: 'GET',
             url: $scope.path + 'getArticleAliaslist?articleId=' + $scope.articleId
         }).then(function successCallback(response) {
-            $scope.aliasList = response.data;
-
+          //  $scope.aliasList = response.data;
+            $scope.articleAlias = Object.assign({}, response.data[0]);
         });
     }
     $scope.articleAliasModel = {
@@ -939,7 +940,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.GetArticleAliasDatas();
-                    $scope.articleAliasClear();
+                    //$scope.articleAliasClear();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

@@ -100,11 +100,15 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult GetMaterialMasterWithArticlePopUpData(string column, string value)
+        public JsonResult GetMaterialMasterWithArticlePopUpData(string column, string value, string type)
         {
             MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(materialCommonService.GetMaterialMasterWithArticlePopUpData(column, value, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+           // return Json(materialCommonService.GetMaterialMasterWithArticlePopUpData(column, value, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+
+            var jsondata = Json(materialCommonService.GetMaterialMasterWithArticlePopUpData(column, value, identity.CompanyGroupId, type), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         
@@ -229,7 +233,7 @@ namespace Aplos.Areas.Materials.Controllers
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from ArticleAlias where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from ArticleAlias where ArticleId='" + data["ArticleId"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
