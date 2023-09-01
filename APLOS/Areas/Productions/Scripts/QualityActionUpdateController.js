@@ -50,7 +50,7 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
         $scope.QualityActionTakenDetailsList.splice(e.Serial + 1, 0, ob);
         refreshSerial();
     }
-   
+
     $scope.status = {
         Id: null,
         FromDate: $filter('dateFiltering')(date, 'dd-MM-yyyy'),
@@ -182,10 +182,12 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
 
     $scope.QAUParameterId = null;
     $scope.QAUItemId = null;
+    $scope.QAUStatus = null;
     $scope.QualityActionTakenDetailsList = [];
     $scope.GetActionTakenPopUp = function (args) {
         $scope.QAUParameterId = args.data.ParameterId;
         $scope.QAUItemId = args.data.ItemId;
+        $scope.ActionTakenUpdateNew.ParameterStatus = args.data.Status;
         $http({
             method: 'Get',
             url: 'Productions/QualityActionUpdate/LoadQualityActionTakenListGetDetails?ParameterId=' + $scope.QAUParameterId + '&ItemId=' + $scope.QAUItemId
