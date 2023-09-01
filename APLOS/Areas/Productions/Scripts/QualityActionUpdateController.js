@@ -16,10 +16,6 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
         {
             'Value': 'Close',
             'Text': 'Close'
-        },
-        {
-            'Value': 'Complete',
-            'Text': 'Complete'
         }
     ];
 
