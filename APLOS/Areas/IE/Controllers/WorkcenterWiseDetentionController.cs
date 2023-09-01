@@ -289,9 +289,9 @@ where DetentionMasterId='" + detentionId + "'";
                                         Format(MMT.AddedDate, 'dd-MMM-yyyy') between dateadd(month,datediff(month,0,getdate()),0)
 										and dateadd(day,-1,dateadd(month,datediff(month,-1,getdate()),0))
                                         order by FORMAT(MMT.AddedDate, 'dd-MMM-yyyy') DESC";
-           
-
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         public ActionResult Delete(string id)

@@ -119,7 +119,7 @@
                                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                                             <div e-columns>
                                                 <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-                                                <div e-column e-headertext="Check / Uncheck" e-template="#checkboxUnallocationTemplate" e-textalign="center" e-width="60"></div>
+                                                <div e-column e-headertext="Check / Uncheck" e-template="#checkboxallocationTemplate" e-textalign="center" e-width="60"></div>
 
                                                 <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
                                                 <div e-column e-field="Division" e-headertext="Division" e-width="100"></div>
@@ -129,18 +129,16 @@
                                                 <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
                                                 <div e-column e-field="Designation" e-headertext="Designation" e-width="150"></div>
 
-                                                @*<div e-column e-field="Activity" e-headertext="Activity" e-width="50"></div>*@
+                                               
                                                 <div e-column e-field="Shift" e-headertext="Shift" e-width="150"></div>
                                                 <div e-column e-field="PositionCode" e-headertext="PositionCode" e-width="100"></div>
-                                                @*<div e-column e-field="Position" e-headertext="Position" e-width="100"></div>*@
+                                                
                                                 <div e-column e-field="BudgetCode" e-headertext="BudgetCode" e-width="100"></div>
-                                                @*<div e-column e-headertext="User Group" e-template="#userGroupId" e-textalign="center" e-width="100"></div>
-                    <div e-column e-headertext="User Sub Group" e-template="#userSubGroupId" e-textalign="center" e-width="100"></div>
-                    <div e-column e-headertext="Grade" e-template="#GradeId" e-textalign="center" e-width="100"></div>*@
+                                                
                                                 <div e-column e-headertext="User Group" e-template="#userGroupId" e-textalign="center" e-width="100"></div>
                                             </div>
                                         </div>
-                                        <script type="text/template" id="checkboxUnallocationTemplate">
+                                        <script type="text/template" id="checkboxallocationTemplate">
                                             <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" ng-model="data.Active" />
                                         </script>
 
@@ -183,7 +181,7 @@
                                         </div>
                                     </div>
                                     <script type="text/template" id="checkboxUnallocationTemplate">
-                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" ng-model="data.Active" />
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
                                     </script>
 
                                     <script type="text/template" id="userGroupId2">

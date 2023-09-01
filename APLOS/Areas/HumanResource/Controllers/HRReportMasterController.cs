@@ -139,18 +139,18 @@ order by Sequence
             string whereClause = "";
             var bgtQuery = "";
 
-            if(id == null || id == "")
-            {
-                whereClause = $"where BGT.EntityId in ({Entity})";
-            }
-            else if(EntityId == "NaN,undefined,undefined,undefined,undefined,undefined,undefined,undefined,undefined,undefined" && (id != null || id != ""))
-            {
-                whereClause = $"where HMC.HRReportMasterId = '{id}'"; 
-            }
-            else if((EntityId != "NaN,undefined,undefined,undefined,undefined,undefined,undefined,undefined,undefined,undefined") && (id != null || id != ""))
-            {
-                whereClause = $"where BGT.EntityId = ({Entity}) or HMC.HRReportMasterId = '{id}'";
-            }
+            //if(id == null || id == "")
+            //{
+            //    whereClause = $"where BGT.EntityId in ({Entity})";
+            //}
+            //else if(EntityId == "NaN,undefined,undefined,undefined,undefined,undefined,undefined,undefined,undefined,undefined" && (id != null || id != ""))
+            //{
+            //    whereClause = $"where HMC.HRReportMasterId = '{id}'"; 
+            //}
+            //else if((EntityId != "NaN,undefined,undefined,undefined,undefined,undefined,undefined,undefined,undefined,undefined") && (id != null || id != ""))
+            //{
+            //    whereClause = $"where BGT.EntityId = ({Entity}) or HMC.HRReportMasterId = '{id}'";
+            //}
 
             
 
@@ -169,7 +169,7 @@ left join ORG.Section S on P.SectionId = S.Id
 left join ORG.SubSection SS on P.SubSectionId = SS.Id
 left join ORG.Division DSN on P.DivisionId = DSN.Id
 left join HKP.Designation DSG ON P.DesignationId = DSG.Id
---left join [TRN].[HRReportMasterChild] HMC on HMC.ManpowerBudgetId = BGT.Id
+left join [TRN].[HRReportMasterChild] HMC on HMC.ManpowerBudgetId = BGT.Id
 where BGT.EntityId in ("+Entity+ @") and BGT.Active = 1 and BGT.Id not in(select ManpowerBudgetId from [TRN].[HRReportMasterChild] where HMC.HRReportMasterId = '"+id+@"')
 ";
 
