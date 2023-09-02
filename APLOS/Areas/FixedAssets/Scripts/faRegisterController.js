@@ -74,6 +74,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
 
     $scope.SelectMaster = function (obj) {
         $scope.register = obj.data;
+        $scope.register.CapitalizationDate = $filter('dateFiltering')(new Date($scope.register.CapitalizationDate), 'dd-MM-yyyy');
         $scope.register.InstallationYear = parseInt($scope.register.InstallationYear);
         $scope.GetCapitalizationMasterDetail();
 
