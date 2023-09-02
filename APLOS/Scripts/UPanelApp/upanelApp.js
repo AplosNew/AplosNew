@@ -1204,6 +1204,7 @@ upanelApp.controller("ProcessTemplateController", ProcessTemplateController)
 upanelApp.controller("PayableCreationAndWorkerAdvanceController", PayableCreationAndWorkerAdvanceController)
 upanelApp.controller("QualityActionUpdateController", QualityActionUpdateController)
 upanelApp.controller("QualityActionConfirmationController", QualityActionConfirmationController)
+upanelApp.controller('AssetsRegisterReportController', AssetsRegisterReportController);
 
 
 
