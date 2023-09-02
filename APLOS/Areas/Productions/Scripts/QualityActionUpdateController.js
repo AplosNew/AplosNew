@@ -16,10 +16,6 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
         {
             'Value': 'Close',
             'Text': 'Close'
-        },
-        {
-            'Value': 'Complete',
-            'Text': 'Complete'
         }
     ];
 
@@ -33,7 +29,24 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
         });
     }
     //$scope.GetReasonNameLists();
-   
+
+    $scope.AddTile = function (e) {
+        console.log(e);
+        let ob = {};
+        Object.assign(ob, e);
+        ob.Flag = 0;
+        ob.Id = null;
+        ob.SNO = null;
+        ob.ReasonId = null;
+        ob.ReasonName = null;
+        ob.ActionTaken = null;
+        ob.ActionById = null;
+        ob.ActionBy = null;
+        ob.Remarks = null;
+        $scope.QualityActionTakenDetailsList.splice(e.Serial + 1, 0, ob);
+        refreshSerial();
+    }
+
     $scope.status = {
         Id: null,
         FromDate: $filter('dateFiltering')(date, 'dd-MM-yyyy'),
@@ -153,6 +166,7 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
         Id: null
         , SNO: null
         , ReasonId: null
+        , ReasonName: null
         , ActionTaken: null
         , ActionById: null
         , ActionBy: null
@@ -164,15 +178,20 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
 
     $scope.QAUParameterId = null;
     $scope.QAUItemId = null;
+    $scope.QAUStatus = null;
     $scope.QualityActionTakenDetailsList = [];
     $scope.GetActionTakenPopUp = function (args) {
         $scope.QAUParameterId = args.data.ParameterId;
         $scope.QAUItemId = args.data.ItemId;
+        $scope.ActionTakenUpdateNew.ParameterStatus = args.data.Status;
         $http({
             method: 'Get',
             url: 'Productions/QualityActionUpdate/LoadQualityActionTakenListGetDetails?ParameterId=' + $scope.QAUParameterId + '&ItemId=' + $scope.QAUItemId
         }).then(function successCallback(response) {
             $scope.QualityActionTakenDetailsList = response.data;
+            for (var i = 0; i < $scope.QualityActionTakenDetailsList.length; i++) {
+                Object.assign($scope.QualityActionTakenDetailsList[i], { 'Serial': parseInt(i) });
+            }
         var gridObj = $("#GridQualityActionTaken").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
             angular.element(document.querySelector('#QualityActionTakenPop')).modal('show');
         }
@@ -226,6 +245,10 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    /*var gridObj = $("#GridQualityActionUpdate").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();*/
+                    angular.element(document.querySelector('#QualityActionUpdatePop')).modal('hide');
+                  /*  var gridObj = $("#GridQualityActionTaken").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();*/
+                    angular.element(document.querySelector('#QualityActionTakenPop')).modal('hide');
                     //$scope.getActionTaken($scope.QAUParameterId, $scope.QAUItemId);
                     //ActionTakenClearFields();
                 }

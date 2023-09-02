@@ -101,7 +101,7 @@ where EI.EmployeeStatus='Active' and QCD.ResponsiblePersonId is not null";
             }
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select distinct QC.Id as HeaderId,format(QC.AddedDate,'dd-MMM-yyyy') as Date,E.Id EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,
+            string sql = @"select distinct QC.Id as HeaderId,format(QC.AddedDate,'dd-MMM-yyyy') as Date,DATEDIFF(Hour,QC.AddedDate,GETDATE()) PendingTime,E.Id EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,
 QC.IssueId,QMM.UserName Issue,EI.SystemId CheckedById,EI.EmployeeName CheckedBy,QC.ProductionOrderId PONo,QC.LotNumber,
 Article=STUFF((select distinct ','+MA.StandardName from trn.ProductionOrderDetail Pod 
 left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId=so.Id
@@ -116,7 +116,7 @@ left join MST.QualityManagementMaster QMM on QMM.Id=QC.IssueId
 left join EmployeeInformation EI on EI.SystemId=QC.ProductionInchargeId
 left join TRN.ProductionOrder PO on PO.Id=QC.ProductionOrderId
 left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
-where QCD.Status='InProgress' and QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1) " + FilterDate + @" " + ResponsiblePerson + @"";
+where QCD.Status not in ('Close') and QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1) " + FilterDate + @" " + ResponsiblePerson + @" order by DATEDIFF(Hour,QC.AddedDate,GETDATE()) desc";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -125,7 +125,7 @@ where QCD.Status='InProgress' and QCD.GradeId in (select Id from MST.QualityGrad
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select QCD.Id ParameterId,PM.UserName Parameter,QCD.Status,UOM.UserName UOM,QCD.Value,QMP.Max,QMP.Min,WC.UserName WorkCenter,QGD.GradeName,
-QAD.ActionToBeTakenName,EI.EmployeeName ResponsiblePerson,QCD.Remarks,QCD.ItemId  from TRN.QualityControlDetails QCD
+QAD.ActionToBeTakenName,EI.EmployeeName ResponsiblePerson,QCD.Remarks,QCD.ItemId,format(QCD.AddedDate,'dd-MMM-yyyy') as AddedDate,format(QCD.AddedDate,'hh:mm tt') as AddedTime  from TRN.QualityControlDetails QCD
 left join MST.QualityManagementParameterItem QMP on QMP.Id=QCD.ItemId
 left join hkp.ParameterMaster PM on PM.Id=QMP.ParameterId
 left join SCS.UnitOfMeasurement UOM on UOM.Id=QMP.UOMId
@@ -133,7 +133,7 @@ left join SCS.WorkCenterMaster WC on WC.Id=QCD.WorkCenterId
 left join MST.QualityGradeDetails QGD on QGD.Id=QCD.GradeId
 left join MST.QualityActionToBeTakenDetails QAD on QAD.Id=QCD.ActionToBeTaken
 left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
-where QCD.Status='InProgress' and QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1)
+where QCD.Status not in ('Close') and QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1)
 and QCD.QCId='" + HeaderId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -245,7 +245,7 @@ and QCD.QCId='" + HeaderId + "'";
                 {
                     foreach (var item in DataList)
                     {
-                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and ParameterId='" + PId + "'", out dsProdBooked, false, "1");
 
                         DataView dv = new DataView(dsProdBooked.Tables[0]);
 
@@ -256,6 +256,10 @@ and QCD.QCId='" + HeaderId + "'";
                             _Id = "QAT" + _Id;
                             item["Id"] = _Id;
                             item["ParameterId"] = PId;
+                            if(item["ReasonId"] != null)
+                            {
+                                item["ReasonName"] = "NULL";
+                            }
                             AddNewRow(dsProdBooked.Tables[0], item);
                         }
                         else
