@@ -5031,10 +5031,10 @@ and emp.employeecode NOT IN (2222229, 2222230) and (case when apd.InStatus = 'EI
 when apd.PunchInTime > apd.ShiftInTime then cast((apd.PunchInTime - apd.ShiftInTime) as time(0))
 else '00:00:00' end) <> '00:00:00'   and apd.WorkDate = '" + date + "'  and Hg.Id = '" + groupid + "'";
 
-                    /*if (inmis == "IN" || inmis == "IM" || inmis == "W")
+                    if (inmis == "LateIn")
                     {
-                        strSQL = strSQL1 + "and (case when apd.WeeklyStatus = 'W' then 'W' when(select top 1 rw.PTime from AttdnRawData rw where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate order by rw.PTime asc) is null then 'IM' else 'IN' end) = '" + inmis + "' order by  ISNULL(A.ToDayIN,0)-MBGT.Deployment  Asc";
-                    }*/
+                        strSQL = strSQL1;
+                    }
 
                     if (entityid != null && shiftid == null && locations == null)
                     {
@@ -5078,9 +5078,6 @@ else '00:00:00' end) <> '00:00:00'   and apd.WorkDate = '" + date + "'  and Hg.I
                     {
                         strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null order by  ISNULL(A.ToDayIN,0)-MBGT.Deployment  Asc";
                     }
-
-                   
-
 
                     #endregion Sql
                     objCon = new clsConnectionManager();
