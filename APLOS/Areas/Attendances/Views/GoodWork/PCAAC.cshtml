@@ -23,15 +23,15 @@
                         </div>
                     </div>
                     <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">User Reference<sup>*</sup></label>
+                        <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" class="form-control" name="UserRef" ng-model="ModelPCNew.UserRef" e-width="100" />
+                            <input type="text" class="form-control" name="UserName" ng-model="ModelPCNew.UserName" e-width="100" />
                         </div>
                     </div>
                     <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Payment Due Date<sup>*</sup></label>
+                        <label class="col-sm-4 control-label">Payment Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="PaymentDueDate" ng-model="ModelPCNew.PaymentDueDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="3">
+                            <input type="text" name="PaymentDueDate" ng-model="ModelPCNew.PaymentDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="3">
                         </div>
                     </div>
                 </div>
@@ -43,21 +43,26 @@
                         </div>
                     </div>
                     <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Prepared By<sup>*</sup></label>
+                        <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <div class="input-group">
-                                <input tabindex="1" type="text" name="PreparedBy" ng-model="ModelPCNew.PreparedBy" class="form-control" readonly required>
+                                <input tabindex="1" type="text" name="By Whom" ng-model="ModelPCNew.ByWhom" class="form-control" readonly required>
                                 <span class="input-group-btn">
-                                    <button ng-click="showEmployeeListPopUp('PB');" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="showEmployeeListPopUp('BH');" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
                                 </span>
                             </div>
                         </div>
                     </div>
-
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Remarks</label>
+                        <div class="col-sm-8 show-message">
+                            <textarea class="form-control" rows="3" ng-model="ModelPCNew.Remarks" maxlength="250" tabindex="8"></textarea>
+                        </div>
+                    </div>
                 </div>
 
                 <ul class="col-md-6 common-btn list-inline text-left">
-                    <li><button ng-click="getEmploymeeList();" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Employee</button></li>
+                    <li><button ng-click="GetLoadEmployeeInformation();" class="btn"><i class="glyphicon glyphicon-arrow-down"></i> Go</button></li>
                 </ul>
 
                 <div class="clearfix"></div>
@@ -66,30 +71,18 @@
                         <thead>
                             <tr>
                                 <th>Employee Code</th>
-                                <th>Employee Name</th>
-                                <th>Section</th>
-                                <th>SubSection</th>
-                                <th>Department</th>
-                                <th>Pay Days</th>
+                                <th>Employee Name</th> 
                                 <th>Amount</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="x in EmployeeMainList" ng-class="{selected : x.Id==null}">
+                            <tr ng-repeat="x in PCEmployeeList" ng-class="{selected : x.Id==null}">
                                 <td>{{x.EmployeeCode}}</td>
-                                <td>{{x.EmployeeName}}</td>
-                                <td>{{x.Section}}</td>
-                                <td>{{x.SubSection}}</td>
-                                <td>{{x.Department}}</td>
-                                <td>
-                                    <span class="input-group-btn">
-                                        <input type="number" class="form-control" name="PayDays" ng-model="x.PayDays" e-width="100" />
-                                    </span>
-                                </td>
-                                <td><input type="number" class="form-control" name="Amount" ng-model="x.Amount" e-width="100" /></td>
+                                <td>{{x.EmployeeName}}</td>  
+                                <td><input type="number" class="form-control" name="Amount" ng-model="x.Amount" e-width="100" disabled /></td>
                                 <td class="text-right">
-                                    <button ng-click="$parent.removeRow(x)" @*data-toggle="modal"*@ ng-="currencyDisable" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                                    <button ng-click="$parent.removeRow(x)"  ng-="currencyDisable" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
                                         <i class="glyphicon glyphicon-remove"></i>
                                     </button>
                                 </td>
@@ -100,25 +93,24 @@
 
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                        <li> <button ng-click="PayableCreationSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
                         @*<li> <button ng-click="Delete();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Delete</button></li>*@
-                        <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        <li> <button ng-click="ClearPayableCreation();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                     </ul>
                 </div>
             </div>
             <div class="table-responsive aplos-grid-toggle">
-                <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="WorkerAdvanceList" e-recorddoubleclick="GetDblClick" e-load="loadGridEdit"
+                <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="GoodWorkPaymentList" e-recorddoubleclick="GetGWPDblClick" 
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                     <div e-columns>
+                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="3"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="3"></div>
                         <div e-column e-field="FromDate" e-headertext="From Date" e-width="2" e-isprimarykey="true"></div>
                         <div e-column e-field="ToDate" e-headertext="To Date" e-width="2" e-isprimarykey="true"></div>
-                        <div e-column e-field="UserRef" e-headertext="User Ref" e-width="3"></div>
-                        <div e-column e-field="NoOfDays" e-headertext="No Of Days" e-width="3"></div>
-                        <div e-column e-field="Percentage" e-headertext="Percentage" e-width="3"></div>
-                        <div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="3"></div>
-                        <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="3"></div>
-                        <div e-column e-field="ApprovedBy" e-headertext="Approved By" e-width="3"></div>
+                        <div e-column e-field="UserName" e-headertext="UserName" e-width="3"></div>
+                        <div e-column e-field="PaymentDate" e-headertext="Payment Date" e-width="3"></div>
+                        <div e-column e-field="Amount" e-headertext="Amount" e-width="3"></div>
                         <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
                     </div>
                 </div>
