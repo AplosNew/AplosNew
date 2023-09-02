@@ -1,0 +1,66 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Capitalize Asset Register Report</h3>
+<div class="form-elements form-horizontal" ng-form="form0">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="col-xs-3 col-sm-3 col-md-3">
+                <div class="form-group" show-errors id="div_FromDate">
+                    <label class="col-sm-5 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-7 show-message">
+                        <input type="text" name="Form Date" ng-model="report.FromDate" datepicker tabindex="2" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-3 col-sm-3 col-md-3">
+                <div class="form-group" show-errors id="div_ToDate">
+                    <label class="col-sm-5 control-label">TO Date<sup>*</sup></label>
+                    <div class="col-sm-7  show-message">
+                        <input type="text" name="To Date" ng-model="report.ToDate" datepicker tabindex="2" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-1 col-sm-1 col-md-1">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="GetFixedAssetRegisterElasticSearchData();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-xs-3 col-sm-3 col-md-3">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="table-responsive modal-table aplos-grid-toggle">
+            <div class="content-container-fluid" style="color:black;overflow:scroll">
+                <div style="color:black;" id="GridFixedAssetRegisterReportElasticSearch" ej-grid e-datasource="FixedAssetRegisterElasticSearchList" e-recorddoubleclick="getdata" e-templaterefresh="refreshTemplateEntityandDepartment"
+                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-summaryrows="TotalFARegisterSummaryAmount"
+                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
+                    <div e-columns>
+                        <div e-column e-type="text" e-field="CapitalizationMasterId" e-headertext="CM Id" e-width="20" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="CapitalizationChildId" e-headertext="CC Id" e-width="20" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="AssetAmount" e-headertext="Asset Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="DepreciationAmount" e-headertext="Depreciation Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="NetAmount" e-headertext="Net Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="FixedAssetMaster" e-headertext="Asset Master" e-width="60" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="FixedAssetItem" e-headertext="Asset Item" e-width="60" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="FixedAssetItemId" e-headertext="Asse tItem Id" e-width="20" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="AssetRegisterId" e-headertext="Asset Register Id" e-width="20" style="height: 20px;"></div>
+                        <div e-column e-type="text" e-field="UserReference" e-headertext="User Reference" e-width="20" e-textalign="right" style="height: 20px;"></div>
+
+
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+    <div class="common-btn">
+        <ul class="list-inline text-left">
+            <li><button ng-click="FixedAssetRegisterReportExcel();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+        </ul>
+    </div>
+

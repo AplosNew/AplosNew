@@ -1,0 +1,343 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>Quality Action Confirmation
+</h3>
+<style>
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell {
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    .modellgModify {
+        width: 1600px;
+    }
+</style>
+<div class="form-horizontal form-elements">
+    <div class="row">
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">From Date</label>
+                <div class="col-sm-8">
+                    <input type="text" required e-dateformat="dd-MMM-yyyy" ng-model="statusNew.FromDate" datepicker class="form-control">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">To Date</label>
+                <div class="col-sm-8">
+                    <input type="text" required e-dateformat="dd-MMM-yyyy" ng-model="statusNew.ToDate" datepicker class="form-control" ng-change="">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 contro-label">Responsible Person<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="Responsible Person" ng-disabled="true" ng-model="statusNew.ActResponsiblePerson" class="form-control" maxlength="100" autocomplete="off">
+                    </div>
+                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                        <button ng-click="selectActResponsiblePerson();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li> <button ng-click="View();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> Go </button></li>
+                    <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            @* <div id="maindiv" class="table-responsive modal-table">*@
+            <div id="GridQualityActionUpdateHeader" ej-grid e-datasource="QualityActionUpdateHeaderList" e-recorddoubleclick="GetDetails"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-rowdatabound="rowDataBound"
+                 e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                <div e-columns>
+                    <div e-column e-type="string" e-field="HeaderId" e-headertext="Header Id" e-width="50"></div>
+                    <div e-column e-type="string" e-field="Date" e-headertext="Date" e-width="50"></div>
+                    <div e-column e-type="string" e-field="PendingTime" e-headertext="Pending Time" e-width="50"></div>
+                    <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="50"></div>
+                    <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="60"></div>
+                    <div e-column e-type="string" e-field="Issue" e-headertext="Issue" e-width="100"></div>
+                    <div e-column e-type="string" e-field="CheckedBy" e-headertext="Checked By" e-width="80"></div>
+                    <div e-column e-type="string" e-field="PONo" e-headertext="PO No" e-width="50"></div>
+                    <div e-column e-type="string" e-field="LotNumber" e-headertext="Lot Number" e-width="80"></div>
+                    <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="100"></div>
+                    <div e-column e-type="string" e-field="POStatus" e-headertext="PO Status" e-width="50"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="ActResponsiblePersonPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Employee List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Employee</p>
+                        <div style="color:black;" id="GridActResponsiblePersonPopup" ej-grid e-datasource="ActResponsiblePersonList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleActResponsiblePerson">
+                            <div e-columns>
+                                <div e-column e-field="SystemId" e-headertext="Id" e-visible="false" e-width="120"></div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="120"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="50"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="120"></div>
+                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="120"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="120"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeActResponsiblePersonPopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="QualityActionUpdatePop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Quality Action Confirmation Parameter Detatils <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                @*<div class="col-md-12">*@
+                <div class="content-container-fluid" style="color:black;overflow:scroll">
+                    <div style="color:black;" id="GridQualityActionUpdate" ej-grid e-datasource="QualityActionUpdateParameterDetailsList"
+                         e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                         e-recorddoubleclick="">
+                        <div e-columns>
+                            <div e-column e-template="#Action" e-headertext="Action Taken" e-width="70"></div>
+                            <div e-column e-type="string" e-field="Parameter" e-headertext="Parameter" e-width="100"></div>
+                            <div e-column e-type="string" e-field="WorkCenter" e-headertext="Work Center" e-width="100"></div>
+                            <div e-column e-type="string" e-field="ParameterId" e-headertext="Para.Trans.Id" e-width="80"></div>
+                            <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Value" e-headertext="Value" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Max" e-headertext="Max" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Min" e-headertext="Min" e-width="100"></div>
+                            <div e-column e-type="string" e-field="GradeName" e-headertext="Grade Name" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                            <div e-column e-type="string" e-field="ActionToBeTakenName" e-headertext="ActionToBeTakenName" e-width="100"></div>
+                            <div e-column e-type="string" e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Status" e-headertext="Status" e-width="100"></div>
+                            <div e-column e-type="string" e-field="AddedDate" e-headertext="Added Date" e-width="100"></div>
+                            <div e-column e-type="string" e-field="AddedTime" e-headertext="Added Time" e-width="100"></div>
+                        </div>
+                        <script type="text/template" id="Action">
+                            <div class="form-group">
+                                <div class="col-sm-5 text-center">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li>
+                                                <button id="Action" ng-click="$parent.GetActionTakenPopUp(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </script>
+                    </div>
+                </div>
+                @*</div>*@
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="ResponsiblePersonPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Actionable Person List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Please Select an Actionable Person</p>
+                        <div style="color:black;" id="GridResponsiblePopUp" ej-grid e-datasource="ReponsiblePersonList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleEmployee" e-templaterefresh="refreshTemplateResponsiblePerson">
+                            <div e-columns>
+                                <div e-column e-headertext="All" e-headertemplateid="#headerTemplateResponsiblePerson" e-template="#checkboxTemplateResponsiblePerson" e-textalign="center" e-width="50"></div>
+                                <div e-column e-template="#ActualMinutes" e-headertext="Actual Minutes" e-width="50"></div>
+                                <div e-column e-field="SystemId" e-headertext="Id" e-visible="false" e-width="120"></div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="120"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="50"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="120"></div>
+                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="120"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="120"></div>
+                                <div e-column e-field="EmployeeFlag" e-headertext="Team Flag" e-width="120"></div>
+                            </div>
+                            <script type="text/template" id="checkboxTemplateResponsiblePerson">
+                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsActive" />
+                            </script>
+                            <script type="text/x-jsrender" id="headerTemplateResponsiblePerson">
+                                <input type="checkbox" id="headchk" />
+                            </script>
+                            <script type="text/template" id="ActualMinutes">
+                                <div class="col-sm-12" style="padding:0px;">
+                                    <input type="number" name="Actual Minutes" ng-model="data.ActualMinutes" ng-click="" class="form-control">
+                                </div>
+                            </script>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <button ng-click="closeResponsiblePersonPopUp();" class="btn"><i class=""></i> Close</button>
+                            <button ng-click="SaveResponsiblePerson();" class="btn"><i class=""></i> Save</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="QualityActionTakenPop" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Quality Action Taken<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+        <div class="modal-body form-element-ctrl form-horizontal">
+            <div class="col-xs-12">
+                <div id="GridQualityActionTaken" ej-grid e-datasource="QualityActionTakenDetailsList" e-recorddoubleclick="GetActionTakenDetailsDetails"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Item Id" e-visible="false" e-width="3"></div>
+                        <div e-column e-field="ParameterId" e-headertext="Parameter Id" e-visible="false" e-width="3"></div>
+                        <div e-column e-template="#AddTile" e-headertext="Add" e-width="60"></div>
+                        <div e-column e-template="#SNO" e-headertext="SNO" e-width="100"></div>
+                        <div e-column e-template="#ReasonName" e-headertext="Reason Name" e-width="100"></div>
+                        <div e-column e-template="#ActionTaken" e-headertext="Action Taken" e-width="100"></div>
+                        <div e-column e-template="#ActionBy" e-headertext="Action By" e-width="100"></div>
+                        <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="150"></div>
+                        <div e-column e-template="#ConfirmRemarks" e-headertext="Confirm.Remarks" e-width="150"></div>
+                    </div>
+                </div>
+                <script type="text/template" id="AddTile">
+                    <div class="common-btn">
+                        <ul class="list-inline text-center">
+                            <li><button ng-click="$parent.AddTile(data);" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i></button></li>
+                        </ul>
+                    </div>
+                </script>
+                <script type="text/template" id="SNO">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="SNO" ng-model="data.SNO" ng-click="" class="form-control" maxlength="200">
+                    </div>
+                </script>
+                <script type="text/template" id="ReasonName">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="Reason Name" ng-model="data.ReasonName" ng-click="" class="form-control" maxlength="200">
+                    </div>
+                </script>
+                <script type="text/template" id="ActionTaken">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="Action Taken" ng-model="data.ActionTaken" ng-click="" class="form-control" maxlength="200">
+                    </div>
+                </script>
+                <script type="text/template" id="ActionBy">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="Action By" ng-model="data.ActionBy" ng-click="$parent.selectActionBy(this);" class="form-control" maxlength="200">
+                    </div>
+                </script>
+                <script type="text/template" id="Remarks">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
+                    </div>
+                </script>
+                <script type="text/template" id="ConfirmRemarks">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="Confirm Remarks" ng-model="data.ConfirmRemarks" ng-click="" class="form-control" maxlength="200">
+                    </div>
+                </script>
+            </div>
+            <div class="col-md-12 col-sm-12 col-xs-12">
+            </div>
+            <div class="clearfix common-btn" style="padding-right: 15px;">
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <label class="col-sm-6 control-label">ParameterStaus</label>
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ActionTakenUpdateNew.ParameterStatus" name="Parameter Status"
+                                ng-options="item.Value as item.Text for item in ParameterStatusLists">
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <label class="col-sm-6 control-label">Confirmation Remarks</label>
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <input type="text" ng-model="ActionTakenUpdateNew.ConfirmationRemarks" class="form-control" maxlength="200">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="ActionTakenSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                        @*<li><button ng-click="ActionTakenClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                <li> <button ng-click="ActionTakenDelete();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Delete</button></li>*@
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-12 col-sm-12 col-xs-12">
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="ActionByPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Employee List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Employee</p>
+                        <div style="color:black;" id="GridActionByPopup" ej-grid e-datasource="ActionByList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleActionBy">
+                            <div e-columns>
+                                <div e-column e-field="SystemId" e-headertext="Id" e-visible="false" e-width="120"></div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="120"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="50"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="120"></div>
+                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="120"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="120"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeActionByPopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*</div>*@
+
+

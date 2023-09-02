@@ -156,7 +156,7 @@
 
                             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                                 <div class="table-responsive">
-                                    <div id="bgtCodeGridId" ej-grid e-datasource="SavedBudgetList" e-load="loadGridEdit"
+                                    <div id="savedbgtCodeGridId" ej-grid e-datasource="SavedBudgetList" e-load="loadGridEdit"
                                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                                         <div e-columns>
@@ -229,6 +229,7 @@
                                                     <div class="common-btn">
                                                         <ul class="list-inline text-right">
                                                             <li> <button ng-click="ClosePopupOnSelectAllField(this);" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                                                            <li> <button ng-click="DeleteBudgetCode(this);" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Delete </button></li>
 
                                                         </ul>
                                                     </div>

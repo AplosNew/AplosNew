@@ -112,9 +112,9 @@ order by Sequence
 
         public  ActionResult ViewAllBudgetCode()
         {
-          string  bgtQuery = @"select HMC.Id, HMC.Active , E.UserName Entity, D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
+          string  bgtQuery = @"select BGT.Id, E.UserName Entity, D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
                             , DSG.UserName Designation, A.UserName Activity,SDF.UserName [Shift], P.Code PositionCode
-                            , P.UserName Position ,BGT.Code BudgetCode, BGT.Id ManpowerBudgetId --, isSelected=CAST (CASE WHEN HMC.Id IS NULL THEN 0 ELSE 1 END AS bit)
+                            , P.UserName Position ,BGT.Code BudgetCode, BGT.Id ManpowerBudgetId 
                             from  MST.ManpowerBudget BGT 
                             left join ORG.Entity E on E.Id = BGT.EntityId
                             left join MST.BudgetMasterActivity BMA on BGT.ROBudgetCode = BMA.BudgetMasterId
@@ -127,7 +127,7 @@ order by Sequence
                             left join ORG.SubSection SS on P.SubSectionId = SS.Id
                             left join ORG.Division DSN on P.DivisionId = DSN.Id
                             left join HKP.Designation DSG ON P.DesignationId = DSG.Id
-                            left join [TRN].[HRReportMasterChild] HMC on HMC.ManpowerBudgetId = BGT.Id
+                            --left join [TRN].[HRReportMasterChild] HMC on HMC.ManpowerBudgetId = BGT.Id
                             where BGT.Active = 1";
 
             return Json(_sqlRepository.GetDataCollection(bgtQuery), JsonRequestBehavior.AllowGet);
@@ -154,7 +154,7 @@ order by Sequence
 
             
 
-            bgtQuery = @"select ''Id, HMC.Active , E.UserName Entity, D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
+            bgtQuery = @"select BGT.Id, HMC.Active , E.UserName Entity, D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
 , DSG.UserName Designation, A.UserName Activity,SDF.UserName [Shift], P.Code PositionCode
 , P.UserName Position ,BGT.Code BudgetCode, BGT.Id ManpowerBudgetId --, isSelected=CAST (CASE WHEN HMC.Id IS NULL THEN 0 ELSE 1 END AS bit)
 from  MST.ManpowerBudget BGT 
@@ -169,8 +169,9 @@ left join ORG.Section S on P.SectionId = S.Id
 left join ORG.SubSection SS on P.SubSectionId = SS.Id
 left join ORG.Division DSN on P.DivisionId = DSN.Id
 left join HKP.Designation DSG ON P.DesignationId = DSG.Id
-left join [TRN].[HRReportMasterChild] HMC on HMC.ManpowerBudgetId = BGT.Id
-where BGT.EntityId in ("+Entity+ @") and BGT.Active = 1 and BGT.Id not in(select ManpowerBudgetId from [TRN].[HRReportMasterChild] where HMC.HRReportMasterId = '"+id+@"')
+--left join [TRN].[HRReportMasterChild] HMC on HMC.ManpowerBudgetId = BGT.Id
+where BGT.EntityId in ("+Entity+ @") and BGT.Active = 1 
+--and BGT.Id not in(select ManpowerBudgetId from [TRN].[HRReportMasterChild] where HMC.HRReportMasterId = '"+id+@"')
 ";
 
             return Json(_sqlRepository.GetDataCollection(bgtQuery), JsonRequestBehavior.AllowGet);
@@ -181,7 +182,7 @@ where BGT.EntityId in ("+Entity+ @") and BGT.Active = 1 and BGT.Id not in(select
         {
            string bgtQuery = @"select HMC.Id ,E.UserName Entity, HMC.Active ,D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
 , DSG.UserName Designation, A.UserName Activity,SDF.UserName [Shift], P.Code PositionCode
-, P.UserName Position ,BGT.Code BudgetCode, BGT.Id ManpowerBudgetId, isSelected=CAST (CASE WHEN HMC.Id IS NULL THEN 0 ELSE 1 END AS bit)
+, P.UserName Position ,BGT.Code BudgetCode, BGT.Id ManpowerBudgetId, isSelected = HMC.Active, HMC.Active
 from  [TRN].[HRReportMasterChild] HMC
 full join MST.ManpowerBudget BGT on BGT.Id = HMC.ManpowerBudgetId
 left join ORG.Entity E on E.Id = BGT.EntityId
@@ -195,7 +196,7 @@ left join ORG.Section S on P.SectionId = S.Id
 left join ORG.SubSection SS on P.SubSectionId = SS.Id
 left join ORG.Division DSN on P.DivisionId = DSN.Id
 left join HKP.Designation DSG ON P.DesignationId = DSG.Id
-where HMC.HRReportMasterId = '"+id+ @"' and HMC.Active = 1
+where HMC.HRReportMasterId = '" + id+ @"' and HMC.Active = 1
 order by HMC.ManpowerBudgetId DESC";
 
             return Json(_sqlRepository.GetDataCollection(bgtQuery), JsonRequestBehavior.AllowGet);
@@ -508,19 +509,30 @@ order by HMC.ManpowerBudgetId DESC";
 
         }
 
-        public ActionResult DeleteBudgetCode(string bgtId, string groupId)
+        public ActionResult DeleteBudgetCode(List<Dictionary<string,object>> groupId , string bgtId)
         {
             try
             {
                 string BudgetCodeTable = "TRN.HRReportMasterChild";
                 string GroupTable = "TRN.HRReportMasterBudgetUserGroup";
+                var userGroupId = "";
 
-                if (string.IsNullOrEmpty(bgtId))
+                foreach (var item in groupId)
+                {
+                    if (userGroupId == "")
+                        userGroupId = "'" + item["Id"] + "'";
+                    else
+                        userGroupId = userGroupId + ",'" + item["Id"] + "'";
+                    
+                }
+
+                if (string.IsNullOrEmpty(userGroupId))
                     throw new Exception("Select entry first");
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
-                con.executeQuery("delete from " + GroupTable + " where id='" + groupId + "'");
+                //con.executeQuery($"delete from  {GroupTable} where id in ('{userGroupId})'");
+                con.executeQuery("delete from " + GroupTable + " where id in (" + userGroupId + ")");
                 con.executeQuery("delete from " + BudgetCodeTable + " where id='" + bgtId + "'");
                 con.CommitTransaction();
                 return Json(new { Id = bgtId, x = groupId, Message = AplosMessage.Deleted });

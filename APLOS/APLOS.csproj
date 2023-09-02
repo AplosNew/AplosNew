@@ -637,6 +637,7 @@
     <Compile Include="Areas\HumanResource\Controllers\OTRegionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ResidenceStatusAllocationController.cs" />
     <Compile Include="Areas\Materials\Controllers\InputConfirmationController.cs" />
+    <Compile Include="Areas\Productions\Controllers\QualityActionConfirmationController.cs" />
     <Compile Include="Areas\Productions\Controllers\QualityActionUpdateController.cs" />
     <Compile Include="Areas\Productions\Controllers\WorkCenterQualityControlMasterController.cs" />
     <Compile Include="Areas\Productions\Controllers\QualityControlController.cs" />
@@ -2085,6 +2086,7 @@
     <Content Include="Areas\FixedAssets\Scripts\CapitalizeAssetRegisterPostingController.js" />
     <Content Include="Areas\FixedAssets\Scripts\faRegisterController.js" />
     <Content Include="Areas\FixedAssets\Scripts\assetDepreciationProcessController.js" />
+    <Content Include="Areas\FixedAssets\Scripts\AssetsRegisterReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\BudgetCodeWiseHRReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\BudgetReportMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\DesignationSetupController.js" />
@@ -2271,6 +2273,7 @@
     <Content Include="Areas\HumanResource\Scripts\OTConfirmationProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\ScatteredWeekOffController.js" />
     <Content Include="Areas\Materials\Scripts\InputConfirmationController.js" />
+    <Content Include="Areas\Productions\Scripts\QualityActionConfirmationController.js" />
     <Content Include="Areas\Productions\Scripts\QualityActionUpdateController.js" />
     <Content Include="Areas\Productions\Scripts\WorkCenterQualityControlMasterController.js" />
     <Content Include="Areas\Productions\Scripts\QualityControlController.js" />
@@ -4780,6 +4783,8 @@
     <Content Include="Areas\Productions\Views\QualityActionUpdate\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\QRCodeGenerator\_PreviewScreen.cshtml" />
     <Content Include="Areas\Processes\Views\ProcessManagementRecepie\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\QualityActionConfirmation\Aplos.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\AssetsRegisterReport.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
