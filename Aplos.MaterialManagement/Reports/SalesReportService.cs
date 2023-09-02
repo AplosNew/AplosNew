@@ -4844,7 +4844,7 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
                     ), 1, 1, '')
         ) AS Shade
 		,IR.AddedBy CreatedBy
-        , SCN.Bags, SCN.LotNo, CONVERT(NUMERIC(10,2),SCN.GWeight)GWeight, MO.Type,MO.MasterOrderNo,SO.Id SalesOrderNo,MO.BuyerReferenceNo		
+        , SCN.Bags, SCN.LotNo, CONVERT(NUMERIC(10,2),SCN.GWeight)GWeight, MO.Type,MO.MasterOrderNo,SO.Id SalesOrderNo,MO.BuyerReferenceNo,BB.IFSCCode		
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
 LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
