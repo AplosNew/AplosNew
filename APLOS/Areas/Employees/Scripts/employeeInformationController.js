@@ -3257,12 +3257,11 @@ function employeeInformationController(addressService, fileReader, cboService, c
         angular.element(document.querySelector('#DocShowPopUp')).modal('show');
     };
 
-    $scope.DownloadImageFile = function (data) {
-        $scope.dwonloadUrl = null;
-        var str = data.FileName;
-        $scope.FileNam = data.FileName;
+    $scope.DownloadImageFile = function () {
+        var str = $scope.tempdata.FileName;
+        $scope.FileNam = $scope.tempdata.FileName;
         var extention = str.substr(str.indexOf('.'));
-        $scope.dwonloadUrl = virtualPath.EmployeeDocument + '/' + data.FileId + extention;
+        $scope.dwonloadUrl = virtualPath.EmployeeDocument + '/' + $scope.tempdata.FileId + extention;
     };
 
     // #region Document
