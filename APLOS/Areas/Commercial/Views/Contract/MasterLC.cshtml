@@ -1,12 +1,30 @@
 ﻿<togglable name="Master LC"></togglable>
 <div class="form-elements form-horizontal" ng-form name="MasterLCForm">
     <input type="hidden" ng-model="modelNew.Id">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Service" role="tab" data-toggle="tab">Contract</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Service" role="tab" data-toggle="tab">Contract</a></li>
+            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="Service" role="tab" data-toggle="tab">Contract</a></li>
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+
+        </div>
+    </div>
     <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group"> 
+            <div class="form-group">
                 <label class="col-sm-4 control-label" title="Version">Last Version</label>
                 <label class="col-sm-2 control-label" title="Version">{{masterLC.Version}}</label>
-            </div> 
+            </div>
 
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Benificiary Bank<sup>*</sup></label>
@@ -22,10 +40,10 @@
                 <label class="col-sm-4 control-label">Opening Bank<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     @*<div class="select-style">
-                    <select name="Opening Bank" class="form-control" ng-model="masterLC.OpeningBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="3">
-                        <option value="">--Select--</option>
-                    </select>
-                </div>*@
+                            <select name="Opening Bank" class="form-control" ng-model="masterLC.OpeningBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="3">
+                                <option value="">--Select--</option>
+                            </select>
+                        </div>*@
                     <input type="text" name="Opening Bank" ng-model="masterLC.OpeningBank" class="form-control" required tabindex="3" maxlength="50">
                 </div>
             </div>
@@ -33,10 +51,10 @@
                 <label class="col-sm-4 control-label">Advising Bank</label>
                 <div class="col-sm-8">
                     @*<div class="select-style">
-                    <select name="Lein Bank" class="form-control" ng-model="masterLC.LeinBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="5">
-                        <option value="">--Select--</option>
-                    </select>
-                </div>*@
+                            <select name="Lein Bank" class="form-control" ng-model="masterLC.LeinBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="5">
+                                <option value="">--Select--</option>
+                            </select>
+                        </div>*@
                     <input type="text" name="Advising Bank" ng-model="masterLC.LeinBank" class="form-control" tabindex="5" maxlength="50">
                 </div>
             </div>
@@ -182,7 +200,7 @@
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li> <button ng-click="SaveMasterLC();" ng-disabled="masterLC.Version>1" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            <li> <button data-toggle="modal"  ng-disabled="masterLC.Version>1" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button data-toggle="modal" ng-disabled="masterLC.Version>1" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
             <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>

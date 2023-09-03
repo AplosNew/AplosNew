@@ -181,7 +181,7 @@ namespace Library.HumanResource.Payroll.SalaryProcess
                                     LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = E.LegalDesignationId
                                     LEFT join  [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LGD.Id
                                     left join [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
-                                    LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id
+                                    LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id AND DMC.PlantId=e.PlantId
 						            LEFT JOIN HKP.Designation DeG ON DeG.Id = dm.DesignationId
                                     left join HKP.EmployeeCategory EC ON EC.ID=DM.EmployeeCategoryId
                                     LEFT JOIN ORG.Section AS Se ON Se.Id = PR.SectionID
