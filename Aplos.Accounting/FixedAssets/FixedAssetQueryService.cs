@@ -2818,5 +2818,23 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
             }
         }
         #endregion
+
+        #region Capitalize Asset Register Report
+        public List<Dictionary<string, object>> GetAssetRegisterElasticSearchDataList(string companyGroupId, string companyId, string plantId, string fromDate, string toDate)
+        {
+            var sql = @"SELECT ARC.CapitalizationMasterId,ARC.CapitalizationChildId,ARC.Amount AssetAmount,ARC.DepreciationAmount,ARC.NetAmount,FAM.UserName FixedAssetMaster,FAI.UserName FixedAssetItem, AR.FixedAssetItemId,ARC.AssetRegisterId
+							,AR.AssetSlNo, AR.RFId, AR.BarCode, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks 
+                            FROM TRN.AssetRegisterChild ARC
+							LEFT JOIN TRN.AssetRegister AR ON AR.Id=ARC.AssetRegisterId
+                            LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
+                            LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
+							LEFT JOIN [TRN].[CapitalizationMaster] CM ON CM.Id=ARC.CapitalizationMasterId
+		                WHERE ARC.CompanyGroupId='" + companyGroupId + "' AND ARC.CompanyId='" + companyId + "' AND ARC.PlantId='" + plantId + @"'  AND ARC.VoucherDetailId is not null
+					    AND convert(Date,CM.CapitalizationDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
+				        ORDER BY FAM.UserName,FAI.UserName";
+            return _sqlRepository.GetDataCollection(sql);
+
+        }
+        #endregion
     }
 }
