@@ -976,7 +976,7 @@ order by pk.Date  DESC";
                             group by  sc.ProductCode ,sc.POId , sc.LotNo
                             ) as sc on sc.LotNo = pol.LotNo and sc.ProductCode = pol.ProductCode and sc.POId = pol.PONo
                             left join ( Select   count(RefNo) Bages , sc.LotNo from
-                            dbo.ItemScanChild sc	
+                            dbo.ItemScanChild sc	where  Booked = 0
                             group by   sc.LotNo
 							) as ssd on ssd.LotNo = pol.LotNo
 							left join mst.MaterialMaster ma on ma.Id = moi.MaterialMasterId
