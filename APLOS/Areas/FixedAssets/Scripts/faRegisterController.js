@@ -74,6 +74,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
 
     $scope.SelectMaster = function (obj) {
         $scope.register = obj.data;
+        $scope.register.CapitalizationDate = $filter('dateFiltering')(new Date($scope.register.CapitalizationDate), 'dd-MM-yyyy');
         $scope.register.InstallationYear = parseInt($scope.register.InstallationYear);
         $scope.GetCapitalizationMasterDetail();
 
@@ -236,6 +237,56 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
             }
         }
         var gridObj = $("#Grid").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.refreshTemplateCI = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllCI });
+    };
+
+    function CheckBoxSelectAllCI(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridCI").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.materialMasterList.length; i++) {
+                $scope.materialMasterList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridCI").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.refreshTemplateEx = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEx });
+    };
+
+    function CheckBoxSelectAllEx(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridEx").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.materialMasterList.length; i++) {
+                $scope.materialMasterList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridEx").data("ejGrid");
         gridObj.refreshContent();
     };
 

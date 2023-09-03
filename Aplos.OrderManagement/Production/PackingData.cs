@@ -545,7 +545,7 @@ namespace Library.OrderManagement.Production
                        
                        left join trn.ProductionOrder PO on PO.Id = sc.POId
                        left join hkp.ProductionStatus PS on PS.Id = PO.ProductionStatusId
-                        where sc.ProductCode = '" + productCode + @"'
+                        where sc.ProductCode = '" + productCode + @"' and StockQty.StockQty <> 0
                         group by sc.ProductCode , sc.POId, sc.LotNo ,StockQty.StockQty,desp.Despatch,bb.BookQty,plann.PlanQty,PS.StandardName,PO.Qty,pack.ProducedQty";
 
                 DataTable dt = _sqlRepository.GetDataTable(str);
@@ -938,7 +938,7 @@ order by pk.Date  DESC";
             {
                 var str = @"Select pol.Id,pol.PackingLineItemId,pol.ProductCode,pol.PONo,pol.LotNo,pol.PlanQty,pol.Status,pol.Remarks, isnull(bk.booked,0) as BookQty from trn.POLotReference pol 
 							left join
-							(Select sum(NetWeight) as booked , PackingId from dbo.ItemScanChild where Booked = 1
+							(Select sum(NetWeight) as booked , PackingId from dbo.ItemScanChild where Booked = 1 and SalesReturnId is null
 							group by PackingId) as bk on bk.PackingId = pol.Id
                             where PackingLineItemId = '" + PackingLineItemId + @"'";
                 return _sqlRepository.GetDataCollection(str);
@@ -955,21 +955,27 @@ order by pk.Date  DESC";
             {
                 var str = @"Select pli.PackingLineItemId , mo.Id as MasterOrderNo, moi.Id as ItemId, ma.UserName as Material, mma.StandardName as Article ,so.id as SoId ,
                             pol.LotNo  , pol.ProductCode , pol.PONo , sc.StockQty , pp.Cartons as NoOfPackages,
-                            pol.PlanQty , (Case when po.Id != pol.PONo then po.Id else '' end) as SoPoNo
+                            pol.PlanQty , (Case when po.Id != pol.PONo then po.Id else '' end) as SoPoNo , ssd.Bages,PLA.AttributeValue ShadeNo
                             from trn.PackingLineItem pli
                             left join trn.SalesOrder so on so.Id = pli.SOId
                             left join trn.ProductionOrderDetail pod on pod.SalesOrderId = so.Id
                             left join trn.ProductionOrder po on po.Id = pod.ProductionOrderId
                             left join trn.MasterOrderItem moi on moi.Id = so.MasterOrderItemId
                             left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
+							left join ProductLibrary PL on PL.Id = MOI.ProductLibraryId
+							left join ProductLibraryAttribute PLA on PLA.ProductLibraryId = PL.Id
                             left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
                             left join 
                             (
-                            Select sum(sc.netWeight) as StockQty ,  sc.ProductCode ,sc.POId , sc.LotNo from
+                            Select sum(sc.netWeight) as StockQty ,  sc.ProductCode ,sc.POId , sc.LotNo ,count(RefNo) Bages from
                             dbo.ItemScanChild sc where IsDespatch = 0
                             group by  sc.ProductCode ,sc.POId , sc.LotNo
                             ) as sc on sc.LotNo = pol.LotNo and sc.ProductCode = pol.ProductCode and sc.POId = pol.PONo
-                            left join mst.MaterialMaster ma on ma.Id = moi.MaterialMasterId
+                            left join ( Select   count(RefNo) Bages , sc.LotNo from
+                            dbo.ItemScanChild sc	where  Booked = 0
+                            group by   sc.LotNo
+							) as ssd on ssd.LotNo = pol.LotNo
+							left join mst.MaterialMaster ma on ma.Id = moi.MaterialMasterId
                             left join mst.MaterialMasterArticle mma ON mma.Id=moi.ArticleId
 							left join (
 							Select pli.PackingLineItemId,pol.LotNo,pol.PONo,pol.ProductCode,count(sc.RefNo) as Cartons from ItemScanChild sc

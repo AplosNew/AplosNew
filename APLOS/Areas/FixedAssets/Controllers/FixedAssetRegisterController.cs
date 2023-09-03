@@ -1806,5 +1806,19 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return Json(new { Message = AplosMessage.Insert });
         }
         #endregion
+
+        #region Capitalize Asset Register Report
+        public ActionResult AssetsRegisterReport()
+        {
+            return View("~/Areas/FixedAssets/Views/AssetsRegisterReport.cshtml");
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetAssetRegisterElasticSearchDataList( string fromDate, string toDate)
+        {
+            FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(new { DATA = fixedAssetQueryService.GetAssetRegisterElasticSearchDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate), Error = false }, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
     }
 }

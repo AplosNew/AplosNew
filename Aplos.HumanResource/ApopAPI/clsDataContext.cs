@@ -4782,16 +4782,19 @@ where Emp.EmployeeCode = '" + Empcode + "'";
 
         public void GetAttdnreport(out List<AttendanceReport> DataList, string date, string shiftid, string groupid , string inmis,string locations,string entityid , string tbs , string longabsent)
         {
-            clsConnectionManager objCon = null;
-            string strSQL = "";
-            string strSQL1 = "";
-            DataList = new List<AttendanceReport>();
-
-            System.Data.DataSet dsRef;
-            try
+            if (inmis != "LateIn")
             {
-                #region Sql
-                strSQL1 = @" select ROW_NUMBER() OVER(ORDER BY (SELECT 1)) AS SrNo,  LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
+
+                clsConnectionManager objCon = null;
+                string strSQL = "";
+                string strSQL1 = "";
+                DataList = new List<AttendanceReport>();
+
+                System.Data.DataSet dsRef;
+                try
+                {
+                    #region Sql
+                    strSQL1 = @"select ROW_NUMBER() OVER(ORDER BY (ISNULL(A.ToDayIN,0)-MBGT.Deployment)) AS SrNo,  LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
 DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus, UN.Id EntityId,UN.UserName EntityName,
 case when apd.WeeklyStatus = 'W' then 'W'
 when (select top 1 rw.PTime from AttdnRawData rw
@@ -4801,8 +4804,10 @@ else 'IN' end as RawDayStatus ,
 (select top 1 rw.PTime from AttdnRawData rw
 where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate AND rw.PType <> 'OUT'
 order by rw.PTime asc) InTime,pv.InTime as InVerificationTime, MBGT.Code BudgetCode, sd.ShiftDefinationName Shift, sd.SystemID as ShiftId, emp.CellPhnNo MobileNo,apd.WeeklyStatus, RG.StandardName Residence, TG.StandardName Transport,
-Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId , RM.Location as Location , Emp.EmployeeCurrentStatus as CurrentStatus ,MBGT.Deployment,ISNULL(A.ToDayIN , 0) as ToDayIN, Diffenence= ISNULL(A.ToDayIN,0)-MBGT.Deployment 
-
+Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId , RM.Location as Location , Emp.EmployeeCurrentStatus as CurrentStatus ,MBGT.Deployment,ISNULL(A.ToDayIN , 0) as ToDayIN, Diffenence= ISNULL(A.ToDayIN,0)-MBGT.Deployment ,
+case when (ISNULL(A.ToDayIN,0)-MBGT.Deployment) > 0 then 'Access' 
+when (ISNULL(A.ToDayIN,0)-MBGT.Deployment) < 0 then 'Short' 
+else 'Ok' end DifferenceColor
 from AttdnProcessData apd 
 left Join EmployeeInformation EMP on EMP.SystemId = apd.EmpSystemID
 LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
@@ -4841,113 +4846,294 @@ left join LeaveTransaction LT on LT.EmpSystemID = apd.EmpSystemID and (LT.FromDa
 left join LeaveType LTY on LTY.Id = LT.LTSystemID
 left join ResidenceAllocatedEmployees RA on RA.EmployeeSystemId = apd.EmpSystemID
 left join ResidenceMaster RM on RM.Id = RA.ResidenceId
-
-LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnProcessData Where WorkDate= '" + date + "' AND ISNULL(InTime,'')<>'' Group BY BudgetId) A ON A.BudgetId=MBGT.Id " +
-"where emp.employeecode is not null and emp.employeestatus = 'Active' and MBGT.code is not null and MBGT.Active = 1" +
-"and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "'  and Hg.Id = '" + groupid + "'";
-
-               
-
-                if (inmis == "IN" || inmis == "IM" || inmis == "W")
-                {
-                    strSQL = strSQL1 + "and (case when apd.WeeklyStatus = 'W' then 'W' when(select top 1 rw.PTime from AttdnRawData rw where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate order by rw.PTime asc) is null then 'IM' else 'IN' end) = '" + inmis + "'";
-                }
-
-                if (tbs != null && longabsent == null)
-                {
-                    strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'TBS'";
-                }
-
-                if (tbs == null && longabsent != null)
-                {
-                    strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'LONG ABSENTEEISM'";
-                }
-                if (tbs == null && longabsent == null)
-                {
-                    strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null";
-                }
-
-                if (entityid != null && shiftid == null && locations == null)
-                {
-                    strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'";
-                }
-                if (entityid == null && shiftid != null && locations == null)
-                {
-                    strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'";
-                }
-                if (entityid == null && shiftid == null && locations != null)
-                {
-                    strSQL = strSQL + " and  RM.Location = '" + locations + "'";
-                }
-                if (entityid != null && shiftid != null && locations == null)
-                {
-                    strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
-                }
-                if (entityid == null && shiftid != null && locations != null)
-                {
-                    strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'" + " and  RM.Location = '" + locations + "'";
-                }
-                if (entityid != null && shiftid == null && locations != null)
-                {
-                    strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'";
-                }
-                if (entityid != null && shiftid != null && locations != null)
-                {
-                    strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
-                }
+LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnProcessData Where WorkDate= '" + date + @"' AND ISNULL(InTime,'')<>'' Group BY BudgetId) A ON A.BudgetId=MBGT.Id 
+where emp.employeecode is not null and emp.employeestatus = 'Active' and MBGT.code is not null and MBGT.Active = 1
+and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "'  and Hg.Id = '" + groupid + "'";
 
 
-                #endregion Sql
-                objCon = new clsConnectionManager();
-                objCon.BeginTransaction();
-                objCon.getDataSet(strSQL, out dsRef);
-                objCon.CommitTransaction();
-                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
-                {
-                    DataList.Add(new AttendanceReport
+
+                    if (inmis == "IN" || inmis == "IM" || inmis == "W")
                     {
-                        SrNo = dsRef.Tables[0].Rows[i]["SrNo"].ToString(),
-                        LeaveCode = dsRef.Tables[0].Rows[i]["LeaveCode"].ToString(),
-                        SystemID = dsRef.Tables[0].Rows[i]["SystemID"].ToString(),
-                        EMPCode = dsRef.Tables[0].Rows[i]["EMPCode"].ToString(),
-                        EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
-                        Section = dsRef.Tables[0].Rows[i]["Section"].ToString(),
-                        SubSection = dsRef.Tables[0].Rows[i]["SubSection"].ToString(),
-                        Designation = dsRef.Tables[0].Rows[i]["Designation"].ToString(),
-                        Category = dsRef.Tables[0].Rows[i]["Category"].ToString(),
-                        Activity = dsRef.Tables[0].Rows[i]["Activity"].ToString(),
-                        InStatus = dsRef.Tables[0].Rows[i]["InStatus"].ToString(),
-                        InTime = dsRef.Tables[0].Rows[i]["InTime"].ToString(),
-                        InVerificationTime = dsRef.Tables[0].Rows[i]["InVerificationTime"].ToString(),
-                        BudgetCode = dsRef.Tables[0].Rows[i]["BudgetCode"].ToString(),
-                        Shift = dsRef.Tables[0].Rows[i]["Shift"].ToString(),
-                        ShiftId = dsRef.Tables[0].Rows[i]["ShiftId"].ToString(),
-                        MobileNo = dsRef.Tables[0].Rows[i]["MobileNo"].ToString(),
-                        WeeklyStatus = dsRef.Tables[0].Rows[i]["WeeklyStatus"].ToString(),
-                        Residence = dsRef.Tables[0].Rows[i]["Residence"].ToString(),
-                        Transport = dsRef.Tables[0].Rows[i]["Transport"].ToString(),
-                        ManpowerBudgetId = dsRef.Tables[0].Rows[i]["ManpowerBudgetId"].ToString(),
-                        UserGroup = dsRef.Tables[0].Rows[i]["UserGroup"].ToString(),
-                        GroupId = dsRef.Tables[0].Rows[i]["GroupId"].ToString(),
-                        Location = dsRef.Tables[0].Rows[i]["Location"].ToString(),
-                        CurrentStatus = dsRef.Tables[0].Rows[i]["CurrentStatus"].ToString(),
-                        Deployment = dsRef.Tables[0].Rows[i]["Deployment"].ToString(),
-                        ToDayIN = dsRef.Tables[0].Rows[i]["ToDayIN"].ToString(),
-                        Diffenence = dsRef.Tables[0].Rows[i]["Diffenence"].ToString(),
-                        RawDayStatus = dsRef.Tables[0].Rows[i]["RawDayStatus"].ToString(),
-                        EntityId = dsRef.Tables[0].Rows[i]["EntityId"].ToString(),
-                        EntityName = dsRef.Tables[0].Rows[i]["EntityName"].ToString(),
-                       
-                    });
+                        strSQL = strSQL1 + "and (case when apd.WeeklyStatus = 'W' then 'W' when(select top 1 rw.PTime from AttdnRawData rw where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate order by rw.PTime asc) is null then 'IM' else 'IN' end) = '" + inmis + "'";
+                    }
+
+                    if (entityid != null && shiftid == null && locations == null)
+                    {
+                        strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'";
+                    }
+                    if (entityid == null && shiftid != null && locations == null)
+                    {
+                        strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'";
+                    }
+                    if (entityid == null && shiftid == null && locations != null)
+                    {
+                        strSQL = strSQL + " and  RM.Location = '" + locations + "'";
+                    }
+                    if (entityid != null && shiftid != null && locations == null)
+                    {
+                        strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
+                    }
+                    if (entityid == null && shiftid != null && locations != null)
+                    {
+                        strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'" + " and  RM.Location = '" + locations + "'";
+                    }
+                    if (entityid != null && shiftid == null && locations != null)
+                    {
+                        strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'";
+                    }
+                    if (entityid != null && shiftid != null && locations != null)
+                    {
+                        strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
+                    }
+
+                    if (tbs != null && longabsent == null)
+                    {
+                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'TBS'  order by  ISNULL(A.ToDayIN,0)-MBGT.Deployment  Asc";
+                    }
+
+                    if (tbs == null && longabsent != null)
+                    {
+                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'LONG ABSENTEEISM'  order by  ISNULL(A.ToDayIN,0)-MBGT.Deployment  Asc";
+                    }
+                    if (tbs == null && longabsent == null)
+                    {
+                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null  order by  ISNULL(A.ToDayIN,0)-MBGT.Deployment  Asc";
+                    }
+
+                    
+
+
+                    #endregion Sql
+                    objCon = new clsConnectionManager();
+                    objCon.BeginTransaction();
+                    objCon.getDataSet(strSQL, out dsRef);
+                    objCon.CommitTransaction();
+                    for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                    {
+                        DataList.Add(new AttendanceReport
+                        {
+                            SrNo = dsRef.Tables[0].Rows[i]["SrNo"].ToString(),
+                            LeaveCode = dsRef.Tables[0].Rows[i]["LeaveCode"].ToString(),
+                            SystemID = dsRef.Tables[0].Rows[i]["SystemID"].ToString(),
+                            EMPCode = dsRef.Tables[0].Rows[i]["EMPCode"].ToString(),
+                            EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
+                            Section = dsRef.Tables[0].Rows[i]["Section"].ToString(),
+                            SubSection = dsRef.Tables[0].Rows[i]["SubSection"].ToString(),
+                            Designation = dsRef.Tables[0].Rows[i]["Designation"].ToString(),
+                            Category = dsRef.Tables[0].Rows[i]["Category"].ToString(),
+                            Activity = dsRef.Tables[0].Rows[i]["Activity"].ToString(),
+                            InStatus = dsRef.Tables[0].Rows[i]["InStatus"].ToString(),
+                            InTime = dsRef.Tables[0].Rows[i]["InTime"].ToString(),
+                            InVerificationTime = dsRef.Tables[0].Rows[i]["InVerificationTime"].ToString(),
+                            BudgetCode = dsRef.Tables[0].Rows[i]["BudgetCode"].ToString(),
+                            Shift = dsRef.Tables[0].Rows[i]["Shift"].ToString(),
+                            ShiftId = dsRef.Tables[0].Rows[i]["ShiftId"].ToString(),
+                            MobileNo = dsRef.Tables[0].Rows[i]["MobileNo"].ToString(),
+                            WeeklyStatus = dsRef.Tables[0].Rows[i]["WeeklyStatus"].ToString(),
+                            Residence = dsRef.Tables[0].Rows[i]["Residence"].ToString(),
+                            Transport = dsRef.Tables[0].Rows[i]["Transport"].ToString(),
+                            ManpowerBudgetId = dsRef.Tables[0].Rows[i]["ManpowerBudgetId"].ToString(),
+                            UserGroup = dsRef.Tables[0].Rows[i]["UserGroup"].ToString(),
+                            GroupId = dsRef.Tables[0].Rows[i]["GroupId"].ToString(),
+                            Location = dsRef.Tables[0].Rows[i]["Location"].ToString(),
+                            CurrentStatus = dsRef.Tables[0].Rows[i]["CurrentStatus"].ToString(),
+                            Deployment = dsRef.Tables[0].Rows[i]["Deployment"].ToString(),
+                            ToDayIN = dsRef.Tables[0].Rows[i]["ToDayIN"].ToString(),
+                            Diffenence = dsRef.Tables[0].Rows[i]["Diffenence"].ToString(),
+                            RawDayStatus = dsRef.Tables[0].Rows[i]["RawDayStatus"].ToString(),
+                            EntityId = dsRef.Tables[0].Rows[i]["EntityId"].ToString(),
+                            EntityName = dsRef.Tables[0].Rows[i]["EntityName"].ToString(),
+                            DifferenceColor = dsRef.Tables[0].Rows[i]["DifferenceColor"].ToString(),
+
+                        });
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    throw (ex);
+                }
+                finally
+                {
+                    objCon = null;
                 }
             }
-            catch (System.Exception ex)
+            else
             {
-                throw (ex);
-            }
-            finally
-            {
-                objCon = null;
+                clsConnectionManager objCon = null;
+                string strSQL = "";
+                string strSQL1 = "";
+                DataList = new List<AttendanceReport>();
+
+                System.Data.DataSet dsRef;
+                try
+                {
+                    #region Sql
+                    strSQL1 = @"select ROW_NUMBER() OVER(ORDER BY (ISNULL(A.ToDayIN,0)-MBGT.Deployment)) AS SrNo,  LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
+DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus, UN.Id EntityId,UN.UserName EntityName,
+case when apd.WeeklyStatus = 'W' then 'W'
+when (select top 1 rw.PTime from AttdnRawData rw
+where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate AND rw.PType <> 'OUT'
+order by rw.PTime asc) is null then 'IM'
+else 'IN' end as RawDayStatus ,
+(select top 1 rw.PTime from AttdnRawData rw
+where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate AND rw.PType <> 'OUT'
+order by rw.PTime asc) InTime,pv.InTime as InVerificationTime, MBGT.Code BudgetCode, sd.ShiftDefinationName Shift, sd.SystemID as ShiftId, emp.CellPhnNo MobileNo,apd.WeeklyStatus, RG.StandardName Residence, TG.StandardName Transport,
+Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId , RM.Location as Location , Emp.EmployeeCurrentStatus as CurrentStatus ,MBGT.Deployment,ISNULL(A.ToDayIN , 0) as ToDayIN, Diffenence= ISNULL(A.ToDayIN,0)-MBGT.Deployment ,
+case when (ISNULL(A.ToDayIN,0)-MBGT.Deployment) > 0 then 'Access' 
+when (ISNULL(A.ToDayIN,0)-MBGT.Deployment) < 0 then 'Short' 
+else 'Ok' end DifferenceColor,
+case when apd.InStatus = 'EI' then cast((apd.ShiftInTime - apd.PunchInTime) as time(0)) 
+when apd.PunchInTime > apd.ShiftInTime then cast((apd.PunchInTime - apd.ShiftInTime) as time(0))
+else '00:00:00' end LateInTime,
+case when apd.PunchInTime < apd.ShiftInTime then 'EI'
+else 'LI' end LateInStatus
+from AttdnProcessData apd 
+left Join EmployeeInformation EMP on EMP.SystemId = apd.EmpSystemID
+LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
+left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+left join ORG.Entity UN on UN.Id = MBGT.EntityId
+left join ORG.Department DP on DP.ID = POS.DepartmentId
+left join ORG.Section SC on SC.Id = POS.SectionId
+left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+LEFT JOIN hkp.Designation DSG on DSG.id = POS.DesignationId
+LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+LEFT JOIN MST.DesignationMasterLegalDesignation DMLD on DMLD.LegalDesignationId = GDSG.Id
+left join mst.DesignationMaster dm on dm.Id = DMLD.DesignationMasterId
+left join scs.designationmasterconfiguration dmc on dmc.designationmasterid = dm.id
+LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=dm.DesignationGroupId
+left join mst.LegalSalaryGradeDesignation GRD on GRD.legaldesignationid = gdsg.id
+left join scs.legalsalarygrade lsg on lsg.id = grd.legalsalarygradeid
+left join scs.legalsalarygradehead lsh on lsh.legalsalarygradeid = lsg.id
+left join mst.LegalSalaryStructure lss on lss.legalsalarygradeid = lsh.legalsalarygradeid
+left join mst.LegalSalaryStructureValue lsv on lsv.legalsalarystructureid = lss.id
+left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
+left join ShiftDefination sd on sd.systemid = mbgt.shiftdefinationid
+left join SalaryRuleMaster SRM on srm.systemid = dmc.salaryrulemasterid
+left join EmployeeBankInfo BNK on BNK.EmpSystemID = emp.SystemId
+left join ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId
+left join TransportGroup TG on TG.Id = EMP.TransportGroupId
+left join employeecodetype ect on ect.id = emp.employeecodetypeid
+left join hkp.Process PR on PR.Id = POS.ProcessId
+left join scs.District DT on DT.Id = emp.ParmDistrictID
+left join scs.[State] ST on ST.Id = EMP.ParmStateId
+left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = apd.WorkDate
+left join TRN.HRReportMasterChild Hrg on Hrg.ManpowerBudgetId = Emp.BudgetCode
+left join TRN.HRReportMasterBudgetUserGroup HBG on HBG.HRReportMasterChildId = Hrg.Id
+left join HKP.HRReportGroupMaster Hg on Hg.Id = HBG.UserGroupId
+left join LeaveTransaction LT on LT.EmpSystemID = apd.EmpSystemID and (LT.FromDate <= apd.WorkDate and LT.ToDate >= apd.WorkDate)
+left join LeaveType LTY on LTY.Id = LT.LTSystemID
+left join ResidenceAllocatedEmployees RA on RA.EmployeeSystemId = apd.EmpSystemID
+left join ResidenceMaster RM on RM.Id = RA.ResidenceId
+LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnProcessData Where WorkDate= '" + date + @"' AND ISNULL(InTime,'')<>'' Group BY BudgetId) A ON A.BudgetId=MBGT.Id 
+where emp.employeecode is not null and emp.employeestatus = 'Active' and MBGT.code is not null and MBGT.Active = 1
+and emp.employeecode NOT IN (2222229, 2222230) and (case when apd.InStatus = 'EI' then cast((apd.ShiftInTime - apd.PunchInTime) as time(0)) 
+when apd.PunchInTime > apd.ShiftInTime then cast((apd.PunchInTime - apd.ShiftInTime) as time(0))
+else '00:00:00' end) <> '00:00:00'   and apd.WorkDate = '" + date + "'  and Hg.Id = '" + groupid + "'";
+
+                    if (inmis == "LateIn")
+                    {
+                        strSQL = strSQL1;
+                    }
+
+                    if (entityid != null && shiftid == null && locations == null)
+                    {
+                        strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'";
+                    }
+                    if (entityid == null && shiftid != null && locations == null)
+                    {
+                        strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'";
+                    }
+                    if (entityid == null && shiftid == null && locations != null)
+                    {
+                        strSQL = strSQL + " and  RM.Location = '" + locations + "'";
+                    }
+                    if (entityid != null && shiftid != null && locations == null)
+                    {
+                        strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
+                    }
+                    if (entityid == null && shiftid != null && locations != null)
+                    {
+                        strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'" + " and  RM.Location = '" + locations + "'";
+                    }
+                    if (entityid != null && shiftid == null && locations != null)
+                    {
+                        strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'";
+                    }
+                    if (entityid != null && shiftid != null && locations != null)
+                    {
+                        strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
+                    }
+
+                    if (tbs != null && longabsent == null)
+                    {
+                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'TBS' order by  ISNULL(A.ToDayIN,0)-MBGT.Deployment  Asc";
+                    }
+
+                    if (tbs == null && longabsent != null)
+                    {
+                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'LONG ABSENTEEISM' order by  ISNULL(A.ToDayIN,0)-MBGT.Deployment  Asc";
+                    }
+                    if (tbs == null && longabsent == null)
+                    {
+                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null order by  ISNULL(A.ToDayIN,0)-MBGT.Deployment  Asc";
+                    }
+
+                    #endregion Sql
+                    objCon = new clsConnectionManager();
+                    objCon.BeginTransaction();
+                    objCon.getDataSet(strSQL, out dsRef);
+                    objCon.CommitTransaction();
+                    for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                    {
+                        DataList.Add(new AttendanceReport
+                        {
+                            SrNo = dsRef.Tables[0].Rows[i]["SrNo"].ToString(),
+                            LeaveCode = dsRef.Tables[0].Rows[i]["LeaveCode"].ToString(),
+                            SystemID = dsRef.Tables[0].Rows[i]["SystemID"].ToString(),
+                            EMPCode = dsRef.Tables[0].Rows[i]["EMPCode"].ToString(),
+                            EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
+                            Section = dsRef.Tables[0].Rows[i]["Section"].ToString(),
+                            SubSection = dsRef.Tables[0].Rows[i]["SubSection"].ToString(),
+                            Designation = dsRef.Tables[0].Rows[i]["Designation"].ToString(),
+                            Category = dsRef.Tables[0].Rows[i]["Category"].ToString(),
+                            Activity = dsRef.Tables[0].Rows[i]["Activity"].ToString(),
+                            InStatus = dsRef.Tables[0].Rows[i]["InStatus"].ToString(),
+                            InTime = dsRef.Tables[0].Rows[i]["InTime"].ToString(),
+                            InVerificationTime = dsRef.Tables[0].Rows[i]["InVerificationTime"].ToString(),
+                            BudgetCode = dsRef.Tables[0].Rows[i]["BudgetCode"].ToString(),
+                            Shift = dsRef.Tables[0].Rows[i]["Shift"].ToString(),
+                            ShiftId = dsRef.Tables[0].Rows[i]["ShiftId"].ToString(),
+                            MobileNo = dsRef.Tables[0].Rows[i]["MobileNo"].ToString(),
+                            WeeklyStatus = dsRef.Tables[0].Rows[i]["WeeklyStatus"].ToString(),
+                            Residence = dsRef.Tables[0].Rows[i]["Residence"].ToString(),
+                            Transport = dsRef.Tables[0].Rows[i]["Transport"].ToString(),
+                            ManpowerBudgetId = dsRef.Tables[0].Rows[i]["ManpowerBudgetId"].ToString(),
+                            UserGroup = dsRef.Tables[0].Rows[i]["UserGroup"].ToString(),
+                            GroupId = dsRef.Tables[0].Rows[i]["GroupId"].ToString(),
+                            Location = dsRef.Tables[0].Rows[i]["Location"].ToString(),
+                            CurrentStatus = dsRef.Tables[0].Rows[i]["CurrentStatus"].ToString(),
+                            Deployment = dsRef.Tables[0].Rows[i]["Deployment"].ToString(),
+                            ToDayIN = dsRef.Tables[0].Rows[i]["ToDayIN"].ToString(),
+                            Diffenence = dsRef.Tables[0].Rows[i]["Diffenence"].ToString(),
+                            RawDayStatus = dsRef.Tables[0].Rows[i]["RawDayStatus"].ToString(),
+                            EntityId = dsRef.Tables[0].Rows[i]["EntityId"].ToString(),
+                            EntityName = dsRef.Tables[0].Rows[i]["EntityName"].ToString(),
+                            DifferenceColor = dsRef.Tables[0].Rows[i]["DifferenceColor"].ToString(),
+                            LateInTime = dsRef.Tables[0].Rows[i]["LateInTime"].ToString(),
+                            LateInStatus = dsRef.Tables[0].Rows[i]["LateInStatus"].ToString(),
+
+                        });
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    throw (ex);
+                }
+                finally
+                {
+                    objCon = null;
+                }
             }
         }
         #endregion Attendance
@@ -7838,6 +8024,9 @@ where QII.QMID='" + IssueId + "' and QII.IsActive = 1  order by QII.SNO";
         public string RawDayStatus { get; set; }
         public string EntityId { get; set; }
         public string EntityName { get; set; }
+        public string DifferenceColor { get; set; }
+        public string LateInTime { get; set; }
+        public string LateInStatus { get; set; }
        
     }
 

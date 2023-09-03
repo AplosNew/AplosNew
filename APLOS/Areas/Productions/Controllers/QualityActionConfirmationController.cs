@@ -18,7 +18,7 @@ using System.Web.Script.Serialization;
 
 namespace Aplos.Areas.Productions.Controllers
 {
-    public class QualityActionUpdateController : Controller
+    public class QualityActionConfirmationController : Controller
     {
         #region Constructor
 
@@ -26,7 +26,7 @@ namespace Aplos.Areas.Productions.Controllers
 
         private readonly ISqlRepository _sqlRepository;
 
-        public QualityActionUpdateController(ISqlRepository R)
+        public QualityActionConfirmationController(ISqlRepository R)
         {
             _sqlRepository = R;
         }
@@ -60,7 +60,7 @@ LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
                             LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-where EI.EmployeeStatus='Active' and QCD.Status='Inprogress' and QCD.ResponsiblePersonId is not null";
+where EI.EmployeeStatus='Active' and QCD.Status='Close' and QCD.ResponsiblePersonId is not null";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
@@ -116,7 +116,7 @@ left join MST.QualityManagementMaster QMM on QMM.Id=QC.IssueId
 left join EmployeeInformation EI on EI.SystemId=QC.ProductionInchargeId
 left join TRN.ProductionOrder PO on PO.Id=QC.ProductionOrderId
 left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
-where QCD.Status not in ('Close','Complete') and QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1) " + FilterDate + @" " + ResponsiblePerson + @" order by DATEDIFF(Hour,QC.AddedDate,GETDATE()) desc";
+where QCD.Status in ('Close') and QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1) " + FilterDate + @" " + ResponsiblePerson + @" order by DATEDIFF(Hour,QC.AddedDate,GETDATE()) desc";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -133,7 +133,7 @@ left join SCS.WorkCenterMaster WC on WC.Id=QCD.WorkCenterId
 left join MST.QualityGradeDetails QGD on QGD.Id=QCD.GradeId
 left join MST.QualityActionToBeTakenDetails QAD on QAD.Id=QCD.ActionToBeTaken
 left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
-where QCD.Status not in ('Close','Complete') and QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1)
+where QCD.Status in ('Close') and QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1)
 and QCD.QCId='" + HeaderId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -142,7 +142,7 @@ and QCD.QCId='" + HeaderId + "'";
         public ActionResult LoadQualityActionTakenListGetDetails(string ParameterId, string ItemId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select QAT.Id,QPR.SNO,QPR.Id ReasonId,QRM.UserName ReasonName,QAT.ActionTaken,QAT.ActionById,EI.EmployeeName ActionBy,QAT.Remarks from [MST].[QualityManagementParameterReason] QPR 
+            string sql = @"select QAT.Id,QPR.SNO,QPR.Id ReasonId,QRM.UserName ReasonName,QAT.ActionTaken,QAT.ActionById,EI.EmployeeName ActionBy,QAT.Remarks,QAT.ConfirmRemarks from [MST].[QualityManagementParameterReason] QPR 
 	left join [HKP].[QualityManagementReasonMaster] QRM on QRM.Id=QPR.ReasonId
 	left join [TRN].[QualityActionTakenUpdate] QAT on QAT.ParameterId='" + ParameterId + @"' and QAT.ReasonId=QPR.Id
     left join EmployeeInformation EI on EI.SystemId=QAT.ActionById
@@ -231,13 +231,14 @@ and QCD.QCId='" + HeaderId + "'";
         //}
 
         [HttpPost]
-        public ActionResult createActionTaken(List<Dictionary<string, object>> DataList, string PId, string Status)
+        public ActionResult createActionTaken(List<Dictionary<string, object>> DataList, string PId, string Status, string ConfirmationRemarks)
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsProdBooked;
             string TableName = "[TRN].[QualityActionTakenUpdate]";
             string contId = string.Empty;
             string _Id, Id = string.Empty;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -274,7 +275,7 @@ and QCD.QCId='" + HeaderId + "'";
                     }
                     ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                     conC.BeginTransaction();
-                    conC.executeQuery("Update TRN.QualityControlDetails set Status='" + Status + "' where Id='" + PId + @"'");
+                    conC.executeQuery("Update TRN.QualityControlDetails set Status='" + Status + "',ConfirmBy='"+ identity.UserId + "',ConfirmationRemarks='"+ ConfirmationRemarks +"' where Id='" + PId + @"'");
                     conC.CommitTransaction();
                 }
                 return Json(new { Message = AplosMessage.Insert });

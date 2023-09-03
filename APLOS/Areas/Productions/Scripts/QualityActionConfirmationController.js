@@ -1,9 +1,9 @@
 ﻿'use strict';
-QualityActionUpdateController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter", "$window"];
-function QualityActionUpdateController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
-    $rootScope.title = "QualityActionUpdate";
+QualityActionConfirmationController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter", "$window"];
+function QualityActionConfirmationController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
+    $rootScope.title = "QualityActionConfirmation";
     $scope.Action = 'Save';
-    $scope.path = 'Productions/QualityActionUpdate/';
+    $scope.path = 'Productions/QualityActionConfirmation/';
     $scope.saveUrlActionTaken = $scope.path + 'createActionTaken';
     $scope.ParameterStatusLists = [];
     var date = new Date(), y = date.getFullYear(), m = date.getMonth();
@@ -16,6 +16,10 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
         {
             'Value': 'Close',
             'Text': 'Close'
+        },
+        {
+            'Value': 'Complete',
+            'Text': 'Complete'
         }
     ];
 
@@ -23,7 +27,7 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
     $scope.GetReasonNameLists = function () {
         $http({
             method: 'GET',
-            url: 'Productions/QualityActionUpdate/GetReasonNameLists'
+            url: 'Productions/QualityActionConfirmation/GetReasonNameLists'
         }).then(function successCallback(response) {
             $scope.ReasonNameLists = response.data;
         });
@@ -43,6 +47,7 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
         ob.ActionById = null;
         ob.ActionBy = null;
         ob.Remarks = null;
+        ob.ConfirmRemarks = null;
         $scope.QualityActionTakenDetailsList.splice(e.Serial + 1, 0, ob);
         refreshSerial();
     }
@@ -113,7 +118,7 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
     $scope.View = function () {
         try {
             $scope.QCCompleteList = [];
-            $http.get('Productions/QualityActionUpdate/LoadQualityActionUpdateHeader?FromDate=' + $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate + '&ResponsiblePersonId=' + $scope.statusNew.ActResponsiblePersonId)
+            $http.get('Productions/QualityActionConfirmation/LoadQualityActionUpdateHeader?FromDate=' + $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate + '&ResponsiblePersonId=' + $scope.statusNew.ActResponsiblePersonId)
                 .then(function (response) {
                     $scope.QualityActionUpdateHeaderList = response.data;
                 });
@@ -153,7 +158,7 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
         $scope.QCHeaderId = args.data.HeaderId;
         $http({
             method: 'Get',
-            url: 'Productions/QualityActionUpdate/LoadQualityActionUpdateParameterListGetDetails?HeaderId=' + $scope.QCHeaderId
+            url: 'Productions/QualityActionConfirmation/LoadQualityActionUpdateParameterListGetDetails?HeaderId=' + $scope.QCHeaderId
         }).then(function successCallback(response) {
             $scope.QualityActionUpdateParameterDetailsList = response.data;
             var gridObj = $("#GridQualityActionUpdate").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -171,8 +176,10 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
         , ActionById: null
         , ActionBy: null
         , Remarks: null
+        , ConfirmRemarks: null
         , ParameterId: null
         , ParameterStatus: null
+        , ConfirmationRemarks: null
     }
     $scope.ActionTakenUpdateNew = Object.assign({}, $scope.ActionTakenUpdate);
 
@@ -186,7 +193,7 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
         $scope.ActionTakenUpdateNew.ParameterStatus = args.data.Status;
         $http({
             method: 'Get',
-            url: 'Productions/QualityActionUpdate/LoadQualityActionTakenListGetDetails?ParameterId=' + $scope.QAUParameterId + '&ItemId=' + $scope.QAUItemId
+            url: 'Productions/QualityActionConfirmation/LoadQualityActionTakenListGetDetails?ParameterId=' + $scope.QAUParameterId + '&ItemId=' + $scope.QAUItemId
         }).then(function successCallback(response) {
             $scope.QualityActionTakenDetailsList = response.data;
             for (var i = 0; i < $scope.QualityActionTakenDetailsList.length; i++) {
@@ -224,6 +231,10 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
 
     $scope.ActionTakenSave = function () {
         try {
+            if (baseService.isUndefinedOrNull($scope.ActionTakenUpdateNew.ConfirmationRemarks) && $scope.ActionTakenUpdateNew.ParameterStatus == 'InProgress')
+            {
+                throw 'Please Update Confirmation Remarks and Proceed!'
+            }
             $scope.SaveList = [];
             for (var i = 0; i < $scope.QualityActionTakenDetailsList.length; i++) {
                 if (!baseService.isUndefinedOrNull($scope.QualityActionTakenDetailsList[i].ActionTaken)) {
@@ -236,7 +247,8 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
                 data: {
                     'DataList': $scope.SaveList,
                     'PId': $scope.QAUParameterId,
-                    'Status': $scope.ActionTakenUpdateNew.ParameterStatus
+                    'Status': $scope.ActionTakenUpdateNew.ParameterStatus,
+                    'ConfirmationRemarks': $scope.ActionTakenUpdateNew.ConfirmationRemarks
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -245,12 +257,10 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    /*var gridObj = $("#GridQualityActionUpdate").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();*/
                     angular.element(document.querySelector('#QualityActionUpdatePop')).modal('hide');
-                  /*  var gridObj = $("#GridQualityActionTaken").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();*/
                     angular.element(document.querySelector('#QualityActionTakenPop')).modal('hide');
                     //$scope.getActionTaken($scope.QAUParameterId, $scope.QAUItemId);
-                    //ActionTakenClearFields();
+                    ActionTakenClearFields();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -272,7 +282,7 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
 
     $scope.getActionTaken = function (data) {
         try {
-            $http.get('Productions/QualityActionUpdate/LoadQualityActionTakenListGetDetails?ParameterId=' + data)
+            $http.get('Productions/QualityActionConfirmation/LoadQualityActionTakenListGetDetails?ParameterId=' + data)
                 .then(
                     function successCallback(response) {
                         $scope.QualityActionTakenDetailsList = response.data;
@@ -474,7 +484,7 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
         }
 
     }
-    $scope.uploadUrl = "Productions/QualityActionUpdate/SaveDefault";
+    $scope.uploadUrl = "Productions/QualityActionConfirmation/SaveDefault";
     $scope.fileselect = function (e) {
 
     }
