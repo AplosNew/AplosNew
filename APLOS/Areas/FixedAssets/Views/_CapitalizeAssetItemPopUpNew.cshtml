@@ -81,9 +81,9 @@
                 </div>
                 <div class="table-responsive modal-table">
 
-                    <div style="color:black;" id="GridCI" ej-grid e-datasource="materialMasterList" e-templaterefresh="refreshTemplate" e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                    <div style="color:black;" id="GridCI" ej-grid e-datasource="materialMasterList" e-templaterefresh="refreshTemplateCI" e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                         <div e-columns>
-                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplateCI" e-template="#checkboxTemplateCI" e-textalign="center" e-width="30"></div>
                             <div e-column e-type="string" e-field="VendorName" e-headertext="Vendor" e-width="150"></div>
                             <div e-column e-type="string" e-field="InvoiceDate" e-headertext="GRN Date" e-width="80"></div>
                             <div e-column e-type="string" e-field="GRNNo" e-headertext="GRNNo" e-width="80"></div>
@@ -112,10 +112,10 @@
                         </div>
 
                     </div>
-                    <script type="text/template" id="checkboxTemplate">
+                    <script type="text/template" id="checkboxTemplateCI">
                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
                     </script>
-                    <script type="text/x-jsrender" id="headerTemplate">
+                    <script type="text/x-jsrender" id="headerTemplateCI">
                         <input type="checkbox" id="headchk" />
                     </script>
                 </div>
@@ -144,9 +144,9 @@
                 </div>
                 <div class="table-responsive modal-table">
 
-                    <div style="color:black;" id="GridEx" ej-grid e-datasource="materialMasterList" e-templaterefresh="refreshTemplate" e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                    <div style="color:black;" id="GridEx" ej-grid e-datasource="materialMasterList" e-templaterefresh="refreshTemplateEx" e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                         <div e-columns>
-                            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplateEx" e-template="#checkboxTemplateEx" e-textalign="center" e-width="30"></div>
                             <div e-column e-type="string" e-field="VendorName" e-headertext="Vendor" e-width="150"></div>
                             <div e-column e-type="string" e-field="InvoiceDate" e-headertext="GRN Date" e-width="80"></div>
                             <div e-column e-type="string" e-field="GRNNo" e-headertext="GRNNo" e-width="80"></div>
@@ -175,10 +175,10 @@
                         </div>
 
                     </div>
-                    <script type="text/template" id="checkboxTemplate">
+                    <script type="text/template" id="checkboxTemplateEx">
                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
                     </script>
-                    <script type="text/x-jsrender" id="headerTemplate">
+                    <script type="text/x-jsrender" id="headerTemplateEx">
                         <input type="checkbox" id="headchk" />
                     </script>
                 </div>
