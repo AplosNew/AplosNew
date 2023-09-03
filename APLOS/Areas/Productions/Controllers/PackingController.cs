@@ -1232,9 +1232,16 @@ namespace Aplos.Areas.Productions.Controllers
             int ColLotNo = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Shade No", 13, ExcelHAlign.HAlignCenter);
+            int Colshade = COL;
+            COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Plan Qty", 13, ExcelHAlign.HAlignCenter);
             int ColPlanQty = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Bages", 13, ExcelHAlign.HAlignCenter);
+            int ColBages = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "SO PO No", 13, ExcelHAlign.HAlignCenter);
@@ -1270,7 +1277,9 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColProductCode].Text = data.Rows[i]["ProductCode"].ToString();
                 sheet[ROW, ColPONo].Text = data.Rows[i]["PONo"].ToString();
                 sheet[ROW, ColLotNo].Text = data.Rows[i]["LotNo"].ToString();
+                sheet[ROW, Colshade].Text = data.Rows[i]["ShadeNo"].ToString();
                 sheet[ROW, ColPlanQty].Text = data.Rows[i]["PlanQty"].ToString();
+                sheet[ROW, ColBages].Text = data.Rows[i]["Bages"].ToString();
                 sheet[ROW, ColSoPoNo].Text = data.Rows[i]["SoPoNo"].ToString();
                 sheet[ROW, ColStockQty].Text = data.Rows[i]["StockQty"].ToString();
                 sheet[ROW, ColPackages].Text = data.Rows[i]["NoOfPackages"].ToString();
