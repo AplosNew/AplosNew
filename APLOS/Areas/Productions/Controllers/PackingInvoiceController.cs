@@ -187,7 +187,7 @@ namespace Aplos.Areas.Productions.Controllers
 LEFT JOIN 
 (							
 Select SC.Id,SC.MasterId,ISNULL(sc.NetWeight,0) Qty,PackingLineItemId from trn.POLotReference po
-left join dbo.ItemScanChild sc on sc.PackingId = po.Id AND Booked = 1 
+left join dbo.ItemScanChild sc on sc.PackingId = po.Id AND sc.Booked = 1 
 Where SC.Id<>''
 )POLR ON POLR.PackingLineItemId=PLI.PackingLineItemId
 								Where PLI.PackingId IN(" + packingid + ") AND Id<>''";
