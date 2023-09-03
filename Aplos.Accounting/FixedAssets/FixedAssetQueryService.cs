@@ -2411,12 +2411,29 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                 genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "AssetRegister", out _AssetRegisterId);
                 string sqlAssetRegister = "SELECT * FROM [TRN].[AssetRegister] WHERE 1=2 ";
                 string sqlAssetRegisterChild = "SELECT * FROM [TRN].[AssetRegisterChild] WHERE 1=2 ";
+                string sqlAssetRegisterChildData = "SELECT * FROM [TRN].[AssetRegisterChild] WHERE CapitalizationMasterId='" + data["Id"] + "' ";
                 objCon.OpenDataSetThroughAdapter(sqlAssetRegister, out _assetRegisterData, false, "1");
                 objCon.OpenDataSetThroughAdapter(sqlAssetRegisterChild, out _assetRegisterChildData, false, "1");
                 AccountsCommonService _accountsCommonService = new AccountsCommonService(_sqlRepository);
 
                 if(data["Type"].ToString()== "New")
-                { 
+                {
+                    var rdBuilder = new System.Text.StringBuilder();
+                    var builderSql = "";
+                    DataTable dtAR = _sqlRepository.GetDataTable(sqlAssetRegisterChildData);
+                    if (dtAR.Rows.Count > 0)
+                    {
+                        builderSql = @"DELETE FROM [TRN].[AssetRegisterChild] where CapitalizationMasterId='" + data["Id"] + "'  ";
+                        rdBuilder.Append(builderSql);
+
+                        for (int i = 0; i < dtAR.Rows.Count; i++)
+                        {
+                            builderSql = @"DELETE FROM [TRN].[AssetRegister] where Id='" + dtAR.Rows[i]["AssetRegisterId"].ToString() + "'  ";
+                            rdBuilder.Append(builderSql);
+                        }
+                            _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                    }
+
                     for (int i = 0; i < Int32.Parse(data["Qty"].ToString()); i++)
                     {
                         var id = _accountsCommonService.MakePK(_AssetRegisterId, i + 1, 4);

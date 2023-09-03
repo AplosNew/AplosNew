@@ -83,8 +83,6 @@ namespace Library.OrderManagement.Production
                     throw new Exception("Same PackingLineItem With Same SO already exists!!!");
 
 
-
-
                 int ind = lastIndex;
                 #region data update
                 if (dsMaster1.Tables[0].Rows.Count == 0)
@@ -97,8 +95,6 @@ namespace Library.OrderManagement.Production
 
                 ll = ind;
                 #endregion data update
-
-
 
 
 
@@ -124,7 +120,7 @@ namespace Library.OrderManagement.Production
 
                             if (Cartons[j]["LotNo"].ToString().Trim() == jj["LotNo"].ToString().Trim() && Cartons[j]["ProductCode"].ToString().Trim() == jj["ProductCode"].ToString().Trim() && Cartons[j]["PO"].ToString().Trim() == jj["PONo"].ToString().Trim())
                             {
-                                var sqls = @"Update dbo.ItemScanChild Set PackingId = '" + jj["Id"].ToString() + "' , UpdatedBy = '" + identity.Name + "' ,BookedDate = GETDATE(), Booked = 1  where RefNo IN(" + Cartons[j]["RefNo"] + @")";
+                                var sqls = @"Update dbo.ItemScanChild Set PackingId = '" + jj["Id"].ToString() + "' , UpdatedBy = '" + identity.Name + "' ,BookedDate = GETDATE(), Booked = 1  where RefNo IN(" + Cartons[j]["RefNo"] + @")  AND SalesReturnId IS NULL AND Booked=0";
 
                                 ConnectionManager.DAL.ConManager objCone = null;
                                 objCone = new ConnectionManager.DAL.ConManager("1");
@@ -976,7 +972,7 @@ order by pk.Date  DESC";
                             group by  sc.ProductCode ,sc.POId , sc.LotNo
                             ) as sc on sc.LotNo = pol.LotNo and sc.ProductCode = pol.ProductCode and sc.POId = pol.PONo
                             left join ( Select   count(RefNo) Bages , sc.LotNo from
-                            dbo.ItemScanChild sc	
+                            dbo.ItemScanChild sc	where  Booked = 0
                             group by   sc.LotNo
 							) as ssd on ssd.LotNo = pol.LotNo
 							left join mst.MaterialMaster ma on ma.Id = moi.MaterialMasterId
