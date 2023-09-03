@@ -648,7 +648,129 @@ namespace Aplos.Areas.Attendances.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
- 
+
+        [HttpPost]
+        public ActionResult LoadPCEmployeelist(string fromDate, string toDate)
+        {
+            string sql = string.Empty;
+            try
+            { 
+                sql = @"select '' Id,wa.Id WorkerAdvanceId,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,FORMAT(wa.FromDate,'dd-MMM-yyy')FromDate
+								,FORMAT(wa.ToDate,'dd-MMM-yyy')ToDate,wad.Amount 
+                                  from [dbo].[WorkerAdvance] wa
+								  LEFT JOIN [dbo].[WorkerAdvanceDetail] wad on wa.Id=wad.WorkerAdvanceId 
+								  left join EmployeeInformation ei on ei.SystemId=wad.EmpSystemId
+                                  where wa.FromDate between '" + fromDate + @"' and '" + toDate + @"'
+								  and wa.ToDate between '" + fromDate + @"' and '" + toDate + @"'";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            var data = _sqlRepository.GetDataCollection(sql);
+            JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpPost]
+        public JsonResult CreatePayableCreationWorkerAdvance(Dictionary<string, object> data, List<Dictionary<string, object>> goodWorkPaymentDetail)
+        {
+            try
+            {
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+                DataSet dsMaster;
+                DataSet dsDetail;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [dbo].[GoodWorkPayment] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+
+                string _Id = "";
+
+                #region data update Good Work Payment
+                if (dsMaster.Tables[0].DefaultView.Count == 0)
+                {
+                    if (_Id == "")
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("GoodWorkPayment", out _Id);
+                    }
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    data["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);
+                }
+
+                #endregion data update Good Work Payment
+
+                #region  Good Work Payment Detail
+
+                string _MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                con.OpenDataSetThroughAdapter("select * from [dbo].[GoodWorkPaymentDetail] where  GoodWorkPaymentId='" + _MasterId + "'", out dsDetail, false, "1");
+                int ccount = 0;
+                if (goodWorkPaymentDetail != null)
+                {
+                    foreach (var item in goodWorkPaymentDetail)
+                    {
+                        DataView dv = new DataView(dsDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        if (dv.Count == 0)
+                        {
+                            ccount++;
+                            string detailId = materialCommonService.MakePK(_MasterId, ccount, 2);
+
+                            item["Id"] = detailId;
+                            item["GoodWorkPaymentId"] = _MasterId;
+                            item["EmpSystemId"] = item["EmpSystemId"];
+                            item["WorkerAdvanceId"] = item["WorkerAdvanceId"];
+                            item["Amount"] = item["Amount"];
+
+                            materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
+                        }
+                        if (dv.Count > 0)
+                        {
+                            ccount++;
+                            string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
+                            DataRow drmo = dv[0].Row;
+                            drmo.BeginEdit();
+
+                            //drmo["WorkerAdvanceId"] = _MasterId;
+                            //drmo["EmpSystemId"] = item["EmpSystemId"];
+                            //drmo["PayDays"] = item["PayDays"];
+                            //drmo["Amount"] = item["Amount"];
+
+                            drmo.EndEdit();
+                        }
+                    }
+                }
+
+                #endregion  Good Work Payment Detail
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, dsDetail);
+
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetGoodWorkPaymentList()
+        {
+            string sql = @"select ei.EmployeeCode,ei.EmployeeName,gwp.Id GoodWorkPaymentId,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
+						,gwp.UserName,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwpd.Amount,gwp.Remarks
+						from GoodWorkPayment gwp 
+						left join GoodWorkPaymentDetail gwpd on gwpd.GoodWorkPaymentId=gwp.Id
+						left join EmployeeInformation ei on ei.SystemId=gwpd.EmpSystemId";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
 
         public class WorkerAdvanceTransaction
         {

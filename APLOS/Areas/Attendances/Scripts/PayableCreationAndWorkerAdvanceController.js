@@ -7,6 +7,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.WorkerAdvanceList = [];
     $scope.path = 'Attendances/GoodWork/';
     $scope.saveUrl = $scope.path + 'CreateWorkerAdvance';
+    $scope.savePCUrl = $scope.path + 'CreatePayableCreationWorkerAdvance';
     $scope.UpdateUrl = $scope.path + 'UpdateGoodWorkDetailEdit';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
@@ -347,9 +348,13 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
                 $scope.ModelNew.ApprovedById = employee.SystemId;
                 $scope.ModelNew.ApprovedBy = employee.EmployeeName;
             }
-            else {
+            else if ($scope.Name === 'CB') {
                 $scope.ModelNew.CheckedById = employee.SystemId;
                 $scope.ModelNew.CheckedBy = employee.EmployeeName;
+            }
+            else {
+                $scope.ModelPCNew.ByWhomId = employee.SystemId;
+                $scope.ModelPCNew.ByWhom = employee.EmployeeName;
             }
         }
         $scope.hideEmployeePopUp();
@@ -445,10 +450,10 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         Id: null,
         FromDate: null,
         ToDate: null,
-        UserRef: null,
-        PaymentDueDate: null,
-        PreparedBy: null,
-        PreparedById: null,
+        UserName: null,
+        PaymentDate: null,
+        ByWhom: null,
+        ByWhomId: null,
         Remarks: null
     };
     $scope.ModelPCNew = Object.assign({}, $scope.ModelPCTemp);
@@ -471,6 +476,84 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     };
     $scope.ModelPCEmpNew = Object.assign({}, $scope.ModelPCemp);
 
+    $scope.PCEmployeeList = [];
+    $scope.GetLoadEmployeeInformation = function () {
+        if ($scope.ModelPCNew.ToDate === "" || $scope.ModelPCNew.ToDate === null || $scope.ModelPCNew.ToDate === undefined) {
+            ShowResult('Select To Date', 'failure');
+            return false;
+        }
+        if ($scope.ModelPCNew.FromDate === "" || $scope.ModelPCNew.FromDate === null || $scope.ModelPCNew.FromDate === undefined) {
+            ShowResult('Select From Date', 'failure');
+            return false;
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "LoadPCEmployeelist",
+            data: { 'fromDate': $scope.ModelPCNew.FromDate, 'toDate': $scope.ModelPCNew.ToDate},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.PCEmployeeList = response.data;
+        });
+    }
+
+    $scope.PayableCreationSave = function () {
+        try {
+            $scope.FD = $filter('dateFiltering')(new Date($scope.ModelNew.FromDate), 'dd-MM-yyyy');
+            $scope.TD = $filter('dateFiltering')(new Date($scope.ModelNew.ToDate), 'dd-MM-yyyy');
+
+            $scope.$broadcast('show-errors-check-validity');
+          
+            $http({
+                method: 'POST',
+                url: $scope.savePCUrl,
+                data: { 'data': $scope.ModelPCNew, 'goodWorkPaymentDetail': $scope.PCEmployeeList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearPayableCreation();
+                    //$scope.getData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.GoodWorkPaymentList = [];
+    $scope.GetGoodWorkPaymentData = function () {
+        $http({
+            method: 'Get',
+            url: $scope.path + "GetGoodWorkPaymentList",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.GoodWorkPaymentList = response.data;
+        });
+    }
+    $scope.GetGoodWorkPaymentData();
+
+
+    $scope.GetGWPDblClick = function (args) {
+        $scope.ModelPCNew = Object.assign({}, args.data);
+        $scope.GetLoadEmployeeInformation();
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.ClearPayableCreation = function () {
+        $scope.Action = 'Save';
+        $scope.ModelPCNew = Object.assign({}, $scope.ModelPCTemp);
+        $scope.PCEmployeeList = [];
+        return true;
+    };
 
     //***********************************Payable Creation End********************************************************//
 }
