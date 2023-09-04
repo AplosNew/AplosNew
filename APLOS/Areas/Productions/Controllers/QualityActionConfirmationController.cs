@@ -142,11 +142,12 @@ and QCD.QCId='" + HeaderId + "'";
         public ActionResult LoadQualityActionTakenListGetDetails(string ParameterId, string ItemId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select QAT.Id,QPR.SNO,QPR.Id ReasonId,QRM.UserName ReasonName,QAT.ActionTaken,QAT.ActionById,EI.EmployeeName ActionBy,QAT.Remarks,QAT.ConfirmRemarks from [MST].[QualityManagementParameterReason] QPR 
-	left join [HKP].[QualityManagementReasonMaster] QRM on QRM.Id=QPR.ReasonId
-	left join [TRN].[QualityActionTakenUpdate] QAT on QAT.ParameterId='" + ParameterId + @"' and QAT.ReasonId=QPR.Id
-    left join EmployeeInformation EI on EI.SystemId=QAT.ActionById
-	where QPR.IsActive=1 and QPR.ParameterId='" + ItemId + "'";
+            string sql = @"select QAT.Id,isnull(QAT.SNO,QPR.SNO) SNO,QPR.Id ReasonId,isnull(QRM.UserName,QAT.ReasonName) ReasonName,QAT.ActionTaken,QAT.ActionById,EI.EmployeeName ActionBy,QAT.Remarks
+from [TRN].[QualityActionTakenUpdate]  QAT
+left join [MST].[QualityManagementParameterReason] QPR on QPR.Id=QAT.ReasonId and QPR.IsActive=1
+left join [HKP].[QualityManagementReasonMaster] QRM on QRM.Id=QPR.ReasonId
+left join EmployeeInformation EI on EI.SystemId=QAT.ActionById
+where QAT.ParameterId='" + ParameterId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
