@@ -102,8 +102,8 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         //$scope.ActionC = 'Update Responsible Person'
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
-            $scope.GetBudget($scope.ModelNew.Id);
-            $scope.GetAllSavedBudgetCode($scope.ModelNew.Id);
+            //$scope.GetBudget($scope.ModelNew.Id);
+            $scope.GetAllSavedBudgetCode(args.data.Id);
             $scope.GetSavedResponsiblePerson($scope.ModelNew.Id)
             //$scope.getEmployee($scope.ModelNew.Id);
         }
@@ -312,11 +312,22 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         }
     };
 
-    $scope.DeleteBudgetCode = function () {
+    var checkedGroup = [];
+    $scope.DeleteBudgetCode = function (x) {
+        for (var i = 0; i < x.UserGroupList.length; i++) {
+            if (x.UserGroupList[i].isSelected) {
+                checkedGroup.push(x.UserGroupList[i])
+            }
+        }
         if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
             $http({
                 method: 'POST',
-                url: $scope.path + 'DeleteBudgetCode' + $scope.ModelNew.Id,
+                url: $scope.path + 'DeleteBudgetCode',
+                data: {
+                    
+                    'groupId': checkedGroup,
+                    'bgtId': $scope.obj.Id
+                },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -325,8 +336,10 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
                 else {
                     ShowResult(response.data.Message, 'success');
                     ClearFields(response.data.Sequence);
-
+                    angular.element(document.querySelector('#UserGroupPop2')).modal('hide');
+                    $scope.GetAllSavedBudgetCode($scope.ModelNew.Id);
                     $scope.getData();
+
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');

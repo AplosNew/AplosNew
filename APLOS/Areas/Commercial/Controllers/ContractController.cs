@@ -282,20 +282,20 @@ namespace Aplos.Areas.Commercial.Controllers
                         dr["Id"] = "MLCA" + GetAmandmentVersionPK();
                         dr["MasterLCId"] = data.Id;
                         dr["Version"] = dsMaster.Tables[0].Rows[0]["Version"];
-                        dr["CustomerId"] =  dsMaster.Tables[0].Rows[0]["CustomerId"];
+                        dr["CustomerId"] = dsMaster.Tables[0].Rows[0]["CustomerId"];
                         dr["IsClose"] = dsMaster.Tables[0].Rows[0]["IsClose"];
-                        dr["BenificiaryBankId"] =  dsMaster.Tables[0].Rows[0]["BenificiaryBankId"];
+                        dr["BenificiaryBankId"] = dsMaster.Tables[0].Rows[0]["BenificiaryBankId"];
                         dr["OpeningBank"] = dsMaster.Tables[0].Rows[0]["OpeningBank"];
                         dr["OpeningDescription"] = dsMaster.Tables[0].Rows[0]["OpeningDescription"];
                         dr["LeinBank"] = dsMaster.Tables[0].Rows[0]["LeinBank"];
                         dr["LeinDescription"] = dsMaster.Tables[0].Rows[0]["LeinDescription"];
                         dr["LCRef"] = dsMaster.Tables[0].Rows[0]["LCRef"];
-                        dr["LCDate"] =  dsMaster.Tables[0].Rows[0]["LCDate"];
+                        dr["LCDate"] = dsMaster.Tables[0].Rows[0]["LCDate"];
                         dr["ExpiryDate"] = dsMaster.Tables[0].Rows[0]["ExpiryDate"];
                         dr["AmendmentDate"] = dsMaster.Tables[0].Rows[0]["AmendmentDate"] != System.DBNull.Value ? dsMaster.Tables[0].Rows[0]["AmendmentDate"] : System.DBNull.Value;
-                        dr["Amount"] =  dsMaster.Tables[0].Rows[0]["Amount"];
+                        dr["Amount"] = dsMaster.Tables[0].Rows[0]["Amount"];
                         dr["Type"] = dsMaster.Tables[0].Rows[0]["Type"];
-                        dr["Tenure"] =  dsMaster.Tables[0].Rows[0]["Tenure"];
+                        dr["Tenure"] = dsMaster.Tables[0].Rows[0]["Tenure"];
                         dr["FinalDestinationId"] = dsMaster.Tables[0].Rows[0]["FinalDestinationId"];
                         dr["PortOfLandingId"] = dsMaster.Tables[0].Rows[0]["PortOfLandingId"];
                         dr["CurrencyId"] = dsMaster.Tables[0].Rows[0]["CurrencyId"];
@@ -423,7 +423,7 @@ namespace Aplos.Areas.Commercial.Controllers
             string id = string.Empty;
             DataSet dsSeq = null;
             try
-            { 
+            {
                 GetAutoSequence(data.Id, out dsSeq);
                 decimal seq = Convert.ToDecimal(dsSeq.Tables[0].Rows[0]["Version"].ToString());
 
@@ -475,7 +475,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
 
                     dr.BeginEdit();
-                     
+
                     dr["Version"] = data.Version;
                     dr["CustomerId"] = data.CustomerId;
                     dr["IsClose"] = data.IsClose;
@@ -1493,7 +1493,7 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }//End of function
 
-        
+
         [HttpGet, Authorize]
         public ActionResult GetSalesOrderList(string customerId)
         {
@@ -3093,6 +3093,72 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public JsonResult SaveMasterLCAddInfo(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from dbo.MasterLCAddInfo where Description='" + data["Description"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Description already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from dbo.MasterLCAddInfo where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MasterLCAddInfo", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Error = false, Sequence = clsCon.GetSequence(_Id), Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetAutoSequence(string masterLcId)
+        {
+            return Json(clsCon.GetSequence(masterLcId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetMasterLCAddInfoData(string masterLcId)
+        {
+            try
+            {
+                return Json(clsCon.GetMasterLCAddInfoData(masterLcId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 
     class clsStdLib
@@ -3650,7 +3716,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
 
             return total;
-        }       
+        }
 
     }
 
