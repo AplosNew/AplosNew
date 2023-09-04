@@ -104,13 +104,13 @@
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                     <div e-columns>
-                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="3"></div>
-                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="3"></div>
+                        @*<div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="3"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="3"></div>*@
                         <div e-column e-field="FromDate" e-headertext="From Date" e-width="2" e-isprimarykey="true"></div>
                         <div e-column e-field="ToDate" e-headertext="To Date" e-width="2" e-isprimarykey="true"></div>
                         <div e-column e-field="UserName" e-headertext="UserName" e-width="3"></div>
                         <div e-column e-field="PaymentDate" e-headertext="Payment Date" e-width="3"></div>
-                        <div e-column e-field="Amount" e-headertext="Amount" e-width="3"></div>
+                        @*<div e-column e-field="Amount" e-headertext="Amount" e-width="3"></div>*@
                         <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
                     </div>
                 </div>
@@ -124,7 +124,7 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Year<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input id="ddlYearList" e-watermarktext="Year" ej-dropdownlist e-datasource="yearList" e-enablefiltersearch="true" e-value="ModelNew.year" @*e-databound="SelectDefaultValue"*@ e-fields-value="Text" e-fields-text="Text" e-width="100%" />
+                            <input id="ddlYearList" e-watermarktext="Year" ej-dropdownlist e-datasource="yearList" e-enablefiltersearch="true" e-value="ModelNew.YearNo" @*e-databound="SelectDefaultValue"*@ e-fields-value="Text" e-fields-text="Text" e-width="100%" />
                         </div>
                     </div>
                      
@@ -173,7 +173,7 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Month<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input id="ddlMonthList" e-watermarktext="Month" ej-dropdownlist e-datasource="monthList" e-value="ModelNew.month" e-fields-value="Value" e-fields-text="Text" e-width="100%"  e-change="CalenderFunc" />
+                            <input id="ddlMonthList" e-watermarktext="Month" ej-dropdownlist e-datasource="monthList" e-value="ModelNew.MonthNo" e-fields-value="Value" e-fields-text="Text" e-width="100%"  e-change="CalenderFunc" />
                         </div>
                     </div>
                     <div class="form-group" show-errors>
