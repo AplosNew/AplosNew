@@ -29,8 +29,10 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     //***********************************Worker Advance Start ********************************************************//
     $scope.ModelTemp = {
         Id: null,
-        year: null,
-        month: null,
+        Year: null,
+        YearNo: null,
+        Month: null,
+        MonthNo: null,
         FromDate: null,
         ToDate: null,
         UserRef: null,
@@ -292,7 +294,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             url: $scope.path + 'GetWorkerAdvanceDetailCenter?workAdvanceId=' + $scope.ModelNew.Id,
             dataType: 'JSON'
         }).then(function succ(resp) {
-            $scope.EmployeeMainList = resp.data;
+            $scope.EmployeeMainList = resp.data; 
         });
     }
 
@@ -372,7 +374,10 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             ShowResult('Select From Date', 'failure');
             return false;
         }
-
+        if ($scope.ModelNew.PayDaysType === "" || $scope.ModelNew.PayDaysType === null || $scope.ModelNew.PayDaysType === undefined) {
+            ShowResult('Select From Pay Days', 'failure');
+            return false;
+        }
         $http({
             method: 'POST',
             url: $scope.path + "LoadPCAACEmployeelist",
