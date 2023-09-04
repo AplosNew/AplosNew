@@ -751,7 +751,7 @@ and  PositionID in (select PositionCodeId from MST.QualityIssueDetails where Id=
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
                             LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-                            WHERE EI.EmployeeStatus='Active'";
+                            WHERE EI.EmployeeStatus='Active' and EI.EmployeeCode is not null";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }

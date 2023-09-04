@@ -139,14 +139,41 @@ and QCD.QCId='" + HeaderId + "'";
         }
 
         [Authorize, HttpGet]
-        public ActionResult LoadQualityActionTakenListGetDetails(string ParameterId, string ItemId)
+        public ActionResult LoadQualityActionTakenListGetDetails(string ParameterId, string ItemId, string ActionById, string ActionBy)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select QAT.Id,QPR.SNO,QPR.Id ReasonId,QRM.UserName ReasonName,QAT.ActionTaken,QAT.ActionById,EI.EmployeeName ActionBy,QAT.Remarks from [MST].[QualityManagementParameterReason] QPR 
+            string AddRow = string.Empty;
+            string sql = string.Empty;
+            ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+            conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementParameterReason] where ParameterId='" + ItemId + "'", out DataSet BlankRowMaster, false, "1");
+            conRack.OpenDataSetThroughAdapter("select * from [TRN].[QualityActionTakenUpdate] where ParameterId='" + ParameterId + "'", out DataSet BlankRowTransaction, false, "1");
+            if (BlankRowMaster.Tables[0].Rows.Count == 0 )
+            {
+                AddRow = "union select NULL Id,'' SNO,NULL ReasonId,'' ReasonName,'' ActionTaken,'" + ActionById + "' ActionById,'" + ActionBy + "' ActionBy,'' Remarks";
+            }
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (BlankRowMaster.Tables[0].Rows.Count == 0 && BlankRowTransaction.Tables[0].Rows.Count == 0)
+            {
+                sql = @"select QAT.Id,QAT.SNO,QAT.Id ReasonId,QAT.ReasonName,QAT.ActionTaken,isnull(QAT.ActionById,'" + ActionById + @"') ActionById,isnull(EI.EmployeeName,'" + ActionBy + @"') ActionBy,QAT.Remarks
+from [TRN].[QualityActionTakenUpdate]  QAT
+left join EmployeeInformation EI on EI.SystemId=QAT.ActionById
+where QAT.ParameterId='" + ParameterId + "' " + AddRow + " ";
+            }
+            if (BlankRowMaster.Tables[0].Rows.Count == 0 && BlankRowTransaction.Tables[0].Rows.Count > 0)
+            {
+                sql = @"select QAT.Id,QAT.SNO,QAT.Id ReasonId,QAT.ReasonName,QAT.ActionTaken,isnull(QAT.ActionById,'" + ActionById + @"') ActionById,isnull(EI.EmployeeName,'" + ActionBy + @"') ActionBy,QAT.Remarks
+from [TRN].[QualityActionTakenUpdate]  QAT
+left join EmployeeInformation EI on EI.SystemId=QAT.ActionById
+where QAT.ParameterId='" + ParameterId + "'";
+            }
+            if (BlankRowMaster.Tables[0].Rows.Count != 0)
+            {
+                sql = @"select QAT.Id,isnull(QAT.SNO,QPR.SNO) SNO,QAT.ReasonId ReasonId,isnull((select UserName from [HKP].[QualityManagementReasonMaster] where Id=(select ReasonId from [MST].[QualityManagementParameterReason] where Id=QAT.ReasonId)),(select QAT.ReasonName from [TRN].[QualityActionTakenUpdate] where Id=QAT.Id)) ReasonName,QAT.ActionTaken,isnull(QAT.ActionById,'" + ActionById + @"') ActionById,isnull(EI.EmployeeName,'" + ActionBy + @"') ActionBy,QAT.Remarks from [MST].[QualityManagementParameterReason] QPR 
 	left join [HKP].[QualityManagementReasonMaster] QRM on QRM.Id=QPR.ReasonId
-	left join [TRN].[QualityActionTakenUpdate] QAT on QAT.ParameterId='" + ParameterId + @"' and QAT.ReasonId=QPR.Id
+	left join [TRN].[QualityActionTakenUpdate] QAT on QAT.ParameterId='" + ParameterId + @"' 
+    --and QAT.ReasonId=QPR.Id
     left join EmployeeInformation EI on EI.SystemId=QAT.ActionById
 	where QPR.IsActive=1 and QPR.ParameterId='" + ItemId + "'";
+            }
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
