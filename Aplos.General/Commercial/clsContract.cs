@@ -1037,6 +1037,30 @@ Order by B.UserName";
                 throw ex;
             }
         }
+
+        public double GetSequence(string masterLcId)
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT ISNULL(Max(Sequence),0) AS Sequence FROM dbo.MasterLCAddInfo WHERE MasterLcId='" + masterLcId + "'");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
+        public IEnumerable<object> GetMasterLCAddInfoData(string masterLcId)
+        {
+            try
+            {
+
+                var sql = @"SELECT * FROM dbo.MasterLCAddInfo WHERE MasterLcId='" + masterLcId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }
 
