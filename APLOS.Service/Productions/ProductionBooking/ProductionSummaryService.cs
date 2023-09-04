@@ -809,8 +809,9 @@ LEFT JOIN
 left join TRN.ProductionOrderDetail PD ON PD.SalesOrderId= SO.Id
 where SO.OrderStatusId<>'Cancelled' GROUP BY PD.ProductionOrderId
                             ) AS POQ ON POQ.ProductionOrderId = QC.ProductionOrderId
-left join (select Sum(QD.Value) ProducedQty,Q.ProductionOrderId from TRN.QualityControlDetails QD
-left join TRN.QualityControl Q on Q.Id=QD.QCId
+left join 
+(select Sum(QD.Quantity) ProducedQty,Q.ProductionOrderId from TRN.ProductionSummary QD
+left join TRN.QualityControl Q on Q.ProductionOrderId=QD.ProductionOrderId
 GROUP BY Q.ProductionOrderId
 ) AS ProdQ ON ProdQ.ProductionOrderId = QC.ProductionOrderId
 where " + QCDate + "  " + QCIssue + " " + QCPONO + "";
