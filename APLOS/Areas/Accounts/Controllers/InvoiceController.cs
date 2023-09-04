@@ -350,6 +350,8 @@ namespace Aplos.Areas.Accounts.Controllers
 
             if (voucherVM.PaymentSource == PaymentSource.Cash.ToString() && voucherVM.CashMasterId == null)
                 throw new CustomException(Resources.SelectCash);
+            if (voucherVM.PaymentSource == PaymentSource.Bank.ToString() && voucherVM.BankMasterId == null)
+                throw new CustomException(Resources.SelectBank);
             voucherVM.SourceType = SourceType.VendorInvoice.ToString();
             if (voucherVM.BeneficiaryType == NewBeneficiaryType.Vendor.ToString())
                 return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceService.InsertVendorInvoice(voucherVM, voucherDetailVMList, taxDetailVMList, tdsVMList, invoiceDetailChargesList, existingLoanList)) });
