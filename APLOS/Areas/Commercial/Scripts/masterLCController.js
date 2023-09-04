@@ -6,6 +6,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
     $scope.path = 'Commercial/contract/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveMasterLCUrl = $scope.path + 'SaveMasterLC';
+    $scope.saveAddInfoLCUrl = $scope.path + 'SaveMasterLCAddInfo';
     $scope.deleteUrl = $scope.path + 'DeleteMasterLC/';
     $scope.partyType = "Customer";
     $controller("partyBaseController", { $scope: $scope, $http: $http });
@@ -16,11 +17,21 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
     };
     $scope.masterLCNew = Object.assign({}, $scope.masterLC);
 
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
     $scope.Get = function (obj) {
         $scope.masterLC = obj.data;
         $scope.masterLCNew = Object.assign({}, $scope.masterLC);
         $scope.GetSavedContract($scope.masterLC.Id);
+        $scope.GetMasterLCAddInfoData();
         $scope.Action = 'Update';
+       
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -322,6 +333,78 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
             $scope.currencyList = result;
             $scope.masterLCNew.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
         });
+    }
+
+    $scope.AddModel = { Id: null, MasterLCId: null, Sequence: 0, Description: null, Remarks: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
+    $scope.addInfo = Object.assign({}, $scope.AddModel);
+
+    $scope.GetSequence = function () {
+        $scope.getSeqUrl = "Commercial/Contract/GetAutoSequence?masterLcId=" + $scope.masterLCNew.Id
+        cboService.getSequence($scope.getSeqUrl, function (data) {
+            $scope.addInfo.Sequence = data;
+            $scope.AddModel.Sequence = data;
+        });
+    };
+    $scope.GetSequence();
+
+    $scope.ActionAdd = 'Save';
+    $scope.SaveMasterLCAddInfo = function () {
+        try {
+            $scope.addInfo.MasterLCId = $scope.masterLCNew.Id;
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.addInfoForm.$valid) {
+
+                $http({
+                    method: 'POST',
+                    url: $scope.saveAddInfoLCUrl,
+                    data: {
+                        'entity': $scope.addInfo
+                    },
+                    dataType: 'JSON'
+                    , contentType: "application/json charset=utf-8"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.GetMasterLCAddInfoData();
+                        $scope.ClearAddInfo();
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                };
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.masterLCAddInfoList = [];
+    $scope.GetMasterLCAddInfoData = function () {
+        $scope.masterLCAddInfoList = [];
+        $http.get("Commercial/Contract/GetMasterLCAddInfoData?masterLcId=" + $scope.masterLCNew.Id)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.masterLCAddInfoList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+
+    $scope.GetAddInfo = function (obj) {
+        $scope.addInfo = Object.assign({}, obj.data);
+        $scope.ActionAdd = 'Update';
+    }
+
+    $scope.ClearAddInfo = function () {
+        $scope.AddModel = { Id: null, MasterLCId: null, Sequence: 0, Description: null, Remarks: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
+        $scope.addInfo = Object.assign({}, $scope.AddModel);
+        $scope.GetSequence();
+        $scope.ActionAdd = 'Save';
     }
 
 }
