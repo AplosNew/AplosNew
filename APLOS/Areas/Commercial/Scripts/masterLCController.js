@@ -358,7 +358,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
                     method: 'POST',
                     url: $scope.saveAddInfoLCUrl,
                     data: {
-                        'entity': $scope.addInfo
+                        'data': $scope.addInfo
                     },
                     dataType: 'JSON'
                     , contentType: "application/json charset=utf-8"
@@ -389,10 +389,12 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
                     if (baseService.arrayLength(response.data) > 0) {
                         $scope.masterLCAddInfoList = response.data;
                     }
+                    $scope.GetSequence();
                 },
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
                 });
+   
     };
 
     $scope.GetAddInfo = function (obj) {
