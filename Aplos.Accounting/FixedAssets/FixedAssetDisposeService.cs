@@ -1838,6 +1838,7 @@ namespace Library.Accounting.FixedAssets
                         CapitalizationMasterId = capitalizationMasterdata["Id"].ToString(),
                         CapitalizationChildId = capitalizationMasterdata["Id"].ToString() + "-" + (i + 1),
                         Amount = item["Amount"].ToString(),
+                        NetAmount = item["Amount"].ToString(),
                         CompanyGroupId = identity.CompanyGroupId,
                         CompanyId = identity.CompanyId,
                         PlantId = identity.PlantId,
@@ -1886,7 +1887,7 @@ namespace Library.Accounting.FixedAssets
                     {
                         builderSql = @"UPDATE [TRN].[AssetRegister] SET AssetSlNo='" + item["AssetSlNo"] + " ' ,Status = '" + item["Status"] + "' ,AssetCondition = '" + item["AssetCondition"] + "' ,UserReference = '" + item["UserReference"] + "' ,OldReference = '" + item["OldReference"] + "' ,UserGroup = '" + item["UserGroup"] + "' ,Remarks = '" + item["Remarks"] + "' ,UpdatedBy = '" + identity.Name + "' ,UpdatedDate = '" + System.DateTime.Now.ToString() + "' ,UpdatedFromIP = '" + identity.IPAddress + "' WHERE Id='" + item["AssetRegisterId"].ToString() + "'  ";
                         rdBuilder.Append(builderSql);
-                        builderSql = @"UPDATE [TRN].[AssetRegisterChild] SET Amount='" + item["Amount"] + "' ,UpdatedBy = '" + identity.Name + "' ,UpdatedDate = '" + System.DateTime.Now.ToString() + "' ,UpdatedFromIP = '" + identity.IPAddress + "' WHERE Id='" + item["AssetRegisterChildId"].ToString() + "'  ";
+                        builderSql = @"UPDATE [TRN].[AssetRegisterChild] SET Amount='" + item["Amount"] + "' ,NetAmount = '" + item["Amount"] + "',UpdatedBy = '" + identity.Name + "' ,UpdatedDate = '" + System.DateTime.Now.ToString() + "' ,UpdatedFromIP = '" + identity.IPAddress + "' WHERE Id='" + item["AssetRegisterChildId"].ToString() + "'  AND VoucherDetailId is null ";
                         rdBuilder.Append(builderSql);
                     }
                     _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());

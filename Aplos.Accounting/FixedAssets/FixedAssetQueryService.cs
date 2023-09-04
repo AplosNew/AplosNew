@@ -2463,6 +2463,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                             CapitalizationMasterId = masterId,
                             CapitalizationChildId = masterId+"-"+ (i + 1),
                             Amount = AssetRegisterAmount,
+                            NetAmount = AssetRegisterAmount,
                             CompanyGroupId = identity.CompanyGroupId,
                             CompanyId = identity.CompanyId,
                             PlantId = identity.PlantId,
