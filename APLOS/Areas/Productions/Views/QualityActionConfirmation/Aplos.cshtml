@@ -223,7 +223,7 @@
                     <div e-columns>
                         <div e-column e-field="Id" e-headertext="Item Id" e-visible="false" e-width="3"></div>
                         <div e-column e-field="ParameterId" e-headertext="Parameter Id" e-visible="false" e-width="3"></div>
-                        <div e-column e-template="#AddTile" e-headertext="Add" e-width="60"></div>
+                        @*<div e-column e-template="#AddTile" e-headertext="Add" e-width="60"></div>*@
                         <div e-column e-template="#SNO" e-headertext="SNO" e-width="100"></div>
                         <div e-column e-template="#ReasonName" e-headertext="Reason Name" e-width="100"></div>
                         <div e-column e-template="#ActionTaken" e-headertext="Action Taken" e-width="100"></div>
@@ -256,7 +256,7 @@
                 </script>
                 <script type="text/template" id="ActionBy">
                     <div class="col-sm-10" style="padding:0px;">
-                        <input type="text" name="Action By" ng-model="data.ActionBy" ng-click="$parent.selectActionBy(this);" class="form-control" maxlength="200">
+                        <input type="text" name="Action By" ng-disabled="true" ng-model="data.ActionBy" ng-click="$parent.selectActionBy(this);" class="form-control" maxlength="200">
                     </div>
                 </script>
                 <script type="text/template" id="Remarks">

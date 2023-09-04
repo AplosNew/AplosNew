@@ -83,8 +83,6 @@ namespace Library.OrderManagement.Production
                     throw new Exception("Same PackingLineItem With Same SO already exists!!!");
 
 
-
-
                 int ind = lastIndex;
                 #region data update
                 if (dsMaster1.Tables[0].Rows.Count == 0)
@@ -97,8 +95,6 @@ namespace Library.OrderManagement.Production
 
                 ll = ind;
                 #endregion data update
-
-
 
 
 
@@ -124,7 +120,7 @@ namespace Library.OrderManagement.Production
 
                             if (Cartons[j]["LotNo"].ToString().Trim() == jj["LotNo"].ToString().Trim() && Cartons[j]["ProductCode"].ToString().Trim() == jj["ProductCode"].ToString().Trim() && Cartons[j]["PO"].ToString().Trim() == jj["PONo"].ToString().Trim())
                             {
-                                var sqls = @"Update dbo.ItemScanChild Set PackingId = '" + jj["Id"].ToString() + "' , UpdatedBy = '" + identity.Name + "' ,BookedDate = GETDATE(), Booked = 1  where RefNo IN(" + Cartons[j]["RefNo"] + @")";
+                                var sqls = @"Update dbo.ItemScanChild Set PackingId = '" + jj["Id"].ToString() + "' , UpdatedBy = '" + identity.Name + "' ,BookedDate = GETDATE(), Booked = 1  where RefNo IN(" + Cartons[j]["RefNo"] + @")  AND SalesReturnId IS NULL AND Booked=0";
 
                                 ConnectionManager.DAL.ConManager objCone = null;
                                 objCone = new ConnectionManager.DAL.ConManager("1");

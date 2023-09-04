@@ -2603,6 +2603,8 @@ namespace Library.Service.Invoices
 
                         if (bankMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
                             glTransactionDetail.DrAmount = voucherDetailDr.DrAmount;
+                        else if(bankMaster["CurrencyId"].ToString() != voucherVM.CurrencyId && voucherVM.BankAmount==0)
+                            throw new CustomException("Please input Bank Amount!");
                         else
                             glTransactionDetail.DrAmount = voucherVM.BankAmount;// Math.Round(voucherVM.CompanyCurrencyRate * voucherDetailDr.DrAmount, 2);
 

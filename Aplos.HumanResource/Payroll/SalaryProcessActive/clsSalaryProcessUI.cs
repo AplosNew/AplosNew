@@ -607,7 +607,7 @@ and (zz.EmpInfoSystemID is not null or zzz.EmpInfoSystemID is not null)
                                         LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
                                         left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
-                                        LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id
+                                        LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id  AND DMC.PlantId=e.PlantId
 										LEFT JOIN dbo.AccountsGroup AG ON AG.Id=DMC.AccountsGroupId
                                             LEFT OUTER JOIN
                                             (
@@ -794,7 +794,7 @@ and isnull(locka.EmpSystemId,'')=''
                                         
                               
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
-                                        LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id
+                                        LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id AND DMC.PlantId=e.PlantId
 										LEFT JOIN dbo.AccountsGroup AG ON AG.Id=DMC.AccountsGroupId
                                         LEFT OUTER JOIN
                                             (
@@ -1329,7 +1329,7 @@ and isnull(locka.EmpSystemId,'')=''
                                         LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
  left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
-LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id
+LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id  AND DMC.PlantId=e.PlantId
 										LEFT JOIN dbo.AccountsGroup AG ON AG.Id=DMC.AccountsGroupId
                                             LEFT OUTER JOIN
                                             (
@@ -1731,7 +1731,7 @@ LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.I
                                         LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
                                         left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
-LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id
+LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id AND DMC.PlantId=e.PlantId
 										LEFT JOIN dbo.AccountsGroup AG ON AG.Id=DMC.AccountsGroupId
 		                                left join (select EmpSystemId from SalaryLock where  MonthNo=Month('" + sFromDate + @"') and YearNo = Year('" + sFromDate + @"') and IsLocked=1)  lock
 										on lock.EmpSystemId=e.SystemId
@@ -1836,7 +1836,7 @@ LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.I
                                         LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
                                         left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
-                                        LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id
+                                        LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id  AND DMC.PlantId=e.PlantId
 										LEFT JOIN dbo.AccountsGroup AG ON AG.Id=DMC.AccountsGroupId
                             ";
 
@@ -1907,7 +1907,7 @@ LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.I
                                         LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
  left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
-LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id
+LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id AND DMC.PlantId=e.PlantId
 										LEFT JOIN dbo.AccountsGroup AG ON AG.Id=DMC.AccountsGroupId
                                             LEFT OUTER JOIN
                                             (

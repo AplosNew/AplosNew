@@ -40,8 +40,8 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
         ob.ReasonId = null;
         ob.ReasonName = null;
         ob.ActionTaken = null;
-        ob.ActionById = null;
-        ob.ActionBy = null;
+        ob.ActionById = $window.employeeId;
+        ob.ActionBy = $window.employeeName;
         ob.Remarks = null;
         $scope.QualityActionTakenDetailsList.splice(e.Serial + 1, 0, ob);
         refreshSerial();
@@ -186,7 +186,7 @@ function QualityActionUpdateController(cboService, commonMessage, $scope, $rootS
         $scope.ActionTakenUpdateNew.ParameterStatus = args.data.Status;
         $http({
             method: 'Get',
-            url: 'Productions/QualityActionUpdate/LoadQualityActionTakenListGetDetails?ParameterId=' + $scope.QAUParameterId + '&ItemId=' + $scope.QAUItemId
+            url: 'Productions/QualityActionUpdate/LoadQualityActionTakenListGetDetails?ParameterId=' + $scope.QAUParameterId + '&ItemId=' + $scope.QAUItemId + '&ActionById=' + $window.employeeId + '&ActionBy=' + $window.employeeName
         }).then(function successCallback(response) {
             $scope.QualityActionTakenDetailsList = response.data;
             for (var i = 0; i < $scope.QualityActionTakenDetailsList.length; i++) {
