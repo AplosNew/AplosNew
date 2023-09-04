@@ -4794,7 +4794,7 @@ where Emp.EmployeeCode = '" + Empcode + "'";
                 try
                 {
                     #region Sql
-                    strSQL1 = @"select ROW_NUMBER() OVER(ORDER BY (ISNULL(A.ToDayIN,0)-MBGT.Deployment)) AS SrNo,  LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
+                    strSQL1 = @"select * from (  select ROW_NUMBER() OVER(ORDER BY (ISNULL(A.ToDayIN,0)-MBGT.Deployment)) AS SrNo,  LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
 DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus, UN.Id EntityId,UN.UserName EntityName,
 case when apd.WeeklyStatus = 'W' then 'W'
 when (select top 1 rw.PTime from AttdnRawData rw
@@ -4888,16 +4888,16 @@ and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "
 
                     if (tbs != null && longabsent == null)
                     {
-                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'TBS'  order by  ISNULL(A.ToDayIN,0)-MBGT.Deployment  Asc";
+                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'TBS'  ) a order by a.SrNo";
                     }
 
                     if (tbs == null && longabsent != null)
                     {
-                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'LONG ABSENTEEISM'  order by  ISNULL(A.ToDayIN,0)-MBGT.Deployment  Asc";
+                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'LONG ABSENTEEISM'  ) a order by a.SrNo";
                     }
                     if (tbs == null && longabsent == null)
                     {
-                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null  order by  ISNULL(A.ToDayIN,0)-MBGT.Deployment  Asc";
+                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null  ) a order by a.SrNo";
                     }
 
                     
@@ -4968,7 +4968,7 @@ and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "
                 try
                 {
                     #region Sql
-                    strSQL1 = @"select ROW_NUMBER() OVER(ORDER BY (ISNULL(A.ToDayIN,0)-MBGT.Deployment)) AS SrNo,  LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
+                    strSQL1 = @"select * from (  select ROW_NUMBER() OVER(ORDER BY (ISNULL(A.ToDayIN,0)-MBGT.Deployment)) AS SrNo,  LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
 DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus, UN.Id EntityId,UN.UserName EntityName,
 case when apd.WeeklyStatus = 'W' then 'W'
 when (select top 1 rw.PTime from AttdnRawData rw
@@ -5067,16 +5067,16 @@ else '00:00:00' end) <> '00:00:00'   and apd.WorkDate = '" + date + "'  and Hg.I
 
                     if (tbs != null && longabsent == null)
                     {
-                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'TBS' order by  ISNULL(A.ToDayIN,0)-MBGT.Deployment  Asc";
+                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'TBS' ) a order by a.SrNo";
                     }
 
                     if (tbs == null && longabsent != null)
                     {
-                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'LONG ABSENTEEISM' order by  ISNULL(A.ToDayIN,0)-MBGT.Deployment  Asc";
+                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'LONG ABSENTEEISM' ) a order by a.SrNo";
                     }
                     if (tbs == null && longabsent == null)
                     {
-                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null order by  ISNULL(A.ToDayIN,0)-MBGT.Deployment  Asc";
+                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null ) a order by a.SrNo";
                     }
 
                     #endregion Sql
@@ -5146,7 +5146,7 @@ else '00:00:00' end) <> '00:00:00'   and apd.WorkDate = '" + date + "'  and Hg.I
                 try
                 {
                     #region Sql
-                    strSQL1 = @"select ROW_NUMBER() OVER(ORDER BY (ISNULL(A.ToDayIN,0)-MBGT.Deployment)) AS SrNo,   SC.StandardName Section,SBC.StandardName SubSection, 
+                    strSQL1 = @"select * from (  select ROW_NUMBER() OVER(ORDER BY (ISNULL(A.ToDayIN,0)-MBGT.Deployment)) AS SrNo,   SC.StandardName Section,SBC.StandardName SubSection, 
 DSG.StandardName Designation, POS.Activity,apd.InStatus, 
  MBGT.Code BudgetCode,
 Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId  ,MBGT.Deployment, Diffenence= ISNULL(A.ToDayIN,0)-MBGT.Deployment ,
@@ -5232,16 +5232,16 @@ and emp.employeecode NOT IN (2222229, 2222230)    and apd.WorkDate = '" + date +
 
                     if (tbs != null && longabsent == null)
                     {
-                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'TBS' order by  ISNULL(A.ToDayIN,0)-MBGT.Deployment  Asc";
+                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'TBS' ) a order by a.SrNo";
                     }
 
                     if (tbs == null && longabsent != null)
                     {
-                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'LONG ABSENTEEISM' order by  ISNULL(A.ToDayIN,0)-MBGT.Deployment  Asc";
+                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'LONG ABSENTEEISM' ) a order by a.SrNo";
                     }
                     if (tbs == null && longabsent == null)
                     {
-                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null order by  ISNULL(A.ToDayIN,0)-MBGT.Deployment  Asc";
+                        strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null ) a order by a.SrNo";
                     }
 
                     #endregion Sql
