@@ -201,7 +201,9 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         BankAccountNumber: null,
         BankGL: null,
         BankGLGeneralInfoId: null,
-        DiscountAmount:0
+        DiscountAmount: 0,
+        ExchangeAmount: 0,
+        ExchangeType:null
     };
     $scope.voucherDetailCurrency = {
         Id: null,
@@ -215,7 +217,15 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         CrAmount: 0,
         Type: null
     };
-
+    $scope.changeExhangeType = function (type) {
+        if (type === 'ExchangeGain') {
+            $scope.advanceNew.ExchangeType = 'ExchangeGain';
+        }
+        if (type === 'ExchangeLoss') {
+            $scope.advanceNew.ExchangeType = 'ExchangeLoss';
+        }
+        $scope.calBaseAmount();
+    };
     $scope.searchByList = [
         {
             "name": "VoucherNo",
@@ -405,9 +415,6 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         $scope.advanceNew.SettlementType = "SetOff";
         $scope.advance.PartyType= "Customer";
     };
-
-
-
 
 
     $scope.getFiscalYearPeriod = function (date) {
@@ -1334,4 +1341,5 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         }
         return true;
     };
+
 }

@@ -2463,6 +2463,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                             CapitalizationMasterId = masterId,
                             CapitalizationChildId = masterId+"-"+ (i + 1),
                             Amount = AssetRegisterAmount,
+                            NetAmount = AssetRegisterAmount,
                             CompanyGroupId = identity.CompanyGroupId,
                             CompanyId = identity.CompanyId,
                             PlantId = identity.PlantId,
@@ -2810,7 +2811,7 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
                      WHERE FAM.CompanyGroupId='" + companyGroupId + @"' 
 					 AND FAM.Id IN(select FAI.FixedAssetMasterId from [TRN].[AssetRegisterChild] ARC
 									LEFT JOIN [TRN].[CapitalizationMaster] CM  ON  CM.Id = ARC.CapitalizationMasterId
-									LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=ARC.FixedAssetItemId where CM.CapitalizationDate<='" + toDate + @"')";
+									LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=ARC.FixedAssetItemId where CM.CapitalizationDate<='" + toDate + @"' AND ARC.VoucherDetailId IS NOT NULL)";
             return _sqlRepository.GetDataCollection(sql);
 
         }
@@ -2840,7 +2841,12 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
         public List<Dictionary<string, object>> GetAssetRegisterElasticSearchDataList(string companyGroupId, string companyId, string plantId, string fromDate, string toDate)
         {
             var sql = @"SELECT ARC.CapitalizationMasterId,ARC.CapitalizationChildId,ARC.Amount AssetAmount,ARC.DepreciationAmount,ARC.NetAmount,FAM.UserName FixedAssetMaster,FAI.UserName FixedAssetItem, AR.FixedAssetItemId,ARC.AssetRegisterId
-							,AR.AssetSlNo, AR.RFId, AR.BarCode, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks 
+							,AR.AssetSlNo, AR.RFId, AR.BarCode, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks  ,AR.AdditionalInfoUpdateId
+                           ,STUFF((select distinct ','+AI.UserName+'-'+ CAST(AUD.Value AS varchar)
+						        FROM [TRN].[AdditionalInfoUpdateDetail] AUD
+						        INNER JOIN [TRN].[AdditionalInfoUpdate] AU ON AU.Id=AUD.AdditionalInfoUpdateId						
+						        INNER JOIN [HKP].[AdditionalInfoItem] AI ON AI.Id=AUD.AdditionalInfoItemId
+						        WHERE AUD.AdditionalInfoUpdateId=AR.AdditionalInfoUpdateId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')AdditionalInfo
                             FROM TRN.AssetRegisterChild ARC
 							LEFT JOIN TRN.AssetRegister AR ON AR.Id=ARC.AssetRegisterId
                             LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId

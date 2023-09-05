@@ -84,6 +84,13 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetTermsAndConditionsDataList()
+        {
+            string sql = @"SELECT *,Flag=Convert(bit, CASE WHEN Mandatory=1 THEN 'true' ELSE 'false' END) FROM [HKP].[TermsAndConditions] Where [Type] IN('" + TermsAndConditionsEnum.Contract + "','" + TermsAndConditionsEnum.LetterOfCredit + "')";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetContractTermsAndConditionsList(string ContractId)
         {
             return Json(clsCon.GetContractTermsAndConditionsList(ContractId), JsonRequestBehavior.AllowGet);
@@ -3158,6 +3165,145 @@ namespace Aplos.Areas.Commercial.Controllers
                 throw ex;
             }
         }
+
+        private string GetMasterLCTNCPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MasterLCTermsAndConditions", out sID);
+            return sID;
+        }
+
+
+        [HttpPost, Authorize]
+        public JsonResult CreateMasterLCTNC(List<Dictionary<string, object>> data, string masterLCId)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsChild;
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MasterLCTermsAndConditions where  MasterLCId='" + masterLCId + "'", out dsChild, false, "1");
+
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = GetMasterLCTNCPK();
+
+                            AddNewRow(dsChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsChild);
+                }
+
+
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveTNCRowData(Dictionary<string, object> data)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsChild;
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MasterLCTermsAndConditions where  Id='" + data["Id"] + "'", out dsChild, false, "1");
+
+                if (data != null)
+                {
+                    DataView dv = new DataView(dsChild.Tables[0]);
+                    dv.RowFilter = "Id='" + data["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        data["Id"] = GetMasterLCTNCPK();
+                        AddNewRow(dsChild.Tables[0], data);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        EditRow(drmo, data);
+                    }
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsChild);
+                }
+
+
+                return Json(new { Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetMasterLCTermsAndConditionsList(string masTerLCId)
+        {
+            return Json(clsCon.GetMasterLCTermsAndConditionsList(masTerLCId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult DeleteMasterLCTermsAndConditions(string id)
+        {
+            DeleteMasterLCTermsAndConditionsData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+
+        public void DeleteMasterLCTermsAndConditionsData(string id)
+        {
+            string strSQL, strDSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM [dbo].[MasterLCTermsAndConditions] WHERE Id = '" + id + "'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
 
     }
 

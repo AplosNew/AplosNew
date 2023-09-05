@@ -552,6 +552,7 @@
     <Compile Include="Areas\Materials\Controllers\LOTCreationController.cs" />
     <Compile Include="Areas\Materials\Controllers\QRCodeGeneratorController.cs" />
     <Compile Include="Areas\Materials\Controllers\WeighingScaleMasterController.cs" />
+    <Compile Include="Areas\OrderManagements\Controllers\DocumentationController.cs" />
     <Compile Include="Areas\Processes\Controllers\ProcessManagementController.cs" />
     <Compile Include="Areas\Processes\Controllers\ProcessManagementRecepieController.cs" />
     <Compile Include="Areas\Processes\Controllers\ProcessTemplateController.cs" />

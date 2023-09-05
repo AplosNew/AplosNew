@@ -1061,6 +1061,24 @@ Order by B.UserName";
             }
         }
 
+        public IEnumerable<object> GetMasterLCTermsAndConditionsList(string masTerLCId)
+        {
+            try
+            {
+                string sql = @"SELECT CT.*,TC.Sequence,TC.Code,TC.ShortName,TC.StandardName,TC.UserName OriginUserName,TC.Description
+,CAST((CASE WHEN TC.Type='Contract' THEN 1 ELSE 0 END) AS bit) AS IsContract
+,CAST((CASE WHEN TC.Type='LetterOfCredit' THEN 1 ELSE 0 END) AS bit) AS IsMasterLC
+FROM [dbo].[MasterLCTermsAndConditions] CT
+LEFT JOIN HKP.TermsAndConditions TC ON TC.Id=CT.TermsAndConditionsId
+                            WHERE CT.MasTerLCId='" + masTerLCId + "'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }
 

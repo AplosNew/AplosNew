@@ -146,6 +146,7 @@
                                                 <th>Material</th>
                                                 <th>Article</th>
                                                 <th>GRN No</th>
+                                                <th>GRN RowId</th>
                                                 <th>Qty</th>
                                                 <th>Amount</th>
                                                 <th>Source</th>
@@ -166,13 +167,14 @@
                                                 <td>{{x.MaterialMasterName}}</td>
                                                 <td>{{x.ArticleStandardName}}</td>
                                                 <td>{{x.GRNNo}}</td>
+                                                <td>{{x.InventoryReceiveDetailId}}</td>
                                                 <td class="text-right">{{x.Qty}}</td>
                                                 <td class="text-right">{{x.Amount}}</td>
                                                 <td>{{x.Source}}</td>
                                             </tr>
                                             <tr>
                                                 <td><label>Total </label></td>
-                                                <td colspan="5"></td>
+                                                <td colspan="6"></td>
                                                 <td class="text-right">
                                                     <label>
                                                         {{selectedmaterialMasterList | sumByKey : 'Amount'|number:2}}
