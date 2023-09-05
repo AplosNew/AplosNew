@@ -1247,6 +1247,68 @@ namespace Library.Service.Advances
                     totalCurrencyAmountCr += voucherDetailCurrencyCr.CrAmount;
                     _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailCr, voucherDetailCurrencyCr);
                 }
+                if (voucherVM.ExchangeType == "ExchangeLoss" && voucherVM.ExchangeAmount > 0)
+                {
+                    var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Payable);
+                    var voucherDtEx = new VoucherDetail
+                    {
+                        GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString(),
+                        BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                        ActivityId = lossGL["CompanyCurrencyActivityId"].ToString(),
+                        CurrencyId = voucher.CurrencyId,
+                        DocDate = voucher.DocDate,
+                        DocRefNo = voucher.DocRefNo,
+                        Narration = voucher.Narration,
+                        DrAmount = (companyCurrencyId == voucherVM.CurrencyId) ? voucherVM.ExchangeAmount : 0,
+                        PartyType = voucherVM.ExchangeType
+                    };
+                    totalAmountDr += voucherDtEx.DrAmount;
+
+                    currentVoucherDetailId++;
+                    _voucherService.InsertVoucherDetail(voucher, voucherDtEx, currentVoucherDetailId);
+
+                    _voucherService.InsertVoucherDetailCompanyCurrency(voucherDtEx, new VoucherDetailCurrency
+                    {
+                        ParallelCurrencyId = companyCurrencyId,
+                        FromCurrencyId = voucherDtEx.CurrencyId,
+                        ToCurrencyId = companyCurrencyId,
+                        ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                        ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDtEx.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                        DrAmount = voucherVM.ExchangeAmount
+                    });
+                    totalCurrencyAmountDr += voucherVM.ExchangeAmount;
+                }
+
+                if (voucherVM.ExchangeType == "ExchangeGain" && voucherVM.ExchangeAmount > 0)
+                {
+                    var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Payable);
+                    var voucherDtExGain = new VoucherDetail
+                    {
+                        GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString(),
+                        BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString(),
+                        ActivityId = gainGL["CompanyCurrencyActivityId"].ToString(),
+                        CurrencyId = voucher.CurrencyId,
+                        DocDate = voucher.DocDate,
+                        DocRefNo = voucher.DocRefNo,
+                        Narration = voucher.Narration,
+                        CrAmount = voucherVM.ExchangeAmount,
+                        PartyType = voucherVM.ExchangeType
+                    };
+                    totalAmountCr += voucherDtExGain.CrAmount;
+
+                    currentVoucherDetailId++;
+                    _voucherService.InsertVoucherDetail(voucher, voucherDtExGain, currentVoucherDetailId);
+                    _voucherService.InsertVoucherDetailCompanyCurrency(voucherDtExGain, new VoucherDetailCurrency
+                    {
+                        ParallelCurrencyId = companyCurrencyId,
+                        FromCurrencyId = voucherDtExGain.CurrencyId,
+                        ToCurrencyId = companyCurrencyId,
+                        ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                        ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDtExGain.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                        CrAmount = voucherVM.ExchangeAmount
+                    });
+                    totalCurrencyAmountCr += voucherVM.ExchangeAmount;
+                }
                 if (totalAmountDr != totalAmountCr)
                     throw new CustomException("Dr and Cr amount is not equal.");
                 if (totalCurrencyAmountDr != totalCurrencyAmountCr)
