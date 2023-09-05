@@ -1065,7 +1065,7 @@ Order by B.UserName";
         {
             try
             {
-                string sql = @"SELECT CT.*,TC.Sequence,TC.Code,TC.ShortName,TC.StandardName,TC.Description
+                string sql = @"SELECT CT.*,TC.Sequence,TC.Code,TC.ShortName,TC.StandardName,TC.UserName OriginUserName,TC.Description
 ,CAST((CASE WHEN TC.Type='Contract' THEN 1 ELSE 0 END) AS bit) AS IsContract
 ,CAST((CASE WHEN TC.Type='LetterOfCredit' THEN 1 ELSE 0 END) AS bit) AS IsMasterLC
 FROM [dbo].[MasterLCTermsAndConditions] CT
