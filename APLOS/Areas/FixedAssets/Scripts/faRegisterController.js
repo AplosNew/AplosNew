@@ -435,6 +435,36 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
             $scope.DeleteDetail();
         }
     };
+
+    $scope.GetCapitalizationMasterAfterDelDetail = function () {
+        $scope.selectedmaterialMasterList = [];
+        $scope.register.TotalAmount = 0;
+        $scope.register.GRNAmount = 0;
+        $scope.register.IssueAmount = 0;
+        $scope.register.ExpensesAmount = 0;
+        $http.get("fixedassets/fixedassetregister/GetCapitalizationMasterDetail?masterId=" + $scope.register.Id)
+            .then(
+                function successCallback(response) {
+                    $scope.selectedmaterialMasterList = response.data;
+                    for (var i = 0; i < $scope.selectedmaterialMasterList.length; i++) {
+                        $scope.register.TotalAmount += $scope.selectedmaterialMasterList[i].Amount;
+                        if ($scope.selectedmaterialMasterList[i].Source == 'AUC') {
+                            $scope.register.GRNAmount += $scope.selectedmaterialMasterList[i].Amount;
+                        }
+                        else if ($scope.selectedmaterialMasterList[i].Source == 'CI') {
+                            $scope.register.IssueAmount += $scope.selectedmaterialMasterList[i].Amount;
+                        }
+                        else {
+                            $scope.register.ExpensesAmount += $scope.selectedmaterialMasterList[i].Amount;
+                        }
+                    }
+                    $scope.SaveRegister();
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+
     $scope.DeleteDetail = function () {
         try {
             $http({
@@ -448,8 +478,8 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                 }
                 else {
                     ShowResult(response.data.Message, "success");
-                    $scope.GetCapitalizationMasterDetail();
-                   
+                    $scope.GetCapitalizationMasterAfterDelDetail();
+                    
                 }
             }, function errorCallback(response) {
                 ShowResult(response.status.Message, "failure");
