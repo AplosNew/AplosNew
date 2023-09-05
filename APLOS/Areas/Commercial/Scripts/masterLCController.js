@@ -426,7 +426,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         $scope.searchdata = [];
         $http({
             method: 'GET',
-            url: 'Commercial/Contract/GetTermsAndConditionsList'
+            url: 'Commercial/Contract/GetTermsAndConditionsDataList'
         }).then(function successCallback(response) {
             $scope.searchdata = response.data;
         });
@@ -484,6 +484,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
                     ob.ShortName = $scope.searchdata[i].ShortName;
                     ob.StandardName = $scope.searchdata[i].StandardName;
                     ob.UserName = $scope.searchdata[i].UserName;
+                    ob.OriginUserName = $scope.searchdata[i].UserName;
                     ob.Description = $scope.searchdata[i].Description;
                     ob.Remarks = null;
 
@@ -546,6 +547,9 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
 
     $scope.SaveRowData = function (obj) {
         try {
+            if (obj.data.OriginUserName !== obj.data.UserName) {
+                throw "Remarks is mandatory.";
+            }
             $http({
                 method: 'POST',
                 url: 'Commercial/Contract/SaveTNCRowData',

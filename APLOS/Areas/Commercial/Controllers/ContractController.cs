@@ -84,6 +84,13 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetTermsAndConditionsDataList()
+        {
+            string sql = @"SELECT *,Flag=Convert(bit, CASE WHEN Mandatory=1 THEN 'true' ELSE 'false' END) FROM [HKP].[TermsAndConditions] Where [Type] IN('" + TermsAndConditionsEnum.Contract + "','" + TermsAndConditionsEnum.LetterOfCredit + "')";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetContractTermsAndConditionsList(string ContractId)
         {
             return Json(clsCon.GetContractTermsAndConditionsList(ContractId), JsonRequestBehavior.AllowGet);
