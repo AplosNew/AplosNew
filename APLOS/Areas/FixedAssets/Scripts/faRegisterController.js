@@ -448,11 +448,6 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                 }
                 else {
                     ShowResult(response.data.Message, "success");
-                    for (var i = 0; i < $scope.selectedmaterialMasterList.length; i++) {
-                        if ($scope.selectedmaterialMasterList[i].VoucherNo == $scope.VNo) {
-                            $scope.selectedmaterialMasterList.splice(i, 1);
-                        }
-                    }
                     $scope.GetCapitalizationMasterDetail();
                    
                 }
@@ -535,6 +530,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                         ShowResult(response.data.Message, "success");
                         $scope.register.Id = response.data.Id;
                         $scope.getData();
+                        $scope.GetCapitalizationMasterDetail();
                         $scope.saveBtnDisable = false;
                     }
                 }, function errorCallback(response) {
