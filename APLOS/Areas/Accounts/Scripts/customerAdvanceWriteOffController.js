@@ -201,7 +201,9 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         BankAccountNumber: null,
         BankGL: null,
         BankGLGeneralInfoId: null,
-        DiscountAmount:0
+        DiscountAmount: 0,
+        ExchangeAmount: 0,
+        ExchangeType:null
     };
     $scope.voucherDetailCurrency = {
         Id: null,
@@ -413,9 +415,6 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         $scope.advanceNew.SettlementType = "SetOff";
         $scope.advance.PartyType= "Customer";
     };
-
-
-
 
 
     $scope.getFiscalYearPeriod = function (date) {
@@ -1342,4 +1341,5 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         }
         return true;
     };
+
 }
