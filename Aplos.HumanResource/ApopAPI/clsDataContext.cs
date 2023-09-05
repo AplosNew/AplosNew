@@ -5148,7 +5148,7 @@ else '00:00:00' end) <> '00:00:00'   and apd.WorkDate = '" + date + "'  and Hg.I
                     #region Sql
                     strSQL1 = @"select * from (  select ROW_NUMBER() OVER(ORDER BY (ISNULL(A.ToDayIN,0)-MBGT.Deployment)) AS SrNo,   SC.StandardName Section,SBC.StandardName SubSection, 
 DSG.StandardName Designation, POS.Activity,apd.InStatus, 
- MBGT.Code BudgetCode,
+ MBGT.Code BudgetCode, ISNULL(A.ToDayIN , 0) as ToDayIN,  
 Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId  ,MBGT.Deployment, Diffenence= ISNULL(A.ToDayIN,0)-MBGT.Deployment ,
 case when (ISNULL(A.ToDayIN,0)-MBGT.Deployment) > 0 then 'Access' 
 when (ISNULL(A.ToDayIN,0)-MBGT.Deployment) < 0 then 'Short' 
@@ -5253,40 +5253,19 @@ and emp.employeecode NOT IN (2222229, 2222230)    and apd.WorkDate = '" + date +
                     {
                         DataList.Add(new AttendanceReport
                         {
-                            SrNo = dsRef.Tables[0].Rows[i]["SrNo"].ToString(),
-                            LeaveCode = dsRef.Tables[0].Rows[i]["LeaveCode"].ToString(),
-                            SystemID = dsRef.Tables[0].Rows[i]["SystemID"].ToString(),
-                            EMPCode = dsRef.Tables[0].Rows[i]["EMPCode"].ToString(),
-                            EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
+                            
                             Section = dsRef.Tables[0].Rows[i]["Section"].ToString(),
                             SubSection = dsRef.Tables[0].Rows[i]["SubSection"].ToString(),
                             Designation = dsRef.Tables[0].Rows[i]["Designation"].ToString(),
-                            Category = dsRef.Tables[0].Rows[i]["Category"].ToString(),
                             Activity = dsRef.Tables[0].Rows[i]["Activity"].ToString(),
-                            InStatus = dsRef.Tables[0].Rows[i]["InStatus"].ToString(),
-                            InTime = dsRef.Tables[0].Rows[i]["InTime"].ToString(),
-                            InVerificationTime = dsRef.Tables[0].Rows[i]["InVerificationTime"].ToString(),
                             BudgetCode = dsRef.Tables[0].Rows[i]["BudgetCode"].ToString(),
-                            Shift = dsRef.Tables[0].Rows[i]["Shift"].ToString(),
-                            ShiftId = dsRef.Tables[0].Rows[i]["ShiftId"].ToString(),
-                            MobileNo = dsRef.Tables[0].Rows[i]["MobileNo"].ToString(),
-                            WeeklyStatus = dsRef.Tables[0].Rows[i]["WeeklyStatus"].ToString(),
-                            Residence = dsRef.Tables[0].Rows[i]["Residence"].ToString(),
-                            Transport = dsRef.Tables[0].Rows[i]["Transport"].ToString(),
                             ManpowerBudgetId = dsRef.Tables[0].Rows[i]["ManpowerBudgetId"].ToString(),
                             UserGroup = dsRef.Tables[0].Rows[i]["UserGroup"].ToString(),
                             GroupId = dsRef.Tables[0].Rows[i]["GroupId"].ToString(),
-                            Location = dsRef.Tables[0].Rows[i]["Location"].ToString(),
-                            CurrentStatus = dsRef.Tables[0].Rows[i]["CurrentStatus"].ToString(),
                             Deployment = dsRef.Tables[0].Rows[i]["Deployment"].ToString(),
                             ToDayIN = dsRef.Tables[0].Rows[i]["ToDayIN"].ToString(),
                             Diffenence = dsRef.Tables[0].Rows[i]["Diffenence"].ToString(),
-                            RawDayStatus = dsRef.Tables[0].Rows[i]["RawDayStatus"].ToString(),
-                            EntityId = dsRef.Tables[0].Rows[i]["EntityId"].ToString(),
-                            EntityName = dsRef.Tables[0].Rows[i]["EntityName"].ToString(),
                             DifferenceColor = dsRef.Tables[0].Rows[i]["DifferenceColor"].ToString(),
-                            LateInTime = dsRef.Tables[0].Rows[i]["LateInTime"].ToString(),
-                            LateInStatus = dsRef.Tables[0].Rows[i]["LateInStatus"].ToString(),
 
                         });
                     }
