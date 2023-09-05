@@ -30,8 +30,9 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         $scope.masterLCNew = Object.assign({}, $scope.masterLC);
         $scope.GetSavedContract($scope.masterLC.Id);
         $scope.GetMasterLCAddInfoData();
+        $scope.GetMasterLCTermsAndConditionsList();
         $scope.Action = 'Update';
-       
+
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -327,7 +328,8 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         $scope.savedcontractList = [];
         $scope.contractList = [];
         $scope.Action = 'Save';
-
+        $scope.masterLCAddInfoList = [];
+        $scope.TermsAndConditionsList = [];
         cboService.getCboTransactionCurrencyByCompany('', function (result) {
             $scope.currencyList = [];
             $scope.currencyList = result;
@@ -394,7 +396,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
                 });
-   
+
     };
 
     $scope.GetAddInfo = function (obj) {
@@ -407,6 +409,16 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         $scope.addInfo = Object.assign({}, $scope.AddModel);
         $scope.GetSequence();
         $scope.ActionAdd = 'Save';
+    }
+
+
+    $scope.GetMasterLCTermsAndConditionsList = function () {
+        $http({
+            method: 'GET',
+            url: 'Commercial/Contract/GetMasterLCTermsAndConditionsList?masTerLCId=' + $scope.masterLCNew.Id
+        }).then(function successCallback(response) {
+            $scope.TermsAndConditionsList = response.data;
+        });
     }
 
     $scope.searchdata = [];
@@ -473,6 +485,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
                     ob.StandardName = $scope.searchdata[i].StandardName;
                     ob.UserName = $scope.searchdata[i].UserName;
                     ob.Description = $scope.searchdata[i].Description;
+                    ob.Remarks = null;
 
                     $scope.TermsAndConditionsList.push(ob);
                 }
@@ -531,6 +544,31 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         }
     };
 
+    $scope.SaveRowData = function (obj) {
+        try {
+            $http({
+                method: 'POST',
+                url: 'Commercial/Contract/SaveTNCRowData',
+                data: { 'data': obj.data },
+                dataType: 'JSON'
+                , contentType: "application/json charset=utf-8"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetContractTermsAndConditionsList();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+
     $scope.message_detailconfirmation = null;
     $scope.removeBoMDetail = function (obj) {
         $scope.bomDetailNew = obj.data;
@@ -542,14 +580,14 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
     $scope.DeleteTNC = function () {
         $http({
             method: 'POST',
-            url: 'Commercial/Contract/DeleteContractTermsAndConditions?id=' + $scope.bomDetailNew.Id
+            url: 'Commercial/Contract/DeleteMasterLCTermsAndConditions?id=' + $scope.bomDetailNew.Id
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.GetContractTermsAndConditionsList();
+                $scope.GetMasterLCTermsAndConditionsList();
             }
         }, function () {
             ShowResult(commonMessage.NetworkError, 'failure');
