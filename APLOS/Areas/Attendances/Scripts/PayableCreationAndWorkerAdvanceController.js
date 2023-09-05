@@ -142,7 +142,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             autoclose: true,
             inline: true,
             changeMonth: true
-        });
+        }); 
         /* $("#GFG").datepicker("refresh");*/
     };
     //function InitializeDate() {
