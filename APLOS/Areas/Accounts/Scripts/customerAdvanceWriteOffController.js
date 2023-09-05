@@ -215,7 +215,15 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         CrAmount: 0,
         Type: null
     };
-
+    $scope.changeExhangeType = function (type) {
+        if (type === 'ExchangeGain') {
+            $scope.advanceNew.ExchangeType = 'ExchangeGain';
+        }
+        if (type === 'ExchangeLoss') {
+            $scope.advanceNew.ExchangeType = 'ExchangeLoss';
+        }
+        $scope.calBaseAmount();
+    };
     $scope.searchByList = [
         {
             "name": "VoucherNo",
