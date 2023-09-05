@@ -2811,7 +2811,7 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
                      WHERE FAM.CompanyGroupId='" + companyGroupId + @"' 
 					 AND FAM.Id IN(select FAI.FixedAssetMasterId from [TRN].[AssetRegisterChild] ARC
 									LEFT JOIN [TRN].[CapitalizationMaster] CM  ON  CM.Id = ARC.CapitalizationMasterId
-									LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=ARC.FixedAssetItemId where CM.CapitalizationDate<='" + toDate + @"')";
+									LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=ARC.FixedAssetItemId where CM.CapitalizationDate<='" + toDate + @"' AND ARC.VoucherDetailId IS NOT NULL)";
             return _sqlRepository.GetDataCollection(sql);
 
         }
