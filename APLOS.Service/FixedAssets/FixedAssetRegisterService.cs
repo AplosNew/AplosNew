@@ -2940,7 +2940,7 @@ GROUP BY FAR.FABudgetMasterId
 
                 if (faType == "AUC")
                 {
-                    CmdText = @"SELECT * FROM (SELECT Flag=CAST(0 AS bit),IRD.Id InventoryReceiveDetailId,IR.VoucherId,IRD.VoucherDetailId VoucherDetailNo,v.VoucherNo,Round((IRD.TotalMaterialBooksCurrencyAmount),4) Amount
+                    CmdText = @"SELECT * FROM (SELECT Flag=CAST(0 AS bit),IRD.Id InventoryReceiveDetailId,IR.VoucherId,IRD.VoucherDetailId,v.VoucherNo,Round((IRD.TotalMaterialBooksCurrencyAmount),4) Amount
                     ,Round((0),4) FABaseAmount,LC.LCANo,PO.PurchaseLCId,IR.CurrencyId, BM.GLGeneralInfoId, AGL.UserName AS AssetGLName, BM.GLGeneralInfoId AS AssetGLId
                                     ,TUoM.UserName AS BaseUoM,IRD.BaseQty,IR.Id GRNNo,IR.GateEntryNo,IR.DocRefNo InvoiceNo
 									,REPLACE(Convert(VARCHAR(11), IR.DocDate, 106), ' ', '-') AS InvoiceDate
@@ -2969,7 +2969,7 @@ GROUP BY FAR.FABudgetMasterId
                 }
                 else if (faType == "CI")
                 {
-                    CmdText = @"SELECT * FROM (SELECT Flag=CAST(0 AS bit),VD.VoucherId,VD.Id VoucherDetailNo,v.VoucherNo,IIH.Id InventoryIssueHistoryId,Round((IIH.TotalAmount),4) Amount
+                    CmdText = @"SELECT * FROM (SELECT Flag=CAST(0 AS bit),VD.VoucherId,VD.Id VoucherDetailId,v.VoucherNo,IIH.Id InventoryIssueHistoryId,Round((IIH.TotalAmount),4) Amount
                     ,Round((IIH.TotalMaterialBooksCurrencyAmount),4) FABaseAmount,LC.LCANo,PO.PurchaseLCId,IR.CurrencyId,II.CurrencyId BaseCurrencyId
                     , BM.GLGeneralInfoId, AGL.UserName AS AssetGLName, BM.GLGeneralInfoId AS AssetGLId, VD.BudgetMasterId
                                     ,IIH.Qty,IR.Id GRNNo,IR.GateEntryNo,IR.DocRefNo InvoiceNo
@@ -3008,7 +3008,7 @@ GROUP BY FAR.FABudgetMasterId
                 }
                 else
                 {
-                    CmdText = @"SELECT * FROM (SELECT Flag=CAST(0 AS bit),VD.VoucherId,VD.Id VoucherDetailNo,v.VoucherNo,Round((VD.DrAmount),4) Amount
+                    CmdText = @"SELECT * FROM (SELECT Flag=CAST(0 AS bit),VD.VoucherId,VD.Id VoucherDetailId,v.VoucherNo,Round((VD.DrAmount),4) Amount
                     ,Round((0),4) FABaseAmount,V.CurrencyId TransactionCurrencyId, BM.GLGeneralInfoId, AGL.UserName AS AssetGLName, BM.GLGeneralInfoId AS AssetGLId
                                     ,0 Qty,'' GRNNo,V.DocRefNo InvoiceNo
 									,REPLACE(Convert(VARCHAR(11), V.DocDate, 106), ' ', '-') AS InvoiceDate
