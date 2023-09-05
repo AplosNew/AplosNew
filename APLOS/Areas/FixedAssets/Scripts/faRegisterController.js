@@ -61,11 +61,27 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
 
     $scope.selectedmaterialMasterList = [];
     $scope.GetCapitalizationMasterDetail = function () {
-        $scope.purchaseLCList = [];
+        $scope.selectedmaterialMasterList = [];
+        $scope.register.TotalAmount = 0;
+        $scope.register.GRNAmount = 0;
+        $scope.register.IssueAmount = 0;
+        $scope.register.ExpensesAmount = 0;
         $http.get("fixedassets/fixedassetregister/GetCapitalizationMasterDetail?masterId=" + $scope.register.Id)
             .then(
                 function successCallback(response) {
                     $scope.selectedmaterialMasterList = response.data;
+                    for (var i = 0; i < $scope.selectedmaterialMasterList.length; i++) {
+                        $scope.register.TotalAmount += $scope.selectedmaterialMasterList[i].Amount;
+                        if ($scope.selectedmaterialMasterList[i].Source == 'AUC') {
+                            $scope.register.GRNAmount += $scope.selectedmaterialMasterList[i].Amount;
+                        }
+                        else if ($scope.selectedmaterialMasterList[i].Source == 'CI') {
+                            $scope.register.IssueAmount += $scope.selectedmaterialMasterList[i].Amount;
+                        }
+                        else {
+                            $scope.register.ExpensesAmount += $scope.selectedmaterialMasterList[i].Amount;
+                        }
+                    }
                 },
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
@@ -336,7 +352,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                         ob.GRNNo = $scope.materialMasterList[i].GRNNo;
                         ob.Qty = $scope.materialMasterList[i].BaseQty;
                         ob.Source = 'AUC';
-
+                        $scope.register.TotalAmount += $scope.materialMasterList[i].Amount;
                         $scope.selectedmaterialMasterList.push(ob);
                         ob = {};
                     }
@@ -357,7 +373,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                         ob.Qty = $scope.materialMasterList[i].BaseQty;
                         $scope.register.IssueAmount += $scope.materialMasterList[i].Amount;
                         ob.Source = 'CI';
-
+                        $scope.register.TotalAmount += $scope.materialMasterList[i].Amount;
                         $scope.selectedmaterialMasterList.push(ob);
                         ob = {};
                     }
@@ -379,6 +395,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                         ob.GRNNo = $scope.materialMasterList[i].GRNNo;
                         ob.Qty = $scope.materialMasterList[i].BaseQty;
                         $scope.register.ExpensesAmount += $scope.materialMasterList[i].Amount;
+                        $scope.register.TotalAmount += $scope.materialMasterList[i].Amount;
                         ob.Source = 'Expense';
 
                         $scope.selectedmaterialMasterList.push(ob);
@@ -386,7 +403,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                     }
                 }
 
-
+               
             }
         }
 
@@ -437,7 +454,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                         }
                     }
                     $scope.GetCapitalizationMasterDetail();
-                    $scope.SaveRegister();
+                   
                 }
             }, function errorCallback(response) {
                 ShowResult(response.status.Message, "failure");
