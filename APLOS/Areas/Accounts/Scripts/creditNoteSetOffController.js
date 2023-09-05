@@ -124,6 +124,10 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
             "Value": "PostingDate"
         },
         {
+            "Text": "DocRef No",
+            "Value": "DocRefNo"
+        },
+        {
             "Text": "Currency Code",
             "Value": "CurrencyCode"
         },
