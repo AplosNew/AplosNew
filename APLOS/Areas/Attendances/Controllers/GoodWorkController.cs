@@ -433,8 +433,8 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult GetWorkerAdvanceList()
         {
-            string sql = @"select wa.Id,FORMAT(FromDate,'dd-MMM-yy')FromDate,FORMAT(ToDate,'dd-MMM-yy')ToDate,UserRef
-						        ,NoOfDays,Percentage,wa.Remarks
+            string sql = @"select wa.Id,FORMAT(FromDate,'dd-MMM-yy')FromDate,FORMAT(ToDate,'dd-MMM-yy')ToDate,UserRef,wa.YearNo,wa.MonthNo
+						        ,wa.PayDaysType,NoOfDays,Percentage,wa.Remarks
                                 ,ei.SystemId PreparedById,ei.EmployeeName PreparedBy
 						        ,ei2.SystemId CheckedById,ei2.EmployeeName CheckedBy
 						        ,ei3.SystemId ApprovedById,ei3.EmployeeName ApprovedBy
@@ -624,6 +624,12 @@ namespace Aplos.Areas.Attendances.Controllers
                                     WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
                          " + pDays + @"
                          where EI.employeeCode<>''  
+                         and ei.SystemId not in (select wad.EmpSystemId 
+						 from WorkerAdvance wa
+						 left join WorkerAdvanceDetail wad on wad.WorkerAdvanceId=wa.Id
+						 where wa.FromDate between '" + fromDate + @"' and '" + toDate + @"'
+						 and wa.ToDate between '" + fromDate + @"' and '" + toDate + @"'
+						 )
                          ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
             }
             catch (Exception ex)
@@ -685,7 +691,7 @@ namespace Aplos.Areas.Attendances.Controllers
             {
                 MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 DataSet dsMaster;
-                DataSet dsDetail,dsAdvance;
+                DataSet dsDetail, dsAdvance;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from [dbo].[GoodWorkPayment] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
@@ -731,48 +737,48 @@ namespace Aplos.Areas.Attendances.Controllers
                 if (goodWorkPaymentDetail != null)
                 {
                     foreach (var item in goodWorkPaymentDetail)
-                    { 
-                            DataView dv = new DataView(dsDetail.Tables[0]);
-                            dv.RowFilter = "Id='" + item["Id"] + "'";
+                    {
+                        DataView dv = new DataView(dsDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
 
-                            if (dv.Count == 0)
-                            {
-                                ccount++;
-                                string detailId = materialCommonService.MakePK(_MasterId, ccount, 2);
+                        if (dv.Count == 0)
+                        {
+                            ccount++;
+                            string detailId = materialCommonService.MakePK(_MasterId, ccount, 2);
 
-                                item["Id"] = detailId;
-                                item["GoodWorkPaymentId"] = _MasterId;
-                                item["EmpSystemId"] = item["EmpSystemId"];
-                                item["WorkerAdvanceId"] = item["WorkerAdvanceId"];
-                                item["Amount"] = item["Amount"]; 
+                            item["Id"] = detailId;
+                            item["GoodWorkPaymentId"] = _MasterId;
+                            item["EmpSystemId"] = item["EmpSystemId"];
+                            item["WorkerAdvanceId"] = item["WorkerAdvanceId"];
+                            item["Amount"] = item["Amount"];
 
-                                materialCommonService.AddNewRowD(dsDetail.Tables[0], item); 
-                            }
-                            else 
-                            {
-                                ccount++;
-                                string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
-                                DataRow drmo = dv[0].Row;
-                                drmo.BeginEdit();
+                            materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
+                        }
+                        else
+                        {
+                            ccount++;
+                            string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
+                            DataRow drmo = dv[0].Row;
+                            drmo.BeginEdit();
 
-                                //drmo["WorkerAdvanceId"] = _MasterId;
-                                //drmo["EmpSystemId"] = item["EmpSystemId"];
-                                //drmo["PayDays"] = item["PayDays"];
-                                //drmo["Amount"] = item["Amount"];
+                            //drmo["WorkerAdvanceId"] = _MasterId;
+                            //drmo["EmpSystemId"] = item["EmpSystemId"];
+                            //drmo["PayDays"] = item["PayDays"];
+                            //drmo["Amount"] = item["Amount"];
 
-                                drmo.EndEdit();
-                            }
+                            drmo.EndEdit();
+                        }
 
 
                         DataView dvAdvance = new DataView(dsAdvance.Tables[0]);
                         dvAdvance.RowFilter = "Id='" + item["WorkerAdvanceDetailId"] + "' and EmpSystemId = '" + item["EmpSystemId"] + "'";
 
                         if (dvAdvance.Count > 0)
-                        { 
+                        {
                             DataRow drAdvance = dvAdvance[0].Row;
                             drAdvance.BeginEdit();
 
-                            drAdvance["GoodWorkPaymentDetailId"] = item["Id"]; 
+                            drAdvance["GoodWorkPaymentDetailId"] = item["Id"];
 
                             drAdvance.EndEdit();
                         }
@@ -795,13 +801,10 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult GetGoodWorkPaymentList()
         {
-            string sql = @"select --ei.EmployeeCode,ei.EmployeeName,
-gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
-						,gwp.UserName,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate--,gwpd.Amount
-						,gwp.Remarks
+            string sql = @"select ei.EmployeeCode,ei.EmployeeName ByWhom,gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
+						,gwp.UserName,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwp.Remarks
 						from GoodWorkPayment gwp 
-						--left join GoodWorkPaymentDetail gwpd on gwpd.GoodWorkPaymentDetailId=gwp.Id
-						--left join EmployeeInformation ei on ei.SystemId=gwpd.EmpSystemId";
+						left join EmployeeInformation ei on ei.SystemId=gwp.ByWhomId";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

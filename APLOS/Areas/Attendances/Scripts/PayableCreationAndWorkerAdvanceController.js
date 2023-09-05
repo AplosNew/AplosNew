@@ -70,7 +70,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     cboService.getCboLeaveYear(function (result) {
         $scope.yearList = result;
     });
-     
+
     $scope.monthList = [
         {
             Value: 1,
@@ -120,11 +120,19 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             Value: 12,
             Text: 'December'
         }
-    ]; 
+    ];
     //$scope.DisabledDates = [];
+
     $scope.CalenderFunc = function () {
-        $scope._firstDay = $filter('dateFiltering')(new Date($scope.ModelNew.year, $scope.ModelNew.month - 1, 1), 'dd-MM-yyyy');
-        $scope._lastDay = $filter('dateFiltering')(new Date($scope.ModelNew.year, $scope.ModelNew.month, 0), 'dd-MM-yyyy');
+        $scope._firstDay = null;
+        $scope._lastDay = null;
+        //$scope.ModelNew.FromDate = null;
+        //$scope.ModelNew.ToDate = null;
+
+        $scope._firstDay = $filter('dateFiltering')(new Date($scope.ModelNew.YearNo, $scope.ModelNew.MonthNo - 1, 1), 'dd-MM-yyyy');
+        $scope._lastDay = $filter('dateFiltering')(new Date($scope.ModelNew.YearNo, $scope.ModelNew.MonthNo, 0), 'dd-MM-yyyy');
+        //InitializeDate();
+
         $('.datepic').datepicker({
             startDate: $scope._firstDay,
             endDate: $scope._lastDay,
@@ -135,8 +143,11 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             inline: true,
             changeMonth: true
         }); 
+        /* $("#GFG").datepicker("refresh");*/
     };
-
+    //function InitializeDate() {
+    //    $(".datepic").datepicker();
+    //}
 
     //$('.datepicker').datepicker({
     //    startDate: '-1d',
@@ -294,7 +305,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             url: $scope.path + 'GetWorkerAdvanceDetailCenter?workAdvanceId=' + $scope.ModelNew.Id,
             dataType: 'JSON'
         }).then(function succ(resp) {
-            $scope.EmployeeMainList = resp.data; 
+            $scope.EmployeeMainList = resp.data;
         });
     }
 
@@ -495,7 +506,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         $http({
             method: 'POST',
             url: $scope.path + "LoadPCEmployeelist",
-            data: { 'fromDate': $scope.ModelPCNew.FromDate, 'toDate': $scope.ModelPCNew.ToDate},
+            data: { 'fromDate': $scope.ModelPCNew.FromDate, 'toDate': $scope.ModelPCNew.ToDate },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.PCEmployeeList = response.data;
@@ -508,7 +519,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             $scope.TD = $filter('dateFiltering')(new Date($scope.ModelNew.ToDate), 'dd-MM-yyyy');
 
             $scope.$broadcast('show-errors-check-validity');
-          
+
             $http({
                 method: 'POST',
                 url: $scope.savePCUrl,

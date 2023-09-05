@@ -58,14 +58,30 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         };
     };
     $scope.getData();
-    
+
     $scope.selectedmaterialMasterList = [];
     $scope.GetCapitalizationMasterDetail = function () {
-        $scope.purchaseLCList = [];
+        $scope.selectedmaterialMasterList = [];
+        $scope.register.TotalAmount = 0;
+        $scope.register.GRNAmount = 0;
+        $scope.register.IssueAmount = 0;
+        $scope.register.ExpensesAmount = 0;
         $http.get("fixedassets/fixedassetregister/GetCapitalizationMasterDetail?masterId=" + $scope.register.Id)
             .then(
                 function successCallback(response) {
                     $scope.selectedmaterialMasterList = response.data;
+                    for (var i = 0; i < $scope.selectedmaterialMasterList.length; i++) {
+                        $scope.register.TotalAmount += $scope.selectedmaterialMasterList[i].Amount;
+                        if ($scope.selectedmaterialMasterList[i].Source == 'AUC') {
+                            $scope.register.GRNAmount += $scope.selectedmaterialMasterList[i].Amount;
+                        }
+                        else if ($scope.selectedmaterialMasterList[i].Source == 'CI') {
+                            $scope.register.IssueAmount += $scope.selectedmaterialMasterList[i].Amount;
+                        }
+                        else {
+                            $scope.register.ExpensesAmount += $scope.selectedmaterialMasterList[i].Amount;
+                        }
+                    }
                 },
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
@@ -203,15 +219,6 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         serverPagination: true
     };
 
-    $scope.selectedmaterialMasterList = [];
-    function checkExistTempList(list, ArticleId, VoucherId) {
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].ArticleId === ArticleId && list[i].VoucherId === VoucherId) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     // #region checkbox all
 
@@ -297,48 +304,106 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector("#assetmodalEx")).modal("hide");
     }
 
-    function MakeData() {
+    $scope.selectedmaterialMasterList = [];
+    function checkAUCExistTempList(list, VoucherDetailId, InventoryReceiveDetailId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].VoucherDetailId === VoucherDetailId && list[i].InventoryReceiveDetailId == InventoryReceiveDetailId) {
+                return true;
+            }
+        }
+        return false;
+    }
 
+    function checkCIExistTempList(list, VoucherDetailId, InventoryIssueHistoryId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].VoucherDetailId === VoucherDetailId && list[i].InventoryIssueHistoryId == InventoryIssueHistoryId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function checkExistTempList(list, VoucherDetailId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].VoucherDetailId === VoucherDetailId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function MakeData() {
         for (var i = 0; i < $scope.materialMasterList.length; i++) {
             if ($scope.materialMasterList[i].Flag == true) {
-                if (checkExistTempList($scope.selectedmaterialMasterList, $scope.materialMasterList[i].ArticleId, $scope.materialMasterList[i].VoucherId) === false) {
-
-                    if ($scope.FaType == 'AUC') {
+                if ($scope.FaType == 'AUC') {
+                    if (checkAUCExistTempList($scope.selectedmaterialMasterList, $scope.materialMasterList[i].VoucherDetailId, $scope.materialMasterList[i].InventoryReceiveDetailId) === false) {
+                        var ob = {};
+                        ob.Id = null;
+                        ob.InventoryReceiveDetailId = $scope.materialMasterList[i].InventoryReceiveDetailId;
+                        ob.InventoryIssueHistoryId = $scope.materialMasterList[i].InventoryIssueHistoryId;
+                        ob.VoucherDetailId = $scope.materialMasterList[i].VoucherDetailId;
+                        ob.Amount = $scope.materialMasterList[i].Amount;
                         $scope.register.GRNAmount += $scope.materialMasterList[i].Amount;
-                    } else if ($scope.FaType == 'CI') {
-                        $scope.register.IssueAmount += $scope.materialMasterList[i].Amount;
-                    }
-                    else {
-                        $scope.register.ExpensesAmount += $scope.materialMasterList[i].Amount;
-                    }
-
-                    var ob = {};
-                    ob.Id = null;
-                    ob.InventoryReceiveDetailId = $scope.materialMasterList[i].InventoryReceiveDetailId;
-                    ob.InventoryIssueHistoryId = $scope.materialMasterList[i].InventoryIssueHistoryId;
-                    ob.VoucherDetailId = $scope.materialMasterList[i].VoucherDetailNo;
-                    ob.Amount = $scope.materialMasterList[i].Amount;
-                    ob.CurrencyId = $scope.materialMasterList[i].CurrencyId;
-                    ob.VoucherNo = $scope.materialMasterList[i].VoucherNo;
-                    ob.MaterialMasterName = $scope.materialMasterList[i].MaterialMasterName;
-                    ob.ArticleStandardName = $scope.materialMasterList[i].ArticleStandardName;
-                    ob.Qty = $scope.materialMasterList[i].Qty;
-                    ob.GRNNo = $scope.materialMasterList[i].GRNNo;
-
-                    if ($scope.FaType == 'AUC') {
-                        ob.Source = 'AUC';
+                        ob.CurrencyId = $scope.materialMasterList[i].CurrencyId;
+                        ob.VoucherNo = $scope.materialMasterList[i].VoucherNo;
+                        ob.MaterialMasterName = $scope.materialMasterList[i].MaterialMasterName;
+                        ob.ArticleStandardName = $scope.materialMasterList[i].ArticleStandardName;
+                        ob.Qty = $scope.materialMasterList[i].Qty;
+                        ob.GRNNo = $scope.materialMasterList[i].GRNNo;
                         ob.Qty = $scope.materialMasterList[i].BaseQty;
-                    } else if ($scope.FaType == 'CI') {
+                        ob.Source = 'AUC';
+                        $scope.register.TotalAmount += $scope.materialMasterList[i].Amount;
+                        $scope.selectedmaterialMasterList.push(ob);
+                        ob = {};
+                    }
+                } else if ($scope.FaType == 'CI') {
+                    if (checkCIExistTempList($scope.selectedmaterialMasterList, $scope.materialMasterList[i].VoucherDetailId, $scope.materialMasterList[i].InventoryIssueHistoryId) === false) {
+                        var ob = {};
+                        ob.Id = null;
+                        ob.InventoryReceiveDetailId = $scope.materialMasterList[i].InventoryReceiveDetailId;
+                        ob.InventoryIssueHistoryId = $scope.materialMasterList[i].InventoryIssueHistoryId;
+                        ob.VoucherDetailId = $scope.materialMasterList[i].VoucherDetailId;
+                        ob.Amount = $scope.materialMasterList[i].Amount;
+                        ob.CurrencyId = $scope.materialMasterList[i].CurrencyId;
+                        ob.VoucherNo = $scope.materialMasterList[i].VoucherNo;
+                        ob.MaterialMasterName = $scope.materialMasterList[i].MaterialMasterName;
+                        ob.ArticleStandardName = $scope.materialMasterList[i].ArticleStandardName;
+                        ob.Qty = $scope.materialMasterList[i].Qty;
+                        ob.GRNNo = $scope.materialMasterList[i].GRNNo;
+                        ob.Qty = $scope.materialMasterList[i].BaseQty;
+                        $scope.register.IssueAmount += $scope.materialMasterList[i].Amount;
                         ob.Source = 'CI';
+                        $scope.register.TotalAmount += $scope.materialMasterList[i].Amount;
+                        $scope.selectedmaterialMasterList.push(ob);
+                        ob = {};
                     }
-                    else {
+                }
+                else {
+                   
+                    if (checkExistTempList($scope.selectedmaterialMasterList, $scope.materialMasterList[i].VoucherDetailId) === false) {
+                        var ob = {};
+                        ob.Id = null;
+                        ob.InventoryReceiveDetailId = $scope.materialMasterList[i].InventoryReceiveDetailId;
+                        ob.InventoryIssueHistoryId = $scope.materialMasterList[i].InventoryIssueHistoryId;
+                        ob.VoucherDetailId = $scope.materialMasterList[i].VoucherDetailId;
+                        ob.Amount = $scope.materialMasterList[i].Amount;
+                        ob.CurrencyId = $scope.materialMasterList[i].CurrencyId;
+                        ob.VoucherNo = $scope.materialMasterList[i].VoucherNo;
+                        ob.MaterialMasterName = $scope.materialMasterList[i].MaterialMasterName;
+                        ob.ArticleStandardName = $scope.materialMasterList[i].ArticleStandardName;
+                        ob.Qty = $scope.materialMasterList[i].Qty;
+                        ob.GRNNo = $scope.materialMasterList[i].GRNNo;
+                        ob.Qty = $scope.materialMasterList[i].BaseQty;
+                        $scope.register.ExpensesAmount += $scope.materialMasterList[i].Amount;
+                        $scope.register.TotalAmount += $scope.materialMasterList[i].Amount;
                         ob.Source = 'Expense';
-                    }
 
-                    $scope.selectedmaterialMasterList.push(ob);
-                    ob = {};
+                        $scope.selectedmaterialMasterList.push(ob);
+                        ob = {};
+                    }
                 }
 
+               
             }
         }
 
@@ -389,7 +454,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                         }
                     }
                     $scope.GetCapitalizationMasterDetail();
-                    $scope.SaveRegister();
+                   
                 }
             }, function errorCallback(response) {
                 ShowResult(response.status.Message, "failure");
@@ -541,7 +606,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
             if ($scope.FaType == 'CI') {
                 dataList[i].BaseUoM = dataList[i].TransactionUoM;
             }
-            
+
         }
 
         $scope.fileName = 'AssetCapitalizationReport.xlsx';
@@ -660,7 +725,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                 }
                 else {
                     ShowResult(response.data.Message, "success");
-                   
+
 
                 }
             }, function errorCallback(response) {
@@ -673,7 +738,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
     var FixedAssetindex = 0;
     var AssetRegisterIdItem = "";
     var AssetRegisterChildIdItem = "";
-    
+
     $scope.ShowFixedAssetMasterItemAssetRegisterUpdate = function (index, AssetRegisterId, AssetRegisterChildId) {
         $scope.FixedAssetMasterItemList = [];
         FixedAssetindex = index;
@@ -701,7 +766,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
     $scope.hideAssetRegisterItemUpdatePopUp = function () {
         angular.element(document.querySelector("#fixedAssetMasterItemAssetRegisterUpdatePoUp")).modal("hide");
     };
-    
+
     $scope.UpdateAssetRegisterItem = function (Id) {
         $scope.SaveUrl = "fixedassets/FixedAssetRegister/UpdateAssetRegisterItem"
         $http({
