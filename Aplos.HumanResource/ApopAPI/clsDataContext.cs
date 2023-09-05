@@ -5148,7 +5148,7 @@ else '00:00:00' end) <> '00:00:00'   and apd.WorkDate = '" + date + "'  and Hg.I
                     #region Sql
                     strSQL1 = @"select * from (  select ROW_NUMBER() OVER(ORDER BY (ISNULL(A.ToDayIN,0)-MBGT.Deployment)) AS SrNo,   SC.StandardName Section,SBC.StandardName SubSection, 
 DSG.StandardName Designation, POS.Activity,apd.InStatus, 
- MBGT.Code BudgetCode,
+ MBGT.Code BudgetCode, ISNULL(A.ToDayIN , 0) as ToDayIN,
 Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId  ,MBGT.Deployment, Diffenence= ISNULL(A.ToDayIN,0)-MBGT.Deployment ,
 case when (ISNULL(A.ToDayIN,0)-MBGT.Deployment) > 0 then 'Access' 
 when (ISNULL(A.ToDayIN,0)-MBGT.Deployment) < 0 then 'Short' 
