@@ -2104,6 +2104,7 @@
     <Content Include="Areas\Materials\Scripts\LOTCreationController.js" />
     <Content Include="Areas\Materials\Scripts\QRCodeGeneratorController.js" />
     <Content Include="Areas\Materials\Scripts\WeighingScaleMasterController.js" />
+    <Content Include="Areas\OrderManagements\Scripts\documentationController.js" />
     <Content Include="Areas\Packing\Scripts\packingConfig.js" />
     <Content Include="Areas\HumanResource\Scripts\WebBasedPackingController.js" />
     <Content Include="Areas\Processes\Scripts\ProcessManagementController.js" />
@@ -4786,6 +4787,7 @@
     <Content Include="Areas\Processes\Views\ProcessManagementRecepie\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\QualityActionConfirmation\Aplos.cshtml" />
     <Content Include="Areas\FixedAssets\Views\AssetsRegisterReport.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\Documentation\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
