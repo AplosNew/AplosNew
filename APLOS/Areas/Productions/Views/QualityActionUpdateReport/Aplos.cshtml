@@ -1,0 +1,138 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>Quality Action Update Report
+</h3>
+<style>
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell {
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    .modellgModify {
+        width: 1600px;
+    }
+</style>
+<div class="form-horizontal form-elements">
+    <div class="row">
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">From Date</label>
+                <div class="col-sm-8">
+                    <input type="text"  e-dateformat="dd-MMM-yyyy" ng-model="statusNew.FromDate" datepicker class="form-control">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">To Date</label>
+                <div class="col-sm-8">
+                    <input type="text" e-dateformat="dd-MMM-yyyy" ng-model="statusNew.ToDate" datepicker class="form-control" ng-change="">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <div class="form-group">
+                <label class="col-sm-8 control-label">Action Applicable</label>
+                <div class="col-sm-4">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="statusNew.ActionApplicable" tabindex="8">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-3 col-md-3">
+            <div class="form-group">
+                <label class="col-sm-4 contro-label">Responsible Person<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="Responsible Person" ng-disabled="true" ng-model="statusNew.ActResponsiblePerson" class="form-control" maxlength="100" autocomplete="off">
+                    </div>
+                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                        <button ng-click="selectActResponsiblePerson();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-3 col-md-3">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li><button ng-click="View();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> Go </button></li>
+                    <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    <li><button ng-click="QAUReport();" ng-show="QualityActionUpdateReportList.length>0" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div id="GridQualityActionUpdateReport" ej-grid e-datasource="QualityActionUpdateReportList" e-recorddoubleclick="GetDetails"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-rowdatabound="rowDataBound"
+                 e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                <div e-columns>
+                    <div e-column e-type="string" e-field="ParaTransactionId" e-headertext="Para.Tran.Id" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Issue" e-headertext="Issue" e-width="100"></div>
+                    <div e-column e-type="string" e-field="PODetails" e-headertext="PO.Details" e-width="100"></div>
+                    <div e-column e-type="string" e-field="ParameterSeq" e-headertext="Para.Seq" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Parameter" e-headertext="Parameter" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Value" e-headertext="Value" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Grade" e-headertext="Grade" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Date" e-headertext="Date" e-width="100"></div>
+                    <div e-column e-type="string" e-field="WorkCenter" e-headertext="WorkCenter" e-width="100"></div>
+                    <div e-column e-type="string" e-field="ActionToBeTakenName" e-headertext="ActionToBeTakenName" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Status" e-headertext="Status" e-width="100"></div>
+                    <div e-column e-type="string" e-field="ReasonName" e-headertext="Reason Name" e-width="120"></div>
+                    <div e-column e-type="string" e-field="ManualReason" e-headertext="Manual Reason" e-width="120"></div>
+                    <div e-column e-type="string" e-field="ActionTaken" e-headertext="ActionTaken" e-width="120"></div>
+                    <div e-column e-type="string" e-field="ActionBy" e-headertext="ActionBy" e-width="120"></div>
+                    <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="120"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="ActResponsiblePersonPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Employee List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Employee</p>
+                        <div style="color:black;" id="GridActResponsiblePersonPopup" ej-grid e-datasource="ActResponsiblePersonList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleActResponsiblePerson">
+                            <div e-columns>
+                                <div e-column e-field="SystemId" e-headertext="Id" e-visible="false" e-width="120"></div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="120"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="50"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="120"></div>
+                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="120"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="120"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeActResponsiblePersonPopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

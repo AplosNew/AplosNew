@@ -60,7 +60,7 @@ LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
                             LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-where EI.EmployeeStatus='Active' and QCD.Status='Inprogress' and QCD.ResponsiblePersonId is not null";
+where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QCD.Status='Inprogress' and QCD.ResponsiblePersonId is not null";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
@@ -79,7 +79,7 @@ where EI.EmployeeStatus='Active' and QCD.Status='Inprogress' and QCD.Responsible
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
                             LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-                            WHERE EI.EmployeeStatus='Active'";
+                            WHERE EI.EmployeeStatus='Active' and EI.EmployeeCode is not null";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -116,7 +116,7 @@ left join MST.QualityManagementMaster QMM on QMM.Id=QC.IssueId
 left join EmployeeInformation EI on EI.SystemId=QC.ProductionInchargeId
 left join TRN.ProductionOrder PO on PO.Id=QC.ProductionOrderId
 left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
-where QCD.Status not in ('Close','Complete') and QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1) " + FilterDate + @" " + ResponsiblePerson + @" order by DATEDIFF(Hour,QC.AddedDate,GETDATE()) desc";
+where QCD.Status not in ('Close','Complete') and PS.UserName in ('Running','To Close') and QCD.GradeId in (select Id from MST.QualityGradeDetails where ActionApplicable=1) " + FilterDate + @" " + ResponsiblePerson + @" order by DATEDIFF(Hour,QC.AddedDate,GETDATE()) desc";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 

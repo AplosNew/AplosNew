@@ -123,27 +123,47 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         }
 
     };
-    $scope.searchBy = "VoucherNo"; $scope.search = "";
+    $scope.searchBy = "FiscalYearName"; $scope.search = "";
     $scope.searchByList = [
+        {
+            'name': 'Fiscal Year',
+            'value': 'FiscalYearName'
+        },
         {
             'name': 'VoucherNo',
             'value': 'VoucherNo'
         },
         {
-            'name': 'Material',
-            'value': 'MaterialMasterName'
+            'name': 'Cost Center',
+            'value': 'CostCenter'
         },
         {
-            'name': 'Article',
-            'value': 'ArticleStandardName'
+            'name': 'GL',
+            'value': 'AssetGLName'
+        },
+        {
+            'name': 'Budget',
+            'value': 'AssetBudgetName'
+        },
+        {
+            'name': 'Activity',
+            'value': 'ActivityName'
         }
     ];
 
     $scope.materialMasterList = [];
     $scope.getSearchData = function (faType) {
         $scope.materialMasterList = [];
-
-        $http.get('FixedAssets/FixedAssetRegister/GetAUCCIExpenseData?column=' + $scope.searchBy + '&value=' + $scope.search + '&faType=' + faType)
+        var AUCCIExpenseurl = "";
+        if (faType == 'AUC') {
+            AUCCIExpenseurl = 'FixedAssets/FixedAssetRegister/GetAUCCIExpenseData?column=' + $scope.searchBy + '&value=' + $scope.search + '&faType=' + faType;
+        } else if (faType == 'CI') {
+            AUCCIExpenseurl = 'FixedAssets/FixedAssetRegister/GetAUCCIExpenseData?column=' + $scope.searchBy + '&value=' + $scope.search + '&faType=' + faType;
+        }
+        else {
+            AUCCIExpenseurl = 'FixedAssets/FixedAssetRegister/GetAUCCIExpenseData?column=' + $scope.searchBy + '&value=' + $scope.search + '&faType=' + faType;
+        }
+        $http.get(AUCCIExpenseurl)
             .then(function (response) {
                 $scope.materialMasterList = response.data;
             });
@@ -240,7 +260,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         }
         else {
             for (var j = 0; j < filtered.length; j++) {
-                filtered[j].CheckBoxSelect = ChkOrUnchk;
+                filtered[j].Flag = ChkOrUnchk;
             }
         }
         var gridObj = $("#Grid").data("ejGrid");
@@ -248,7 +268,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
     };
 
     $scope.refreshTemplateCI = function (args) {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllCI });
+        $("#headchkCI").ejCheckBox({ "change": CheckBoxSelectAllCI });
     };
 
     function CheckBoxSelectAllCI(e) {
@@ -265,7 +285,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         }
         else {
             for (var j = 0; j < filtered.length; j++) {
-                filtered[j].CheckBoxSelect = ChkOrUnchk;
+                filtered[j].Flag = ChkOrUnchk;
             }
         }
         var gridObj = $("#GridCI").data("ejGrid");
@@ -273,7 +293,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
     };
 
     $scope.refreshTemplateEx = function (args) {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEx });
+        $("#headchkEx").ejCheckBox({ "change": CheckBoxSelectAllEx });
     };
 
     function CheckBoxSelectAllEx(e) {
@@ -290,7 +310,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         }
         else {
             for (var j = 0; j < filtered.length; j++) {
-                filtered[j].CheckBoxSelect = ChkOrUnchk;
+                filtered[j].Flag = ChkOrUnchk;
             }
         }
         var gridObj = $("#GridEx").data("ejGrid");
@@ -435,6 +455,36 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
             $scope.DeleteDetail();
         }
     };
+
+    $scope.GetCapitalizationMasterAfterDelDetail = function () {
+        $scope.selectedmaterialMasterList = [];
+        $scope.register.TotalAmount = 0;
+        $scope.register.GRNAmount = 0;
+        $scope.register.IssueAmount = 0;
+        $scope.register.ExpensesAmount = 0;
+        $http.get("fixedassets/fixedassetregister/GetCapitalizationMasterDetail?masterId=" + $scope.register.Id)
+            .then(
+                function successCallback(response) {
+                    $scope.selectedmaterialMasterList = response.data;
+                    for (var i = 0; i < $scope.selectedmaterialMasterList.length; i++) {
+                        $scope.register.TotalAmount += $scope.selectedmaterialMasterList[i].Amount;
+                        if ($scope.selectedmaterialMasterList[i].Source == 'AUC') {
+                            $scope.register.GRNAmount += $scope.selectedmaterialMasterList[i].Amount;
+                        }
+                        else if ($scope.selectedmaterialMasterList[i].Source == 'CI') {
+                            $scope.register.IssueAmount += $scope.selectedmaterialMasterList[i].Amount;
+                        }
+                        else {
+                            $scope.register.ExpensesAmount += $scope.selectedmaterialMasterList[i].Amount;
+                        }
+                    }
+                    $scope.SaveRegister();
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+
     $scope.DeleteDetail = function () {
         try {
             $http({
@@ -448,13 +498,8 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                 }
                 else {
                     ShowResult(response.data.Message, "success");
-                    for (var i = 0; i < $scope.selectedmaterialMasterList.length; i++) {
-                        if ($scope.selectedmaterialMasterList[i].VoucherNo == $scope.VNo) {
-                            $scope.selectedmaterialMasterList.splice(i, 1);
-                        }
-                    }
-                    $scope.GetCapitalizationMasterDetail();
-                   
+                    $scope.GetCapitalizationMasterAfterDelDetail();
+                    
                 }
             }, function errorCallback(response) {
                 ShowResult(response.status.Message, "failure");
@@ -535,6 +580,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                         ShowResult(response.data.Message, "success");
                         $scope.register.Id = response.data.Id;
                         $scope.getData();
+                        $scope.GetCapitalizationMasterDetail();
                         $scope.saveBtnDisable = false;
                     }
                 }, function errorCallback(response) {
