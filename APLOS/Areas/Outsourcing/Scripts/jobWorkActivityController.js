@@ -87,54 +87,28 @@ function jobWorkActivityController(addressService, $window, cboService, commonMe
     };
     $scope.recorddoubleclick = function ($event) {
         var x = $event;
-        $scope.RowId = x.data.Id;
-        $scope.PopulateSelectedData($scope.RowId);
+        $scope.PopulateSelectedData(x.data);
     };
-    $scope.LoadSelectedData = function (Id) {
-        var x = "#" + Id;
-        var gridObj = $(x).data("ejGrid");
-        $scope.selecteddata = gridObj.getSelectedRecords()[0];
-        $scope.JobWorkActivity.Id = $scope.selecteddata.Id;
-        $scope.PopulateSelectedData($scope.JobWorkActivity.Id);
-    };
-    $scope.PopulateSelectedData = function (Id) {
-        $http({
-            method: 'POST',
-            url: $scope.path + 'GetSelectedData',
-            data: {
-                'Id': Id
-            }
-        }).then(function successCallback(response) {
-            if (response.data.length > 0) {
-                $scope.JobWorkActivity.Id = response.data[0].Id;
-                $scope.JobWorkActivity.Sequence = response.data[0].Sequence;
-                $scope.JobWorkActivity.Code = response.data[0].Code;
-                $scope.JobWorkActivity.ShortName = response.data[0].ShortName;
-                $scope.JobWorkActivity.StandardName = response.data[0].StandardName;
-                $scope.JobWorkActivity.UserName = response.data[0].UserName;
-                $scope.JobWorkActivity.Type = response.data[0].Type;
-                $scope.JobWorkActivity.IsActive = response.data[0].IsActive;
-                $scope.JobWorkActivity.ResponsiblePersonId = response.data[0].ResponsiblePersonId;
-                $scope.JobWorkActivity.ResponsiblePersonName = response.data[0].ResponsiblePersonName;
-                $scope.JobWorkActivity.Remarks = response.data[0].Remarks;
-
-                //if (parseInt(response.data[0].Total) > 0)
-                //    $("#ddlType").attr("disabled", true);
-                //else
-                //    $("#ddlType").removeAttr("disabled");
-
+    $scope.PopulateSelectedData = function (data) {
+                $scope.JobWorkActivity.Id = data.Id;
+                $scope.JobWorkActivity.Sequence = data.Sequence;
+                $scope.JobWorkActivity.Code = data.Code;
+                $scope.JobWorkActivity.ShortName = data.ShortName;
+                $scope.JobWorkActivity.StandardName = data.StandardName;
+                $scope.JobWorkActivity.UserName = data.UserName;
+                $scope.JobWorkActivity.Type = data.Type;
+                $scope.JobWorkActivity.IsActive = data.IsActive;
+                $scope.JobWorkActivity.IsJobWork = data.IsJobWork;
+                $scope.JobWorkActivity.IsOutsource = data.IsOutsource;
+                $scope.JobWorkActivity.ResponsiblePersonId = data.ResponsiblePersonId;
+                $scope.JobWorkActivity.ResponsiblePersonName = data.ResponsiblePersonName;
+                $scope.JobWorkActivity.Remarks = data.Remarks;
                 $scope.Action = 'Update';
-
                 if (!$rootScope.isCollapsed) {
                     $rootScope.toggle();
                 }
                 $scope.LoadAllSelectedJobActivityTab();
                 $scope.GetDataToDisableType();
-            }
-            else {
-                ShowResult('No Data Found..!', 'failure');
-            }
-        });
     };
 
  //   $scope.DisableType = false;

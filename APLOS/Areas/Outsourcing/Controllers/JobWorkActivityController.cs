@@ -55,19 +55,6 @@ namespace Aplos.Areas.Outsourcing.Controllers
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
-        [HttpPost, Authorize]
-        public JsonResult GetSelectedData(string Id)
-        {
-            string sql = "";
-            sql = @"SELECT A.Id,A.Code,A.ShortName,A.Sequence,A.StandardName,A.UserName,A.Type,A.IsActive,A.ResponsiblePersonId,E.EmployeeName ResponsiblePersonName,A.Remarks,ISNULL(IE.Total,0)Total
-                    FROM HKP.JobWorkActivity A
-                    LEFT JOIN [dbo].[EmployeeInformation] E ON E.SystemId = A.ResponsiblePersonId
-					LEFT JOIN (SELECT JobWorkActivityId,COUNT(*) Total 
-					FROM MST.JobWorkValueAddedMaster GROUP BY JobWorkActivityId) IE ON IE.JobWorkActivityId = A.Id
-                    WHERE A.Id='" + Id + "'";
-
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-        }
 
         [HttpGet, Authorize]
         public JsonResult GetDataToDisable(string JWActivityId, string Type)
@@ -118,6 +105,25 @@ namespace Aplos.Areas.Outsourcing.Controllers
             catch (Exception ex)
             {
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+        public bool CheckUsing(object id)
+        {
+            try
+            {
+                var sql = @"IF EXISTS(SELECT 1 FROM( 
+                          SELECT BTM.BulletinTemplateId AS CheckingColumn 
+						  FROM  [HKP].[JobWorkActivity] JA 
+						  LEFT JOIN dbo.[JobWorkValueAddedContractChild] BTM ON BTM.Id=BTD.BulletinTemplateMasterId
+						  LEFT JOIN [MST].[BulletinTemplate] BT ON BT.Id=BTM.BulletinTemplateId
+                          ) A WHERE CheckingColumn = '" + id + @"') SELECT 1 ELSE SELECT 0 RETURN ";
+                return Convert.ToBoolean(_sqlRepository.GetData(sql).Single());
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
         private string GetPK()
