@@ -240,7 +240,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         }
         else {
             for (var j = 0; j < filtered.length; j++) {
-                filtered[j].CheckBoxSelect = ChkOrUnchk;
+                filtered[j].Flag = ChkOrUnchk;
             }
         }
         var gridObj = $("#Grid").data("ejGrid");
@@ -248,7 +248,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
     };
 
     $scope.refreshTemplateCI = function (args) {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllCI });
+        $("#headchkCI").ejCheckBox({ "change": CheckBoxSelectAllCI });
     };
 
     function CheckBoxSelectAllCI(e) {
@@ -265,7 +265,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         }
         else {
             for (var j = 0; j < filtered.length; j++) {
-                filtered[j].CheckBoxSelect = ChkOrUnchk;
+                filtered[j].Flag = ChkOrUnchk;
             }
         }
         var gridObj = $("#GridCI").data("ejGrid");
@@ -273,7 +273,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
     };
 
     $scope.refreshTemplateEx = function (args) {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEx });
+        $("#headchkEx").ejCheckBox({ "change": CheckBoxSelectAllEx });
     };
 
     function CheckBoxSelectAllEx(e) {
@@ -290,7 +290,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         }
         else {
             for (var j = 0; j < filtered.length; j++) {
-                filtered[j].CheckBoxSelect = ChkOrUnchk;
+                filtered[j].Flag = ChkOrUnchk;
             }
         }
         var gridObj = $("#GridEx").data("ejGrid");
