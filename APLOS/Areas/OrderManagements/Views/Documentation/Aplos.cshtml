@@ -222,9 +222,9 @@
                 </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                        <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                        <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        <li> <button ng-click="SaveDM();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{DMAction}}</button></li>
+                        <li> <button ng-click="DeleteDM();" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                        <li> <button ng-click="ClearDM();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                     </ul>
                 </div>
                 <div class="row text-right aplos-grid-toggle">
@@ -239,17 +239,17 @@
                                     </div>
                                 </div>
                                 <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getDMData()">
                                 </div>
                                 <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    <button type="button" ng-click="getDMData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="table-responsive aplos-grid-toggle">
-                    <div id="GridDS" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+                    <div id="GridDM" ej-grid e-datasource="DMModelList" e-recorddoubleclick="GetDM" e-load="loadGridEdit"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                         <div e-columns>
@@ -259,7 +259,9 @@
                             <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
                             <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
                             <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
-                            <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="5"></div>
+                            <div e-column e-field="Source" e-headertext="Source" e-width="5"></div>
+                            <div e-column e-field="DocumentType" e-headertext="Document Type" e-width="5"></div>
+                            <div e-column e-field="DocumentFormat" e-headertext="Document Format" e-width="5"></div>
                             <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
                         </div>
                     </div>
