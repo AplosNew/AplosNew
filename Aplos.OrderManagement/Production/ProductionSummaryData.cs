@@ -4054,85 +4054,147 @@ WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='" + productionDat
         public IEnumerable<object> GetQualityPlan(string POIssueDate)
         {
             
-            string sql = @"select Format(PO.Date,'dd-MMM-yyyy') PODate,Format(PO.QualityPlanDate,'dd-MMM-yyyy') QPDate,PO.* from (select distinct QPC.Id Id,PD.Id QPId,PO.Id POId,PD.IssueId as IssueId,QMM.UserName as QPIssue,PD.ProcessId,P.UserName as Process,E.Id EntityId,E.UserName Entity,PD.DependentDate as DependentOn,PD.Legdays,PD.EntryLevel,
+            string sql = @"Select Format(PO1.Date,'dd-MMM-yyyy') PODate,Format(PO1.QualityPlanDate,'dd-MMM-yyyy') QPDate,PO1.* from (Select distinct QPC.Id,PD.Id QPId,PO.Id POId,PO.EntryLevel,PO.LotNumber,PD.IssueId,QMM.UserName QPIssue,PO.ProcessId,P.UserName Process,PD.Legdays,
+PD.DependentDate DependentOn,E.UserName Entity,PO.EntityId,
 (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' and RepeatEntry is not null order by AddedDate desc) as RepeatEntry,
+PD.Remarks,PO.POStatus,PO.Customer,
 convert(Date,case 
 when PD.DependentDate='ItemDate' then format(MOI.AddedDate,'dd-MMM-yyyy')
 when PD.DependentDate='ExFactoryDate' then format((select top 1 PlanExFactoryDate from TRN.SalesOrder where Id=SO.Id order by PlanExFactoryDate desc),'dd-MMM-yyyy')
-when PD.DependentDate='PODate' then format(PO.AddedDate,'dd-MMM-yyyy')
-when PD.DependentDate='POStartDate' then isnull(format(FBPPD.POFirstProdBookDate,'dd-MMM-yyyy'),format(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy'))
-when PD.DependentDate='POEndDate' then isnull(format(Type1.BaseProcPlanCompletionDate,'dd-MMM-yyyy'),format(FBPPD.POLatestProdBookDate,'dd-MMM-yyyy'))
-end) Date, 
+when PD.DependentDate='PODate' then PO.POCreationDate
+when PD.DependentDate='POStartDate' then PO.POStartDate
+when PD.DependentDate='POEndDate' then PO.POEndDate
+end)Date, 
 convert(Date,case 
 when PD.DependentDate='ItemDate' then format(DATEADD(Day, PD.Legdays, MOI.AddedDate),'dd-MMM-yyyy')
 when PD.DependentDate='ExFactoryDate' then format(DATEADD(Day, PD.Legdays, (select top 1 PlanExFactoryDate from TRN.SalesOrder where Id=SO.Id order by PlanExFactoryDate desc)),'dd-MMM-yyyy')
-when PD.DependentDate='PODate' then format(DATEADD(Day, PD.Legdays, PO.AddedDate),'dd-MMM-yyyy')
-when PD.DependentDate='POStartDate' then format(DATEADD(Day, PD.Legdays, isnull(FBPPD.POFirstProdBookDate,Type1.BaseProcPlanStartDate)),'dd-MMM-yyyy')
-when PD.DependentDate='POEndDate' then format(DATEADD(Day, PD.Legdays,isnull(Type1.BaseProcPlanCompletionDate,FBPPD.POLatestProdBookDate)),'dd-MMM-yyyy')
-end) QualityPlanDate,PD.Remarks,
-reverse(stuff(reverse((select distinct LotNumber + ',' from TRN.ProductionSummary where ProductionOrderId=PO.Id and ProcessId=PD.ProcessId for xml path(''))),1,1,'')) as LotNumber,
-Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
+when PD.DependentDate='PODate' then format(DATEADD(Day, PD.Legdays, PO.POCreationDate),'dd-MMM-yyyy')
+when PD.DependentDate='POStartDate' then format(DATEADD(Day, PD.Legdays, PO.POStartDate),'dd-MMM-yyyy')
+when PD.DependentDate='POEndDate' then format(DATEADD(Day, PD.Legdays,PO.POEndDate),'dd-MMM-yyyy')
+end) QualityPlanDate,
+PO.POStartDate,PO.POEndDate,PO.POCreationDate,
+isnull(QPC.QPEmployeeId,PD.ResponsiblePersonId) as QPEmployeeId,
+isnull((select EmployeeName from EmployeeInformation where SystemId=QPC.QPEmployeeId),(select EmployeeName from EmployeeInformation where SystemId=PD.ResponsiblePersonId)) as QPEmployee
+from (select distinct PO.Id,PS.UserName POStatus, 'PO' EntryLevel,Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
 left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
 where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-PS.UserName as POStatus,
-isnull(QPC.QPEmployeeId,PD.ResponsiblePersonId) as QPEmployeeId,isnull((select EmployeeName from EmployeeInformation where SystemId=QPC.QPEmployeeId),(select EmployeeName from EmployeeInformation where SystemId=PD.ResponsiblePersonId)) as QPEmployee
+reverse(stuff(reverse((select distinct LotNumber + ',' from TRN.ProductionSummary where ProductionOrderId=PO.Id and ProcessId=Prod.ProcessId for xml path(''))),1,1,'')) as LotNumber,
+PO.EntityId,Prod.ProcessId,POFirstProdBookDate,POProcessFirstProdBookDate,POLatestProdBookDate,BaseProcPlanStartDate,BaseProcPlanCompletionDate, 
+isnull(format(FBPPD.POFirstProdBookDate,'dd-MMM-yyyy'),format(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy')) POStartDate,
+isnull(format(Type1.BaseProcPlanCompletionDate,'dd-MMM-yyyy'),format(LBPPD.POLatestProdBookDate,'dd-MMM-yyyy')) POEndDate,
+format(PO.AddedDate,'dd-MMM-yyyy') POCreationDate
 from TRN.ProductionOrder PO
 left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
-left join MST.POQualityPlanDetails PD on 1=1 and PD.EntryLevel='PO'
-left join [TRN].[QualityPlanControl] QPC on QPC.QPId=PD.Id and QPC.POId=PO.Id
-left join MST.QualityManagementMaster QMM on QMM.Id=PD.IssueId
-left join hkp.process P on P.Id=PD.ProcessId
-left join org.Entity E on E.Id=PO.EntityId
-left join TRN.ProductionOrderDetail POD on POD.ProductionOrderId=PO.Id
-left join TRN.SalesOrder SO on SO.Id=POD.SalesOrderId 
-left join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
-LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POFirstProdBookDate,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) FBPPD ON FBPPD.ProductionOrderId=PO.Id
+left join TRN.ProductionSummary Prod on Prod.ProductionOrderId=PO.Id
+LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POFirstProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) FBPPD ON FBPPD.ProductionOrderId=PO.Id
+LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POProcessFirstProdBookDate,ProductionOrderId,ProcessId From TRN.ProductionSummary Group By ProductionOrderId,ProcessId) POPFBD ON POPFBD.ProductionOrderId=PO.Id and Prod.ProcessId=POPFBD.ProcessId
+LEFT JOIN (Select SUM(Quantity)ProQty,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) LBPPD ON LBPPD.ProductionOrderId=PO.Id
 LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=PO.Id
-where PS.UserName in ('Running','To Close') and E.Id in (select EntityId from MST.QualityManagementEntity where QMID=QMM.Id) and QPC.QCID is null or (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' order by AddedDate desc) is not null
+where PS.UserName in ('Running','To Close') 
 union
-select distinct QPC.Id Id,PD.Id QPId,PO.Id POId,PD.IssueId as IssueId,QMM.UserName as QPIssue,PD.ProcessId,P.UserName as Process,E.Id EntityId,E.UserName Entity,PD.DependentDate as DependentOn,PD.Legdays,PD.EntryLevel,
+select distinct PO.Id,PS.UserName POStatus, 'LOT' EntryLevel,Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),Prod.LotNumber,PO.EntityId,
+Prod.ProcessId,POFirstProdBookDate,POProcessFirstProdBookDate,POLatestProdBookDate,BaseProcPlanStartDate,BaseProcPlanCompletionDate, 
+isnull(format(FBPPD.POFirstProdBookDate,'dd-MMM-yyyy'),format(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy')) POStartDate,
+isnull(format(Type1.BaseProcPlanCompletionDate,'dd-MMM-yyyy'),format(LBPPD.POLatestProdBookDate,'dd-MMM-yyyy')) POEndDate,
+format(PO.AddedDate,'dd-MMM-yyyy') POCreationDate
+from TRN.ProductionOrder PO
+left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
+left join TRN.ProductionSummary Prod on Prod.ProductionOrderId=PO.Id
+LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POFirstProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) FBPPD ON FBPPD.ProductionOrderId=PO.Id
+LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POProcessFirstProdBookDate,ProductionOrderId,ProcessId From TRN.ProductionSummary Group By ProductionOrderId,ProcessId) POPFBD ON POPFBD.ProductionOrderId=PO.Id and Prod.ProcessId=POPFBD.ProcessId
+LEFT JOIN (Select SUM(Quantity)ProQty,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) LBPPD ON LBPPD.ProductionOrderId=PO.Id
+LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=PO.Id
+where PS.UserName in ('Running','To Close')) PO
+left join MST.POQualityPlanDetails PD on PD.EntryLevel=PO.EntryLevel and PO.ProcessId=PD.ProcessId
+left Join MST.QualityManagementMaster QMM on QMM.Id=PD.IssueId
+left join [TRN].[QualityPlanControl] QPC on QPC.QPId=PD.Id and QPC.POId=PO.Id and QPC.LotNumber=PO.LotNumber and QPC.EntryLevel=PO.EntryLevel
+left join TRN.ProductionOrderDetail POD on POD.ProductionOrderId=PO.Id
+left join TRN.SalesOrder SO on SO.Id=POD.SalesOrderId 
+left join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
+left join hkp.Process P on P.Id=PO.ProcessId
+left join ORG.Entity E on E.Id=PO.EntityId
+where PO.ProcessId is not null and E.Id in (select EntityId from MST.QualityManagementEntity where QMID=QMM.Id) 
+and QPC.QCID is null or (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' order by AddedDate desc) is not null
+union
+Select distinct QPC.Id,PD.Id QPId,PO.Id POId,PO.EntryLevel,PO.LotNumber,PD.IssueId,QMM.UserName QPIssue,PO.ProcessId,P.UserName Process,PD.Legdays,
+PD.DependentDate DependentOn,E.UserName Entity,PO.EntityId,
 (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' and RepeatEntry is not null order by AddedDate desc) as RepeatEntry,
+PD.Remarks,PO.POStatus,PO.Customer,
 convert(Date,case 
 when PD.DependentDate='ItemDate' then format(MOI.AddedDate,'dd-MMM-yyyy')
 when PD.DependentDate='ExFactoryDate' then format((select top 1 PlanExFactoryDate from TRN.SalesOrder where Id=SO.Id order by PlanExFactoryDate desc),'dd-MMM-yyyy')
-when PD.DependentDate='PODate' then format(PO.AddedDate,'dd-MMM-yyyy')
-when PD.DependentDate='POStartDate' then isnull(format(FBPPD.POFirstProdBookDate,'dd-MMM-yyyy'),format(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy'))
-when PD.DependentDate='POEndDate' then isnull(format(Type1.BaseProcPlanCompletionDate,'dd-MMM-yyyy'),format(FBPPD.POLatestProdBookDate,'dd-MMM-yyyy'))
-end) Date, 
+when PD.DependentDate='PODate' then PO.POCreationDate
+when PD.DependentDate='POStartDate' then PO.POStartDate
+when PD.DependentDate='POEndDate' then PO.POEndDate
+end)Date, 
 convert(Date,case 
 when PD.DependentDate='ItemDate' then format(DATEADD(Day, PD.Legdays, MOI.AddedDate),'dd-MMM-yyyy')
 when PD.DependentDate='ExFactoryDate' then format(DATEADD(Day, PD.Legdays, (select top 1 PlanExFactoryDate from TRN.SalesOrder where Id=SO.Id order by PlanExFactoryDate desc)),'dd-MMM-yyyy')
-when PD.DependentDate='PODate' then format(DATEADD(Day, PD.Legdays, PO.AddedDate),'dd-MMM-yyyy')
-when PD.DependentDate='POStartDate' then format(DATEADD(Day, PD.Legdays, isnull(FBPPD.POFirstProdBookDate,Type1.BaseProcPlanStartDate)),'dd-MMM-yyyy')
-when PD.DependentDate='POEndDate' then format(DATEADD(Day, PD.Legdays,isnull(Type1.BaseProcPlanCompletionDate,FBPPD.POLatestProdBookDate)),'dd-MMM-yyyy')
-end) QualityPlanDate,PD.Remarks,PSS.LotNumber,
---reverse(stuff(reverse((select distinct LotNumber + ',' from TRN.ProductionSummary where ProductionOrderId=PO.Id and ProcessId=PD.ProcessId for xml path(''))),1,1,'')) as LotNumber,
-Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
+when PD.DependentDate='PODate' then format(DATEADD(Day, PD.Legdays, PO.POCreationDate),'dd-MMM-yyyy')
+when PD.DependentDate='POStartDate' then format(DATEADD(Day, PD.Legdays, PO.POStartDate),'dd-MMM-yyyy')
+when PD.DependentDate='POEndDate' then format(DATEADD(Day, PD.Legdays,PO.POEndDate),'dd-MMM-yyyy')
+end) QualityPlanDate,
+PO.POStartDate,PO.POEndDate,PO.POCreationDate,
+isnull(QPC.QPEmployeeId,PD.ResponsiblePersonId) as QPEmployeeId,
+isnull((select EmployeeName from EmployeeInformation where SystemId=QPC.QPEmployeeId),(select EmployeeName from EmployeeInformation where SystemId=PD.ResponsiblePersonId)) as QPEmployee
+from (select distinct PO.Id,PS.UserName POStatus, 'PO' EntryLevel,Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
 left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
 where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-PS.UserName as POStatus,
-isnull(QPC.QPEmployeeId,PD.ResponsiblePersonId) as QPEmployeeId,isnull((select EmployeeName from EmployeeInformation where SystemId=QPC.QPEmployeeId),(select EmployeeName from EmployeeInformation where SystemId=PD.ResponsiblePersonId)) as QPEmployee
+reverse(stuff(reverse((select distinct LotNumber + ',' from TRN.ProductionSummary where ProductionOrderId=PO.Id and ProcessId=Prod.ProcessId for xml path(''))),1,1,'')) as LotNumber,
+PO.EntityId,Prod.ProcessId,POFirstProdBookDate,POProcessFirstProdBookDate,POLatestProdBookDate,BaseProcPlanStartDate,BaseProcPlanCompletionDate, 
+isnull(format(FBPPD.POFirstProdBookDate,'dd-MMM-yyyy'),format(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy')) POStartDate,
+isnull(format(Type1.BaseProcPlanCompletionDate,'dd-MMM-yyyy'),format(LBPPD.POLatestProdBookDate,'dd-MMM-yyyy')) POEndDate,
+format(PO.AddedDate,'dd-MMM-yyyy') POCreationDate
 from TRN.ProductionOrder PO
 left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
-left join MST.POQualityPlanDetails PD on 1=1 and PD.EntryLevel='LOT'
-left join [TRN].[QualityPlanControl] QPC on QPC.QPId=PD.Id and QPC.POId=PO.Id
-left join TRN.ProductionSummary PSS on PSS.ProductionOrderId=PO.Id and PSS.ProcessId=PD.ProcessId and PSS.LotNumber=QPC.LotNumber
-left join MST.QualityManagementMaster QMM on QMM.Id=PD.IssueId
-left join hkp.process P on P.Id=PD.ProcessId
-left join org.Entity E on E.Id=PO.EntityId
+left join TRN.ProductionSummary Prod on Prod.ProductionOrderId=PO.Id
+LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POFirstProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) FBPPD ON FBPPD.ProductionOrderId=PO.Id
+LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POProcessFirstProdBookDate,ProductionOrderId,ProcessId From TRN.ProductionSummary Group By ProductionOrderId,ProcessId) POPFBD ON POPFBD.ProductionOrderId=PO.Id and Prod.ProcessId=POPFBD.ProcessId
+LEFT JOIN (Select SUM(Quantity)ProQty,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) LBPPD ON LBPPD.ProductionOrderId=PO.Id
+LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=PO.Id
+where PS.UserName in ('Running','To Close') 
+union
+select distinct PO.Id,PS.UserName POStatus, 'LOT' EntryLevel,Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),Prod.LotNumber,PO.EntityId,
+Prod.ProcessId,POFirstProdBookDate,POProcessFirstProdBookDate,POLatestProdBookDate,BaseProcPlanStartDate,BaseProcPlanCompletionDate, 
+isnull(format(FBPPD.POFirstProdBookDate,'dd-MMM-yyyy'),format(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy')) POStartDate,
+isnull(format(Type1.BaseProcPlanCompletionDate,'dd-MMM-yyyy'),format(LBPPD.POLatestProdBookDate,'dd-MMM-yyyy')) POEndDate,
+format(PO.AddedDate,'dd-MMM-yyyy') POCreationDate
+from TRN.ProductionOrder PO
+left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
+left join TRN.ProductionSummary Prod on Prod.ProductionOrderId=PO.Id
+LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POFirstProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) FBPPD ON FBPPD.ProductionOrderId=PO.Id
+LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POProcessFirstProdBookDate,ProductionOrderId,ProcessId From TRN.ProductionSummary Group By ProductionOrderId,ProcessId) POPFBD ON POPFBD.ProductionOrderId=PO.Id and Prod.ProcessId=POPFBD.ProcessId
+LEFT JOIN (Select SUM(Quantity)ProQty,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) LBPPD ON LBPPD.ProductionOrderId=PO.Id
+LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=PO.Id
+where PS.UserName in ('Running','To Close')) PO
+left join MST.POQualityPlanDetails PD on PD.EntryLevel=PO.EntryLevel
+left Join MST.QualityManagementMaster QMM on QMM.Id=PD.IssueId
+left join [TRN].[QualityPlanControl] QPC on QPC.QPId=PD.Id and QPC.POId=PO.Id and QPC.LotNumber=PO.LotNumber and QPC.EntryLevel=PO.EntryLevel
 left join TRN.ProductionOrderDetail POD on POD.ProductionOrderId=PO.Id
 left join TRN.SalesOrder SO on SO.Id=POD.SalesOrderId 
 left join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
-LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POFirstProdBookDate,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) FBPPD ON FBPPD.ProductionOrderId=PO.Id
-LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=PO.Id
-where PS.UserName in ('Running','To Close') and E.Id in (select EntityId from MST.QualityManagementEntity where QMID=QMM.Id) and QPC.QCID is null or (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' order by AddedDate desc) is not null) PO
-where PO.QualityPlanDate < = '" + POIssueDate + "' or PO.QualityPlanDate is null order by PO.QualityPlanDate";
+left join hkp.Process P on P.Id=PO.ProcessId
+left join ORG.Entity E on E.Id=PO.EntityId
+where PO.ProcessId is null and E.Id in (select EntityId from MST.QualityManagementEntity where QMID=QMM.Id) 
+and QPC.QCID is null or (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' order by AddedDate desc) is not null
+) PO1
+where PO1.QualityPlanDate < = '" + POIssueDate + "' or PO1.QualityPlanDate is null order by PO1.QualityPlanDate";
              return _sqlRepository.GetDataCollection(sql);
         }
 
