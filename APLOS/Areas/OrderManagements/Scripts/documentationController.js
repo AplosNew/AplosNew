@@ -20,6 +20,7 @@ function documentationController(commonMessage, $scope, $rootScope, baseService,
         return $scope.tab === tabNum;
     };
 
+    $scope.ModelList = [];
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.getData = function () {
         $http({
@@ -212,4 +213,48 @@ function documentationController(commonMessage, $scope, $rootScope, baseService,
         $scope.documentationNew.PlanningPriority = seq;
         $scope.documentationNew.Active = true;
     }
+
+
+    $scope.documentationMaster = {
+        Id: null,
+        Sequence: 0,
+        Code: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        Description: null,
+        Remarks: null,
+        Active: true,
+        Source: null,
+        DocumentType: null,
+        DocumentFormat: null,
+        AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
+    };
+    $scope.documentationMasterNew = Object.assign({}, $scope.documentationMaster);
+
+    $scope.DocumentFormatList = [{ value: 'PDF', name: 'PDF' },
+    { value: 'JPEG', name: 'JPEG' },
+    { value: 'Excel', name: 'Excel' },
+    { value: 'Word', name: 'Word' },
+    { value: 'Register', name: 'Register' },
+    { value: 'Form', name: 'Form' },
+    { value: 'Email', name: 'Email' },
+    { value: 'PPT', name: 'PPT' },
+    { value: 'CrystalReport', name: 'Crystal Report' },
+    { value: 'Txt', name: 'Txt' },
+    { value: 'CSV', name: 'CSV' }]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

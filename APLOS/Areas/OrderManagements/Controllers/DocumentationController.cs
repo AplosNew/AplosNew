@@ -23,7 +23,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
     public class DocumentationController : BaseController
     {
         string TableName = "dbo.DocumentSet";
-        string TableName1 = "MST.QMSEntity";
+        string TableName1 = "dbo.DocumentationMaster";
   
         //authentication for
         //GetList Create Delete
@@ -46,8 +46,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             return View();
         }
-
-        
 
         [HttpPost]
         public ActionResult GetList(string column, string value)
@@ -132,7 +130,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
         public ActionResult Delete(string id)
         {
-            string sql = @"select * from [MST].[QMSMaster] where CostingGroupId = '" + id + "'";
+            string sql = @"select * from dbo.DocumentSet where Id = '" + id + "'";
 
 
             try
@@ -141,17 +139,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
-
-                if(!string.IsNullOrEmpty(id))
-                {
-                    con.OpenDataSetThroughAdapter("select * from " + TableName1 + " where QMSMasterId= '" + id + "' ", out dsMaster, false, "1");
-                    if (dsMaster.Tables[0].Rows.Count > 0)
-                    {
-                        throw new Exception("First Delete Entity");
-                    }
-                }
-
-                // ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                
                 con.BeginTransaction();
                 con.executeQuery("delete from " + TableName + " where id='" + id + "'");
                 con.CommitTransaction();
@@ -215,122 +203,53 @@ namespace Aplos.Areas.OrderManagements.Controllers
             dr.EndEdit();
         }
 
-        // Employee Responsible Person field
-        [HttpPost, Authorize]
-        public ActionResult LoadAllEmpDetailsForSelection(string Id)
+        [HttpPost]
+        public ActionResult GetDMList(string column, string value)
         {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string sql = @"
-                        SELECT distinct convert(bit,0) AS isSelected, Emp.SystemID AS Id, EMP.EmployeeStatus,
-                        EMP.EmployeeName,EMP.EmployeeCode AS Code,emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric,EMP.EmpPicPath,
-                        EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
-                            PR.UserName PositionName,
-                            DEPT.UserName DepartmentName,S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection
-                            ,PL.UserName Plant
-                            FROM EmployeeInformation EMP
-                            LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
-                            LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
-                            LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
-                            LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
-                            LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
-                            LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
-                            LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
-    
-                        WHERE emp.GroupID='" + identity.CompanyGroupId + @"' and emp.EmployeeStatus='Active'
-                   AND isnull(Emp.SystemID,'') not in (select isnull(ResponsiblePersonId,'') from MST.QMSMaster where Id='" + Id + @"')
-                  order by EmployeeCodePreFix,EmployeeCodeNumeric";
 
-            var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-            jsondata.MaxJsonLength = int.MaxValue;
-            return jsondata;
+            string sql = @"select * from (select DS.*,EI.EmployeeName as ResponsiblePerson from dbo.DocumentSet DS
+                                                 left join dbo.EmployeeInformation EI on DS.ResponsiblePersonId=EI.SystemId
+                                                 ) AS TEMP WHERE " + strkey + " order by Sequence ";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        // Quality Head field
-        [HttpPost, Authorize]
-        public ActionResult LoadAllQualityHeadDetailsForSelection(string Id)
+        [HttpGet, Authorize]
+        public JsonResult GetDMAutoSequence()
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            string sql = @"
-                        SELECT distinct convert(bit,0) AS isSelected, Emp.SystemID AS Id, EMP.EmployeeStatus,
-                        EMP.EmployeeName,EMP.EmployeeCode AS Code,emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric,EMP.EmpPicPath,
-                        EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
-                            PR.UserName PositionName,
-                            DEPT.UserName DepartmentName,S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection
-                            ,PL.UserName Plant
-                            FROM EmployeeInformation EMP
-                            LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
-                            LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
-                            LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
-                            LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
-                            LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
-                            LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
-                            LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
-    
-                        WHERE emp.GroupID='" + identity.CompanyGroupId + @"' and emp.EmployeeStatus='Active'
-                   AND isnull(Emp.SystemID,'') not in (select isnull(QualityHeadId,'') from MST.QMSMaster where Id='" + Id + @"')
-                  order by EmployeeCodePreFix,EmployeeCodeNumeric";
-
-            var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-            jsondata.MaxJsonLength = int.MaxValue;
-            return jsondata;
+            return Json(GetDMSequence(), JsonRequestBehavior.AllowGet);
         }
 
-        // Quality Incharge field
-        [HttpPost, Authorize]
-        public ActionResult LoadAllQualityInchargeDetailsForSelection(string Id)
+        private double GetDMSequence()
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName1 + "");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
-            string sql = @"
-                        SELECT distinct convert(bit,0) AS isSelected, Emp.SystemID AS Id, EMP.EmployeeStatus,
-                        EMP.EmployeeName,EMP.EmployeeCode AS Code,emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric,EMP.EmpPicPath,
-                        EMP.BudgetCode,E.UserName EntityName,isnull(D.UserName,'') Designation,
-                            PR.UserName PositionName,
-                            DEPT.UserName DepartmentName,S.UserName Section,
-                            EMP.SectionId,SS.UserName SubSection
-                            ,PL.UserName Plant
-                            FROM EmployeeInformation EMP
-                            LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
-                            LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
-                            LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                            LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                            LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
-                            LEFT OUTER JOIN hkp.LegalDesignation AS D ON D.Id=EMP.LegalDesignationId
-                            LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
-                            LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
-                            LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
-    
-                        WHERE emp.GroupID='" + identity.CompanyGroupId + @"' and emp.EmployeeStatus='Active'
-                   AND isnull(Emp.SystemID,'') not in (select isnull(QualityInchargeId,'') from MST.QMSMaster where Id='" + Id + @"')
-                  order by EmployeeCodePreFix,EmployeeCodeNumeric";
-
-            var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-            jsondata.MaxJsonLength = int.MaxValue;
-            return jsondata;
+            return 1;
         }
 
         [HttpPost]
-        public JsonResult CreateEntity(Dictionary<string, object> data)
+        public JsonResult CreateDocumentationMaster(Dictionary<string, object> data)
         {
             try
             {
                 DataSet dsMaster;
-       
-
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-              
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName1 + " where EntityId='" + data["EntityId"] + "' AND  Id<>'" + data["Id"] + "' and QMSMasterId='" + data["QMSMasterId"] + "'  ", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName1 + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Entity already exists!!!");
+                    throw new Exception("Same Code already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName1 + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Name already exists!!!");
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName1 + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
@@ -342,106 +261,56 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "E" + _Id;
-                    AddNewRowEntity(dsMaster.Tables[0], data);
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
                     _Id = data["Id"].ToString();
-                  //  EditRow(dsMaster.Tables[0].Rows[0], data);
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion data update
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
-                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
-
+                return Json(new { Error = false, Data = data, Sequence = GetDMSequence(), Message = AplosMessage.Updated });
             }
 
 
             catch (Exception ex)
             {
-
                 return Json(new { Error = true, Message = ex.Message });
-
             }
         }
 
-        private void AddNewRowEntity(DataTable dt, Dictionary<string, object> sourceData)
+        public ActionResult DeleteDocumentaitonMaster(string id)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            DataRow dr = dt.NewRow();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["AddedBy"] = identity.Name;
-            dr["AddedDate"] = System.DateTime.Now.ToString();
-            dr["AddedFromIP"] = identity.IPAddress;
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-
-            dt.Rows.Add(dr);
-        }
-
-        [HttpPost]
-        public ActionResult GetListEntity(string QMSMasterId)
-        {
-            //string strkey = "1=1";
-            //if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-            //    strkey = column + " like '%" + value + "%'";
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select * from dbo.DocumentaitonMaster where Id = '" + id + "'";
 
 
-            string sql = @"select top 100 * from (select qmse.*,e.UserName as EntityName,p.UserName as PlantName, c.UserName as CompanyName
-                                                  from MST.QMSEntity qmse left join ORG.Entity e on qmse.EntityId=e.Id
-                                                  left join ORG.Plant p on e.PlantId=p.Id
-                                                  left join ORG.Company c on p.CompanyId=c.Id
-                                                  where QMSMasterId= '" + QMSMasterId + "') AS TEMP order by CompanyName";
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet]
-        public JsonResult DeleteSelectedEntityTab(string Id)
-        {
             try
             {
-                string sql = @" delete from MST.QMSEntity where Id='" + Id + "'";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
 
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+               
                 con.BeginTransaction();
-
-                con.executeQuery(sql);
-
+                con.executeQuery("delete from dbo.DocumentaitonMaster where id='" + id + "'");
                 con.CommitTransaction();
-                return Json(new
-                {
-                    Error = false,
-                    Message = "Entity deleted successfully"
-                }, JsonRequestBehavior.AllowGet);
+
+                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
             }
             catch (Exception ex)
             {
-
-                return Json(new
-                {
-                    Error = true,
-                    Message = ex.Message
-                }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
-        }
 
+
+        }
     }
 
 }
