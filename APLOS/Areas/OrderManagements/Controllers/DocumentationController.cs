@@ -211,11 +211,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-
-            string sql = @"select * from (select DS.*,EI.EmployeeName as ResponsiblePerson from dbo.DocumentSet DS
-                                                 left join dbo.EmployeeInformation EI on DS.ResponsiblePersonId=EI.SystemId
-                                                 ) AS TEMP WHERE " + strkey + " order by Sequence ";
+            string sql = @"SELECT * FROM (SELECT DS.* FROM dbo.DocumentationMaster DS) AS TEMP WHERE " + strkey + " order by Sequence ";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
