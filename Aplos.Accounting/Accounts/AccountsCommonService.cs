@@ -1588,5 +1588,7 @@ where V.Archive=0 AND V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + 
 
 
         #endregion getVoucherGLDataList
+
+      
     }
 }

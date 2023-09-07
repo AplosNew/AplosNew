@@ -123,27 +123,47 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         }
 
     };
-    $scope.searchBy = "VoucherNo"; $scope.search = "";
+    $scope.searchBy = "FiscalYearName"; $scope.search = "";
     $scope.searchByList = [
+        {
+            'name': 'Fiscal Year',
+            'value': 'FiscalYearName'
+        },
         {
             'name': 'VoucherNo',
             'value': 'VoucherNo'
         },
         {
-            'name': 'Material',
-            'value': 'MaterialMasterName'
+            'name': 'Cost Center',
+            'value': 'CostCenter'
         },
         {
-            'name': 'Article',
-            'value': 'ArticleStandardName'
+            'name': 'GL',
+            'value': 'AssetGLName'
+        },
+        {
+            'name': 'Budget',
+            'value': 'AssetBudgetName'
+        },
+        {
+            'name': 'Activity',
+            'value': 'ActivityName'
         }
     ];
 
     $scope.materialMasterList = [];
     $scope.getSearchData = function (faType) {
         $scope.materialMasterList = [];
-
-        $http.get('FixedAssets/FixedAssetRegister/GetAUCCIExpenseData?column=' + $scope.searchBy + '&value=' + $scope.search + '&faType=' + faType)
+        var AUCCIExpenseurl = "";
+        if (faType == 'AUC') {
+            AUCCIExpenseurl = 'FixedAssets/FixedAssetRegister/GetAUCCIExpenseData?column=' + $scope.searchBy + '&value=' + $scope.search + '&faType=' + faType;
+        } else if (faType == 'CI') {
+            AUCCIExpenseurl = 'FixedAssets/FixedAssetRegister/GetAUCCIExpenseData?column=' + $scope.searchBy + '&value=' + $scope.search + '&faType=' + faType;
+        }
+        else {
+            AUCCIExpenseurl = 'FixedAssets/FixedAssetRegister/GetAUCCIExpenseData?column=' + $scope.searchBy + '&value=' + $scope.search + '&faType=' + faType;
+        }
+        $http.get(AUCCIExpenseurl)
             .then(function (response) {
                 $scope.materialMasterList = response.data;
             });
