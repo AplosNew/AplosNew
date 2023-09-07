@@ -639,6 +639,7 @@
     <Compile Include="Areas\HumanResource\Controllers\ResidenceStatusAllocationController.cs" />
     <Compile Include="Areas\Materials\Controllers\InputConfirmationController.cs" />
     <Compile Include="Areas\Productions\Controllers\QualityActionConfirmationController.cs" />
+    <Compile Include="Areas\Productions\Controllers\QualityActionUpdateReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\QualityActionUpdateController.cs" />
     <Compile Include="Areas\Productions\Controllers\WorkCenterQualityControlMasterController.cs" />
     <Compile Include="Areas\Productions\Controllers\QualityControlController.cs" />
@@ -2276,6 +2277,7 @@
     <Content Include="Areas\HumanResource\Scripts\ScatteredWeekOffController.js" />
     <Content Include="Areas\Materials\Scripts\InputConfirmationController.js" />
     <Content Include="Areas\Productions\Scripts\QualityActionConfirmationController.js" />
+    <Content Include="Areas\Productions\Scripts\QualityActionUpdateReportController.js" />
     <Content Include="Areas\Productions\Scripts\QualityActionUpdateController.js" />
     <Content Include="Areas\Productions\Scripts\WorkCenterQualityControlMasterController.js" />
     <Content Include="Areas\Productions\Scripts\QualityControlController.js" />
@@ -4788,6 +4790,7 @@
     <Content Include="Areas\Productions\Views\QualityActionConfirmation\Aplos.cshtml" />
     <Content Include="Areas\FixedAssets\Views\AssetsRegisterReport.cshtml" />
     <Content Include="Areas\OrderManagements\Views\Documentation\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\QualityActionUpdateReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

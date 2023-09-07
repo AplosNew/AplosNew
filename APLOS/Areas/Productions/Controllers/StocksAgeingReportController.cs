@@ -57,38 +57,50 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult getReport( )
+        public ActionResult getReport(List<Dictionary<string, object>> data, string reportFileName)
         {
 
             try
             {
-                var workbook = getReportForm( );
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
+                {
+                    if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
 
-                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "FinishedStockReport.xlsx";
-                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-                workbook.SaveAs(fullPath);
+                    dt.Columns.Add(item);
+                }
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
 
-                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+                        dr[item] = data[i][item];
+                    }
+
+                    dt.Rows.Add(dr);
+                }
+                string fileName = "";
+                fileName = getReportForm(dt, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet); 
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
         }
-
-        [HttpPost, Authorize]
-        private IWorkbook getReportForm()
+         
+        private string getReportForm(DataTable data, string ReportHeader, string reportFileName)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
-            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            var workbook = report.GetWorkbook(ref excelEngine,1);
             workbook.Version = ExcelVersion.Excel2016;
-
-            var data = sa.getReport();
-
+             
             var sheet = workbook.Worksheets[0];
-
 
             #region sheet1
             sheet.Name = "Finished Stock Ageing Report";
@@ -96,15 +108,7 @@ namespace Aplos.Areas.Productions.Controllers
             int ROW = 6;
             int endCol = 1;
             int COL = 1;
-
-            //sheet.Range[ROW, COL].Text = "From - "+FromDate+" , To - "+ToDate;
-            //sheet.Range[ROW, COL].ColumnWidth = 13;
-            //sheet.Range[ROW, COL].CellStyle.Font.Size = 12;
-            //sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
-            //sheet.Range[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            //ROW += 2;
-
+             
             #region Grid Headers
 
             report.SetHeaderText(ref sheet, ROW, COL, "Product Category", 15, ExcelHAlign.HAlignCenter);
@@ -191,7 +195,6 @@ namespace Aplos.Areas.Productions.Controllers
             endCol = COL;
             #endregion Headers
 
-
             var startRow = 0;
             var endRow = 0;
             int RowIndex = ROW;
@@ -222,12 +225,9 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, DG360].Number = clsStaticInfo.dbl(data.Rows[i]["DG360"].ToString());
                 sheet[ROW, ColTot].Number = sheet.Range[ROW, D15, ROW, DG360].Sum();
 
-
                 sheet.Range[ROW, ColPCat, ROW, endCol-1].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, ColPCat, ROW, endCol-1].BorderAround(ExcelLineStyle.Hair);
-
                 ROW++;
-
             }
 
             sheet[ROW, ColPCat].Text = "Total";
@@ -246,25 +246,25 @@ namespace Aplos.Areas.Productions.Controllers
             sheet.Range[ROW, ColPCat, ROW, endCol - 1].CellStyle.Font.Bold= true;
 
             ROW++;
-
-          
-
+             
             endRow = ROW - 1;
             endRow = ROW - 1;
             #endregion sheet1
-
-
-         
-
+             
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
 
-
             ReportUtility reportUtility = new ReportUtility();
             reportUtility.CompanyHeader(ref sheet, endCol, "Finished Stock Report", identity.CompanyId);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-            return workbook;
+
+            var filePath = "";
+            filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+            workbook.SaveAs(filePath);
+            workbook.Close();
+            excelEngine.Dispose();
+            return filePath;
         }
     }   
 }
