@@ -22,7 +22,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 {
     public class DocumentationController : BaseController
     {
-        string TableName = "DocumentSet";
+        string TableName = "dbo.DocumentSet";
         string TableName1 = "MST.QMSEntity";
   
         //authentication for
@@ -47,57 +47,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return View();
         }
 
-        [Authorize, HttpGet]
-        public JsonResult GetCbo()
-        {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM "+ TableName +"  "), JsonRequestBehavior.AllowGet);
-        }
-
-
-        [Authorize, HttpGet]
-        public JsonResult GetProcess()
-        {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM [HKP].[Process]"), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public JsonResult GetWorkCenter()
-        {
-            return Json(_sqlRepository.GetDataCollection("select Id as Value,UserName AS Text FROM [SCS].[WorkCenterMaster] where Active=1"), JsonRequestBehavior.AllowGet);
-        }
-
-
-        [Authorize, HttpGet]
-        public JsonResult GetInspectionMasterList()
-        {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM [hkp].[InspectionMaster]"), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public JsonResult GetInspectionType()
-        {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM [hkp].[InspectionType]"), JsonRequestBehavior.AllowGet);
-        }
-
-
-
-        [Authorize, HttpPost]
-        public ActionResult Get(string Id)
-        {
-            try
-            {
-                var _master = _sqlRepository.GetDataCollection("select * from MST.QMSMaster where Id = '" + Id + "' ");
-
-
-                return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-
-        }
+        
 
         [HttpPost]
         public ActionResult GetList(string column, string value)
@@ -109,12 +59,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
            
 
-            string sql = @"select top 100 * from (select distinct qmsm.*,p.UserName as Process,EI.EmployeeStatus,EI.EmployeeCode,EI.EmployeeName as ResponsiblePerson,EmpI.EmployeeCode as EmpCode,EmpI.EmployeeName as QualityHeadName,EmpI.EmployeeStatus as EmpIStatus,
-                                                 EmpIn.EmployeeCode as EmppCode,EmpIn.EmployeeName as QualityInchargeName,EmpIn.EmployeeStatus as EmpInStatus from MST.QMSMaster qmsm
-                                                 left join HKP.Process p on qmsm.ProcessId=p.Id
-                                                 left join dbo.EmployeeInformation EI on qmsm.ResponsiblePersonId=EI.SystemId
-                                                 left join dbo.EmployeeInformation EmpI on qmsm.QualityHeadId=EmpI.SystemId
-                                                 left join dbo.EmployeeInformation EmpIn on qmsm.QualityInchargeId=EmpIn.SystemId) AS TEMP WHERE " + strkey + " order by Sequence ";
+            string sql = @"select * from (select DS.*,EI.EmployeeName as ResponsiblePerson from dbo.DocumentSet DS
+                                                 left join dbo.EmployeeInformation EI on DS.ResponsiblePersonId=EI.SystemId
+                                                 ) AS TEMP WHERE " + strkey + " order by Sequence ";
 
           return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -140,50 +87,15 @@ namespace Aplos.Areas.OrderManagements.Controllers
             try
             {
                 DataSet dsMaster;
-             
-
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-           
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Code already exists!!!");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where ShortName='" + data["ShortName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Short Name already exists!!!");
-
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same User Name already exists!!!");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where WorkCenterId='" + data["WorkCenterId"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Work Center already exists!!!");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where InspectionTypeId='" + data["InspectionTypeId"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Inspection Type already exists!!!");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where InspectionMasterId='" + data["InspectionMasterId"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Inspection Master already exists!!!");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where ResponsiblePersonId='" + data["ResponsiblePersonId"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Responsible Person already exists!!!");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where QualityInchargeId='" + data["QualityInchargeId"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Quality Incharge already exists!!!");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where QualityHeadId='" + data["QualityHeadId"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Quality Head already exists!!!");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where QualityUOMId='" + data["QualityUOMId"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Quality UOM already exists!!!");
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
@@ -195,7 +107,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "QM" + _Id;
+                    data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -209,15 +121,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 _info.SaveDataSets(dsMaster);
 
                 return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
-
             }
             
 
             catch (Exception ex)
             {
-
                 return Json(new { Error = true, Message = ex.Message });
-
             }
         }
 

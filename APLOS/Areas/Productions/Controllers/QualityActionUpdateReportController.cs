@@ -78,7 +78,7 @@ where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QCD.Status=
 
             if (ResponsiblePersonId != null && ResponsiblePersonId != "undefined")
             {
-                ResponsiblePerson = " and ResponsiblePersonId = '" + ResponsiblePersonId + "'";
+                ResponsiblePerson = " and QCD.ResponsiblePersonId = '" + ResponsiblePersonId + "'";
             }
 
             if(ActionApplicable is true)
@@ -87,7 +87,7 @@ where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QCD.Status=
             }
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select QCD.Id as ParaTransactionId,P.UserName Process,E.UserName Entity,QMM.UserName Issue,QC.ProductionOrderId + '/' + (select '[' + LotNumber + '] ,' from TRN.QualityControl Q where Q.IssueId=QMP.QMID for xml path('')) PODetails,									                
+            string sql = @"select QCD.Id as ParaTransactionId,P.UserName Process,E.UserName Entity,QMM.UserName Issue,QC.ProductionOrderId + ' / ' + QC.LotNumber PODetails,									                
 QMP.SNO ParameterSeq,PM.UserName Parameter,QCD.Value,QGD.GradeName Grade,format(QCD.AddedDate,'dd-MMM-yyyy') as Date,
 WCM.UserName WorkCenter,QAM.ActionToBeTakenName,QCD.Status
 ,reverse(stuff(reverse((select QRM.UserName + ',' from [HKP].[QualityManagementReasonMaster] QRM where QRM.Id in (select ReasonId from MST.QualityManagementParameterReason QPR where QPR.Id in (select ReasonId from TRN.QualityActionTakenUpdate where ParameterId=QCD.Id))  for xml path(''))),1,1,'')) ReasonName

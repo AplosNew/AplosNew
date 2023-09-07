@@ -9,12 +9,18 @@ using Library.Crosscutting.Security;
 using System.Threading;
 using Library.Service.Extension;
 using Library.Service.EmployeeServices;
+using Library.Core;
+using Library.Data.Sql;
 
 namespace HRService
 {
     public class clsDataContext
     {
-
+        ISqlRepository _sqlRepository;
+        public clsDataContext()
+        {
+            _sqlRepository = new SqlRepository();
+        }
 
         public void SaveDataSets(params System.Data.DataSet[] dsRef)
         {
@@ -7606,6 +7612,211 @@ where QII.QMID='" + IssueId + "' and QII.IsActive = 1  order by QII.SNO";
             }
         }
         #endregion Quality Control
+
+        #region Leave
+        public DataSet GetCalYearInfo(string CalYearId)
+        {
+            GridParameter parameters = null;
+            parameters = new GridParameter
+            {
+                ExportType = "DATASET",
+                CmdText = @"select * from YearlyCalendar WHERE ID='" + CalYearId + "'"
+            };
+
+            return _sqlRepository.GetGridData(parameters).Source;
+        }
+
+        public void GetLeaveBalanceType(out List<Leavesystem> DataList, string EmployeeSystemId, string calYearId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Leavesystem>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                string _FromDate = string.Empty;
+                string _ToDate = string.Empty;
+                //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                // var esic = GetESICEligibleEmployee(EmpSystemID);
+                var dsCalYear = GetCalYearInfo(calYearId);
+                if (dsCalYear.Tables[0].Rows.Count > 0)
+                {
+                    _FromDate = dsCalYear.Tables[0].Rows[0]["FromDate"].ToString();
+                    _ToDate = dsCalYear.Tables[0].Rows[0]["ToDate"].ToString();
+                }
+                else
+                {
+
+                    DataTable dtCalendar = _sqlRepository.GetDataTable("select * from YearlyCalendar where YearNo=" + DateTime.Now.Year.ToString() + @" AND PlantId=''");
+                    if (dtCalendar.Rows.Count > 0)
+                    {
+                        _FromDate = dtCalendar.Rows[0]["FromDate"].ToString();
+                        _ToDate = dtCalendar.Rows[0]["ToDate"].ToString();
+                    }
+                }
+             
+                string _sql = @"Select * from (SELECT ei.SystemId,lt.Id LeaveTypeId,ei.EmployeeCode,ei.EmployeeName,FORMAT(ei.DOJ,'dd-MMM-yyyy') AS DOJ,p.UserName AS PlantName,D.UserName AS Designation,
+DEPT.UserName AS Department,ct.UserName AS EmployeeCategory, lt.UserName LeaveName
+										 ,	DaysCanBeSanctioned=case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) end
+ ,CurrentYearAllocation=case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) end,
+                                        CurrentAllocation=ISNULL(CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(els.CurrentYearAllocation, 0) END,0)
+										,0 YearEndEncash,''AppliedLeave
+										,CarryForwardOpeningBalance=CASE WHEN LT.LeaveType='Earn' THEN	
+												ISNULL(ALP.PBroughtForward, 
+												 CASE WHEN els.IsEncashed =1 THEN ISNULL(els.CarryForward, 0)+ISNULL(els.EncashedInbetween, 0) 
+												 ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END)													   
+										  ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END,
+                                         BroughtForward=CASE WHEN LT.LeaveType='Earn' THEN	
+												ISNULL(ALP.PBroughtForward, 
+												 CASE WHEN els.IsEncashed =1 THEN ISNULL(els.CarryForward, 0)+ISNULL(els.EncashedInbetween, 0) 
+												 ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END)													   
+										  ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END
+										  ,LeaveDays=(CASE WHEN LT.LeaveType='Earn' THEN	
+												ISNULL(ALP.PBroughtForward, 
+												 CASE WHEN els.IsEncashed =1 THEN ISNULL(els.CarryForward, 0)+ISNULL(els.EncashedInbetween, 0) 
+												 ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END)													   
+										  ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END)+(case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) end)
+										   ,ISNULL(ltrn.ldays, 0)+isnull(CurrentYearAvailedOpeningBalance,0) AppliedDays
+										   ,ISNULL(tav.av, 0)+isnull(CurrentYearAvailedOpeningBalance,0) AvailedDays
+                                            ,ISNULL(tav.av, 0)AllFutureAppliedLeave
+										 ,ClosingBalance=((CASE WHEN LT.LeaveType='Earn' THEN	
+												ISNULL(ALP.PBroughtForward, 
+												 CASE WHEN els.IsEncashed =1 THEN ISNULL(els.CarryForward, 0)+ISNULL(els.EncashedInbetween, 0) 
+												 ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END)													   
+										  ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END)+(case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) end))-(ISNULL(tav.av, 0)+isnull(CurrentYearAvailedOpeningBalance,0))
+
+----------------------------------------------------------------------------------------------------------------------
+                                          FROM (    select S.* from trn.EmployeeLeaveSummary S
+                                                        LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=s.EmployeeId
+                                                        LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                                                        LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                                                        LEFT JOIN LeavePolicyDetail AS lp ON lp.LPMSystemID=dmc.LeavePolicyMasterId AND s.LeaveTypeId=lp.LTSystemID
+														where CalanderYearId IN (Select Id from YearlyCalendar  where '" + _FromDate + @"' BETWEEN FromDate AND ToDate)
+														AND S.EmployeeId ='" + EmployeeSystemId + @"' AND lp.EncashmentBasis='CalanderYear'
+
+                                                        UNION
+
+                                                        select S.* from trn.EmployeeLeaveSummary S
+                                                        JOIN  trn.EmployeeLeaveSummary SS ON S.Id=ss.Id
+                                                        AND S.Id=(SELECT TOP 1 SX.Id FROM trn.EmployeeLeaveSummary SX WHERE ss.EmployeeId=SX.EmployeeId AND ss.LeaveTypeId=SX.LeaveTypeId ORDER BY sx.ToDate DESC)
+                                                        LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=s.EmployeeId
+														Join YearlyCalendar AS C ON C.PlantId=EI.PlantId
+                                                        LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                                                        LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                                                        LEFT JOIN LeavePolicyDetail AS lp ON lp.LPMSystemID=dmc.LeavePolicyMasterId AND s.LeaveTypeId=lp.LTSystemID
+                                                        where S.EmployeeId ='" + EmployeeSystemId + @"' AND lp.EncashmentBasis<>'CalanderYear') els
+										 left outer join dbo.LeaveType lt on lt.Id = els.LeaveTypeId
+LEFT JOIN
+											(
+										   select A.Opening,A.EmployeeId,A.LeaveTypeId,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate from dbo.AnnualLeaveDataCurrent A
+										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+										  LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
+											)ALD ON ALD.EmployeeId=els.EmployeeId AND lt.Id=ALD.LeaveTypeId
+
+ LEFT JOIN
+											(
+										  select PBroughtForward=CASE WHEN A.Opening=0 THEN A.Adjustment ELSE A.Opening END,A.EmployeeId,A.LeaveTypeId from dbo.AnnualLeaveDataPast A
+										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+											)ALP ON ALP.EmployeeId=els.EmployeeId AND lt.Id=ALP.LeaveTypeId
+										 left outer join (
+															select sum(m.LeaveDays) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m
+                            where  (FromDate between '" + _FromDate + @"' and '" + _ToDate + @"') and (ToDate between '" + _FromDate + @"' and '" + _ToDate + @"')
+                                                    group by EmpSystemID,LTSystemID
+														)ltrn on ltrn.EmpSystemID = els.EmployeeId and ltrn.LTSystemId = els.LeaveTypeId
+										 left outer join (
+																select sum(c) av,EmpSystemID,LTSystemID from
+																(
+																	select m.EmpSystemID,m.LTSystemID,c from dbo.LeaveTransaction m
+																	left outer join
+																		(
+																		Select SUM(d.LeaveDuration) c,d.LvTrnsSystemID,m.EmpSystemID from  dbo.LeaveTransaction m
+LEFT JOIN dbo.LeaveTransactionDetails d ON d.LvTrnsSystemID=m.SystemId
+where d.IsAvailed = 1 and d.WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
+group by d.LvTrnsSystemID,m.EmpSystemID
+																		) ltrnDt on ltrnDt.LvTrnsSystemID = m.SystemID
+																)x group by EmpSystemID,LTSystemID
+														)tav on tav.EmpSystemID = els.EmployeeId and tav.LTSystemId = els.LeaveTypeId
+										 left outer join (
+															select sum(m.LeaveDays) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m
+																where m.SystemID not in(select d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where IsAvailed = 1 or WorkDate<=CONVERT(date, getdate()))
+																group by EmpSystemID,LTSystemID
+														  )acApl  on acApl.EmpSystemID = els.EmployeeId and acApl.LTSystemId = els.LeaveTypeId
+                                         left outer join (select * from dbo.LeavePolicyDetail
+																 where LPMSystemID =
+																 (--w
+																 select LeavePolicyMasterId from 
+																		 (
+																				SELECT DC.LeavePolicyMasterId,dm.DesignationId FROM MST.DesignationMaster DM
+																				LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId --where dc.plantid=''
+ ) dm where dm.DesignationId =(select givendesignationId  from dbo.EmployeeInformation  where SystemId ='" + EmployeeSystemId + @"')
+																	)--w
+                                                 ) ltd on ltd.LTSystemID = lt.Id
+LEFT JOIN EmployeeInformation AS ei ON ei.SystemId  = els.EmployeeId
+LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
+LEFT JOIN hkp.EmployeeCategory CT ON ct.Id=dm.EmployeeCategoryId
+LEFT JOIN org.Plant AS p ON p.Id=ei.PlantId                              
+LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
+LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+ WHERE els.EmployeeID ='" + EmployeeSystemId + @"'   AND LT.UserName NOT LIKE '%Maternity%')A";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(_sql, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Leavesystem
+                    {
+                        SystemId = dsRef.Tables[0].Rows[i]["SystemId"].ToString(),
+                        LeaveTypeId = dsRef.Tables[0].Rows[i]["LeaveTypeId"].ToString(),
+                        EmployeeCode = dsRef.Tables[0].Rows[i]["EmployeeCode"].ToString(),
+                        EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
+                        DOJ = dsRef.Tables[0].Rows[i]["DOJ"].ToString(),
+                        PlantName = dsRef.Tables[0].Rows[i]["PlantName"].ToString(),
+                        Designation = dsRef.Tables[0].Rows[i]["Designation"].ToString(),
+                        Department = dsRef.Tables[0].Rows[i]["Department"].ToString(),
+                        EmployeeCategory = dsRef.Tables[0].Rows[i]["EmployeeCategory"].ToString(),
+                        LeaveName = dsRef.Tables[0].Rows[i]["LeaveName"].ToString(),
+                        DaysCanBeSanctioned = dsRef.Tables[0].Rows[i]["DaysCanBeSanctioned"].ToString(),
+                        CurrentYearAllocation = dsRef.Tables[0].Rows[i]["CurrentYearAllocation"].ToString(),
+                        CurrentAllocation = dsRef.Tables[0].Rows[i]["CurrentAllocation"].ToString(),
+                        YearEndEncash = dsRef.Tables[0].Rows[i]["YearEndEncash"].ToString(),
+                        AppliedLeave = dsRef.Tables[0].Rows[i]["AppliedLeave"].ToString(),
+                        CarryForwardOpeningBalance = dsRef.Tables[0].Rows[i]["CarryForwardOpeningBalance"].ToString(),
+                        BroughtForward = dsRef.Tables[0].Rows[i]["BroughtForward"].ToString(),
+                        LeaveDays = dsRef.Tables[0].Rows[i]["LeaveDays"].ToString(),
+                        AppliedDays = dsRef.Tables[0].Rows[i]["AppliedDays"].ToString(),
+                        AvailedDays = dsRef.Tables[0].Rows[i]["AvailedDays"].ToString(),
+                        AllFutureAppliedLeave = dsRef.Tables[0].Rows[i]["AllFutureAppliedLeave"].ToString(),
+                        ClosingBalance = dsRef.Tables[0].Rows[i]["ClosingBalance"].ToString(),
+
+                    });
+                }
+                
+
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        #endregion Leave
     }
 
 
@@ -8574,6 +8785,33 @@ where QII.QMID='" + IssueId + "' and QII.IsActive = 1  order by QII.SNO";
         public string QCId { get; set; }
         public string Repeat { get; set; }
         public string IsWorkCenter { get; set; }
+
+    }
+
+    public class Leavesystem
+    {
+        public string SystemId { get; set; }
+        public string LeaveTypeId { get; set; }
+        public string EmployeeCode { get; set; }
+        public string EmployeeName { get; set; }
+        public string DOJ { get; set; }
+        public string PlantName { get; set; }
+        public string Designation { get; set; }
+        public string Department { get; set; }
+        public string EmployeeCategory { get; set; }
+        public string LeaveName { get; set; }
+        public string DaysCanBeSanctioned { get; set; }
+        public string CurrentYearAllocation { get; set; }
+        public string CurrentAllocation { get; set; }
+        public string YearEndEncash { get; set; }
+        public string AppliedLeave { get; set; }
+        public string CarryForwardOpeningBalance { get; set; }
+        public string BroughtForward { get; set; }
+        public string LeaveDays { get; set; }
+        public string AppliedDays { get; set; }
+        public string AvailedDays { get; set; }
+        public string AllFutureAppliedLeave { get; set; }
+        public string ClosingBalance { get; set; }
 
     }
 
