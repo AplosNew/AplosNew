@@ -21,6 +21,7 @@
                     <div style="color:black;" id="Grid" ej-grid e-datasource="materialMasterList" e-templaterefresh="refreshTemplate" e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                         <div e-columns>
                             <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                            <div e-column e-type="string" e-field="FiscalYearName" e-headertext="Fiscal Year" e-width="100"></div>
                             <div e-column e-type="string" e-field="VendorName" e-headertext="Vendor" e-width="150"></div>
                             <div e-column e-type="string" e-field="InvoiceDate" e-headertext="GRN Date" e-width="80"></div>
                             <div e-column e-type="string" e-field="GRNNo" e-headertext="GRNNo" e-width="80"></div>
@@ -30,12 +31,10 @@
                             <div e-column e-type="string" e-field="BaseUoM" e-headertext="UoM" e-width="30"></div>
                             <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="80"></div>
                             <div e-column e-type="string" e-field="Amount" e-headertext="Amount" e-width="80"></div>
-                            <div e-column e-type="string" e-field="VoucherDetailNo" e-headertext="VoucherRowId" e-width="100"></div>
+                            <div e-column e-type="string" e-field="VoucherDetailId" e-headertext="VoucherRowId" e-width="100"></div>
                             <div e-column e-type="string" e-field="VoucherNo" e-headertext="VoucherNo" e-width="100"></div>
                             <div e-column e-type="string" e-field="IssueNo" e-headertext="Issue No" e-width="30"></div>
                             <div e-column e-type="string" e-field="CapitalizeDate" e-headertext="Issue Date" e-width="50"></div>
-                            @*<div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="80"></div>
-                            <div e-column e-type="string" e-field="CostCenter" e-headertext="Cost Center" e-width="80"></div>*@
                             <div e-column e-type="string" e-field="AssetMasterName" e-headertext="Asset Master" e-width="80"></div>
                             <div e-column e-type="string" e-field="AssetGLName" e-headertext="GL" e-width="80"></div>
                             <div e-column e-type="string" e-field="AssetBudgetName" e-headertext="Budget" e-width="80"></div>
@@ -84,6 +83,7 @@
                     <div style="color:black;" id="GridCI" ej-grid e-datasource="materialMasterList" e-templaterefresh="refreshTemplateCI" e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                         <div e-columns>
                             <div e-column e-headertext="" e-headertemplateid="#headerTemplateCI" e-template="#checkboxTemplateCI" e-textalign="center" e-width="30"></div>
+                            <div e-column e-type="string" e-field="FiscalYearName" e-headertext="Fiscal Year" e-width="100"></div>
                             <div e-column e-type="string" e-field="VendorName" e-headertext="Vendor" e-width="150"></div>
                             <div e-column e-type="string" e-field="InvoiceDate" e-headertext="GRN Date" e-width="80"></div>
                             <div e-column e-type="string" e-field="GRNNo" e-headertext="GRNNo" e-width="80"></div>
@@ -93,7 +93,7 @@
                             <div e-column e-type="string" e-field="BaseUoM" e-headertext="UoM" e-width="30"></div>
                             <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="80"></div>
                             <div e-column e-type="string" e-field="Amount" e-headertext="Amount" e-width="80"></div>
-                            <div e-column e-type="string" e-field="VoucherDetailNo" e-headertext="VoucherRowId" e-width="100"></div>
+                            <div e-column e-type="string" e-field="VoucherDetailId" e-headertext="VoucherRowId" e-width="100"></div>
                             <div e-column e-type="string" e-field="VoucherNo" e-headertext="VoucherNo" e-width="100"></div>
                             <div e-column e-type="string" e-field="IssueNo" e-headertext="Issue No" e-width="30"></div>
                             <div e-column e-type="string" e-field="CapitalizeDate" e-headertext="Issue Date" e-width="30"></div>
@@ -116,7 +116,7 @@
                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
                     </script>
                     <script type="text/x-jsrender" id="headerTemplateCI">
-                        <input type="checkbox" id="headchk" />
+                        <input type="checkbox" id="headchkCI" />
                     </script>
                 </div>
             </div>
@@ -137,32 +137,42 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body text-center">
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li> <button ng-click="DownloadReport();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Download</button></li>
-                    </ul>
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchBy">
+                                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getSearchData('Expense')">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getSearchData('Expense')" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="table-responsive modal-table">
 
                     <div style="color:black;" id="GridEx" ej-grid e-datasource="materialMasterList" e-templaterefresh="refreshTemplateEx" e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                         <div e-columns>
                             <div e-column e-headertext="" e-headertemplateid="#headerTemplateEx" e-template="#checkboxTemplateEx" e-textalign="center" e-width="30"></div>
-                            <div e-column e-type="string" e-field="VendorName" e-headertext="Vendor" e-width="150"></div>
+                            <div e-column e-type="string" e-field="FiscalYearName" e-headertext="Fiscal Year" e-width="100"></div>
+                            <div e-column e-type="string" e-field="VoucherDetailId" e-headertext="VoucherRowId" e-width="100"></div>
+                            <div e-column e-type="string" e-field="VoucherNo" e-headertext="VoucherNo" e-width="100"></div>
                             <div e-column e-type="string" e-field="InvoiceDate" e-headertext="GRN Date" e-width="80"></div>
-                            <div e-column e-type="string" e-field="GRNNo" e-headertext="GRNNo" e-width="80"></div>
-                            <div e-column e-type="string" e-field="InventoryReceiveDetailId" e-headertext="GRNRowId" e-width="80"></div>
-                            <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="Material" e-width="100"></div>
-                            <div e-column e-type="string" e-field="ArticleStandardName" e-headertext="Article" e-width="100"></div>
                             <div e-column e-type="string" e-field="BaseUoM" e-headertext="UoM" e-width="30"></div>
                             <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="80"></div>
                             <div e-column e-type="string" e-field="Amount" e-headertext="Amount" e-width="80"></div>
-                            <div e-column e-type="string" e-field="VoucherDetailNo" e-headertext="VoucherRowId" e-width="100"></div>
-                            <div e-column e-type="string" e-field="VoucherNo" e-headertext="VoucherNo" e-width="100"></div>
-                            <div e-column e-type="string" e-field="IssueNo" e-headertext="Issue No" e-width="30"></div>
-                            <div e-column e-type="string" e-field="CapitalizeDate" e-headertext="Issue Date" e-width="50"></div>
                             <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="80"></div>
                             <div e-column e-type="string" e-field="CostCenter" e-headertext="Cost Center" e-width="80"></div>
-                            <div e-column e-type="string" e-field="AssetMasterName" e-headertext="Asset Master" e-width="80"></div>
                             <div e-column e-type="string" e-field="AssetGLName" e-headertext="GL" e-width="80"></div>
                             <div e-column e-type="string" e-field="AssetBudgetName" e-headertext="Budget" e-width="80"></div>
                             <div e-column e-type="string" e-field="ActivityName" e-headertext="Activity" e-width="80"></div>
@@ -179,15 +189,17 @@
                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
                     </script>
                     <script type="text/x-jsrender" id="headerTemplateEx">
-                        <input type="checkbox" id="headchk" />
+                        <input type="checkbox" id="headchkEx" />
                     </script>
                 </div>
             </div>
-            <div class="common-btn">
+            <div class="common-btn" style="margin-right: 20px;">
                 <ul class="list-inline text-right">
+                    <li> <button ng-click="DownloadReport();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Download</button></li>
                     <li> <button ng-click="CloseMMPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Apply</button></li>
                 </ul>
             </div>
+            <i>**Showing top 1000 {{partyType}} order by Fiscal Year</i>
         </div>
-    </div>
+       </div>
 </div>

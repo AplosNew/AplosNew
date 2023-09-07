@@ -2940,17 +2940,18 @@ GROUP BY FAR.FABudgetMasterId
 
                 if (faType == "AUC")
                 {
-                    CmdText = @"SELECT * FROM (SELECT Flag=CAST(0 AS bit),IRD.Id InventoryReceiveDetailId,IR.VoucherId,IRD.VoucherDetailId VoucherDetailNo,v.VoucherNo,Round((IRD.TotalMaterialBooksCurrencyAmount),4) Amount
+                    CmdText = @"SELECT * FROM (SELECT Flag=CAST(0 AS bit),IRD.Id InventoryReceiveDetailId,IR.VoucherId,IRD.VoucherDetailId,v.VoucherNo,Round((IRD.TotalMaterialBooksCurrencyAmount),4) Amount
                     ,Round((0),4) FABaseAmount,LC.LCANo,PO.PurchaseLCId,IR.CurrencyId, BM.GLGeneralInfoId, AGL.UserName AS AssetGLName, BM.GLGeneralInfoId AS AssetGLId
                                     ,TUoM.UserName AS BaseUoM,IRD.BaseQty,IR.Id GRNNo,IR.GateEntryNo,IR.DocRefNo InvoiceNo
 									,REPLACE(Convert(VARCHAR(11), IR.DocDate, 106), ' ', '-') AS InvoiceDate
 									,GC.Code GRNCurrencyCode
 									, BM.BudgetId, B.UserName AssetBudgetName,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName, AC.UserName AS ActivityName
                                     , AC.Id ActivityId, BM.RefNo,P.UserName VendorName,EI.EmployeeCode+ ''+EI.EmployeeName EmployeeName,IR.PartyId,IM.MaterialMasterId,IM.ArticleId,IM.FirstCharacteristicsValueId
-                                    ,REPLACE(Convert(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate,IRD.CountryId
+                                    ,REPLACE(Convert(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate,IRD.CountryId,FY.FiscalYearName
                                     FROM TRN.InventoryReceiveDetail IRD 
 									LEFT JOIN  TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
 									JOIN TRN.Voucher V ON V.Id=IR.VoucherId
+                                    LEFT JOIN [SCS].[FiscalYear] FY ON FY.Id=V.FiscalYearId
                                     LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=IR.POId
 									LEFT JOIN dbo.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
                                     LEFT JOIN  TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
@@ -2965,11 +2966,11 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= IR.EmployeeId
 									LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=IM.MaterialMasterId
 									LEFT JOIN [MST].[MaterialMasterArticle] MMA ON MMA.Id=IM.ArticleId
-                                    Where IRD.IsAsset=1 AND  IR.VoucherId<>'' AND V.IsPark=0  AND IRD.VoucherDetailId NOT IN (Select ISNULL([VoucherDetailId],'') from [TRN].[CapitalizationMasterDetail])) AS TEMP WHERE " + strkey + "";
+                                    Where IRD.IsAsset=1 AND  IR.VoucherId<>'' AND V.IsPark=0  AND IRD.Id NOT IN (Select ISNULL([InventoryReceiveDetailId],'') from [TRN].[CapitalizationMasterDetail])) AS TEMP WHERE " + strkey + "";
                 }
                 else if (faType == "CI")
                 {
-                    CmdText = @"SELECT * FROM (SELECT Flag=CAST(0 AS bit),VD.VoucherId,VD.Id VoucherDetailNo,v.VoucherNo,IIH.Id InventoryIssueHistoryId,Round((IIH.TotalAmount),4) Amount
+                    CmdText = @"SELECT * FROM (SELECT Flag=CAST(0 AS bit),VD.VoucherId,VD.Id VoucherDetailId,v.VoucherNo,IIH.Id InventoryIssueHistoryId,Round((IIH.TotalAmount),4) Amount
                     ,Round((IIH.TotalMaterialBooksCurrencyAmount),4) FABaseAmount,LC.LCANo,PO.PurchaseLCId,IR.CurrencyId,II.CurrencyId BaseCurrencyId
                     , BM.GLGeneralInfoId, AGL.UserName AS AssetGLName, BM.GLGeneralInfoId AS AssetGLId, VD.BudgetMasterId
                                     ,IIH.Qty,IR.Id GRNNo,IR.GateEntryNo,IR.DocRefNo InvoiceNo
@@ -2979,11 +2980,13 @@ GROUP BY FAR.FABudgetMasterId
 									, BM.BudgetId, B.UserName AssetBudgetName,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName, AC.UserName AS ActivityName
                                     , AC.Id ActivityId, BM.RefNo,P.UserName VendorName,EI.EmployeeCode+ ''+EI.EmployeeName EmployeeName,IR.PartyId,IM.MaterialMasterId,IM.ArticleId,IM.FirstCharacteristicsValueId
                                     ,REPLACE(Convert(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate,IRD.CountryId,en.UserName Entity,CC.UserName CostCenter,IIH.InventoryReceiveDetailId
+                                    ,FY.FiscalYearName
                                     FROM  TRN.InventoryIssueHistory IIH
 									LEFT JOIN  TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
 									LEFT JOIN  TRN.InventoryIssue II ON II.Id=IID.InventoryIssueId
 									LEFT JOIN  TRN.VoucherDetail VD ON VD.Id=IID.DrVoucherDetailId
-									JOIN TRN.Voucher V ON V.Id=VD.VoucherId									
+									JOIN TRN.Voucher V ON V.Id=VD.VoucherId
+                                    LEFT JOIN [SCS].[FiscalYear] FY ON FY.Id=V.FiscalYearId
 									LEFT JOIN  TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
 									LEFT JOIN  TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
                                     LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=IR.POId
@@ -3004,11 +3007,11 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN [MST].[MaterialMasterArticle] MMA ON MMA.Id=IM.ArticleId
 									LEFT JOIN ORG.Entity EN  ON EN.Id=II.EntityId
 									LEFT JOIN [ORG].[CostCenter] CC ON CC.Id=iid.CostCenterId
-                                    WHERE  II.IssueType='Capital' AND II.VoucherId<>'' AND V.IsPark=0 AND VD.Id NOT IN (Select ISNULL([VoucherDetailId],'') from [TRN].[CapitalizationMasterDetail])) AS TEMP WHERE " + strkey + "";
+                                    WHERE  II.IssueType='Capital' AND II.VoucherId<>'' AND V.IsPark=0 AND IIH.Id NOT IN (Select ISNULL([InventoryIssueHistoryId],'') from [TRN].[CapitalizationMasterDetail])) AS TEMP WHERE " + strkey + "";
                 }
                 else
                 {
-                    CmdText = @"SELECT * FROM (SELECT Flag=CAST(0 AS bit),VD.VoucherId,VD.Id VoucherDetailNo,v.VoucherNo,Round((VD.DrAmount),4) Amount
+                    CmdText = @"SELECT top 1000 * FROM (SELECT Flag=CAST(0 AS bit),VD.VoucherId,VD.Id VoucherDetailId,v.VoucherNo,Round((VD.DrAmount),4) Amount
                     ,Round((0),4) FABaseAmount,V.CurrencyId TransactionCurrencyId, BM.GLGeneralInfoId, AGL.UserName AS AssetGLName, BM.GLGeneralInfoId AS AssetGLId
                                     ,0 Qty,'' GRNNo,V.DocRefNo InvoiceNo
 									,REPLACE(Convert(VARCHAR(11), V.DocDate, 106), ' ', '-') AS InvoiceDate
@@ -3018,8 +3021,10 @@ GROUP BY FAR.FABudgetMasterId
                                     , AC.Id ActivityId, BM.RefNo
 									,P.UserName VendorName,EI.EmployeeCode+ ''+EI.EmployeeName EmployeeName,VD.PartyId
                                     ,REPLACE(Convert(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate,en.UserName Entity,CC.UserName CostCenter
+                                    ,FY.FiscalYearName
                                     FROM TRN.VoucherDetail VD 
 									JOIN TRN.Voucher V ON V.Id=VD.VoucherId
+                                    LEFT JOIN [SCS].[FiscalYear] FY ON FY.Id=VD.FiscalYearId
                                     LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=VD.BudgetMasterId
                                     LEFT JOIN [HKP].[GLGeneralInfo] AS AGL ON AGL.Id=VD.GLGeneralInfoId
 									LEFT JOIN HKP.AccountGroup AG ON AG.Id=AGL.AccountGroupId
@@ -3033,7 +3038,7 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN [ORG].[CostCenter] CC ON CC.Id=VD.CostCenterId
                                    WHERE V.SourceType IN('VendorInvoice','JournalVoucher','EmployeePayable') AND V.IsPark=0 AND VD.DrAmount>0
 								   --AND ATY.Id='Expense' 
-                                   AND VD.Id NOT IN (Select ISNULL([VoucherDetailId],'') from [TRN].[CapitalizationMasterDetail])) AS TEMP WHERE " + strkey + "";
+                                   AND VD.Id NOT IN (Select ISNULL([VoucherDetailId],'') from [TRN].[CapitalizationMasterDetail])) AS TEMP WHERE " + strkey + " order by FiscalYearName";
                 }
 
                 return _sqlRepository.GetDataCollection(CmdText);
@@ -3108,7 +3113,7 @@ GROUP BY FAR.FABudgetMasterId
                     sheet[ROW, colU].Text = data.Rows[i]["BaseUoM"].ToString();
                     sheet[ROW, colQ].Text = data.Rows[i]["Qty"].ToString();
                     sheet[ROW, colAM].Text = data.Rows[i]["Amount"].ToString();
-                    sheet[ROW, colVRI].Text = data.Rows[i]["VoucherDetailNo"].ToString();
+                    sheet[ROW, colVRI].Text = data.Rows[i]["VoucherDetailId"].ToString();
                     sheet[ROW, colV].Text = data.Rows[i]["VoucherNo"].ToString();
                     sheet[ROW, colIN].Text = data.Rows[i]["IssueNo"].ToString();
                     sheet[ROW, colID].Text = data.Rows[i]["CapitalizeDate"].ToString();

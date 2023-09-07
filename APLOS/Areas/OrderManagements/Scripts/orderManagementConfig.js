@@ -276,6 +276,11 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/ProductivityRecoveryMaster/Aplos',
             controller: 'ProductivityRecoveryMasterController'
         })
+        .when('/documentation', {
+            templateUrl: 'OrderManagements/documentation/Aplos',
+            controller: 'documentationController'
+        })
+
 
         ;
 }
