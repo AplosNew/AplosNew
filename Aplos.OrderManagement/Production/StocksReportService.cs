@@ -23,9 +23,8 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var str = @"Select ProductCategory,ProductSubCategory,ProductCode, PordDertails as ProdDetails ,POId,LotNo,Material , Article, Customers ,  
-case when CustomerType is null then null when CustomerType <> 85 then 'Export' else 'Domestic' end as CustomerType,
-Case when D15>0 then D15 else null end as D15
+                var str = @"Select ProductCategory,ProductSubCategory,ProductCode, PordDertails as ProdDetails ,POId,LotNo,Material , Article, Customers , CustomerType ,
+                            Case when D15>0 then D15 else null end as D15
                             , Case when D15T30>0 then D15T30 else null end as D15T30
                             , Case when D30T60>0 then D30T60 else null end as D30T60
                             , Case when D60T90>0 then D60T90 else null end as D60T90
@@ -49,36 +48,34 @@ Case when D15>0 then D15 else null end as D15
                                 S.ProductCode, S.POId, S.LotNo,
                                 S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy,
                                 S.Shade, S.AddedBy, S.AddedDate, ma.UserName as Material , M.StandardName as Article, R.FromLocation, R.ToLocation , cus.ProductLibraryId ,(Select Stuff((
-Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
-from dbo.ProductLibraryAttribute pla
-where pla.ProductLibraryId = cus.ProductLibraryId
-for XML PATH('')
-) , 1, 2, '')) as PordDertails , format(sc.WorkDate,'dd-MMM-yyyy') as WorkDate
+                                Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
+                                from dbo.ProductLibraryAttribute pla
+                                where pla.ProductLibraryId = cus.ProductLibraryId
+                                for XML PATH('')
+                                ) , 1, 2, '')) as PordDertails , format(sc.WorkDate,'dd-MMM-yyyy') as WorkDate
                                 , DATEDIFF(DAY, sc.WorkDate, GETDATE()) as Interval
                                 , STUFF((
                                     Select distinct ','+ cuss.UserName
-                                    from trn.MasterOrder mos
+                                   from trn.MasterOrder mos
                                         left join trn.MasterOrderItem mois on mois.MasterOrderId = mos.Id
                                         left join trn.SalesOrder sos on sos.MasterOrderItemId = mois.id
                                         left join trn.ProductionOrderDetail pods on pods.SalesOrderId = sos.Id
                                         left join trn.ProductionOrder pos on pos.Id = pods.ProductionOrderId
-                                        left join ProductLibrary pls on pls.Id = mois.ProductLibraryId
                                         left join hkp.party cuss on cuss.Id = mos.PartyId
-                                        left join mst.addressmaster am on am.id = cuss.addressmasterid
-                                        where pos.Id = S.POId and mois.ProductLibraryId = cus.ProductLibraryId and pls.Code = S.ProductCode --and cuss.Id in ('202017389')
+                                        where pos.Id = S.POId  
                                         FOR XML PATH('')
                                 ),1,1,'') as Customers
                                 , STUFF((
-                                    Select distinct ','+ CustomerType.CountryId
+                                    Select distinct ','+ PAG.StandardName
                                     from trn.MasterOrder mos
                                         left join trn.MasterOrderItem mois on mois.MasterOrderId = mos.Id
                                         left join trn.SalesOrder sos on sos.MasterOrderItemId = mois.id
                                         left join trn.ProductionOrderDetail pods on pods.SalesOrderId = sos.Id
                                         left join trn.ProductionOrder pos on pos.Id = pods.ProductionOrderId
-                                        left join ProductLibrary pls on pls.Id = mois.ProductLibraryId
                                         left join hkp.party cuss on cuss.Id = mos.PartyId
-                                        left join mst.addressmaster CustomerType on CustomerType.id = cuss.addressmasterid
-                                        where pos.Id = S.POId and mois.ProductLibraryId = cus.ProductLibraryId and pls.Code = S.ProductCode
+										left join hkp.CompanyParty CP ON CP.PartyId=cuss.Id and CP.PartyType='Customer'
+										left join hkp.PartyAccountGroup PAG ON PAG.Id=cp.PartyAccountGroupId
+                                        where pos.Id = S.POId 
                                         FOR XML PATH('')
                                 ),1,1,'') as CustomerType
                                 from ItemScanChild S
