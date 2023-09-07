@@ -399,7 +399,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                     }
                 }
                 else {
-                   
+
                     if (checkExistTempList($scope.selectedmaterialMasterList, $scope.materialMasterList[i].VoucherDetailId) === false) {
                         var ob = {};
                         ob.Id = null;
@@ -423,7 +423,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                     }
                 }
 
-               
+
             }
         }
 
@@ -499,7 +499,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                 else {
                     ShowResult(response.data.Message, "success");
                     $scope.GetCapitalizationMasterAfterDelDetail();
-                    
+
                 }
             }, function errorCallback(response) {
                 ShowResult(response.status.Message, "failure");
@@ -781,13 +781,12 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         }
     };
 
-    var FixedAssetindex = 0;
     var AssetRegisterIdItem = "";
     var AssetRegisterChildIdItem = "";
-
+    $scope.FixedAssetindex = null;
     $scope.ShowFixedAssetMasterItemAssetRegisterUpdate = function (index, AssetRegisterId, AssetRegisterChildId) {
         $scope.FixedAssetMasterItemList = [];
-        FixedAssetindex = index;
+        $scope.FixedAssetindex = index.data;
         AssetRegisterIdItem = AssetRegisterId;
         AssetRegisterChildIdItem = AssetRegisterChildId;
         $scope.Url = 'FixedAssets/FixedAssetRegister/GetFixedAssetMasterItem';
@@ -802,9 +801,9 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
     };
 
     $scope.SetFAMIAssetRegisterUpdate = function (obj) {
-        $scope.AssetRegisterUpdateAvailableList[FixedAssetindex].FixedAssetItemId = obj.data.Id;
-        $scope.AssetRegisterUpdateAvailableList[FixedAssetindex].FixedAssetItem = obj.data.UserName;
-        $scope.AssetRegisterUpdateAvailableList[FixedAssetindex].FixedAssetMaster = obj.data.FixedAssetMaster;
+        $scope.FixedAssetindex.FixedAssetItemId = obj.data.Id;
+        $scope.FixedAssetindex.FixedAssetItem = obj.data.UserName;
+        $scope.FixedAssetindex.FixedAssetMaster = obj.data.FixedAssetMaster;
         $scope.UpdateAssetRegisterItem(obj.data.Id);
         angular.element(document.querySelector('#fixedAssetMasterItemAssetRegisterUpdatePoUp')).modal('hide');
 

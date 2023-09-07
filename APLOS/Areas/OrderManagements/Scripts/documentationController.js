@@ -9,8 +9,11 @@ function documentationController(commonMessage, $scope, $rootScope, baseService,
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
-    $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
+
+    $scope.getDMSeqUrl = $scope.path + 'GetDMAutoSequence';
+    $scope.saveDMUrl = $scope.path + 'CreateDocumentationMaster';
+    $scope.deleteDMUrl = $scope.path + 'DeleteDocumentaitonMaster/';
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -20,6 +23,7 @@ function documentationController(commonMessage, $scope, $rootScope, baseService,
         return $scope.tab === tabNum;
     };
 
+    $scope.ModelList = [];
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.getData = function () {
         $http({
@@ -177,7 +181,6 @@ function documentationController(commonMessage, $scope, $rootScope, baseService,
         }
     };
 
-
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.documentationNew.Id)) {
             $http({
@@ -212,4 +215,137 @@ function documentationController(commonMessage, $scope, $rootScope, baseService,
         $scope.documentationNew.PlanningPriority = seq;
         $scope.documentationNew.Active = true;
     }
+
+
+    $scope.documentationMaster = {
+        Id: null,
+        Sequence: 0,
+        Code: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        Description: null,
+        Remarks: null,
+        Active: true,
+        Source: null,
+        DocumentType: null,
+        DocumentFormat: null,
+        AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
+    };
+    $scope.documentationMasterNew = Object.assign({}, $scope.documentationMaster);
+
+    $scope.DocumentFormatList = [{ value: 'PDF', name: 'PDF' },
+    { value: 'JPEG', name: 'JPEG' },
+    { value: 'Excel', name: 'Excel' },
+    { value: 'Word', name: 'Word' },
+    { value: 'Register', name: 'Register' },
+    { value: 'Form', name: 'Form' },
+    { value: 'Email', name: 'Email' },
+    { value: 'PPT', name: 'PPT' },
+    { value: 'CrystalReport', name: 'Crystal Report' },
+    { value: 'Txt', name: 'Txt' },
+    { value: 'CSV', name: 'CSV' }]
+
+    $scope.DMModelList = [];
+    $scope.getDMData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetDMList",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.DMModelList = response.data;
+        });
+    }
+    $scope.getDMData();
+
+    $scope.GetDMSequence = function () {
+        $http.get($scope.getSeqUrl)
+            .then(function (response) {
+                $scope.documentationMasterNew.Sequence = response.data;
+            });
+    };
+    $scope.GetDMSequence();
+
+    $scope.DMAction = "Save";
+
+    $scope.GetDM = function (obj) {
+        $scope.documentationMasterNew = Object.assign({}, obj.data);
+        $scope.DMAction = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.SaveDM = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.documentationNewForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.savedMUrl,
+                data: { 'data': $scope.documentationMasterNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearDMFields();
+                    $scope.GetDMSequence();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+
+    $scope.DeleteDM = function () {
+        if (!baseService.isUndefinedOrNull($scope.documentationMasterNew.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteDMUrl + $scope.documentationMasterNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearDMFields(response.data.PlanningPriority);
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+        else {
+            ShowResult(commonMessage.primaryKeyNullMessage, 'failure');
+        }
+    };
+    $scope.ClearDM = function () {
+        ClearDMFields($scope.GetDMSequence());
+        return true;
+    };
+    function ClearDMFields(seq) {
+        $scope.DMAction = "Save";
+        $scope.documentationMaster = {};
+        $scope.documentationMasterNew = {};
+        $scope.documentationMasterNew.Active = true;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 }
