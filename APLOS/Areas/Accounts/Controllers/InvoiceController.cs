@@ -1487,6 +1487,26 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
+        [HttpGet, Authorize]
+        public ActionResult CustomerInvoiceDetailsReceiptBanksIndividualReport(ReportFormat reportFormat, string invoiceWriteOffGroupNo)
+        {
+            AccountsInvoiceReportService _accInvoiceReportService = new AccountsInvoiceReportService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _accInvoiceReportService.GetCustomerInvoiceDetailsReceiptBanksIndividualReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, invoiceWriteOffGroupNo, SourceType.CustomerBanksReceipt.ToString());
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+
+
         [HttpPost]
         public JsonResult PostPartyReconciliation()
         {
