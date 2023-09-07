@@ -3712,7 +3712,7 @@ namespace Aplos.MaterialManagement
 						,EI2.EmployeeName AuthorizedBy
 						,Posted=CASE WHEN IR.Status <>'' then 'Yes' else 'No' END						
 						,PostedBy=CASE WHEN IR.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,IR.EmployeeId
-						,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
+						,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo when IR.VoucherId<>'' Then VN.VoucherNo else V.VoucherNo END
 						,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
 						,IGL.AccountCode GLCode
 						,IGL.UserName AS GL
@@ -3824,6 +3824,7 @@ namespace Aplos.MaterialManagement
 					LEFT JOIN EmployeeInformation EI2 ON EI2.SystemId=IR.AuthorizedBy
                     left JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id					
 					left join trn.Voucher V on V.Id=I.VoucherId
+					left join trn.Voucher VN on VN.Id=IR.VoucherId
                     left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
 					left join trn.Voucher V1 on V1.Id=ep.VoucherId
                     LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IRD.PostDrGLGeneralInfoId 
