@@ -1055,5 +1055,32 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
         #endregion Quality control 
+
+        #region Leave
+        public List<Leavesystem> GetLeaveBalance(string EmpId, string CalId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetLeaveBalanceType(out List<Leavesystem> activelists, EmpId, CalId);
+            return activelists;
+        }
+       /* public IHttpActionResult GetLeaveBalance(string EmpId, string CalId)
+        {
+            try
+            {
+                clsDataContext app = new clsDataContext();
+                var result = app.GetLeaveBalanceType(EmpId, CalId);
+                //var result = _leaveapp.GetLeaveBalanceType(GroupId, PlantId, EmpId, CalId);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }*/
+        #endregion Leave
     }
 }

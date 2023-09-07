@@ -1191,8 +1191,12 @@ where PO.ID= '" + POId + "'";
             string _Id, Id = string.Empty;
             try
             {
-                objCon = new ConnectionManager.DAL.ConManager("1");
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from [TRN].[QualityPlanControl] where QCId is null");
+                conC.CommitTransaction();
 
+                objCon = new ConnectionManager.DAL.ConManager("1");
 
                 if (DataList != null)
                 {
