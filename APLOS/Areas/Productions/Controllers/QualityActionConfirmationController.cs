@@ -95,7 +95,7 @@ where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QCD.Status=
                 FilterDate = " and convert(Date,QCD.AddedDate) between '"+ FromDate + "' and '" + ToDate + "'";
             }
 
-            if (ResponsiblePersonId != null && ResponsiblePersonId != "undefined")
+            if (ResponsiblePersonId != "null" && ResponsiblePersonId != "undefined")
             {
                 ResponsiblePerson = " and ResponsiblePersonId = '" + ResponsiblePersonId + "'";
             }
