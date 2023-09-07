@@ -114,7 +114,7 @@ namespace Aplos.Controllers
             try
             {
                 clsLeaveBalanceToDate app = new clsLeaveBalanceToDate();
-                var result = app.GetLeaveBalanceType(EmpId, CalId);
+                var result = app.GetLeaveBalanceTypeApp(EmpId, CalId);
                 //var result = _leaveapp.GetLeaveBalanceType(GroupId, PlantId, EmpId, CalId);
                 return Json(result);
             }
