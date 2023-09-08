@@ -137,7 +137,7 @@ function QualityActionConfirmationController(cboService, commonMessage, $scope, 
             Id: null,
             FromDate: $filter('dateFiltering')(date, 'dd-MM-yyyy'),
             ToDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy'),
-            ActResponsiblePerson: null,
+            ActResponsiblePersonId: null,
             ActResponsiblePerson: null
         };
         $scope.statusNew = Object.assign({}, $scope.status);

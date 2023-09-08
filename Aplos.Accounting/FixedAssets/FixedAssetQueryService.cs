@@ -2625,7 +2625,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
-                var sql = @"SELECT TOP 500 * from ( SELECT 0 Active, ARC.CapitalizationMasterId,ARC.CapitalizationChildId,ARC.Amount AssetAmount,FAI.UserName FixedAssetItem, AR.FixedAssetItemId,ARC.AssetRegisterId
+                var sql = @"SELECT TOP 1000 * from ( SELECT 0 Active, ARC.CapitalizationMasterId,ARC.CapitalizationChildId,ARC.Amount AssetAmount,FAI.UserName FixedAssetItem, AR.FixedAssetItemId,ARC.AssetRegisterId
 							,AR.AssetSlNo, AR.RFId, AR.BarCode, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks 
                             FROM TRN.AssetRegisterChild ARC
 							LEFT JOIN TRN.AssetRegister AR ON AR.Id=ARC.AssetRegisterId
@@ -2650,7 +2650,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
-                var sql = @"SELECT TOP 100 * from ( SELECT 0 Active, AR.Id AssetRegisterId, AR.FixedAssetItemId,FAI.UserName FixedAssetItem,FAM.UserName FixedAssetMaster, AR.AssetSlNo, AR.RFId, AR.BarCode
+                var sql = @"SELECT * from ( SELECT 0 Active, AR.Id AssetRegisterId, AR.FixedAssetItemId,FAI.UserName FixedAssetItem,FAM.UserName FixedAssetMaster, AR.AssetSlNo, AR.RFId, AR.BarCode
                             ,AR.AdditionalInfoUpdateId, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks 
                             ,ARC.Id AssetRegisterChildId,ARC.Amount,ARC.DepreciationAmount,CM.TotalAmount,ARC.CapitalizationMasterId,ARC.CapitalizationChildId,ARC.VoucherDetailId
                             FROM TRN.AssetRegisterChild ARC

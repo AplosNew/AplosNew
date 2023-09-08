@@ -88,8 +88,70 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     };
     $scope.POCompleteNew = Object.assign({}, $scope.POComplete);
 
+    $scope.GeneralIssue = {
+        ActResponsiblePerson: $window.employeeName,
+        ActResponsiblePersonId: $window.employeeId
+    };
+    $scope.GeneralIssueNew = Object.assign({}, $scope.GeneralIssue);
+
+    $scope.selectActResponsiblePerson = function () {
+        $scope.getActResponsiblePerson();
+        angular.element(document.querySelector('#ActResponsiblePersonPopup')).modal('show');
+    }
+
+    $scope.ActResponsiblePersonList = [];
+    $scope.getActResponsiblePerson = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetGIEmployee',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.ActResponsiblePersonList = resp.data;
+        });
+    }
+
+    $scope.doubleActResponsiblePerson = function (e) {
+        $scope.GeneralIssueNew.ActResponsiblePersonId = e.data.SystemId;
+        $scope.GeneralIssueNew.ActResponsiblePerson = e.data.EmployeeName;
+        angular.element(document.querySelector('#ActResponsiblePersonPopup')).modal('hide');
+        //$scope.ProcessGeneralIssue();
+    }
+
+    $scope.closeActResponsiblePersonPopUp = function () {
+        angular.element(document.querySelector('#ActResponsiblePersonPopup')).modal('hide');
+    }
+
+    $scope.selectPIResponsiblePerson = function () {
+        $scope.getPIResponsiblePerson();
+        angular.element(document.querySelector('#PIResponsiblePersonPopup')).modal('show');
+    }
+
+    $scope.PIResponsiblePersonList = [];
+    $scope.getPIResponsiblePerson = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetPIEmployee',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.PIResponsiblePersonList = resp.data;
+        });
+    }
+
+    $scope.doublePIResponsiblePerson = function (e) {
+        $scope.POIssueNew.PIResponsiblePersonId = e.data.SystemId;
+        $scope.POIssueNew.PIResponsiblePerson = e.data.EmployeeName;
+        angular.element(document.querySelector('#PIResponsiblePersonPopup')).modal('hide');
+        //$scope.ProcessQualityPlan();
+    }
+
+    $scope.closePIResponsiblePersonPopUp = function () {
+        angular.element(document.querySelector('#PIResponsiblePersonPopup')).modal('hide');
+    }
+
     $scope.POIssue = {
-        ToDate: $filter('dateFiltering')(date, 'dd-MM-yyyy')
+        ToDate: $filter('dateFiltering')(date, 'dd-MM-yyyy'),
+        PIResponsiblePersonId: $window.employeeId,
+        PIResponsiblePerson: $window.employeeName,
     };
     $scope.POIssueNew = Object.assign({}, $scope.POIssue);
 
@@ -134,7 +196,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.ProcessQualityPlan = function () {
         try {
             $scope.QualityPlanList = [];
-            $http.get('Productions/QualityControl/LoadQualityPlan?POIssueDate='+$scope.POIssueNew.ToDate)
+            $http.get('Productions/QualityControl/LoadQualityPlan?POIssueDate=' + $scope.POIssueNew.ToDate + '&ResponsiblePersonId=' + $scope.POIssueNew.PIResponsiblePersonId)
                 .then(function (response) {
                     $scope.QualityPlanList = response.data;
                 });
@@ -148,7 +210,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.ProcessGeneralIssue = function () {
         try {
             $scope.GeneralIssueList = [];
-            $http.get('Productions/QualityControl/LoadGeneralIssue')
+            $http.get('Productions/QualityControl/LoadGeneralIssue?ResponsiblePersonId='+$scope.GeneralIssueNew.ActResponsiblePersonId)
                 .then(function (response) {
                     $scope.GeneralIssueList = response.data;
                 });
@@ -157,6 +219,31 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         }
     }
     $scope.ProcessGeneralIssue();
+
+    $scope.GIClear = function () {
+        GIClearFields();
+    };
+
+    function GIClearFields() {
+        $scope.GeneralIssue = {
+            ActResponsiblePersonId: null,
+            ActResponsiblePerson: null
+        };
+        $scope.GeneralIssueNew = Object.assign({}, $scope.GeneralIssue);
+    }
+
+    $scope.PIClear = function () {
+        PIClearFields();
+    };
+
+    function PIClearFields() {
+        $scope.POIssue = {
+            ToDate: $filter('dateFiltering')(date, 'dd-MM-yyyy'),
+            PIResponsiblePersonId: null,
+            PIResponsiblePerson: null
+        };
+        $scope.POIssueNew = Object.assign({}, $scope.POIssue);
+    }
 
     $scope.GeneratItemSequenceNo = function () {
         $http({
@@ -1044,7 +1131,8 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                 data: {
                     'QualityControlData': $scope.productionSummaryNew,
                     'QualityPlanId': $scope.QPId,
-                    'PlanType':$scope.PlanType
+                    'PlanType': $scope.PlanType,
+                    'EntryLevel': $scope.ELevel
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -2218,13 +2306,14 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
 
     $scope.QPId = null;
     $scope.PlanType = null;
+    $scope.ELevel = null;
     $scope.SetQPSelectData = function ($event) {
         $scope.productionSummaryNew.ProductionOrderId = $event.data.POId;
         $scope.productionSummaryNew.EntityId = $event.data.EntityId;
         $scope.productionSummaryNew.ProcessId = $event.data.ProcessId;
         $scope.productionSummaryNew.ProductionShiftId = $event.data.ProductionShiftId;
-        if (baseService.isUndefinedOrNull($event.data.QualityPlanDate)) { $scope.productionSummaryNew.ProductionDate = $filter("date")(Date.now(), 'dd-MMM-yyyy'); }
-        else { $scope.productionSummaryNew.ProductionDate = $event.data.QualityPlanDate; }
+        if (baseService.isUndefinedOrNull($event.data.QPDate)) { $scope.productionSummaryNew.ProductionDate = $filter("date")(Date.now(), 'dd-MMM-yyyy'); }
+        else { $scope.productionSummaryNew.ProductionDate = $event.data.QPDate; }
         $scope.productionSummaryNew.IssueId = $event.data.IssueId;
         $scope.productionSummaryNew.PeriodId = $event.data.PeriodId;
         $scope.productionSummaryNew.LotNumber = $event.data.LotNumber;
@@ -2234,6 +2323,8 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.WorkCenterHeaderList = [];
         $scope.QPId = null;
         $scope.PlanType = null;
+        $scope.ELevel = null;
+        $scope.ELevel = $event.data.EntryLevel;
         $scope.QPId = $event.data.Id;
         $scope.PlanType = "POIssue"
         $scope.setTab(3);

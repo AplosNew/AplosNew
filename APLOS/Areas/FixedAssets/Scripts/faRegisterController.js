@@ -781,7 +781,6 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         }
     };
 
-    //var FixedAssetindex = 0;
     var AssetRegisterIdItem = "";
     var AssetRegisterChildIdItem = "";
     $scope.FixedAssetindex = null;
@@ -802,9 +801,6 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
     };
 
     $scope.SetFAMIAssetRegisterUpdate = function (obj) {
-        //$scope.AssetRegisterUpdateAvailableList[FixedAssetindex].FixedAssetItemId = obj.data.Id;
-        //$scope.AssetRegisterUpdateAvailableList[FixedAssetindex].FixedAssetItem = obj.data.UserName;
-        //$scope.AssetRegisterUpdateAvailableList[FixedAssetindex].FixedAssetMaster = obj.data.FixedAssetMaster;
         $scope.FixedAssetindex.FixedAssetItemId = obj.data.Id;
         $scope.FixedAssetindex.FixedAssetItem = obj.data.UserName;
         $scope.FixedAssetindex.FixedAssetMaster = obj.data.FixedAssetMaster;
