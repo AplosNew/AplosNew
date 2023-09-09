@@ -1110,6 +1110,38 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.QCId = null;
     $scope.SaveQC = function () {
         try {
+            //ValidationPreMaster();
+            if (baseService.isUndefinedOrNull($scope.productionSummaryNew.EntityId))
+            {
+                throw "Entity is Required";
+            }
+
+            if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ProcessId) || $scope.productionSummaryNew.ProcessId === '') {
+                throw "Process is Required";
+            }
+
+            if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ProductionDate)) {
+                throw "Production Date is Required";
+            }
+
+            if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ProductionShiftId)) {
+                throw "Shift is Required";
+            }
+
+            if (baseService.isUndefinedOrNull($scope.productionSummaryNew.IssueId)) {
+                throw "Issue is Required";
+            }
+
+            if (baseService.isUndefinedOrNull($scope.productionSummaryNew.PeriodId)) {
+                throw "Period is Required";
+            }
+
+            if ($scope.POIssueType === 'Order') {
+                if (baseService.isUndefinedOrNull($scope.productionSummaryNew.ProductionOrderId)) {
+                    throw "PONo is Required";
+                }
+            }
+
             if ($scope.productionSummaryNew.BookingLevel === 'SalesOrder') {
                 if (baseService.isUndefinedOrNull($scope.productionSummaryNew.SOArticle)) {
                     throw "Please select SO Article and Proceed.";
@@ -1149,6 +1181,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                 $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId, $scope.POItemId);
                 if ($scope.PlanType == "GeneralIssue") { $scope.ProcessGeneralIssue(); }
                 if ($scope.PlanType == "POIssue") { $scope.ProcessQualityPlan(); }
+                $scope.SaveGI(); 
             }), function errorCallBack(response) {
               /*  ShowResult(response.data.Message, 'failure');*/
             }
@@ -2094,9 +2127,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.IsGo = false;
     $scope.masterGo = function (isdisabled) {
         try {
-            ValidationPreMaster();
             $scope.SaveQC();
-            $scope.SaveGI();
             $scope.SetGo(isdisabled);
             if ($scope.IsParameterBased == true) {
                 $scope.IsVisible = false;
