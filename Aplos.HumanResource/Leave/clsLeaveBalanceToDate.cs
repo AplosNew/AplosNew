@@ -1286,7 +1286,7 @@ LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
             {
                 string _FromDate = string.Empty;
                 string _ToDate = string.Empty;
-
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 // var esic = GetESICEligibleEmployee(EmpSystemID);
                 var dsCalYear = GetCalYearInfo(calYearId);
                 if (dsCalYear.Tables[0].Rows.Count > 0)
@@ -1296,7 +1296,7 @@ LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                 }
                 else
                 {
-                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                   
                     DataTable dtCalendar = _sqlRepository.GetDataTable("select * from YearlyCalendar where YearNo=" + DateTime.Now.Year.ToString() + @" AND PlantId='" + identity.PlantId + "'");
                     if (dtCalendar.Rows.Count > 0)
                     {
@@ -1422,7 +1422,7 @@ DEPT.UserName AS Department,ct.UserName AS EmployeeCategory, lt.UserName LeaveNa
 																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
 																   else Isnull(els.DaysCanBeSanctioned,0) end,
                                         CurrentAllocation=ISNULL(CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(els.CurrentYearAllocation, 0) END,0)
-										,0 YearEndEncash,''AppliedLeave
+										,0 YearEndEncash,ISNULL(ltrn.ldays, 0)+isnull(CurrentYearAvailedOpeningBalance,0) AppliedLeave
 										,CarryForwardOpeningBalance=CASE WHEN LT.LeaveType='Earn' THEN	
 												ISNULL(ALP.PBroughtForward, 
 												 CASE WHEN els.IsEncashed =1 THEN ISNULL(els.CarryForward, 0)+ISNULL(els.EncashedInbetween, 0) 
@@ -1511,7 +1511,7 @@ LEFT JOIN
 																 select LeavePolicyMasterId from 
 																		 (
 																				SELECT DC.LeavePolicyMasterId,dm.DesignationId FROM MST.DesignationMaster DM
-																				LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId where dc.plantid='202034'
+																				LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId where dc.plantid='"+identity.PlantId+@"'
  ) dm where dm.DesignationId =(select givendesignationId  from dbo.EmployeeInformation  where SystemId ='" + EmployeeSystemId + @"')
 																	)--w
                                                  ) ltd on ltd.LTSystemID = lt.Id
