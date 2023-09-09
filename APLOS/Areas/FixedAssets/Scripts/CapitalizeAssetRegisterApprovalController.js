@@ -117,7 +117,7 @@ function CapitalizeAssetRegisterApprovalController(commonMessage, $scope, $rootS
                 url: "FixedAssets/FixedAssetRegister/ApproveCapitalize",
                 dataType: "JSON",
                 data: {
-                    "data": $scope.register, "items": null
+                    "data": $scope.register
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

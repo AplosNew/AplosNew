@@ -1543,12 +1543,12 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
 
         [HttpPost,Authorize]
-        public JsonResult ApproveCapitalize(Dictionary<string, object> data, List<Dictionary<string, object>> items)
+        public JsonResult ApproveCapitalize(Dictionary<string, object> data)
         {
             try
             {
                 FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
-                _fixedAssetQueryService.SaveCapitalizeData(data, items, out string masterId);
+                _fixedAssetQueryService.ApproveCapitalizeData(data, out string masterId);
                 return Json(new { Id = masterId, Message = AplosMessage.Insert });
             }
             catch (Exception ex)

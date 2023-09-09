@@ -2488,6 +2488,50 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                 throw (ex);
             }
         }
+
+        public void ApproveCapitalizeData(Dictionary<string, object> data, out string masterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster, dsChild = null;
+            string _Id = string.Empty;
+            string _CId = string.Empty;
+            try
+            {
+                bplib.clsGenID genid = new bplib.clsGenID();
+
+                string sql = "SELECT * FROM [TRN].[CapitalizationMaster] WHERE Id='" + data["Id"] + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "CapitalizationMaster", out _Id);
+
+                    data["Id"] = _Id;
+                    //data["Type"] = "New";
+
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
         private void AddNewRowAssetRegister<T>(DataTable dt, T Data)
         {
             Dictionary<string, object> sourceData = Data.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).ToDictionary(prop => prop.Name, prop => prop.GetValue(Data, null));
@@ -2581,7 +2625,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
-                var sql = @"SELECT TOP 500 * from ( SELECT 0 Active, ARC.CapitalizationMasterId,ARC.CapitalizationChildId,ARC.Amount AssetAmount,FAI.UserName FixedAssetItem, AR.FixedAssetItemId,ARC.AssetRegisterId
+                var sql = @"SELECT TOP 1000 * from ( SELECT 0 Active, ARC.CapitalizationMasterId,ARC.CapitalizationChildId,ARC.Amount AssetAmount,FAI.UserName FixedAssetItem, AR.FixedAssetItemId,ARC.AssetRegisterId
 							,AR.AssetSlNo, AR.RFId, AR.BarCode, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks 
                             FROM TRN.AssetRegisterChild ARC
 							LEFT JOIN TRN.AssetRegister AR ON AR.Id=ARC.AssetRegisterId
@@ -2606,7 +2650,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
-                var sql = @"SELECT TOP 100 * from ( SELECT 0 Active, AR.Id AssetRegisterId, AR.FixedAssetItemId,FAI.UserName FixedAssetItem,FAM.UserName FixedAssetMaster, AR.AssetSlNo, AR.RFId, AR.BarCode
+                var sql = @"SELECT * from ( SELECT 0 Active, AR.Id AssetRegisterId, AR.FixedAssetItemId,FAI.UserName FixedAssetItem,FAM.UserName FixedAssetMaster, AR.AssetSlNo, AR.RFId, AR.BarCode
                             ,AR.AdditionalInfoUpdateId, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks 
                             ,ARC.Id AssetRegisterChildId,ARC.Amount,ARC.DepreciationAmount,CM.TotalAmount,ARC.CapitalizationMasterId,ARC.CapitalizationChildId,ARC.VoucherDetailId
                             FROM TRN.AssetRegisterChild ARC

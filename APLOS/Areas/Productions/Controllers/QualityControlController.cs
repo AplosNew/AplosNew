@@ -82,6 +82,48 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region -- Operations
 
+        [Authorize, HttpPost]
+        public ActionResult GetGIEmployee()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select distinct EI.SystemId,EI.EmployeeName, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                                    ,EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
+                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection  from 
+TRN.QualityIssueControl QIC
+left join dbo.EmployeeInformation EI on EI.SystemId=QIC.QGIEmployeeId
+LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QIC.QGIEmployeeId is not null 
+and QIC.QCId is null";
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetPIEmployee()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select distinct EI.SystemId,EI.EmployeeName, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                                    ,EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
+                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection  from 
+TRN.QualityPlanControl QPC
+left join dbo.EmployeeInformation EI on EI.SystemId=QPC.QPEmployeeId
+LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QPC.QPEmployeeId is not null 
+and QPC.QCId is null";
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpGet]
         public JsonResult GetProcessIssueList()
         {
@@ -1170,15 +1212,15 @@ where PO.ID= '" + POId + "'";
         }
 
         [HttpGet, Authorize]
-        public ActionResult LoadQualityPlan(string POIssueDate)
+        public ActionResult LoadQualityPlan(string POIssueDate, string ResponsiblePersonId)
         {
-            return Json(_productionSummaryData.GetQualityPlan(POIssueDate), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetQualityPlan(POIssueDate, ResponsiblePersonId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
-        public ActionResult LoadGeneralIssue()
+        public ActionResult LoadGeneralIssue(string ResponsiblePersonId)
         {
-            return Json(_productionSummaryData.GetGeneralIssue(), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetGeneralIssue(ResponsiblePersonId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
@@ -1191,8 +1233,12 @@ where PO.ID= '" + POId + "'";
             string _Id, Id = string.Empty;
             try
             {
-                objCon = new ConnectionManager.DAL.ConManager("1");
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from [TRN].[QualityPlanControl] where QCId is null");
+                conC.CommitTransaction();
 
+                objCon = new ConnectionManager.DAL.ConManager("1");
 
                 if (DataList != null)
                 {
@@ -1624,7 +1670,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         }
 
         [HttpPost]
-        public JsonResult createQC(Dictionary<string, object> QualityControlData, string QualityPlanId, string PlanType)
+        public JsonResult createQC(Dictionary<string, object> QualityControlData, string QualityPlanId, string PlanType, string EntryLevel)
         {
             try
             {
@@ -1654,6 +1700,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                         QualityControlData["Id"] = _Id;
                         QualityControlData["QualityPlanId"] = QualityPlanId;
                         QualityControlData["PlanType"] = PlanType;
+                        QualityControlData["EntryLevel"] = EntryLevel;
                         QualityControlData["PlantId"] = identity.PlantId;
                         AddNewRow(dsQualityControlData.Tables[0], QualityControlData);
                         ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();

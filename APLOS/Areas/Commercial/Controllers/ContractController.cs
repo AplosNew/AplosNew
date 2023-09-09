@@ -1944,23 +1944,23 @@ namespace Aplos.Areas.Commercial.Controllers
                 /////////////////////
                 ///
 
-                DocToPDFConverter converter = new DocToPDFConverter();
+                //DocToPDFConverter converter = new DocToPDFConverter();
 
-                //Converts Word document into PDF document
-                PdfDocument pdfDocument = converter.ConvertToPDF(document);
-                pdfDocument.PageSettings.Width = 1200;
-                pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
-                //Releases all resources used by DocToPDFConverter
-                converter.Dispose();
+                ////Converts Word document into PDF document
+                //PdfDocument pdfDocument = converter.ConvertToPDF(document);
+                //pdfDocument.PageSettings.Width = 1200;
+                //pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
+                ////Releases all resources used by DocToPDFConverter
+                //converter.Dispose();
 
-                //Closes the instance of document objects
+                ////Closes the instance of document objects
 
-                //Saves the PDF file 
-                string Prefix = "ProformaContractInvoice" + plantId;
+                ////Saves the PDF file 
+                //string Prefix = "ProformaContractInvoice" + plantId;
 
-                pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
-                //Closes the instance of document objects
-                pdfDocument.Close(true);
+                //pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
+                ////Closes the instance of document objects
+                //pdfDocument.Close(true);
                 document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 document.Close();
             }
