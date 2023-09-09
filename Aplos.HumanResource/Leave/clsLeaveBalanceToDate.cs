@@ -111,7 +111,7 @@ namespace Library.HumanResource.Leave
             int ROW = 6;
             int endCol = 1;
             int COL = 1;
-            var dsLvAllo = GetLeaveBalanceTypeData(sGroup, PlantId, Year, _ToDate,empIds);
+            var dsLvAllo = GetLeaveBalanceTypeData(sGroup, PlantId, Year, _ToDate, empIds);
 
             // var finalList = LoadGrdAllocatedLvDetails(dsLvAllo);
 
@@ -219,7 +219,7 @@ namespace Library.HumanResource.Leave
                 sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(item["Balance"].ToString());
                 // sheet[ROW, ColEncashedInbetween].Number = clsStaticInfo.dbl(item["YearEndEncash"].ToString());
                 //sheet[ROW, ColBalance].Formula = clsStaticInfo.GetxlsCol(ColOpeningBalance) + ROW + "+" + clsStaticInfo.GetxlsCol(ColCurrentAllocation) + ROW
-                   // + "-" + clsStaticInfo.GetxlsCol(ColAvailed) + ROW;
+                // + "-" + clsStaticInfo.GetxlsCol(ColAvailed) + ROW;
 
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -814,7 +814,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                 throw ex;
             }
         }//End Function
-        public DataTable GetLeaveBalanceTypeData(string sGroupID, string sPlantID, string calYearId, string ToDate,string empIds)
+        public DataTable GetLeaveBalanceTypeData(string sGroupID, string sPlantID, string calYearId, string ToDate, string empIds)
         {
 
             try
@@ -1010,7 +1010,7 @@ LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
 LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
 LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
- WHERE els.EmployeeID " + empIds+ @"   AND lt.Code IN ('PL','CL'))A";
+ WHERE els.EmployeeID " + empIds + @"   AND lt.Code IN ('PL','CL'))A";
 
 
                 return _sqlRepository.GetDataTable(_sql);
@@ -1038,7 +1038,7 @@ LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                 }
                 else
                 {
-                    
+
                     DataTable dtCalendar = _sqlRepository.GetDataTable("select * from YearlyCalendar where YearNo=" + DateTime.Now.Year.ToString() + @" AND PlantId='" + identity.PlantId + "'");
                     if (dtCalendar.Rows.Count > 0)
                     {
@@ -1286,7 +1286,6 @@ LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
             {
                 string _FromDate = string.Empty;
                 string _ToDate = string.Empty;
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 // var esic = GetESICEligibleEmployee(EmpSystemID);
                 var dsCalYear = GetCalYearInfo(calYearId);
                 if (dsCalYear.Tables[0].Rows.Count > 0)
@@ -1294,16 +1293,7 @@ LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                     _FromDate = dsCalYear.Tables[0].Rows[0]["FromDate"].ToString();
                     _ToDate = dsCalYear.Tables[0].Rows[0]["ToDate"].ToString();
                 }
-                else
-                {
-                   
-                    DataTable dtCalendar = _sqlRepository.GetDataTable("select * from YearlyCalendar where YearNo=" + DateTime.Now.Year.ToString() + @" AND PlantId='" + identity.PlantId + "'");
-                    if (dtCalendar.Rows.Count > 0)
-                    {
-                        _FromDate = dtCalendar.Rows[0]["FromDate"].ToString();
-                        _ToDate = dtCalendar.Rows[0]["ToDate"].ToString();
-                    }
-                }
+
                 //                string X_sql = @"SELECT ei.SystemId,B.LeaveTypeId, ei.EmployeeCode,ei.EmployeeName,FORMAT(ei.DOJ,'dd-MMM-yyyy') AS DOJ,p.UserName AS PlantName,D.UserName AS Designation,
                 //                                DEPT.UserName AS Department,ct.UserName AS EmployeeCategory,LT.UserName AS LeaveName,CurrentYearAllocation=ISNULL(CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(B.CurrentYearAllocation, 0) END,0)								
                 //								, BroughtForward= CASE WHEN  ISNULL(AL.PBroughtForward,0)=0 THEN B.BroughtForward ELSE AL.PBroughtForward END								
@@ -1511,7 +1501,7 @@ LEFT JOIN
 																 select LeavePolicyMasterId from 
 																		 (
 																				SELECT DC.LeavePolicyMasterId,dm.DesignationId FROM MST.DesignationMaster DM
-																				LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId where dc.plantid='"+identity.PlantId+@"'
+																				LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId where dc.plantid=(select plantid  from dbo.EmployeeInformation  where SystemId ='" + EmployeeSystemId + @"')
  ) dm where dm.DesignationId =(select givendesignationId  from dbo.EmployeeInformation  where SystemId ='" + EmployeeSystemId + @"')
 																	)--w
                                                  ) ltd on ltd.LTSystemID = lt.Id
