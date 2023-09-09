@@ -786,6 +786,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["InvoicingByAddress"] = data.InvoicingByAddress;
                     dr["DeliveryByAddress"] = data.DeliveryByAddress;
                     dr["BankId"] = data.BankId;
+                    dr["LCRequiredDaysfromShipment"] = data.LCRequiredDaysfromShipment;
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
@@ -835,6 +836,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["InvoicingByAddress"] = data.InvoicingByAddress;
                     dr["DeliveryByAddress"] = data.DeliveryByAddress;
                     dr["BankId"] = data.BankId;
+                    dr["LCRequiredDaysfromShipment"] = data.LCRequiredDaysfromShipment;
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
@@ -1162,6 +1164,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["ShipmentModeId"] = data.ShipmentModeId;
                     dr["PortOfLoadingId"] = data.PortOfLoadingId;
                     dr["Remarks"] = data.Remarks;
+                    dr["DescriptionOfGoodsAndOrServices"] = data.DescriptionOfGoodsAndOrServices;
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
@@ -1197,7 +1200,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["ShipmentModeId"] = data.ShipmentModeId;
                     dr["PortOfLoadingId"] = data.PortOfLoadingId;
                     dr["Remarks"] = data.Remarks;
-
+                    dr["DescriptionOfGoodsAndOrServices"] = data.DescriptionOfGoodsAndOrServices;
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
@@ -3897,6 +3900,7 @@ namespace Aplos.Areas.Commercial.Controllers
         public string DeliveryPartyPlantId { get; set; }
         public string InvoicingByAddress { get; set; }
         public string DeliveryByAddress { get; set; }
+        public int LCRequiredDaysfromShipment { get; set; }
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }
         public DateTime? UDDate { get; set; }
@@ -3931,6 +3935,7 @@ namespace Aplos.Areas.Commercial.Controllers
         public string ShipmentModeId { get; set; }
         public string PortOfLoadingId { get; set; }
         public string Remarks { get; set; }
+        public string DescriptionOfGoodsAndOrServices { get; set; }
 
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }
