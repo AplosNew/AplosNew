@@ -2089,6 +2089,7 @@
     <Content Include="Areas\FixedAssets\Scripts\faRegisterController.js" />
     <Content Include="Areas\FixedAssets\Scripts\assetDepreciationProcessController.js" />
     <Content Include="Areas\FixedAssets\Scripts\AssetsRegisterReportController.js" />
+    <Content Include="Areas\FixedAssets\Scripts\assetDepreciationPostController.js" />
     <Content Include="Areas\HumanResource\Scripts\BudgetCodeWiseHRReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\BudgetReportMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\DesignationSetupController.js" />
@@ -4791,6 +4792,7 @@
     <Content Include="Areas\FixedAssets\Views\AssetsRegisterReport.cshtml" />
     <Content Include="Areas\OrderManagements\Views\Documentation\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\QualityActionUpdateReport\Aplos.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\AssetDepreciationPost.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

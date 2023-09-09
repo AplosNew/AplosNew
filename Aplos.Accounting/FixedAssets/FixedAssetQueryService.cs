@@ -2881,6 +2881,112 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
         }
         #endregion
 
+        #region Capitalize Asset Depreciation Post
+        public List<Dictionary<string, object>> GetAssetDepreciationPostedList(string column, string value, string companyId)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+            var sql = @"select top 100 * from (select V.Id,FR.FixedAssetMasterId
+									,FAM.UserName 'FixedAssetMaster'
+									,FAC.UserName 'FixedAssetCategory'
+									,FASC.UserName 'FixedAssetSubCategory'
+									,FORMAT(FDP.DepreciationProcessDate, 'dd-MMM-yyyy') DepreciationProcessDate
+                                    ,sum( ISNULL(FDP.CurrentDepreciationAmount,0)) FixedAssetDepreciationAmount
+								    ,BC.Code BaseCurrency,1 CompanyCurrencyRate,1 ToCurrencyRate
+									,V.VoucherNo,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate
+                FROM [TRN].[FixedAssetDepreciationProcess] FDP
+                LEFT JOIN TRN.FixedAssetRegister FR on FR.Id=FDP.FixedAssetRegisterId
+				INNER JOIN TRN.Voucher V ON V.Id=FDP.DepreciationVoucherId
+	            LEFT JOIN SCS.Currency BC ON BC.Id =FR.FABaseCurrencyId
+				LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FR.FixedAssetMasterId
+                LEFT  JOIN  HKP.[FixedAssetCategory]  FAC ON FAM.FixedAssetCategoryId=FAC.Id
+                LEFT  JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
+                WHERE FR.CompanyId='" + companyId + @"' AND V.Archive=0 AND FDP.DepreciationVoucherId IS NOT NULL
+                GROUP BY  V.Id,FR.FixedAssetMasterId,FAM.UserName,FAC.UserName,FDP.DepreciationProcessDate,FASC.UserName,BC.Code,V.VoucherNo,V.PostingDate ) AS TEMP WHERE " + strkey + " order by PostingDate DESC   ";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        public List<Dictionary<string, object>> GetAssetDepreciationListForPosting(string column, string value, string companyId)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+            var sql = @"select top 100 * from (select FR.FixedAssetMasterId
+									,FAM.UserName 'FixedAssetMaster'
+									,FAC.UserName 'FixedAssetCategory'
+									,FASC.UserName 'FixedAssetSubCategory'
+									,FORMAT(FDP.DepreciationProcessDate, 'dd-MMM-yyyy') DepreciationProcessDate
+                                    ,sum( ISNULL(FDP.CurrentDepreciationAmount,0)) FixedAssetDepreciationAmount
+								    ,BC.Code BaseCurrency,1 CompanyCurrencyRate,1 ToCurrencyRate
+                FROM [TRN].[FixedAssetDepreciationProcess] FDP
+                LEFT JOIN TRN.FixedAssetRegister FR on FR.Id=FDP.FixedAssetRegisterId
+	            LEFT JOIN SCS.Currency BC ON BC.Id =FR.FABaseCurrencyId
+				LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FR.FixedAssetMasterId
+                LEFT  JOIN  HKP.[FixedAssetCategory]  FAC ON FAM.FixedAssetCategoryId=FAC.Id
+                LEFT  JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
+                WHERE FR.CompanyId='" + companyId + @"' AND FDP.DepreciationVoucherId IS NULL
+                   GROUP BY  FR.FixedAssetMasterId,FAM.UserName,FAC.UserName,FDP.DepreciationProcessDate,FASC.UserName,BC.Code	
+                ) AS TEMP WHERE " + strkey + " order by DepreciationProcessDate ASC  ";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        public List<Dictionary<string, object>> GetAssetDepreciationSingleJVList(string fixedAssetMasterId, DateTime depreciationProcessDate, string companyId, string plantId)
+        {
+
+            var sql = @"DECLARE @fixedAssetMasterId varchar(10)='" + fixedAssetMasterId + "',@depreciationProcessDate DATE='" + depreciationProcessDate + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
+
+						SELECT X.* FROM(
+						SELECT  'Depreciation' AS OtherName, 'Dr' AS TrnType
+							,GLGeneralInfoId =BM.GLGeneralInfoId        
+							,GLGeneralInfoCode =GL.AccountCode 
+							,GLGeneralInfoName =GL.UserName
+							,BudgetMasterId =FAMG.DepreciationBudgetMasterId
+							,BudgetCode = B.Code
+							,BudgetName =B.UserName 
+							,ActivityId = FAMG.DepreciationActivityId
+							,ActivityCode = A.Code
+							,ActivityName =A.UserName
+							, SUM( ISNULL(FDP.CurrentDepreciationAmount,0)) AS Dr
+							, NULL Cr
+							, SUM( ISNULL(FDP.CurrentDepreciationAmount,0)) AS Amount
+					    FROM [TRN].[FixedAssetDepreciationProcess] FDP
+						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FDP.FixedAssetRegisterId
+						LEFT JOIN HKP.FixedAssetMasterGL AS FAMG  ON FAMG.FixedAssetMasterId=FR.FixedAssetMasterId
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON FAMG.DepreciationBudgetMasterId= BM.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON FAMG.DepreciationGLId=GL.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON FAMG.DepreciationActivityId= A.Id
+					   WHERE FDP.FixedAssetMasterId=@fixedAssetMasterId AND CAST(FDP.DepreciationProcessDate AS date)=CAST(@depreciationProcessDate AS date)
+						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, B.Code, B.UserName, A.Code, A.UserName,FAMG.DepreciationBudgetMasterId,FAMG.DepreciationActivityId,FDP.FixedAssetMasterId
+						
+						UNION
+						SELECT  'Asset' AS OtherName, 'Cr' AS TrnType
+							,GLGeneralInfoId =BM.GLGeneralInfoId        
+							,GLGeneralInfoCode =GL.AccountCode 
+							,GLGeneralInfoName =GL.UserName
+							,BudgetMasterId =FR.FABudgetMasterId
+							,BudgetCode = B.Code
+							,BudgetName =B.UserName 
+							,ActivityId = FR.FAActivityId
+							,ActivityCode = A.Code
+							,ActivityName =A.UserName
+							, NULL Dr
+							,  SUM( ISNULL(FDP.CurrentDepreciationAmount,0)) AS Cr
+							,  SUM( ISNULL(FDP.CurrentDepreciationAmount,0)) AS Amount
+						FROM [TRN].[FixedAssetDepreciationProcess] FDP
+						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FDP.FixedAssetRegisterId
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON FR.FABudgetMasterId= BM.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON FR.FAActivityId= A.Id
+						WHERE FDP.FixedAssetMasterId=@fixedAssetMasterId AND CAST(FDP.DepreciationProcessDate AS date)=CAST(@depreciationProcessDate AS date)
+						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, FR.FABudgetMasterId, B.Code, B.UserName, FR.FAActivityId, A.Code, A.UserName
+						) X 
+                        WHERE X.Amount>0
+						ORDER BY 2 DESC";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        #endregion
+
         #region Capitalize Asset Register Report
         public List<Dictionary<string, object>> GetAssetRegisterElasticSearchDataList(string companyGroupId, string companyId, string plantId, string fromDate, string toDate)
         {

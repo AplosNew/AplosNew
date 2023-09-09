@@ -1807,6 +1807,48 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
         #endregion
 
+        #region Capitalize Asset Depreciation Post
+        public ActionResult AssetDepreciationPost()
+        {
+            return View("~/Areas/FixedAssets/Views/AssetDepreciationPost.cshtml");
+        }
+        [Authorize, HttpPost]
+        public ActionResult GetAssetDepreciationPostedList(string column, string value)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            return Json(_fixedAssetQueryService.GetAssetDepreciationPostedList(column, value, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetAssetDepreciationListForPosting(string column, string value)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            return Json(_fixedAssetQueryService.GetAssetDepreciationListForPosting(column, value, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetAssetDepreciationSingleJVList(string fixedAssetMasterId, DateTime depreciationProcessDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetFixedAssetDepreciationSingleJVList(fixedAssetMasterId, depreciationProcessDate, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public JsonResult SaveAssetDepreciationPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<FixedAssetDepreciationProcessVM> fixedAssetDepreciationList)
+        {
+            FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            _fixedAssetDisposeService.InsertAssetDepreciationPosting(voucherVM, voucherDetailVMList, fixedAssetDepreciationList);
+
+            return Json(new { Message = AplosMessage.Insert });
+        }
+        #endregion
+
         #region Capitalize Asset Register Report
         public ActionResult AssetsRegisterReport()
         {
