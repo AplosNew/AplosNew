@@ -10,7 +10,7 @@ function BOQStatusReportController(cboService, commonMessage, $scope, $rootScope
     baseService.init($scope.getListUrl);
     $scope.Action = 'Save';
     //$scope.searchBy = "UserName"; $scope.searchBySO = "MasterOrderId"; $scope.searchSO = ''; $scope.search = "";
-
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -133,27 +133,27 @@ function BOQStatusReportController(cboService, commonMessage, $scope, $rootScope
    
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.getBOQStatusReport = function () {
-        $scope.filterComplete();
-        //var dataList = [];
-        //var g = $("#filters").data("ejGrid");
-        //dataList = g.getFilteredRecords();
+        //$scope.filterComplete();
+        var dataList = [];
+        var g = $("#GridEmp").data("ejGrid");
+        dataList = g.getFilteredRecords();
 
-        //if (dataList.length == 0) {
-        //    dataList = $scope.parameters;
-        //}
-
+        if (dataList.length == 0) {
+            dataList = $scope.BOQStausData;
+        }
+        $scope.fileName = 'BOQ Status Report.xlsx';
         $http({
             method: 'POST',
             url: $scope.path + "GetBOQStatusReport",
-            //data: { 'parameters': dataList },
-            data: { 'parameters': $scope.parameters },
+            data: { 'data': dataList, 'parameters': $scope.parameters, 'reportFileName': $scope.fileName },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                //$window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
