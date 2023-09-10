@@ -4051,9 +4051,15 @@ WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='" + productionDat
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public IEnumerable<object> GetQualityPlan(string POIssueDate)
+        public IEnumerable<object> GetQualityPlan(string POIssueDate, string ResponsiblePersonId)
         {
-            
+            string ResponsiblePerson = string.Empty;
+
+            if (ResponsiblePersonId != "null" && ResponsiblePersonId != "undefined")
+            {
+                ResponsiblePerson = " and QPEmployeeId = '" + ResponsiblePersonId + "'";
+            }
+
             string sql = @"Select Format(PO1.Date,'dd-MMM-yyyy') PODate,Format(PO1.QualityPlanDate,'dd-MMM-yyyy') QPDate,PO1.* from (Select distinct QPC.Id,PD.Id QPId,PO.Id POId,PO.EntryLevel,PO.LotNumber,PD.IssueId,QMM.UserName QPIssue,PO.ProcessId,P.UserName Process,PD.Legdays,
 PD.DependentDate DependentOn,E.UserName Entity,PO.EntityId,
 (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' and RepeatEntry is not null order by AddedDate desc) as RepeatEntry,
@@ -4194,12 +4200,18 @@ left join ORG.Entity E on E.Id=PO.EntityId
 where PO.ProcessId is null and E.Id in (select EntityId from MST.QualityManagementEntity where QMID=QMM.Id) 
 and QPC.QCID is null or (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' order by AddedDate desc) is not null
 ) PO1
-where PO1.QualityPlanDate < = '" + POIssueDate + "' or PO1.QualityPlanDate is null order by PO1.QualityPlanDate";
+where PO1.QualityPlanDate < = '" + POIssueDate + "' " + ResponsiblePerson + @" or PO1.QualityPlanDate is null order by PO1.QualityPlanDate";
              return _sqlRepository.GetDataCollection(sql);
         }
 
-        public IEnumerable<object> GetGeneralIssue()
+        public IEnumerable<object> GetGeneralIssue(string ResponsiblePersonId)
         {
+            string ResponsiblePerson = string.Empty;
+
+            if (ResponsiblePersonId != "null" && ResponsiblePersonId != "undefined")
+            {
+                ResponsiblePerson = " where QGIEmployeeId = '" + ResponsiblePersonId + "'";
+            }
             string sql = @"select  GI.* from (select  QC.Id,QID.IssueNameId,(select top 1 RepeatEntry from TRN.QualityControl where IssueId=QID.IssueNameId and EntityId=QID.EntityId and PlanType='GeneralIssue' order by AddedDate desc) as RepeatEntry,
 case when (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QID.IssueNameId and EntityId=QID.EntityId and PlanType='GeneralIssue' order by AddedDate desc)='Repeat' then format((select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId and EntityId=QID.EntityId and PlanType='GeneralIssue' order by AddedDate desc),'dd-MMM-yyyy') else
 format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId and EntityId=QID.EntityId and PlanType='GeneralIssue' order by AddedDate desc)),'dd-MMM-yyyy') end as QualityIssueDate,
@@ -4214,9 +4226,10 @@ left join TRN.QualityIssueControl as QC on QC.DefineIssueId=QID.Id and QC.Id = (
 left join MST.QualityManagementMaster QMM on QMM.Id=QID.IssueNameId
 left join org.Entity E on E.Id=QID.EntityId
 left join hkp.Process P on P.Id=QID.ProcessId) GI
-order by GI.QualityIssueDate
+" + ResponsiblePerson + @"
+order by Convert(Date,GI.QualityIssueDate)
 --order by (select top 1 AddedDate + QID.CheckingInterval from TRN.QualityControl where IssueId=QID.IssueNameId and EntityId=QID.EntityId order by AddedDate asc) asc";
-                return _sqlRepository.GetDataCollection(sql);
+                 return _sqlRepository.GetDataCollection(sql);
         }
 
         public IEnumerable<object> GetSFGMovementFromCbo(string entity)

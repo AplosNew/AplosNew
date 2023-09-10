@@ -234,17 +234,18 @@ function documentationController(commonMessage, $scope, $rootScope, baseService,
     };
     $scope.documentationMasterNew = Object.assign({}, $scope.documentationMaster);
 
-    $scope.DocumentFormatList = [{ value: 'PDF', name: 'PDF' },
-    { value: 'JPEG', name: 'JPEG' },
-    { value: 'Excel', name: 'Excel' },
-    { value: 'Word', name: 'Word' },
-    { value: 'Register', name: 'Register' },
-    { value: 'Form', name: 'Form' },
-    { value: 'Email', name: 'Email' },
-    { value: 'PPT', name: 'PPT' },
-    { value: 'CrystalReport', name: 'Crystal Report' },
-    { value: 'Txt', name: 'Txt' },
-    { value: 'CSV', name: 'CSV' }]
+    $scope.DocumentFormatList = [{ Value: 'PDF', Text: 'PDF' },
+        { Value: 'JPEG', Text: 'JPEG' },
+        { Value: 'Excel', Text: 'Excel' },
+        { Value: 'Word', Text: 'Word' },
+        { Value: 'Register', Text: 'Register' },
+        { Value: 'Form', Text: 'Form' },
+        { Value: 'Email', Text: 'Email' },
+        { Value: 'PPT', Text: 'PPT' },
+        { Value: 'CrystalReport', Text: 'Crystal Report' },
+        { Value: 'Txt', Text: 'Txt' },
+        { value: 'CSV', Text: 'CSV' }]
+    console.log($scope.DocumentFormatList);
 
     $scope.DMModelList = [];
     $scope.getDMData = function () {
@@ -260,7 +261,7 @@ function documentationController(commonMessage, $scope, $rootScope, baseService,
     $scope.getDMData();
 
     $scope.GetDMSequence = function () {
-        $http.get($scope.getSeqUrl)
+        $http.get($scope.getDMSeqUrl)
             .then(function (response) {
                 $scope.documentationMasterNew.Sequence = response.data;
             });
@@ -279,10 +280,10 @@ function documentationController(commonMessage, $scope, $rootScope, baseService,
 
     $scope.SaveDM = function () {
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.documentationNewForm.$valid) {
+        if ($scope.documentationMasterNewForm.$valid) {
             $http({
                 method: 'POST',
-                url: $scope.savedMUrl,
+                url: $scope.saveDMUrl,
                 data: { 'data': $scope.documentationMasterNew },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -293,7 +294,7 @@ function documentationController(commonMessage, $scope, $rootScope, baseService,
                     ShowResult(response.data.Message, 'success');
                     ClearDMFields();
                     $scope.GetDMSequence();
-
+                    $scope.getDMData();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
