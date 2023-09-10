@@ -756,6 +756,12 @@ namespace Library.Service.FixedAssets
                 int COL = 1; int ROW = 5;
 
                 int startCol = COL;
+                worksheet[ROW, COL].Text = "Fixed Asset Item No";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                int colFixedAssetItemNo = COL;
+                worksheet[ROW, COL].ColumnWidth = 20;
+                COL++;
+
                 worksheet[ROW, COL].Text = "Code";
                 int colCode = COL;
                 worksheet[ROW, COL].ColumnWidth = 12;
@@ -797,6 +803,7 @@ namespace Library.Service.FixedAssets
 
                 for (int i = 0; i < data.Count; i++)
                 {
+                    worksheet[ROW, colFixedAssetItemNo].Text = data[i]["Id"].ToString();
                     worksheet[ROW, colCode].Text = data[i]["Code"].ToString();
                     worksheet[ROW, colUserName].Text = data[i]["UserName"].ToString();
                     worksheet[ROW, colFixedAssetMaster].Text = data[i]["FixedAssetMaster"].ToString();
