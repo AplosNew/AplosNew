@@ -48,6 +48,7 @@ namespace Library.Service.FixedAssets
                 {
                     foreach (var item in entities)
                     {
+                        Check(item);
                         if (string.IsNullOrEmpty(item.Id))
                         {
                             item.ModelState = ModelState.Added;
@@ -105,6 +106,10 @@ namespace Library.Service.FixedAssets
                                 LEFT JOIN [HKP].[FixedAssetMasterBudgetTag] AS FAMT ON FAMT.BudgetMasterId=BM.Id
                                 WHERE BM.Archive=0 AND BM.Active=1 AND GLAT.AccountType='" + AccountTypeEnum.Asset + "' AND ACT.Id='" + AccountTypeEnum.Asset + "' AND BM.COAId='" + coaId + "'";
             return _sqlRepository.GetGridData(parameters);
+        }
+        private void Check(FixedAssetMasterBudgetTag entity)
+        {
+            CheckUniqueColumn(UniqueColumnName.AssetUserName, entity.FixedAssetMasterId, r => r.Id != entity.Id  && r.FixedAssetMasterId == entity.FixedAssetMasterId);
         }
     }
 }
