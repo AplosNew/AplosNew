@@ -2887,23 +2887,13 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
-            var sql = @"select top 100 * from (select V.Id,FR.FixedAssetMasterId
-									,FAM.UserName 'FixedAssetMaster'
-									,FAC.UserName 'FixedAssetCategory'
-									,FASC.UserName 'FixedAssetSubCategory'
-									,FORMAT(FDP.DepreciationProcessDate, 'dd-MMM-yyyy') DepreciationProcessDate
-                                    ,sum( ISNULL(FDP.CurrentDepreciationAmount,0)) FixedAssetDepreciationAmount
-								    ,BC.Code BaseCurrency,1 CompanyCurrencyRate,1 ToCurrencyRate
-									,V.VoucherNo,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate
-                FROM [TRN].[FixedAssetDepreciationProcess] FDP
-                LEFT JOIN TRN.FixedAssetRegister FR on FR.Id=FDP.FixedAssetRegisterId
-				INNER JOIN TRN.Voucher V ON V.Id=FDP.DepreciationVoucherId
-	            LEFT JOIN SCS.Currency BC ON BC.Id =FR.FABaseCurrencyId
-				LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FR.FixedAssetMasterId
-                LEFT  JOIN  HKP.[FixedAssetCategory]  FAC ON FAM.FixedAssetCategoryId=FAC.Id
-                LEFT  JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
-                WHERE FR.CompanyId='" + companyId + @"' AND V.Archive=0 AND FDP.DepreciationVoucherId IS NOT NULL
-                GROUP BY  V.Id,FR.FixedAssetMasterId,FAM.UserName,FAC.UserName,FDP.DepreciationProcessDate,FASC.UserName,BC.Code,V.VoucherNo,V.PostingDate ) AS TEMP WHERE " + strkey + " order by PostingDate DESC   ";
+            var sql = @"select top 100 * from (select V.Id,V.VoucherNo,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate
+									,AD.ProcessName,FORMAT(AD.ProcessDate, 'dd-MMM-yyyy') ProcessDate
+                                    ,ISNULL((SELECT SUM(DepreciationAmount) FROM [TRN].[AssetDepreciationDetail] WHERE AssetDepreciationId=AD.Id),0) DepreciationAmount
+									,BC.Code BaseCurrency,AD.Id AssetDepreciationId
+                FROM  [TRN].[AssetDepreciation] AD
+				INNER JOIN TRN.Voucher V ON V.Id=AD.VoucherId
+				LEFT JOIN SCS.Currency BC ON BC.Id =AD.CurrencyId ) AS TEMP WHERE " + strkey + " order by PostingDate DESC   ";
             return _sqlRepository.GetDataCollection(sql);
         }
         public List<Dictionary<string, object>> GetAssetDepreciationListForPosting(string column, string value, string companyId)
@@ -2911,22 +2901,13 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
-            var sql = @"select top 100 * from (select FR.FixedAssetMasterId
-									,FAM.UserName 'FixedAssetMaster'
-									,FAC.UserName 'FixedAssetCategory'
-									,FASC.UserName 'FixedAssetSubCategory'
-									,FORMAT(FDP.DepreciationProcessDate, 'dd-MMM-yyyy') DepreciationProcessDate
-                                    ,sum( ISNULL(FDP.CurrentDepreciationAmount,0)) FixedAssetDepreciationAmount
-								    ,BC.Code BaseCurrency,1 CompanyCurrencyRate,1 ToCurrencyRate
-                FROM [TRN].[FixedAssetDepreciationProcess] FDP
-                LEFT JOIN TRN.FixedAssetRegister FR on FR.Id=FDP.FixedAssetRegisterId
-	            LEFT JOIN SCS.Currency BC ON BC.Id =FR.FABaseCurrencyId
-				LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FR.FixedAssetMasterId
-                LEFT  JOIN  HKP.[FixedAssetCategory]  FAC ON FAM.FixedAssetCategoryId=FAC.Id
-                LEFT  JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
-                WHERE FR.CompanyId='" + companyId + @"' AND FDP.DepreciationVoucherId IS NULL
-                   GROUP BY  FR.FixedAssetMasterId,FAM.UserName,FAC.UserName,FDP.DepreciationProcessDate,FASC.UserName,BC.Code	
-                ) AS TEMP WHERE " + strkey + " order by DepreciationProcessDate ASC  ";
+            var sql = @"select top 100 * from (select AD.Id AssetDepreciationId,AD.ProcessName,FORMAT(AD.ProcessDate, 'dd-MMM-yyyy') ProcessDate
+                                    ,ISNULL((SELECT SUM(DepreciationAmount) FROM [TRN].[AssetDepreciationDetail] WHERE AssetDepreciationId=AD.Id),0) DepreciationAmount
+									,BC.Code BaseCurrency,AD.CurrencyId,1 ToCurrencyRate
+                FROM  [TRN].[AssetDepreciation] AD
+				LEFT JOIN SCS.Currency BC ON BC.Id =AD.CurrencyId 
+                WHERE AD.CompanyId='" + companyId + @"' AND AD.VoucherId IS NULL
+                ) AS TEMP WHERE " + strkey + " order by ProcessDate ASC  ";
             return _sqlRepository.GetDataCollection(sql);
         }
         public List<Dictionary<string, object>> GetAssetDepreciationSingleJVList(string fixedAssetMasterId, DateTime depreciationProcessDate, string companyId, string plantId)
