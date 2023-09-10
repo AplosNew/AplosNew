@@ -399,10 +399,17 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
         $scope.fileName = 'Fixed Asset Master Item Report.xlsx';
         $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
+        var dataList = [];
+        var g = $("#GridM").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.FixedAssetMasterItemList;
+        }
         $http({
             method: 'POST',
             url: $scope.path + "FixedAssetMasterItemXls",
-            data: { 'data': $scope.FixedAssetMasterItemList, 'reportFileName': $scope.fileName },
+            data: { 'data': dataList, 'reportFileName': $scope.fileName },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {

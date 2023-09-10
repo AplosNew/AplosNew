@@ -467,7 +467,7 @@ namespace Library.Service.FixedAssets
             try
             { 
                 parameters.CmdText = @"SELECT fami.Id,fam.Id FixedAssetMasterId,fam.UserName FixedAssetMaster,fami.Code,fami.ShortName,fami.StandardName,fami.UserName
-									                ,uom.Id CapacityUoMId,uom.UserName CapacityUoM,isnull(fami.Description,'') Description
+									                ,uom.Id CapacityUoMId,isnull(uom.UserName,'') CapacityUoM,isnull(fami.Description,'') Description
 									                ,isnull(fami.Remarks,'') Remarks
 
                                                     FROM mst.FixedAssetItem AS fami
@@ -672,13 +672,7 @@ namespace Library.Service.FixedAssets
                 int colFixedAssetMaster = COL;
                 worksheet[ROW, COL].ColumnWidth = 17;
                 COL++;
-
-                worksheet[ROW, COL].Text = "Capacity Value";
-                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                int colCapacityValue = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
-                COL++;
-
+                 
                 worksheet[ROW, COL].Text = "Description";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 int colDescription = COL;
@@ -701,7 +695,6 @@ namespace Library.Service.FixedAssets
                     worksheet[ROW, colCode].Text = data.Rows[i]["Code"].ToString(); 
                     worksheet[ROW, colUserName].Text = data.Rows[i]["UserName"].ToString();
                     worksheet[ROW, colFixedAssetMaster].Text = data.Rows[i]["FixedAssetMaster"].ToString();
-                    worksheet[ROW, colCapacityValue].Text = data.Rows[i]["CapacityValue"].ToString()+" " + data.Rows[i]["CapacityUoM"].ToString();
                     worksheet[ROW, colDescription].Text = data.Rows[i]["Description"].ToString(); 
 
                     worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -760,7 +753,7 @@ namespace Library.Service.FixedAssets
             try
             {
                 worksheet.Name = "Fixed Asset Master Item";
-                int COL = 1; int ROW = 6;
+                int COL = 1; int ROW = 5;
 
                 int startCol = COL;
                 worksheet[ROW, COL].Text = "Code";
@@ -807,7 +800,7 @@ namespace Library.Service.FixedAssets
                     worksheet[ROW, colCode].Text = data[i]["Code"].ToString();
                     worksheet[ROW, colUserName].Text = data[i]["UserName"].ToString();
                     worksheet[ROW, colFixedAssetMaster].Text = data[i]["FixedAssetMaster"].ToString();
-                    worksheet[ROW, colCapacityValue].Text = data[i]["CapacityValue"].ToString() + " " + data[i]["CapacityUoM"].ToString();
+                    worksheet[ROW, colCapacityValue].Text = /*data[i]["CapacityValue"].ToString() + " " +*/ data[i]["CapacityUoM"].ToString();
                     worksheet[ROW, colDescription].Text = data[i]["Description"].ToString();
 
                     worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -877,14 +870,10 @@ namespace Library.Service.FixedAssets
         }
         public DataTable getFAMIlist(string FAMId)
         {
-            string str = @"SELECT fam.Id FixedAssetMasterId,fami.Id,fam.UserName FixedAssetMaster,fami.Code,fami.ShortName,fami.StandardName,fami.UserName
-									                ,uom.UserName CapacityUoM,fami.CapacityValue,isnull(fami.Description,'') Description
-									                ,isnull(fami.Remarks,'') Remarks
-
-                                                    FROM mst.FixedAssetMaster AS fam 
-													left join mst.FixedAssetItem AS fami ON fam.Id=fami.FixedAssetMasterId
-                                                    LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=fami.CapacityUoMId
-													where fam.Id ='" + FAMId + "'";
+            string str = @"SELECT fam.Id FixedAssetMasterId,fam.UserName FixedAssetMaster,fam.Code,fam.ShortName,fam.StandardName,fam.UserName
+								,isnull(fam.Description,'') Description,isnull(fam.Remarks,'') Remarks
+                                FROM mst.FixedAssetMaster AS fam  
+								where fam.Id ='" + FAMId + "'";
             return _sqlRepository.GetDataTable(str);
         } 
 
