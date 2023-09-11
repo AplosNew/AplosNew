@@ -2910,10 +2910,10 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
                 ) AS TEMP WHERE " + strkey + " order by ProcessDate ASC  ";
             return _sqlRepository.GetDataCollection(sql);
         }
-        public List<Dictionary<string, object>> GetAssetDepreciationSingleJVList(string fixedAssetMasterId, DateTime depreciationProcessDate, string companyId, string plantId)
+        public List<Dictionary<string, object>> GetAssetDepreciationSingleJVList(string fixedAssetMasterId, string companyId, string plantId)
         {
 
-            var sql = @"DECLARE @fixedAssetMasterId varchar(10)='" + fixedAssetMasterId + "',@depreciationProcessDate DATE='" + depreciationProcessDate + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
+            var sql = @"DECLARE @fixedAssetMasterId varchar(10)='" + fixedAssetMasterId + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
 
 						SELECT X.* FROM(
 						SELECT  'Depreciation' AS OtherName, 'Dr' AS TrnType
