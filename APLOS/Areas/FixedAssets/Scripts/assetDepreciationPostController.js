@@ -1,7 +1,7 @@
 ﻿"use strict";
 assetDepreciationPostController.$inject = ["accountService", "cboService","commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller"];
 function assetDepreciationPostController(accountService, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
-    $rootScope.title = "Fixed Asset Depreciation Post";
+    $rootScope.title = "Capitalize Asset Depreciation Post";
     $scope.Action = "Save";
     $scope.index = -1;
     $scope.voucherDetailList = [];
@@ -18,8 +18,8 @@ function assetDepreciationPostController(accountService, cboService, commonMessa
     $controller('employeeBaseController', { $scope: $scope, $http: $http });
 
     $scope.voucherDetailList = [];
-    $scope.searchBy = "FixedAssetMasterId"; $scope.search = "";
-    $scope.searchByList = [{ value: 'VoucherNo', name: "Voucher No" }, { value: 'PostingDate', name: "Posting Date" },{ value: 'FixedAssetMasterId', name: "Asset Master Id" }, { value: 'FixedAssetMaster', name: "Asset Master" }, { value: 'FixedAssetCategory', name: "Asset Category" }, { value: 'FixedAssetSubCategory', name: "Asset Sub Category" }, { value: 'DepreciationProcessDate', name: "Depreciation Process Date" }];
+    $scope.searchBy = "VoucherNo"; $scope.search = "";
+    $scope.searchByList = [{ value: 'VoucherNo', name: "Voucher No" }, { value: 'PostingDate', name: "Posting Date" }, { value: 'AssetDepreciationId', name: "Asset Depreciation Id" }, { value: 'ProcessName', name: "Process Name" }, { value: 'ProcessDate', name: "Depreciation Process Date" }];
 
     $scope.voucherList = [];
     $scope.getData = function () {
@@ -37,8 +37,8 @@ function assetDepreciationPostController(accountService, cboService, commonMessa
     $scope.getData();
     
     $scope.voucherDetailList = [];
-    $scope.DepreciationSearchBy = "FixedAssetMasterId"; $scope.search = "";
-    $scope.DepreciationSearchByList = [{ value: 'FixedAssetMasterId', name: "Asset Master Id" }, { value: 'FixedAssetMaster', name: "Asset Master" }, { value: 'FixedAssetCategory', name: "Asset Category" }, { value: 'FixedAssetSubCategory', name: "Asset Sub Category" }, { value: 'DepreciationProcessDate', name: "Depreciation Process Date" }];
+    $scope.DepreciationSearchBy = "AssetDepreciationId"; $scope.search = "";
+    $scope.DepreciationSearchByList = [{ value: 'AssetDepreciationId', name: "Asset Depreciation Id" }, { value: 'ProcessName', name: "Process Name" }, { value: 'ProcessDate', name: "Depreciation Process Date" }];
 
     $scope.fixedAssetDepreciationList = [];
     $scope.getDepreciationData = function () {
@@ -118,26 +118,24 @@ function assetDepreciationPostController(accountService, cboService, commonMessa
     $scope.fixedAssetDepreciationDetailList = [];
     $scope.getDataByDepreciationId = function (x) {
         var data = x.data;
-        $scope.voucher.FixedAssetMasterId = data.FixedAssetMasterId;
-        $scope.voucher.FixedAssetMaster = data.FixedAssetMaster;
-        $scope.voucher.CurrencyId = data.trnCurrencyId;
+        $scope.voucher.AssetDepreciationId = data.AssetDepreciationId;
+        $scope.voucher.ProcessName = data.ProcessName;
+        $scope.voucher.CurrencyId = data.CurrencyId;
         $scope.voucher.CompanyCurrencyRate = data.ToCurrencyRate;
-        $scope.voucher.FixedAssetCategory = data.FixedAssetCategory;
-        $scope.voucher.FixedAssetSubCategory = data.FixedAssetSubCategory;
         $scope.voucher.BaseCurrency = data.BaseCurrency;
-        $scope.voucher.FixedAssetDepreciationAmount = data.FixedAssetDepreciationAmount;
-        $scope.voucher.DepreciationProcessDate = $filter("dateFiltering")(data.DepreciationProcessDate);
+        $scope.voucher.DepreciationAmount = data.DepreciationAmount;
+        $scope.voucher.ProcessDate = $filter("dateFiltering")(data.ProcessDate);
 
-        $scope.fixedAssetDepreciationDetailList.push($scope.voucher);
-        $scope.getDepreciationJV(data.FixedAssetMasterId);
+        //$scope.fixedAssetDepreciationDetailList.push($scope.voucher);
+        $scope.getDepreciationJV(data.AssetDepreciationId);
         
         angular.element(document.querySelector('#DepreciationPopUp')).modal('hide');
     };
 
     $scope.fixedAssetDepreciationJVList = [];
-    $scope.getDepreciationJV = function (id) {
+    $scope.getDepreciationJV = function (assetDepreciationId) {
         $scope.fixedAssetDepreciationJVList = [];
-        $scope.jvurl = 'FixedAssets/FixedAssetRegister/GetAssetDepreciationSingleJVList?fixedAssetMasterId=' + id + "&depreciationProcessDate=" + $scope.voucher.DepreciationProcessDate
+        $scope.jvurl = 'FixedAssets/FixedAssetRegister/GetAssetDepreciationSingleJVList?assetDepreciationId=' + assetDepreciationId 
         $http({
             method: 'Post'
             , url: $scope.jvurl
