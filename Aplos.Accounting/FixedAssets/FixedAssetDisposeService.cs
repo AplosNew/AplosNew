@@ -2119,7 +2119,9 @@ namespace Library.Accounting.FixedAssets
                 sheet.Range[row, 5].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
                 reportUtility.SetTextMiddle(ref sheet, row, 5, "Authorized By", true);
 
-                reportUtility.CompanyPlantHeader(ref sheet, colLast, "Capitalize Asset Register", companyId, plantName, null);
+                //reportUtility.CompanyPlantHeader(ref sheet, colLast, "Capitalize Asset Register", companyId, plantName, null);
+                reportUtility.CompanyPlantHeader(ref sheet, colLast, "Capitalize Asset Register", companyId, plantId, plantName, null);
+
                 reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
 
 
