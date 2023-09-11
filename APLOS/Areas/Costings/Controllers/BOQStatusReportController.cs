@@ -57,7 +57,7 @@ namespace Aplos.Areas.Costings.Controllers
         {
             try
             {
-                var sql = @"  select distinct MO.Id MasterOrderId,BOM.CustomerId PartyId,PC.UserName Customer
+                var Xsql = @"  select distinct MO.Id MasterOrderId,BOM.CustomerId PartyId,PC.UserName Customer
 							  ,PONo=STUFF((SELECT distinct ','+  CPO.PONumber
 										from [TRN].[CustomerPO] CPO
 										left join [TRN].[SalesOrder] AS SO on SO.CustomerPOId=CPO.Id
@@ -90,6 +90,17 @@ namespace Aplos.Areas.Costings.Controllers
 
 							  where BOM.CustomerId <>'' and moi.OrderCostingMasterTemplateId<>''";
 
+                string sql = @"select distinct MO.Id MasterOrderId,BOM.CustomerId PartyId,PC.UserName Customer
+							  ,CPO.PONumber PONo,SO.Id SOId,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,moi.Id LineItemId								
+							  from BOQ boq 
+							  left join costingboqmaster BOM on BOM.Id=boq.CostingBOQMasterId
+							  left join TRN.MasterOrderItem AS moi on boq.MasterOrderItemId=moi.Id
+							  left join TRN.MasterOrder MO on MO.Id=moi.MasterOrderId
+							  left join HKP.Party PC on PC.Id=MO.PartyId
+							  left join trn.SalesOrder SO ON SO.MasterOrderItemId=MOI.Id
+							  LEFT JOIN [TRN].[CustomerPO] CPO on SO.CustomerPOId=CPO.Id
+							  where BOM.CustomerId <>'' and moi.OrderCostingMasterTemplateId<>''";
+
                 JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 json.MaxJsonLength = int.MaxValue;
                 return json;
@@ -106,26 +117,26 @@ namespace Aplos.Areas.Costings.Controllers
         {
             try
             {
-                List<string> BR = parameters["BuyerReferenceNo"].Split(',').ToList();
-                var ids = "";
-                for (var i = 0; i < BR.Count; i++)
-                {
-                    if (ids == "")
-                    {
-                        ids =  "" + BR[i] + "";
-                    }
-                    else
-                    {
-                        ids += ",'" + BR[i] + "'";
-                    }
-                }
+                //List<string> BR = parameters["BuyerReferenceNo"].Split(',').ToList();
+                //var ids = "";
+                //for (var i = 0; i < BR.Count; i++)
+                //{
+                //    if (ids == "")
+                //    {
+                //        ids =  "" + BR[i] + "";
+                //    }
+                //    else
+                //    {
+                //        ids += ",'" + BR[i] + "'";
+                //    }
+                //}
 
-                string OwnRef = "'" + parameters["OwnReferenceNo"].Replace(" ", "','") + "'";//replaced with ""
-                string BuyerRef = "" + parameters["BuyerReferenceNo"].Replace(" ", "','") + "";//replaced with ""
-                string MasterOrderId = "" + parameters["MasterOrderId"].Replace(" ", "','") + ""; 
-                string LineItemId = "" + parameters["LineItemId"].Replace(" ", "','") + "";//replaced with ""
-                string SOId = "'" + parameters["SOId"].Replace(" ", "','") + "'";//replaced with ""
-                string PONo = "'" + parameters["PONo"].Replace(" ", "','") + "'";//replaced with ""
+                //string OwnRef = "'" + parameters["OwnReferenceNo"].Replace(" ", "','") + "'";//replaced with ""
+                //string BuyerRef = "" + parameters["BuyerReferenceNo"].Replace(" ", "','") + "";//replaced with ""
+                //string MasterOrderId = "" + parameters["MasterOrderId"].Replace(" ", "','") + ""; 
+                //string LineItemId = "" + parameters["LineItemId"].Replace(" ", "','") + "";//replaced with ""
+                //string SOId = "'" + parameters["SOId"].Replace(" ", "','") + "'";//replaced with ""
+                //string PONo = "'" + parameters["PONo"].Replace(" ", "','") + "'";//replaced with ""
 
                 var sql = @"SELECT distinct boq.Id RowId,boq.[Sequence],boq.ItemRefNo,ci.UserName AS CostingItem,boq.BOQCriteria,c.Code AS Currency,p.UserName AS Vendor,mm.UserName AS Material,mma.StandardName AS Article,BOM.Id BOMId
                 ,isnull(cv1.UserName,'') SKU1,isnull(cv2.UserName,'') SKU2,boq.SKUDesc,isnull(boq.POCriteria,'') POCriteria
@@ -186,12 +197,12 @@ namespace Aplos.Areas.Costings.Controllers
 
 
                                               where PC.Id in(" + parameters["PartyId"] + @")
-                                              AND moi.BuyerReferenceNo in(" + BuyerRef + @")
-                                              AND moi.OwnReferenceNo in(" + OwnRef + @")
-                                              AND MO.Id in(" + MasterOrderId + @")
-                                              AND moi.Id in(" + LineItemId + @")
-                                              AND SO.Id in(" + SOId + @")                                       
-                                        AND CPO.PONumber in(" + PONo + @")";
+                                              AND moi.BuyerReferenceNo in(" + parameters["BuyerReferenceNo"] + @")
+                                              AND moi.OwnReferenceNo in(" + parameters["OwnReferenceNo"] + @")
+                                              AND MO.Id in(" + parameters["MasterOrderId"] + @")
+                                              AND moi.Id in(" + parameters["LineItemId"] + @")
+                                              AND SO.Id in(" + parameters["SOId"] + @")                                       
+                                        AND CPO.PONumber in(" + parameters["PONo"] + @")";
 
                 JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 json.MaxJsonLength = int.MaxValue;
