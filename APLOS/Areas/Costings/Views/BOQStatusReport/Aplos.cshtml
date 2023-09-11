@@ -10,17 +10,19 @@
             <button type="button" class="btn single-btn" ng-click="getData()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Go</button>
         </div>*@
 
-        <div class="row" style="margin-top:10px; padding-right:10px;">
-            <div class="col-md-6 col-lg-12 col-sm-12">
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="ViewAll();" class="btn" tabindex="10"><i class="glyphicon glyphicon-download"></i> View </button></li>
-                        <li> <button type="button" class="btn single-btn" ng-click="clearFilters()"><i class="glyphicon glyphicon-repeat"></i> Clear Filters </button></li>
-                    </ul>
-                </div>
+    <div class="row" style="margin-top:10px; padding-right:10px;">
+        
+        <div class="col-md-6 col-lg-12 col-sm-12">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="ViewAll();" class="btn" tabindex="10"><i class="glyphicon glyphicon-download"></i> View </button></li>
+                    <li> <button type="button" class="btn single-btn" ng-click="clearFilters()"><i class="glyphicon glyphicon-repeat"></i> Clear Filters </button></li>
+                    <li> <button ng-click="getBOQStatusReport();" class="btn" tabindex="10"><i class="glyphicon glyphicon-download"></i> Download </button></li>
+                </ul>
             </div>
-
         </div>
+
+    </div>
         <div class="col-xs-12" @*ng-show="ProductionDataReportList.length>0"*@>
             <div id="GridEmp" ej-grid e-datasource="BOQStausData"
                  e-allowscrolling="true" e-minwidth="450" e-minheight="400"
@@ -66,11 +68,7 @@
         </div>
 
 
-        <div class="col-md-1 text-right" style="margin-top:20px;">
-            <button type="button" class="btn single-btn" ng-click="getBOQStatusReport()" style="margin-top:10px;">
-                <i class="glyphicon glyphicon-arrow-down"></i>Download
-            </button>
-        </div>
+        
     </div>
 </div>
 
