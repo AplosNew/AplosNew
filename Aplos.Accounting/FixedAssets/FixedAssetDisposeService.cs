@@ -1663,7 +1663,7 @@ namespace Library.Accounting.FixedAssets
                         if (capitalizationMasterdata != null)
                         {
                             builderSql = "";
-                            builderSql = @"UPDATE [TRN].[AssetRegisterChild] SET VoucherDetailId='" + voucherDr.Id + "'  where CapitalizationMasterId = '" + capitalizationMasterdata["Id"].ToString() + "' AND FixedAssetItemId = '" + voucherDetailVM.FixedAssetItemId + "'  ";
+                            builderSql = @"UPDATE ARC SET ARC.VoucherDetailId='" + voucherDr.Id + "' FROM [TRN].[AssetRegisterChild] ARC INNER JOIN  MST.FixedAssetItem FAI ON FAI.Id = ARC.FixedAssetItemId WHERE ARC.CapitalizationMasterId = '" + capitalizationMasterdata["Id"].ToString() + "' AND FAI.FixedAssetMasterId = '" + voucherDetailVM.FixedAssetMasterId + "'  ";
                             rdBuilder.Append(builderSql);
                         }
                     }
