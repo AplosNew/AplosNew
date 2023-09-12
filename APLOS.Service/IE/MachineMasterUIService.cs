@@ -315,7 +315,40 @@ namespace Library.Service.IE
         {
             try
             {
-                var sql = @"SELECT MM.Id                                  ,CG.StandardName As CompanyGroup                                  ,MM.Sequence                                  ,MM.Code                                  ,MM.ShortName	                              ,MM.StandardName                                  ,MM.UserName	                              ,MC.UserName AS MachineCategory	                              ,MSC.UserName AS MachineSubCategory	                              ,SK.UserName AS Skill                                  ,MM.Description                                  ,MM.MachineMake                                  ,MM.MachineModel                                  ,MM.MachinePerticulars                                  ,MM.Remarks                                  ,MM.ProductionMachineQty                                  ,MM.SampleMachineQty                                  ,MM.TrainingMachineQty                                  ,MM.RentMachineQty                                  ,MM.OtherMachineQty								  ,MM.ConnectedPower								  ,MM.RunningLoad								  ,MM.ConnectedSteam								  ,MM.RunningSteam								  ,MM.ConnectedAir								  ,MM.RunningAir								  ,MM.MaintanenceScheduleApplicable                                  ,MM.Active                                   FROM MST.MachineMaster As MM                             LEFT JOIN ORG.CompanyGroup AS CG on CG.ID=MM.CompanyGroupID                             LEFT JOIN  HKP.MachineCategory AS MC on MC.Id=MM.MachineCategoryId                             LEFT JOIN HKP. MachineSubCategory AS MSC  on MSC.ID=MM.MachineSubCategoryID                             LEFT JOIN HKP.Skill AS SK ON SK.ID=MM.SkillId order by MM.Sequence";
+                var sql = @"SELECT MM.Id
+                                  ,CG.StandardName As CompanyGroup
+                                  ,MM.Sequence
+                                  ,MM.Code
+                                  ,MM.ShortName
+	                              ,MM.StandardName
+                                  ,MM.UserName
+	                              ,MC.UserName AS MachineCategory
+	                              ,MSC.UserName AS MachineSubCategory
+	                              ,SK.UserName AS Skill
+                                  ,MM.Description
+                                  ,MM.MachineMake
+                                  ,MM.MachineModel
+                                  ,MM.MachinePerticulars
+                                  ,MM.Remarks
+                                  ,MM.ProductionMachineQty
+                                  ,MM.SampleMachineQty
+                                  ,MM.TrainingMachineQty
+                                  ,MM.RentMachineQty
+                                  ,MM.OtherMachineQty
+								  ,MM.ConnectedPower
+								  ,MM.RunningLoad
+								  ,MM.ConnectedSteam
+								  ,MM.RunningSteam
+								  ,MM.ConnectedAir
+								  ,MM.RunningAir
+								  ,MM.MaintanenceScheduleApplicable
+                                  ,MM.Active
+     
+                              FROM MST.MachineMaster As MM
+                             LEFT JOIN ORG.CompanyGroup AS CG on CG.ID=MM.CompanyGroupID
+                             LEFT JOIN  HKP.MachineCategory AS MC on MC.Id=MM.MachineCategoryId
+                             LEFT JOIN HKP. MachineSubCategory AS MSC  on MSC.ID=MM.MachineSubCategoryID
+                             LEFT JOIN HKP.Skill AS SK ON SK.ID=MM.SkillId order by MM.Sequence";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

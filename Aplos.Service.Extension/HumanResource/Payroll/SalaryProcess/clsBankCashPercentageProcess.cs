@@ -162,7 +162,7 @@ namespace Library.Service.Extension.HumanResource.Payroll.SalaryProcess
                 }
                 catch (Exception ex2)
                 {
-                    throw ex;
+                    throw ex2;
                 }
             }
             finally

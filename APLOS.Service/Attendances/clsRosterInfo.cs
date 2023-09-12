@@ -21,7 +21,7 @@ namespace Library.Service.Attendances
             #region DataSet
             id = string.Empty;
             //DataSet dsGrd = null;
-            DataTable dtGrd = null;
+            //DataTable dtGrd = null;
             DataSet dsLocal = null;
             DataTable dtLocal = null;
             DataRow drLocal = null;

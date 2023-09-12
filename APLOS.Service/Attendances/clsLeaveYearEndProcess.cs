@@ -1091,7 +1091,7 @@ WHERE els.ToDate<(SELECT yc.ToDate
             //DataSet dsLeavePld = null;
             decimal LeaveTran = 0;
             decimal newCarryForward = 0;
-            decimal Carryforward = 0;
+            //decimal Carryforward = 0;
             decimal CarryForwordEncash = 0;
             decimal CarryForwordLapse = 0;
             CarryForwardBasedOn = string.Empty;

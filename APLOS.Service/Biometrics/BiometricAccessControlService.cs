@@ -672,7 +672,7 @@ namespace Library.Service.Biometrics
 
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
 

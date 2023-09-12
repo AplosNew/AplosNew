@@ -1467,7 +1467,7 @@ namespace Aplos.Areas.Products.Controllers
                     return false;
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
                 return false;
@@ -1490,8 +1490,8 @@ namespace Aplos.Areas.Products.Controllers
                 ResourcesPathReader.IsValidFileExtention(Path.GetExtension(GRNDocumentMap.UserFilename));
             }
 
-            var fileId = "";
-            var fileName = "";
+            //var fileId = "";
+            //var fileName = "";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             GRNDocumentMap.CompanyGroupId = identity.CompanyGroupId;
 

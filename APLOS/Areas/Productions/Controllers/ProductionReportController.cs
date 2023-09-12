@@ -49,7 +49,7 @@ namespace Aplos.Areas.Productions.Controllers
         {
             try
             {
-                string fileName = "";
+                //string fileName = "";
                 //fileName = ProductionReport("Production Report", Date, Entity, ProcessId, EntityName, Process);
                 //return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
 
@@ -119,7 +119,7 @@ namespace Aplos.Areas.Productions.Controllers
                     return null;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
@@ -131,7 +131,7 @@ namespace Aplos.Areas.Productions.Controllers
             IApplication application = null;
             IWorkbook workbook = null;
             IWorksheet sheet = null;
-            var filePath = "";
+          //  var filePath = "";
             try
             {
                 excelEngine = new ExcelEngine();
