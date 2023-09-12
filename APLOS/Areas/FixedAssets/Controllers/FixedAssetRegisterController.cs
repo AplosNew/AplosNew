@@ -1829,11 +1829,11 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return Json(_fixedAssetQueryService.GetAssetDepreciationListForPosting(column, value, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
         [HttpPost, Authorize]
-        public ActionResult GetAssetDepreciationSingleJVList(string fixedAssetMasterId)
+        public ActionResult GetAssetDepreciationSingleJVList(string assetDepreciationId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
-            return Json(_fixedAssetQueryService.GetAssetDepreciationSingleJVList(fixedAssetMasterId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(_fixedAssetQueryService.GetAssetDepreciationSingleJVList(assetDepreciationId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
         public JsonResult SaveAssetDepreciationPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<FixedAssetDepreciationProcessVM> fixedAssetDepreciationList)
