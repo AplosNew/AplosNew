@@ -303,6 +303,12 @@ function documentationController(commonMessage, $scope, $rootScope, baseService,
         }
     };
 
+    $scope.message_Detailconfirmation = null;
+    $scope.RemoveDM = function () {
+        if (!baseService.isUndefinedOrNull($scope.documentationMasterNew.Id))
+            $scope.message_Detailconfirmation = 'Are you sure want to delete permanently';
+        angular.element(document.querySelector('#confirmDetailPopUpBudget')).modal('show');
+    }
 
     $scope.DeleteDM = function () {
         if (!baseService.isUndefinedOrNull($scope.documentationMasterNew.Id)) {
@@ -316,7 +322,7 @@ function documentationController(commonMessage, $scope, $rootScope, baseService,
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearDMFields(response.data.PlanningPriority);
+                    ClearDMFields($scope.GetDMSequence());
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
