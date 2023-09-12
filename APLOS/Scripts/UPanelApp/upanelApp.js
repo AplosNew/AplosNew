@@ -1207,6 +1207,7 @@ upanelApp.controller("QualityActionConfirmationController", QualityActionConfirm
 upanelApp.controller('AssetsRegisterReportController', AssetsRegisterReportController);
 upanelApp.controller('documentationController', documentationController);
 upanelApp.controller("QualityActionUpdateReportController", QualityActionUpdateReportController)
+upanelApp.controller("ProcessParameterMasterController", ProcessParameterMasterController)
 
 
 

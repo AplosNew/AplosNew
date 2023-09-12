@@ -55,6 +55,12 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetProcessParameterList(string column, string value)
+        {
+            return Json(ps.GetProcessParameterList(column, value), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetProcess()
         {
             return Json(ps.GetProcess(), JsonRequestBehavior.AllowGet);
