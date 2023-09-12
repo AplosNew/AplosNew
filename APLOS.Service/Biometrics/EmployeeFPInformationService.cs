@@ -260,7 +260,7 @@ namespace Library.Service.Biometrics
 
                 thn.Save(_path, System.Drawing.Imaging.ImageFormat.Bmp);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }

@@ -803,9 +803,9 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
         public string PostSalesReturn(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, List<Dictionary<string, object>> salesReturnDetailList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList)
         {
-            var flag = false;
             try
             {
+                var flag = false;
                 AccountsCommonService _accountsCommonService = new AccountsCommonService(_sqlRepository);
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
@@ -2035,7 +2035,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                                 InvoiceParameter xx = shtListNew[drSalaryHeadCollection[CI]["AdditionalInfoId"].ToString()];
                                 if (xx != null)
                                 {
-                                    if (xx.CharecterType== "Decimal")
+                                    if (xx.CharecterType == "Decimal")
                                     {
                                         sheet.Range[ROW, xx.XLColIndex].Number = Library.Security.Core.clsStaticInfo.dbl(drSalaryHeadCollection[CI]["Value"].ToString());
                                         sheet.Range[ROW, xx.XLColIndex].HorizontalAlignment = ExcelHAlign.HAlignRight;

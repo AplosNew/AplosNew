@@ -2106,7 +2106,7 @@ namespace Library.Service.Parties
                 //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
-                string strFileName = "Party Group Report.xls";
+                //string strFileName = "Party Group Report.xls";
                 
                 return workbook;
             }

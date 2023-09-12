@@ -98,7 +98,7 @@ namespace Library.Service.Helpers
                                 }
 
                             }
-                            catch (Exception ex)
+                            catch (Exception)
                             {
 
                             }

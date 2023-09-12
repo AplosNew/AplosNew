@@ -44,7 +44,7 @@ namespace Library.Service.IE
             {
                 return base.Query().Select().Max(r => r.Sequence + 1);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return 1.00M;
             }
@@ -148,7 +148,23 @@ namespace Library.Service.IE
             try
             {
                 var sql = @"SELECT
-                      SG.Id                    , SG.CompanyGroupId                    , sg.Sequence                    , sg.Code                    , sg.ShortName                    , sg.UserName                    ,sg.StandardName                     , sg.Description                    , sg.Remarks                    , sg.LegalSalaryGradeId                    , LSG.UserName AS LegalSalaryG                    , sg.Grouping                    , sg.DesignationCategory                    , sg.StandardSalary                    , sg.active                    FROM scs.SkillGrouping SG                    LEFT JOIN [SCS].[LegalSalaryGrade] LSG ON LSG.Id= SG.LegalSalaryGradeId Order by sg.Sequence DESC ";
+                      SG.Id
+                    , SG.CompanyGroupId
+                    , sg.Sequence
+                    , sg.Code
+                    , sg.ShortName
+                    , sg.UserName
+                    ,sg.StandardName 
+                    , sg.Description
+                    , sg.Remarks
+                    , sg.LegalSalaryGradeId
+                    , LSG.UserName AS LegalSalaryG
+                    , sg.Grouping
+                    , sg.DesignationCategory
+                    , sg.StandardSalary
+                    , sg.active
+                    FROM scs.SkillGrouping SG
+                    LEFT JOIN [SCS].[LegalSalaryGrade] LSG ON LSG.Id= SG.LegalSalaryGradeId Order by sg.Sequence DESC ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

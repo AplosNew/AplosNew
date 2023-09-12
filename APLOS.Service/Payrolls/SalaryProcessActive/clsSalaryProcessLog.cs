@@ -1261,7 +1261,7 @@ public class clsSalaryProcessLog
             }
             catch (Exception exx)
             { 
-                throw ex;
+                throw exx;
             }
         }
         finally

@@ -63,7 +63,7 @@ namespace Library.Service.Extension.Payroll.Tax
             string _empids = string.Empty;
             string _empids_ss = string.Empty;//for salary structure
             #endregion
-            bool IsMale = false;
+           // bool IsMale = false;
             try
             {                
                 string _effective_date = "01-"+ _getMonthName(_monthno) + "-"+_yearno;
@@ -676,7 +676,7 @@ namespace Library.Service.Extension.Payroll.Tax
                 }
                 catch (Exception exx)
                 {
-                    throw ex;
+                    throw exx;
                 }
             }
             finally

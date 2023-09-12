@@ -102,7 +102,7 @@ namespace Aplos.Areas.Productions.Controllers
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
             DataSet dsDetail;
-            DataSet dsHistory, dsScanData, dsItemScanData;
+            DataSet dsHistory, dsItemScanData;
             if (salesMaterialVMList != null)
             {
                 foreach (var item in salesMaterialVMList)
@@ -322,7 +322,7 @@ Where SC.Id<>''
                 }
                 catch (Exception exx)
                 {
-                    throw ex;
+                    throw exx;
                 }
             }
             finally
@@ -483,7 +483,7 @@ Where SC.Id<>''
 
         public void DeleteCommercialInvoiceAdditionalInfoData(string id)
         {
-            string strSQL, strDSQL;
+            string strSQL;
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {

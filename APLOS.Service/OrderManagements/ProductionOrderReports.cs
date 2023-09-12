@@ -956,7 +956,7 @@ ORDER BY po.Id
 
 
             dt = _sqlRepository.GetDataTable(sql);
-            string id = "";
+            //string id = "";
             dicDistributedSO = new Dictionary<string, ProductionQtyDistributionSO>();
             List<ProductionQtyDistributionSO> prBlock = new List<ProductionQtyDistributionSO>();
 
@@ -1019,7 +1019,7 @@ ORDER BY po.Id
 
 
             dt = _sqlRepository.GetDataTable(sql);
-            string id = "";
+            //string id = "";
             dicDistributedSO = new Dictionary<string, ProductionQtyDistributionSO>();
             List<ProductionQtyDistributionSO> prBlock = new List<ProductionQtyDistributionSO>();
 

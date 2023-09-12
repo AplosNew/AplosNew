@@ -1211,7 +1211,7 @@ namespace Library.Service.Extension.Mail
                 cmdText += "AND CONVERT(DATE, APD.WorkDate) = CONVERT(DATE,'" + attendanceDate + @"') ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric ASC";
                 return _sqlRepository.GetDataTable(cmdText);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -1471,7 +1471,7 @@ namespace Library.Service.Extension.Mail
                 cmdText += " AND CONVERT(DATE, APD.WorkDate) = CONVERT(DATE,'" + attendanceDate + @"') ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric ASC";
                 return _sqlRepository.GetDataTable(cmdText);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
