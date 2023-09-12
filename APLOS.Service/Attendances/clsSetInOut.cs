@@ -428,7 +428,7 @@ namespace SetINOUT
         {
             DataSet dsEmpShift = null;
             DataSet dsRaw = null;
-            DataSet dsPlantWiseHRMSSetting = null;
+            //DataSet dsPlantWiseHRMSSetting = null;
             bool ShiftBasedPunchFlag = false;
             try
             {

@@ -1,27 +1,14 @@
 ﻿#region Using
 using Aplos.Controllers;
-using Library.Model.Employees;
-using Aplos.Properties;
 using Library.Service.Employees;
-using Library.Core;
 using System.Web.Mvc;
-using Library.Service.External;
 using Library.Crosscutting.Security;
 using System.Threading;
-using System.Web.Script.Serialization;
-using System.Drawing;
 using System;
-using Syncfusion.XlsIO;
 using System.Collections.Generic;
 using Syncfusion.Pdf;
-using Library.Service.Helpers;
 using System.Data;
 using Library.Security.Core;
-using System.IO;
-using Syncfusion.PresentationToPdfConverter;
-
-using Syncfusion.Presentation;
-using Syncfusion.Pdf;
 
 #endregion
 

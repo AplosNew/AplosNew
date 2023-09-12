@@ -144,7 +144,7 @@ namespace Library.Service.HumanResources.Shift
                     throw new Exception("Please Select File");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }

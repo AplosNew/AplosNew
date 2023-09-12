@@ -277,9 +277,9 @@ namespace Aplos.Areas.Productions.Controllers
             startRow = ROW;
 
             string Article = "";
-            string LotNum = "";
-            int ArtRow = 0;
-            int LotRow = 0;
+            //string LotNum = "";
+            //int ArtRow = 0;
+            //int LotRow = 0;
 
             double[] arr = new double[3];
 

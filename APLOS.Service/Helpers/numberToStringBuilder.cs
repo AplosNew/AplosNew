@@ -440,7 +440,7 @@ namespace numberToString
                 }
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }

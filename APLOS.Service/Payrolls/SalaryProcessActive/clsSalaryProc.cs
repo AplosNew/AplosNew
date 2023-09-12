@@ -49,7 +49,7 @@ namespace OTSBD
                 }
                 catch (Exception ex2)
                 {
-                    throw ex;
+                    throw ex2;
                 }
 
             }
