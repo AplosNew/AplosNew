@@ -59,7 +59,8 @@ namespace Library.Accounting.Accounts
 									--LEFT JOIN dbo.SalesPacking SP ON SP.SalesId=S.Id
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=S.Id
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
-                                    WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + "' AND ISNULL(S.VoucherId,'')='' and S.SourceType in ('MasterOrderSales','Packing')";
+                                    WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + @"' AND ISNULL(S.VoucherId,'')='' 
+									AND S.SourceType in ('MasterOrderSales','Packing') AND ISNULL(SM.Amount,0) + ISNULL(SS.Amount,0)>0";
                 return _sqlRepository.GetDataCollection(cmdText);
 
             }

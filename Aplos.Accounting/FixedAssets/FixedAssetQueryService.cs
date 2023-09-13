@@ -1194,14 +1194,14 @@ namespace Library.Accounting.FixedAssets
             var sql = @"DECLARE @capitalizationMasterId varchar(50)='" + capitalizationMasterId + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
 
 						SELECT X.* FROM(
-						SELECT  'Asset' AS OtherName, 'Dr' AS TrnType,AR.FixedAssetItemId
+						SELECT  'Asset' AS OtherName, 'Dr' AS TrnType,FAI.FixedAssetMasterId
 							,GLGeneralInfoId =BM.GLGeneralInfoId        
 							,GLGeneralInfoCode =GL.AccountCode 
 							,GLGeneralInfoName =GL.UserName
-							,BudgetMasterId =FAMG.AssetUnderConstructionBudgetMasterId
+							,BudgetMasterId =FAMBT.BudgetMasterId
 							,BudgetCode = B.Code
 							,BudgetName =B.UserName 
-							,ActivityId = FAMG.AssetUnderConstructionActivityId
+							,ActivityId = BMA.ActivityId
 							,ActivityCode = A.Code
 							,ActivityName =A.UserName
 							,BudgetMasterActivityId =BMA.Id
@@ -1212,17 +1212,17 @@ namespace Library.Accounting.FixedAssets
 						LEFT JOIN [TRN].[AssetRegisterChild] ARC ON AR.Id=ARC.AssetRegisterId
 						LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
 						LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAI.FixedAssetMasterId
-						LEFT JOIN HKP.FixedAssetMasterGL AS FAMG  ON FAMG.FixedAssetMasterId=FAM.Id
-						LEFT JOIN[MST].[BudgetMaster] AS BM ON FAMG.AssetUnderConstructionBudgetMasterId= BM.Id
-						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON FAMG.AssetUnderConstructionGLId=GL.Id
+						LEFT JOIN [HKP].[FixedAssetMasterBudgetTag] AS FAMBT  ON FAMBT.FixedAssetMasterId=FAM.Id
+						LEFT JOIN [MST].[BudgetMaster] AS BM ON FAMBT.BudgetMasterId= BM.Id
+						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
-						LEFT JOIN [HKP].[Activity] AS A ON FAMG.AssetUnderConstructionActivityId= A.Id
-						LEFT JOIN [MST].[BudgetMasterActivity] AS BMA ON FAMG.AssetUnderConstructionActivityId= BMA.ActivityId AND FAMG.AssetUnderConstructionBudgetMasterId= BMA.BudgetMasterId
+						LEFT JOIN (SELECT Id,BudgetMasterId,ActivityId FROM [MST].[BudgetMasterActivity] WHERE Isdefault=1 ) AS BMA ON BMA.BudgetMasterId= FAMBT.BudgetMasterId 
+						LEFT JOIN [HKP].[Activity] AS A ON BMA.ActivityId= A.Id
 					    WHERE ARC.CapitalizationMasterId=@capitalizationMasterId 
-						GROUP BY  AR.FixedAssetItemId, BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, B.Code, B.UserName, A.Code, A.UserName,FAMG.AssetUnderConstructionBudgetMasterId,FAMG.AssetUnderConstructionActivityId,BMA.Id
+						GROUP BY BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, B.Code, B.UserName, A.Code, A.UserName,FAMBT.BudgetMasterId,BMA.ActivityId,BMA.Id,FAI.FixedAssetMasterId
 						
 						UNION
-						SELECT  'Capitalization' AS OtherName, 'Cr' AS TrnType,'' FixedAssetItemId
+						SELECT  'Capitalization' AS OtherName, 'Cr' AS TrnType, '' FixedAssetMasterId
 							,GLGeneralInfoId =BM.GLGeneralInfoId        
 							,GLGeneralInfoCode =GL.AccountCode 
 							,GLGeneralInfoName =GL.UserName
@@ -1245,7 +1245,7 @@ namespace Library.Accounting.FixedAssets
 						LEFT JOIN [MST].[BudgetMasterActivity] AS BMA ON VD.ActivityId= BMA.ActivityId AND VD.BudgetMasterId= BMA.BudgetMasterId
 						WHERE CD.CapitalizationMasterId=@capitalizationMasterId 
 						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, VD.BudgetMasterId, B.Code, B.UserName, VD.ActivityId, A.Code, A.UserName,BMA.Id
-						) X 
+						) X  
                         WHERE X.Amount>0
 						ORDER BY 2 DESC";
             return _sqlRepository.GetDataCollection(sql);
@@ -2934,10 +2934,10 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
                 ) AS TEMP WHERE " + strkey + " order by ProcessDate ASC  ";
             return _sqlRepository.GetDataCollection(sql);
         }
-        public List<Dictionary<string, object>> GetAssetDepreciationSingleJVList(string fixedAssetMasterId, DateTime depreciationProcessDate, string companyId, string plantId)
+        public List<Dictionary<string, object>> GetAssetDepreciationSingleJVList(string assetDepreciationId, string companyId, string plantId)
         {
 
-            var sql = @"DECLARE @fixedAssetMasterId varchar(10)='" + fixedAssetMasterId + "',@depreciationProcessDate DATE='" + depreciationProcessDate + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
+            var sql = @"DECLARE @assetDepreciationId varchar(50)='" + assetDepreciationId + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
 
 						SELECT X.* FROM(
 						SELECT  'Depreciation' AS OtherName, 'Dr' AS TrnType
@@ -2950,41 +2950,42 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
 							,ActivityId = FAMG.DepreciationActivityId
 							,ActivityCode = A.Code
 							,ActivityName =A.UserName
-							, SUM( ISNULL(FDP.CurrentDepreciationAmount,0)) AS Dr
+							, SUM( ISNULL(ADDS.DepreciationAmount,0)) AS Dr
 							, NULL Cr
-							, SUM( ISNULL(FDP.CurrentDepreciationAmount,0)) AS Amount
-					    FROM [TRN].[FixedAssetDepreciationProcess] FDP
-						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FDP.FixedAssetRegisterId
-						LEFT JOIN HKP.FixedAssetMasterGL AS FAMG  ON FAMG.FixedAssetMasterId=FR.FixedAssetMasterId
+							, SUM( ISNULL(ADDS.DepreciationAmount,0)) AS Amount
+					    FROM  [TRN].[AssetDepreciationDetail] ADDS
+						LEFT JOIN HKP.FixedAssetMasterGL AS FAMG  ON FAMG.FixedAssetMasterId=ADDS.FixedAssetMasterId
 						LEFT JOIN[MST].[BudgetMaster] AS BM ON FAMG.DepreciationBudgetMasterId= BM.Id
 						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON FAMG.DepreciationGLId=GL.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS A ON FAMG.DepreciationActivityId= A.Id
-					   WHERE FDP.FixedAssetMasterId=@fixedAssetMasterId AND CAST(FDP.DepreciationProcessDate AS date)=CAST(@depreciationProcessDate AS date)
-						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, B.Code, B.UserName, A.Code, A.UserName,FAMG.DepreciationBudgetMasterId,FAMG.DepreciationActivityId,FDP.FixedAssetMasterId
+					   WHERE ADDS.AssetDepreciationId =@assetDepreciationId 
+						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, B.Code, B.UserName, A.Code, A.UserName,FAMG.DepreciationBudgetMasterId,FAMG.DepreciationActivityId
 						
 						UNION
 						SELECT  'Asset' AS OtherName, 'Cr' AS TrnType
 							,GLGeneralInfoId =BM.GLGeneralInfoId        
 							,GLGeneralInfoCode =GL.AccountCode 
 							,GLGeneralInfoName =GL.UserName
-							,BudgetMasterId =FR.FABudgetMasterId
+							,BudgetMasterId =FAMG.AssetUnderConstructionBudgetMasterId
 							,BudgetCode = B.Code
 							,BudgetName =B.UserName 
-							,ActivityId = FR.FAActivityId
+							,ActivityId = FAMG.AssetUnderConstructionActivityId
 							,ActivityCode = A.Code
 							,ActivityName =A.UserName
 							, NULL Dr
-							,  SUM( ISNULL(FDP.CurrentDepreciationAmount,0)) AS Cr
-							,  SUM( ISNULL(FDP.CurrentDepreciationAmount,0)) AS Amount
-						FROM [TRN].[FixedAssetDepreciationProcess] FDP
-						LEFT JOIN TRN.FixedAssetRegister FR ON FR.Id=FDP.FixedAssetRegisterId
-						LEFT JOIN[MST].[BudgetMaster] AS BM ON FR.FABudgetMasterId= BM.Id
-						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+							,  SUM( ISNULL(ADDS.DepreciationAmount,0)) AS Cr
+							,  SUM( ISNULL(ADDS.DepreciationAmount,0)) AS Amount
+						FROM [TRN].[AssetDepreciationDetail] ADDS
+						LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=ADDS.FixedAssetMasterId
+						LEFT JOIN HKP.FixedAssetMasterGL AS FAMG  ON FAMG.FixedAssetMasterId=FAM.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON FAMG.AssetUnderConstructionBudgetMasterId= BM.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON FAMG.AssetUnderConstructionGLId=GL.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
-						LEFT JOIN [HKP].[Activity] AS A ON FR.FAActivityId= A.Id
-						WHERE FDP.FixedAssetMasterId=@fixedAssetMasterId AND CAST(FDP.DepreciationProcessDate AS date)=CAST(@depreciationProcessDate AS date)
-						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, FR.FABudgetMasterId, B.Code, B.UserName, FR.FAActivityId, A.Code, A.UserName
+						LEFT JOIN [HKP].[Activity] AS A ON FAMG.AssetUnderConstructionActivityId= A.Id
+						LEFT JOIN [MST].[BudgetMasterActivity] AS BMA ON FAMG.AssetUnderConstructionActivityId= BMA.ActivityId AND FAMG.AssetUnderConstructionBudgetMasterId= BMA.BudgetMasterId
+						WHERE ADDS.AssetDepreciationId=@assetDepreciationId 
+						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, FAMG.AssetUnderConstructionBudgetMasterId, B.Code, B.UserName, FAMG.AssetUnderConstructionActivityId, A.Code, A.UserName
 						) X 
                         WHERE X.Amount>0
 						ORDER BY 2 DESC";

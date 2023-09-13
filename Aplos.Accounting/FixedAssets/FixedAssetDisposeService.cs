@@ -1663,7 +1663,7 @@ namespace Library.Accounting.FixedAssets
                         if (capitalizationMasterdata != null)
                         {
                             builderSql = "";
-                            builderSql = @"UPDATE [TRN].[AssetRegisterChild] SET VoucherDetailId='" + voucherDr.Id + "'  where CapitalizationMasterId = '" + capitalizationMasterdata["Id"].ToString() + "' AND FixedAssetItemId = '" + voucherDetailVM.FixedAssetItemId + "'  ";
+                            builderSql = @"UPDATE ARC SET ARC.VoucherDetailId='" + voucherDr.Id + "' FROM [TRN].[AssetRegisterChild] ARC INNER JOIN  MST.FixedAssetItem FAI ON FAI.Id = ARC.FixedAssetItemId WHERE ARC.CapitalizationMasterId = '" + capitalizationMasterdata["Id"].ToString() + "' AND FAI.FixedAssetMasterId = '" + voucherDetailVM.FixedAssetMasterId + "'  ";
                             rdBuilder.Append(builderSql);
                         }
                     }
@@ -1885,7 +1885,7 @@ namespace Library.Accounting.FixedAssets
                     var builderSql = "";
                     foreach (var item in assetRegisterList)
                     {
-                        builderSql = @"UPDATE [TRN].[AssetRegister] SET AssetSlNo='" + item["AssetSlNo"] + " ' ,Status = '" + item["Status"] + "' ,AssetCondition = '" + item["AssetCondition"] + "' ,UserReference = '" + item["UserReference"] + "' ,OldReference = '" + item["OldReference"] + "' ,UserGroup = '" + item["UserGroup"] + "' ,Remarks = '" + item["Remarks"] + "' ,UpdatedBy = '" + identity.Name + "' ,UpdatedDate = '" + System.DateTime.Now.ToString() + "' ,UpdatedFromIP = '" + identity.IPAddress + "' WHERE Id='" + item["AssetRegisterId"].ToString() + "'  ";
+                        builderSql = @"UPDATE [TRN].[AssetRegister] SET AssetSlNo='" + item["AssetSlNo"] + "' ,Status = '" + item["Status"] + "' ,AssetCondition = '" + item["AssetCondition"] + "' ,UserReference = '" + item["UserReference"] + "' ,OldReference = '" + item["OldReference"] + "' ,UserGroup = '" + item["UserGroup"] + "' ,Remarks = '" + item["Remarks"] + "' ,UpdatedBy = '" + identity.Name + "' ,UpdatedDate = '" + System.DateTime.Now.ToString() + "' ,UpdatedFromIP = '" + identity.IPAddress + "' WHERE Id='" + item["AssetRegisterId"].ToString() + "'  ";
                         rdBuilder.Append(builderSql);
                         builderSql = @"UPDATE [TRN].[AssetRegisterChild] SET Amount='" + item["Amount"] + "' ,NetAmount = '" + item["Amount"] + "',UpdatedBy = '" + identity.Name + "' ,UpdatedDate = '" + System.DateTime.Now.ToString() + "' ,UpdatedFromIP = '" + identity.IPAddress + "' WHERE Id='" + item["AssetRegisterChildId"].ToString() + "'  AND VoucherDetailId is null ";
                         rdBuilder.Append(builderSql);

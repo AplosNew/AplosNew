@@ -2800,7 +2800,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
             {
                 WSection section = document.Sections[0];
 
-                DataTable dsOrderMaster;
+                //DataTable dsOrderMaster;
 
                 //dsOrderMaster = LoadOrderMaster(companyId, masterOrderId);//sql
                 Dictionary<string, string> columns = new Dictionary<string, string>();

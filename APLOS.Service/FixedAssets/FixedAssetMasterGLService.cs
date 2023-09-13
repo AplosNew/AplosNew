@@ -1055,7 +1055,7 @@ namespace Library.Service.FixedAssets
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
                 workbook.Close();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }

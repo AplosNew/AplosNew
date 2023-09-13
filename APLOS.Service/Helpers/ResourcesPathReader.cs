@@ -56,13 +56,13 @@ namespace Library.Service.Helpers
 					{
 						System.IO.Directory.CreateDirectory(Path);
 					}
-					catch (Exception ex)
+					catch (Exception)
 					{
 
 					}
 				}
 			}
-			catch (Exception wx)
+			catch (Exception)
 			{
 
 

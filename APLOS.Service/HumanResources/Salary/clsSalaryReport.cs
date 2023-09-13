@@ -613,11 +613,11 @@ namespace OTSBD.clsSalary
                 int ColDOB = 0;
                 int ColDOs = 0;
                 int ColGrade = 0;
-                int cDept = 0;
-                int ColDG = 0;
+                //int cDept = 0;
+                //int ColDG = 0;
                 int ColGVDG = 0;
-                int ColBkNm = 0;
-                int ColBkAcNo = 0;
+                //int ColBkNm = 0;
+                //int ColBkAcNo = 0;
                 int ColGrs = 0;
                 int ColCTC = 0;
 

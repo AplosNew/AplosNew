@@ -1241,7 +1241,7 @@ namespace Library.Service.Employees
                 }
                 catch (Exception exp)
                 {
-                    throw ex;
+                    throw exp;
                 }
                 throw (ex);
             }

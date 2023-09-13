@@ -2,7 +2,7 @@
 assetDepreciationPostController.$inject = ["accountService", "cboService","commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller"];
 function assetDepreciationPostController(accountService, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
     $rootScope.title = "Capitalize Asset Depreciation Post";
-    $scope.Action = "Save";
+    $scope.Action = "Post";
     $scope.index = -1;
     $scope.voucherDetailList = [];
     $scope.voucherDetailCurrencyList = [];

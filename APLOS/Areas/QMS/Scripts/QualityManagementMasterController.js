@@ -481,6 +481,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         , Max: null
         , Min: null
         , IsWorkCenter: true
+        , CustomerParameter: false
     };
     $scope.ItemNew = Object.assign({}, $scope.Item);
 

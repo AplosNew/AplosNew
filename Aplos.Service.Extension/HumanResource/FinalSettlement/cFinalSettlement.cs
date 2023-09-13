@@ -247,7 +247,7 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
             //wTable.TableFormat.Paddings.All = 0;
 
 
-            int ROW = 0; int COL = 0;
+            int ROW = 0; //int COL = 0;
             wTable.ResetCells(1, LasColumnIndex + 1);
 
             WTableRow TemplateRow = wTable.Rows[0].Clone();
@@ -285,9 +285,9 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
 
 
             #endregion column headers
-            double totalValue = 0;
+            //double totalValue = 0;
             int startRow = ROW;
-            int slno = 0;
+            //int slno = 0;
             for (int i = 0; i < dsFinalSettlementHeadWiseData.Rows.Count; i++)
             {
                 //slno++; 

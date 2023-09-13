@@ -227,7 +227,8 @@
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="SaveDM();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{DMAction}}</button></li>
-                        <li> <button ng-click="DeleteDM();" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                        @*<li> <button ng-click="DeleteDM();" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+                        <li> <button ng-click="RemoveDM();" data-target="#confirmPopUp" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                         <li> <button ng-click="ClearDM();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                     </ul>
                 </div>
@@ -356,3 +357,4 @@
         </div>
     </div>
 </div>
+<confirm-archive-generic modalid="confirmDetailPopUpBudget" title="Confirmation" message={{message_Detailconfirmation}} data-ng-click-right-button="DeleteDM();"></confirm-archive-generic>

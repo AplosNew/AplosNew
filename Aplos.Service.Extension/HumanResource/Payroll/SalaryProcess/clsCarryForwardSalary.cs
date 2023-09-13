@@ -51,7 +51,7 @@ namespace Library.Service.Extension.HumanResource.Payroll.SalaryProcess
 
                     #region NEW ID GENERATE
 
-                    string xstrCurCode;
+                    //string xstrCurCode;
                     string _MasterPK = string.Empty;
                     int CountM = 0;
 
@@ -149,7 +149,7 @@ namespace Library.Service.Extension.HumanResource.Payroll.SalaryProcess
                             //if (Convert.ToDecimal(dsCarryForwardSalary.Tables[0].Rows[i]["["DisbusmentAmount"]) > 0)
                             //{
                             #region Master Table
-                            bool IsEmpAvailable = false;
+                            //bool IsEmpAvailable = false;
 
                                 dvMWESAMst.Table = dtMWESAMst;
                                 // throw new Exception(strMstSysID.Trim());
@@ -486,7 +486,7 @@ namespace Library.Service.Extension.HumanResource.Payroll.SalaryProcess
                 }
                 catch (Exception ex2)
                 {
-                    throw ex;
+                    throw ex2;
                 }
             }
             finally

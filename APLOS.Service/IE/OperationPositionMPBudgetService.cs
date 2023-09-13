@@ -81,7 +81,7 @@ namespace Library.Service.IE
             {
                 return base.Query(r=>r.OperationMasterId== OMId).Select().Max(r => r.Sequence + 1);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return 1.00M;
             }

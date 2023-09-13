@@ -659,7 +659,7 @@ public class xAttendanceEarlyOut
     {
         //if (sShiftType.ToUpper().Trim() == "NIGHT SHIFT")
         //99
-        bool IsCurrentShiftNightShift = false;
+       // bool IsCurrentShiftNightShift = false;
         bool IsNewShiftNightShift = false;
         try
         {

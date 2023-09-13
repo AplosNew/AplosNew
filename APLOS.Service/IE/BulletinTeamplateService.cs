@@ -193,7 +193,7 @@ namespace Library.Service.IEnumerable
                 }
                 catch (Exception exx)
                 {
-                    throw ex;
+                    throw exx;
                 }
             }
             finally

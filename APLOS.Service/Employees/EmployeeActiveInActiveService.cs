@@ -779,7 +779,7 @@ namespace Library.Service.Employees
                     DataView dvr = new DataView(dtSalary.DefaultView.ToTable());
 
                     double totalOthers = 0;
-                    double gross = 0;
+                   // double gross = 0;
 
                     WTableRow row;
                     //if (index == 0)

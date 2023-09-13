@@ -13,20 +13,20 @@ namespace Library.Service.Extension
 {
     public class clsStaticInfo
     {
-        private string REMOTESERVERNAME = "";
-        private string REMOTEDATABASENAME = "";
+        //private string REMOTESERVERNAME = "";
+        //private string REMOTEDATABASENAME = "";
         private string REMOTELINKSERVER = "";
 
-        private string LOCALSERVERNAME = "";
-        private string LOCALDATABASENAME = "";
-        private string USER_ID = "";
-        private string PASSWORD = "";
+        //private string LOCALSERVERNAME = "";
+        //private string LOCALDATABASENAME = "";
+        //private string USER_ID = "";
+        //private string PASSWORD = "";
 
-        private string AUTH_SERVER_NAME = "";
-        private string AUTH_DATABASE_NAME = "";
+        //private string AUTH_SERVER_NAME = "";
+        //private string AUTH_DATABASE_NAME = "";
         private string AUTH_LINK_SERVER = "";
 
-        private string strConnString = "";
+        //private string strConnString = "";
 
         public enum NotificationType
         {
@@ -1354,7 +1354,7 @@ namespace Library.Service.Extension
                 objCon.CommitTransaction();
                 IsTransactionStarted = false;
             }
-            catch (Exception ex)
+            catch (Exception)
 
             {
                 try
@@ -1367,7 +1367,7 @@ namespace Library.Service.Extension
                 catch (Exception exx)
                 {
 
-                    throw (ex);
+                    throw (exx);
 
                 }
 
@@ -1403,7 +1403,7 @@ namespace Library.Service.Extension
                 objCon.CommitTransaction();
                 IsTransactionStarted = false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 try
                 {
@@ -1416,7 +1416,7 @@ namespace Library.Service.Extension
                 catch (Exception exp)
                 {
                     
-                    throw ex;
+                    throw exp;
                 }
             }
             finally
@@ -1455,7 +1455,7 @@ namespace Library.Service.Extension
                 objCon.CommitTransaction();
                 IsTransactionStarted = false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 try
                 {
@@ -1467,7 +1467,7 @@ namespace Library.Service.Extension
                 }
                 catch (Exception exp)
                 {
-                    throw ex;
+                    throw exp;
                 }
             }
             finally
