@@ -1,0 +1,41 @@
+﻿<h3 class="site-heading">BTB Performance</h3>
+<div class="form-elements from-horizontal">
+    <div class="row">
+
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+                <li> <button data-toggle="modal" ng-click="BTBPerformanceReport();" class="btn" tabindex="10"><i class="glyphicon glyphicon-cloud-download"></i>Download</button></li>
+            </ul>
+        </div>
+        <div id="btbPerGrid" ej-grid e-datasource="BTBPerformanceList"
+             e-allowscrolling="true" e-minwidth="450" e-minheight="400"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div e-columns>
+                <div e-column e-type="string" e-field="FileNo" e-headertext="File" e-width="80"></div>
+                <div e-column e-type="string" e-field="Bank" e-headertext="Bank" e-width="100"></div>
+                <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="100"></div>
+                <div e-column e-type="string" e-field="MasterLCId" e-headertext="Master LC No" e-width="180"></div>
+                <div e-column e-type="string" e-field="ContractNo" e-headertext="Sales Contract No" e-width="180"></div>
+                <div e-column e-type="number" e-format="{0:0.00}" e-field="MasterLCValue" e-headertext="Sales Contract Value" e-textalign="right" e-width="100"></div>
+                <div e-column e-type="string" e-field="SupplierName" e-headertext="Supplier Name" e-width="100"></div>
+                <div e-column e-type="string" e-field="BTBLCNo" e-headertext="BTB LC No" e-width="100"></div>
+                <div e-column e-type="string" e-field="LCDate" e-headertext="LC Date" e-width="100"></div>
+                <div e-column e-type="string" e-field="LCAmandmentDate" e-headertext="LC Amandment Date" e-width="100"></div>
+                <div e-column e-type="string" e-field="UsancePeriod" e-headertext="Usance Period" e-width="100"></div>
+                <div e-column e-type="number" e-format="{0:0.00}" e-field="Value" e-headertext="Value" e-textalign="right" e-width="100"></div>
+                <div e-column e-type="number" e-format="{0:0.00}" e-field="Percentage" e-textalign="right" e-headertext="Percentage" e-width="100"></div>
+                <div e-column e-type="string" e-field="AcceptanceDate" e-headertext="OCL Acceptance Date" e-width="100"></div>
+                <div e-column e-type="number" e-format="{0:0.00}" e-field="AcceptanceAmount" e-textalign="right" e-headertext="OCL Acceptance Value" e-width="100"></div>
+                <div e-column e-type="number" e-format="{0:0.00}" e-field="BankAcceptanceDate" e-textalign="right" e-headertext="Bank Acceptance Date" e-width="100"></div>
+                <div e-column e-type="string" e-field="MaturityDate" e-headertext="Maturity Date" e-width="180"></div>
+                @*<div e-column e-type="string" e-field="IFBCNo" e-headertext="IFBC No" e-width="100"></div>*@
+                <div e-column e-type="string" e-field="PaymentDate" e-headertext="Payment Date" e-width="180"></div>
+                <div e-column e-type="number" e-format="{0:0.00}" e-field="PaymentPaidAmount" e-textalign="right" e-headertext="Payment Paid Amount" e-width="100"></div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
