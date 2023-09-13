@@ -106,7 +106,7 @@ namespace Library.Service.Products
                         InsertGraph(receiveDetail);
 
                         }
-                        catch (DivideByZeroException ex)
+                        catch (DivideByZeroException)
                         {
 
                         }

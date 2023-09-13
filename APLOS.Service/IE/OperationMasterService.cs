@@ -82,7 +82,7 @@ namespace Library.Service.IE
             {
                 return base.Query().Select().Max(r => r.Sequence + 1);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return 1.00M;
             }

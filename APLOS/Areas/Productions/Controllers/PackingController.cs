@@ -728,7 +728,7 @@ namespace Aplos.Areas.Productions.Controllers
         {
             string replaceString = "{MaterialDescription}";
 
-            DataTable sales, materialTax;
+            DataTable sales;
 
             int LasColumnIndex = 10;
 
@@ -801,7 +801,7 @@ namespace Aplos.Areas.Productions.Controllers
             wTable.Rows[ROW].Cells[colGrossWeight].Width = 45;
 
             #endregion column headers
-            double totalValue = 0;
+            //double totalValue = 0;
             int sl = 0;
             int startRow = 0;
             int PreviousNo = 0;
@@ -986,9 +986,9 @@ namespace Aplos.Areas.Productions.Controllers
             wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 250;
 
             #endregion column headers
-            double totalValue = 0;
+            //double totalValue = 0;
             int sl = 0;
-            int startRow = 0;
+            //int startRow = 0;
             for (int i = 0; i < dsTermsAndCondition.Rows.Count; i++)
             {
                 ROW++;

@@ -1,25 +1,16 @@
 ﻿using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
-using Library.Data.Repositories;
 using Library.Data.Sql;
-using Library.Data.UnitOfWorks;
-using Library.Model.HumanResources;
-using Library.Service.Core;
 using Library.Service.Enums;
-using Library.Service.Helpers;
 using Library.Service.Logs;
-using Library.Service.Systems;
 using OTSBD;
-using Syncfusion.XlsIO;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using Library.Crosscutting.Security;
 using Library.Model.Employees;
 
 namespace Library.Service.HumanResources

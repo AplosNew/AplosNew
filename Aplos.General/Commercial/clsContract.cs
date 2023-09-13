@@ -69,7 +69,7 @@ LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId
 where so.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 ,ItemNo=isnull(STUFF((select distinct ','+I.Id from TRN.MasterOrderItem I 
 INNER JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=I.Id
-where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),''),B.UserName Bank
+where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),''),B.UserName Bank,C.LCRequiredDaysfromShipment
                             FROM [dbo].[Contract] C
                             JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id 
 							LEFT JOIN dbo.MasterLC LC ON LC.Id = C.MasterLCId
@@ -281,7 +281,7 @@ where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1
 							PR.UserName PortOfLanding, MLC.AddedBy,FORMAT(MLC.AddedDate,'dd-MMM-yyyy') AddedDate, MLC.AddedFromIP, MLC.UpdatedBy, 
 							FORMAT(MLC.UpdatedDate,'dd-MMM-yyyy') UpdatedDate, MLC.UpdatedFromIP, MLC.CurrencyId,LB.UserName BenificiaryBank,CN.Code Currency, 
 							MLC.CustomerId, P.UserName PartyName,MLC.Version,mlc.LCShipmentDate,mlc.ShipmentModeId,sm.UserName ShipmentMode,mlc.AmendmentDate
-							,mlc.PortOfLoadingId,prl.UserName PortOfLoading,MLC.Remarks
+							,mlc.PortOfLoadingId,prl.UserName PortOfLoading,MLC.Remarks,MLC.DescriptionOfGoodsAndOrServices
                          FROM [dbo].[MasterLC] MLC
                          LEFT JOIN MST.BankMaster OB  ON OB.Id=MLC.BenificiaryBankId
                          LEFT JOIN HKP.Bank LB ON LB.Id=OB.BankId

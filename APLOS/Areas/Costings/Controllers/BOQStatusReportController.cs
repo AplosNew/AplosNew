@@ -57,17 +57,49 @@ namespace Aplos.Areas.Costings.Controllers
         {
             try
             {
-                var sql = @"SELECT distinct CPO.PONumber PONo, BOM.CustomerId PartyId,PC.UserName Customer,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,MO.Id MasterOrderId,MOI.Id LineItemId
-							,SO.Id SOId 
-                             FROM BOQ  boq
+                var Xsql = @"  select distinct MO.Id MasterOrderId,BOM.CustomerId PartyId,PC.UserName Customer
+							  ,PONo=STUFF((SELECT distinct ','+  CPO.PONumber
+										from [TRN].[CustomerPO] CPO
+										left join [TRN].[SalesOrder] AS SO on SO.CustomerPOId=CPO.Id
+										where SO.CostingBOQMasterId=BOM.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,SOId=STUFF((SELECT distinct ','+  XITM.Id
+								from trn.SalesOrder AS XITM
+								where XITM.CostingBOQMasterId=BOM.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								,BuyerReferenceNo=STUFF((SELECT distinct ','+  XITM.BuyerReferenceNo
+								from TRN.MasterOrderItem AS XITM
+								left join TRN.MasterOrder MOX on MOX.Id=XITM.MasterOrderId
+								where MOX.Id=MO.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								
+								,OwnReferenceNo=STUFF((SELECT distinct ','+  XITM.OwnReferenceNo
+								from TRN.MasterOrderItem AS XITM
+								left join TRN.MasterOrder MOX on MOX.Id=XITM.MasterOrderId
+								where MOX.Id=MO.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								
+								,LineItemId=STUFF((SELECT distinct ','+  XITM.Id
+								from TRN.MasterOrderItem AS XITM
+								left join TRN.MasterOrder MOX on MOX.Id=XITM.MasterOrderId
+								where MOX.Id=MO.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								
+							  from BOQ boq 
 							  left join costingboqmaster BOM on BOM.Id=boq.CostingBOQMasterId
-							  left join trn.SalesOrder SO on SO.CostingBOQMasterId=BOM.Id
+							  left join TRN.MasterOrderItem AS moi on boq.MasterOrderItemId=moi.Id
+							  left join TRN.MasterOrder MO on MO.Id=moi.MasterOrderId
 							  left join HKP.Party PC on PC.Id=BOM.CustomerId
-							 left join TRN.MasterOrder MO on MO.PartyId=PC.Id
-                             left  join [TRN].[CustomerPO] CPO on CPO.Id=SO.CustomerPOId
-                             left join TRN.MasterOrderItem AS moi on MO.Id=moi.MasterOrderId
-                             where BOM.CustomerId <>''  
-							  and moi.OrderCostingMasterTemplateId<>''";
+
+							  where BOM.CustomerId <>'' and moi.OrderCostingMasterTemplateId<>''";
+
+                string sql = @"select distinct MO.Id MasterOrderId,BOM.CustomerId PartyId,PC.UserName Customer
+							  ,CPO.PONumber PONo,SO.Id SOId,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,moi.Id LineItemId								
+							  from BOQ boq 
+							  left join costingboqmaster BOM on BOM.Id=boq.CostingBOQMasterId
+							  left join TRN.MasterOrderItem AS moi on boq.MasterOrderItemId=moi.Id
+							  left join TRN.MasterOrder MO on MO.Id=moi.MasterOrderId
+							  left join HKP.Party PC on PC.Id=MO.PartyId
+							  left join trn.SalesOrder SO ON SO.MasterOrderItemId=MOI.Id
+							  LEFT JOIN [TRN].[CustomerPO] CPO on SO.CustomerPOId=CPO.Id
+							  where BOM.CustomerId <>'' and moi.OrderCostingMasterTemplateId<>''";
 
                 JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 json.MaxJsonLength = int.MaxValue;
@@ -85,20 +117,42 @@ namespace Aplos.Areas.Costings.Controllers
         {
             try
             {
-                var sql = @"SELECT boq.Id RowId,boq.[Sequence],boq.ItemRefNo,ci.UserName AS CostingItem,boq.BOQCriteria,c.Code AS Currency,p.UserName AS Vendor,mm.UserName AS Material,mma.StandardName AS Article,BOM.Id BOMId
-                ,cv1.UserName AS SKU1,cv2.UserName AS SKU2,boq.SKUDesc,boq.POCriteria
+                //List<string> BR = parameters["BuyerReferenceNo"].Split(',').ToList();
+                //var ids = "";
+                //for (var i = 0; i < BR.Count; i++)
+                //{
+                //    if (ids == "")
+                //    {
+                //        ids =  "" + BR[i] + "";
+                //    }
+                //    else
+                //    {
+                //        ids += ",'" + BR[i] + "'";
+                //    }
+                //}
+
+                //string OwnRef = "'" + parameters["OwnReferenceNo"].Replace(" ", "','") + "'";//replaced with ""
+                //string BuyerRef = "" + parameters["BuyerReferenceNo"].Replace(" ", "','") + "";//replaced with ""
+                //string MasterOrderId = "" + parameters["MasterOrderId"].Replace(" ", "','") + ""; 
+                //string LineItemId = "" + parameters["LineItemId"].Replace(" ", "','") + "";//replaced with ""
+                //string SOId = "'" + parameters["SOId"].Replace(" ", "','") + "'";//replaced with ""
+                //string PONo = "'" + parameters["PONo"].Replace(" ", "','") + "'";//replaced with ""
+
+                var sql = @"SELECT distinct boq.Id RowId,boq.[Sequence],boq.ItemRefNo,ci.UserName AS CostingItem,boq.BOQCriteria,c.Code AS Currency,p.UserName AS Vendor,mm.UserName AS Material,mma.StandardName AS Article,BOM.Id BOMId
+                ,isnull(cv1.UserName,'') SKU1,isnull(cv2.UserName,'') SKU2,boq.SKUDesc,isnull(boq.POCriteria,'') POCriteria
 				--,boq.Consumption
 				,isnull(OPCD.GrossConsumption,0) Consumption
                 ,boq.BOMQty,UOM.UserName BOQUOM,boq.BOMQtyBase,boq.RequiredQty
 				,boq.Rate*BOQ.BOMQty AS BOMAmount
-				, poboq.POBOQQty,poboq.POUOM,poboq.POTrnBOQQty,poboq.POAmount,BalanceBOQ=boq.BOMQtyBase-poboq.POBOQQty
-                , grnboq.GRNBaseQty
-                , grnboq.GRNAmount
-                , grnboq.GRNUOM
-                , BalancePOQty=poboq.POBOQQty-grnboq.GRNBaseQty
-                , issueboq.IssueBaseQty
-                , issueboq.IssueAmount
-                , BalanceGRNQty=grnboq.GRNBaseQty-issueboq.IssueBaseQty
+				,isnull(poboq.POBOQQty,0) POBOQQty,isnull(poboq.POUOM,'') POUOM,isnull(poboq.POTrnBOQQty,0) POTrnBOQQty
+                ,isnull(poboq.POAmount,0) POAmount,BalanceBOQ=isnull(boq.BOMQtyBase-poboq.POBOQQty,0)
+                ,isnull(grnboq.GRNBaseQty,0) GRNBaseQty
+                ,isnull(grnboq.GRNAmount,0) GRNAmount
+                ,isnull(grnboq.GRNUOM,'') GRNUOM
+                , BalancePOQty=isnull(poboq.POBOQQty-grnboq.GRNBaseQty,0)
+                ,isnull(issueboq.IssueBaseQty,0) IssueBaseQty
+                ,isnull(issueboq.IssueAmount,0) IssueAmount
+                , BalanceGRNQty=isnull(grnboq.GRNBaseQty-issueboq.IssueBaseQty,0)
                 ,PC.Id PartyId,PC.UserName Customer
 				,MO.Id MasterOrderId,MO.BuyerReferenceNo,MO.OwnReferenceNo,moi.Id LineItemId
                 FROM BOQ  boq
@@ -164,18 +218,14 @@ namespace Aplos.Areas.Costings.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetBOQStatusReport(Dictionary<string, string> parameters)
+        public ActionResult GetBOQStatusReport(List<Dictionary<string, object>> data, Dictionary<string, string> parameters, string reportFileName)
         {
 
             try
             {
-                var workbook = GetBOQStatusReportForm(parameters);
-
-                var strFileName = "BOQ Status Report.xlsx";
-                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-                workbook.SaveAs(fullPath);
-
-                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+                string fileName = "";
+                fileName = GetBOQStatusReportForm(data, parameters, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -184,7 +234,7 @@ namespace Aplos.Areas.Costings.Controllers
             }
         }
 
-        private IWorkbook GetBOQStatusReportForm(Dictionary<string, string> parameters)
+        private string GetBOQStatusReportForm(List<Dictionary<string, object>> data, Dictionary<string, string> parameters,string ReportHeader, string reportFileName)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
@@ -193,7 +243,7 @@ namespace Aplos.Areas.Costings.Controllers
 
             var headerData = getBOQStatusReportHeaderSql(parameters);
 
-            var data = getBOQStatusReportSql(parameters);
+            //var data = getBOQStatusReportSql(parameters);
 
             var sheet = workbook.Worksheets[0];
 
@@ -474,41 +524,41 @@ namespace Aplos.Areas.Costings.Controllers
 
             int startRow = ROW;
 
-            for (int i = 0; i < data.Rows.Count; i++)
+            for (int i = 0; i < data.Count; i++)
             {
-                sheet[ROW, ColRowId].Text = data.Rows[i]["RowId"].ToString();
-                sheet[ROW, ColSequence].Text = data.Rows[i]["Sequence"].ToString();
-                sheet[ROW, ColBOMId].Text = data.Rows[i]["BOMId"].ToString();
-                sheet[ROW, ColItemRefNo].Text = data.Rows[i]["ItemRefNo"].ToString();
-                sheet[ROW, ColCostingItem].Text = data.Rows[i]["CostingItem"].ToString();
-                sheet[ROW, ColBOQCriteria].Text = data.Rows[i]["BOQCriteria"].ToString();
-                sheet[ROW, ColCurrency].Text = data.Rows[i]["Currency"].ToString();
-                sheet[ROW, ColVendor].Text = data.Rows[i]["Vendor"].ToString();
-                sheet[ROW, ColMaterial].Text = data.Rows[i]["Material"].ToString();
-                sheet[ROW, ColArticle].Text = data.Rows[i]["Article"].ToString();
-                sheet[ROW, ColSKU1].Text = data.Rows[i]["SKU1"].ToString();
-                sheet[ROW, ColSKU2].Text = data.Rows[i]["SKU2"].ToString();
-                sheet[ROW, ColSKUDescription].Text = data.Rows[i]["SKUDesc"].ToString();
-                sheet[ROW, ColPOCriteria].Text = data.Rows[i]["POCriteria"].ToString();
-                sheet[ROW, ColConsumption].Text = data.Rows[i]["Consumption"].ToString();
-                sheet[ROW, ColBOMAmount].Text = data.Rows[i]["BOMAmount"].ToString();
-                sheet[ROW, ColBOMQty].Number = clsStaticInfo.dbl(data.Rows[i]["BOMQty"].ToString());
-                sheet[ROW, ColBOQUOM].Text = data.Rows[i]["BOQUOM"].ToString();
-                sheet[ROW, ColBOMQtyBase].Number = clsStaticInfo.dbl(data.Rows[i]["BOMQtyBase"].ToString());
-                sheet[ROW, ColRequiredQty].Number = clsStaticInfo.dbl(data.Rows[i]["RequiredQty"].ToString());
-                sheet[ROW, ColPOBOQQty].Number = clsStaticInfo.dbl(data.Rows[i]["POBOQQty"].ToString());
-                sheet[ROW, ColPOUOM].Text = data.Rows[i]["POUOM"].ToString();
-                sheet[ROW, ColPOTrnBOQQty].Number = clsStaticInfo.dbl(data.Rows[i]["POTrnBOQQty"].ToString());
-                sheet[ROW, ColPOAmount].Number = clsStaticInfo.dbl(data.Rows[i]["POAmount"].ToString());
-                sheet[ROW, ColBalanceBOQ].Number = clsStaticInfo.dbl(data.Rows[i]["BalanceBOQ"].ToString());
-                sheet[ROW, ColGRNBaseQty].Number = clsStaticInfo.dbl(data.Rows[i]["GRNBaseQty"].ToString());
-                sheet[ROW, ColGRNAmount].Number = clsStaticInfo.dbl(data.Rows[i]["GRNAmount"].ToString());
-                sheet[ROW, ColGRNUOM].Text = data.Rows[i]["GRNUOM"].ToString();
-                sheet[ROW, ColBalancePOQty].Number = clsStaticInfo.dbl(data.Rows[i]["BalancePOQty"].ToString());
-                sheet[ROW, ColIssueBaseQty].Number = clsStaticInfo.dbl(data.Rows[i]["IssueBaseQty"].ToString());
+                sheet[ROW, ColRowId].Text = data[i]["RowId"].ToString();
+                sheet[ROW, ColSequence].Text = data[i]["Sequence"].ToString();
+                sheet[ROW, ColBOMId].Text = data[i]["BOMId"].ToString();
+                sheet[ROW, ColItemRefNo].Text = data[i]["ItemRefNo"].ToString();
+                sheet[ROW, ColCostingItem].Text = data[i]["CostingItem"].ToString();
+                sheet[ROW, ColBOQCriteria].Text = data[i]["BOQCriteria"].ToString();
+                sheet[ROW, ColCurrency].Text = data[i]["Currency"].ToString();
+                sheet[ROW, ColVendor].Text = data[i]["Vendor"].ToString();
+                sheet[ROW, ColMaterial].Text = data[i]["Material"].ToString();
+                sheet[ROW, ColArticle].Text = data[i]["Article"].ToString();
+                sheet[ROW, ColSKU1].Text = data[i]["SKU1"].ToString();
+                sheet[ROW, ColSKU2].Text = data[i]["SKU2"].ToString();
+                sheet[ROW, ColSKUDescription].Text = data[i]["SKUDesc"].ToString();
+                sheet[ROW, ColPOCriteria].Text = data[i]["POCriteria"].ToString();
+                sheet[ROW, ColConsumption].Number = clsStaticInfo.dbl(data[i]["Consumption"].ToString());
+                sheet[ROW, ColBOMAmount].Number = clsStaticInfo.dbl(data[i]["BOMAmount"].ToString());
+                sheet[ROW, ColBOMQty].Number = clsStaticInfo.dbl(data[i]["BOMQty"].ToString());
+                sheet[ROW, ColBOQUOM].Text = data[i]["BOQUOM"].ToString();
+                sheet[ROW, ColBOMQtyBase].Number = clsStaticInfo.dbl(data[i]["BOMQtyBase"].ToString());
+                sheet[ROW, ColRequiredQty].Number = clsStaticInfo.dbl(data[i]["RequiredQty"].ToString());
+                sheet[ROW, ColPOBOQQty].Number = clsStaticInfo.dbl(data[i]["POBOQQty"].ToString());
+                sheet[ROW, ColPOUOM].Text = data[i]["POUOM"].ToString();
+                sheet[ROW, ColPOTrnBOQQty].Number = clsStaticInfo.dbl(data[i]["POTrnBOQQty"].ToString());
+                sheet[ROW, ColPOAmount].Number = clsStaticInfo.dbl(data[i]["POAmount"].ToString());
+                sheet[ROW, ColBalanceBOQ].Number = clsStaticInfo.dbl(data[i]["BalanceBOQ"].ToString());
+                sheet[ROW, ColGRNBaseQty].Number = clsStaticInfo.dbl(data[i]["GRNBaseQty"].ToString());
+                sheet[ROW, ColGRNAmount].Number = clsStaticInfo.dbl(data[i]["GRNAmount"].ToString());
+                sheet[ROW, ColGRNUOM].Text = data[i]["GRNUOM"].ToString();
+                sheet[ROW, ColBalancePOQty].Number = clsStaticInfo.dbl(data[i]["BalancePOQty"].ToString());
+                sheet[ROW, ColIssueBaseQty].Number = clsStaticInfo.dbl(data[i]["IssueBaseQty"].ToString());
 
-                sheet[ROW, ColIssueAmount].Number = clsStaticInfo.dbl(data.Rows[i]["IssueAmount"].ToString());
-                sheet[ROW, ColBalanceGRNQty].Number = clsStaticInfo.dbl(data.Rows[i]["BalanceGRNQty"].ToString());
+                sheet[ROW, ColIssueAmount].Number = clsStaticInfo.dbl(data[i]["IssueAmount"].ToString());
+                sheet[ROW, ColBalanceGRNQty].Number = clsStaticInfo.dbl(data[i]["BalanceGRNQty"].ToString());
 
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -523,14 +573,17 @@ namespace Aplos.Areas.Costings.Controllers
             sheet.Range[endRow, ColRowId].Text = "Total";
             sheet.Range[endRow, ColRowId, endRow, ColPOCriteria].Merge();
             sheet.Range[endRow, ColRowId].CellStyle.Font.Bold = true;
-            sheet.Range[endRow, ColConsumption].Number = clsStaticInfo.dbl(data.Compute("SUM(Consumption)", null));
+
+            sheet[endRow, ColConsumption].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColConsumption) + startRow + ":" + clsStaticInfo.GetxlsCol(ColConsumption) + (ROW - 2).ToString() + ")";
+            //sheet.Range[endRow, ColConsumption].Number = clsStaticInfo.dbl(data.Compute("SUM(Consumption)", null));
             sheet.Range[endRow, ColConsumption].NumberFormat = clsStaticInfo.NumberFormat(2);
             sheet.Range[endRow, ColConsumption].CellStyle.Font.Bold = true;
             sheet.Range[endRow, ColConsumption, endRow, ColConsumption].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet.Range[endRow, ColConsumption, endRow, ColConsumption].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet.Range[endRow, ColBOMQty, endRow, ColRequiredQty].Merge();
 
-            sheet.Range[endRow, ColBOMAmount].Number = clsStaticInfo.dbl(data.Compute("SUM(BOMAmount)", null));
+            sheet[endRow, ColBOMAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColBOMAmount) + startRow + ":" + clsStaticInfo.GetxlsCol(ColBOMAmount) + (ROW - 2).ToString() + ")";
+            //sheet.Range[endRow, ColBOMAmount].Number = clsStaticInfo.dbl(data.Compute("SUM(BOMAmount)", null));
             sheet.Range[endRow, ColBOMAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
             sheet.Range[endRow, ColBOMAmount].CellStyle.Font.Bold = true;
             sheet.Range[endRow, ColBOMAmount, endRow, ColBOMAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -538,7 +591,8 @@ namespace Aplos.Areas.Costings.Controllers
             sheet.Range[endRow, ColBOMAmount].CellStyle.Font.Bold = true;
             sheet.Range[endRow, ColPOBOQQty, endRow, ColPOTrnBOQQty].Merge();
 
-            sheet.Range[endRow, ColPOAmount].Number = clsStaticInfo.dbl(data.Compute("SUM(POAmount)", null));
+            sheet[endRow, ColPOAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColPOAmount) + startRow + ":" + clsStaticInfo.GetxlsCol(ColPOAmount) + (ROW - 2).ToString() + ")";
+            //sheet.Range[endRow, ColPOAmount].Number = clsStaticInfo.dbl(data.Compute("SUM(POAmount)", null));
             sheet.Range[endRow, ColPOAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
             sheet.Range[endRow, ColPOAmount].CellStyle.Font.Bold = true;
             sheet.Range[endRow, ColPOAmount, endRow, ColPOAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -546,7 +600,8 @@ namespace Aplos.Areas.Costings.Controllers
             sheet.Range[endRow, ColPOAmount].CellStyle.Font.Bold = true;
             sheet.Range[endRow, ColBalanceBOQ, endRow, ColGRNBaseQty].Merge();
 
-            sheet.Range[endRow, ColGRNAmount].Number = clsStaticInfo.dbl(data.Compute("SUM(GRNAmount)", null));
+            sheet[endRow, ColGRNAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColGRNAmount) + startRow + ":" + clsStaticInfo.GetxlsCol(ColGRNAmount) + (ROW - 2).ToString() + ")";
+            //sheet.Range[endRow, ColGRNAmount].Number = clsStaticInfo.dbl(data.Compute("SUM(GRNAmount)", null));
             sheet.Range[endRow, ColGRNAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
             sheet.Range[endRow, ColGRNAmount].CellStyle.Font.Bold = true;
             sheet.Range[endRow, ColGRNAmount, endRow, ColGRNAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -554,7 +609,8 @@ namespace Aplos.Areas.Costings.Controllers
             sheet.Range[endRow, ColGRNAmount].CellStyle.Font.Bold = true;
             sheet.Range[endRow, ColGRNUOM, endRow, ColIssueBaseQty].Merge();
 
-            sheet.Range[endRow, ColIssueAmount].Number = clsStaticInfo.dbl(data.Compute("SUM(IssueAmount)", null));
+            sheet[endRow, ColIssueAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColIssueAmount) + startRow + ":" + clsStaticInfo.GetxlsCol(ColIssueAmount) + (ROW - 2).ToString() + ")";
+            //sheet.Range[endRow, ColIssueAmount].Number = clsStaticInfo.dbl(data.Compute("SUM(IssueAmount)", null));
             sheet.Range[endRow, ColIssueAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
             sheet.Range[endRow, ColIssueAmount].CellStyle.Font.Bold = true;
             sheet.Range[endRow, ColIssueAmount, endRow, ColIssueAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -602,15 +658,21 @@ namespace Aplos.Areas.Costings.Controllers
             sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
             sheet.PageSetup.CenterHorizontally = true;
 
-            return workbook;
+            //return workbook;
+            var filePath = "";
+            filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+            workbook.SaveAs(filePath);
+            workbook.Close();
+            excelEngine.Dispose();
+            return filePath;
         }
 
         public DataTable getBOQStatusReportSql(Dictionary<string, string> parameters)
         {
             try
             {
-                var sql = @"SELECT boq.Id RowId,boq.[Sequence],boq.ItemRefNo,ci.UserName AS CostingItem,boq.BOQCriteria,c.Code AS Currency,p.UserName AS Vendor,mm.UserName AS Material,mma.StandardName AS Article,BOM.Id BOMId
-                ,cv1.UserName AS SKU1,cv2.UserName AS SKU2,boq.SKUDesc,boq.POCriteria
+                var sql = @"SELECT distinct boq.Id RowId,boq.[Sequence],boq.ItemRefNo,ci.UserName AS CostingItem,boq.BOQCriteria,c.Code AS Currency,p.UserName AS Vendor,mm.UserName AS Material,mma.StandardName AS Article,BOM.Id BOMId
+                ,cv1.UserName AS SKU1,isnull(cv2.UserName,'') SKU2,boq.SKUDesc,boq.POCriteria
 				--,boq.Consumption
 				,isnull(OPCD.GrossConsumption,0) Consumption
                 ,boq.BOMQty,UOM.UserName BOQUOM,boq.BOMQtyBase,boq.RequiredQty

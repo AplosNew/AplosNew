@@ -53,7 +53,7 @@ namespace Library.Service.Administration.Contract
         {
             try
             {
-                string TableName = "HKP.GeneralContractItemMaster";
+                //string TableName = "HKP.GeneralContractItemMaster";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = "GC."+column + " like '%" + value + "%'";

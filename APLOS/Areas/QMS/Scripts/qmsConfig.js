@@ -143,10 +143,13 @@
             templateUrl: 'QMS/CustomerQualityAndTechnicalSupport/Aplos',
             controller: 'CustomerQualityAndTechnicalSupportController'
         })
-
         .when('/product-parameter-master', {
             templateUrl: 'QMS/ProductParameterMaster/aplos',
             controller: 'ProductParameterMasterController'
+        })
+        .when('/process-parameter-master', {
+            templateUrl: 'QMS/ProcessParameterMaster/aplos',
+            controller: 'ProcessParameterMasterController'
         })
 
         

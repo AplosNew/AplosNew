@@ -204,7 +204,7 @@ namespace Library.Service.Invoices
 
         private void Check(Invoice entity)
         {
-            CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.Id != entity.Id && r.PartyId == entity.PartyId && r.DocRefNo == entity.DocRefNo);
+            CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.Id != entity.Id && r.PartyId == entity.PartyId && r.DocRefNo == entity.DocRefNo && r.FiscalYearPeriodId==entity.FiscalYearPeriodId);
         }
         public Invoice FindInvoice(string Id)
         {

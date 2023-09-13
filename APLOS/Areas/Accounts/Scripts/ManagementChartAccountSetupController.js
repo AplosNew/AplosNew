@@ -584,7 +584,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
         $scope.budget.AddedDate = $filter("dateFilter")($scope.budget.AddedDate);
         $scope.budget.UpdatedDate = $filter("dateFilter")($scope.budget.UpdatedDate);
         $scope.getDataBgt();
-        $scope.ActionItem = 'Update';
+        $scope.ActionBgt = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }

@@ -1663,7 +1663,7 @@ namespace Library.Accounting.FixedAssets
                         if (capitalizationMasterdata != null)
                         {
                             builderSql = "";
-                            builderSql = @"UPDATE [TRN].[AssetRegisterChild] SET VoucherDetailId='" + voucherDr.Id + "'  where CapitalizationMasterId = '" + capitalizationMasterdata["Id"].ToString() + "' AND FixedAssetItemId = '" + voucherDetailVM.FixedAssetItemId + "'  ";
+                            builderSql = @"UPDATE ARC SET ARC.VoucherDetailId='" + voucherDr.Id + "' FROM [TRN].[AssetRegisterChild] ARC INNER JOIN  MST.FixedAssetItem FAI ON FAI.Id = ARC.FixedAssetItemId WHERE ARC.CapitalizationMasterId = '" + capitalizationMasterdata["Id"].ToString() + "' AND FAI.FixedAssetMasterId = '" + voucherDetailVM.FixedAssetMasterId + "'  ";
                             rdBuilder.Append(builderSql);
                         }
                     }
@@ -1885,7 +1885,7 @@ namespace Library.Accounting.FixedAssets
                     var builderSql = "";
                     foreach (var item in assetRegisterList)
                     {
-                        builderSql = @"UPDATE [TRN].[AssetRegister] SET AssetSlNo='" + item["AssetSlNo"] + " ' ,Status = '" + item["Status"] + "' ,AssetCondition = '" + item["AssetCondition"] + "' ,UserReference = '" + item["UserReference"] + "' ,OldReference = '" + item["OldReference"] + "' ,UserGroup = '" + item["UserGroup"] + "' ,Remarks = '" + item["Remarks"] + "' ,UpdatedBy = '" + identity.Name + "' ,UpdatedDate = '" + System.DateTime.Now.ToString() + "' ,UpdatedFromIP = '" + identity.IPAddress + "' WHERE Id='" + item["AssetRegisterId"].ToString() + "'  ";
+                        builderSql = @"UPDATE [TRN].[AssetRegister] SET AssetSlNo='" + item["AssetSlNo"] + "' ,Status = '" + item["Status"] + "' ,AssetCondition = '" + item["AssetCondition"] + "' ,UserReference = '" + item["UserReference"] + "' ,OldReference = '" + item["OldReference"] + "' ,UserGroup = '" + item["UserGroup"] + "' ,Remarks = '" + item["Remarks"] + "' ,UpdatedBy = '" + identity.Name + "' ,UpdatedDate = '" + System.DateTime.Now.ToString() + "' ,UpdatedFromIP = '" + identity.IPAddress + "' WHERE Id='" + item["AssetRegisterId"].ToString() + "'  ";
                         rdBuilder.Append(builderSql);
                         builderSql = @"UPDATE [TRN].[AssetRegisterChild] SET Amount='" + item["Amount"] + "' ,NetAmount = '" + item["Amount"] + "',UpdatedBy = '" + identity.Name + "' ,UpdatedDate = '" + System.DateTime.Now.ToString() + "' ,UpdatedFromIP = '" + identity.IPAddress + "' WHERE Id='" + item["AssetRegisterChildId"].ToString() + "'  AND VoucherDetailId is null ";
                         rdBuilder.Append(builderSql);
@@ -2119,7 +2119,9 @@ namespace Library.Accounting.FixedAssets
                 sheet.Range[row, 5].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
                 reportUtility.SetTextMiddle(ref sheet, row, 5, "Authorized By", true);
 
-                reportUtility.CompanyPlantHeader(ref sheet, colLast, "Capitalize Asset Register", companyId, plantName, null);
+                //reportUtility.CompanyPlantHeader(ref sheet, colLast, "Capitalize Asset Register", companyId, plantName, null);
+                reportUtility.CompanyPlantHeader(ref sheet, colLast, "Capitalize Asset Register", companyId, plantId, plantName, null);
+
                 reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
 
 
@@ -2133,6 +2135,131 @@ namespace Library.Accounting.FixedAssets
             }
 
             return workbook;
+        }
+        #endregion
+
+        #region Capitalize Asset Depreciation Posting
+        public void InsertAssetDepreciationPosting(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
+          , IEnumerable<FixedAssetDepreciationProcessVM> fixedAssetDepreciationList)
+        {
+            try
+            {
+                AccountsCommonService _accountsCommonService = new AccountsCommonService(_sqlRepository);
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+
+                DataSet _drvDetailData = null;
+                DataSet _drvDetailCurrencyData = null;
+                DataSet _crvDetailData = null;
+                DataSet _crvDetailCurrencyData = null;
+                var voucherDrId = "";
+
+
+                var voucher = new Voucher
+                {
+                    CompanyGroupId = voucherVM.CompanyGroupId,
+                    CompanyId = voucherVM.CompanyId,
+                    PlantId = voucherVM.PlantId,
+                    CurrencyId = companyCurrencyId,
+                    FiscalYearId = voucherVM.FiscalYearId,
+                    FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+                    TaxYearId = voucherVM.TaxYearId,
+                    TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+                    VoucherDate = DateTime.Now,
+                    DocDate = voucherVM.DocDate,
+                    DocRefNo = voucherVM.DocRefNo,
+                    Narration = voucherVM.Narration,
+                    PostingDate = voucherVM.PostingDate,
+                    SourceType = SourceType.DepreciationJournal.ToString(),
+                    VoucherTypeId = voucherVM.VoucherTypeId
+                };
+                _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
+
+                var currentVoucherDetaiRecord = 0;
+
+
+                foreach (var voucherDetailVM in voucherDetailVMList)
+                {
+
+                    if (voucherDetailVM.TrnType == "Dr" && voucherDetailVM.Amount > 0)
+                    {
+
+                        // INSERT INTO InvoiceDetail
+
+
+                        if (string.IsNullOrEmpty(voucherDetailVM.GLGeneralInfoId))
+                            throw new CustomException("Without GL can not post.");
+                        // in libility side Dr.
+                        var voucherDr = new VoucherDetail
+                        {
+                            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                            BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                            ActivityId = voucherDetailVM.ActivityId,
+                            DrAmount = voucherDetailVM.Amount,
+                            DocRefNo = voucherVM.DocRefNo,
+                            Narration = voucherDetailVM.Narration,
+                        };
+                        currentVoucherDetaiRecord++;
+                        _accountsCommonService.InsertVoucherDetail(voucher, voucherDr, currentVoucherDetaiRecord, ref _drvDetailData);
+
+                        _accountsCommonService.InsertVoucherDetailCompanyCurrency(voucherDr, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = companyCurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = 1,
+                            DrAmount = voucherDr.DrAmount
+                        }, ref _drvDetailCurrencyData);
+                        voucherDrId = voucherDr.Id;
+                    }
+                    else if (voucherDetailVM.TrnType == "Cr" && voucherDetailVM.Amount > 0)
+                    {
+                        if (string.IsNullOrEmpty(voucherDetailVM.GLGeneralInfoId))
+                            throw new CustomException("Without GL can not post.");
+                        // INSERT INTO VoucherDetail
+                        var voucherCr = new VoucherDetail
+                        {
+                            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                            BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                            ActivityId = voucherDetailVM.ActivityId,
+                            CurrencyId = voucher.CurrencyId,
+                            DrAmount = 0,
+                            CrAmount = voucherDetailVM.Amount,
+                        };
+                        currentVoucherDetaiRecord++;
+                        _accountsCommonService.InsertVoucherDetail(voucher, voucherCr, currentVoucherDetaiRecord, ref _crvDetailData);
+
+                        _accountsCommonService.InsertVoucherDetailCompanyCurrency(voucherCr, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = companyCurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = 1,
+                            CrAmount = voucherCr.CrAmount
+                        }, ref _crvDetailCurrencyData);
+                    }
+                }
+
+
+                clsStaticInfo objApp = new clsStaticInfo();
+                objApp.SaveDataSets(_vdataset, _crvDetailData, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData);
+                if (fixedAssetDepreciationList != null)
+                {
+                    var rdBuilder = new System.Text.StringBuilder();
+                    var builderSql = @"UPDATE [TRN].[FixedAssetDepreciationProcess] SET VoucherDetailId='" + voucherDrId + "',DepreciationVoucherId='" + voucher.Id + "' WHERE FixedAssetMasterId='" + fixedAssetDepreciationList.FirstOrDefault().FixedAssetMasterId + "' AND DepreciationProcessDate='" + fixedAssetDepreciationList.FirstOrDefault().DepreciationProcessDate + "' ";
+                    rdBuilder.Append(builderSql);
+                    _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
         }
         #endregion
 
