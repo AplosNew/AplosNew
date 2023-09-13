@@ -489,6 +489,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
             EntityId: null,
             DispatchResponsiblePersonId: null,
         };
+        $scope.loadInactiveDate();
         $scope.customer = e.data.username;
         $scope.Packing.CustomerId = e.data.id;
         angular.element(document.querySelector('#customersModal')).modal('hide');
