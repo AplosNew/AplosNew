@@ -131,27 +131,27 @@ namespace Aplos.Areas.QMS.Controllers
             try
             {
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
-                //ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                //DataSet EntityCount, AGCount, ProcessCount, PositionCodeCount, ApprovalPersonCount;
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                DataSet EntityCount, AGCount, ProcessCount, PositionCodeCount, ApprovalPersonCount;
 
-                //conRack = new ConnectionManager.DAL.ConManager("1");
-                //conRack.OpenDataSetThroughAdapter("select * from [MST].[ProcessParameterEntity] where QMID='" + id + "'", out EntityCount, false, "1");
-                //conRack.OpenDataSetThroughAdapter("select * from [MST].[ProcessParameterActivityGroup] where QMID ='" + id + "'", out AGCount, false, "1");
-                //conRack.OpenDataSetThroughAdapter("select * from [MST].[ProcessParameterProcess] where QMID ='" + id + "'", out ProcessCount, false, "1");
-                //conRack.OpenDataSetThroughAdapter("select * from [MST].[ProcessParameterPositionCode] where QMID ='" + id + "'", out PositionCodeCount, false, "1");
-                //conRack.OpenDataSetThroughAdapter("select * from [MST].[ProcessParameterApprovalPerson] where QMID ='" + id + "'", out ApprovalPersonCount, false, "1");
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[ProcessParameterEntity] where PPID='" + id + "'", out EntityCount, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[ProcessParameterActivityGroup] where PPID ='" + id + "'", out AGCount, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[ProcessParameterProcess] where PPID ='" + id + "'", out ProcessCount, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[ProcessParameterPositionCode] where PPID ='" + id + "'", out PositionCodeCount, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[ProcessParameterApprovalPerson] where PPID ='" + id + "'", out ApprovalPersonCount, false, "1");
 
-                //if (EntityCount.Tables[0].Rows.Count == 0 && AGCount.Tables[0].Rows.Count == 0 && ProcessCount.Tables[0].Rows.Count == 0 && PositionCodeCount.Tables[0].Rows.Count == 0 && ApprovalPersonCount.Tables[0].Rows.Count == 0)
-                //{
+                if (EntityCount.Tables[0].Rows.Count == 0 && AGCount.Tables[0].Rows.Count == 0 && ProcessCount.Tables[0].Rows.Count == 0 && PositionCodeCount.Tables[0].Rows.Count == 0 && ApprovalPersonCount.Tables[0].Rows.Count == 0)
+                {
 
                     conC.BeginTransaction();
                     conC.executeQuery("delete from [MST].[ProcessParameterMaster] where Id ='" + id + @"'");
                     conC.CommitTransaction();
-                //}
-                //else
-                //{
-                //    throw new Exception("Transaction are Exists!");
-                //}
+                }
+                else
+                {
+                    throw new Exception("Transaction are Exists!");
+                }
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -459,14 +459,6 @@ where P.Active = 1";
             {
                 throw ex;
             }
-        }
-
-        [Authorize, HttpGet]
-        public ActionResult LoadQMActivityGroupDetails(string ScheduleId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select * from [MST].[QualityManagementActivityGroup] where QMID ='" + ScheduleId + "'";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
