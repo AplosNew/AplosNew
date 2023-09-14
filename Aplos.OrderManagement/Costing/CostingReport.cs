@@ -359,7 +359,7 @@ namespace Library.OrderManagement.Costing
                     ROW++;
                     sheet[ROW, colCurrency + 1].Text = dtOrderCostingProductInfo.Rows[i]["Currency"].ToString();
                 }
-               
+
                 sheet.Range[ROW, 8, ROW, 9].Merge();
                 sheet.Range[7, 1, 19, endCol].NumberFormat = clsStaticInfo.NumberFormat(2);
 
@@ -422,7 +422,7 @@ namespace Library.OrderManagement.Costing
                 int colProcCostingPer = COL;
                 sheet[ROW, COL].ColumnWidth = 8;
                 sheet[ROW, COL].WrapText = true;
-                COL++; 
+                COL++;
 
 
                 sheet[ROW, COL].Text = "C-D";
@@ -486,8 +486,11 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colPreCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString());
 
                     if (clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) != 0)
-                    {
-                        sheet[ROW, colPreCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) + "/" + clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[0]["TargetSellingPrice"].ToString()) + "%";
+                    { 
+                        double preSum = clsStaticInfo.dbl(dtCostingDetailInfo.Compute("SUM(TotalGrossAmount)", null));
+                        //sheet[ROW, colPreCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) + "/" + clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[0]["TargetSellingPrice"].ToString()) + "%";
+
+                        sheet[ROW, colPreCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) + "/" + preSum + "*" + 100;
 
                         sheet.Range[ROW, colPreCostingPer].NumberFormat = "#,##0.00;(#,##0.00)";
                     }
@@ -508,8 +511,11 @@ namespace Library.OrderManagement.Costing
                         sheet[ROW, colProcCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString());
 
                         if (clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) != 0)
-                        {
-                            sheet[ROW, colProcCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) + "/" + clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[0]["TargetSellingPrice"].ToString()) + "%";
+                        { 
+                            double proSum = clsStaticInfo.dbl(dtCostingDetailInfo.Compute("SUM(TotalProcurementGrossAmount)", null));
+                            sheet[ROW, colProcCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) + "/" + proSum + "*" + 100; ;
+
+                            //sheet[ROW, colProcCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) + "/" + clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[0]["TargetSellingPrice"].ToString()) + "%";
 
                             sheet.Range[ROW, colProcCostingPer].NumberFormat = "#,##0.00;(#,##0.00)";
 
@@ -523,6 +529,7 @@ namespace Library.OrderManagement.Costing
                     sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
 
                     ROW++;
+                    var endRow = ROW;
                 }
                 sheet[ROW, 1].Text = "Total:";
                 sheet.Range[ROW, 1].CellStyle.Font.Bold = true;
@@ -1025,7 +1032,7 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].Text = "Value Loss(%)";
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colValue = COL;
-                COL ++;
+                COL++;
 
                 sheet[ROW, COL].Text = "Amount";
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -1139,7 +1146,7 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].Text = "Value Loss(%)";
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colValue = COL;
-                COL ++;
+                COL++;
 
                 sheet[ROW, COL].Text = "Amount";
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -1253,7 +1260,7 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].Text = "Value Loss(%)";
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colValue = COL;
-                COL ++;
+                COL++;
 
                 sheet[ROW, COL].Text = "Amount";
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;

@@ -1298,6 +1298,23 @@ namespace Library.Accounting.FixedAssets
             WHERE v.Archive=0 AND v.CompanyGroupId='" + companyGroupId + "' AND v.CompanyId='" + companyId + "' AND v.PlantId='" + plantId + "' AND V.Id='" + depreciationVoucherId + "' AND v.SourceType='" + sourceType + "'";
             return _sqlRepository.GetData(cmdText);
         }
+        private Dictionary<string, object> GetAssetsDepreciationPostHeader(string companyGroupId, string companyId, string plantId, string depreciationVoucherId, SourceType sourceType)
+        {
+            var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
+            , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo
+            ,AddedBy=CASE WHEN U.FullName<>'' THEN U.FullName ELSE V.AddedBy END
+            ,PostedBy=CASE WHEN U.FullName<>'' THEN U.FullName ELSE V.PostedBy END
+            , UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
+			, V.CurrencyId, C.Code AS CurrencyCode
+            ,AD.Id AssetDepreciationId,AD.ProcessName,FORMAT(AD.ProcessDate, 'dd-MMM-yyyy') ProcessDate
+            FROM [TRN].[Voucher] AS V 
+            LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
+            LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
+            LEFT JOIN SEC.[User] U ON U.UserId=V.AddedBy
+            LEFT JOIN [TRN].[AssetDepreciation] AD ON AD.VoucherId=V.Id
+            WHERE v.Archive=0 AND v.CompanyGroupId='" + companyGroupId + "' AND v.CompanyId='" + companyId + "' AND v.PlantId='" + plantId + "' AND V.Id='" + depreciationVoucherId + "' AND v.SourceType='" + sourceType + "'";
+            return _sqlRepository.GetData(cmdText);
+        }
 
         public IWorkbook FixedAssetsDepreciationPostReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string depreciationVoucherId)
         {
@@ -1491,6 +1508,185 @@ namespace Library.Accounting.FixedAssets
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.CellStyle.Font.Size = 8;
                 reportUtility.CompanyPlantHeader(ref sheet, 7, "Fixed Asset Depreciation", companyId, plantName, null);
+                reportUtility.PageSetup(ref sheet, 7, ExcelPageOrientation.Portrait);
+            }
+
+            return workbook;
+        }
+        public IWorkbook AssetsDepreciationPostReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string depreciationVoucherId)
+        {
+            var reportUtility = new ReportUtility();
+            var excelEngine = new ExcelEngine();
+            var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
+            workbook.Version = ExcelVersion.Excel2016;
+            var sheet = workbook.Worksheets[0];
+            sheet.Name = "CapitalizeAssetDepreciationPost";
+            var header = GetAssetsDepreciationPostHeader(companyGroupId, companyId, plantId, depreciationVoucherId, SourceType.DepreciationJournal);
+
+            reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];
+
+            var dsLocal = GetFixedAssetsDepreciationPostData(companyGroupId, companyId, plantId, depreciationVoucherId, SourceType.DepreciationJournal);
+
+            var transcationCurrency = header["CurrencyId"].ToString();
+            GetParallelCurrency(companyId, out string companyCurrencyId, out string companyCurrencyCode);
+
+
+            var row = 5;
+            var colLast = 1;
+            int xlsCol = 1;
+            int colGl = 0;
+            int colinrDebit = 0;
+            int colinrCredit = 0;
+
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Voucher No");
+            reportUtility.SetText(ref sheet, row, 2, header["VoucherNo"].ToString());
+
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Voucher Date");
+            reportUtility.SetText(ref sheet, row, 5, header["VoucherDate"].ToString());
+            sheet[row, 4].ColumnWidth = 15;
+            sheet[row, 5].ColumnWidth = 15;
+            row++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Depreciation Id");
+            reportUtility.SetText(ref sheet, row, 2, header["AssetDepreciationId"].ToString());
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Doc Ref");
+            reportUtility.SetText(ref sheet, row, 5, header["DocRefNo"].ToString());
+            row++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Process Name");
+            reportUtility.SetText(ref sheet, row, 2, header["ProcessName"].ToString());
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Process Date");
+            reportUtility.SetText(ref sheet, row, 5, header["ProcessDate"].ToString());
+            row++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");
+            reportUtility.SetText(ref sheet, row, 2, header["PostingDate"].ToString());
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "DocDate");
+            reportUtility.SetText(ref sheet, row, 5, header["DocDate"].ToString());
+            row++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Narration");
+            reportUtility.SetText(ref sheet, row, 2, header["Narration"].ToString());
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");
+            reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());
+            row++;
+
+            colLast = companyCurrencyId == transcationCurrency ? 5 : 5;
+            sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
+            sheet[row, 2].ColumnWidth = 30;
+            row++;  //10
+
+
+            reportUtility.SetHeaderText(ref sheet, row, 4, companyCurrencyCode, ExcelHAlign.HAlignCenter);
+            sheet[row, 4, row, 5].Merge();
+
+            sheet[row, 6].ColumnWidth = 15;
+            sheet[row, 7].ColumnWidth = 15;
+            sheet.Range[row, 4, row, colLast].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[row, 4, row, colLast].BorderInside(ExcelLineStyle.Hair);
+            row++;
+
+
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "GL"); colGl = xlsCol; xlsCol++;
+            sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge();
+
+            xlsCol++; xlsCol++;
+
+
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Debit", 14, ExcelHAlign.HAlignRight); colinrDebit = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Credit", 14, ExcelHAlign.HAlignRight); colinrCredit = xlsCol;
+            colLast = xlsCol;
+            sheet.Range[row, colGl, row, colLast].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[row, colGl, row, colLast].BorderInside(ExcelLineStyle.Hair);
+
+
+
+
+            int formulaStartRow = 0;
+            int formulaEndRow = 0;
+            if (dsLocal.Rows.Count > 0)
+            {
+                double totalBookCurrencyAmount = 0;
+                row++; 
+
+                formulaStartRow = row;
+                for (int i = 0; i < dsLocal.Rows.Count; i++)
+                {
+                    var glName = dsLocal.Rows[i]["Budget"].ToString();
+
+
+                    reportUtility.SetText(ref sheet, row, colGl, dsLocal.Rows[i]["GLGeneralInfoCode"] + " - " + glName + " - " + dsLocal.Rows[i]["Activity"]);
+
+                    sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(colGl + 2) + row].Merge();
+
+
+                    reportUtility.SetText(ref sheet, row, colinrDebit, Convert.ToDouble(dsLocal.Rows[i]["CompanyCurrencyDrAmount"].ToString()));
+                    reportUtility.SetText(ref sheet, row, colinrCredit, Convert.ToDouble(dsLocal.Rows[i]["CompanyCurrencyCrAmount"].ToString()));
+
+                    totalBookCurrencyAmount += Convert.ToDouble(dsLocal.Rows[i]["CompanyCurrencyDrAmount"].ToString());
+
+                    sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[row, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
+
+                    glName = string.Empty;
+
+                    row++;
+                }
+
+                formulaEndRow = row - 1;
+                reportUtility.SetText(ref sheet, row, 3, "Total: ", true);
+                sheet.Range[row, colinrDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colinrDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colinrDebit) + (formulaEndRow) + ")";
+                sheet.Range[row, colinrDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                sheet.Range[row, colinrDebit].CellStyle.Font.Bold = true;
+                sheet.Range[row, colinrDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet.Range[row, colinrDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet.Range[row, colinrDebit].BorderAround(ExcelLineStyle.Hair);
+
+                sheet.Range[row, colinrCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colinrCredit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colinrCredit) + (formulaEndRow) + ")";
+                sheet.Range[row, colinrCredit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                sheet.Range[row, colinrCredit].CellStyle.Font.Bold = true;
+                sheet.Range[row, colinrCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet.Range[row, colinrCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet.Range[row, colinrCredit].BorderAround(ExcelLineStyle.Hair);
+
+
+                sheet.Range[row, colinrDebit, row, colLast].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[row, colinrDebit, row, colLast].BorderAround(ExcelLineStyle.Hair);
+
+                row += 2;
+                reportUtility.SetText(ref sheet, row, 1, "In Word:", true);
+                sheet.Range[reportUtility.GetColumnNameForXls(2) + row].Text = reportUtility.InWord(totalBookCurrencyAmount, companyCurrencyId);
+                sheet.Range[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
+                sheet.Range[reportUtility.GetColumnNameForXls(2) + row].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[reportUtility.GetColumnNameForXls(2) + row].VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[reportUtility.GetColumnNameForXls(2) + row].CellStyle.Font.Bold = true;
+
+                
+                sheet.UsedRange.CellStyle.Font.Size = 8;
+                row += 4;
+                reportUtility.SetSignatureText(ref sheet, row - 1, 1, header["AddedBy"].ToString());
+                sheet.Range[row, 1].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+                reportUtility.SetTextMiddle(ref sheet, row, 1, "Prepared By", true);
+                sheet[row, 1].ColumnWidth = 25;
+
+                reportUtility.SetSignatureText(ref sheet, row - 1, 3, header["PostedBy"].ToString());
+                sheet.Range[row, 3].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+                reportUtility.SetTextMiddle(ref sheet, row, 3, "Checked By", true);
+                sheet[row, 3].ColumnWidth = 25;
+
+                sheet.Range[row, 5].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+                reportUtility.SetTextMiddle(ref sheet, row, 5, "Authorized By", true);
+
+                reportUtility.CompanyPlantHeader(ref sheet, colLast, "Capitalize Asset Depreciation", companyId, plantName, null);
+                reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
+
+
+            }
+            else
+            {
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.CellStyle.Font.Size = 8;
+                reportUtility.CompanyPlantHeader(ref sheet, 7, "Capitalize Asset Depreciation", companyId, plantName, null);
                 reportUtility.PageSetup(ref sheet, 7, ExcelPageOrientation.Portrait);
             }
 
@@ -2140,7 +2336,7 @@ namespace Library.Accounting.FixedAssets
 
         #region Capitalize Asset Depreciation Posting
         public void InsertAssetDepreciationPosting(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-          , IEnumerable<FixedAssetDepreciationProcessVM> fixedAssetDepreciationList)
+          , string assetDepreciationId)
         {
             try
             {
@@ -2246,10 +2442,13 @@ namespace Library.Accounting.FixedAssets
 
                 clsStaticInfo objApp = new clsStaticInfo();
                 objApp.SaveDataSets(_vdataset, _crvDetailData, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData);
-                if (fixedAssetDepreciationList != null)
+                if (assetDepreciationId != null)
                 {
                     var rdBuilder = new System.Text.StringBuilder();
-                    var builderSql = @"UPDATE [TRN].[FixedAssetDepreciationProcess] SET VoucherDetailId='" + voucherDrId + "',DepreciationVoucherId='" + voucher.Id + "' WHERE FixedAssetMasterId='" + fixedAssetDepreciationList.FirstOrDefault().FixedAssetMasterId + "' AND DepreciationProcessDate='" + fixedAssetDepreciationList.FirstOrDefault().DepreciationProcessDate + "' ";
+                    var builderSql = "";
+                    builderSql = @"UPDATE [TRN].[AssetDepreciation] SET VoucherId='" + voucher.Id + "' WHERE Id='" + assetDepreciationId + "' ";
+                    rdBuilder.Append(builderSql);
+                    builderSql = @"UPDATE [TRN].[AssetDepreciationDetail] SET VoucherDetailId='" + voucherDrId + "' WHERE AssetDepreciationId='" + assetDepreciationId + "' ";
                     rdBuilder.Append(builderSql);
                     _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                 }

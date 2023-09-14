@@ -2024,6 +2024,7 @@
     <Content Include="Areas\Commercial\Scripts\CommercialConfig.js" />
     <Content Include="Areas\Commercial\Scripts\CNFExpenseBockingController.js" />
     <Content Include="Areas\Commercial\Scripts\LcNavigationController.js" />
+    <Content Include="Areas\Commercial\Scripts\BtbPerformanceController.js" />
     <Content Include="Areas\Commercial\Scripts\LCReportsController.js" />
     <Content Include="Areas\Commercial\Scripts\InvoiceBudgetChargesSettingController.js" />
     <Content Include="Areas\Commercial\Scripts\CommercialAdditionalInfoController.js" />
@@ -4795,6 +4796,7 @@
     <Content Include="Areas\OrderManagements\Views\Documentation\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\QualityActionUpdateReport\Aplos.cshtml" />
     <Content Include="Areas\FixedAssets\Views\AssetDepreciationPost.cshtml" />
+    <Content Include="Areas\Commercial\Views\LCReports\btb.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
