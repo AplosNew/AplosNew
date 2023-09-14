@@ -359,7 +359,7 @@ namespace Library.OrderManagement.Costing
                     ROW++;
                     sheet[ROW, colCurrency + 1].Text = dtOrderCostingProductInfo.Rows[i]["Currency"].ToString();
                 }
-               
+
                 sheet.Range[ROW, 8, ROW, 9].Merge();
                 sheet.Range[7, 1, 19, endCol].NumberFormat = clsStaticInfo.NumberFormat(2);
 
@@ -422,7 +422,7 @@ namespace Library.OrderManagement.Costing
                 int colProcCostingPer = COL;
                 sheet[ROW, COL].ColumnWidth = 8;
                 sheet[ROW, COL].WrapText = true;
-                COL++; 
+                COL++;
 
 
                 sheet[ROW, COL].Text = "C-D";
@@ -487,7 +487,10 @@ namespace Library.OrderManagement.Costing
 
                     if (clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) != 0)
                     {
-                        sheet[ROW, colPreCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) + "/" + clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[0]["TargetSellingPrice"].ToString()) + "%";
+                        var preSum = "SUM(" + reportUtility.GetColumnNameForXls(colPreCosting) + 22 + ":" + reportUtility.GetColumnNameForXls(colPreCosting) + (27) + ")*100";
+                        //sheet[ROW, colPreCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) + "/" + clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[0]["TargetSellingPrice"].ToString()) + "%";
+
+                        sheet[ROW, colPreCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) + "/" + preSum;
 
                         sheet.Range[ROW, colPreCostingPer].NumberFormat = "#,##0.00;(#,##0.00)";
                     }
@@ -509,7 +512,10 @@ namespace Library.OrderManagement.Costing
 
                         if (clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) != 0)
                         {
-                            sheet[ROW, colProcCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) + "/" + clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[0]["TargetSellingPrice"].ToString()) + "%";
+                            var preSum = "SUM(" + reportUtility.GetColumnNameForXls(colProcCosting) + 22 + ":" + reportUtility.GetColumnNameForXls(colProcCosting) + (27) + ")*100";
+                            sheet[ROW, colProcCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) + "/" + preSum;
+
+                            //sheet[ROW, colProcCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) + "/" + clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[0]["TargetSellingPrice"].ToString()) + "%";
 
                             sheet.Range[ROW, colProcCostingPer].NumberFormat = "#,##0.00;(#,##0.00)";
 
@@ -1025,7 +1031,7 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].Text = "Value Loss(%)";
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colValue = COL;
-                COL ++;
+                COL++;
 
                 sheet[ROW, COL].Text = "Amount";
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -1139,7 +1145,7 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].Text = "Value Loss(%)";
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colValue = COL;
-                COL ++;
+                COL++;
 
                 sheet[ROW, COL].Text = "Amount";
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -1253,7 +1259,7 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].Text = "Value Loss(%)";
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colValue = COL;
-                COL ++;
+                COL++;
 
                 sheet[ROW, COL].Text = "Amount";
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
