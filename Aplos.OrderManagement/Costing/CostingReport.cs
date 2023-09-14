@@ -486,11 +486,11 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colPreCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString());
 
                     if (clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) != 0)
-                    {
-                        var preSum = "SUM(" + reportUtility.GetColumnNameForXls(colPreCosting) + 22 + ":" + reportUtility.GetColumnNameForXls(colPreCosting) + (27) + ")*100";
+                    { 
+                        double preSum = clsStaticInfo.dbl(dtCostingDetailInfo.Compute("SUM(TotalGrossAmount)", null));
                         //sheet[ROW, colPreCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) + "/" + clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[0]["TargetSellingPrice"].ToString()) + "%";
 
-                        sheet[ROW, colPreCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) + "/" + preSum;
+                        sheet[ROW, colPreCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) + "/" + preSum + "*" + 100;
 
                         sheet.Range[ROW, colPreCostingPer].NumberFormat = "#,##0.00;(#,##0.00)";
                     }
@@ -511,9 +511,9 @@ namespace Library.OrderManagement.Costing
                         sheet[ROW, colProcCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString());
 
                         if (clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) != 0)
-                        {
-                            var preSum = "SUM(" + reportUtility.GetColumnNameForXls(colProcCosting) + 22 + ":" + reportUtility.GetColumnNameForXls(colProcCosting) + (27) + ")*100";
-                            sheet[ROW, colProcCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) + "/" + preSum;
+                        { 
+                            double proSum = clsStaticInfo.dbl(dtCostingDetailInfo.Compute("SUM(TotalProcurementGrossAmount)", null));
+                            sheet[ROW, colProcCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) + "/" + proSum + "*" + 100; ;
 
                             //sheet[ROW, colProcCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) + "/" + clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[0]["TargetSellingPrice"].ToString()) + "%";
 
@@ -529,6 +529,7 @@ namespace Library.OrderManagement.Costing
                     sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
 
                     ROW++;
+                    var endRow = ROW;
                 }
                 sheet[ROW, 1].Text = "Total:";
                 sheet.Range[ROW, 1].CellStyle.Font.Bold = true;
