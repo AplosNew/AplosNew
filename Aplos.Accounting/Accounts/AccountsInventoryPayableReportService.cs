@@ -103,7 +103,7 @@ namespace Library.Accounting.Accounts
         {
             try
             {
-                var sql = @"SELECT  NULL OtherName, TrnType=Case when VD.DrAmount=0 then 'Cr' else 'Dr' End
+                var sql = @"SELECT * FROM (SELECT  NULL OtherName, TrnType=Case when VD.DrAmount=0 then 'Cr' else 'Dr' End
 							, NULL MaterialGroupMasterId, NULL TaxCategoryId,VD.GLGeneralInfoId
 							, GL.AccountCode GLGeneralInfoCode
 							,GL.UserName  GLGeneralInfoName
@@ -124,24 +124,8 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN[MST].[BudgetMaster] AS BM ON VD.BudgetMasterId= BM.Id
                         LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
                         LEFT JOIN [HKP].[Activity] AS A ON VD.ActivityId= A.Id
-                        WHERE IR.Id='" + inveReveiveId + @"'
-                    --UNION
-					--SELECT 'Svc' AS OtherName, 'Cr' AS TrnType, NULL AS MaterialGroupMasterId, IRTS.TaxCategoryId
-					--	, TCGL.LiabilityGLId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
-					--	, TCGL.LiabilityBudgetMasterId AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
-					--	, TCGL.LiabilityActivityId AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
-					--	, NULL AS  Dr, SUM(IRTS.TaxAmount) Cr
-					--	, SUM(IRTS.TaxAmount) AS Amount
-					--FROM [TRN].[InventoryReceiveTax] AS IRTS
-					--JOIN [TRN].[InventoryReceive] AS IR ON IRTS.InventoryReceiveId=IR.Id
-					--JOIN [MST].[TaxCategoryGL] AS TCGL ON TCGL.TaxCategoryId=IRTS.TaxCategoryId
-					--JOIN [MST].[TaxCategory] AS TC ON TCGL.TaxCategoryId=TC.Id AND IRTS.TaxCategoryId=TC.Id
-					--LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON TCGL.GLGeneralInfoId=GL.Id
-					--LEFT JOIN [MST].[BudgetMaster] AS BM ON TCGL.BudgetMasterId= BM.Id
-					--LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
-					--LEFT JOIN [HKP].[Activity] AS A ON TCGL.ActivityId= A.Id
-					--WHERE IRTS.InventoryReceiveId=@receiveId AND IR.IsNonCreditable=0 AND IRTS.InventoryServiceId<>'' AND TCGL.InputTaxOutPutTax='Input' AND ISNULL(TCGL.TaxType,'')<>'RCM'
-					--GROUP BY IRTS.TaxCategoryId, TCGL.LiabilityGLId, GL.AccountCode, GL.UserName, TCGL.LiabilityBudgetMasterId, B.Code, B.UserName, TCGL.LiabilityActivityId, A.Code, A.UserName";
+                        WHERE IR.Id='" + inveReveiveId + @"') X order by X.TrnType desc,X.GLGeneralInfoCode 
+                    ";
                 return _sqlRepository.GetModelCollection<InventoryReportViewModel>(sql);
             }
             catch (CustomException)
