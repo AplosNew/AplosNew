@@ -2826,6 +2826,30 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
+        public List<Dictionary<string, object>> BTBPerformanceData()
+        {
+
+            string sql = @"select distinct isnull(c.FileNo,'')FileNo,isnull(b.UserName,'') Bank,isnull(bu.userName,'') Buyer,c.Id ContractId,c.ContractNo,isnull(c.MasterLCId,'')MasterLCId,c.Amount MasterLCValue
+								,p.UserName SupplierName,plc.LCRef BTBLCNo,plc.LCDate,plc.Type UsancePeriod,plc.Amount Value,0 Percentage,isnull(pda.AcceptanceDate,'')AcceptanceDate
+								,isnull(pda.AcceptanceAmount,0)AcceptanceAmount,isnull(i.PostingDate,'') BankAcceptanceDate,isnull(i.ActualDueDate,'') MaturityDate
+								,isnull(iwo.PostingDate,'') PaymentDate,isnull(iwo.Amount,0) PaymentPaidAmount--,fn.Amount PCAmount,fn.PostingDate
+								from PurchaseLc plc
+								left join [HKP].[Party] p on p.Id=plc.VendorId
+								left join Contract c on C.Id=plc.ContractId
+								left join trn.salesorder so on so.ContractId=c.Id
+								left join trn.MasterOrderItem moi on moi.Id=so.MasterOrderItemId
+								left join trn.MasterOrder mo on mo.Id=moi.MasterOrderId
+								left join hkp.Buyer bu on bu.Id=mo.BuyerId
+								left join HKP.Bank b on b.Id=C.BankId
+								left join trn.PurchaseDocAcceptance pda on pda.PurchaseLCId=plc.Id
+								left join trn.Invoice i on i.PurchaseDocAcceptanceId=pda.Id
+								left join trn.InvoiceWriteOff iwo on iwo.VoucherId=i.VoucherId
+								left join trn.financing fn on fn.VoucherId=i.VoucherId
+								left join hkp.FinancingType ft on ft.Id=fn.FinancingTypeId
+								where plc.OrderSpecific='Yes'";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
         #endregion
 
         #region Asset Depreciation Process
