@@ -404,6 +404,7 @@ namespace Library.OrderManagement.Production
 
                 DataTable dt = _sqlRepository.GetDataTable(str);
 
+
                 dt.Columns.Add("checked", typeof(bool));
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {

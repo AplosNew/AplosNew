@@ -54,7 +54,7 @@ function assetDepreciationPostController(accountService, cboService, commonMessa
         };
         angular.element(document.querySelector('#DepreciationPopUp')).modal('show');
     };
-    //$scope.getDepreciationData();
+
     $scope.closeFixedAssetDepreciationPopUp = function () {
         angular.element(document.querySelector('#DepreciationPopUp')).modal('hide');
     }
@@ -126,7 +126,6 @@ function assetDepreciationPostController(accountService, cboService, commonMessa
         $scope.voucher.DepreciationAmount = data.DepreciationAmount;
         $scope.voucher.ProcessDate = $filter("dateFiltering")(data.ProcessDate);
 
-        //$scope.fixedAssetDepreciationDetailList.push($scope.voucher);
         $scope.getDepreciationJV(data.AssetDepreciationId);
         
         angular.element(document.querySelector('#DepreciationPopUp')).modal('hide');
@@ -201,17 +200,39 @@ function assetDepreciationPostController(accountService, cboService, commonMessa
         }
         return manualValidation("div_PostingDate", $scope.invalidPostingDate, msg);
     };
-    $scope.removeRow = function (index) {
-        $scope.voucherDetailList.splice(index, 1);
+    $scope.invalidDocDate = false;
+    $scope.checkDocDate = function () {
+        var msg = "";
+        if (new Date($scope.voucher.DocDate) > new Date()) {
+            $scope.invalidDocDate = true;
+            msg = "Doc date must be below or equal to current Date!";
+        }
+        else if (new Date($scope.voucher.PostingDate) < new Date($scope.voucher.DocDate)) {
+            msg = "Doc date must be below or equal to Posting Date!";
+            $scope.invalidDocDate = true;
+        }
+        else if (baseService.isUndefinedOrNull($scope.voucher.DocDate)) {
+            msg = "Doc Date is required.";
+            $scope.invalidDocDate = true;
+        }
+        else $scope.invalidDocDate = false;
+        return manualValidation("div_DocDate", $scope.invalidDocDate, msg);
     };
-
+    
     $scope.Clear = function () {
-        $scope.Action = "Save";
+        $scope.Action = "Post";
         $scope.voucher.Active = true;
         $scope.voucher.Amount = 0;
         $scope.voucher.DocRefNo = null;
         $scope.voucher.Narration = null;
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
+        $scope.voucher.AssetDepreciationId = null;
+        $scope.voucher.ProcessName = null;
+        $scope.voucher.CurrencyId = null;
+        $scope.voucher.CompanyCurrencyRate = null;
+        $scope.voucher.BaseCurrency = null;
+        $scope.voucher.DepreciationAmount = 0;
+        $scope.voucher.ProcessDate = null;
         $scope.fixedAssetDepreciationJVList = [];
         $scope.fixedAssetDepreciationDetailList = []; 
     };
@@ -220,14 +241,14 @@ function assetDepreciationPostController(accountService, cboService, commonMessa
         $scope.$broadcast("show-errors-check-validity");
         if ($scope.form0.$valid) {
             $scope.SaveUrl = "fixedassets/FixedAssetRegister/SaveAssetDepreciationPost"
-            if ($scope.Action === "Save") {
+            if ($scope.Action === "Post") {
                 $http({
                     method: "POST",
                     url: $scope.SaveUrl,
                     data: {
                         "voucherVM": $scope.voucher,
                         "voucherDetailVMList": $scope.fixedAssetDepreciationJVList,
-                        "fixedAssetDepreciationList": $scope.fixedAssetDepreciationDetailList
+                        "assetDepreciationId": $scope.voucher.AssetDepreciationId
                     },
                     dataType: "JSON"
                     , contentType: "application/json charset=utf-8"
@@ -249,17 +270,10 @@ function assetDepreciationPostController(accountService, cboService, commonMessa
         }
     };
 
-    $scope.voucherId = null;
-    $scope.confirmPost = function (voucherId) {
-        $scope.voucherId = voucherId;
-        $scope.message_confirmation = "Are you sure to Post?";
-        angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
-    };
-
     $scope.onClickReportDownloadExcel = function (args) {
         var reportFormat = "Excel";
         try {
-            var file_src = $scope.path + 'FixedAssetsDepreciationPostReport?reportFormat=' + reportFormat + '&depreciationVoucherId=' + args.Id
+            var file_src = $scope.path + 'AssetsDepreciationPostReport?reportFormat=' + reportFormat + '&depreciationVoucherId=' + args.Id
             $rootScope.report(file_src);
         } catch (e) {
 
@@ -270,7 +284,7 @@ function assetDepreciationPostController(accountService, cboService, commonMessa
         var reportFormat = "Pdf";
         if (baseService.isUndefinedOrNull(args.Id)) return ShowResult('No Id found', 'failure');
         try {
-            var file_src = $scope.path + 'FixedAssetsDepreciationPostReport?reportFormat=' + reportFormat + '&depreciationVoucherId=' + args.Id
+            var file_src = $scope.path + 'AssetsDepreciationPostReport?reportFormat=' + reportFormat + '&depreciationVoucherId=' + args.Id
             $rootScope.report(file_src);
         } catch (e) {
 

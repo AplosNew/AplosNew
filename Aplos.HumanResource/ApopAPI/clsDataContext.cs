@@ -8675,8 +8675,6 @@ LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
         public string UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
     }
-
-
     #endregion vehicle
 
     public class SevenDaysAttdn

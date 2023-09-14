@@ -2967,10 +2967,10 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
 							,GLGeneralInfoId =BM.GLGeneralInfoId        
 							,GLGeneralInfoCode =GL.AccountCode 
 							,GLGeneralInfoName =GL.UserName
-							,BudgetMasterId =FAMG.AssetUnderConstructionBudgetMasterId
+							,BudgetMasterId =FAMBT.BudgetMasterId
 							,BudgetCode = B.Code
 							,BudgetName =B.UserName 
-							,ActivityId = FAMG.AssetUnderConstructionActivityId
+							,ActivityId = BMA.ActivityId
 							,ActivityCode = A.Code
 							,ActivityName =A.UserName
 							, NULL Dr
@@ -2978,14 +2978,14 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
 							,  SUM( ISNULL(ADDS.DepreciationAmount,0)) AS Amount
 						FROM [TRN].[AssetDepreciationDetail] ADDS
 						LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=ADDS.FixedAssetMasterId
-						LEFT JOIN HKP.FixedAssetMasterGL AS FAMG  ON FAMG.FixedAssetMasterId=FAM.Id
-						LEFT JOIN[MST].[BudgetMaster] AS BM ON FAMG.AssetUnderConstructionBudgetMasterId= BM.Id
-						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON FAMG.AssetUnderConstructionGLId=GL.Id
+						LEFT JOIN [HKP].[FixedAssetMasterBudgetTag] AS FAMBT  ON FAMBT.FixedAssetMasterId=FAM.Id
+						LEFT JOIN [MST].[BudgetMaster] AS BM ON FAMBT.BudgetMasterId= BM.Id
+						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
-						LEFT JOIN [HKP].[Activity] AS A ON FAMG.AssetUnderConstructionActivityId= A.Id
-						LEFT JOIN [MST].[BudgetMasterActivity] AS BMA ON FAMG.AssetUnderConstructionActivityId= BMA.ActivityId AND FAMG.AssetUnderConstructionBudgetMasterId= BMA.BudgetMasterId
+						LEFT JOIN (SELECT Id,BudgetMasterId,ActivityId FROM [MST].[BudgetMasterActivity] WHERE Isdefault=1 ) AS BMA ON BMA.BudgetMasterId= FAMBT.BudgetMasterId 
+						LEFT JOIN [HKP].[Activity] AS A ON BMA.ActivityId= A.Id
 						WHERE ADDS.AssetDepreciationId=@assetDepreciationId 
-						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, FAMG.AssetUnderConstructionBudgetMasterId, B.Code, B.UserName, FAMG.AssetUnderConstructionActivityId, A.Code, A.UserName
+						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, FAMBT.BudgetMasterId, B.Code, B.UserName, BMA.ActivityId, A.Code, A.UserName
 						) X 
                         WHERE X.Amount>0
 						ORDER BY 2 DESC";
