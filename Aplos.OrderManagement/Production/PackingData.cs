@@ -404,6 +404,7 @@ namespace Library.OrderManagement.Production
 
                 DataTable dt = _sqlRepository.GetDataTable(str);
 
+
                 dt.Columns.Add("checked", typeof(bool));
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -424,8 +425,9 @@ namespace Library.OrderManagement.Production
                 var str = @"Select LotNo , RefNo , cast(NetWeight as decimal(18,2)) as NetWeight , GWeight ,ProductCode , POId 
                             from dbo.ItemScanChild S
                             LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId
-                            where s.LotNo = '" + LotNo + @"' and s.ProductCode = '" + ProductCode + @"' and s.POId = '" + PO + @"' and s.Booked = 0 and IsDespatch = 0 
-                            AND R.ToLocation not in ( 'JOB WORK LOCATION', 'DyeHouse' , 'PACKING', 'JW Sale-Dye')
+							LEFT JOIN HKP.MaterialMovementPurpose PURP ON PURP.Id = R.PurposeId
+                            where s.LotNo = '" + LotNo + @"' and s.ProductCode = '" + ProductCode + @"' and s.POId = '" + PO + @"'  and
+							isnull(s.booked,0) = 0 AND isnull(PURP.IsInventoryOut,0) = 0
                             --and InventoryReceiveDetailId is not null";
                 DataTable dt = _sqlRepository.GetDataTable(str);
                 var str1 = @"Select LotNo , RefNo , cast(NetWeight as decimal(18,2)) as NetWeight , GWeight ,ProductCode , POId from dbo.ItemScanChild where LotNo = '" + LotNo + "' and ProductCode = '" + ProductCode + @"' and POId = '" + PO + @"' and Booked = 1 and IsDespatch = 0";

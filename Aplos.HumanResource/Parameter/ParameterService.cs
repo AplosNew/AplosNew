@@ -89,6 +89,17 @@ left join EmployeeInformation EI on EI.SystemId = PM.EmpSystemId
         }
         #endregion GET SEQUENCE
 
+        #region GET PARAMETERMASTERSEQUENCE
+        public double GetParaMasterSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(Sequence),0) AS Sequence FROM HKP.ProcessParaMaster");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+        #endregion GET PARAMETERMASTERSEQUENCE
+
         #region SEARCH SAVED DATA IN GRID 
         public IEnumerable<object> GetList(string column, string value)
         {
@@ -103,6 +114,27 @@ left join EmployeeInformation EI on EI.SystemId = PM.EmpSystemId
 
                 string sql = @"SELECT PM.*, EI.EmployeeName, EI.EmployeeCode,(select p.Code from org.position p where p.Id=PM.PositionCodeId) PositionCode FROM HKP.ParameterMaster PM
                                 left join EmployeeInformation EI on EI.SystemId = PM.EmpSystemId
+                                where " + strkey + "order by Sequence";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetProcessParameterList(string column, string value)
+        {
+            try
+            {
+                string TableName = "HKP.ProcessParaMaster";
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                string sql = @"SELECT PM.*, (select p.Code from org.position p where p.Id=PM.PositionCodeId) PositionCode FROM HKP.ProcessParaMaster PM
                                 where " + strkey + "order by Sequence";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -165,6 +197,54 @@ left join EmployeeInformation EI on EI.SystemId = PM.EmpSystemId
                 throw ex;
             }
         }
+
+        public Dictionary<string, object> ProcessParameterSave(Dictionary<string, object> data)
+        {
+            try
+            {
+                string TableNameHead = "HKP.ProcessParaMaster";
+
+                DataSet dsMaster;
+
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Name already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where StandardName='" + data["StandardName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Standard Name already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                string _Id = "";
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableNameHead, out _Id);
+
+                    data["Id"] = "PP" + _Id;
+
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+               
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion SAVE
 
         #region DELETE
@@ -174,6 +254,31 @@ left join EmployeeInformation EI on EI.SystemId = PM.EmpSystemId
             {
 
                 string TableName = "HKP.ParameterMaster";
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+
+        public string ProcessParameterDelete(string id)
+        {
+            try
+            {
+
+                string TableName = "HKP.ProcessParaMaster";
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
 

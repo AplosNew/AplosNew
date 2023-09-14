@@ -489,6 +489,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
             EntityId: null,
             DispatchResponsiblePersonId: null,
         };
+        $scope.loadInactiveDate();
         $scope.customer = e.data.username;
         $scope.Packing.CustomerId = e.data.id;
         angular.element(document.querySelector('#customersModal')).modal('hide');
@@ -988,12 +989,12 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
         for (var i = 0; i < $scope.PoLoTCollection.length; i++) {
             if ( $scope.PoLoTCollection[i]["PlanQty"] == 0) {
                 ShowResult("Plan Qty cannot be 0!");
-                throw ("Invalid");
+                throw ("Plan Qty cannot be 0!");
             }
 
             if ($scope.PoLoTCollection[i]["PlanQty"] < $scope.PoLoTCollection[i]["BookQty"]) {
                 ShowResult("Book Qty cannot be more than Plan Qty!!");
-                throw ("Invalid");
+                throw ("Book Qty cannot be more than Plan Qty!!");
             }
 
 

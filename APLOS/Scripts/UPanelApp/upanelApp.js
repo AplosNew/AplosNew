@@ -1208,6 +1208,7 @@ upanelApp.controller('AssetsRegisterReportController', AssetsRegisterReportContr
 upanelApp.controller('assetDepreciationPostController', assetDepreciationPostController);
 upanelApp.controller('documentationController', documentationController);
 upanelApp.controller("QualityActionUpdateReportController", QualityActionUpdateReportController)
+upanelApp.controller("ProcessParameterMasterController", ProcessParameterMasterController)
 
 
 
