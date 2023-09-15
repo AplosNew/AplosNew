@@ -115,5 +115,9 @@ function CommercialConfig($routeProvider) {
             templateUrl: 'Commercial/CommercialAdditionalInfo/Aplos',
             controller: 'CommercialAdditionalInfoController'
         })
+        .when('/btb-performance', {
+            templateUrl: 'Commercial/LCReports/btb',
+            controller: 'BtbPerformanceController'
+        })
         ;
 }
