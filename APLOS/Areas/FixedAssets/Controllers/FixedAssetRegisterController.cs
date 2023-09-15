@@ -1247,25 +1247,26 @@ namespace Aplos.Areas.FixedAssets.Controllers
             }
         }
 
+        [HttpGet, Authorize]
+        public ActionResult AssetsDepreciationPostReport(ReportFormat reportFormat, string depreciationVoucherId)
+        {
+            FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-        //[HttpGet, Authorize]
-        //public ActionResult GetVendorInvoiceChargeWriteOffReport(ReportFormat reportFormat, string voucherId)
-        //{
-        //    AccountsInvoiceReportService _accountsInvoiceReportService = new AccountsInvoiceReportService(_sqlRepository);
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    var workbook = _accountsInvoiceReportService.GetVendorInvoiceChargeReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId);
-        //    switch (reportFormat)
-        //    {
-        //        case ReportFormat.Pdf:
-        //            return RenderReportAsPdf(workbook, reportFileName);
+            var workbook = _fixedAssetDisposeService.AssetsDepreciationPostReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, depreciationVoucherId);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName, false);
 
-        //        case ReportFormat.Excel:
-        //            return RenderReportAsExcel(workbook, reportFileName);
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
 
-        //        default:
-        //            return RenderReportAsExcel(workbook, reportFileName);
-        //    }
-        //}
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+
         #endregion
 
         #region Report
@@ -1836,14 +1837,14 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return Json(_fixedAssetQueryService.GetAssetDepreciationSingleJVList(assetDepreciationId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
-        public JsonResult SaveAssetDepreciationPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<FixedAssetDepreciationProcessVM> fixedAssetDepreciationList)
+        public JsonResult SaveAssetDepreciationPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList ,string assetDepreciationId)
         {
             FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
-            _fixedAssetDisposeService.InsertAssetDepreciationPosting(voucherVM, voucherDetailVMList, fixedAssetDepreciationList);
+            _fixedAssetDisposeService.InsertAssetDepreciationPosting(voucherVM, voucherDetailVMList,  assetDepreciationId);
 
             return Json(new { Message = AplosMessage.Insert });
         }

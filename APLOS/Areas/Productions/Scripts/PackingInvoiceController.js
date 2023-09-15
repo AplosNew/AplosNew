@@ -1266,6 +1266,9 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                 throw "Posted data cann't save or update.";
             }
 
+            if ($scope.salesVM.InvoiceDate > $scope.salesVM.VoucherDate) {
+                throw "Invoice Date can not greater than Entry Date!!.";
+            }
 
             $scope.$broadcast("show-errors-check-validity");
             if ($scope.form0.$valid) {

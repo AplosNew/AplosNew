@@ -2826,6 +2826,30 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
+        public List<Dictionary<string, object>> BTBPerformanceData()
+        {
+
+            string sql = @"select distinct isnull(c.FileNo,'')FileNo,isnull(b.UserName,'') Bank,isnull(bu.userName,'') Buyer,c.Id ContractId,c.ContractNo,isnull(c.MasterLCId,'')MasterLCId,c.Amount MasterLCValue
+								,p.UserName SupplierName,plc.LCRef BTBLCNo,plc.LCDate,plc.Type UsancePeriod,plc.Amount Value,0 Percentage,isnull(pda.AcceptanceDate,'')AcceptanceDate
+								,isnull(pda.AcceptanceAmount,0)AcceptanceAmount,isnull(i.PostingDate,'') BankAcceptanceDate,isnull(i.ActualDueDate,'') MaturityDate
+								,isnull(iwo.PostingDate,'') PaymentDate,isnull(iwo.Amount,0) PaymentPaidAmount--,fn.Amount PCAmount,fn.PostingDate
+								from PurchaseLc plc
+								left join [HKP].[Party] p on p.Id=plc.VendorId
+								left join Contract c on C.Id=plc.ContractId
+								left join trn.salesorder so on so.ContractId=c.Id
+								left join trn.MasterOrderItem moi on moi.Id=so.MasterOrderItemId
+								left join trn.MasterOrder mo on mo.Id=moi.MasterOrderId
+								left join hkp.Buyer bu on bu.Id=mo.BuyerId
+								left join HKP.Bank b on b.Id=C.BankId
+								left join trn.PurchaseDocAcceptance pda on pda.PurchaseLCId=plc.Id
+								left join trn.Invoice i on i.PurchaseDocAcceptanceId=pda.Id
+								left join trn.InvoiceWriteOff iwo on iwo.VoucherId=i.VoucherId
+								left join trn.financing fn on fn.VoucherId=i.VoucherId
+								left join hkp.FinancingType ft on ft.Id=fn.FinancingTypeId
+								where plc.OrderSpecific='Yes'";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
         #endregion
 
         #region Asset Depreciation Process
@@ -2943,10 +2967,10 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
 							,GLGeneralInfoId =BM.GLGeneralInfoId        
 							,GLGeneralInfoCode =GL.AccountCode 
 							,GLGeneralInfoName =GL.UserName
-							,BudgetMasterId =FAMG.AssetUnderConstructionBudgetMasterId
+							,BudgetMasterId =FAMBT.BudgetMasterId
 							,BudgetCode = B.Code
 							,BudgetName =B.UserName 
-							,ActivityId = FAMG.AssetUnderConstructionActivityId
+							,ActivityId = BMA.ActivityId
 							,ActivityCode = A.Code
 							,ActivityName =A.UserName
 							, NULL Dr
@@ -2954,14 +2978,14 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
 							,  SUM( ISNULL(ADDS.DepreciationAmount,0)) AS Amount
 						FROM [TRN].[AssetDepreciationDetail] ADDS
 						LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=ADDS.FixedAssetMasterId
-						LEFT JOIN HKP.FixedAssetMasterGL AS FAMG  ON FAMG.FixedAssetMasterId=FAM.Id
-						LEFT JOIN[MST].[BudgetMaster] AS BM ON FAMG.AssetUnderConstructionBudgetMasterId= BM.Id
-						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON FAMG.AssetUnderConstructionGLId=GL.Id
+						LEFT JOIN [HKP].[FixedAssetMasterBudgetTag] AS FAMBT  ON FAMBT.FixedAssetMasterId=FAM.Id
+						LEFT JOIN [MST].[BudgetMaster] AS BM ON FAMBT.BudgetMasterId= BM.Id
+						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
-						LEFT JOIN [HKP].[Activity] AS A ON FAMG.AssetUnderConstructionActivityId= A.Id
-						LEFT JOIN [MST].[BudgetMasterActivity] AS BMA ON FAMG.AssetUnderConstructionActivityId= BMA.ActivityId AND FAMG.AssetUnderConstructionBudgetMasterId= BMA.BudgetMasterId
+						LEFT JOIN (SELECT Id,BudgetMasterId,ActivityId FROM [MST].[BudgetMasterActivity] WHERE Isdefault=1 ) AS BMA ON BMA.BudgetMasterId= FAMBT.BudgetMasterId 
+						LEFT JOIN [HKP].[Activity] AS A ON BMA.ActivityId= A.Id
 						WHERE ADDS.AssetDepreciationId=@assetDepreciationId 
-						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, FAMG.AssetUnderConstructionBudgetMasterId, B.Code, B.UserName, FAMG.AssetUnderConstructionActivityId, A.Code, A.UserName
+						GROUP BY  BM.GLGeneralInfoId, GL.AccountCode, GL.UserName, FAMBT.BudgetMasterId, B.Code, B.UserName, BMA.ActivityId, A.Code, A.UserName
 						) X 
                         WHERE X.Amount>0
 						ORDER BY 2 DESC";
