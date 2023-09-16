@@ -1,0 +1,68 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>Customer Requirement Control
+</h3>
+<style>
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell {
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    .modellgModify {
+        width: 1600px;
+    }
+</style>
+<div class="form-horizontal form-elements">
+    <div class="row">
+        <div class="col-xs-12 col-sm-3 col-md-3">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Parameter Status</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="statusNew.ParameterStatus" name="Parameter Status" required
+                                ng-options="item.Value as item.Text for item in ParameterStatusLists">
+                            <option value="Select"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-3 col-md-3">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li><button ng-click="View();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> Go </button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div id="GridCustomerRequirementControl" ej-grid e-datasource="CustomerRequirementControlList" e-recorddoubleclick="GetDetails"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-rowdatabound="rowDataBound"
+                 e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                <div e-columns>
+                    <div e-column e-type="string" e-field="CustomerType" e-headertext="Customer Type" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="100"></div>
+                    <div e-column e-type="string" e-field="LineItemNo" e-headertext="LineItemNo" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="100"></div>
+                    <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="Buyer ReferenceNo" e-width="100"></div>
+                    <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Own ReferenceNo" e-width="100"></div>
+                    <div e-column e-type="string" e-field="ProductLibraryCode" e-headertext="ProductLibrary Code" e-width="100"></div>
+                    <div e-column e-type="string" e-field="ProductionGrouping" e-headertext="Production Grouping" e-width="100"></div>
+                    <div e-column e-type="string" e-field="PONo" e-headertext="PONo" e-width="100"></div>
+                    <div e-column e-type="string" e-field="ItemQty" e-headertext="Item Qty" e-width="100"></div>
+                    <div e-column e-type="string" e-field="Remark" e-headertext="Remark" e-width="100"></div>
+                    <div e-column e-type="string" e-field="POStatus" e-headertext="PO Status" e-width="100"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+

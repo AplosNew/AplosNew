@@ -5153,16 +5153,16 @@ else '00:00:00' end) <> '00:00:00'   and apd.WorkDate = '" + date + "'  and Hg.I
                 {
                     #region Sql
                     strSQL1 = @"select * from (  select ROW_NUMBER() OVER(ORDER BY (ISNULL(A.ToDayIN,0)-MBGT.Deployment)) AS SrNo,   SC.StandardName Section,SBC.StandardName SubSection, 
-DSG.StandardName Designation, POS.Activity,apd.InStatus, 
- MBGT.Code BudgetCode, ISNULL(A.ToDayIN , 0) as ToDayIN,  
+DSG.StandardName Designation, POS.Activity, 
+ MBGT.Code BudgetCode, ISNULL(A.ToDayIN , 0) as ToDayIN, 
 Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId  ,MBGT.Deployment, Diffenence= ISNULL(A.ToDayIN,0)-MBGT.Deployment ,
 case when (ISNULL(A.ToDayIN,0)-MBGT.Deployment) > 0 then 'Access' 
 when (ISNULL(A.ToDayIN,0)-MBGT.Deployment) < 0 then 'Short' 
 else 'Ok' end DifferenceColor
 
-from AttdnProcessData apd 
-left Join EmployeeInformation EMP on EMP.SystemId = apd.EmpSystemID
-LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+from MST.ManpowerBudget MBGT
+left Join EmployeeInformation EMP on MBGT.Id = EMP.BudgetCode
+--LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
 LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
 left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
 left join ORG.Entity UN on UN.Id = MBGT.EntityId
@@ -5190,17 +5190,21 @@ left join employeecodetype ect on ect.id = emp.employeecodetypeid
 left join hkp.Process PR on PR.Id = POS.ProcessId
 left join scs.District DT on DT.Id = emp.ParmDistrictID
 left join scs.[State] ST on ST.Id = EMP.ParmStateId
-left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = apd.WorkDate
 left join TRN.HRReportMasterChild Hrg on Hrg.ManpowerBudgetId = Emp.BudgetCode
 left join TRN.HRReportMasterBudgetUserGroup HBG on HBG.HRReportMasterChildId = Hrg.Id
 left join HKP.HRReportGroupMaster Hg on Hg.Id = HBG.UserGroupId
-left join LeaveTransaction LT on LT.EmpSystemID = apd.EmpSystemID and (LT.FromDate <= apd.WorkDate and LT.ToDate >= apd.WorkDate)
-left join LeaveType LTY on LTY.Id = LT.LTSystemID
-left join ResidenceAllocatedEmployees RA on RA.EmployeeSystemId = apd.EmpSystemID
+left join ResidenceAllocatedEmployees RA on RA.EmployeeSystemId = EMP.SystemId
 left join ResidenceMaster RM on RM.Id = RA.ResidenceId
-LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnProcessData Where WorkDate= '" + date + @"' AND ISNULL(InTime,'')<>'' Group BY BudgetId) A ON A.BudgetId=MBGT.Id 
+LEFT JOIN (select APD.BudgetId  ,Count(isnull(PT.LogDownLoadNum,0)) ToDayIN
+From AttdnProcessData APD 
+left join 
+	(select row_number()over (partition by LogDownLoadNum order by PTime asc) Empsys,PDate ,PTime, LogDownLoadNum
+	from AttdnRawData
+	where PType = 'IN' and PTime is not null and PDate = '" + date + @"') PT on PT.LogDownLoadNum = APD.EmpSystemID and PT.Empsys = 1
+where APD.WorkDate = '" + date + @"'  
+Group by APD.BudgetId ) A ON A.BudgetId=MBGT.Id 
 where emp.employeecode is not null and emp.employeestatus = 'Active' and MBGT.code is not null and MBGT.Active = 1
-and emp.employeecode NOT IN (2222229, 2222230)    and apd.WorkDate = '" + date + @"'  and Hg.Id = '" + groupid + "'";
+and emp.employeecode NOT IN (2222229, 2222230)   and MBGT.Active = 1  and Hg.Id = '" + groupid + "'";
 
                     if (inmis == "Bugcode")
                     {

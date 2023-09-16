@@ -151,6 +151,10 @@
             templateUrl: 'QMS/ProcessParameterMaster/aplos',
             controller: 'ProcessParameterMasterController'
         })
+        .when('/customer-requirement-control', {
+            templateUrl: 'QMS/CustomerRequirementControl/aplos',
+            controller: 'CustomerRequirementControlController'
+        })
 
         
 }

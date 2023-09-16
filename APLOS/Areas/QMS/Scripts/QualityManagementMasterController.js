@@ -26,6 +26,8 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.saveUrlPositionCode = $scope.path + 'createPositionCode';
     $scope.saveUrlReason = $scope.path + 'createReason';
     $scope.saveUrlReasonMaster = $scope.path + 'createReasonMaster';
+    $scope.saveUrlParameterResponsiblePerson = $scope.path + 'createParameterResponsiblePerson';
+    $scope.saveUrlParameterApprovalResponsiblePerson = $scope.path + 'createParameterApprovalResponsiblePerson';
    
     $scope.CriticalLevelLists = [
         {
@@ -1753,4 +1755,145 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
             }
         });
     };
+
+    $scope.ParameterResponsiblePersonList = [];
+    $scope.LoadParameterResponsiblePersonList  = function () {
+        $http({
+            method: 'Get',
+            url: 'QMS/QualityManagementMaster/LoadParameterResponsiblePersonDetails'
+        }).then(function successCallback(response) {
+            $scope.ParameterResponsiblePersonList = response.data;
+        }
+        )
+    }
+    $scope.LoadParameterResponsiblePersonList();
+
+    $scope.refreshTemplateParameterResponsiblePerson = function (args) {
+        $("#PRCheadchk").ejCheckBox({ "change": CheckBoxSelectAllParameterResponsiblePerson });
+    };
+    function CheckBoxSelectAllParameterResponsiblePerson(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridParameterResponsiblePerson").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ParameterResponsiblePersonList.length; i++) {
+                $scope.ParameterResponsiblePersonList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridParameterResponsiblePerson").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+
+    $scope.ParameterResponsiblePersonSave = function () {
+        try {
+
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.ParameterResponsiblePersonList.length; i++) {
+                if ($scope.ParameterResponsiblePersonList[i].Flag == true) {
+                    $scope.SaveList.push($scope.ParameterResponsiblePersonList[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlParameterResponsiblePerson,
+                data: {
+                    "DataList": $scope.SaveList
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadParameterResponsiblePersonList();
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
+    $scope.ParameterApprovalResponsiblePersonList = [];
+    $scope.LoadParameterApprovalResponsiblePersonList = function () {
+        $http({
+            method: 'Get',
+            url: 'QMS/QualityManagementMaster/LoadParameterApprovalResponsiblePersonDetails'
+        }).then(function successCallback(response) {
+            $scope.ParameterApprovalResponsiblePersonList = response.data;
+        }
+        )
+    }
+    $scope.LoadParameterApprovalResponsiblePersonList();
+
+    $scope.refreshTemplateParameterApprovalResponsiblePerson = function (args) {
+        $("#ARCheadchk").ejCheckBox({ "change": CheckBoxSelectAllParameterApprovalResponsiblePerson });
+    };
+    function CheckBoxSelectAllParameterApprovalResponsiblePerson(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridParameterApprovalResponsiblePerson").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ParameterApprovalResponsiblePersonList.length; i++) {
+                $scope.ParameterApprovalResponsiblePersonList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridParameterApprovalResponsiblePerson").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+
+    $scope.ParameterApprovalResponsiblePersonSave = function () {
+        try {
+
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.ParameterApprovalResponsiblePersonList.length; i++) {
+                if ($scope.ParameterApprovalResponsiblePersonList[i].Flag == true) {
+                    $scope.SaveList.push($scope.ParameterApprovalResponsiblePersonList[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlParameterApprovalResponsiblePerson,
+                data: {
+                    "DataList": $scope.SaveList
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadParameterApprovalResponsiblePersonList();
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
 }
