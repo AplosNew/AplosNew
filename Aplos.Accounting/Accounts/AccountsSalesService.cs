@@ -59,7 +59,8 @@ namespace Library.Accounting.Accounts
 									--LEFT JOIN dbo.SalesPacking SP ON SP.SalesId=S.Id
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=S.Id
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
-                                    WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + "' AND ISNULL(S.VoucherId,'')='' and S.SourceType in ('MasterOrderSales','Packing')";
+                                    WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + @"' AND ISNULL(S.VoucherId,'')='' 
+									AND S.SourceType in ('MasterOrderSales','Packing') AND ISNULL(SM.Amount,0) + ISNULL(SS.Amount,0)>0";
                 return _sqlRepository.GetDataCollection(cmdText);
 
             }
@@ -2475,8 +2476,9 @@ namespace Library.Accounting.Accounts
 				temId = "AND SA.Id='" + salesId + "' and sp.PackingId='" + packingId + "'";
 			}
 			var cmdText = @"SELECT '' Id,SP.PackingId,SM.Id SalesMaterialId,SM.SalesOrderId,SM.SalesId
-				, SM.MaterialMasterId, SM.ArticleId , SM.FirstCharacteristicsId , SM.TransactionUoMId, SM.BaseUOMId,SM.BaseRate,SM.BaseUoMFactor
-				, SM.TransactionRate, SM.TransactionAmount,SM.TaxAmount SalesTax,SM.NetAmount TotalAmount
+				, SM.MaterialMasterId, SM.ArticleId , SM.FirstCharacteristicsId , SM.TransactionUoMId, SM.BaseUOMId
+				,SM.BaseRate,SM.BaseRate TempBaseRate,SM.BaseUoMFactor
+				, SM.TransactionRate, SM.TransactionRate TempTransactionRate, SM.TransactionAmount,SM.TaxAmount SalesTax,SM.NetAmount TotalAmount
                 ,SA.ToCurrencyRate, SA.DocRefNo, SA.InvoiceDate , SA.Narration
 				,  MGM.UserName AS MaterialGroupMasterName,MM.UserName MaterialMasterName,ART.StandardName AS ArticleName
             , BUoM.UserName AS BaseUoM, TUoM.UserName AS TransactionUoM

@@ -3,6 +3,7 @@
 using Aplos.Controllers;
 using Aplos.MaterialManagement;
 using Aplos.Properties;
+using Library.Accounting.FixedAssets;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
@@ -47,49 +48,52 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             return View();
         }
+		public ActionResult btb()
+		{
+			return View();
+		}
+
+		[HttpPost, Authorize]
+		public ActionResult MasterLCDataXls(List<Dictionary<string, object>> data, string reportFileName)
+		{
+			try
+			{
+				DataTable dt = new DataTable("DD");
+				foreach (string item in data[0].Keys)
+				{
+					if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+						continue;
+
+					dt.Columns.Add(item);
+				}
 
 
-        [HttpPost, Authorize]
-        public ActionResult MasterLCDataXls(List<Dictionary<string, object>> data, string reportFileName)
-        {
-            try
-            {
-                DataTable dt = new DataTable("DD");
-                foreach (string item in data[0].Keys)
-                {
-                    if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
-                        continue;
+				for (int i = 0; i < data.Count; i++)
+				{
+					DataRow dr = dt.NewRow();
+					foreach (string item in data[i].Keys)
+					{
+						if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+							continue;
 
-                    dt.Columns.Add(item);
-                }
+						dr[item] = data[i][item];
+					}
 
+					dt.Rows.Add(dr);
+				}
 
-                for (int i = 0; i < data.Count; i++)
-                {
-                    DataRow dr = dt.NewRow();
-                    foreach (string item in data[i].Keys)
-                    {
-                        if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
-                            continue;
-
-                        dr[item] = data[i][item];
-                    }
-
-                    dt.Rows.Add(dr);
-                }
-
-                string fileName = "";
-                InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
-                fileName = obj.GetMasterLCReport(dt, "", reportFileName);
-                //fileName = GetMasterLCReport(dt, "", reportFileName);
-                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
+				string fileName = "";
+				InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+				fileName = obj.GetMasterLCReport(dt, "", reportFileName);
+				//fileName = GetMasterLCReport(dt, "", reportFileName);
+				return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+	
         [HttpPost, Authorize]
         public ActionResult GetMasterLCList(string FromDate, string ToDate, string lcType)
         {
@@ -445,5 +449,29 @@ namespace Aplos.Areas.Commercial.Controllers
 
             }
         }
-    }
+
+		[HttpPost]
+		public ActionResult GetBTBPerformanceDataList()
+		{
+			FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+			return Json(_fixedAssetQueryService.BTBPerformanceData(), JsonRequestBehavior.AllowGet);
+		}
+
+		[HttpPost, Authorize]
+		public ActionResult BTBPerformanceDataXls(List<Dictionary<string, object>> data, string reportFileName)
+		{
+			try
+			{
+				string fileName = "";
+				InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+				fileName = obj.GetBTBPerformanceReport(data, "", reportFileName);
+				return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+	}
 }

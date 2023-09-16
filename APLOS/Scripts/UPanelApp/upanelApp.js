@@ -1209,6 +1209,9 @@ upanelApp.controller('assetDepreciationPostController', assetDepreciationPostCon
 upanelApp.controller('documentationController', documentationController);
 upanelApp.controller("QualityActionUpdateReportController", QualityActionUpdateReportController)
 upanelApp.controller("ProcessParameterMasterController", ProcessParameterMasterController)
+upanelApp.controller("BtbPerformanceController", BtbPerformanceController)
+upanelApp.controller("CustomerRequirementControlController", CustomerRequirementControlController)
+
 
 
 

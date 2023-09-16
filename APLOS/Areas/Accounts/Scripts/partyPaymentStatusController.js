@@ -658,7 +658,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     //Aging ODMT30VoucherPrintPopUp get data
     $scope.partyWiseAgingDueVoucherList = [];
-    $scope.PartyId = null;
+    //$scope.PartyId = null;
     $scope.getPartyWiseAgingDueVoucherList = function (p, due) {
 
         $scope.partyWiseAgingDueVoucherList = [];
@@ -750,7 +750,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     //NO Of Invoice detail PopUp
     $scope.PartyVendorPayableNoOfInvoiceDetailList = [];
-    $scope.PartyId = null;
+    //$scope.PartyId = null;
     $scope.getPartyVendorPayableNoOfInvoiceDetailList = function (p, due) {
         $scope.partyWiseAgingDueVoucherList = [];
         $http({
@@ -789,7 +789,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     }
 
     $scope.agingNoOfInvoiceDetailSetoffDetailList = [];
-    $scope.PartyId = null;
+    //$scope.PartyId = null;
     $scope.getAgingNoOfInvoiceSetOffDetilList = function (p, invoiceId, due) {
         $scope.agingNoOfInvoiceDetailSetoffDetailList = [];
         $http({
@@ -3155,7 +3155,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     //CR SetOff detail PopUp and get data
     $scope.customerReceivableSetOffDetailList = [];
-    $scope.PartyId = null;
+    //$scope.PartyId = null;
     $scope.getCustomerReceivableSetOffDetailList = function (pid, crDue) {
 
         $scope.customerReceivableSetOffDetailList = [];
@@ -3217,7 +3217,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     //CR Aging Invoice detail PopUp
     $scope.CustomerReceivableAgingInvoiceDetailList = [];
-    $scope.PartyId = null;
+    //$scope.PartyId = null;
     $scope.getCustomerReceivableInvoiceDetailList = function (idp, dueDays) {
         $scope.CustomerReceivableAgingInvoiceDetailList = [];
         $http({
