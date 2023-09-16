@@ -172,7 +172,7 @@ function documentationController(commonMessage, $scope, $rootScope, baseService,
                     ShowResult(response.data.Message, 'success');
                     ClearFields();
                     $scope.getData();
-
+                    $scope.GetSequence()
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -193,7 +193,9 @@ function documentationController(commonMessage, $scope, $rootScope, baseService,
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.PlanningPriority);
+                    ClearFields();
+                    $scope.getData();
+                    $scope.GetSequence()
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -205,7 +207,8 @@ function documentationController(commonMessage, $scope, $rootScope, baseService,
         }
     };
     $scope.Clear = function () {
-        ClearFields($scope.GetSequence());
+        ClearFields();
+        $scope.GetSequence();
         return true;
     };
     function ClearFields(seq) {
@@ -323,6 +326,7 @@ function documentationController(commonMessage, $scope, $rootScope, baseService,
                 else {
                     ShowResult(response.data.Message, 'success');
                     ClearDMFields($scope.GetDMSequence());
+                    $scope.getDMData();
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
