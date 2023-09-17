@@ -3015,5 +3015,22 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
 
         }
         #endregion
+
+        #region
+        public List<Dictionary<string, object>> GetAssetDepreciationProcessList(string column, string value, string companyId)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+            var sql = @"select top 100 * from (select AD.Id AssetDepreciationId,AD.ProcessName,FORMAT(AD.ProcessDate, 'dd-MMM-yyyy') ProcessDate
+                                    ,ISNULL((SELECT SUM(DepreciationAmount) FROM [TRN].[AssetDepreciationDetail] WHERE AssetDepreciationId=AD.Id),0) DepreciationAmount
+									,BC.Code BaseCurrency,AD.CurrencyId,1 ToCurrencyRate
+                FROM  [TRN].[AssetDepreciation] AD
+				LEFT JOIN SCS.Currency BC ON BC.Id =AD.CurrencyId 
+                WHERE AD.CompanyId='" + companyId + @"' 
+                ) AS TEMP WHERE " + strkey + " order by ProcessDate ASC  ";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        #endregion
     }
 }
