@@ -282,7 +282,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
         public ActionResult DeleteDocumentaitonMaster(string id)
         {
-            string sql = @"select * from dbo.DocumentaitonMaster where Id = '" + id + "'";
+            string sql = @"select * from dbo.DocumentationMaster where Id = '" + id + "'";
 
 
             try
@@ -294,7 +294,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                
                 con.BeginTransaction();
-                con.executeQuery("delete from dbo.DocumentaitonMaster where id='" + id + "'");
+                con.executeQuery("delete from dbo.DocumentationMaster where id='" + id + "'");
                 con.CommitTransaction();
 
                 return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
