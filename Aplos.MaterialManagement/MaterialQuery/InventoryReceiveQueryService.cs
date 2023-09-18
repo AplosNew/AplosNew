@@ -7003,8 +7003,8 @@ namespace Aplos.MaterialManagement
 
 								worksheet.Range[ROW, colAmendmentAmount].Formula = "=SUM(" + ru.GetColumnNameForXls(colAmendmentAmount) + catFRow + ":" + ru.GetColumnNameForXls(colAmendmentAmount) + (ROW - 1) + ")";
 
-								worksheet.Range[ROW, colMasterLCAmount, ROW, colAmendmentAmount].CellStyle.Font.Bold = true;
-								worksheet.Range[ROW, 1, ROW, colAmendmentAmount].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+								worksheet.Range[ROW, colMasterLCAmount, ROW, colLCAcceptedValue].CellStyle.Font.Bold = true;
+								worksheet.Range[ROW, 1, ROW, colLCAcceptedValue].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
 
 								ROW++;
 							}
@@ -7192,8 +7192,8 @@ namespace Aplos.MaterialManagement
 				worksheet.Range[ROW, colPresentLCValue].Formula = "=SUM(" + ru.GetColumnNameForXls(colPresentLCValue) + catFRow + ":" + ru.GetColumnNameForXls(colPresentLCValue) + (ROW - 1) + ")";
 				worksheet.Range[ROW, colAmendmentAmount].Formula = "=SUM(" + ru.GetColumnNameForXls(colAmendmentAmount) + catFRow + ":" + ru.GetColumnNameForXls(colAmendmentAmount) + (ROW - 1) + ")";
 
-				worksheet.Range[ROW, colMasterLCAmount, ROW, colAmendmentAmount].CellStyle.Font.Bold = true;
-				worksheet.Range[ROW, 1, ROW, colAmendmentAmount].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+				worksheet.Range[ROW, colMasterLCAmount, ROW, colLCAcceptedValue].CellStyle.Font.Bold = true;
+				worksheet.Range[ROW, 1, ROW, colLCAcceptedValue].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
 				ROW++;
 				#endregion
 
