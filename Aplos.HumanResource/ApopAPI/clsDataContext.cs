@@ -7455,17 +7455,21 @@ where WTD.IssueId='" + IssueId + "'";
             {
                 DataSet dsMaster;
                 string TableName = "TRN.QualityControlDetails";
+                string Id = "''";
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (DataToSave.Count() == 0)
                     return "";
                 List<QualityHeaderChild> items = DataToSave.ToList();
-
+                foreach (QualityHeaderChild item in DataToSave)
+                {
+                    Id += ",'" + item.Id + "'";
+                }
                 con.OpenDataSetThroughAdapter("select * from TRN.QualityControlDetails where Id='" + items[0].Id + "'", out dsMaster, false, "1");
 
                 foreach (QualityHeaderChild item in DataToSave)
                 {
-
-                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
                     {
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
