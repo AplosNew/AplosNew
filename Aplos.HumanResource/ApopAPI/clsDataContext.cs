@@ -7469,7 +7469,7 @@ where WTD.IssueId='" + IssueId + "'";
                 foreach (QualityHeaderChild item in DataToSave)
                 {
                     dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
-                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
                     {
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
