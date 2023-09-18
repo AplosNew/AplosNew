@@ -1027,6 +1027,20 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
 
+        public string PostQualityHeaderChild([FromBody] IEnumerable<QualityHeaderChild> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostQualityHeaderChild(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
         public List<Default> GetQualityGrade()
         {
             clsDataContext clsData = new clsDataContext();

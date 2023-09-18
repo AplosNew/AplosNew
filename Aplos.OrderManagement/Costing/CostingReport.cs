@@ -66,11 +66,12 @@ namespace Library.OrderManagement.Costing
                 DataTable dtMOICostingInfo = _sqlRepository.GetDataTable(CostingMOIsql);
                 string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
 
+                DataTable dtOrderInfo = _sqlRepository.GetDataTable(OrderInformationSQL(OrderCostingId));
                 int ROW = 5;
                 int COL = 1;
 
-                #region Header
-                sheet[ROW, COL].Text = "Product Information";
+                #region Order Information
+                sheet[ROW, COL].Text = "Order Information";
                 sheet[ROW, COL].RowHeight = 25;
                 sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, COL].CellStyle.Font.Size = 12;
@@ -80,8 +81,111 @@ namespace Library.OrderManagement.Costing
 
                 COL = 1;
                 int StartRow = ROW;
-                sheet[ROW, COL].Text = "Product Master";
+                sheet[ROW, COL].Text = "Master Order";
                 sheet[ROW, COL].ColumnWidth = 15;
+                int colMasterOrder = COL;
+                ROW++;
+
+                sheet[ROW, COL].Text = "Customer";
+                int colCustomer = COL;
+                ROW = StartRow;
+                COL = colCustomer + 2;
+
+                sheet[ROW, COL].Text = "Master Order Item No";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int colMasterOrderItemNo = COL;
+                ROW++;
+
+                sheet[ROW, COL].Text = "Material";
+                int colMaterial = COL;
+                ROW = StartRow;
+                COL = colMaterial + 2;
+
+                sheet[ROW, COL].Text = "Contract No";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int colContractNo = COL;
+                ROW++;
+
+                sheet[ROW, COL].Text = "Article";
+                int colArticle = COL;
+                ROW++;
+                
+                StartRow = ROW;
+                COL = 1;
+                sheet[ROW, COL].Text = "Buyer";
+                int colBuyer = COL;
+                COL = colBuyer + 2;
+                //ROW++;
+
+                sheet[ROW, COL].Text = "Style";
+                int colStyle = COL;
+                ROW = StartRow;
+                COL = colMaterial + 2; 
+
+                sheet[ROW, COL].Text = "Order Qty";
+                int colOrderQty = COL;
+                
+                int ColEnd = COL;
+                sheet.Range[ColEnd+1, 1, 8, ColEnd + 1].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ColEnd + 1, 1, 8, ColEnd + 1].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                StartRow = 6; //row 20
+                for (int i = 0; i < dtOrderInfo.Rows.Count; i++)
+                {
+                    COL = 2;
+                    ROW = StartRow;
+                    sheet[ROW, colMasterOrder + 1].Text = dtOrderInfo.Rows[i]["MasterOrderNo"].ToString();
+                    sheet[ROW, colMasterOrder + 1].ColumnWidth = 30;
+                    ROW++;
+                    sheet[ROW, colCustomer + 1].Text = dtOrderInfo.Rows[i]["Customer"].ToString();
+                    ROW = StartRow;
+                    COL = colCustomer + 3;
+                    sheet[ROW, colMasterOrderItemNo + 1].Text = dtOrderInfo.Rows[i]["MasterOrderItemNo"].ToString();
+                    sheet[ROW, colMasterOrderItemNo + 1].ColumnWidth = 20;
+                    ROW++;
+                    sheet[ROW, colMaterial + 1].Text = dtOrderInfo.Rows[i]["Material"].ToString();
+
+                    COL = colMaterial + 3;
+                    ROW = StartRow;
+                    sheet[ROW, colContractNo + 1].Text = dtOrderInfo.Rows[i]["ContractNo"].ToString();
+                    ROW++;
+                    sheet[ROW, colArticle + 1].Text = dtOrderInfo.Rows[i]["Article"].ToString();
+                    sheet[ROW, colArticle + 1].ColumnWidth = 20;
+                    ROW++;
+
+                    COL = 2;
+                    StartRow = ROW;
+                    sheet[ROW, colBuyer + 1].Text = dtOrderInfo.Rows[i]["Buyer"].ToString();
+
+                    sheet[ROW, colStyle + 1].Text = dtOrderInfo.Rows[i]["StyleNo"].ToString();
+                    //ROW++;
+
+                    sheet[ROW, colOrderQty + 1].Number = clsStaticInfo.dbl(dtOrderInfo.Rows[i]["OrderQty"].ToString());
+                    sheet[ROW, colOrderQty + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    ROW++;
+                }
+
+                #endregion Order Information
+
+                #region Header
+
+                ROW = 10;
+                COL = 1;
+
+                sheet[ROW, COL].Text = "Product Information";
+                sheet[ROW, COL].RowHeight = 25;
+                sheet.Range[ROW, COL, ROW, COL + 5].Merge();
+                sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, COL].CellStyle.Font.Size = 12;
+                sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
+                sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+                ROW++;
+
+                COL = 1;
+                StartRow = ROW;
+                sheet[ROW, COL].Text = "Product Master";
                 int colProductMaster = COL;
                 ROW++;
 
@@ -91,7 +195,6 @@ namespace Library.OrderManagement.Costing
                 COL = colCostType + 2;
 
                 sheet[ROW, COL].Text = "Prod. Cat.";
-                sheet[ROW, COL].ColumnWidth = 14;
                 int colProdCategory = COL;
                 ROW++;
 
@@ -101,7 +204,6 @@ namespace Library.OrderManagement.Costing
                 COL = colCostingId + 2;
 
                 sheet[ROW, COL].Text = "Prod.Sub Cat.";
-                sheet[ROW, COL].ColumnWidth = 19;
                 int colProdSubCategory = COL;
                 ROW++;
 
@@ -162,12 +264,12 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].Text = "Standard/Plan Hours";
                 int colStandardPlanHours = COL;
 
-                int ColEnd = COL;
-                sheet.Range[6, 1, 11, 6].BorderAround(ExcelLineStyle.Hair);
-                sheet.Range[6, 1, 11, 6].BorderInside(ExcelLineStyle.Hair);
+                ColEnd = COL;
+                sheet.Range[11, 1, 16, 6].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[11, 1, 16, 6].BorderInside(ExcelLineStyle.Hair);
 
                 #endregion
-                ROW = 13;
+                ROW = 18;
                 COL = 1;
                 #region General Information
                 sheet[ROW, COL].Text = "General Information";
@@ -246,7 +348,7 @@ namespace Library.OrderManagement.Costing
 
                 ROW++;
 
-                StartRow = 6; //row 20
+                StartRow = 11; //row 20
                 for (int i = 0; i < dtOrderCostingProductInfo.Rows.Count; i++)
                 {
                     COL = 2;
@@ -314,7 +416,7 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colStandardPlanHours + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["StandardWorkingHours"].ToString());
                     sheet[ROW, colStandardPlanHours + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
-                    ROW = 14;
+                    ROW = 19;
                     COL = 2;
                     StartRow = ROW;
                     sheet[ROW, colPrdAvlDays + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["ProductionAvailableDays"].ToString());
@@ -363,9 +465,12 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, 8, ROW, 9].Merge();
                 sheet.Range[7, 1, 19, endCol].NumberFormat = clsStaticInfo.NumberFormat(2);
 
+                sheet.Range[19, 1, 23, 6].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[19, 1, 23, 6].BorderInside(ExcelLineStyle.Hair);
+
                 DataTable dtCostingDetailInfo = _sqlRepository.GetDataTable(CostingDetailsql);
 
-                ROW = 20;
+                ROW = 25;
                 COL = 1;
                 #region Costing Detail
                 sheet[ROW, COL].Text = "Costing summary";
@@ -3079,5 +3184,38 @@ namespace Library.OrderManagement.Costing
 		order by pc.Sequence";
 
         }
+
+        private string OrderInformationSQL(string OrderCostingId)
+        {
+            return @"SELECT mm.UserName AS Material, moi.MasterOrderId MasterOrderNo,p.Id AS PartyId,pm.UserName AS Product, p.UserName AS Customer,pm.Id
+                                 ,sum(ISNULL(moi.TotalQty,0)) OrderQty,c.ContractNo,b.UserName Buyer
+								,MasterOrderItemNo=STUFF((select distinct ','+moi.Id from   trn.MasterOrderItem MOI 
+								                             where moi.OrderCostingMasterTemplateId=qcm.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							 ,StyleNo=STUFF((select distinct ','+moi.BuyerReferenceNo from   trn.MasterOrderItem MOI 
+								                             where moi.OrderCostingMasterTemplateId=qcm.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							,OwnReferenceNo=STUFF((select distinct ','+moi.OwnReferenceNo from   trn.MasterOrderItem MOI 
+								                             where moi.OrderCostingMasterTemplateId=qcm.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')	
+								,Article=STUFF((select distinct ','+mma.UserName from  mst.MaterialMasterArticle mma
+															left join trn.MasterOrderItem moi on mma.Id=moi.ArticleId
+								                             where moi.OrderCostingMasterTemplateId=qcm.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')	
+                                 FROM trn.MasterOrder AS mo
+                                INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+                                left outer join mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
+                                left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+                                left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+                                left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+                                left outer join hkp.Party AS p ON p.Id=mo.PartyId
+								left join OrderCostingMasterTemplate qcm on qcm.Id=moi.OrderCostingMasterTemplateId
+                                left join trn.SalesOrder so on so.MasterOrderItemId=moi.Id
+                                left join dbo.Contract c on c.Id=so.ContractId
+                                left join hkp.Buyer b on b.Id=mo.BuyerId
+
+                                WHERE isnull(moi.OrderCostingMasterTemplateId,'')= (" + OrderCostingId + @")
+                                group by mm.UserName,moi.MasterOrderId,p.Id,pm.UserName,p.UserName,pm.Id,qcm.Id,mo.Id,c.ContractNo,b.UserName
+                                ORDER BY mo.Id,pm.UserName";
+
+
+        }
+
     }
 }

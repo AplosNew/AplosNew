@@ -1,0 +1,101 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Capitalize Asset Depreciation Report</h3>
+
+<div class="form-elements form-horizontal" ng-form="from">
+    <div class="row">
+        <div class="col-xs-12 col-sm-5 col-md-5">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Select Depreciation Process</label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <input type="text" class="form-control" readonly name="ProcessName" ng-model="report.ProcessName">
+                        <span class="input-group-btn">
+                            <button ng-click="getDepreciationData();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors id="div_FromDate">
+                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="From Date" ng-model="report.FromDate" datepicker class="form-control" required tabindex="5">
+                </div>
+            </div>
+            <div class="form-group" show-errors id="div_ToDate">
+                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="To Date" ng-model="report.ToDate" datepicker class="form-control" required tabindex="6">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Format<sup>*</sup></label>
+                <div class="col-sm-8 radio">
+                    <label>
+                        <input type="radio" name="ReportFormat" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Excel.ToString()">
+                        <span class="cr" tabindex="2"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Excel.ToString()
+                    </label>
+                    <label>
+                        <input type="radio" name="ReportFormat" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Pdf.ToString()">
+                        <span class="cr" tabindex="1"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Pdf.ToString()
+                    </label>
+                </div>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li><button ng-click="getReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-5 col-md-5">
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="DepreciationPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Capitalize Asset Depreciation List <button type="button" class="close" ng-click="closeFixedAssetDepreciationPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="DepreciationSearchBy">
+                                            <option ng-repeat="option in DepreciationSearchByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="DepreciationSearch" ng-enter="getDepreciationData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getDepreciationData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+                        <div id="GridEdit" ej-grid e-datasource="fixedAssetDepreciationList" e-recorddoubleclick="getDataByDepreciationId" e-load="loadGridEdit"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-field="AssetDepreciationId" e-headertext="Asset Depreciation Id" e-width="30"></div>
+                                <div e-column e-field="ProcessName" e-headertext="Process Name" e-width="100"></div>
+                                <div e-column e-field="ProcessDate" e-headertext="Depreciation Process Date" e-width="60"></div>
+                                <div e-column e-field="BaseCurrency" e-headertext="Currency" e-width="40"></div>
+                                <div e-column e-field="DepreciationAmount" e-headertext="Depreciation Amount" e-width="80" e-type="numeric" e-format="{0:0.00}" e-textalign="right"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeFixedAssetDepreciationPopUp();" class="btn"> Close</button></li>
+                </ul>
+                <i>**Showing top 100  order by Depreciation Process Date</i>
+            </div>
+        </div>
+    </div>
+</div>
+
