@@ -1464,6 +1464,155 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
             }
         }
 
+
+        [Authorize, HttpGet]
+        public ActionResult LoadParameterResponsiblePersonDetails()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select CAST (CASE WHEN PRP.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,PRP.Id,EMP.SystemId ResponsiblePersonId, EMP.EmployeeCode, EMP.EmployeeName, FORMAT(EMP.DOJ, 'dd-MMM-yyyy') DOJ, EC.UserName EmployeeCategory, DP.UserName Department
+                               ,SC.UserName Section, SBC.UserName SubSection, LDSG.UserName Designation, LDSG.UserName LegalDesignation, UN.UserName as Entity
+                                from EmployeeInformation EMP
+                                LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+                                LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
+                                left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+                                left join ORG.Entity UN on UN.Id = MBGT.EntityId
+                                left join ORG.Department DP on DP.ID = POS.DepartmentId
+                                left join ORG.Section SC on SC.Id = POS.SectionId
+                                left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+                                LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=EMP.DesignationGroupId
+                                LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+                                LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+                                left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
+                                left join hkp.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
+								LEFT JOIN [MST].[ParameterResponsiblePerson] PRP ON PRP.ResponsiblePersonId=EMP.SystemId
+                                where EMP.EmployeeStatus = 'Active' order by PRP.Id desc";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult createParameterResponsiblePerson(List<Dictionary<string, object>> DataList)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[MST].[ParameterResponsiblePerson]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from " + TableName + "");
+                conC.CommitTransaction();
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                if (DataList != null)
+                {
+
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "PRP" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadParameterApprovalResponsiblePersonDetails()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select CAST (CASE WHEN ARP.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,ARP.Id,EMP.SystemId ApprovalResponsiblePersonId, EMP.EmployeeCode, EMP.EmployeeName, FORMAT(EMP.DOJ, 'dd-MMM-yyyy') DOJ, EC.UserName EmployeeCategory, DP.UserName Department
+                               ,SC.UserName Section, SBC.UserName SubSection, LDSG.UserName Designation, LDSG.UserName LegalDesignation, UN.UserName as Entity
+                                from EmployeeInformation EMP
+                                LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+                                LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
+                                left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+                                left join ORG.Entity UN on UN.Id = MBGT.EntityId
+                                left join ORG.Department DP on DP.ID = POS.DepartmentId
+                                left join ORG.Section SC on SC.Id = POS.SectionId
+                                left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+                                LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=EMP.DesignationGroupId
+                                LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+                                LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+                                left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
+                                left join hkp.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
+								LEFT JOIN [MST].[ParameterApprovalResponsiblePerson] ARP ON ARP.ApprovalResponsiblePersonId=EMP.SystemId
+                                where EMP.EmployeeStatus = 'Active' order by ARP.Id desc";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult createParameterApprovalResponsiblePerson(List<Dictionary<string, object>> DataList)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[MST].[ParameterApprovalResponsiblePerson]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from " + TableName + "");
+                conC.CommitTransaction();
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                if (DataList != null)
+                {
+
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "ARP" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
         #endregion -- Operations
     }
 }

@@ -234,7 +234,10 @@
                                     <td class="text-right">{{x.TransactionAmount}}</td>
                                     <td class="text-right">{{x.SalesTax}}</td>
                                     <td class="text-right">{{x.TotalAmount}}</td>
-                                    <td class="text-right">{{x.TransactionRate}} </td>
+                                    <td class="text-right">
+                                        <input type="text" n-decimals="2" ng-model=" x.TransactionRate" ng-change="returnAmountCalculation(x);" class="form-control text-right">
+                                        <input type="text" n-decimals="2" ng-model=" x.BaseRate" ng-hide="x.TransactionUoMId==x.BaseUOMId" ng-change="returnAmountCalculation(x);" class="form-control text-right">
+                                    </td>
                                     <td class="text-right">{{x.TransactionQty}}  {{x.TransactionUoM}}</td>
                                     <td class="text-right">{{x.OtherQty}}</td>
                                     <td class="text-right">{{x.BalanceQty}}</td>

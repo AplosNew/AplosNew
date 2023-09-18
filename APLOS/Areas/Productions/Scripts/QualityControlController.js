@@ -1111,6 +1111,10 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.SaveQC = function () {
         try {
             //ValidationPreMaster();
+            if (baseService.isUndefinedOrNull($scope.QPId)) {
+                throw "Please update plan record and proceed";
+            }
+            
             if (baseService.isUndefinedOrNull($scope.productionSummaryNew.EntityId))
             {
                 throw "Entity is Required";

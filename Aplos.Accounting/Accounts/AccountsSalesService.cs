@@ -2476,8 +2476,9 @@ namespace Library.Accounting.Accounts
 				temId = "AND SA.Id='" + salesId + "' and sp.PackingId='" + packingId + "'";
 			}
 			var cmdText = @"SELECT '' Id,SP.PackingId,SM.Id SalesMaterialId,SM.SalesOrderId,SM.SalesId
-				, SM.MaterialMasterId, SM.ArticleId , SM.FirstCharacteristicsId , SM.TransactionUoMId, SM.BaseUOMId,SM.BaseRate,SM.BaseUoMFactor
-				, SM.TransactionRate, SM.TransactionAmount,SM.TaxAmount SalesTax,SM.NetAmount TotalAmount
+				, SM.MaterialMasterId, SM.ArticleId , SM.FirstCharacteristicsId , SM.TransactionUoMId, SM.BaseUOMId
+				,SM.BaseRate,SM.BaseRate TempBaseRate,SM.BaseUoMFactor
+				, SM.TransactionRate, SM.TransactionRate TempTransactionRate, SM.TransactionAmount,SM.TaxAmount SalesTax,SM.NetAmount TotalAmount
                 ,SA.ToCurrencyRate, SA.DocRefNo, SA.InvoiceDate , SA.Narration
 				,  MGM.UserName AS MaterialGroupMasterName,MM.UserName MaterialMasterName,ART.StandardName AS ArticleName
             , BUoM.UserName AS BaseUoM, TUoM.UserName AS TransactionUoM
