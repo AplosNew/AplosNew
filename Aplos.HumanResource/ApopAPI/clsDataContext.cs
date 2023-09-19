@@ -7127,7 +7127,12 @@ where MB.ROBudgetCode = '" + Id + "'";
             clsConnectionManager objCon = null;
             string strSQL = "";
             DataList = new List<QualityGenaralIssue>();
+            string ResponsiblePerson = string.Empty;
 
+            if (ResposibleId != "null" && ResposibleId != "undefined")
+            {
+                ResponsiblePerson = " where QGIEmployeeId = '" + ResposibleId + "'";
+            }
             System.Data.DataSet dsRef;
             try
             {
@@ -7145,7 +7150,7 @@ left join TRN.QualityIssueControl as QC on QC.DefineIssueId=QID.Id and QC.Id = (
 left join MST.QualityManagementMaster QMM on QMM.Id=QID.IssueNameId
 left join org.Entity E on E.Id=QID.EntityId
 left join hkp.Process P on P.Id=QID.ProcessId) GI
-where QGIEmployeeId = '" + ResposibleId + @"' order by Convert(Date,GI.QualityIssueDate)
+" + ResponsiblePerson + @" order by Convert(Date,GI.QualityIssueDate)
 ";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -7189,10 +7194,15 @@ where QGIEmployeeId = '" + ResposibleId + @"' order by Convert(Date,GI.QualityIs
             clsConnectionManager objCon = null;
             string strSQL = "";
             DataList = new List<QualityPOIssue>();
-
+            string ResponsiblePerson = string.Empty;
+            if (ResponsibleId != "null" && ResponsibleId != "undefined")
+            {
+                ResponsiblePerson = " and QPEmployeeId = '" + ResponsibleId + "'";
+            }
             System.Data.DataSet dsRef;
             try
             {
+
                 strSQL = @"Select Format(PO1.Date,'dd-MMM-yyyy') PODate,Format(PO1.QualityPlanDate,'dd-MMM-yyyy') QPDate,PO1.* from (Select distinct QPC.Id,PD.Id QPId,PO.Id POId,PO.EntryLevel,PO.LotNumber,PD.IssueId,QMM.UserName QPIssue,PO.ProcessId,P.UserName Process,PD.Legdays,
 PD.DependentDate DependentOn,E.UserName Entity,PO.EntityId,
 (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' and RepeatEntry is not null order by AddedDate desc) as RepeatEntry,
@@ -7333,7 +7343,7 @@ left join ORG.Entity E on E.Id=PO.EntityId
 where PO.ProcessId is null and E.Id in (select EntityId from MST.QualityManagementEntity where QMID=QMM.Id) 
 and QPC.QCID is null or (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' order by AddedDate desc) is not null
 ) PO1
-where PO1.QualityPlanDate < = '" + POIssueDate + "' and QPEmployeeId = '"+ ResponsibleId + "' or PO1.QualityPlanDate is null order by PO1.QualityPlanDate";
+where PO1.QualityPlanDate < = '" + POIssueDate + "'" + ResponsiblePerson + @" or PO1.QualityPlanDate is null order by PO1.QualityPlanDate";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
