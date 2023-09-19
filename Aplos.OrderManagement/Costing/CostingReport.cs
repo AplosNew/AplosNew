@@ -66,7 +66,7 @@ namespace Library.OrderManagement.Costing
                 DataTable dtMOICostingInfo = _sqlRepository.GetDataTable(CostingMOIsql);
                 string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
 
-                DataTable dtOrderInfo = _sqlRepository.GetDataTable(OrderInformationSQL(MOIId));
+                DataTable dtOrderInfo = _sqlRepository.GetDataTable(OrderInformationSQL(OrderCostingId));
                 int ROW = 5;
                 int COL = 1;
 
@@ -3185,23 +3185,34 @@ namespace Library.OrderManagement.Costing
 
         }
 
-        private string OrderInformationSQL(string MOIId)
+        private string OrderInformationSQL(string OrderCostingId)
         {
-            return @"select mo.MasterOrderNo,p.UserName Customer,b.UserName Buyer,mm.UserName Material,moi.BuyerReferenceNo StyleNo
-                                ,c.ContractNo,a.UserName Article,sum(moi.TotalQty) OrderQty
-                                ,MasterOrderItemNo=STUFF((select distinct ','+moi.Id from trn.MasterOrderItem moi 
-								                             where moi.MasterOrderId=mo.Id	
-															 for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                                from trn.MasterOrder mo
-                                left join hkp.Party p on p.Id=mo.PartyId
-                                left join hkp.Buyer b on b.Id=mo.BuyerId
-                                left join trn.MasterOrderItem moi on moi.MasterOrderId=mo.Id
-                                left join [MST].[MaterialMasterArticle] a on a.Id=moi.ArticleId
-                                left join mst.MaterialMaster mm on mm.Id=moi.MaterialMasterId
+            return @"SELECT mm.UserName AS Material, moi.MasterOrderId MasterOrderNo,p.Id AS PartyId,pm.UserName AS Product, p.UserName AS Customer,pm.Id
+                                 ,sum(ISNULL(moi.TotalQty,0)) OrderQty,c.ContractNo,b.UserName Buyer
+								,MasterOrderItemNo=STUFF((select distinct ','+moi.Id from   trn.MasterOrderItem MOI 
+								                             where moi.OrderCostingMasterTemplateId=qcm.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							 ,StyleNo=STUFF((select distinct ','+moi.BuyerReferenceNo from   trn.MasterOrderItem MOI 
+								                             where moi.OrderCostingMasterTemplateId=qcm.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							,OwnReferenceNo=STUFF((select distinct ','+moi.OwnReferenceNo from   trn.MasterOrderItem MOI 
+								                             where moi.OrderCostingMasterTemplateId=qcm.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')	
+								,Article=STUFF((select distinct ','+mma.UserName from  mst.MaterialMasterArticle mma
+															left join trn.MasterOrderItem moi on mma.Id=moi.ArticleId
+								                             where moi.OrderCostingMasterTemplateId=qcm.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')	
+                                 FROM trn.MasterOrder AS mo
+                                INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+                                left outer join mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
+                                left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+                                left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+                                left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+                                left outer join hkp.Party AS p ON p.Id=mo.PartyId
+								left join OrderCostingMasterTemplate qcm on qcm.Id=moi.OrderCostingMasterTemplateId
                                 left join trn.SalesOrder so on so.MasterOrderItemId=moi.Id
                                 left join dbo.Contract c on c.Id=so.ContractId
-                                WHERE moi.Id='" + MOIId + @"'
-                                group by mo.Id,mo.MasterOrderNo,p.UserName,b.UserName,moi.Id,mm.UserName,moi.BuyerReferenceNo,c.ContractNo,a.UserName";
+                                left join hkp.Buyer b on b.Id=mo.BuyerId
+
+                                WHERE isnull(moi.OrderCostingMasterTemplateId,'')= (" + OrderCostingId + @")
+                                group by mm.UserName,moi.MasterOrderId,p.Id,pm.UserName,p.UserName,pm.Id,qcm.Id,mo.Id,c.ContractNo,b.UserName
+                                ORDER BY mo.Id,pm.UserName";
 
 
         }
