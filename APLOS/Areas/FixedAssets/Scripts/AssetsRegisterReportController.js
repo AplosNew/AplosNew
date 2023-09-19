@@ -1,8 +1,10 @@
 ﻿"use strict";
 AssetsRegisterReportController.$inject = ["commonMessage", "$scope", "$rootScope", "$filter", "$http", "$controller", "$window", "baseService"];
 function AssetsRegisterReportController(commonMessage, $scope, $rootScope, $filter, $http,  $controller, $window, baseService) {
-    $rootScope.title = "Fixed Assets Register Report";
+    $rootScope.title = "Capitalize Assets Register Report";
     $scope.path = 'FixedAssets/FixedAssetRegister/';
+    $scope.exportgriddataUrlUpdate2 = 'GridReports/ExcelExportUpdate2';
+    $scope.downloadgriddataUrl2 = 'GridReports/Download';
     
     $scope.report = {
         FromDate: $filter("dateFiltering")(Date.now()),
@@ -44,44 +46,37 @@ function AssetsRegisterReportController(commonMessage, $scope, $rootScope, $filt
        return manualValidation("div_FromDate", $scope.invalidFromDate, msg);
     }
 
-    var getString = function (data, column) {
-        var string = "''";
-        var collection = [];
-        for (var i = 0; i < data.length; i++) {
-            if (collection.includes(data[i][column]) == false) {
-                string += ",'" + data[i][column] + "'";
-                collection.push(data[i][column]);
-            }
-        }
-
-        return string;
-    }
-
     $scope.FixedAssetRegisterReportExcel = function () {
         $scope.FromDateValidation();
         $scope.ToDatevalidation()
-        if ($scope.form0.$valid && !$scope.invalidFromDate && !$scope.invalidDocDate && !$scope.validation() ) {
-            var filtered = $("#GridFixedAssetRegisterReportElasticSearch").data("ejGrid").getFilteredRecords();
-            if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-                filtered = $scope.FixedAssetRegisterElasticSearchList;
-            }
-           
-            var materialMasterId = getString(filtered, "MaterialMasterId");
-            var materialMasterArticleId = getString(filtered, "MaterialMasterArticleId");
-            var fixedAssetMasterId = getString(filtered, "FixedAssetMasterId");
-            var vendorId = getString(filtered, "VendorId");
+        if ($scope.form0.$valid && !$scope.invalidFromDate && !$scope.invalidDocDate) {
+            var dataList = [];
+            var g = $("#GridFixedAssetRegisterReportElasticSearch").data("ejGrid");
+            dataList = g.getFilteredRecords();
 
-            try {
-               
-                var file_src = $scope.path + 'AssetRegisterReportExcel?materialMasterId=' + materialMasterId + '&materialMasterArticleId=' +materialMasterArticleId + '&fixedAssetMasterId=' + fixedAssetMasterId +
-                    '&vendorId=' + vendorId 
-                  
-                $rootScope.report(file_src);
-
-            } catch (e) {
-               // ShowResult(e, 'failure');
-                ShowResult(commonMessage.NetworkError, 'failure');
+            if (dataList.length == 0) {
+                dataList = $scope.FixedAssetRegisterElasticSearchList;
             }
+
+            $scope.fileName = 'CapitalizeAssetRegisterReport';
+            $http({
+                method: 'POST',
+                url: $scope.exportgriddataUrlUpdate2,
+                data: {
+                    'reportFileName': $scope.fileName,
+                    'data': dataList
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $window.open($scope.downloadgriddataUrl2 + "?FileName=" + response.data.FileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
         }
     }
 

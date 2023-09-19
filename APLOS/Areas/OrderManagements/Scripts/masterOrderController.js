@@ -656,6 +656,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         $scope.btndisable = false;
                         return ShowResult('Item UoM is required.', 'failure');
                     }
+                    if (baseService.isUndefinedOrNull($scope.itemList[i].ProductionGrouping)) {
+                        $scope.btndisable = false;
+                        return ShowResult('Production Group is required.', 'failure');
+                    }
                 }
                 $http({
                     method: 'POST'
@@ -1916,66 +1920,86 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     ];
 
     $scope.getSalesOrder = function (x, id, materialMasterId, mName, aName, hsnCodeId, BuyerReferenceNo) {
+        try {
+            $http({
+                method: 'GET',
+                url: 'OrderManagements/MasterOrder/GetCostingSOFormulaData?masterOrderItemId=' + x.Id
+            }).then(function successCallback(response) {
+                if (baseService.arrayLength(response.data) == 0) {
+                    throw "First Save Item Costing data.";
+                }
+                //else if (baseService.arrayLength(response.data) > 0) {
+                //    for (var i = 0; i < response.data.length; i++) {
+                //        if (baseService.isUndefinedOrNull(response.data[i].Id)) {
+                //            throw "First Save Item Costing data.";
+                //        }
+                //    }
 
+                //}
+                else {
+                    $scope.TotalMOIQty = x.TotalQty;
+                    $scope.JobWorkType = baseService.isUndefinedOrNull(x.JobWorkType) ? x.JobWorkType : x.JobWorkType + '>> ' + baseService.isUndefinedOrNull(x.EntityOrVendorName) ? x.EntityOrVendorName : x.EntityOrVendorName;
 
-        $scope.TotalMOIQty = x.TotalQty;
-        $scope.JobWorkType = baseService.isUndefinedOrNull(x.JobWorkType) ? x.JobWorkType : x.JobWorkType + '>> ' + baseService.isUndefinedOrNull(x.EntityOrVendorName) ? x.EntityOrVendorName : x.EntityOrVendorName;
+                    $scope.TotalProducedQty = 0;
+                    $scope.ProdBookedQty = 0;
+                    if ($scope.mmChangeFlag) return ShowResult('Please update changes data', 'failure');
+                    $scope.mName = baseService.isUndefinedOrNull(aName) ? mName : mName + '   >>>   ' + aName + ' > ' + BuyerReferenceNo;
+                    $scope.masterItemId = id;
+                    $scope.materialMasterId = materialMasterId;
+                    $scope.currency = $("#Currency option:selected").text();
+                    $scope.soModel = {
+                        Id: null
+                        , MasterOrderItemId: $scope.masterItemId
+                        , DeliveryDate: null
+                        , CommitmentDate: null
+                        , DestinationId: null
+                        , ShipmentModeId: null
+                        , CustomerPOId: null
+                        , PONumber: null
+                        , OrderStatusId: $scope.fileNew.OrderStatusId
+                        , OrderCategoryId: $scope.fileNew.OrderCategoryId
+                        , SOType: null
+                        , ResponsiblePersonId: $scope.ResponsiblePersonId
+                        , ResponsiblePersonName: $scope.ResponsiblePersonName
+                        , Qty: 0
+                        , Rate: 0
+                        , HSNCodeId: hsnCodeId
+                        , TotalTaxAmount: 0
+                        , LSD: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
+                        , MainRawMaterialInhouseDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
+                        , OtherRawMaterialInhouseDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
+                        , SalesOrderYear: null
+                        , WeekNo: null
+                        , PlanExFactoryDate: null
+                        , QtyChangedBy: null
+                        , QtyChangedDate: null
+                        , QtyChangedFromIP: null
+                        , DestinationDescription: null
+                        , SalesExpense: null
+                        , NetSalesRealization: null
+                        , DirectCost: 0
+                        , ValueLoss: 0
+                        , Other: 0
+                        , UpCharge: 0
+                        , Discount: 0
+                        , CM: 0
+                        , ProductionType: 'Order'
+                        , ShipmentFromStock: null
+                        , StockResponsiblePersonId: null
+                        , StockResponsiblePerson: null
+                        , PackingTypeId: null
+                        , ContractId: null
+                        , ContractNo: null
+                    };
+                    getSalesOrderList();
+                    $scope.getDestination();
 
-        $scope.TotalProducedQty = 0;
-        $scope.ProdBookedQty = 0;
-        if ($scope.mmChangeFlag) return ShowResult('Please update changes data', 'failure');
-        $scope.mName = baseService.isUndefinedOrNull(aName) ? mName : mName + '   >>>   ' + aName + ' > ' + BuyerReferenceNo;
-        $scope.masterItemId = id;
-        $scope.materialMasterId = materialMasterId;
-        $scope.currency = $("#Currency option:selected").text();
-        $scope.soModel = {
-            Id: null
-            , MasterOrderItemId: $scope.masterItemId
-            , DeliveryDate: null
-            , CommitmentDate: null
-            , DestinationId: null
-            , ShipmentModeId: null
-            , CustomerPOId: null
-            , PONumber: null
-            , OrderStatusId: $scope.fileNew.OrderStatusId
-            , OrderCategoryId: $scope.fileNew.OrderCategoryId
-            , SOType: null
-            , ResponsiblePersonId: $scope.ResponsiblePersonId
-            , ResponsiblePersonName: $scope.ResponsiblePersonName
-            , Qty: 0
-            , Rate: 0
-            , HSNCodeId: hsnCodeId
-            , TotalTaxAmount: 0
-            , LSD: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
-            , MainRawMaterialInhouseDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
-            , OtherRawMaterialInhouseDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
-            , SalesOrderYear: null
-            , WeekNo: null
-            , PlanExFactoryDate: null
-            , QtyChangedBy: null
-            , QtyChangedDate: null
-            , QtyChangedFromIP: null
-            , DestinationDescription: null
-            , SalesExpense: null
-            , NetSalesRealization: null
-            , DirectCost: 0
-            , ValueLoss: 0
-            , Other: 0
-            , UpCharge: 0
-            , Discount: 0
-            , CM: 0
-            , ProductionType: 'Order'
-            , ShipmentFromStock: null
-            , StockResponsiblePersonId: null
-            , StockResponsiblePerson: null
-            , PackingTypeId: null
-            , ContractId: null
-            , ContractNo: null
-        };
-        getSalesOrderList();
-        $scope.getDestination();
-
-        angular.element(document.querySelector('#soPoUp')).modal('show');
+                    angular.element(document.querySelector('#soPoUp')).modal('show');
+                }
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     };
 
     function getSalesOrderList() {

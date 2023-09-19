@@ -632,6 +632,13 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     }
 
     $scope.returnAmountCalculation = function (data) {
+        if (data.TransactionRate > data.TempTransactionRate) {
+            data.TransactionRate = data.TempTransactionRate;
+            ShowResult('Rate can not greater than ' + data.TempTransactionRate, "failure");
+        }
+        if (data.TransactionUoMId == data.BaseUOMId) {
+            data.BaseRate = data.TransactionRate;
+        }
         data.Amount = Math.round((data.ReturnQty * data.TransactionRate) * 100 + Number.EPSILON) / 100
         data.CurrentBalanceQty = data.BalanceQty - data.ReturnQty
         data.TaxAmount = 0;

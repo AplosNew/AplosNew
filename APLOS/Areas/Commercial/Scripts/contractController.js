@@ -192,7 +192,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         }
         else {
             for (var j = 0; j < filtered.length; j++) {
-                filtered[j].CheckBoxSelect = ChkOrUnchk;
+                filtered[j].Flags = ChkOrUnchk;
             }
         }
         var gridObj = $("#GridSO").data("ejGrid");

@@ -3036,8 +3036,7 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= VD.EmployeeId
 									LEFT JOIN ORG.Entity EN  ON EN.Id=VD.EntityId
 									LEFT JOIN [ORG].[CostCenter] CC ON CC.Id=VD.CostCenterId
-                                   WHERE V.SourceType IN('VendorInvoice','JournalVoucher','EmployeePayable') AND V.IsPark=0 AND VD.DrAmount>0
-								   --AND ATY.Id='Expense' 
+                                   WHERE V.IsPark=0 AND VD.DrAmount>0 AND BM.IsCapital=1
                                    AND VD.Id NOT IN (Select ISNULL([VoucherDetailId],'') from [TRN].[CapitalizationMasterDetail])) AS TEMP WHERE " + strkey + " order by FiscalYearName";
                 }
 
@@ -4441,7 +4440,6 @@ GROUP BY FAR.FABudgetMasterId
 
             return workbook;
         }
-
         public IWorkbook FixedAssetRegisterDisposedList(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string nonPosted, string posted, string DisposeStatus)
         {
 

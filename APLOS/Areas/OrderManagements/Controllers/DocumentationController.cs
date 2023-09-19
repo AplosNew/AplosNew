@@ -211,7 +211,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT * FROM (SELECT DS.* FROM dbo.DocumentationMaster DS) AS TEMP WHERE " + strkey + " order by Sequence ";
+            string sql = @"SELECT 0 Flag,* FROM (SELECT DS.* FROM dbo.DocumentationMaster DS) AS TEMP WHERE " + strkey + " order by Sequence ";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -282,7 +282,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
         public ActionResult DeleteDocumentaitonMaster(string id)
         {
-            string sql = @"select * from dbo.DocumentaitonMaster where Id = '" + id + "'";
+            string sql = @"select * from dbo.DocumentationMaster where Id = '" + id + "'";
 
 
             try
@@ -294,7 +294,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                
                 con.BeginTransaction();
-                con.executeQuery("delete from dbo.DocumentaitonMaster where id='" + id + "'");
+                con.executeQuery("delete from dbo.DocumentationMaster where id='" + id + "'");
                 con.CommitTransaction();
 
                 return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
@@ -307,6 +307,73 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
 
         }
+
+        [HttpGet,Authorize]
+        public ActionResult GetDocumentSetDetailList(string documentSetId)
+        {
+            string sql = @"Select DSD.*,DM.Sequence,DM.Code,DM.ShortName,DM.StandardName,DM.UserName,DM.Source,DM.DocumentType,DM.DocumentFormat From  [dbo].[DocumentSetDetail] DSD
+LEFT JOIN [dbo].[DocumentationMaster] DM ON DSD.DocumentationMasterId=DM.Id
+Where DSD.DocumentSetId='" + documentSetId + "' ORDER BY DM.Sequence";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        private string GetDocumentSetDetailPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "DocumentSetDetail", out sID);
+            return sID;
+        }
+
+        [HttpPost,Authorize]
+        public JsonResult SaveTaggedDocmuent(List<Dictionary<string, object>> data, string documentSetId)
+        {
+            try
+            {
+               DataSet dsMaster;
+                ConnectionManager.DAL.ConManager objCon;
+                #region FUND 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.DocumentSetDetail where  DocumentSetId='" + documentSetId + "'", out dsMaster, false, "1");
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = GetDocumentSetDetailPK();
+
+                            AddNewRow(dsMaster.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false,Message = AplosMessage.Updated });
+            }
+
+
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+
+
     }
 
 }
