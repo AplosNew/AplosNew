@@ -7449,6 +7449,74 @@ where WTD.IssueId='" + IssueId + "'";
             }
         }
 
+        public string PostQualityHeaderChild(IEnumerable<QualityHeaderChild> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.QualityControlDetails";
+                string Id = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<QualityHeaderChild> items = DataToSave.ToList();
+                foreach (QualityHeaderChild item in DataToSave)
+                {
+                    Id += ",'" + item.Id + "'";
+                }
+                con.OpenDataSetThroughAdapter("select * from TRN.QualityControlDetails where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                foreach (QualityHeaderChild item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+
+                        dr["Id"] = "23" + _Id;
+                        dr["QCId"] = item.QCId;
+                        dr["ItemId"] = item.ItemId;
+                        dr["Value"] = item.Value;
+                        dr["GradeId"] = item.GradeId;
+                        dr["ActionToBeTaken"] = item.ActionToBeTaken;
+                        dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
+                        dr["Remarks"] = item.Remarks;
+                        dr["Repeat"] = false;
+                        dr["RepeatEntry"] = item.RepeatEntry;
+                        dr["WorkCenterId"] = item.WorkCenterId;
+                        dr["Status"] = item.Status;
+                        dr["ConfirmBy"] = item.ConfirmBy;
+                        dr["ConfirmationRemarks"] = item.ConfirmationRemarks;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
         public void GetQualityGrade(out List<Default> DataList)
         {
             clsConnectionManager objCon = null;
@@ -8815,6 +8883,30 @@ LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
         public string AllFutureAppliedLeave { get; set; }
         public string ClosingBalance { get; set; }
 
+    }
+
+    public class QualityHeaderChild
+    {
+        public string Id { get; set; }
+        public string QCId { get; set; }
+        public string ItemId { get; set; }
+        public string Value { get; set; }
+        public string GradeId { get; set; }
+        public string ActionToBeTaken { get; set; }
+        public string ResponsiblePersonId { get; set; }
+        public string Remarks { get; set; }
+        public string Repeat { get; set; }
+        public string RepeatEntry { get; set; }
+        public string WorkCenterId { get; set; }
+        public string Status { get; set; }
+        public string ConfirmBy { get; set; }
+        public string ConfirmationRemarks { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
     }
 
 }
