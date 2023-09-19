@@ -1,5 +1,6 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
+using Library.Accounting.Accounts;
 using Library.Accounting.FixedAssets;
 using Library.Core;
 using Library.Crosscutting.Security;
@@ -38,6 +39,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         private readonly IFixedAssetRegisterService _fixedAssetRegisterService;
         private readonly IFixedAssetRegisterCharacteristicsValueService _fixedAssetRegisterCharacteristicsValueService;
         private readonly ISqlRepository _sqlRepository;
+        private readonly AccountVoucherReportService _accountVoucherReportService;
 
 
         public FixedAssetRegisterController(
@@ -45,12 +47,14 @@ namespace Aplos.Areas.FixedAssets.Controllers
             , IInventoryPayableService inventoryPayableService
             , IFixedAssetRegisterCharacteristicsValueService fixedAssetRegisterCharacteristicsValueService
             , ISqlRepository sqlRepository
+            , AccountVoucherReportService accountVoucherReportService
             )
         {
             _fixedAssetRegisterService = fixedAssetRegisterService;
             _inventoryPayableService = inventoryPayableService;
             _fixedAssetRegisterCharacteristicsValueService = fixedAssetRegisterCharacteristicsValueService;
             _sqlRepository = sqlRepository;
+            _accountVoucherReportService = accountVoucherReportService;
         }
 
 
@@ -1528,12 +1532,12 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
 
         [HttpPost]
-        public JsonResult CreateCapitalize(Dictionary<string, object> data, List<Dictionary<string, object>> items)
+        public JsonResult CreateCapitalize(Dictionary<string, object> data, List<Dictionary<string, object>> items, List<Dictionary<string, object>> assetRegisterList)
         {
             try
             {
                 FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
-                _fixedAssetQueryService.SaveCapitalizeData(data, items, out string masterId);
+                _fixedAssetQueryService.SaveCapitalizeData(data, items, assetRegisterList, out string masterId);
                 return Json(new { Id = masterId, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
@@ -1861,6 +1865,42 @@ namespace Aplos.Areas.FixedAssets.Controllers
             FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(new { DATA = fixedAssetQueryService.GetAssetRegisterElasticSearchDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate), Error = false }, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+
+        #region Capitalize Asset Depreciation Report
+        public ActionResult AssetsDepreciationReport()
+        {
+            return View("~/Areas/FixedAssets/Views/AssetsDepreciationReport.cshtml");
+        }
+        [HttpPost, Authorize]
+        public ActionResult GetAssetDepreciationProcessList(string column, string value)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            return Json(_fixedAssetQueryService.GetAssetDepreciationProcessList(column, value, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public ActionResult GetAssetDepreciationReport(ReportFormat reportFormat, DateTime fromdate, DateTime todate, string assetDepreciationId)
+        {
+            string reportFileName = "";
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            Syncfusion.XlsIO.IWorkbook workbook = null;
+           
+            workbook = _accountVoucherReportService.GetAssetDepreciationReport(out reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromdate, todate, assetDepreciationId);
+            
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
         }
         #endregion
     }

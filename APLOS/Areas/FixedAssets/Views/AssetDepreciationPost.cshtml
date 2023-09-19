@@ -81,42 +81,6 @@
             </div>
         </div>
     </fieldset>
-    @*<div class="clearfix"></div>
-    <fieldset class="scheduler-border">
-        <legend class="scheduler-border"> Depreciation Info</legend>
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="table-responsive modal-table ">
-                <table class="table table-striped table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Asset Master</th>
-                            <th>Asset Category</th>
-                            <th>Asset Sub Category</th>
-                            <th>Depreciation Process Date</th>
-                            <th>Currency</th>
-                            <th style="width:100px">Depreciation Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="x in fixedAssetDepreciationDetailList">
-                            <td>{{x.FixedAssetMaster}}</td>
-                            <td>{{x.FixedAssetCategory}}</td>
-                            <td>{{x.FixedAssetSubCategory}}</td>
-                            <td>{{x.DepreciationProcessDate}}</td>
-                            <td>{{x.BaseCurrency}}</td>
-                            <td><input type="text" style="width:100px" class="form-control text-right" ng-disabled="true" id="FixedAssetDepreciationAmount" ng-model="x.FixedAssetDepreciationAmount " n-decimals="2"></td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="5" class="text-right">Total</td>
-                            <td class="text-right"><b>{{ (fixedAssetDepreciationDetailList ) | sumByKey:'FixedAssetDepreciationAmount' }}</b></td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
-    </fieldset>*@
     <div class="clearfix"></div>
     <fieldset class="scheduler-border">
         <legend class="scheduler-border">JV</legend>

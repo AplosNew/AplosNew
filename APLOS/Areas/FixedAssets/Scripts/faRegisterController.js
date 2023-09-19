@@ -561,6 +561,21 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                 }
             }
 
+            if ($scope.register.Type === "Addition" ) {
+                if ($scope.checkedAssetRegisterList.length === 0) {
+                    ShowResult("Please select Asset Register!", "failure");
+                    return true;
+                }
+                if ($scope.checkedAssetRegisterList.length !== parseFloat($scope.register.Qty)) {
+                    ShowResult("Please select " + $scope.register.Qty + " Asset Register!", "failure");
+                    return true;
+                }
+                if (parseFloat($filter("sumByKey")($filter("filter")($scope.checkedAssetRegisterList), "Amount")) !== parseFloat($scope.register.TotalAmount)) {
+                    ShowResult("Distributed Amount must be equal Total Amount.!", "failure");
+                    return true;
+                }
+            }
+
             $scope.$broadcast("show-errors-check-validity");
             if ($scope.form0.$valid) {
                 $scope.saveBtnDisable = true;
@@ -569,7 +584,9 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                     url: $scope.path + "CreateCapitalize",
                     dataType: "JSON",
                     data: {
-                        "data": $scope.register, "items": $scope.selectedmaterialMasterList
+                        "data": $scope.register,
+                        "items": $scope.selectedmaterialMasterList,
+                        "assetRegisterList": $scope.checkedAssetRegisterList,
                     }
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -600,6 +617,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         };
 
         $scope.selectedmaterialMasterList = [];
+        $scope.checkedAssetRegisterList = [];
     }
 
     $scope.tab = 1;
@@ -836,5 +854,115 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         });
 
     };
+    $scope.checkedAssetRegisterList = [];
+    $scope.AssetRegisterAvailableList = [];
+    $scope.searchByAssetRegister = "AssetRegisterId"; $scope.searchAssetRegister = "";
+    $scope.searchByAssetRegisterList = [{ value: 'AssetRegisterId', name: "AssetRegisterId" }, { value: 'FixedAssetItemId', name: "FixedAssetItemId" }, { value: 'FixedAssetItem', name: "FixedAssetItem" }, { value: 'AssetSlNo', name: "AssetSlNo" }];
+    $scope.showAssetRegisterPopUp = function () {
+        if ($scope.register.TotalAmount === 0) {
+            ShowResult("Please select voucher first!", "failure");
+            return true;
+        }
+        if ($scope.register.Qty === 0) {
+            ShowResult("Please input Qty first!", "failure");
+            return true;
+        }
+        $http({
+            method: 'POST',
+            url: 'fixedassets/FixedAssetRegister/GetAssetRegisterList',
+            data: { column: $scope.searchByAssetRegister, value: $scope.searchAssetRegister },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.AssetRegisterAvailableList = response.data;
 
+            if (baseService.arrayLength($scope.checkedAssetRegisterList) > 0) {
+                for (var i = 0; i < baseService.arrayLength($scope.checkedAssetRegisterList); i++) {
+                    for (var j = 0; j < baseService.arrayLength($scope.AssetRegisterAvailableList); j++) {
+                        if ($scope.checkedAssetRegisterList[i].AssetRegisterId == $scope.AssetRegisterAvailableList[j].AssetRegisterId) {
+                            $scope.AssetRegisterAvailableList[j].Active = true;
+                        }
+                    }
+                }
+            }
+        });
+
+        angular.element(document.querySelector('#AssetRegisterPopUp')).modal('show');
+
+    };
+
+    $scope.hideAssetRegisterPopUp = function () {
+        angular.element(document.querySelector("#AssetRegisterPopUp")).modal("hide");
+    };
+    $scope.calDistributedAmount = function myfunction() {
+        $scope.TotalDistributedInvoiceAmount = 0;
+
+        for (var i = 0; i < $scope.checkedAssetRegisterList.length; i++) {
+            $scope.checkedAssetRegisterList[i].Amount = 0;
+        }
+
+        for (var i = 0; i < $scope.checkedAssetRegisterList.length; i++) {
+            if ($scope.checkedAssetRegisterList.length - 1 == i) {
+
+                $scope.TotalDistributedInvoiceAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedAssetRegisterList), "Amount"));
+                $scope.checkedAssetRegisterList[i].Amount = (parseFloat($scope.register.TotalAmount) - $scope.TotalDistributedInvoiceAmount).toFixed(2);
+            }
+            else {
+                $scope.checkedAssetRegisterList[i].Amount = parseFloat(parseFloat($scope.register.TotalAmount) / parseFloat($scope.register.Qty)).toFixed(2);
+            }
+        }
+    };
+
+    $scope.AddAssetRegister = function () {
+        if (baseService.arrayLength($scope.AssetRegisterAvailableList) > 0) {
+            $scope.checkedAssetRegisterList = [];
+            angular.forEach($scope.AssetRegisterAvailableList, function (a) {
+                if (a.Active) {
+                    $scope.checkedAssetRegisterList.push({
+                        CapitalizationMasterId: a.CapitalizationMasterId
+                        , CapitalizationChildId: a.CapitalizationChildId
+                        , AssetAmount: a.AssetAmount
+                        , FixedAssetItem: a.FixedAssetItem
+                        , FixedAssetItemId: a.FixedAssetItemId
+                        , AssetRegisterId: a.AssetRegisterId
+                        , AssetSlNo: a.AssetSlNo
+                        , Status: a.Status
+                        , AssetCondition: a.AssetCondition
+                        , UserReference: a.UserReference
+                        , OldReference: a.OldReference
+                        , UserGroup: a.UserGroup
+                        , Remarks: a.Remarks
+                        , Amount: 0
+                        , Active: true
+                    });
+                }
+            });
+        }
+
+        $scope.hideAssetRegisterPopUp();
+        $scope.calDistributedAmount();
+    };
+
+    $scope.DeleteConfirmation = function (AssetRegisterId) {
+        $scope.AssetRegisterId = AssetRegisterId;
+        $scope.message_conf = "Are you sure to Delete?";
+        angular.element(document.querySelector("#DeleteConfirmationPopUp")).modal("show");
+    };
+
+    $scope.RemoveAssetRegisterId = function () {
+        for (var i = 0; i < baseService.arrayLength($scope.checkedAssetRegisterList); i++) {
+            if ($scope.checkedAssetRegisterList[i].AssetRegisterId == $scope.AssetRegisterId)
+                $scope.checkedAssetRegisterList.splice(i, 1);
+        }
+        $scope.calDistributedAmount();
+    };
+
+    $scope.checkDistributedAmount = function myfunction(index, item) {
+        $scope.TotalDistributedAmounts = 0;
+        $scope.TotalDistributedAmounts = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedAssetRegisterList), "Amount"));
+
+        if (parseFloat($scope.TotalDistributedAmounts) > parseFloat($scope.register.TotalAmount)) {
+            $scope.checkedAssetRegisterList[index].Amount = 0;
+            ShowResult("Distributed Amount must be equal Total Amount.!", "failure");
+        }
+    };
 }

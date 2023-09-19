@@ -2345,12 +2345,13 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                 objCon = null;
             }
         }//End of function
-        public void SaveCapitalizeData(Dictionary<string, object> data, List<Dictionary<string, object>> items, out string masterId)
+        public void SaveCapitalizeData(Dictionary<string, object> data, List<Dictionary<string, object>> items, List<Dictionary<string, object>> assetRegisterList, out string masterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsMaster, dsChild = null;
             DataSet _assetRegisterData, _assetRegisterChildData = null;
+            DataSet _assetRegisterAdditionData, _assetRegisterAdditionChildData = null;
             string _Id = string.Empty;
             string _CId = string.Empty;
             try
@@ -2414,6 +2415,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                 string sqlAssetRegisterChildData = "SELECT * FROM [TRN].[AssetRegisterChild] WHERE CapitalizationMasterId='" + data["Id"] + "' ";
                 objCon.OpenDataSetThroughAdapter(sqlAssetRegister, out _assetRegisterData, false, "1");
                 objCon.OpenDataSetThroughAdapter(sqlAssetRegisterChild, out _assetRegisterChildData, false, "1");
+                objCon.OpenDataSetThroughAdapter(sqlAssetRegisterChild, out _assetRegisterAdditionChildData, false, "1");
                 AccountsCommonService _accountsCommonService = new AccountsCommonService(_sqlRepository);
 
                 if(data["Type"].ToString()== "New")
@@ -2475,12 +2477,48 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                         AddNewRowAssetRegister(_assetRegisterChildData.Tables[0], assetRegisterChildData);
 
                     }
+                }  //Addition
+                else
+                {
+                    var rdBuilder = new System.Text.StringBuilder();
+                    var builderSql = "";
+                    DataTable dtAR = _sqlRepository.GetDataTable(sqlAssetRegisterChildData);
+                    if (dtAR.Rows.Count > 0)
+                    {
+                        builderSql = @"DELETE FROM [TRN].[AssetRegisterChild] where CapitalizationMasterId='" + data["Id"] + "'  ";
+                        rdBuilder.Append(builderSql);
+                        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                    }
+                    var i = 0;
+                    foreach (var item in assetRegisterList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[AssetRegisterChild] where  AssetRegisterId='" + item["AssetRegisterId"].ToString() + "'", out _assetRegisterAdditionData, false, "1");
+                        var _assetAdditiondata = new
+                        {
+                            Id = _accountsCommonService.MakePK(item["AssetRegisterId"].ToString(), _assetRegisterAdditionData.Tables[0].Rows.Count + 1, 2),
+                            FixedAssetItemId = item["FixedAssetItemId"].ToString(),
+                            AssetRegisterId = item["AssetRegisterId"].ToString(),
+                            CapitalizationMasterId = masterId,
+                            CapitalizationChildId = masterId + "-" + (i + 1),
+                            Amount = item["Amount"].ToString(),
+                            NetAmount = item["Amount"].ToString(),
+                            CompanyGroupId = identity.CompanyGroupId,
+                            CompanyId = identity.CompanyId,
+                            PlantId = identity.PlantId,
+                            AddedBy = identity.Name,
+                            AddedDate = System.DateTime.Now.ToString(),
+                            AddedFromIP = identity.IPAddress,
+                        };
+                        i++;
+                        AddNewRowAssetRegister(_assetRegisterAdditionChildData.Tables[0], _assetAdditiondata);
+
+                    }
                 }
 
                 #endregion
 
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsChild, _assetRegisterData, _assetRegisterChildData);
+                obj.SaveDataSets(dsMaster, dsChild, _assetRegisterData, _assetRegisterChildData, _assetRegisterAdditionChildData);
 
             }
             catch (Exception ex)
@@ -3013,6 +3051,23 @@ WHERE AR.AdditionalInfoUpdateId='"+ headerId + "'";
 				        ORDER BY FAM.UserName,FAI.UserName";
             return _sqlRepository.GetDataCollection(sql);
 
+        }
+        #endregion
+
+        #region
+        public List<Dictionary<string, object>> GetAssetDepreciationProcessList(string column, string value, string companyId)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+            var sql = @"select top 100 * from (select AD.Id AssetDepreciationId,AD.ProcessName,FORMAT(AD.ProcessDate, 'dd-MMM-yyyy') ProcessDate
+                                    ,ISNULL((SELECT SUM(DepreciationAmount) FROM [TRN].[AssetDepreciationDetail] WHERE AssetDepreciationId=AD.Id),0) DepreciationAmount
+									,BC.Code BaseCurrency,AD.CurrencyId,1 ToCurrencyRate
+                FROM  [TRN].[AssetDepreciation] AD
+				LEFT JOIN SCS.Currency BC ON BC.Id =AD.CurrencyId 
+                WHERE AD.CompanyId='" + companyId + @"' 
+                ) AS TEMP WHERE " + strkey + " order by ProcessDate ASC  ";
+            return _sqlRepository.GetDataCollection(sql);
         }
         #endregion
     }
