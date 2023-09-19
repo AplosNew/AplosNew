@@ -978,17 +978,17 @@ namespace Aplos.Controllers.ApopAPIHR
         #endregion Attdn Lock
 
         #region Quality control 
-        public List<QualityGenaralIssue> GetQualityGeneraWiseIssue()
+        public List<QualityGenaralIssue> GetQualityGeneraWiseIssue(string ResposibleId)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetQualityGeneraWiseIssue(out List<QualityGenaralIssue> activelists);
+            clsData.GetQualityGeneraWiseIssue(out List<QualityGenaralIssue> activelists, ResposibleId);
             return activelists;
         }
 
-        public List<QualityPOIssue> GetQualityPOWiseIssue(string POIssueDate)
+        public List<QualityPOIssue> GetQualityPOWiseIssue(string POIssueDate, string ResponsibleId)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetQualityPOWiseIssue(out List<QualityPOIssue> activelists, POIssueDate);
+            clsData.GetQualityPOWiseIssue(out List<QualityPOIssue> activelists, POIssueDate, ResponsibleId);
             return activelists;
         }
 
