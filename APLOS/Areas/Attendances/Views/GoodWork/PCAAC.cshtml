@@ -124,10 +124,14 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Year<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input id="ddlYearList" e-watermarktext="Year" ej-dropdownlist e-datasource="yearList" e-enablefiltersearch="true" e-value="ModelNew.YearNo" @*e-databound="SelectDefaultValue"*@ e-fields-value="Text" e-fields-text="Text" e-width="100%" />
+                            <div class="select-style">
+                                <select id="LeaveTypeID" class="form-control" ng-model="ModelNew.YearNo" required tabindex="1" ng-disabled="true">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in yearlist" value="{{option.YearNo}}">{{option.YearNo}}</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
@@ -171,11 +175,17 @@
                 </div>
                 <div class="col-xs-12 col-sm-6 col-md-6">
                     <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Month<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input id="ddlMonthList" e-watermarktext="Month" ej-dropdownlist e-datasource="monthList" e-value="ModelNew.MonthNo" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-change="CalenderFunc" />
+                        <label class="col-sm-4 control-label">Month<sup style="color:red">*</sup></label>
+                        <div class="col-sm-8">
+                            <div class="select-style" style="color:red">
+                                <select id="MonthId" class="form-control" ng-model="ModelNew.MonthNo" name="MonthId" required tabindex="1" ng-disabled="true">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in monthList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
+
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
@@ -200,11 +210,11 @@
                         </div>
                     </div>
                     @*<div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Round Off<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" class="form-control" name="RoundOff" ng-model="ModelNew.RoundOff" e-width="100" />
-                            </div>
-                        </div>*@
+            <label class="col-sm-4 control-label">Round Off<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" class="form-control" name="RoundOff" ng-model="ModelNew.RoundOff" e-width="100" />
+            </div>
+        </div>*@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Pay Days</label>
                         <div class="col-sm-8 show-message">

@@ -1068,6 +1068,27 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetQualityChildList(out List<QualityChild> activelists, IssueId, PId);
             return activelists;
         }
+
+        public List<Default2> GetGIEmployee()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetGIEmployee(out List<Default2> activelists);
+            return activelists;
+        }
+
+        public List<Default2> GetPIEmployee()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetPIEmployee(out List<Default2> activelists);
+            return activelists;
+        }
+
+        public List<Default2> GetResponsibleEmployee()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetResponsibleEmployee(out List<Default2> activelists);
+            return activelists;
+        }
         #endregion Quality control 
 
         #region Leave
