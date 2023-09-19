@@ -2680,6 +2680,18 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public List<Dictionary<string, object>> GetAssetRegisterChildAdditionList(string masterId)
+        {
+            string sql = @"SELECT 1 Active, ARC.CapitalizationMasterId,ARC.CapitalizationChildId,ARC.Amount,ARC.NetAmount,FAI.UserName FixedAssetItem, AR.FixedAssetItemId,ARC.AssetRegisterId
+							,AR.AssetSlNo, AR.RFId, AR.BarCode, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks
+                            ,(SELECT SUM(Amount) FROM TRN.AssetRegisterChild where AssetRegisterId=ARC.AssetRegisterId AND VoucherDetailId IS NOT NULL)AssetAmount
+                            FROM TRN.AssetRegisterChild ARC
+							LEFT JOIN TRN.AssetRegister AR ON AR.Id=ARC.AssetRegisterId
+                            LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
+							LEFT JOIN [TRN].[CapitalizationMaster] CM ON CM.Id=ARC.CapitalizationMasterId
+                            WHERE ARC.CapitalizationMasterId='" + masterId + "' AND ARC.VoucherDetailId is null AND CM.Type='Addition' ";
+            return _sqlRepository.GetDataCollection(sql);
+        }
         public List<Dictionary<string, object>> GetAssetRegisterUpdateList(string companyGroupId, string companyId, string column, string value, string capitalizationMasterId)
         {
             try

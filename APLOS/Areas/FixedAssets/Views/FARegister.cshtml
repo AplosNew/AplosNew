@@ -248,7 +248,8 @@
 
                                         </tr>
                                         <tr>
-                                            <td colspan="3" class="text-right"><strong>Total : </strong></td>
+                                            <td colspan="2" class="text-right"><strong>Total : </strong></td>
+                                            <td class="text-right"><strong>{{checkedAssetRegisterList | sumByKey : 'AssetAmount'|  number:2 }}</strong></td>
                                             <td class="text-right"><strong>{{checkedAssetRegisterList | sumByKey : 'Amount'|  number:2 }}</strong></td>
                                             <td></td>
                                         </tr>
