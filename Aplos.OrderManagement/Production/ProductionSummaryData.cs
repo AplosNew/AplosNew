@@ -4200,7 +4200,7 @@ left join ORG.Entity E on E.Id=PO.EntityId
 where PO.ProcessId is null and E.Id in (select EntityId from MST.QualityManagementEntity where QMID=QMM.Id) 
 and QPC.QCID is null or (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' order by AddedDate desc) is not null
 ) PO1
-where PO1.QualityPlanDate < = '" + POIssueDate + "' " + ResponsiblePerson + @" or PO1.QualityPlanDate is null order by PO1.QualityPlanDate";
+where PO1.QualityPlanDate < = '" + POIssueDate + "'" + ResponsiblePerson + @" or PO1.QualityPlanDate is null order by PO1.QualityPlanDate";
              return _sqlRepository.GetDataCollection(sql);
         }
 

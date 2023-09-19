@@ -155,6 +155,14 @@
             templateUrl: 'QMS/CustomerRequirementControl/aplos',
             controller: 'CustomerRequirementControlController'
         })
+        .when('/customer-confirmation-parameter', {
+            templateUrl: 'QMS/CustomerConfirmationParameter/aplos',
+            controller: 'CustomerConfirmationParameterController'
+        })
+        .when('/customer-completed-parameter', {
+            templateUrl: 'QMS/CustomerCompletedParameter/aplos',
+            controller: 'CustomerCompletedParameterController'
+        })
 
         
 }
