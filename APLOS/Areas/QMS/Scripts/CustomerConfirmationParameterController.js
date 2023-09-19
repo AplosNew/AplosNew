@@ -1,20 +1,17 @@
 ﻿'use strict';
-CustomerRequirementControlController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter", "$window"];
-function CustomerRequirementControlController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
-    $rootScope.title = "CustomerRequirementControl";
+CustomerConfirmationParameterController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter", "$window"];
+function CustomerConfirmationParameterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
+    $rootScope.title = "CustomerConfirmationParameter";
     $scope.Action = 'Save';
     $scope.CriticalLevelLists = [];
-    $scope.CriticalLevelGridLists = [];
-    $scope.path = 'QMS/CustomerRequirementControl/';
+    $scope.path = 'QMS/CustomerConfirmationParameter/';
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
-    $scope.saveUrlCustomerUpdatePara = $scope.path + 'createCustomerUpdatePara';
-    $scope.saveUrlUCPDValue = $scope.path + 'createUCPRequirement';
+    $scope.saveUrlCustomerUpdatePara = $scope.path + 'createCustomerConfirmationPara';
+    $scope.saveUrlCCPDValue = $scope.path + 'createCCPRequirement';
     $scope.ParameterStatusLists = [];
     var date = new Date(), y = date.getFullYear(), m = date.getMonth();
     date.setDate(date.getDate() - 3);
-
-
 
     $scope.ParameterStatusLists = [
         {
@@ -24,6 +21,11 @@ function CustomerRequirementControlController(cboService, commonMessage, $scope,
         {
             'Value': 'ToApprove',
             'Text': 'ToApprove'
+        }
+        ,
+        {
+            'Value': 'Approved',
+            'Text': 'Approved'
         }
     ];
 
@@ -86,7 +88,7 @@ function CustomerRequirementControlController(cboService, commonMessage, $scope,
     $scope.GetParameterResponsiblePersonLists = function () {
         $http({
             method: 'GET',
-            url: 'QMS/CustomerRequirementControl/GetParameterResponsiblePersonLists'
+            url: 'QMS/CustomerConfirmationParameter/GetParameterResponsiblePersonLists'
         }).then(function successCallback(response) {
             $scope.ParameterResponsiblePersonLists = response.data;
         });
@@ -97,45 +99,18 @@ function CustomerRequirementControlController(cboService, commonMessage, $scope,
     $scope.GetParameterApprovalPersonLists = function () {
         $http({
             method: 'GET',
-            url: 'QMS/CustomerRequirementControl/GetParameterApprovalPersonLists'
+            url: 'QMS/CustomerConfirmationParameter/GetParameterApprovalPersonLists'
         }).then(function successCallback(response) {
             $scope.ParameterApprovalPersonLists = response.data;
         });
     }
     $scope.GetParameterApprovalPersonLists();
 
-    $scope.selectGridResponsible = function (data) {
-        $scope.Newobject = data.data;
-        $scope.getEmployee();
-        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('show');
-    }
-
-    $scope.EmployeeList = [];
-    $scope.getEmployee = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + 'GetEmployee',
-            dataType: 'JSON'
-        }).then(function succ(resp) {
-            $scope.EmployeeList = resp.data;
-        });
-    }
-
-    $scope.doubleEmployee = function (e) {
-        $scope.Newobject.ResponsiblePersonId = e.data.SystemId;
-        $scope.Newobject.ResponsiblePerson = e.data.EmployeeName;
-        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
-    }
-
-    $scope.closeResponsiblePersonPopUp = function () {
-        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
-    }
-
     $scope.CustomerRequirementControlList = [];
     $scope.View = function () {
         try {
-            $scope.CustomerRequirementControlList = [];
-            $http.get('QMS/CustomerRequirementControl/LoadCustomerRequirementControl?ParameterStatus=' + $scope.statusNew.ParameterStatus)
+            $scope.QCCompleteList = [];
+            $http.get('QMS/CustomerConfirmationParameter/LoadCustomerConfirmationParameter')
                 .then(function (response) {
                     $scope.CustomerRequirementControlList = response.data;
                 });
@@ -145,6 +120,7 @@ function CustomerRequirementControlController(cboService, commonMessage, $scope,
     }
     $scope.View();
 
+    $scope.UCPId = null;
     $scope.GetDetails = function ($event) {
         $scope.CustomerUpdateParaNew.LineItemNo = $event.data.LineItemNo;
         $scope.CustomerUpdateParaNew.Id = $event.data.Id;
@@ -154,18 +130,17 @@ function CustomerRequirementControlController(cboService, commonMessage, $scope,
         $scope.CustomerUpdateParaNew.Remarks = $event.data.Remarks;
         $scope.GetParameterResponsiblePersonLists();
         $scope.GetParameterApprovalPersonLists();
-        $scope.CUPDList = [];
-        //$scope.loadCUPD();
+        $scope.UCPId = $event.data.UCPId;
+        $scope.loadCCPD();
         angular.element(document.querySelector('#UpdateCustomerParameterPopUp')).modal('show');
     }
-    $scope.UCPId = null;
     $scope.CustomerUpdateSave = function () {
         $http({
             method: 'POST',
             url: $scope.saveUrlCustomerUpdatePara,
             data: {
                 'CustomerUpdateParaData': $scope.CustomerUpdateParaNew,
-                'ApprovalStatus':  'ToApprove'
+                'ApprovalStatus':  'Approved'
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -174,21 +149,20 @@ function CustomerRequirementControlController(cboService, commonMessage, $scope,
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.UCPId = response.data.Data.Id;
-                $scope.loadCUPD();
                 $scope.View();
+                angular.element(document.querySelector('#UpdateCustomerParameterPopUp')).modal('hide');
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
         }
     };
 
-    $scope.CUPDList = [];
-    $scope.loadCUPD = function () {
+    $scope.CCPDList = [];
+    $scope.loadCCPD = function () {
         try {
-            $http.get('QMS/CustomerRequirementControl/GetCRPCbo?MasterId=' + $scope.UCPId + '&LineItemNo=' + $scope.CustomerUpdateParaNew.LineItemNo)
+            $http.get('QMS/CustomerConfirmationParameter/GetCCPCbo?MasterId=' + $scope.UCPId + '&LineItemNo=' + $scope.CustomerUpdateParaNew.LineItemNo)
                 .then(function (response) {
-                    $scope.CUPDList = response.data;
+                    $scope.CCPDList = response.data;
                 });
         } catch (ex) {
             ShowResult(ex, 'Info');
@@ -203,7 +177,7 @@ function CustomerRequirementControlController(cboService, commonMessage, $scope,
             data.data.UCPId = $scope.UCPId;
             $http({
                 method: 'POST',
-                url: $scope.saveUrlUCPDValue,
+                url: $scope.saveUrlCCPDValue,
                 data: { 'UCPRequirementDetailsData': data.data },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -212,7 +186,7 @@ function CustomerRequirementControlController(cboService, commonMessage, $scope,
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.loadCUPD();
+                    $scope.loadCCPD();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

@@ -11,7 +11,7 @@
         </div>
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-                <div  ng-form name="documentationNewForm">
+                <div ng-form name="documentationNewForm">
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
@@ -128,6 +128,7 @@
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                         <div e-columns>
+                            <div e-column e-headertext="Actions" e-template="#ShowActionButtons" e-width="2"></div>
                             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
                             <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
                             <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
@@ -137,6 +138,9 @@
                             <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="5"></div>
                             <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
                         </div>
+                        <script type="text/template" id="ShowActionButtons">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Documentation Master" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.ShowDocumentationMaster(this);" style="margin: -6px;"></i></button>
+                        </script>
                     </div>
                 </div>
             </div>
@@ -165,13 +169,13 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Source<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="Source" ng-model="documentationMasterNew.Source" class="form-control" required tabindex="5" maxlength="105">
+                                <input type="text" name="Source" ng-model="documentationMasterNew.Source" class="form-control" required tabindex="5" maxlength="107">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Remarks</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" rows="3" ng-model="documentationMasterNew.Remarks" maxlength="250" tabindex="107"></textarea>
+                                <textarea class="form-control" rows="3" ng-model="documentationMasterNew.Remarks" maxlength="250" tabindex="109"></textarea>
                             </div>
                         </div>
                     </div>
@@ -192,10 +196,10 @@
                             <label class="col-sm-4 control-label">Document Type<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 @*<div class="select-style">
-                            <select name="Document Type" class="form-control" ng-model="documentationMasterNew.DocumentType" ng-options="item.Value as item.Text for item in documentTypeList" required tabindex="106">
-                                <option value="">--Select--</option>
-                            </select>
-                        </div>*@
+                                        <select name="Document Type" class="form-control" ng-model="documentationMasterNew.DocumentType" ng-options="item.Value as item.Text for item in documentTypeList" required tabindex="106">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>*@
                                 <input type="text" name="DocumentType" ng-model="documentationMasterNew.DocumentType" class="form-control" required tabindex="106" maxlength="50">
 
                             </div>
@@ -353,6 +357,97 @@
             </div>
             <div class="modal-footer common-btn">
                 <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="SelectdDocumentationMasterPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Documentation Master</h4>
+            </div>
+            <div class="modal-body">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button style="margin-left: 5px;" ng-click="GetDocumentationMaster();" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i> Add Documentation Master</button></li>
+                    </ul>
+                </div>
+
+                <div id="SelectedGridDocumentationMaster" ej-grid e-datasource="SelectedDocumentationMasterModelList"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                        <div e-column e-field="Sequence" e-headertext="Sequence" e-width="3"></div>
+                        <div e-column e-field="Code" e-headertext="Code" e-width="4"></div>
+                        <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+                        <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+                        <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                        <div e-column e-field="Source" e-headertext="Source" e-width="5"></div>
+                        <div e-column e-field="DocumentType" e-headertext="Document Type" e-width="5"></div>
+                        <div e-column e-field="DocumentFormat" e-headertext="Document Format" e-width="5"></div>
+                        <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+                        <div e-column e-template="#OptionalOrMandatory" e-headertext="OptionalOrMandatory" e-width="5" style="height: 20px;"></div>
+                    </div>
+                    <script type="text/template" id="OptionalOrMandatory">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="data.OptionalOrMandatory" name="OptionalOrMandatory">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in $parent.OpManList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </script>
+                </div>
+
+
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveTaggedDocmuent();" class="btn">Save</button></li>
+                        <li> <button ng-click="CloseSelectedDMPopUp();" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="DocumentationMasterPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Documentation Master</h4>
+            </div>
+            <div class="modal-body">
+                <div id="GridDocumentationMaster" ej-grid e-datasource="DocumentationMasterModelList" e-templaterefresh="refreshTemplategrid"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="1"></div>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                        <div e-column e-field="Sequence" e-headertext="Sequence" e-width="3"></div>
+                        <div e-column e-field="Code" e-headertext="Code" e-width="4"></div>
+                        <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
+                        <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+                        <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                        <div e-column e-field="Source" e-headertext="Source" e-width="5"></div>
+                        <div e-column e-field="DocumentType" e-headertext="Document Type" e-width="5"></div>
+                        <div e-column e-field="DocumentFormat" e-headertext="Document Format" e-width="5"></div>
+                        <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+                    </div>
+                </div>
+                <script type="text/template" id="checkboxTemplate">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                </script>
+                <script type="text/x-jsrender" id="headerTemplate">
+                    <input type="checkbox" id="headchk" />
+                </script>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseDMPopUp();" class="btn">Apply</button></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>

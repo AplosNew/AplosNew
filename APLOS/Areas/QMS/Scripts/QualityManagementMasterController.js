@@ -28,7 +28,8 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.saveUrlReasonMaster = $scope.path + 'createReasonMaster';
     $scope.saveUrlParameterResponsiblePerson = $scope.path + 'createParameterResponsiblePerson';
     $scope.saveUrlParameterApprovalResponsiblePerson = $scope.path + 'createParameterApprovalResponsiblePerson';
-   
+    $scope.saveUrlQualityActionResponsiblePerson = $scope.path + 'createQualityActionResponsiblePerson';
+
     $scope.CriticalLevelLists = [
         {
             'Value': 'Normal',
@@ -1885,6 +1886,76 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
 
                     ShowResult(response.data.Message, 'success');
                     $scope.LoadParameterApprovalResponsiblePersonList();
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
+    $scope.QualityActionResponsiblePersonList = [];
+    $scope.LoadQualityActionResponsiblePersonList = function () {
+        $http({
+            method: 'Get',
+            url: 'QMS/QualityManagementMaster/LoadQualityActionResponsiblePersonDetails'
+        }).then(function successCallback(response) {
+            $scope.QualityActionResponsiblePersonList = response.data;
+        }
+        )
+    }
+    $scope.LoadQualityActionResponsiblePersonList();
+
+    $scope.refreshTemplateQualityActionResponsiblePerson = function (args) {
+        $("#QACheadchk").ejCheckBox({ "change": CheckBoxSelectAllQualityActionResponsiblePerson });
+    };
+    function CheckBoxSelectAllQualityActionResponsiblePerson(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridQualityActionResponsiblePerson").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.QualityActionResponsiblePersonList.length; i++) {
+                $scope.QualityActionResponsiblePersonList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridQualityActionResponsiblePerson").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+
+    $scope.QualityActionResponsiblePersonSave = function () {
+        try {
+
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.QualityActionResponsiblePersonList.length; i++) {
+                if ($scope.QualityActionResponsiblePersonList[i].Flag == true) {
+                    $scope.SaveList.push($scope.QualityActionResponsiblePersonList[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlQualityActionResponsiblePerson,
+                data: {
+                    "DataList": $scope.SaveList
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadQualityActionResponsiblePersonList();
                     $scope.Action = 'Save';
                 }
 
