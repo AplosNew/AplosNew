@@ -7122,30 +7122,36 @@ where MB.ROBudgetCode = '" + Id + "'";
         #endregion Attdn Lock
 
         #region Quality Control
-        public void GetQualityGeneraWiseIssue(out List<QualityGenaralIssue> DataList)
+        public void GetQualityGeneraWiseIssue(out List<QualityGenaralIssue> DataList , string ResposibleId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
             DataList = new List<QualityGenaralIssue>();
+            string ResponsiblePerson = string.Empty;
 
+            if (ResposibleId != "null" && ResposibleId != "undefined")
+            {
+                ResponsiblePerson = " where QGIEmployeeId = '" + ResposibleId + "'";
+            }
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select  QC.Id,QID.IssueNameId,(select top 1 RepeatEntry from TRN.QualityControl where IssueId=QID.IssueNameId and PlanType='GeneralIssue' order by AddedDate desc) as RepeatEntry,
-case when (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QID.IssueNameId and PlanType='GeneralIssue' order by AddedDate desc)='Repeat' then format((select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId and PlanType='GeneralIssue' order by AddedDate desc),'dd-MMM-yyyy') else
-format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId and PlanType='GeneralIssue' order by AddedDate desc)),'dd-MMM-yyyy') end as QualityIssueDate,
-case when (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QID.IssueNameId and PlanType='GeneralIssue' order by AddedDate desc)='Repeat' then format((select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId and PlanType='GeneralIssue' order by AddedDate desc),'hh:mm tt') else
-format(DATEADD(hour, QID.CheckingInterval, CAST((select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId and PlanType='GeneralIssue' order by AddedDate desc) AS DATETIME)),'hh:mm tt') end as QualityIssueTime,
+                strSQL = @"select  GI.* from (select  QC.Id,QID.IssueNameId,(select top 1 RepeatEntry from TRN.QualityControl where IssueId=QID.IssueNameId and EntityId=QID.EntityId and PlanType='GeneralIssue' order by AddedDate desc) as RepeatEntry,
+case when (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QID.IssueNameId and EntityId=QID.EntityId and PlanType='GeneralIssue' order by AddedDate desc)='Repeat' then format((select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId and EntityId=QID.EntityId and PlanType='GeneralIssue' order by AddedDate desc),'dd-MMM-yyyy') else
+format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId and EntityId=QID.EntityId and PlanType='GeneralIssue' order by AddedDate desc)),'dd-MMM-yyyy') end as QualityIssueDate,
+case when (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QID.IssueNameId and EntityId=QID.EntityId and PlanType='GeneralIssue' order by AddedDate desc)='Repeat' then format((select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId and EntityId=QID.EntityId and PlanType='GeneralIssue' order by AddedDate desc),'hh:mm tt') else
+format(DATEADD(hour, QID.CheckingInterval, CAST((select top 1 AddedDate from TRN.QualityControl where IssueId=QID.IssueNameId and EntityId=QID.EntityId and PlanType='GeneralIssue' order by AddedDate desc) AS DATETIME)),'hh:mm tt') end as QualityIssueTime,
 E.Id  EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,QID.IssueNameId IssueId,QID.Id DefineIssueId,
 QMM.UserName QGIssue,
 reverse(stuff(reverse((select EI.EmployeeName + ',' from EmployeeInformation EI where EmployeeStatus='Active' and PositionID in (select PositionCodeId from MST.QualityManagementPositionCode where QMID=QID.IssueNameId) for xml path(''))),1,1,'')) as PositionEmployee,
-QC.QGIEmployeeId,(select EmployeeName from EmployeeInformation where SystemId=QC.QGIEmployeeId) as QGIEmployee
+isnull(QC.QGIEmployeeId,QID.ResponsiblePersonId) as QGIEmployeeId,isnull((select EmployeeName from EmployeeInformation where SystemId=QC.QGIEmployeeId),(select EmployeeName from EmployeeInformation where SystemId=QID.ResponsiblePersonId)) as QGIEmployee
 from MST.QualityIssueDetails  QID
-left join TRN.QualityIssueControl as QC on QC.IssueId=QID.IssueNameId and QC.Id = (select top 1 Id from TRN.QualityIssueControl where IssueId=QID.IssueNameId order by AddedDate desc) 
+left join TRN.QualityIssueControl as QC on QC.DefineIssueId=QID.Id and QC.Id = (select top 1 Id from TRN.QualityIssueControl where DefineIssueId=QID.Id order by AddedDate desc) 
 left join MST.QualityManagementMaster QMM on QMM.Id=QID.IssueNameId
 left join org.Entity E on E.Id=QID.EntityId
-left join hkp.Process P on P.Id=QID.ProcessId
-order by (select top 1 AddedDate + QID.CheckingInterval from TRN.QualityControl where IssueId=QID.IssueNameId order by AddedDate asc) asc";
+left join hkp.Process P on P.Id=QID.ProcessId) GI
+" + ResponsiblePerson + @" order by Convert(Date,GI.QualityIssueDate)
+";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -7183,55 +7189,161 @@ order by (select top 1 AddedDate + QID.CheckingInterval from TRN.QualityControl 
             }
         }
 
-        public void GetQualityPOWiseIssue(out List<QualityPOIssue> DataList , string POIssueDate)
+        public void GetQualityPOWiseIssue(out List<QualityPOIssue> DataList , string POIssueDate , string ResponsibleId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
             DataList = new List<QualityPOIssue>();
-
+            string ResponsiblePerson = string.Empty;
+            if (ResponsibleId != "null" && ResponsibleId != "undefined")
+            {
+                ResponsiblePerson = " and QPEmployeeId = '" + ResponsibleId + "'";
+            }
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select Format(PO.Date,'dd-MMM-yyyy') PODate,Format(PO.QualityPlanDate,'dd-MMM-yyyy') QPDate,PO.* from (select distinct QPC.Id Id,PD.Id QPId,PO.Id POId,PD.IssueId as IssueId,QMM.UserName as QPIssue,PD.ProcessId,P.UserName as Process,E.Id EntityId,E.UserName Entity,PD.DependentDate as DependentOn,PD.Legdays,
-(select RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' and RepeatEntry is not null) as RepeatEntry,
+
+                strSQL = @"Select Format(PO1.Date,'dd-MMM-yyyy') PODate,Format(PO1.QualityPlanDate,'dd-MMM-yyyy') QPDate,PO1.* from (Select distinct QPC.Id,PD.Id QPId,PO.Id POId,PO.EntryLevel,PO.LotNumber,PD.IssueId,QMM.UserName QPIssue,PO.ProcessId,P.UserName Process,PD.Legdays,
+PD.DependentDate DependentOn,E.UserName Entity,PO.EntityId,
+(select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' and RepeatEntry is not null order by AddedDate desc) as RepeatEntry,
+PD.Remarks,PO.POStatus,PO.Customer,
 convert(Date,case 
 when PD.DependentDate='ItemDate' then format(MOI.AddedDate,'dd-MMM-yyyy')
 when PD.DependentDate='ExFactoryDate' then format((select top 1 PlanExFactoryDate from TRN.SalesOrder where Id=SO.Id order by PlanExFactoryDate desc),'dd-MMM-yyyy')
-when PD.DependentDate='PODate' then format(PO.AddedDate,'dd-MMM-yyyy')
-when PD.DependentDate='POStartDate' then isnull(format(FBPPD.POFirstProdBookDate,'dd-MMM-yyyy'),format(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy'))
-when PD.DependentDate='POEndDate' then isnull(format(Type1.BaseProcPlanCompletionDate,'dd-MMM-yyyy'),format(FBPPD.POLatestProdBookDate,'dd-MMM-yyyy'))
-end) Date, 
+when PD.DependentDate='PODate' then PO.POCreationDate
+when PD.DependentDate='POStartDate' then PO.POStartDate
+when PD.DependentDate='POEndDate' then PO.POEndDate
+end)Date, 
 convert(Date,case 
 when PD.DependentDate='ItemDate' then format(DATEADD(Day, PD.Legdays, MOI.AddedDate),'dd-MMM-yyyy')
 when PD.DependentDate='ExFactoryDate' then format(DATEADD(Day, PD.Legdays, (select top 1 PlanExFactoryDate from TRN.SalesOrder where Id=SO.Id order by PlanExFactoryDate desc)),'dd-MMM-yyyy')
-when PD.DependentDate='PODate' then format(DATEADD(Day, PD.Legdays, PO.AddedDate),'dd-MMM-yyyy')
-when PD.DependentDate='POStartDate' then format(DATEADD(Day, PD.Legdays, isnull(FBPPD.POFirstProdBookDate,Type1.BaseProcPlanStartDate)),'dd-MMM-yyyy')
-when PD.DependentDate='POEndDate' then format(DATEADD(Day, PD.Legdays,isnull(Type1.BaseProcPlanCompletionDate,FBPPD.POLatestProdBookDate)),'dd-MMM-yyyy')
-end) QualityPlanDate,PD.Remarks,
-reverse(stuff(reverse((select distinct LotNumber + ',' from TRN.ProductionSummary where ProductionOrderId=PO.Id and ProcessId=PD.ProcessId for xml path(''))),1,1,'')) as LotNumber,
-Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
+when PD.DependentDate='PODate' then format(DATEADD(Day, PD.Legdays, PO.POCreationDate),'dd-MMM-yyyy')
+when PD.DependentDate='POStartDate' then format(DATEADD(Day, PD.Legdays, PO.POStartDate),'dd-MMM-yyyy')
+when PD.DependentDate='POEndDate' then format(DATEADD(Day, PD.Legdays,PO.POEndDate),'dd-MMM-yyyy')
+end) QualityPlanDate,
+PO.POStartDate,PO.POEndDate,PO.POCreationDate,
+isnull(QPC.QPEmployeeId,PD.ResponsiblePersonId) as QPEmployeeId,
+isnull((select EmployeeName from EmployeeInformation where SystemId=QPC.QPEmployeeId),(select EmployeeName from EmployeeInformation where SystemId=PD.ResponsiblePersonId)) as QPEmployee
+from (select distinct PO.Id,PS.UserName POStatus, 'PO' EntryLevel,Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
 left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
 where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-PS.UserName as POStatus,
-QPC.QPEmployeeId,(select EmployeeName from EmployeeInformation where SystemId=QPC.QPEmployeeId) as QPEmployee
+reverse(stuff(reverse((select distinct LotNumber + ',' from TRN.ProductionSummary where ProductionOrderId=PO.Id and ProcessId=Prod.ProcessId for xml path(''))),1,1,'')) as LotNumber,
+PO.EntityId,Prod.ProcessId,POFirstProdBookDate,POProcessFirstProdBookDate,POLatestProdBookDate,BaseProcPlanStartDate,BaseProcPlanCompletionDate, 
+isnull(format(FBPPD.POFirstProdBookDate,'dd-MMM-yyyy'),format(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy')) POStartDate,
+isnull(format(Type1.BaseProcPlanCompletionDate,'dd-MMM-yyyy'),format(LBPPD.POLatestProdBookDate,'dd-MMM-yyyy')) POEndDate,
+format(PO.AddedDate,'dd-MMM-yyyy') POCreationDate
 from TRN.ProductionOrder PO
 left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
-left join MST.POQualityPlanDetails PD on 1=1
-left join [TRN].[QualityPlanControl] QPC on QPC.QPId=PD.Id and QPC.POId=PO.Id
---left join MST.QualityIssueDetails ID on ID.Id=PD.IssueId
-left join MST.QualityManagementMaster QMM on QMM.Id=PD.IssueId
-left join hkp.process P on P.Id=PD.ProcessId
-left join org.Entity E on E.Id=PO.EntityId
+left join TRN.ProductionSummary Prod on Prod.ProductionOrderId=PO.Id
+LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POFirstProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) FBPPD ON FBPPD.ProductionOrderId=PO.Id
+LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POProcessFirstProdBookDate,ProductionOrderId,ProcessId From TRN.ProductionSummary Group By ProductionOrderId,ProcessId) POPFBD ON POPFBD.ProductionOrderId=PO.Id and Prod.ProcessId=POPFBD.ProcessId
+LEFT JOIN (Select SUM(Quantity)ProQty,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) LBPPD ON LBPPD.ProductionOrderId=PO.Id
+LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=PO.Id
+where PS.UserName in ('Running','To Close') 
+union
+select distinct PO.Id,PS.UserName POStatus, 'LOT' EntryLevel,Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),Prod.LotNumber,PO.EntityId,
+Prod.ProcessId,POFirstProdBookDate,POProcessFirstProdBookDate,POLatestProdBookDate,BaseProcPlanStartDate,BaseProcPlanCompletionDate, 
+isnull(format(FBPPD.POFirstProdBookDate,'dd-MMM-yyyy'),format(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy')) POStartDate,
+isnull(format(Type1.BaseProcPlanCompletionDate,'dd-MMM-yyyy'),format(LBPPD.POLatestProdBookDate,'dd-MMM-yyyy')) POEndDate,
+format(PO.AddedDate,'dd-MMM-yyyy') POCreationDate
+from TRN.ProductionOrder PO
+left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
+left join TRN.ProductionSummary Prod on Prod.ProductionOrderId=PO.Id
+LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POFirstProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) FBPPD ON FBPPD.ProductionOrderId=PO.Id
+LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POProcessFirstProdBookDate,ProductionOrderId,ProcessId From TRN.ProductionSummary Group By ProductionOrderId,ProcessId) POPFBD ON POPFBD.ProductionOrderId=PO.Id and Prod.ProcessId=POPFBD.ProcessId
+LEFT JOIN (Select SUM(Quantity)ProQty,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) LBPPD ON LBPPD.ProductionOrderId=PO.Id
+LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=PO.Id
+where PS.UserName in ('Running','To Close')) PO
+left join MST.POQualityPlanDetails PD on PD.EntryLevel=PO.EntryLevel and PO.ProcessId=PD.ProcessId
+left Join MST.QualityManagementMaster QMM on QMM.Id=PD.IssueId
+left join [TRN].[QualityPlanControl] QPC on QPC.QPId=PD.Id and QPC.POId=PO.Id and QPC.LotNumber=PO.LotNumber and QPC.EntryLevel=PO.EntryLevel
 left join TRN.ProductionOrderDetail POD on POD.ProductionOrderId=PO.Id
 left join TRN.SalesOrder SO on SO.Id=POD.SalesOrderId 
 left join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
-LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POFirstProdBookDate,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) FBPPD ON FBPPD.ProductionOrderId=PO.Id
+left join hkp.Process P on P.Id=PO.ProcessId
+left join ORG.Entity E on E.Id=PO.EntityId
+where PO.ProcessId is not null and E.Id in (select EntityId from MST.QualityManagementEntity where QMID=QMM.Id) 
+and QPC.QCID is null or (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' order by AddedDate desc) is not null
+union
+Select distinct QPC.Id,PD.Id QPId,PO.Id POId,PO.EntryLevel,PO.LotNumber,PD.IssueId,QMM.UserName QPIssue,PO.ProcessId,P.UserName Process,PD.Legdays,
+PD.DependentDate DependentOn,E.UserName Entity,PO.EntityId,
+(select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' and RepeatEntry is not null order by AddedDate desc) as RepeatEntry,
+PD.Remarks,PO.POStatus,PO.Customer,
+convert(Date,case 
+when PD.DependentDate='ItemDate' then format(MOI.AddedDate,'dd-MMM-yyyy')
+when PD.DependentDate='ExFactoryDate' then format((select top 1 PlanExFactoryDate from TRN.SalesOrder where Id=SO.Id order by PlanExFactoryDate desc),'dd-MMM-yyyy')
+when PD.DependentDate='PODate' then PO.POCreationDate
+when PD.DependentDate='POStartDate' then PO.POStartDate
+when PD.DependentDate='POEndDate' then PO.POEndDate
+end)Date, 
+convert(Date,case 
+when PD.DependentDate='ItemDate' then format(DATEADD(Day, PD.Legdays, MOI.AddedDate),'dd-MMM-yyyy')
+when PD.DependentDate='ExFactoryDate' then format(DATEADD(Day, PD.Legdays, (select top 1 PlanExFactoryDate from TRN.SalesOrder where Id=SO.Id order by PlanExFactoryDate desc)),'dd-MMM-yyyy')
+when PD.DependentDate='PODate' then format(DATEADD(Day, PD.Legdays, PO.POCreationDate),'dd-MMM-yyyy')
+when PD.DependentDate='POStartDate' then format(DATEADD(Day, PD.Legdays, PO.POStartDate),'dd-MMM-yyyy')
+when PD.DependentDate='POEndDate' then format(DATEADD(Day, PD.Legdays,PO.POEndDate),'dd-MMM-yyyy')
+end) QualityPlanDate,
+PO.POStartDate,PO.POEndDate,PO.POCreationDate,
+isnull(QPC.QPEmployeeId,PD.ResponsiblePersonId) as QPEmployeeId,
+isnull((select EmployeeName from EmployeeInformation where SystemId=QPC.QPEmployeeId),(select EmployeeName from EmployeeInformation where SystemId=PD.ResponsiblePersonId)) as QPEmployee
+from (select distinct PO.Id,PS.UserName POStatus, 'PO' EntryLevel,Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+reverse(stuff(reverse((select distinct LotNumber + ',' from TRN.ProductionSummary where ProductionOrderId=PO.Id and ProcessId=Prod.ProcessId for xml path(''))),1,1,'')) as LotNumber,
+PO.EntityId,Prod.ProcessId,POFirstProdBookDate,POProcessFirstProdBookDate,POLatestProdBookDate,BaseProcPlanStartDate,BaseProcPlanCompletionDate, 
+isnull(format(FBPPD.POFirstProdBookDate,'dd-MMM-yyyy'),format(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy')) POStartDate,
+isnull(format(Type1.BaseProcPlanCompletionDate,'dd-MMM-yyyy'),format(LBPPD.POLatestProdBookDate,'dd-MMM-yyyy')) POEndDate,
+format(PO.AddedDate,'dd-MMM-yyyy') POCreationDate
+from TRN.ProductionOrder PO
+left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
+left join TRN.ProductionSummary Prod on Prod.ProductionOrderId=PO.Id
+LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POFirstProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) FBPPD ON FBPPD.ProductionOrderId=PO.Id
+LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POProcessFirstProdBookDate,ProductionOrderId,ProcessId From TRN.ProductionSummary Group By ProductionOrderId,ProcessId) POPFBD ON POPFBD.ProductionOrderId=PO.Id and Prod.ProcessId=POPFBD.ProcessId
+LEFT JOIN (Select SUM(Quantity)ProQty,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) LBPPD ON LBPPD.ProductionOrderId=PO.Id
 LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=PO.Id
-where PS.UserName in ('Running','To Close') and E.Id in (select EntityId from MST.QualityManagementEntity where QMID=QMM.Id) and QPC.QCID is null or (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' order by AddedDate desc) is not null) PO
-where PO.QualityPlanDate < = '" + POIssueDate + "' or PO.QualityPlanDate is null order by PO.QualityPlanDate";
+where PS.UserName in ('Running','To Close') 
+union
+select distinct PO.Id,PS.UserName POStatus, 'LOT' EntryLevel,Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),Prod.LotNumber,PO.EntityId,
+Prod.ProcessId,POFirstProdBookDate,POProcessFirstProdBookDate,POLatestProdBookDate,BaseProcPlanStartDate,BaseProcPlanCompletionDate, 
+isnull(format(FBPPD.POFirstProdBookDate,'dd-MMM-yyyy'),format(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy')) POStartDate,
+isnull(format(Type1.BaseProcPlanCompletionDate,'dd-MMM-yyyy'),format(LBPPD.POLatestProdBookDate,'dd-MMM-yyyy')) POEndDate,
+format(PO.AddedDate,'dd-MMM-yyyy') POCreationDate
+from TRN.ProductionOrder PO
+left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
+left join TRN.ProductionSummary Prod on Prod.ProductionOrderId=PO.Id
+LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POFirstProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) FBPPD ON FBPPD.ProductionOrderId=PO.Id
+LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POProcessFirstProdBookDate,ProductionOrderId,ProcessId From TRN.ProductionSummary Group By ProductionOrderId,ProcessId) POPFBD ON POPFBD.ProductionOrderId=PO.Id and Prod.ProcessId=POPFBD.ProcessId
+LEFT JOIN (Select SUM(Quantity)ProQty,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) LBPPD ON LBPPD.ProductionOrderId=PO.Id
+LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=PO.Id
+where PS.UserName in ('Running','To Close')) PO
+left join MST.POQualityPlanDetails PD on PD.EntryLevel=PO.EntryLevel
+left Join MST.QualityManagementMaster QMM on QMM.Id=PD.IssueId
+left join [TRN].[QualityPlanControl] QPC on QPC.QPId=PD.Id and QPC.POId=PO.Id and QPC.LotNumber=PO.LotNumber and QPC.EntryLevel=PO.EntryLevel
+left join TRN.ProductionOrderDetail POD on POD.ProductionOrderId=PO.Id
+left join TRN.SalesOrder SO on SO.Id=POD.SalesOrderId 
+left join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
+left join hkp.Process P on P.Id=PO.ProcessId
+left join ORG.Entity E on E.Id=PO.EntityId
+where PO.ProcessId is null and E.Id in (select EntityId from MST.QualityManagementEntity where QMID=QMM.Id) 
+and QPC.QCID is null or (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' order by AddedDate desc) is not null
+) PO1
+where PO1.QualityPlanDate < = '" + POIssueDate + "'" + ResponsiblePerson + @" or PO1.QualityPlanDate is null order by PO1.QualityPlanDate";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -7258,6 +7370,7 @@ where PO.QualityPlanDate < = '" + POIssueDate + "' or PO.QualityPlanDate is null
                         QualityPlanDate = dsRef.Tables[0].Rows[i]["QualityPlanDate"].ToString(),
                         Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
                         LotNumber = dsRef.Tables[0].Rows[i]["LotNumber"].ToString(),
+                        EntryLevel = dsRef.Tables[0].Rows[i]["EntryLevel"].ToString(),
                         Customer = dsRef.Tables[0].Rows[i]["Customer"].ToString(),
                         POStatus = dsRef.Tables[0].Rows[i]["POStatus"].ToString(),
                         QPEmployeeId = dsRef.Tables[0].Rows[i]["QPEmployeeId"].ToString(),
@@ -7670,6 +7783,129 @@ where QII.QMID='" + IssueId + "' and QII.IsActive = 1  order by QII.SNO";
                         QCId = dsRef.Tables[0].Rows[i]["QCId"].ToString(),
                         Repeat = dsRef.Tables[0].Rows[i]["Repeat"].ToString(),
                         IsWorkCenter = dsRef.Tables[0].Rows[i]["IsWorkCenter"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        public void GetGIEmployee(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct EI.SystemId Value,EI.EmployeeName Name from 
+TRN.QualityIssueControl QIC
+left join dbo.EmployeeInformation EI on EI.SystemId=QIC.QGIEmployeeId
+LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QIC.QGIEmployeeId is not null 
+and QIC.QCId is null";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        public void GetPIEmployee(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct EI.SystemId Value,EI.EmployeeName Name  from 
+TRN.QualityPlanControl QPC
+left join dbo.EmployeeInformation EI on EI.SystemId=QPC.QPEmployeeId
+LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QPC.QPEmployeeId is not null 
+and QPC.QCId is null";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetResponsibleEmployee(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct EI.SystemId Value,EI.EmployeeName Name from [MST].[QualityActionResponsiblePerson] QAP
+left join dbo.EmployeeInformation EI on QAP.QualityActionResponsiblePersonId = EI.SystemId";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
 
                     });
                 }
@@ -8800,6 +9036,7 @@ LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
         public string QualityPlanDate { get; set; }
         public string Remarks { get; set; }
         public string LotNumber { get; set; }
+        public string EntryLevel { get; set; }
         public string Customer { get; set; }
         public string POStatus { get; set; }
         public string QPEmployeeId { get; set; }
