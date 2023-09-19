@@ -1211,6 +1211,8 @@ upanelApp.controller("QualityActionUpdateReportController", QualityActionUpdateR
 upanelApp.controller("ProcessParameterMasterController", ProcessParameterMasterController)
 upanelApp.controller("BtbPerformanceController", BtbPerformanceController)
 upanelApp.controller("CustomerRequirementControlController", CustomerRequirementControlController)
+upanelApp.controller("CustomerConfirmationParameterController", CustomerConfirmationParameterController)
+upanelApp.controller("CustomerCompletedParameterController", CustomerCompletedParameterController)
 
 
 
