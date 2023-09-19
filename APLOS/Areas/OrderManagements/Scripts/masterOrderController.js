@@ -1920,8 +1920,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     ];
 
     $scope.getSalesOrder = function (x, id, materialMasterId, mName, aName, hsnCodeId, BuyerReferenceNo) {
-
-
         try {
             $http({
                 method: 'GET',
@@ -1930,6 +1928,14 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 if (baseService.arrayLength(response.data) == 0) {
                     throw "First Save Item Costing data.";
                 }
+                //else if (baseService.arrayLength(response.data) > 0) {
+                //    for (var i = 0; i < response.data.length; i++) {
+                //        if (baseService.isUndefinedOrNull(response.data[i].Id)) {
+                //            throw "First Save Item Costing data.";
+                //        }
+                //    }
+
+                //}
                 else {
                     $scope.TotalMOIQty = x.TotalQty;
                     $scope.JobWorkType = baseService.isUndefinedOrNull(x.JobWorkType) ? x.JobWorkType : x.JobWorkType + '>> ' + baseService.isUndefinedOrNull(x.EntityOrVendorName) ? x.EntityOrVendorName : x.EntityOrVendorName;
@@ -1991,8 +1997,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     angular.element(document.querySelector('#soPoUp')).modal('show');
                 }
             });
-
-          
         } catch (e) {
             ShowResult(e, 'failure');
         }
