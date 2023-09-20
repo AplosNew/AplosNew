@@ -48,7 +48,7 @@
                             <div class="input-group">
                                 <input tabindex="1" type="text" name="By Whom" ng-model="ModelPCNew.ByWhom" class="form-control" readonly required>
                                 <span class="input-group-btn">
-                                    <button ng-click="showEmployeeListPopUp('BH');" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="showByWhomEmployeeListPopUp('BH');" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
                                 </span>
                             </div>
                         </div>
@@ -167,7 +167,7 @@
                             <div class="input-group">
                                 <input tabindex="1" type="text" name="PreparedBy" ng-model="ModelNew.PreparedBy" class="form-control" readonly required>
                                 <span class="input-group-btn">
-                                    <button ng-click="showEmployeeListPopUp('PB');" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="showByWhomEmployeeListPopUp('PB');" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
                                 </span>
                             </div>
                         </div>
@@ -210,11 +210,11 @@
                         </div>
                     </div>
                     @*<div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Round Off<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" class="form-control" name="RoundOff" ng-model="ModelNew.RoundOff" e-width="100" />
-            </div>
-        </div>*@
+                            <label class="col-sm-4 control-label">Round Off<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" class="form-control" name="RoundOff" ng-model="ModelNew.RoundOff" e-width="100" />
+                            </div>
+                        </div>*@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Pay Days</label>
                         <div class="col-sm-8 show-message">
@@ -363,7 +363,6 @@
                          e-recorddoubleclick="SelectEmployee" e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-field="SystemId" e-headertext="SystemId" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
-                            <div e-column e-headertext="" e-template="#empimage" e-textalign="center" e-width="40"></div>
                             <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
                             <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
                             <div e-column e-field="Company" e-headertext="Company" e-width="80"></div>
@@ -434,79 +433,34 @@
 </div>
 
 
-<div class="modal fade site-modal in" id="employeePopUp" role="dialog" data-backdrop="static">
+<div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 Employee List
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <button type="button" class="close" ng-click="closeEmployeePopUp();">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="row text-right">
-                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
-                        <div class="search-form">
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-3 col-md-3">
-                                    <div class="select-style">
-                                        <select ng-model="employeeParameters.searchBy">
-                                            <option ng-repeat="option in searchEmployeeByList" value="{{option.Value}}">{{option.Text}}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="employeeParameters.search" ng-enter="getEmployeeData()">
-                                </div>
-                                <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                                </div>
-                            </div>
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="Grid" ej-grid e-datasource="employeeDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                            <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-width="80"></div>
+                            <div e-column e-field="PolicyName" e-headertext="Policy Name" e-width="100"></div>
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Employee Code</th>
-                                <th>First Name</th>
-                                <th>Middle Name</th>
-                                <th>Last Name</th>
-                                <th>Employee Name</th>
-                                <th>Date Of Birth</th>
-                                <th>Designation</th>
-                                <th>Entity</th>
-                                <th>Department</th>
-                                <th>Type</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr dir-paginate="x in employeeDataList|itemsPerPage:employeeParameters.pageSize" total-items="employeeParameters.total_count"
-                                ng-click="selectEmployeePopUp($index, x.SystemId)" ng-class="{selected : x.SystemId == selectedEmployee}" ng-dblclick="closeEmployeePopUp();" pagination-id="metaData.name + 'employeeList'">
-                                <td>{{x.EmployeeCode}}</td>
-                                <td>{{x.FirstName}}</td>
-                                <td>{{x.MiddleName}}</td>
-                                <td>{{x.LastName}}</td>
-                                <td>{{x.EmployeeName}}</td>
-                                <td>{{x.DOB | dateFiltering}}</td>
-                                <td>{{x.Designation}}</td>
-                                <td>{{x.EntityName}}</td>
-                                <td>{{x.Department}}</td>
-                                <td>{{x.EmploymentType}}</td>
-                                <td>{{x.EmployeeStatus}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <dir-pagination-controls max-size="10"
-                                         pagination-id="metaData.name + 'employeeList'"
-                                         direction-links="true"
-                                         boundary-links="true"
-                                         on-page-change="getEmployeeData(newPageNumber)">
-                </dir-pagination-controls>
             </div>
             <div class="modal-footer common-btn">
-                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Close</button>
             </div>
         </div>
     </div>
