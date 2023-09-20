@@ -3887,9 +3887,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.TempList = [];
     $scope.SaveSOCost = function () {
         try {
-            if (baseService.isUndefinedOrNull($scope.soId)) {
-                $scope.soId = $scope.soModel.Id;
-            }
+            //if (baseService.isUndefinedOrNull($scope.soId)) {
+            //    $scope.soId = $scope.soModel.Id;
+            //}
+            $scope.soId = $scope.soModel.Id;
 
             for (var i = 0; i < $scope.costingSOConfirmList.length; i++) {
                 if ($scope.costingSOConfirmList[i].ItemValue !== $scope.costingSOConfirmList[i].SOValue) {
