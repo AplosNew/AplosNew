@@ -140,6 +140,7 @@
                         </div>
                         <script type="text/template" id="ShowActionButtons">
                             <button style="color: #f3f3ec;background-color: #1c1f32;" title="Documentation Master" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.ShowDocumentationMaster(this);" style="margin: -6px;"></i></button>
+                            <button ng-click="$parent.showPartyPopUpNew();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                         </script>
                     </div>
                 </div>
@@ -452,4 +453,5 @@
         </div>
     </div>
 </div>
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
 <confirm-archive-generic modalid="confirmDetailPopUpBudget" title="Confirmation" message={{message_Detailconfirmation}} data-ng-click-right-button="DeleteDM();"></confirm-archive-generic>
