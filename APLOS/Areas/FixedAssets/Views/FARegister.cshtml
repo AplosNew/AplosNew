@@ -17,11 +17,11 @@
                                     <input type="text" name="Id" ng-model="register.Id" class="form-control" readonly tabindex="3">
                                 </div>
                             </div>
-                            <div class="form-group" show-errors ng-hide="register.Type=='Addition'">
+                            <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Asset Item<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     <div class="input-group">
-                                        <input type="text" name="AssetItem" ng-model="register.FixedAssetItem" class="form-control" readonly>
+                                        <input type="text" name="AssetItem" ng-model="register.FixedAssetItem" class="form-control" readonly required>
                                         <span class="input-group-btn">
                                             <button ng-click="ShowFixedAssetMasterItem();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
                                             <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
@@ -248,7 +248,8 @@
 
                                         </tr>
                                         <tr>
-                                            <td colspan="3" class="text-right"><strong>Total : </strong></td>
+                                            <td colspan="2" class="text-right"><strong>Total : </strong></td>
+                                            <td class="text-right"><strong>{{checkedAssetRegisterList | sumByKey : 'AssetAmount'|  number:2 }}</strong></td>
                                             <td class="text-right"><strong>{{checkedAssetRegisterList | sumByKey : 'Amount'|  number:2 }}</strong></td>
                                             <td></td>
                                         </tr>

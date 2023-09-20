@@ -2245,11 +2245,10 @@ namespace Library.Accounting.FixedAssets
         public List<Dictionary<string, object>> GetApprovedCapitalizeData(string type)
         {
             string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode,Approved=CASE WHEN CM.IsApproved=1 THEN 'Approved' ELSE '' END
-FROM [TRN].[CapitalizationMaster] CM
-LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById
-Where CM.Type='" + type + "' AND CM.IsApproved=1 AND CM.VoucherId IS NULL";
-
+                        FROM [TRN].[CapitalizationMaster] CM
+                        LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
+                        LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById
+                        Where CM.IsApproved=1 AND CM.VoucherId IS NULL";
              return _sqlRepository.GetDataCollection(sql);
         }
         public List<Dictionary<string, object>> GetFixedAssetMasterItem()
@@ -2643,7 +2642,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
 									,FAI.UserName FixedAssetItem
 									,FAC.UserName FixedAssetCategory
 									,FASC.UserName FixedAssetSubCategory
-									,CM.Qty,V.VoucherNo,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate
+									,CM.Qty,CM.Type,V.VoucherNo,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate
 									,(SELECT SUM(ISNULL(DrAmount,0))DrAmount FROM TRN.VoucherDetail 
 									WHERE VoucherId=V.Id AND ISNULL(DrAmount,0)>0 GROUP BY VoucherId) Amount
 				FROM TRN.Voucher V 
@@ -2652,7 +2651,7 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
 				LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
                 LEFT  JOIN  HKP.[FixedAssetCategory]  FAC ON FAM.FixedAssetCategoryId=FAC.Id
                 LEFT  JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
-                WHERE CM.Type='" + type + @"' AND V.CompanyId='" + companyId + @"' AND V.Archive=0 
+                WHERE V.CompanyId='" + companyId + @"' AND V.Archive=0 
                 ) AS TEMP WHERE " + strkey + " order by PostingDate DESC   ";
             return _sqlRepository.GetDataCollection(sql);
         }
@@ -2680,6 +2679,18 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                     Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
+        }
+        public List<Dictionary<string, object>> GetAssetRegisterChildAdditionList(string masterId)
+        {
+            string sql = @"SELECT 1 Active, ARC.CapitalizationMasterId,ARC.CapitalizationChildId,ARC.Amount,ARC.NetAmount,FAI.UserName FixedAssetItem, AR.FixedAssetItemId,ARC.AssetRegisterId
+							,AR.AssetSlNo, AR.RFId, AR.BarCode, AR.Status, AR.AssetCondition,AR.UserReference, AR.OldReference, AR.UserGroup, AR.Remarks
+                            ,(SELECT SUM(Amount) FROM TRN.AssetRegisterChild where AssetRegisterId=ARC.AssetRegisterId AND VoucherDetailId IS NOT NULL)AssetAmount
+                            FROM TRN.AssetRegisterChild ARC
+							LEFT JOIN TRN.AssetRegister AR ON AR.Id=ARC.AssetRegisterId
+                            LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=AR.FixedAssetItemId
+							LEFT JOIN [TRN].[CapitalizationMaster] CM ON CM.Id=ARC.CapitalizationMasterId
+                            WHERE ARC.CapitalizationMasterId='" + masterId + "' AND ARC.VoucherDetailId is null AND CM.Type='Addition' ";
+            return _sqlRepository.GetDataCollection(sql);
         }
         public List<Dictionary<string, object>> GetAssetRegisterUpdateList(string companyGroupId, string companyId, string column, string value, string capitalizationMasterId)
         {

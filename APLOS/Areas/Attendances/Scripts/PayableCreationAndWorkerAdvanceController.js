@@ -66,10 +66,23 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.ModelWADNew = Object.assign({}, $scope.ModelWADTemp);
 
 
-    $scope.yearList = [];
-    cboService.getCboLeaveYear(function (result) {
-        $scope.yearList = result;
-    });
+    $scope.yearlist = [];
+    $scope.GetCbo = function () {
+        $http.get('Attendances/AttendanceProcessUI/GetCbo')
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.yearlist = [];
+                        $scope.yearlist = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+    $scope.GetCbo();
+
+    $scope.ModelNew.YearNo = new Date().getFullYear().toString();
 
     $scope.monthList = [
         {
@@ -121,44 +134,28 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             Text: 'December'
         }
     ];
-    //$scope.DisabledDates = [];
+    $scope.ModelNew.MonthNo = (new Date().getMonth() + 1).toString();
 
     $scope.CalenderFunc = function () {
-        $scope._firstDay = null;
-        $scope._lastDay = null;
-        //$scope.ModelNew.FromDate = null;
-        //$scope.ModelNew.ToDate = null;
+        //$scope._firstDay = null;
+        //$scope._lastDay = null;
 
         $scope._firstDay = $filter('dateFiltering')(new Date($scope.ModelNew.YearNo, $scope.ModelNew.MonthNo - 1, 1), 'dd-MM-yyyy');
         $scope._lastDay = $filter('dateFiltering')(new Date($scope.ModelNew.YearNo, $scope.ModelNew.MonthNo, 0), 'dd-MM-yyyy');
-        //InitializeDate();
 
         $('.datepic').datepicker({
             startDate: $scope._firstDay,
             endDate: $scope._lastDay,
-            //datesDisabled: $scope.DisabledDates,
+            datesDisabled: $scope.DisabledDates,
             format: 'dd-MM-yyyy',
             todayHighlight: true,
             autoclose: true,
             inline: true,
             changeMonth: true
-        }); 
-        /* $("#GFG").datepicker("refresh");*/
-    };
-    //function InitializeDate() {
-    //    $(".datepic").datepicker();
-    //}
+        });
 
-    //$('.datepicker').datepicker({
-    //    startDate: '-1d',
-    //    endDate: '31d',
-    //    datesDisabled: $scope.DisabledDates,
-    //    format: 'dd-M-yyyy',
-    //    todayHighlight: true,
-    //    autoclose: true,
-    //    inline: true,
-    //    changeMonth: true
-    //});
+    };
+    $scope.CalenderFunc();
 
     $scope.popUpDataList = [];
     $scope.showByWhomEmployeeListPopUp = function (index) {
@@ -291,6 +288,9 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
 
     $scope.GetDblClick = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.ModelNew.YearNo = $scope.ModelNew.YearNo.toString();
+        $scope.ModelNew.MonthNo = $scope.ModelNew.MonthNo.toString();
+        
         $scope.GetWorkerAdvanceDetailCenter();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
