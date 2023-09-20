@@ -6955,7 +6955,7 @@ where EI.SystemId = '" + Id + "'";
             {
                 strSQL = @"select Top 1 EI.SystemId as Value  , EI.EmployeeName as Name from MST.ManpowerBudget MB 
 left join EmployeeInformation EI on EI.BudgetCode = MB.ROBudgetCode
-where MB.ROBudgetCode = '" + Id + "'";
+where EI.EmployeeStatus = 'Active' and MB.ROBudgetCode = '" + Id + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
