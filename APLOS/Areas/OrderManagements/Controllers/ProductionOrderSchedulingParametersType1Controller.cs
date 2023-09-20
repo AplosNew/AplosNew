@@ -2727,10 +2727,12 @@ INNER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[Wo
 					                      FROM trn.ProductionSummary t 
 					                    INNER JOIN [TRN].[ProductionOrder] P ON p.Id=t.ProductionOrderID
 					                    LEFT OUTER JOIN (SELECT DISTINCT pod.ProductionOrderId,mm.Id AS MaterialMasterId
-					                                       FROM trn.ProductionOrderDetail AS pod
-														INNER JOIN trn.SalesOrder AS so ON pod.SalesOrderId=so.Id
-														INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
-														INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId) AS K ON k.ProductionOrderId=p.Id
+FROM trn.ProductionOrderDetail AS pod
+INNER JOIN(SELECT distinct pod.ProductionOrderId,(select top(1) SalesOrderId from trn.ProductionOrderDetail where ProductionOrderId=POD.ProductionOrderId) SOId
+FROM trn.ProductionOrderDetail POD) A ON A.ProductionOrderId=pod.ProductionOrderId
+INNER JOIN trn.SalesOrder AS so ON A.SOId=so.Id
+INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId) AS K ON k.ProductionOrderId=p.Id
                                     where t.ProductionDate<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
 					                    GROUP BY t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId) AS T
 		                    ) AS K WHERE K.[RANK]=1
@@ -2747,10 +2749,12 @@ INNER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[Wo
 					                      FROM trn.ProductionSummary t 
 					                    INNER JOIN [TRN].[ProductionOrder] P ON p.Id=t.ProductionOrderID
 					                    LEFT OUTER JOIN (SELECT DISTINCT pod.ProductionOrderId,mm.Id AS MaterialMasterId
-					                                       FROM trn.ProductionOrderDetail AS pod
-														INNER JOIN trn.SalesOrder AS so ON pod.SalesOrderId=so.Id
-														INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
-														INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId) AS K ON k.ProductionOrderId=p.Id
+FROM trn.ProductionOrderDetail AS pod
+INNER JOIN(SELECT distinct pod.ProductionOrderId,(select top(1) SalesOrderId from trn.ProductionOrderDetail where ProductionOrderId=POD.ProductionOrderId) SOId
+FROM trn.ProductionOrderDetail POD) A ON A.ProductionOrderId=pod.ProductionOrderId
+INNER JOIN trn.SalesOrder AS so ON A.SOId=so.Id
+INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId) AS K ON k.ProductionOrderId=p.Id
                                         WHERE p.EntityId IN(" + entityid + @") AND t.ProductionDate<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
 					                    GROUP BY t.WorkCenterMasterId,t.ProductionDate,k.MaterialMasterId) AS T
                         ) AS T  
@@ -2849,11 +2853,15 @@ INNER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[Wo
                            t1.*
                                                             FROM [TRN].[ProductionOrder] AS PO
                                                         JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
-                                                        INNER JOIN (SELECT DISTINCT moi.MaterialMasterId,d.ProductionOrderId
-                                                                      FROM [TRN].[ProductionOrderDetail] D
-                            INNER JOIN trn.SalesOrder AS so ON so.Id=d.SalesOrderId
-                
-                            INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId) AS MM ON mm.ProductionOrderId=po.Id
+                                                        INNER JOIN (
+														SELECT DISTINCT pod.ProductionOrderId,mm.Id AS MaterialMasterId
+FROM trn.ProductionOrderDetail AS pod
+INNER JOIN(SELECT distinct pod.ProductionOrderId,(select top(1) SalesOrderId from trn.ProductionOrderDetail where ProductionOrderId=POD.ProductionOrderId) SOId
+FROM trn.ProductionOrderDetail POD) A ON A.ProductionOrderId=pod.ProductionOrderId
+INNER JOIN trn.SalesOrder AS so ON A.SOId=so.Id
+INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+INNER JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId
+							) AS MM ON mm.ProductionOrderId=po.Id
                             LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.ProductionStatusId = PS.Id
                             INNER JOIN ProductionOrderSchedulingParametersType1 t1 ON t1.ProductionOrderID=po.Id
                             LEFT OUTER  JOIN (SELECT pod.ProductionOrderId,SUM(so.Qty) AS Qty

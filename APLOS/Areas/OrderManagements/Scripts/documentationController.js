@@ -1,6 +1,6 @@
 ﻿'use strict';
-documentationController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function documentationController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+documentationController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$controller'];
+function documentationController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
     $rootScope.title = "Documentation";
     $scope.Action = 'Save';
     $scope.index = -1;
@@ -14,7 +14,7 @@ function documentationController(commonMessage, $scope, $rootScope, baseService,
     $scope.getDMSeqUrl = $scope.path + 'GetDMAutoSequence';
     $scope.saveDMUrl = $scope.path + 'CreateDocumentationMaster';
     $scope.deleteDMUrl = $scope.path + 'DeleteDocumentaitonMaster/';
-
+    $controller("partyBaseController", { $scope: $scope, $http: $http });
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;

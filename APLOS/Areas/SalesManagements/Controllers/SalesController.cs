@@ -234,6 +234,16 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [HttpPost]
+        public JsonResult CancelSalesMaterial(string Id,string remark)
+        {
+            if (remark == null)
+                throw new CustomException("Please Input Remark !");
+            _salesService.CancelSalesMaterial(Id, remark);
+
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        [HttpPost]
         public JsonResult DeleteSalesService(string Id)
         {
             _salesService.DeleteSalesService(Id);

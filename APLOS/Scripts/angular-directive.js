@@ -409,6 +409,7 @@ function confirmArchiveGeneric($rootScope) {
     };
 }
 
+
 function loader($http) {
     return {
         restrict: 'A',

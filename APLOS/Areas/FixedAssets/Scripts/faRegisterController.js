@@ -87,12 +87,24 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                     ShowResult(response, 'failure');
                 });
     };
+    $scope.GetAssetRegisterChildAddition = function () {
+        $scope.checkedAssetRegisterList = [];
+        $http.get("fixedassets/fixedassetregister/GetAssetRegisterChildAdditionList?masterId=" + $scope.register.Id)
+            .then(
+                function successCallback(response) {
+                    $scope.checkedAssetRegisterList = response.data;
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
 
     $scope.SelectMaster = function (obj) {
         $scope.register = obj.data;
         $scope.register.CapitalizationDate = $filter('dateFiltering')(new Date($scope.register.CapitalizationDate), 'dd-MM-yyyy');
         $scope.register.InstallationYear = parseInt($scope.register.InstallationYear);
         $scope.GetCapitalizationMasterDetail();
+        $scope.GetAssetRegisterChildAddition();
 
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -597,8 +609,9 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                         ShowResult(response.data.Message, "success");
                         $scope.register.Id = response.data.Id;
                         $scope.getData();
-                        $scope.GetCapitalizationMasterDetail();
+                        //$scope.GetCapitalizationMasterDetail();
                         $scope.saveBtnDisable = false;
+                        $scope.Clear();
                     }
                 }, function errorCallback(response) {
                     ShowResult(response.status.Message, "failure");
@@ -914,26 +927,27 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
 
     $scope.AddAssetRegister = function () {
         if (baseService.arrayLength($scope.AssetRegisterAvailableList) > 0) {
-            $scope.checkedAssetRegisterList = [];
             angular.forEach($scope.AssetRegisterAvailableList, function (a) {
-                if (a.Active) {
-                    $scope.checkedAssetRegisterList.push({
-                        CapitalizationMasterId: a.CapitalizationMasterId
-                        , CapitalizationChildId: a.CapitalizationChildId
-                        , AssetAmount: a.AssetAmount
-                        , FixedAssetItem: a.FixedAssetItem
-                        , FixedAssetItemId: a.FixedAssetItemId
-                        , AssetRegisterId: a.AssetRegisterId
-                        , AssetSlNo: a.AssetSlNo
-                        , Status: a.Status
-                        , AssetCondition: a.AssetCondition
-                        , UserReference: a.UserReference
-                        , OldReference: a.OldReference
-                        , UserGroup: a.UserGroup
-                        , Remarks: a.Remarks
-                        , Amount: 0
-                        , Active: true
-                    });
+                if (checkAssetRegisterExist($scope.checkedAssetRegisterList, a.AssetRegisterId) === false) {
+                    if (a.Active) {
+                        $scope.checkedAssetRegisterList.push({
+                            CapitalizationMasterId: a.CapitalizationMasterId
+                            , CapitalizationChildId: a.CapitalizationChildId
+                            , AssetAmount: a.AssetAmount
+                            , FixedAssetItem: a.FixedAssetItem
+                            , FixedAssetItemId: a.FixedAssetItemId
+                            , AssetRegisterId: a.AssetRegisterId
+                            , AssetSlNo: a.AssetSlNo
+                            , Status: a.Status
+                            , AssetCondition: a.AssetCondition
+                            , UserReference: a.UserReference
+                            , OldReference: a.OldReference
+                            , UserGroup: a.UserGroup
+                            , Remarks: a.Remarks
+                            , Amount: 0
+                            , Active: true
+                        });
+                    }
                 }
             });
         }
@@ -941,7 +955,14 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         $scope.hideAssetRegisterPopUp();
         $scope.calDistributedAmount();
     };
-
+    function checkAssetRegisterExist(list, AssetRegisterId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].AssetRegisterId === AssetRegisterId) {
+                return true;
+            }
+        }
+        return false;
+    }
     $scope.DeleteConfirmation = function (AssetRegisterId) {
         $scope.AssetRegisterId = AssetRegisterId;
         $scope.message_conf = "Are you sure to Delete?";
