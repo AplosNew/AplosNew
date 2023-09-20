@@ -978,17 +978,17 @@ namespace Aplos.Controllers.ApopAPIHR
         #endregion Attdn Lock
 
         #region Quality control 
-        public List<QualityGenaralIssue> GetQualityGeneraWiseIssue()
+        public List<QualityGenaralIssue> GetQualityGeneraWiseIssue(string ResposibleId)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetQualityGeneraWiseIssue(out List<QualityGenaralIssue> activelists);
+            clsData.GetQualityGeneraWiseIssue(out List<QualityGenaralIssue> activelists, ResposibleId);
             return activelists;
         }
 
-        public List<QualityPOIssue> GetQualityPOWiseIssue(string POIssueDate)
+        public List<QualityPOIssue> GetQualityPOWiseIssue(string POIssueDate, string ResponsibleId)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetQualityPOWiseIssue(out List<QualityPOIssue> activelists, POIssueDate);
+            clsData.GetQualityPOWiseIssue(out List<QualityPOIssue> activelists, POIssueDate, ResponsibleId);
             return activelists;
         }
 
@@ -1066,6 +1066,27 @@ namespace Aplos.Controllers.ApopAPIHR
         {
             clsDataContext clsData = new clsDataContext();
             clsData.GetQualityChildList(out List<QualityChild> activelists, IssueId, PId);
+            return activelists;
+        }
+
+        public List<Default2> GetGIEmployee()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetGIEmployee(out List<Default2> activelists);
+            return activelists;
+        }
+
+        public List<Default2> GetPIEmployee()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetPIEmployee(out List<Default2> activelists);
+            return activelists;
+        }
+
+        public List<Default2> GetResponsibleEmployee()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetResponsibleEmployee(out List<Default2> activelists);
             return activelists;
         }
         #endregion Quality control 

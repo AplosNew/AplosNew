@@ -651,7 +651,9 @@
     <Compile Include="Areas\Productions\Controllers\WCWorkStationsControlMasterController.cs" />
     <Compile Include="Areas\Productions\Controllers\WCWorkStationsControlReportController.cs" />
     <Compile Include="Areas\QMS\Controllers\ComplaintController.cs" />
+    <Compile Include="Areas\QMS\Controllers\CustomerCompletedParameterController.cs" />
     <Compile Include="Areas\QMS\Controllers\CustomerQualityAndTechnicalSupportController.cs" />
+    <Compile Include="Areas\QMS\Controllers\CustomerConfirmationParameterController.cs" />
     <Compile Include="Areas\QMS\Controllers\DocumentSetupController.cs" />
     <Compile Include="Areas\QMS\Controllers\ProductParameterMasterController.cs" />
     <Compile Include="Areas\QMS\Controllers\ProcessParameterMasterController.cs" />
@@ -2298,7 +2300,9 @@
     <Content Include="Areas\Products\Scripts\IssueSlipCheckedByController.js" />
     <Content Include="Areas\Products\Scripts\POWiseMaterialIssueController.js" />
     <Content Include="Areas\QMS\Scripts\ComplaintController.js" />
+    <Content Include="Areas\QMS\Scripts\CustomerCompletedParameterController.js" />
     <Content Include="Areas\QMS\Scripts\CustomerQualityAndTechnicalSupportController.js" />
+    <Content Include="Areas\QMS\Scripts\CustomerConfirmationParameterController.js" />
     <Content Include="Areas\QMS\Scripts\DocumentSetupController.js" />
     <Content Include="Areas\QMS\Scripts\ProductParameterMasterController.js" />
     <Content Include="Areas\QMS\Scripts\ProcessParameterMasterController.js" />
@@ -4954,6 +4958,8 @@
     <Content Include="Areas\QMS\Views\ProductParameterMaster\Aplos.cshtml" />
     <Content Include="Areas\QMS\Views\ProcessParameterMaster\Aplos.cshtml" />
     <Content Include="Areas\QMS\Views\CustomerRequirementControl\Aplos.cshtml" />
+    <Content Include="Areas\QMS\Views\CustomerConfirmationParameter\Aplos.cshtml" />
+    <Content Include="Areas\QMS\Views\CustomerCompletedParameter\Aplos.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

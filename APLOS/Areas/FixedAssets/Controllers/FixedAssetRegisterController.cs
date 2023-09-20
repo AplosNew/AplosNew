@@ -1532,12 +1532,12 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
 
         [HttpPost]
-        public JsonResult CreateCapitalize(Dictionary<string, object> data, List<Dictionary<string, object>> items)
+        public JsonResult CreateCapitalize(Dictionary<string, object> data, List<Dictionary<string, object>> items, List<Dictionary<string, object>> assetRegisterList)
         {
             try
             {
                 FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
-                _fixedAssetQueryService.SaveCapitalizeData(data, items, out string masterId);
+                _fixedAssetQueryService.SaveCapitalizeData(data, items, assetRegisterList, out string masterId);
                 return Json(new { Id = masterId, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
@@ -1718,6 +1718,12 @@ namespace Aplos.Areas.FixedAssets.Controllers
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_fixedAssetQueryService.GetAssetRegisterList(identity.CompanyGroupId, identity.CompanyId, column, value), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public JsonResult GetAssetRegisterChildAdditionList(string masterId)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetAssetRegisterChildAdditionList(masterId), JsonRequestBehavior.AllowGet);
         }
         [HttpPost, Authorize]
         public JsonResult GetAssetRegisterUpdateList(string column, string value, string capitalizationMasterId)

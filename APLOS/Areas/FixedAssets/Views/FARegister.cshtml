@@ -185,10 +185,79 @@
                                         </tbody>
                                     </table>
                                 </div>
-
                             </fieldset>
-
                         </div>
+
+                        <div class="clearfix"></div>
+                        <div class="col-xs-12 col-sm-12 col-md-12" style="padding-left:0px" ng-show="register.Type=='Addition'">
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button class="btn single-btn" ng-click="showAssetRegisterPopUp()" tabindex="10"><i class="glyphicon glyphicon-plus"></i> Select Asset Register</button>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12" ng-show="checkedAssetRegisterList.length">
+                            <div class="table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>CM Id</th>
+                                            <th>CC Id</th>
+                                            <th>Asset Amount</th>
+                                            <th>Distributed Amount</th>
+                                            <th>Asset Item</th>
+                                            <th>Asset Item Id</th>
+                                            <th>Asset Register Id</th>
+                                            <th>Asset Sl No</th>
+                                            <th>Status</th>
+                                            <th>Asset Condition</th>
+                                            <th>User Reference</th>
+                                            <th>Old Reference</th>
+                                            <th>User Group</th>
+                                            <th>Remarks</th>
+                                            <th class="col-sm-1">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in checkedAssetRegisterList">
+                                            <td>
+                                                <input type="text" title="Capitalization Master Id" class="form-control text-left" name="CapitalizationMasterId" autocomplete="off" ng-model="x.CapitalizationMasterId" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="text" title="Capitalization Child Id" class="form-control text-left" name="CapitalizationChildId" autocomplete="off" ng-model="x.CapitalizationChildId" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="text" n-decimals="2" title="Asset Amount" class="form-control text-right" name="AssetAmount" autocomplete="off" ng-model="x.AssetAmount" readonly>
+                                            </td>
+                                            <td>
+                                                <input ng-keyup="checkDistributedAmount($index,x)" type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" autocomplete="off" ng-model="x.Amount">
+                                            </td>
+                                            <td>{{x.FixedAssetItem}}</td>
+                                            <td>{{x.FixedAssetItemId}}</td>
+                                            <td>{{x.AssetRegisterId}}</td>
+                                            <td>{{x.AssetSlNo}}</td>
+                                            <td>{{x.Status}}</td>
+                                            <td>{{x.AssetCondition}}</td>
+                                            <td>{{x.UserReference}}</td>
+                                            <td>{{x.OldReference}}</td>
+                                            <td>{{x.UserGroup}}</td>
+                                            <td>{{x.Remarks}}</td>
+                                            <td class="text-right">
+                                                <ul class="list-inline action-list">
+                                                    <li><button ng-click="DeleteConfirmation(x.AssetRegisterId)" ng-disabled="x.Id" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                                </ul>
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2" class="text-right"><strong>Total : </strong></td>
+                                            <td class="text-right"><strong>{{checkedAssetRegisterList | sumByKey : 'AssetAmount'|  number:2 }}</strong></td>
+                                            <td class="text-right"><strong>{{checkedAssetRegisterList | sumByKey : 'Amount'|  number:2 }}</strong></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -346,70 +415,6 @@
                             <input type="text" title="Remarks" class="form-control text-left" name="Remarks" autocomplete="off" ng-model="data.Remarks">
                         </script>
                     </div>
-                    @*<div class="table-responsive modal-table">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>CM Id</th>
-                                        <th>CC Id</th>
-                                        <th>Amount</th>
-                                        <th colspan="2">Asset Item</th>
-                                        <th>Asset Item Id</th>
-                                        <th>Asset Register Id</th>
-                                        <th>AssetSlNo</th>
-                                        <th>Status</th>
-                                        <th>AssetCondition</th>
-                                        <th>UserReference</th>
-                                        <th>OldReference</th>
-                                        <th>UserGroup</th>
-                                        <th>Remarks</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="x in AssetRegisterUpdateAvailableList">
-                                        <td>
-                                            <input type="text" title="Capitalization Master Id" class="form-control text-left" name="CapitalizationMasterId" autocomplete="off" ng-model="x.CapitalizationMasterId" readonly>
-                                        </td>
-                                        <td>
-                                            <input type="text" title="Capitalization Child Id" class="form-control text-left" name="CapitalizationChildId" autocomplete="off" ng-model="x.CapitalizationChildId" readonly>
-                                        </td>
-                                        <td>
-                                            <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" autocomplete="off" ng-model="x.Amount" ng-readonly="x.VoucherDetailId">
-                                        </td>
-                                        <td>{{x.FixedAssetItem}}</td>
-                                        <td class="text-left">
-                                            <ul class="list-inline action-list">
-                                                <li><button ng-click="ShowFixedAssetMasterItemAssetRegisterUpdate($index,x.AssetRegisterId,x.AssetRegisterChildId)" class="btn btn-action tooltip-here" data-placement="top" title="Update Asset Item" ng-disabled="x.VoucherDetailId"><i class="glyphicon glyphicon-search"></i></button></li>
-                                            </ul>
-                                        </td>
-                                        <td>{{x.FixedAssetItemId}}</td>
-                                        <td>{{x.AssetRegisterId}}</td>
-                                        <td>
-                                            <input type="text" title="AssetSlNo" class="form-control text-left" name="AssetSlNo" autocomplete="off" ng-model="x.AssetSlNo">
-                                        </td>
-                                        <td>
-                                            <input type="text" title="Status" class="form-control text-left" name="Status" autocomplete="off" ng-model="x.Status">
-                                        </td>
-                                        <td>
-                                            <input type="text" title="AssetCondition" class="form-control text-left" name="AssetCondition" autocomplete="off" ng-model="x.AssetCondition">
-                                        </td>
-                                        <td>
-                                            <input type="text" title="UserReference" class="form-control text-left" name="UserReference" autocomplete="off" ng-model="x.UserReference">
-                                        </td>
-                                        <td>
-                                            <input type="text" title="OldReference" class="form-control text-left" name="OldReference" autocomplete="off" ng-model="x.OldReference">
-                                        </td>
-                                        <td>
-                                            <input type="text" title="UserGroup" class="form-control text-left" name="UserGroup" autocomplete="off" ng-model="x.UserGroup">
-                                        </td>
-                                        <td>
-                                            <input type="text" title="Remarks" class="form-control text-left" name="Remarks" autocomplete="off" ng-model="x.Remarks">
-                                        </td>
-
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>*@
                 </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
@@ -455,6 +460,73 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade site-modal in" id="AssetRegisterPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width:1400px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Asset Register</h4>
+            </div>
+            <div class="row text-right">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="searchByAssetRegister">
+                                        <option ng-repeat="option in searchByAssetRegisterList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="searchAssetRegister" ng-enter="showAssetRegisterPopUp()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="showAssetRegisterPopUp()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <div id="AssetRegisterGridPopUp" ng-init="chkinit()" ej-grid e-datasource="AssetRegisterAvailableList" e-load="loadGridEdit"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-template="#checkboxTemplateMaster" e-headertext="Check" e-textalign="center" e-width="3"></div>
+                            <div e-column e-field="CapitalizationMasterId" e-headertext="CM Id" e-width="3"></div>
+                            <div e-column e-field="CapitalizationChildId" e-headertext="CC Id" e-width="3"></div>
+                            <div e-column e-field="AssetAmount" e-headertext="Amount" e-width="3" e-type="numeric" e-format="{0:0.00}" e-textalign="right"></div>
+                            <div e-column e-field="FixedAssetItem" e-headertext="Asset Item" e-width="7"></div>
+                            <div e-column e-field="FixedAssetItemId" e-headertext="Asset Item Id" e-width="3"></div>
+                            <div e-column e-field="AssetRegisterId" e-headertext="Asset Register Id" e-width="3"></div>
+                            <div e-column e-field="AssetSlNo" e-headertext="Asset Sl No" e-width="2"></div>
+                            <div e-column e-field="Status" e-headertext="Status" e-type='string' e-width="3"></div>
+                            <div e-column e-field="AssetCondition" e-headertext="Asset Condition" e-type='string' e-width="3"></div>
+                            <div e-column e-field="UserReference" e-headertext="User Reference" e-width="4"></div>
+                            <div e-column e-field="OldReference" e-headertext="Old Reference" e-type='string' e-width="3"></div>
+                            <div e-column e-field="UserGroup" e-headertext="User Group" e-type='string' e-width="3"></div>
+                            <div e-column e-field="Remarks" e-headertext="Remarks" e-type='string' e-width="3"></div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="checkboxTemplateMaster">
+                        <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                    </script>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="AddAssetRegister();" class="btn"><i></i> Apply</button></li>
+                        <li> <button ng-click="hideAssetRegisterPopUp();" class="btn"><i class="glyphicon glyphicon-remove"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<confirm-archive-generic modalid="DeleteConfirmationPopUp" title="Confirmation" message={{message_conf}} data-ng-click-right-button="RemoveAssetRegisterId()"></confirm-archive-generic>
 
 
 <confirm-archive-generic data-modalid="confirmregisterdelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRegisterYes()"></confirm-archive-generic>
