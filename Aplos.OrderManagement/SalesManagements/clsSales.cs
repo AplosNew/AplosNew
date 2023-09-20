@@ -1609,6 +1609,60 @@ WHERE sm.Id IN(" + Ids + ")";
 			}
 		}
 
+		public IEnumerable<object> GetPayableCreationEmployeeData()
+		{
+			try
+			{
+				string CmdText = @"SELECT E.SystemId
+							    	,E.PlantId
+							    	,E.GroupID
+							    	,E.CompanyId
+							    	,E.EmployeeCode,E.EmployeeName
+							    	,PMB.Code BudgetCode
+							    	,PR.UserName PositionName 
+                                    ,E.DepartmentId
+                                    ,E.DivisionId
+									,E.SectionId
+							    	,E.EmpType
+							    	,E.GivenDesignationId 
+							    	,EN.UserName EntityName
+							    	,D.UserName Designation
+							    	,GD.UserName GivenDesignation
+                                    ,LD.UserName LegalDesignation
+							    	,DEPT.UserName AS Department
+							    	,DV.UserName AS Division
+									,SC.UserName AS Section
+                                    ,E.EmployeeCode 
+                                    ,P.UserName Plant
+									,SS.UserName SubSection 
+                                     ,isnull( L.UserName,'') Line,EC.UserName EmployeeCategory
+							    FROM EmployeeInformation E
+							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
+							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
+							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
+							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
+                                LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
+                                LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
+								LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+                                LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
+								LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
+								left join [MST].[DesignationMaster] DM on DM.DesignationId=E.GivenDesignationId
+								left join [HKP].[EmployeeCategory] EC on EC.Id=DM.EmployeeCategoryId
+                                WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest'  
+								AND PR.Id IN(select GoodWorkPositionCodeId from org.position WHERE GoodWorkPositionCodeId<>'')
+								Order by EmployeeCodeNumeric";
+				return _sqlRepository.GetDataCollection(CmdText);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
 		public IEnumerable<object> GetAllActiveEmployeeData()
 		{
 			try

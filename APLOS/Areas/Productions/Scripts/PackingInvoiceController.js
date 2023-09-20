@@ -1408,6 +1408,17 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         }
     };
 
+    $scope.cancelMaterialRow = function (Id, index) {
+            angular.element(document.querySelector('#cancelPopUp')).modal('show');
+            $scope.mateId = Id;
+            $scope.mateIndex = index;
+    };
+    $scope.CancelRemark = null;
+    $scope.closeCancelMaterialRow = function () {
+        angular.element(document.querySelector('#cancelPopUp')).modal('hide');
+        $scope.mateId = null;
+        $scope.mateIndex = null;
+    };
     $scope.removeServiceRow = function (Id, index) {
         if (Id === null) {
             $(this).remove();
@@ -1466,6 +1477,32 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             } else {
                 $scope.salesMaterialList.splice($scope.mateIndex, 1);
             }
+
+        } catch (e) {
+            ShowResult(e, 'success');
+        }
+    };
+
+    $scope.cancelMaterialRow = function () {
+        try {
+
+            if (!baseService.isUndefinedOrNull($scope.mateId)) {
+                $http({
+                    method: 'POST',
+                    url: 'SalesManagements/Sales/CancelSalesMaterial?Id=' + $scope.mateId + '&remark=' + $scope.CancelRemark,
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true)
+                        ShowResult(response.data.Message, 'failure');
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.mateId = null;
+                        $scope.GetSalesMaterialData($scope.salesVM.Id);
+                        $scope.closeCancelMaterialRow();
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                };
+            } 
 
         } catch (e) {
             ShowResult(e, 'success');

@@ -281,6 +281,9 @@
                                                         <li>
                                                             <button ng-click="removeMaterialRow(x.Id,$index)" ng-disabled="salesVM.RowState==='Posted'" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
                                                         </li>
+                                                        <li>
+                                                            <button ng-click="cancelMaterialRow(x.Id,$index)" ng-hide="salesVM.RowState==='Posted'" class="btn btn-action tooltip-here" data-placement="top" title="Cancel"><i class="glyphicon glyphicon-off"></i></button>
+                                                        </li>
                                                     </ul>
                                                 </td>
                                             </tr>
@@ -1193,6 +1196,25 @@
 <confirm-archive-generic modalid="confirmTaxServiceDelPopUp" title="Confirmation" message={{Taxmessage_confirmation}} data-ng-click-right-button="removeServiceTaxRow()"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(salesdb)"></confirm-archive-generic>
 
+<div class="modal fade site-modal in" id="cancelPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" style="width:600px">
+        <div class="modal-content" ng-form name="cancelPopUp_RemarksForm">
+            <div class="modal-header">Are you sure to Cancel?</div>
+            <div class="modal-body">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-2 control-label">Remarks<sup>*</sup></label>
+                    <div class="col-sm-10 show-message">
+                        <textarea rows="4" type="text" maxlength="500" name="CancelRemarks" tabindex="8" class="form-control" ng-model="CancelRemark" required></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn btn-default" ng-click="closeCancelMaterialRow()">No</button>
+                <button type="button" class="btn btn-default" ng-click="cancelMaterialRow()">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade site-modal in" id="receiveTaxPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
