@@ -29,9 +29,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     //***********************************Worker Advance Start ********************************************************//
     $scope.ModelTemp = {
         Id: null,
-        Year: null,
         YearNo: null,
-        Month: null,
         MonthNo: null,
         FromDate: null,
         ToDate: null,
@@ -278,50 +276,65 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         });
     }
 
-
-    $scope.employeeParameters = {
-        limit: 10,
-        offset: 0,
-        order: 'asc',
-        sort: 'EmployeeCode, FirstName, MiddleName, LastName ',
-        searchBy: 'EmployeeCode',
-        pageSize: 10,
-        total_count: 0,
-        search: null,
-        serverPagination: true
-    };
-
-    $scope.employeeDataList = [];
-
-    $scope.showEmployeeListPopUp = function (name) {
-        $scope.Name = name;
-        $scope.employee = [];
+    $scope.checkedByList = [];
+    $scope.GetSupervisorCboList = function () {
         $http({
             method: 'GET',
-            url: 'Attendances/GoodWork/GetPayableCreationEmployeeData'
+            url: $scope.path + 'GetIssueSlipCheckByCbo'
         }).then(function successCallback(response) {
-            $scope.employeeDataList = response.data;
+            $scope.checkedByList = response.data;
+            //for (var i = 0; i < $scope.checkedByList.length; i++) {
+            //    $scope.ModelNew.CheckedById = $scope.checkedByList[i].Value;
+            //    $scope.ModelNew.ApprovedById = $scope.checkedByList[i].Value;
+            //}
         });
-        angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
     }
+    $scope.GetSupervisorCboList();
 
-    $scope.setEmpData = function (obj) {
-        //$scope.Clear();
-        var data = obj.data;
-        if ($scope.Name === 'AB') {
-            $scope.ModelNew.ApprovedById = data.SystemId;
-            $scope.ModelNew.ApprovedBy = data.EmployeeName;
-        }
-        else{
-            $scope.ModelNew.CheckedById = data.SystemId;
-            $scope.ModelNew.CheckedBy = data.EmployeeName;
-        }
-        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
-    };
+    $scope.approvedByList = [];
+    $scope.GetApprovedByList = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetApprovedByCbo'
+        }).then(function successCallback(response) {
+            $scope.approvedByList = response.data;
+            //for (var i = 0; i < $scope.checkedByList.length; i++) {
+            //    $scope.ModelNew.CheckedById = $scope.checkedByList[i].Value;
+            //    $scope.ModelNew.ApprovedById = $scope.checkedByList[i].Value;
+            //}
+        });
+    }
+    $scope.GetApprovedByList();
 
-    $scope.closeEmployeePopUp = function () {
-        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
-    };
+    //$scope.showEmployeeListPopUp = function (name) {
+    //    $scope.Name = name;
+    //    $scope.employee = [];
+    //    $http({
+    //        method: 'GET',
+    //        url: 'Attendances/GoodWork/GetPayableCreationEmployeeData'
+    //    }).then(function successCallback(response) {
+    //        $scope.employeeDataList = response.data;
+    //    });
+    //    angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
+    //}
+
+    //$scope.setEmpData = function (obj) {
+    //    //$scope.Clear();
+    //    var data = obj.data;
+    //    if ($scope.Name === 'AB') {
+    //        $scope.ModelNew.ApprovedById = data.SystemId;
+    //        $scope.ModelNew.ApprovedBy = data.EmployeeName;
+    //    }
+    //    else {
+    //        $scope.ModelNew.CheckedById = data.SystemId;
+    //        $scope.ModelNew.CheckedBy = data.EmployeeName;
+    //    }
+    //    angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+    //};
+
+    //$scope.closeEmployeePopUp = function () {
+    //    angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+    //};
 
     $scope.popUpDataList = [];
     $scope.showByWhomEmployeeListPopUp = function (name) {
