@@ -59,7 +59,7 @@ namespace Library.Service.Enums
     {
         [Description("Appointment Letter")]
         AppointmentLetter,
-        Acknowledgement,      
+        Acknowledgement,
         [Description("Confirmation Letter")]
         ConfirmationLetter,
         [Description("Exit Interview")]
@@ -76,7 +76,7 @@ namespace Library.Service.Enums
         [Description("Nominee Info")]
         NomineeInfo,
         [Description("Service Book")]
-        ServiceBook  
+        ServiceBook
     }
     public enum PaymentMode
     {
@@ -190,7 +190,7 @@ namespace Library.Service.Enums
         [Description("Inventory Sales ApproveBy")]
         InventorySalesApproveBy,
 
-        [Description("Inventory Scrap CheckedBy")] 
+        [Description("Inventory Scrap CheckedBy")]
         InventoryScrapCheckedBy,
         [Description("Inventory Scrap ApproveBy")]
         InventoryScrapApproveBy,
@@ -219,6 +219,13 @@ namespace Library.Service.Enums
         EmployeeApprovalAuthority,
 
         [Description("Capitalize Asset Register ApproveBy")]
-        CapitalizeAssetRegisterApproveBy
+        CapitalizeAssetRegisterApproveBy,
+        [Description("GoodWork ApproveBy")]
+        GoodWorkApproveBy,
+        [Description("GoodWork CheckBy")]
+        GoodWorkCheckBy,
+        [Description("Party ApproveBy")]
+        PartyApproveBy
+
     }
 }

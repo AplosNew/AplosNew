@@ -808,7 +808,13 @@ namespace Aplos.Areas.Attendances.Controllers
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
-
+        [HttpGet, Authorize]
+        public ActionResult GetPayableCreationEmployeeData()
+        {
+            JsonResult json = Json(clsSales.GetPayableCreationEmployeeData(), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
 
         public class WorkerAdvanceTransaction
         {

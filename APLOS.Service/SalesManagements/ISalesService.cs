@@ -26,6 +26,7 @@ namespace Library.Service.SalesManagements
         void DeleteTaxRow(string Id);
         void DeleteServiceTaxRow(string Id);
         void DeleteSalesMaterial(string Id);
+        void CancelSalesMaterial(string Id, string remark);
         void DeleteSalesService(string Id);
         void SalesInvoicePost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> salesJVDetail, IEnumerable<SalesMaterialViewModel> salesMaterialDetailGLList, IEnumerable<SalesServiceViewModel> salesServiceDetailGLList);
         void MasterOrderSalesInsert(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesOrderItem> selectedMasterOrderList, IEnumerable<SalesServiceViewModel> salesServiceVMList);
