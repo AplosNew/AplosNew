@@ -467,7 +467,24 @@ namespace Aplos.Areas.Attendances.Controllers
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
-
+       
+        [Authorize, HttpGet]
+        public JsonResult GetIssueSlipCheckByCbo()
+        {
+            var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where  A.ActionStatus='GoodWorkCheckBy' AND E.EmployeeStatus='Active'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetApprovedByCbo()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where  A.ActionStatus='GoodWorkApproveBy' AND E.EmployeeStatus='Active'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpPost]
         public JsonResult CreateWorkerAdvance(Dictionary<string, object> data, List<Dictionary<string, object>> workerAdvanceDetail)

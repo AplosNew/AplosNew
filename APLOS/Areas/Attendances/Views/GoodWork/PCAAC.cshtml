@@ -152,12 +152,19 @@
                     </div>
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Approved By<sup>*</sup></label>
+                        @*<div class="col-sm-8 show-message">
+                                <div class="input-group">
+                                    <input tabindex="1" type="text" name="ApprovedBy" ng-model="ModelNew.ApprovedBy" class="form-control" readonly required>
+                                    <span class="input-group-btn">
+                                        <button ng-click="showEmployeeListPopUp('AB');" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>*@
                         <div class="col-sm-8 show-message">
-                            <div class="input-group">
-                                <input tabindex="1" type="text" name="ApprovedBy" ng-model="ModelNew.ApprovedBy" class="form-control" readonly required>
-                                <span class="input-group-btn">
-                                    <button ng-click="showEmployeeListPopUp('AB');" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
-                                </span>
+                            <div class="select-style" ng-show="approvedByList.length">
+                                <select id="ApprovedBy" class="form-control" name="Checked By" ng-model="ModelNew.ApprovedById" tabindex="8" required>
+                                    <option ng-repeat="option in approvedByList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -165,7 +172,7 @@
                         <label class="col-sm-4 control-label">Prepared By<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <div class="input-group">
-                                <input tabindex="1" type="text" name="PreparedBy" ng-model="ModelNew.PreparedBy" class="form-control" readonly required>
+                                <input tabindex="1" type="text" name="PreparedBy" ng-model="ModelNew.PreparedById" class="form-control" readonly required>
                                 <span class="input-group-btn">
                                     <button ng-click="showByWhomEmployeeListPopUp('PB');" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
                                 </span>
@@ -200,12 +207,19 @@
                     </div>
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Checked By<sup>*</sup></label>
+                        @*<div class="col-sm-8 show-message">
+                                <div class="input-group">
+                                    <input tabindex="1" type="text" name="CheckedBy" ng-model="ModelNew." class="form-control" readonly required>
+                                    <span class="input-group-btn">
+                                        <button ng-click="showEmployeeListPopUp('CB');" class="btn single-sCheckedBymall-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>*@
                         <div class="col-sm-8 show-message">
-                            <div class="input-group">
-                                <input tabindex="1" type="text" name="CheckedBy" ng-model="ModelNew.CheckedBy" class="form-control" readonly required>
-                                <span class="input-group-btn">
-                                    <button ng-click="showEmployeeListPopUp('CB');" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
-                                </span>
+                            <div class="select-style" ng-show="checkedByList.length">
+                                <select id="CheckedBy" class="form-control" name="Checked By" ng-model="ModelNew.CheckedById" tabindex="8" required>
+                                    <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -433,7 +447,7 @@
 </div>
 
 
-<div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
+@*<div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -464,5 +478,5 @@
             </div>
         </div>
     </div>
-</div>
+</div>*@
 
