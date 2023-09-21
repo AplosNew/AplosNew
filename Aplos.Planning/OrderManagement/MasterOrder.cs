@@ -1518,7 +1518,7 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
 
         public IEnumerable<object> GetProductionRef(string pg)
         {
-            string sql = @"Select  top(1)OwnReferenceNo  from TRN.MasterOrderItem Where ProductionGrouping='"+ pg + "'";
+            string sql = @"Select top(1)ProductionGrouping from TRN.MasterOrderItem Where OwnReferenceNo='" + pg + "' Order BY AddedDate DESC";
             return _sqlRepository.GetDataCollection(sql);
         }
 
