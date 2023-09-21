@@ -408,8 +408,8 @@
                                         <th>Customer Article</th>
                                         <th>Item Costing</th>
                                         <th>Buyer Ref.No</th>
-                                        <th>Production Group</th>
                                         <th>Production/Own #</th>
+                                        <th>Production Group</th>
                                         <th>Order Wastage Percentage</th>
                                         <th>Extra Order Percentage</th>
                                         <th>Inquiry</th>
@@ -504,10 +504,10 @@
                                             <input type="text" ng-model=" x.BuyerReferenceNo" class="form-control" style="width: 105px;" ng-maxlength="50">
                                         </td>
                                         <td>
-                                            <input type="text" ng-model=" x.ProductionGrouping" class="form-control" ng-keyup="SetProductionRef($index);CheckSpecialCharecter($index);">
+                                            <input type="text" ng-model=" x.OwnReferenceNo" class="form-control"  style="width: 105px;" ng-maxlength="50" ng-keyup="SetProductionRef($index);">
                                         </td>
                                         <td>
-                                            <input type="text" ng-model=" x.OwnReferenceNo" class="form-control" ng-disabled="x.ProductionGrouping==null" style="width: 105px;" ng-maxlength="50">
+                                            <input type="text" ng-model=" x.ProductionGrouping" class="form-control" ng-keyup="CheckSpecialCharecter($index);">
                                         </td>
                                         <td>
                                             <input type="text" n-decimals="2" ng-model=" x.OrderWastagePercentage" class="form-control text-right">
@@ -645,7 +645,7 @@
                                             </label>
                                         </td>
 
-                                        <td colspan="25"></td>
+                                        <td colspan="26"></td>
                                         <td class="text-center">
                                             <button ng-click="addNewItem();" ng-disabled="fileNew.Id===null" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add Line Item</button>
                                         </td>
