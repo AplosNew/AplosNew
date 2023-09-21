@@ -2769,17 +2769,22 @@ namespace Library.MaterialManagement.Inventory
             try
             {
 
-                strSQL = @"SELECT IR.Id grnNumber
-							,PO1.PODate
+                strSQL = @"SELECT IR.Id grnNumber ,REPLACE(Convert(VARCHAR(11), PO.PODate, 106), ' ', '-') AS PODate
 							,GTE.ModeofTransport
 							,HSNC.Code HSNCode
                             ,IR.CompanyGroupId
                             ,IR.CompanyId
                             ,Plant.GSTIN
-                            ,mo.BuyerReferenceNo 
+							,BuyerReferenceNo=STUFF(
+									(select distinct ','+mo.BuyerReferenceNo from
+								trn.MasterOrder AS mo 
+								LEFT JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+									LEFT JOIN TRN.SalesOrder SO on SO.MasterOrderItemId=moi.Id
+									where SO.ContractId=CNO.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
                             ,ir.PODepended
-                            ,PO1.POId PONumber
-						    ,PO1.ContractNO ContractNO 
+                            ,PO.Id PONumber
+						    ,CNO.ContractNO 
 							,PLC.LCRef LCNumber
 							,PLC.BenificiaryBank BeneficiaryBank
 							,PLC.BenificiaryBank OpeningBank
@@ -2811,8 +2816,7 @@ namespace Library.MaterialManagement.Inventory
 									When IR.CheckedByStatus='Hold' Then eI3.EmployeeName
 									When IR.CheckedByStatus='Reject' Then eI3.EmployeeName
 									When IR.CheckedByStatus='Checked' Then eI3.EmployeeName
-									When IR.CheckedByStatus IS NULL then IR.AddedBy 
-									
+									When IR.CheckedByStatus IS NULL then IR.AddedBy
 									else ''
 							END
                             ,IR.AddedDate
@@ -2866,20 +2870,18 @@ namespace Library.MaterialManagement.Inventory
                             )
                             ,IRD.ChargesTranAmount
                             ,IRD.CountryId
-
                             ,IRD.TransactionUoMId
                             ,TUoM.ShortName  AS TransactionUoM
                             ,IRD.Id InventoryReceiveDetailId
 						    ,IR.ProductionOrderId
-
 							,MRD.MaterialDetail,POD.Description,IRD.Description AS GRDDescrition
                             ,CheckStatus= CASE when IR.CheckedByStatus='ForChecked' Then 'To be checked'
                             when IR.CheckedByStatus='Hold' Then 'Hold'
                             when IR.CheckedByStatus='Reject' Then 'Reject'
                             when IR.CheckedByStatus='Checked' Then 'Checked'
                             else ''
-
                             END
+
                             ,ApproveStatus= CASE
                             when IR.AuthorizedByStatus='Reject' Then 'Reject For Approved'
                             when IR.AuthorizedByStatus='Hold' Then 'Hold For Approved'
@@ -2937,9 +2939,7 @@ namespace Library.MaterialManagement.Inventory
 									left Join trn.PurchaseDocAcceptance  PDAA ON PDAA.Id=ACMAP.PurchaseDocumentAcceptanceId
 									)PDA ON PDA.GRNId=IR.Id
                             LEFT JOIN [dbo].[Contract] CNO ON CNO.Id = PO.ContractId
-                            LEFT JOIN TRN.SalesOrder SO on SO.ContractId=CNO.Id
-                            LEFT JOIN trn.MasterOrderItem AS moi ON moi.Id=SO.MasterOrderItemId
-                            LEFT JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
+
 							LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id = PO.PurchaseLCId
 	                        --LEFT JOIN [HKP].[Bank] B ON B.Id = PLC.BenificiaryBankId
                             Left Join TRN.MaterialRequsitionDetails MRD ON MRD.Id=POD.RequisitionDetailId
@@ -2948,45 +2948,27 @@ namespace Library.MaterialManagement.Inventory
                             LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
                             left join [SEC].[User] U on U.UserId=IR.AddedBy
                             LEFT JOIN dbo.EmployeeInformation eI3 ON eI3.SystemId=U.EmployeeId
-							LEFT JOIN(
-									select PDAMAP.GRNId--, REPLACE(Convert(VARCHAR(11), IR.PODate, 106), ' ', '-') AS PODate 
-									,PoId=STUFF((select distinct ','+xpo.Id from
-									trn.PurchaseOrder xpo
-									INNER JOin TRN.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.PoId
-									where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-									,PODate=STUFF(
-									(select distinct ','+Format(xpo.PODate,'dd-MMM-yyyy') from
-									trn.PurchaseOrder xpo
-									INNER JOin TRN.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.PoId
-									where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-									
-									,ContractNO=STUFF(
-									(select distinct ','+CNO.ContractNO from
-									trn.PurchaseOrder xpo
-									INNER JOin TRN.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.PoId
-									LEFT JOIN [dbo].[Contract] CNO ON CNO.Id = xpo.ContractId
-									where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-									from TRN.POGGRNMap PDAMAP
-									LEFT JOIN [TRN].PurchaseOrder IR ON IR.Id = PDAMAP.PoId
-									--where PDAMAP.GRNId='2020463'
-									group by PDAMAP.GRNId--, IR.podate
-
-									)PO1 ON PO1.GRNId = IRD.InventoryReceiveId
 							LEFT JOIN [TRN].[GateEntry] GTE  ON GTE.ID= IR.GateEntryNo
                             WHERE IR.Id ='" + OrderMasterID + @"' and IOM.MaterialMasterId is not NULL
 
                             Union ALL
                             SELECT IR.Id grnNumber
 							,GTE.ModeofTransport
-							,PO1.PODate
+							,REPLACE(Convert(VARCHAR(11), PO.PODate, 106), ' ', '-') AS PODate
 							,HSNC.Code HSNCode
                             ,IR.CompanyGroupId
                             ,IR.CompanyId
                             ,Plant.GSTIN
-                            ,mo.BuyerReferenceNo 
+                            ,BuyerReferenceNo=STUFF(
+									(select distinct ','+mo.BuyerReferenceNo from
+								trn.MasterOrder AS mo 
+								LEFT JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+									LEFT JOIN TRN.SalesOrder SO on SO.MasterOrderItemId=moi.Id
+									where SO.ContractId=CNO.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
                             ,ir.PODepended
-                            ,PO1.POId PONumber
+                            ,PO.Id PONumber
 								,CNO.ContractNO ContractNO 
 							,PLC.LCRef LCNumber
 							,PLC.BenificiaryBank BeneficiaryBank
@@ -3082,8 +3064,8 @@ namespace Library.MaterialManagement.Inventory
                             when IR.CheckedByStatus='Reject' Then 'Reject'
                             when IR.CheckedByStatus='Checked' Then 'Checked'
                             else ''
-
                             END
+
                             ,PurOrApprovedStatus= CASE
                             when IR.AuthorizedByStatus='Reject' Then 'Reject For Approved'
                             when IR.AuthorizedByStatus='Hold' Then 'Hold For Approved'
@@ -3121,9 +3103,6 @@ namespace Library.MaterialManagement.Inventory
 									left Join trn.PurchaseDocAcceptance  PDAA ON PDAA.Id=ACMAP.PurchaseDocumentAcceptanceId
 									)PDA ON PDA.GRNId=IR.Id
 							LEFT JOIN [dbo].[Contract] CNO ON CNO.Id = PO.ContractId
-                            LEFT JOIN TRN.SalesOrder SO on SO.ContractId=CNO.Id
-                            LEFT JOIN trn.MasterOrderItem AS moi ON moi.Id=SO.MasterOrderItemId
-                            LEFT JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
 							LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id = PO.PurchaseLCId
 	                        --LEFT JOIN [HKP].[Bank] B ON B.Id = PLC.BenificiaryBankId
                             Left Join TRN.MaterialRequsitionDetails MRD ON MRD.Id=POD.RequisitionDetailId
@@ -3136,25 +3115,9 @@ namespace Library.MaterialManagement.Inventory
                             LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
                             left join [SEC].[User] U on U.UserId=IR.AddedBy
                             LEFT JOIN dbo.EmployeeInformation eI3 ON eI3.SystemId=U.EmployeeId
-		              LEFT JOIN(
-									select PDAMAP.GRNId--, REPLACE(Convert(VARCHAR(11), IR.PODate, 106), ' ', '-') AS PODate 
-									,PoId=STUFF((select distinct ','+xpo.Id from
-									trn.PurchaseOrder xpo
-									INNER JOin TRN.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.PoId
-									where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-									,PODate=STUFF(
-									(select distinct ','+Format(xpo.PODate,'dd-MMM-yyyy') from
-									trn.PurchaseOrder xpo
-									INNER JOin TRN.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.PoId
-									where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-									from TRN.POGGRNMap PDAMAP
-									LEFT JOIN [TRN].PurchaseOrder IR ON IR.Id = PDAMAP.PoId
-									--where PDAMAP.GRNId='2020463'
-									group by PDAMAP.GRNId--, IR.podate
 
-									)PO1 ON PO1.GRNId = IRD.InventoryReceiveId
 							LEFT JOIN [TRN].[GateEntry] GTE  ON GTE.ID= IR.GateEntryNo
-                            WHERE IR.Id ='" + OrderMasterID + "' and IOM.MaterialMasterId is NULL";
+                            WHERE IR.Id ='" + OrderMasterID + @"' and IOM.MaterialMasterId is NULL";
 
 
                 return _sqlRepository.GetDataTable(strSQL);
