@@ -7920,7 +7920,7 @@ left join dbo.EmployeeInformation EI on QAP.QualityActionResponsiblePersonId = E
             }
         }
 
-        public void GetProductionBookingLevel(out List<Default2> DataList,string ProcessId)
+        public void GetProductionBookingLevel(out List<Default2> DataList,string ProcessId ,string EntityId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -7929,7 +7929,7 @@ left join dbo.EmployeeInformation EI on QAP.QualityActionResponsiblePersonId = E
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select Id Value , ProductionBookingLevel Name from hkp.EntityProcessTag where ProcessId = '" + ProcessId + "'";
+                strSQL = @"select Id Value , ProductionBookingLevel Name from hkp.EntityProcessTag where ProcessId = '" + ProcessId + "' and EntityId = '" + EntityId +  "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -7954,7 +7954,7 @@ left join dbo.EmployeeInformation EI on QAP.QualityActionResponsiblePersonId = E
             }
         }
 
-        public void GetArticleItems(out List<ArticleItem> DataList, string entityid, string processId, string ProductionOrderId)
+        public void GetArticleItems(out List<ArticleItem> DataList, string ProductionOrderId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -7978,8 +7978,8 @@ left join dbo.EmployeeInformation EI on QAP.QualityActionResponsiblePersonId = E
                                 LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
                                 LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
                                 LEFT JOIN (SELECT SUM(PS.Quantity) TotalProductionQty,PS.SalesOrderId,PS.ProcessId
-	                                FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"' GROUP BY PS.SalesOrderId,PS.ProcessId
-	                                ) AS PRS ON PRS.SalesOrderId = SO.Id AND PRS.ProcessId = '" + processId + @"'
+	                                FROM [TRN].[ProductionSummary] PS  GROUP BY PS.SalesOrderId,PS.ProcessId
+	                                ) AS PRS ON PRS.SalesOrderId = SO.Id 
                                 LEFT JOIN HKP.Party b ON b.id = mo.PartyId
                                 LEFT JOIN SCS.UnitOfMeasurement u ON u.id = mo.TotalQtyUOMId
                                 LEFT JOIN MST.MaterialMaster mm ON mm.id = moi.MaterialMasterId
@@ -7997,7 +7997,7 @@ left join dbo.EmployeeInformation EI on QAP.QualityActionResponsiblePersonId = E
                                 LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
                                 LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
                                 LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
-                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName in ('Running','To Close') AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + ProductionOrderId + "'";
+                                WHERE  PS.UserName in ('Running','To Close')  AND PO.Id='" + ProductionOrderId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
