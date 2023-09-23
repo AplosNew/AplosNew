@@ -1089,16 +1089,16 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetResponsibleEmployee(out List<Default2> activelists);
             return activelists;
         }
-        public List<Default2> GetProductionBookingLevel(string ProcessId)
+        public List<Default2> GetProductionBookingLevel(string ProcessId, string EntityId)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetProductionBookingLevel(out List<Default2> activelists, ProcessId);
+            clsData.GetProductionBookingLevel(out List<Default2> activelists, ProcessId , EntityId);
             return activelists;
         }
-        public List<ArticleItem> GetArticleItems(string entityid, string processId, string ProductionOrderId)
+        public List<ArticleItem> GetArticleItems(string ProductionOrderId)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetArticleItems(out List<ArticleItem> activelists, entityid, processId, ProductionOrderId);
+            clsData.GetArticleItems(out List<ArticleItem> activelists, ProductionOrderId);
             return activelists;
         }
         #endregion Quality control 
