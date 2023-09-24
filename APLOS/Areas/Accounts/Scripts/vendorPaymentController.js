@@ -651,6 +651,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
     $scope.calBaseAmount = function () {
         $scope.BaseAmountList = [];
         $scope.calBankChargesBaseAmount();
+        $scope.calOtherChargesBaseAmount();
         $scope.caltaxBaseAmount();
         $scope.calExchangeLossBaseAmount();
         $scope.calPayableBaseAmount();
@@ -747,7 +748,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
 
     $scope.calBankAmount = function () {
         if ($scope.voucher.BankMasterId != null) {
-            $scope.voucher.Amount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 1000 + Number.EPSILON) / 1000 + Math.round($filter("sumByKey")($filter("filter")($scope.bankChargesList), "CompanyCurrencyAmount") * 1000 + Number.EPSILON) / 1000;
+            $scope.voucher.Amount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 1000 + Number.EPSILON) / 1000 + Math.round($filter("sumByKey")($filter("filter")($scope.bankChargesList), "CompanyCurrencyAmount") * 1000 + Number.EPSILON) / 1000 + Math.round($filter("sumByKey")($filter("filter")($scope.purchaseLCChargesList), "BankAmount") * 1000 + Number.EPSILON) / 1000;
             if ($scope.voucher.CurrencyId == $scope.voucher.BankCurrencyId) {
                 //if ($scope.voucher.ExchangeType == 'ExchangeLoss')
                 //    $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount + $scope.voucher.ExchangeAmount) * 1000 + Number.EPSILON) / 1000;
@@ -765,14 +766,14 @@ function vendorPaymentController(bankService, accountService, cboService, common
                     $scope.voucher.BankAmount = $scope.voucher.Amount;
             }
             if ($scope.voucher.CurrencyId != $scope.voucher.BankCurrencyId) {
-                $scope.voucher.Amount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 1000 + Number.EPSILON) / 1000 + Math.round($filter("sumByKey")($filter("filter")($scope.bankChargesList), "Amount") * 1000 + Number.EPSILON) / 1000;
+                $scope.voucher.Amount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 1000 + Number.EPSILON) / 1000 + Math.round($filter("sumByKey")($filter("filter")($scope.bankChargesList), "Amount") * 1000 + Number.EPSILON) / 1000 + Math.round($filter("sumByKey")($filter("filter")($scope.purchaseLCChargesList), "ChargesValue") * 1000 + Number.EPSILON) / 1000;
                 if ($scope.voucher.ExchangeType == 'ExchangeLoss')
                     $scope.voucher.BankBookAmount = Math.round((($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate) + $scope.voucher.ExchangeAmount) * 1000 + Number.EPSILON) / 1000;
                 else if ($scope.voucher.ExchangeType == 'ExchangeGain')
                     $scope.voucher.BankBookAmount = Math.round((($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate) - $scope.voucher.ExchangeAmount) * 1000 + Number.EPSILON) / 1000;
                 else
                     //$scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
-                    $scope.voucher.BankBookAmount = Math.round(((Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 1000 + Number.EPSILON) / 1000) * $scope.voucher.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000 + Math.round($filter("sumByKey")($filter("filter")($scope.bankChargesList), "CompanyCurrencyAmount") * 1000 + Number.EPSILON) / 1000;
+                    $scope.voucher.BankBookAmount = Math.round(((Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 1000 + Number.EPSILON) / 1000) * $scope.voucher.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000 + Math.round($filter("sumByKey")($filter("filter")($scope.bankChargesList), "CompanyCurrencyAmount") * 1000 + Number.EPSILON) / 1000 + Math.round($filter("sumByKey")($filter("filter")($scope.purchaseLCChargesList), "BankAmount") * 1000 + Number.EPSILON) / 1000;
                     $scope.voucher.BankAmount = $scope.voucher.BankBookAmount;
             }
         }
@@ -823,6 +824,28 @@ function vendorPaymentController(bankService, accountService, cboService, common
                     $scope.BaseAmountList[i].BaseDrAmount = $scope.BaseAmountObj.BaseDrAmount;
                 }
             }
+            $scope.BaseAmountObj = {};
+        }
+
+    }
+    $scope.calOtherChargesBaseAmount = function () {
+        if ($scope.purchaseLCChargesList.length > 0) {
+            $scope.BaseAmountObj.Type = 'OtherCharges';
+            $scope.BaseAmountObj.BaseDrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.purchaseLCChargesList), "BankAmount") * 1000 + Number.EPSILON) / 1000;
+            $scope.BaseAmountObj.BaseCrAmount = null;
+            if ($scope.BaseAmountList.length > 0) {
+                for (var i = 0; i < $scope.BaseAmountList.length; i++) {
+                    if ($scope.BaseAmountList[i].Type == 'OtherCharges') {
+                        $scope.BaseAmountList[i].BaseDrAmount = $scope.BaseAmountObj.BaseDrAmount;
+                    }
+                }
+            }
+
+            else {
+                if ($scope.BaseAmountObj.BaseDrAmount > 0)
+                    $scope.BaseAmountList.push($scope.BaseAmountObj);
+            }
+            
             $scope.BaseAmountObj = {};
         }
 
@@ -1132,6 +1155,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
         $scope.currencyExchangeRate = [];
         $scope.voucherDetailList = [];
         $scope.bankChargesList = [];
+        $scope.purchaseLCChargesList = [];
         $scope.advanceTaxesList = [];
         $scope.glList = [];
         $scope.advanceList = [];
@@ -1302,6 +1326,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
                         "voucherVM": $scope.voucher,
                         "voucherDetailVMList": $scope.voucherDetailList,
                         "bankChargeDetailVMList": $scope.bankChargesList,
+                        "purchaseLCChargesVMList": $scope.purchaseLCChargesList,
                         "taxDetailVMList": $scope.TDSList,
                         "glVMList": $scope.glList,
                         "advanceVMList": $scope.advanceList,
@@ -1884,5 +1909,86 @@ function vendorPaymentController(bankService, accountService, cboService, common
 
     $scope.removeRowLoan = function (index) {
         $scope.ExistingLoanList.splice(index, 1);
+    };
+
+    $scope.LCChargesList = [];
+    $scope.GetPurchaseLCCharges = function () {
+        try {
+            $scope.LCChargesList = [];
+            $http.get("Commercial/PurchaseLC/GetOpenLCChargesGLData")
+                .then(
+                    function successCallback(response) {
+                        if (baseService.arrayLength(response.data) > 0) {
+                            $scope.LCChargesList = response.data;
+                        }
+                    },
+                    function errorCallback(response) {
+                        ShowResult(response, 'failure');
+                    });
+            angular.element(document.querySelector('#LCChargesPopUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.CloseLCPopUp = function () {
+        angular.element(document.querySelector('#LCChargesPopUp')).modal('hide');
+    }
+
+    $scope.purchaseLCChargesList = [];
+    $scope.Rate = null;
+    $scope.SelectedLC = function () {
+        if (baseService.arrayLength($scope.LCChargesList) > 0) {
+            angular.forEach($scope.LCChargesList, function (a) {
+                if (a.Active) {
+                    if (checkLCExist($scope.purchaseLCChargesList, a.Id) === false) {
+                        $scope.purchaseLCChargesList.push({
+                            Id: null
+                            , OverHeadTypeGLId: a.Id
+                            , OverHeadType: a.OverHeadType
+                            , GL: a.GL
+                            , Budget: a.Budget
+                            , Activity: a.Activity
+                            , ExpensesGLId: a.ExpensesGLId
+                            , ExpensesBudgetMasterId: a.ExpensesBudgetMasterId
+                            , ExpensesActivityId: a.ExpensesActivityId
+                            , ChargesValue: null
+                            , BankAmount: null
+                        });
+                    }
+                }
+
+            });
+        }
+        else
+            angular.forEach($scope.purchaseLCChargesList, function (a) {
+                if (!baseService.valueCheckInList($scope.purchaseLCChargesList, 'Id', a.OverHeadTypeGLId))
+                    $scope.purchaseLCChargesList.splice(a, 1);
+            });
+        $scope.calBaseAmount();
+        $scope.CloseLCPopUp();
+    };
+
+    function checkLCExist(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].OverHeadTypeGLId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.removeRowPurchaseLCCharges = function (index, data) {
+        $scope.purchaseLCChargesList.splice(index, 1);
+        $scope.calBaseAmount();
+    };
+    $scope.copyOtherChargesAmount = function (index) {
+        if ($scope.voucher.CurrencyId === $scope.companyCurrencyId) {
+            $scope.purchaseLCChargesList[index].BankAmount = $scope.purchaseLCChargesList[index].ChargesValue;
+        }
+        else {
+            $scope.purchaseLCChargesList[index].BankAmount = Math.round(($scope.purchaseLCChargesList[index].ChargesValue * $scope.voucher.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
+        }
+        $scope.calBaseAmount();
     };
 }
