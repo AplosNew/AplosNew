@@ -17,8 +17,8 @@
             <label class="col-sm-3 control-label">Employee Category</label>
             <div class="col-sm-6" show-message>
                 <div class="select-style">
-                    <select id="Category" class="form-control" ng-model="ModelNew.EmployeeCategory" name="subSectionId" tabindex="3">
-                        <option value="All">--All--</option>
+                    <select id="Category" class="form-control" ng-model="ModelNew.EmployeeCategoryId" name="EmployeeCategory" tabindex="3">
+                        <option value="">--Select--</option>
                         <option ng-repeat="option in EmployeeCategoryList" value="{{option.Id}}">{{option.EmployeeCategory}}</option>
                     </select>
                 </div>
@@ -28,8 +28,8 @@
             <label class="col-sm-3 control-label">Section<sup>*</sup></label>
             <div class="col-sm-6 show-message">
                 <div class="select-style">
-                    <select id="Category" class="form-control" ng-model="ModelNew.Section" name="Department" tabindex="3">
-                        <option value="All">--Select--</option>
+                    <select id="Category" class="form-control" ng-model="ModelNew.SectionId" name="Section" tabindex="3">
+                        <option value="">--Select--</option>
                         <option ng-repeat="option in SectionList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
                 </div>
@@ -39,8 +39,8 @@
             <label class="col-sm-3 control-label">Designation<sup>*</sup></label>
             <div class="col-sm-6 show-message">
                 <div class="select-style">
-                    <select id="Category" class="form-control" ng-model="ModelNew.Designation" name="Designation" tabindex="3">
-                        <option value="All">--Select--</option>
+                    <select id="Designation" class="form-control" ng-model="ModelNew.DesignationId" name="Designation" tabindex="3">
+                        <option value="">--Select--</option>
                         <option ng-repeat="option in designationList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
                 </div>
@@ -84,8 +84,8 @@
             <label class="col-sm-3 control-label">Department<sup>*</sup></label>
             <div class="col-sm-6 show-message">
                 <div class="select-style">
-                    <select id="Category" class="form-control" ng-model="ModelNew.Department" name="Department" tabindex="3">
-                        <option value="All">--Select--</option>
+                    <select id="Category" class="form-control" ng-model="ModelNew.DepartmentId" name="Department" tabindex="3">
+                        <option value="">--Select--</option>
                         <option ng-repeat="option in DepartmentList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
                 </div>
@@ -95,19 +95,19 @@
             <label class="col-sm-3 control-label">Sub-Section<sup>*</sup></label>
             <div class="col-sm-6 show-message">
                 <div class="select-style">
-                    <select id="Category" class="form-control" ng-model="ModelNew.SubSection" name="SubSection" tabindex="3">
-                        <option value="All">--Select--</option>
+                    <select id="Category" class="form-control" ng-model="ModelNew.SubSectionId" name="SubSection" tabindex="3">
+                        <option value="">--Select--</option>
                         <option ng-repeat="option in SubSectionList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
                 </div>
             </div>
         </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">User Group<sup>*</sup></label>
-            <div class="col-sm-6 show-message"> 
+        <div class="form-group">
+            <label class="col-sm-3 control-label">User Group</label>
+            <div class="col-sm-6"> 
                 <div class="select-style">
-                    <select id="Category" class="form-control" ng-model="ModelNew.UserGroup" name="UserGroup" tabindex="3">
-                        <option value="All">--Select--</option>
+                    <select id="Category" class="form-control" ng-model="ModelNew.UserGroupId" name="UserGroup" tabindex="3">
+                        <option value="">--Select--</option>
                         <option ng-repeat="option in UserGroupList" value="{{option.Id}}">{{option.UserReportGroup}}</option>
                     </select>
                 </div>
@@ -182,9 +182,9 @@
                     <td>{{x.Department}}</td>
 
                     <td class="text-right">
-                        <button ng-click="$parent.selectEdit(x,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Edit">
+                        @*<button ng-click="$parent.selectEdit(x,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Edit">
                             <i class="glyphicon glyphicon-edit"></i>
-                        </button>
+                        </button>*@
 
                         <button ng-click="$parent.removeRow(x)" @*data-toggle="modal"*@ ng-disabled="currencyDisable" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
                             <i class="glyphicon glyphicon-remove"></i>
