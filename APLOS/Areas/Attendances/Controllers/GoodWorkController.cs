@@ -235,11 +235,11 @@ namespace Aplos.Areas.Attendances.Controllers
                             //drmo["EmpSystemId"] = item["SystemId"];
                             //drmo["FromTime"] = item["FromTime"];
                             //drmo["ToTime"] = item["ToTime"];
-                            //drmo["Purpose"] = item["Purpose"];
-                            //drmo["PurposeCategory"] = item["PurposeCategory"];
+                            drmo["Purpose"] = item["Purpose"];
+                            drmo["PurposeCategory"] = item["PurposeCategory"];
                             //drmo["ApprovedById"] = item["ApprovedById"];
                             //drmo["Minute"] = item["CalculatedTime"];
-                            //drmo["Remark"] = item["Remark"];
+                            drmo["Remark"] = item["Remark"];
                             drmo.EndEdit();
 
                         }
@@ -280,8 +280,8 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult GetGoodWorkList()
         {
-            string sql = @"select GW.Id,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,S.UserName Shift,GW.Remarks,gw.FromTime
-									,gw.ToTime,gw.Minute CalculatedTime
+            string sql = @"select GW.Id,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,S.UserName Shift,GW.Remarks
+                                    ,format(GW.FromTime,'hh:m') FromTime,format(GW.ToTime,'hh:m') ToTime,gw.Minute
                                     from GoodWork GW
                                     left join ShiftDefination S on S.SystemId=GW.ShiftId";
 

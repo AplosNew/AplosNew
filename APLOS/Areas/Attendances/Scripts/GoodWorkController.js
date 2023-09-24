@@ -34,7 +34,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         Shift: null,
         FromTime: null,
         ToTime: null,
-        CalculatedTime: null,
+        Minute: null,
         Remarks: null,
         UserGroup: null
     };
@@ -58,7 +58,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         EmployeeName: null,
         FromTime: null,
         ToTime: null,
-        CalculatedTime: null,
+        Minute: null,
         Purpose: null,
         PurposeCategory: null,
         ApprovedById: null,
@@ -189,7 +189,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
                     if ($scope.EmployeeList[i].CheckBoxSelect === true) {
                         $scope.EmployeeList[i].FromTime = $scope.ModelNew.FromTime;
                         $scope.EmployeeList[i].ToTime = $scope.ModelNew.ToTime;
-                        $scope.EmployeeList[i].CalculatedTime = $scope.ModelNew.CalculatedTime;
+                        $scope.EmployeeList[i].Minute = $scope.ModelNew.Minute;
                         $scope.GoodWorkList.push($scope.EmployeeList[i]);
                     }
                 }
@@ -262,7 +262,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
                 }).then(function successCallback(response) {
 
                     /*data.CalculatedTime = response.data;*/
-                    $scope.ModelNew.CalculatedTime = response.data;
+                    $scope.ModelNew.Minute = response.data;
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 }
@@ -282,7 +282,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
                     data: { 'data': $scope.ModelNewtemp },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
-                    $scope.ModelNewtemp.CalculatedTime = response.data;
+                    $scope.ModelNewtemp.Minute = response.data;
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 }
