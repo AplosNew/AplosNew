@@ -741,7 +741,7 @@ namespace Library.OrderManagement.Costing
 
             {
                 ROW++;
-                sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
+                //sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
 
                 sheet[ROW, COL].Text = "Costing Item";
                 int colCostingItem = COL;
@@ -905,7 +905,7 @@ namespace Library.OrderManagement.Costing
             for (int i = 0; i < dvDistinctCostingComponent.Rows.Count; i++)
             {
                 ROW++;
-                sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
+                //sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
 
                 COL = 1;
 
@@ -1029,7 +1029,7 @@ namespace Library.OrderManagement.Costing
             for (int i = 0; i < dvDistinctCostingComponent.Rows.Count; i++)
             {
                 ROW++;
-                sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
+               // sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
                 COL = 1;
 
                 sheet[ROW, COL].Text = "CostingItem";
@@ -1124,7 +1124,7 @@ namespace Library.OrderManagement.Costing
             for (int i = 0; i < dvDistinctCostingComponent.Rows.Count; i++)
             {
                 ROW++;
-                sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
+                //sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
 
                 sheet[ROW, COL].Text = "CostingItem";
                 int colCostingItem = COL;
@@ -1237,7 +1237,7 @@ namespace Library.OrderManagement.Costing
             for (int i = 0; i < dvDistinctCostingComponent.Rows.Count; i++)
             {
                 ROW++;
-                sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
+                //sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
                 COL = 1;
 
                 sheet[ROW, COL].Text = "CostingItem";
@@ -1351,7 +1351,7 @@ namespace Library.OrderManagement.Costing
             for (int i = 0; i < dvDistinctCostingComponent.Rows.Count; i++)
             {
                 ROW++;
-                sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
+                //sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
                 COL = 1;
 
                 sheet[ROW, COL].Text = "CostingItem";
