@@ -160,6 +160,11 @@ function customerInvoiceController(cboService, commonMessage, $scope, $rootScope
             "name": "Currency",
             "value": "CurrencyCode"
         }
+        ,
+        {
+            "name": "Status",
+            "value": "Status"
+        }
     ];
 
     baseService.getCompanyConfiguration(function (result) {

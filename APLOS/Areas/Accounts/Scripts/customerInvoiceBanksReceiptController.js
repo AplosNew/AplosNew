@@ -138,6 +138,11 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
             "Text": "Amount",
             "Value": "Amount"
         }
+        ,
+        {
+            "Text": "Status",
+            "Value": "IsPark"
+        }
     ];
 
     $scope.parameters = {

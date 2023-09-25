@@ -43,7 +43,8 @@ namespace Library.Accounting.Accounts
 	                                    FROM [HKP].[Activity] AS A
 	                                    LEFT JOIN [MST].[BudgetMasterActivity] AS BA ON BA.ActivityId=A.Id
                                     ) AS A ON A.BudgetMasterId=B.BudgetMasterId
-                                    WHERE GLGI.Archive=0 AND GLGI.Active=1 AND GLCG.CompanyGroupId='" + companyGroupId + "' AND GLCI.CompanyId='" + companyId + "'";
+                                    WHERE GLGI.Archive=0 AND GLGI.Active=1 AND GLCG.CompanyGroupId='" + companyGroupId + "' AND GLCI.CompanyId='" + companyId + @"' 
+                                    AND  GLGI.Id not in ( select GlGeneralInfoId from mst.BankMaster where AccountType='HouseBank')";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)

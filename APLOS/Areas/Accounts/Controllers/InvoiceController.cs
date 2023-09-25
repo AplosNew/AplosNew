@@ -36,6 +36,7 @@ using OTSBD;
 using Library.Service.Advances;
 using Syncfusion.Pdf;
 using Syncfusion.ExcelToPdfConverter;
+using Library.ViewModel.OrderManagements;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -768,7 +769,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         [HttpPost]
         public JsonResult InsertVendorPayment(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-            , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<VoucherDetailViewModel> glVMList, IEnumerable<VoucherViewModel> advanceVMList, IEnumerable<VoucherViewModel> existingLoanList)
+            , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<PurchaseLCChargesViewModel> purchaseLCChargesVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<VoucherDetailViewModel> glVMList, IEnumerable<VoucherViewModel> advanceVMList, IEnumerable<VoucherViewModel> existingLoanList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -804,7 +805,7 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             else
             {
-                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertVendorPayment(voucherVM, voucherDetailVMList, bankChargeDetailVMList, taxDetailVMList, glVMList, existingLoanList)) });
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertVendorPayment(voucherVM, voucherDetailVMList, bankChargeDetailVMList, purchaseLCChargesVMList, taxDetailVMList, glVMList, existingLoanList)) });
             }
                 
         }

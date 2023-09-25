@@ -431,7 +431,8 @@ namespace Library.Accounting.Accounts
 	                    LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=ADDS.FixedAssetItemId
                         LEFT JOIN MST.[FixedAssetMaster]  FAM ON FAM.Id=FAI.FixedAssetMasterId
 	                    WHERE ADDS.AssetDepreciationId= CASE WHEN @AssetDepreciationId<> 'null' THEN @AssetDepreciationId ELSE ADDS.AssetDepreciationId END
-                        AND AD.CompanyGroupId='" + companyGroupId + "' AND AD.CompanyId ='" + companyId + "' AND AD.PlantId='" + plantId + "' AND CONVERT(DATE, AD.ProcessDate) BETWEEN '" + fromDate + "' AND '" + toDate + @"'  ";
+                        AND AD.CompanyGroupId='" + companyGroupId + "' AND AD.CompanyId ='" + companyId + "' AND AD.PlantId='" + plantId + "' AND CONVERT(DATE, AD.ProcessDate) BETWEEN '" + fromDate + "' AND '" + toDate + @"'
+                        ORDER BY AssetRegisterId, AssetRegisterChildId, CapitalizationMasterId, CapitalizationChildId";
             return _sqlRepository.GetDataTable(cmdText);
 
 

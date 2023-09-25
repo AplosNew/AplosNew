@@ -673,7 +673,7 @@ namespace Library.Service.Invoices
         }
 
         public string InsertVendorPayment(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-                , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList, IEnumerable<VoucherDetailViewModel> glVMList, IEnumerable<VoucherViewModel> existingLoanList)
+                , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<PurchaseLCChargesViewModel> purchaseLCChargesVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList, IEnumerable<VoucherDetailViewModel> glVMList, IEnumerable<VoucherViewModel> existingLoanList)
         {
             var flag = false;
             try
@@ -694,18 +694,23 @@ namespace Library.Service.Invoices
                 {
                 };
                 decimal totalbankChargess = 0;
+                decimal totalpurchaseLCCharges = 0;
                 if (null != bankChargeDetailVMList && bankChargeDetailVMList.Count() > 0)
                 {
                     totalbankChargess = bankChargeDetailVMList.Sum(r => r.Amount);
                 }
-                    if (voucherVM.PaymentSource == PaymentSource.Discount.ToString())
+                if (null != purchaseLCChargesVMList && purchaseLCChargesVMList.Count() > 0)
+                {
+                    totalpurchaseLCCharges = purchaseLCChargesVMList.Sum(r => r.ChargesValue);
+                }
+                if (voucherVM.PaymentSource == PaymentSource.Discount.ToString())
                 {
                     voucherVM.Amount = voucherDetailVMList.Sum(r => r.Amount);
                 }
 
                 else
                 {
-                    voucherVM.Amount = voucherDetailVMList.Sum(r => r.Amount) + totalbankChargess;
+                    voucherVM.Amount = voucherDetailVMList.Sum(r => r.Amount) + totalbankChargess + totalpurchaseLCCharges;
                 }
                 // INSERT INTO InvoiceWriteOff
                 var invoiceWriteOff = InsertInvoiceWriteOff(voucherVM);
@@ -994,6 +999,35 @@ namespace Library.Service.Invoices
                         });
                         totalAmountDr += voucherDetailChargeDr.DrAmount;
                         totalCurrencyAmountDr += bankChargeDetailVM.CompanyCurrencyAmount;
+                    }
+                }
+
+                if (null != purchaseLCChargesVMList && purchaseLCChargesVMList.Count() > 0)
+                {
+                    foreach (var purchaseLCChargesVM in purchaseLCChargesVMList)
+                    {
+                        // Insert LC charges Debit
+                        currentVoucherDetailId++;
+                        var voucherDetailChargeDr = _voucherService.InsertVoucherDetail(voucher, new VoucherDetail
+                        {
+                            DrAmount = purchaseLCChargesVM.ChargesValue,
+                            GLGeneralInfoId = purchaseLCChargesVM.ExpensesGLId,
+                            BudgetMasterId = purchaseLCChargesVM.ExpensesBudgetMasterId,
+                            ActivityId = purchaseLCChargesVM.ExpensesActivityId
+                        }, currentVoucherDetailId);
+                        totalCharges += purchaseLCChargesVM.ChargesValue;
+
+                        _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailChargeDr, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = voucherDetailChargeDr.CurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailChargeDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                            DrAmount = purchaseLCChargesVM.BankAmount
+                        });
+                        totalAmountDr += voucherDetailChargeDr.DrAmount;
+                        totalCurrencyAmountDr += purchaseLCChargesVM.BankAmount;
                     }
                 }
 
@@ -5135,7 +5169,7 @@ namespace Library.Service.Invoices
         {
             parameters.CmdText = @"SELECT AW.InvoiceWriteOffGroupNo--, VD.VoucherId, V.VoucherNo, AW.Id
                                     , P.Code AS PartyCode, P.UserName AS PartyName, AW.PostingDate, AW.DocDate, AW.DocRefNo, C.Code AS CurrencyCode,SUM(IWD.Amount) Amount
-                                    , AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.IsPark, AW.BankJournalId
+                                    , AW.PartyPlantId, PP.UserName AS PartyPlantName, IsPark=case when AW.IsPark=0 then 'Posted' else 'Parked' end, AW.BankJournalId
                                     
                                     ,VoucherNo=STUFF((SELECT DISTINCT ','+xpo.VoucherNo from
                                     			[TRN].Voucher xpo

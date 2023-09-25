@@ -304,7 +304,7 @@ namespace Library.MaterialManagement.Inventory
                         }
                         else maIds = inventoryMaterialIds;
                         var receiveDetailList = _sqlRepository.GetModelCollection<InventoryMaterialViewModel>(@"SELECT MGM.InventoryIssuePolicy AS [Policy], IRD.Id, IRD.Id AS InventoryReceiveDetailId, IRD.InventoryReceiveId, IRD.InventoryMaterialId, IRD.MaterialStorageId, IRD.TransactionQty, IRD.TransactionUoMId, IRD.BaseQty, IRD.BaseUOMId, IRD.BaseUoMFactor
-                                        , IRD.MaterialTranRate, IRD.MaterialTranAmount, IRD.TotalMaterialTranAmount, COALESCE((IRD.IssueQty),0) AS IssueQty, COALESCE((IRD.BaseIssueQty),0) AS BaseIssueQty,1 RequisitionQty,IRD.InventorySalesQty,IRD.InventoryScrapQty,IRD.PurchaseReturnQty,IRD.IssueReturnQty,IRD.ReductionByAdjustmentQty
+                                        , IRD.MaterialTranRate, IRD.MaterialTranAmount, IRD.TotalMaterialTranAmount, COALESCE((IRD.IssueQty),0) AS IssueQty, COALESCE((IRD.BaseIssueQty),0) AS BaseIssueQty,1 RequisitionQty,IRD.InventorySalesQty,IRD.InventoryScrapQty,IRD.PurchaseReturnQty,ISNULL(IRD.IssueReturnQty,0) IssueReturnQty,IRD.ReductionByAdjustmentQty
                                     FROM [TRN].[InventoryReceiveDetail] AS IRD JOIN TRN.InventoryMaterial AS IM ON IRD.InventoryMaterialId=IM.Id
                                     JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
                                     JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -1829,7 +1829,7 @@ namespace Library.MaterialManagement.Inventory
                             builderSql = @"UPDATE trn.InventoryIssueHistory SET IssueReturnQty='" + Convert.ToDecimal(Convert.ToDecimal(invMaterial12.IssueReturnQty + issue.TransactionQty)) + "' WHERE Id='" + issue.InventoryIssueHistoryId + "'";
                             rdBuilder.Append(builderSql);
 
-                            builderSql = @"UPDATE [TRN].[InventoryReceiveDetail] SET IssueReturnQty='" + Convert.ToDecimal(Convert.ToDecimal(invMaterial1.IssueReturnQty + issue.TransactionQty)) + "' WHERE Id='" + issue.InventoryReceiveDetailId + "'";
+                            builderSql = @"UPDATE [TRN].[InventoryReceiveDetail] SET IssueReturnQty='" + Convert.ToDecimal(Convert.ToDecimal(invMaterial1.IssueReturnQty + issue.TransactionQty)) + "',BaseIssueQty='"+ Convert.ToDecimal(invMaterial1.BaseIssueQty - issue.TransactionQty) + "',IssueQty='" + Convert.ToDecimal(invMaterial1.IssueQty - issue.TransactionQty) + "' WHERE Id='" + issue.InventoryReceiveDetailId + "'";
                             rdBuilder.Append(builderSql);
 
                             builderSql = @"UPDATE [TRN].[InventoryMaterial] SET TotalQty='" + Convert.ToDecimal(invMaterial.TotalQty + issue.TransactionQty) + "' WHERE Id='" + issue.InventoryMaterialId + "'";
