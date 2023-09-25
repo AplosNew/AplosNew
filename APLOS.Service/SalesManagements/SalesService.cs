@@ -1697,7 +1697,6 @@ namespace Library.Service.SalesManagements
                             ThirdCharacteristicsId = salesMaterialVM.ThirdCharacteristicsId,
                             ThirdCharacteristicsValueId = salesMaterialVM.ThirdCharacteristicsValueId,
                             BaseUOMId = salesMaterialVM.BaseUOMId,
-
                             BaseRate = salesMaterialVM.BaseRate,
                             //BaseQty = salesMaterialVM.BaseQty,
                             BaseQty = salesMaterialVM.SalesQty,
