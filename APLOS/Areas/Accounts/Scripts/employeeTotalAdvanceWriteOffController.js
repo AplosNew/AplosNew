@@ -683,22 +683,6 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
         angular.element(document.querySelector('#employeeSalaryAdvancePopUp')).modal('show');
     };
 
-    //$scope.showEmployeeAdvanceSalaryPopUpList = function (employeeId) {
-    //    $scope.compareCurrencyId = $scope.advance.CurrencyId;
-    //    $scope.getEmployeeAdvanceData = function (pageno) {
-    //        baseService.paginationBase($scope.employeeAdvanceSalaryUrl, pageno, $scope.employeeAdvanceParameters)
-    //            .then(function (response) {
-    //                $scope.employeeAdvanceDataList = response.Rows;
-    //                $scope.employeeAdvanceParameters.total_count = response.Total;
-    //            }, function () {
-    //                ShowResult(commonMessage.NetworkError, 'failure');
-    //            }).finally(function () {
-    //            });
-    //    };
-    //    angular.element(document.querySelector('#employeeAdvancePopUp')).modal('show');
-    //    $scope.getEmployeeAdvanceData();
-    //};
-
     $scope.clearBankPopUp = function () {
         $scope.advance.BankMasterId = null;
         $scope.advance.CashMasterId = null;
@@ -707,30 +691,30 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
     $scope.clearCashPopUp = function () {
         $scope.clearBankPopUp();
     }
-    //$scope.closeEmployeeAdvancePopUp = function (obj) {
-    //    var data = obj.data;
+    $scope.closeEmployeeAdvancePopUp = function (obj) {
+        var data = obj.data;
 
-    //    $scope.advance.EmployeeId = data.EmployeeId;
-    //    $scope.advance.EmployeeName = data.EmployeeName;
-    //    $scope.advance.AdvanceAmount = data.Balance;
-    //    $scope.advance.VoucherNo = data.VoucherNo;
-    //    $scope.advance.CompanyId = data.CompanyId;
-    //    $scope.advance.PlantId = data.PlantId;
-    //    $scope.advance.CurrencyId = data.CurrencyId;
-    //    $scope.advance.AdvanceId = data.AdvanceId;
-    //    $scope.advance.AdvanceDetailId = data.AdvanceDetailId;
-    //    $scope.advance.PartyType = data.PartyType;
-    //    $scope.advancePostingDate = data.PostingDate;
-    //    $scope.advanceDocRefNo = data.DocRefNo;
-    //    $scope.advance.CrAmount = null;
-    //    $scope.advance.GLGeneralInfoId = data.GLGeneralInfoId;
-    //    $scope.advance.BudgetMasterId = data.BudgetMasterId;
-    //    $scope.advance.ActivityId = data.ActivityId;
-    //    $scope.advance.JournalType = data.JournalType;
-    //    $scope.GetEmployeeTransactionNo($scope.advance.EmployeeId);
-    //    $scope.closeEmployeePopUp();
-    //    angular.element(document.querySelector("#employeeAdvancePopUp")).modal("hide");
-    //};
+        $scope.advance.EmployeeId = data.EmployeeId;
+        $scope.advance.EmployeeName = data.EmployeeName;
+        $scope.advance.AdvanceAmount = data.Balance;
+        $scope.advance.VoucherNo = data.VoucherNo;
+        $scope.advance.CompanyId = data.CompanyId;
+        $scope.advance.PlantId = data.PlantId;
+        $scope.advance.CurrencyId = data.CurrencyId;
+        $scope.advance.AdvanceId = data.AdvanceId;
+        $scope.advance.AdvanceDetailId = data.AdvanceDetailId;
+        $scope.advance.PartyType = data.PartyType;
+        $scope.advancePostingDate = data.PostingDate;
+        $scope.advanceDocRefNo = data.DocRefNo;
+        $scope.advance.CrAmount = null;
+        $scope.advance.GLGeneralInfoId = data.GLGeneralInfoId;
+        $scope.advance.BudgetMasterId = data.BudgetMasterId;
+        $scope.advance.ActivityId = data.ActivityId;
+        $scope.advance.JournalType = data.JournalType;
+        $scope.GetEmployeeTransactionNo($scope.advance.EmployeeId);
+        $scope.closeEmployeePopUp();
+        angular.element(document.querySelector("#employeeAdvancePopUp")).modal("hide");
+    };
     $scope.closeEmployeeSalaryAdvancePopUp = function (obj) {
         var data = obj.data;
 
@@ -832,7 +816,6 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    //$window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
                     $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
                 }
             }, function errorCallback(response) {
