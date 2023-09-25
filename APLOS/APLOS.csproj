@@ -4805,6 +4805,7 @@
     <Content Include="Areas\FixedAssets\Views\AssetDepreciationPost.cshtml" />
     <Content Include="Areas\Commercial\Views\LCReports\btb.cshtml" />
     <Content Include="Areas\FixedAssets\Views\AssetsDepreciationReport.cshtml" />
+    <Content Include="Areas\Accounts\Views\_EmployeeSalaryAdvancePopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
