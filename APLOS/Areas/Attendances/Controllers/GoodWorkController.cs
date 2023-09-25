@@ -552,6 +552,10 @@ namespace Aplos.Areas.Attendances.Controllers
                         }
                         if (dv.Count > 0)
                         {
+                            if (item["PayDays"]==null)
+                            {
+                                item["PayDays"] = 0;
+                            }
                             ccount++;
                             string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
                             DataRow drmo = dv[0].Row;
