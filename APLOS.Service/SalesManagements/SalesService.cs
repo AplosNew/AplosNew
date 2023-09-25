@@ -1702,7 +1702,6 @@ namespace Library.Service.SalesManagements
                             BaseAmount = Math.Round(salesMaterialVM.SalesQty * salesMaterialVM.BaseRate, 2),
                             BaseUoMFactor = salesMaterialVM.BaseUoMFactor,
                             TransactionUoMId = salesMaterialVM.BaseUOMId,
-
                             TransactionRate = salesMaterialVM.TransactionRate,
                             TransactionQty = salesMaterialVM.SalesQty,
                             TransactionAmount = Math.Round(salesMaterialVM.TransactionRate * salesMaterialVM.SalesQty, 2),
