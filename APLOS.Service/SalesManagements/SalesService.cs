@@ -1709,9 +1709,7 @@ namespace Library.Service.SalesManagements
                             TransactionRate = salesMaterialVM.TransactionRate,
                             TransactionQty = salesMaterialVM.SalesQty,
                             TransactionAmount = Math.Round(salesMaterialVM.TransactionRate * salesMaterialVM.SalesQty, 2),
-
                             BooksCurrencyTransactionAmount = Math.Round((salesMaterialVM.TransactionRate * salesMaterialVM.SalesQty) * voucherVM.CompanyCurrencyRate, 2),
-
                             BooksCurrencyBaseRate = Math.Round(voucherVM.CompanyCurrencyRate * salesMaterialVM.TransactionRate, 4),
 
                             TaxAmount = salesMaterialVM.TaxAmount,
