@@ -83,6 +83,14 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         $http.get('Processes/CompanySubProcess/GetCbobyprocessid?processid=' + $scope.planningTypesNew.BaseProcessId + '&companyId=' + $scope.planningTypesNew.CompanyId)
             .then(function (response) {
                 $scope.subprocessList = response.data;
+                if (!baseService.isUndefinedOrNull($scope.planningTypesNew.Id)) {
+                    for (var i = 0; i < $scope.subprocessList.length; i++) {
+                        if ($scope.planningTypesNew.SubProcessId == $scope.subprocessList[i].Value) {
+                            $scope.planningTypesNew.SubProcessId = $scope.subprocessList[i].Value;
+                            break;
+                        }
+                    }
+                }
             });
     }
 
@@ -745,8 +753,8 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
     };
 
     $scope.ClearWeek = function () {
-        $scope.modelWeek = { Id: null, ShiftId: null, PlanningTypesId: $scope.planningTypesNew.Id, ProductionShiftStartFrom: null, ProductionShiftStartTo: null, ProductionTime: null, Remark: null, IsExceptionApplicable: false, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
-        $scope.modelWeekNew = Object.assign({}, $scope.modelShift);
+        $scope.modelWeek = { Id: null, WeekDays: null, PlanningTypesId: $scope.planningTypesNew.Id, IsWorkingDays: false, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+        $scope.modelWeekNew = Object.assign({}, $scope.modelWeek);
     }
 
     $scope.SavedWeekList = [];

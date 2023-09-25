@@ -79,7 +79,7 @@ namespace Aplos.Areas.Attendances.Controllers
             }
             if (userGroup != "null")
             {
-                userGr = "and PR.GoodWorkPositionCodeId in ('" + userGroup + @"')";
+                userGr = "and isnull(PR.GoodWorkPositionCodeId,'') in ('" + userGroup + @"')";
             }
             try
             {
@@ -108,6 +108,7 @@ namespace Aplos.Areas.Attendances.Controllers
                          LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
                          LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
                          WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec + @"  " + dep + @"  " + sec + @"   " + subsec + @"   " + des + @" " + userGr + @"
+                         and EI.EmployeeStatus='Active'
                          ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
             }
             catch (Exception ex)
@@ -219,7 +220,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             item["PurposeCategory"] = item["PurposeCategory"];
                             item["ApprovedById"] = item["ApprovedById"];
                             item["Minute"] = item["CalculatedTime"];
-                            item["Remarks"] = item["Remarks"];
+                            item["Remarks"] = item["Remark"];
 
                             materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
                         }
@@ -234,11 +235,11 @@ namespace Aplos.Areas.Attendances.Controllers
                             //drmo["EmpSystemId"] = item["SystemId"];
                             //drmo["FromTime"] = item["FromTime"];
                             //drmo["ToTime"] = item["ToTime"];
-                            //drmo["Purpose"] = item["Purpose"];
-                            //drmo["PurposeCategory"] = item["PurposeCategory"];
+                            drmo["Purpose"] = item["Purpose"];
+                            drmo["PurposeCategory"] = item["PurposeCategory"];
                             //drmo["ApprovedById"] = item["ApprovedById"];
                             //drmo["Minute"] = item["CalculatedTime"];
-                            //drmo["Remark"] = item["Remark"];
+                            drmo["Remark"] = item["Remark"];
                             drmo.EndEdit();
 
                         }
@@ -249,7 +250,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, dsDetail);
 
-                return Json(new { Error = false, Message = AplosMessage.Updated });
+                return Json(new { Error = false, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
@@ -279,10 +280,10 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult GetGoodWorkList()
         {
-            string sql = @"select GW.Id,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,S.UserName Shift,GW.Remarks,gwd.EmpSystemId
+            string sql = @"select GW.Id,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,S.UserName Shift,GW.Remarks
+                                    ,format(GW.FromTime,'hh:m') FromTime,format(GW.ToTime,'hh:m') ToTime,gw.Minute
                                     from GoodWork GW
-                                    left join ShiftDefination S on S.SystemId=GW.ShiftId
-                                    LEFT JOIN GoodWorkDetail AS gwd ON gwd.GoodWorkId=GW.Id";
+                                    left join ShiftDefination S on S.SystemId=GW.ShiftId";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -303,18 +304,23 @@ namespace Aplos.Areas.Attendances.Controllers
         }
         public ActionResult GetGoodWorkDetailCenter(string goodWorkId)
         {
-            string str = @"select GWD.Id,EI.SystemId,EI.EmployeeCode,EI.EmployeeName
-							,format(GWD.FromTime,'hh:m') FromTime,format(GWD.ToTime,'hh:m') ToTime,GWD.Minute CalculatedTime
-							,GWD.Purpose,GWD.PurposeCategory--,wa.Remarks
+            string str = @"select GWD.Id,EI.SystemId,EI.EmployeeCode,EI.EmployeeName,format(GWD.FromTime,'hh:m') FromTime,format(GWD.ToTime,'hh:m') ToTime,GWD.Minute CalculatedTime
+							,GWD.Purpose,GWD.PurposeCategory,ec.Id EmployeeCategoryId,EC.UserName EmployeeCategory
                             ,EmI.SystemId ApprovedById,EmI.EmployeeCode ApprovedByCode
                             ,EmI.EmployeeName ApprovedByName,GWD.[Minute],GWD.Remark
-							,S.UserName Section,SS.UserName SubSection,DEPT.UserName Department
+							,pr.Id UserGroupId,pr.UserReportGroup UserGroup,ei.GivenDesignationId DesignationId,D.UserName Designation,S.Id SectionId,S.UserName Section
+							,SS.Id SubSectionId,SS.UserName SubSection,DEPT.Id DepartmentId,DEPT.UserName Department
                             from GoodworkDetail GWD 
                             left join EmployeeInformation EI on EI.SystemId=GWD.EmpSystemId
                             left join EmployeeInformation EmI on EmI.SystemId=GWD.ApprovedById
 							LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
                             LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
                             LEFT JOIN ORG.Department DEPT ON EI.DepartmentId=DEPT.Id
+							LEFT join MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
+							LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
+							LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+							LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+							left join hkp.Designation D on D.Id=ei.GivenDesignationId
                             where GWD.GoodWorkId in ('" + goodWorkId + "')";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
