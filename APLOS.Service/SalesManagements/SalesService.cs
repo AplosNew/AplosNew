@@ -1698,10 +1698,8 @@ namespace Library.Service.SalesManagements
                             ThirdCharacteristicsValueId = salesMaterialVM.ThirdCharacteristicsValueId,
                             BaseUOMId = salesMaterialVM.BaseUOMId,
                             BaseRate = salesMaterialVM.BaseRate,
-                            //BaseQty = salesMaterialVM.BaseQty,
                             BaseQty = salesMaterialVM.SalesQty,
                             BaseAmount = Math.Round(salesMaterialVM.SalesQty * salesMaterialVM.BaseRate, 2),
-
                             BaseUoMFactor = salesMaterialVM.BaseUoMFactor,
                             TransactionUoMId = salesMaterialVM.BaseUOMId,
 
