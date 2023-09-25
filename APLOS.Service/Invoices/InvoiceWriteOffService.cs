@@ -5135,7 +5135,7 @@ namespace Library.Service.Invoices
         {
             parameters.CmdText = @"SELECT AW.InvoiceWriteOffGroupNo--, VD.VoucherId, V.VoucherNo, AW.Id
                                     , P.Code AS PartyCode, P.UserName AS PartyName, AW.PostingDate, AW.DocDate, AW.DocRefNo, C.Code AS CurrencyCode,SUM(IWD.Amount) Amount
-                                    , AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.IsPark, AW.BankJournalId
+                                    , AW.PartyPlantId, PP.UserName AS PartyPlantName, IsPark=case when AW.IsPark=0 then 'Posted' else 'Parked' end, AW.BankJournalId
                                     
                                     ,VoucherNo=STUFF((SELECT DISTINCT ','+xpo.VoucherNo from
                                     			[TRN].Voucher xpo

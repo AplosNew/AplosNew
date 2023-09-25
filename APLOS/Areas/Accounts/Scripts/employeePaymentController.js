@@ -160,6 +160,10 @@ function employeePaymentController(cboService, commonMessage, $scope, $rootScope
         {
             "name": "Doc Ref",
             "value": "DocRefNo"
+        },
+        {
+            "name": "Status",
+            "value": "RowState"
         }
     ];
 

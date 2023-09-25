@@ -370,7 +370,7 @@
                     <td class="text-right">{{x.Amount | number:2}}</td>
                     <td class="text-right">{{x.WrittenOffAmount | number:2}}</td>
                     <td class="text-right">{{x.Amount-x.WrittenOffAmount | number:2}}</td>
-                    <td>{{x.IsPark?'Parked':'Posted'}}</td>
+                    <td>{{x.Status}}</td>
                     <td class="text-right">
                         <ul class="list-inline action-list">
                             <li ng-show="x.IsPosted || x.IsPark"><a ng-click="confirmPost(x.Id);" href="" class="btn btn-action tooltip-here">Post</a></li>
