@@ -8022,6 +8022,142 @@ left join dbo.EmployeeInformation EI on QAP.QualityActionResponsiblePersonId = E
                 objCon = null;
             }
         }
+
+        public string PostQualityProcess(IEnumerable<QualityHeader> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.QualityControl";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<QualityHeader> items = DataToSave.ToList();
+
+                con.executeQuery("Delete From TRN.QualityPlanControl where QCId is null");
+                con.OpenDataSetThroughAdapter("select * from TRN.QualityControl where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                foreach (QualityHeader item in DataToSave)
+                {
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+
+                        dr["Id"] = "22" + _Id;
+                        dr["PlantId"] = item.PlantId;
+                        dr["EntityId"] = item.EntityId;
+                        dr["ProcessId"] = item.ProcessId;
+                        dr["ProductionDate"] = item.ProductionDate;
+                        dr["ProductionShiftId"] = item.ProductionShiftId;
+                        dr["ProductionOrderId"] = item.ProductionOrderId;
+                        dr["IssueId"] = item.IssueId;
+                        dr["PeriodId"] = item.PeriodId;
+                        dr["ProductionInchargeId"] = item.ProductionInchargeId;
+                        dr["LotNumber"] = item.LotNumber;
+                        dr["Remarks"] = item.Remarks;
+                        dr["MasterOrderItemId"] = item.MasterOrderItemId;
+                        dr["SalesOrderId"] = item.SalesOrderId;
+                        dr["QualityPlanId"] = item.QualityPlanId;
+                        dr["PlanType"] = item.PlanType;
+                        dr["WorkCenterId"] = item.WorkCenterId;
+                        dr["RepeatEntry"] = item.RepeatEntry;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+        public string PostQualityProcess(IEnumerable<QualityPlanProcess> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.QualityPlanControl";
+                string Id = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<QualityPlanProcess> items = DataToSave.ToList();
+                foreach (QualityPlanProcess item in DataToSave)
+                {
+                    Id += ",'" + item.Id + "'";
+                }
+
+                con.executeQuery("Delete From TRN.QualityPlanControl where QCId is null");
+                con.OpenDataSetThroughAdapter("select * from TRN.QualityPlanControl where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                foreach (QualityPlanProcess item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+
+                        dr["Id"] = "23" + _Id;
+                        dr["QPId"] = item.QPId;
+                        dr["POId"] = item.POId;
+                        dr["IssueId"] = item.IssueId;
+                        dr["DependentOn"] = item.DependentOn;
+                        dr["Date"] = item.Date;
+                        dr["QualityPlanDate"] = item.QualityPlanDate;
+                        dr["QCId"] = item.QCId;
+                        dr["QPEmployeeId"] = item.QPEmployeeId;
+                        dr["RepeatEntry"] = item.RepeatEntry;
+                        dr["LotNumber"] = item.LotNumber;
+                        dr["EntryLevel"] = item.EntryLevel;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
         #endregion Quality Control
 
         #region Leave
@@ -9256,4 +9392,27 @@ LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
         public string Article { get; set; }
 
     }
+    public class QualityPlanProcess
+    {
+        public string Id { get; set; }
+        public string QPId { get; set; }
+        public string POId { get; set; }
+        public string IssueId { get; set; }
+        public string DependentOn { get; set; }
+        public string Legdays { get; set; }
+        public string Date { get; set; }
+        public string QualityPlanDate { get; set; }
+        public string QCId { get; set; }
+        public string QPEmployeeId { get; set; }
+        public string RepeatEntry { get; set; }
+        public string LotNumber { get; set; }
+        public string EntryLevel { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+    }
+
 }
