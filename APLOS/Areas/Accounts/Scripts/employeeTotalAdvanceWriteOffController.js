@@ -680,7 +680,7 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
         }).then(function successCallback(response) {
             $scope.employeeAdvanceDataList = response.data;
         });
-        angular.element(document.querySelector('#employeeAdvancePopUp')).modal('show');
+        angular.element(document.querySelector('#employeeSalaryAdvancePopUp')).modal('show');
     };
 
     //$scope.showEmployeeAdvanceSalaryPopUpList = function (employeeId) {
@@ -707,30 +707,30 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
     $scope.clearCashPopUp = function () {
         $scope.clearBankPopUp();
     }
-    $scope.closeEmployeeAdvancePopUp = function (obj) {
-        var data = obj.data;
+    //$scope.closeEmployeeAdvancePopUp = function (obj) {
+    //    var data = obj.data;
 
-        $scope.advance.EmployeeId = data.EmployeeId;
-        $scope.advance.EmployeeName = data.EmployeeName;
-        $scope.advance.AdvanceAmount = data.Balance;
-        $scope.advance.VoucherNo = data.VoucherNo;
-        $scope.advance.CompanyId = data.CompanyId;
-        $scope.advance.PlantId = data.PlantId;
-        $scope.advance.CurrencyId = data.CurrencyId;
-        $scope.advance.AdvanceId = data.AdvanceId;
-        $scope.advance.AdvanceDetailId = data.AdvanceDetailId;
-        $scope.advance.PartyType = data.PartyType;
-        $scope.advancePostingDate = data.PostingDate;
-        $scope.advanceDocRefNo = data.DocRefNo;
-        $scope.advance.CrAmount = null;
-        $scope.advance.GLGeneralInfoId = data.GLGeneralInfoId;
-        $scope.advance.BudgetMasterId = data.BudgetMasterId;
-        $scope.advance.ActivityId = data.ActivityId;
-        $scope.advance.JournalType = data.JournalType;
-        $scope.GetEmployeeTransactionNo($scope.advance.EmployeeId);
-        $scope.closeEmployeePopUp();
-        angular.element(document.querySelector("#employeeAdvancePopUp")).modal("hide");
-    };
+    //    $scope.advance.EmployeeId = data.EmployeeId;
+    //    $scope.advance.EmployeeName = data.EmployeeName;
+    //    $scope.advance.AdvanceAmount = data.Balance;
+    //    $scope.advance.VoucherNo = data.VoucherNo;
+    //    $scope.advance.CompanyId = data.CompanyId;
+    //    $scope.advance.PlantId = data.PlantId;
+    //    $scope.advance.CurrencyId = data.CurrencyId;
+    //    $scope.advance.AdvanceId = data.AdvanceId;
+    //    $scope.advance.AdvanceDetailId = data.AdvanceDetailId;
+    //    $scope.advance.PartyType = data.PartyType;
+    //    $scope.advancePostingDate = data.PostingDate;
+    //    $scope.advanceDocRefNo = data.DocRefNo;
+    //    $scope.advance.CrAmount = null;
+    //    $scope.advance.GLGeneralInfoId = data.GLGeneralInfoId;
+    //    $scope.advance.BudgetMasterId = data.BudgetMasterId;
+    //    $scope.advance.ActivityId = data.ActivityId;
+    //    $scope.advance.JournalType = data.JournalType;
+    //    $scope.GetEmployeeTransactionNo($scope.advance.EmployeeId);
+    //    $scope.closeEmployeePopUp();
+    //    angular.element(document.querySelector("#employeeAdvancePopUp")).modal("hide");
+    //};
     $scope.closeEmployeeSalaryAdvancePopUp = function (obj) {
         var data = obj.data;
 
@@ -753,14 +753,14 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
         $scope.advance.JournalType = data.JournalType;
         $scope.GetEmployeeTransactionNo($scope.advance.EmployeeId);
         $scope.closeEmployeePopUp();
-        angular.element(document.querySelector("#employeeAdvancePopUp")).modal("hide");
+        angular.element(document.querySelector("#employeeSalaryAdvancePopUp")).modal("hide");
     };
 
     $scope.closeEmployeePopUp = function () {
         angular.element(document.querySelector('#employeeTotalAdvancePopUp')).modal('hide');
     };
     $scope.closeEmployeeSalaryPopUp = function () {
-        angular.element(document.querySelector('#employeeAdvancePopUp')).modal('hide');
+        angular.element(document.querySelector('#employeeSalaryAdvancePopUp')).modal('hide');
     };
 
 
@@ -799,11 +799,9 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
 
     //TODO:Report
 
-    $scope.EmployeeAdvanceDueList = function () { 
-
-        //var MasterOrderId = "1935";
+    $scope.EmployeeSalaryAdvanceDueList = function () {
         try {
-            var file_src = $scope.url + "/EmployeeAdvanceDueList"; 
+            var file_src = $scope.url + "/EmployeeSalaryAdvanceDueList";
             $rootScope.report(file_src);
 
 

@@ -698,6 +698,13 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_accountsAdvanceService.EmployeeAdvanceQuery(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.EmployeeAdvance), JsonRequestBehavior.AllowGet);
         }
         [HttpPost, Authorize]
+        public JsonResult GetEmployeeAvilabeAllAdvanceList(string column, string value)
+        {
+            AccountsAdvanceService _accountsAdvanceService = new AccountsAdvanceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsAdvanceService.EmployeeAvilabeAllAdvanceQuery(column, value, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.EmployeeAdvance), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost, Authorize]
         public JsonResult GetEmployeeAvilabeAdvanceSalaryList(string column, string value)
         {
             AccountsAdvanceService _accountsAdvanceService = new AccountsAdvanceService(_sqlRepository);
@@ -2968,6 +2975,226 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ReportUtility reportUtility = new ReportUtility();
             reportUtility.PlantHeaderWithOutLogo(ref worksheet, endCol, "Employee Advance", identity.PlantId);
+
+            //reportUtility.PlantHeader(ref worksheet, endCol, "Employee Advance" , identity.PlantId);
+            reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);
+            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            worksheet.IsGridLinesVisible = false;
+
+            return workbook;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult EmployeeSalaryAdvanceDueList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                // if (string.IsNullOrEmpty(MasterLCList))
+                //   throw new Exception("Please select at least one master Order");
+
+                ExcelEngine excelEngine = new ExcelEngine();
+
+                IWorkbook workbook = EmployeeSalaryAdvanceDueReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+
+                string strFileName = "Employee Salary Advance.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
+            return null;
+        }
+
+        private IWorkbook EmployeeSalaryAdvanceDueReport(string companyGroupId, string companyId, string plantId)
+        {
+
+            //Start EmployeeAdvanceDueList
+
+
+            ExcelEngine excelEngine = new ExcelEngine();
+            //Instantiate the Excel application object
+            IApplication application = excelEngine.Excel;
+
+            //Set the default application version
+            application.DefaultVersion = ExcelVersion.Excel2013;
+
+            //Load the existing Excel workbook into IWorkbook
+            IWorkbook workbook = application.Workbooks.Create(1);
+
+            //Get the first worksheet in the workbook into IWorksheet
+            IWorksheet worksheet = workbook.Worksheets[0];
+
+            DataTable dtEmployeeAdvanceDueList = _sqlRepository.GetDataTable(@"SELECT AD.AdvanceId, AD.Id AS AdvanceDetailId, AD.PartyType, AD.CompanyId, AD.PlantId, AM.AdvanceNo, AM.VoucherId,en.UserName as Entity
+								, C.Code AS CurrencyCode, AD.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, AM.EmployeeId, EI.EmployeeCode, EI.EmployeeName
+								, AD.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName, AD.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, V.VoucherNo, Replace(CONVERT(VARCHAR(11), AM.DocDate, 106), ' ', '-') AS DocDate
+                                , Replace(CONVERT(VARCHAR(11), AM.PostingDate, 106), ' ', '-') AS PostingDate, AM.DocRefNo, AM.Narration, AD.Amount AS Receivable, AD.WrittenOffAmount AS Received, 0 DrAmount, 0 CrAmount
+                                , AD.Amount-AD.WrittenOffAmount AS Balance
+							    FROM [TRN].[AdvanceDetail] AS AD
+                                LEFT JOIN [TRN].[Advance] AS AM ON AD.AdvanceId=AM.Id
+                                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdvanceDetailId=AD.Id
+                                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=AM.EmployeeId
+                                LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=AD.GLGeneralInfoId
+                                LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=AD.BudgetMasterId
+                                LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                LEFT JOIN [HKP].[Activity] AS A ON A.Id=AD.ActivityId
+                                LEFT JOIN [SCS].[Currency] AS C ON C.Id=AM.CurrencyId
+                                LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=AM.EntityId
+                                LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AM.PartyPlantId
+                                LEFT JOIN [HKP].[EmployeeTransactionType] AS ETT ON ETT.Id=AM.EmployeeTransactionTypeId
+								LEFT JOIN (
+								    SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+								    VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.CrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+								    FROM [TRN].[VoucherDetailCurrency] AS VDC
+								    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+								    WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
+                                ) AS CC ON CC.VoucherDetailId=VD.Id
+							    
+                                WHERE AM.Archive=0 AND AM.IsPosted=1 AND AM.IsWrittenOff=0 AND AD.IsWrittenOff=0 AND AM.SourceType in ('EmployeeAdvance','InterTransaction') and ETT.UserName='Employee Salary'
+                                AND AM.CompanyGroupId='" + companyGroupId + "' AND AM.CompanyId='" + companyId + "' AND AM.PlantId='" + plantId + "' AND AM.EmployeeId<>'' ");
+
+            if (dtEmployeeAdvanceDueList.Rows.Count == 0)
+                throw new Exception("No data found");
+
+
+
+
+            worksheet.Name = "EmployeeSalaryAdvanceDueListReport";
+
+            int COL = 1; int ROW = 5;
+            int startCol = COL;
+
+            // worksheet[ROW, COL].Text = "Employee Advance Due List Details:";
+            // worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //  ROW++;
+
+            worksheet[ROW, COL].Text = "Voucher No";
+            int colVoucherNO = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Employee";
+            int colEmployee = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "DocDate";
+            int colDocDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Doc Ref No";
+            int colDocRefNo = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+
+            worksheet[ROW, COL].Text = "Entity";
+            int colEntity = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Currency";
+            int colCurrency = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Advanced";
+            int colAdvanced = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //worksheet[ROW, COL].Number = clsStaticInfo.dbl(dtEmployeeAdvanceDueList.Rows[0]["Receivable"].ToString());
+            // worksheet[ROW, COL].NumberFormat = clsStaticInfo.NumberFormat();
+            // worksheet.Range[MasterOrderDetailsStartRow, leftColumnCaption, ROW, RightColumnValue].CellStyle.Interior.ColorIndex = ExcelKnownColors.Custom44;
+
+            COL++;
+
+            worksheet[ROW, COL].Text = "Write-Off";
+            int colWriteOff = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //worksheet[ROW, COL].Number = clsStaticInfo.dbl(dtEmployeeAdvanceDueList.Rows[0]["Received"].ToString());
+            // worksheet[ROW, COL].NumberFormat = clsStaticInfo.NumberFormat();
+            COL++;
+
+            worksheet[ROW, COL].Text = "Balance";
+            int colBalance = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            //worksheet[ROW, COL].Number = clsStaticInfo.dbl(dtEmployeeAdvanceDueList.Rows[0]["Balance"].ToString());
+            //worksheet[ROW, COL].NumberFormat = clsStaticInfo.NumberFormat();
+            // COL++;
+
+            // int ROW = 6; int COL = 1;
+
+            //int EmployeeAdvanceDueListStartRow  = ROW;
+            //worksheet[ROW, COL].Text = "Employee Advance Due List Details:";
+            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //ROW++;
+            int endCol = COL;
+            worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+            worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+            ROW++;
+
+            for (int i = 0; i < dtEmployeeAdvanceDueList.Rows.Count; i++)
+            {
+                // int i = 0; i < dtMasterOrderItem.Rows.Count; i++
+                worksheet[ROW, colVoucherNO].Text = dtEmployeeAdvanceDueList.Rows[i]["VoucherNo"].ToString();
+                worksheet[ROW, colEmployee].Text = dtEmployeeAdvanceDueList.Rows[i]["EmployeeName"].ToString();
+                worksheet[ROW, colDocDate].Text = dtEmployeeAdvanceDueList.Rows[i]["DocDate"].ToString();
+                worksheet[ROW, colDocRefNo].Text = dtEmployeeAdvanceDueList.Rows[i]["DocRefNo"].ToString();
+                worksheet[ROW, colEntity].Text = dtEmployeeAdvanceDueList.Rows[i]["Entity"].ToString();
+                worksheet[ROW, colCurrency].Text = dtEmployeeAdvanceDueList.Rows[i]["CurrencyCode"].ToString();
+                worksheet[ROW, colAdvanced].Number = clsStaticInfo.dbl(dtEmployeeAdvanceDueList.Rows[i]["Receivable"].ToString());
+                worksheet[ROW, colAdvanced].NumberFormat = clsStaticInfo.NumberFormat();
+                // worksheet[ROW, colAdvanced].Text = dtEmployeeAdvanceDueList.Rows[i]["Receivable"].ToString();
+
+                //worksheet[ROW, colWriteOff].Text = dtEmployeeAdvanceDueList.Rows[i]["Received"].ToString();
+                worksheet[ROW, colWriteOff].Number = clsStaticInfo.dbl(dtEmployeeAdvanceDueList.Rows[i]["Received"].ToString());
+                worksheet[ROW, colWriteOff].NumberFormat = clsStaticInfo.NumberFormat();
+
+                //worksheet[ROW, colBalance].Text = dtEmployeeAdvanceDueList.Rows[i]["Balance"].ToString();
+                worksheet[ROW, colBalance].Number = clsStaticInfo.dbl(dtEmployeeAdvanceDueList.Rows[i]["Balance"].ToString());
+                worksheet[ROW, colBalance].NumberFormat = clsStaticInfo.NumberFormat();
+                //worksheet[ROW, colPurchaseLCCurrencyId].Text = dsData.Tables[0].Rows[i]["PurchasePLCurrency"].ToString();
+
+
+
+
+                // worksheet[startRowGroup1, colSLNO, ROW - 1, colSLNO].Merge();
+                //worksheet[StartDataRow, colPurchaseLCAmount, ROW - 1, colPurchaseLCAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.CellStyle.Font.Size = 8f;
+
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.PlantHeaderWithOutLogo(ref worksheet, endCol, "Employee Salary Advance", identity.PlantId);
 
             //reportUtility.PlantHeader(ref worksheet, endCol, "Employee Advance" , identity.PlantId);
             reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);

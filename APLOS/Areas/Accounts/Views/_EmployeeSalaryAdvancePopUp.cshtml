@@ -1,4 +1,4 @@
-﻿<div class="modal fade site-modal in" id="employeeAdvancePopUp" role="dialog" data-backdrop="static">
+﻿<div class="modal fade site-modal in" id="employeeSalaryAdvancePopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -18,10 +18,10 @@
                                     </div>
                                 </div>
                                 <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchAdvance" ng-enter="showEmployeeAdvancePopUpList()">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchAdvance" ng-enter="showEmployeeAdvanceSalaryPopUpList()">
                                 </div>
                                 <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="showEmployeeAdvancePopUpList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    <button type="button" ng-click="showEmployeeAdvanceSalaryPopUpList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                                 </div>
                             </div>
                         </div>
@@ -30,7 +30,7 @@
                 <div class="modal-body">
                     <div class="content-container-fluid" style="color:black;">
                         <div style="color:black;" id="GridEmpSalary" ej-grid e-datasource="employeeAdvanceDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                             e-recorddoubleclick="closeEmployeeAdvancePopUp" e-allowselection="true" e-filtersettings-filterType="excel">
+                             e-recorddoubleclick="closeEmployeeSalaryAdvancePopUp" e-allowselection="true" e-filtersettings-filterType="excel">
                             <div e-columns>
                                 <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="80"></div>
                                 <div e-column e-field="EmployeeCode" e-headertext="EmployeeCode" e-width="80"></div>
@@ -53,8 +53,8 @@
 
             <div class="modal-footer common-btn">
                 @*TODO:*@
-                <button type="button" class="btn btn-default" ng-click="EmployeeAdvanceDueList();">Report</button>
-                <button type="button" class="btn btn-default" ng-click="closeEmployeeAdvancePopUp();">Close</button>
+                <button type="button" class="btn btn-default" ng-click="EmployeeSalaryAdvanceDueList();">Report</button>
+                <button type="button" class="btn btn-default" ng-click="closeEmployeeSalaryPopUp();">Close</button>
             </div>
 
 
