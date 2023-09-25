@@ -1540,11 +1540,9 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
         //removeValidationMsg();
         $scope.materialMaster.TaxList = $scope.materialtaxCategoryList;
         $scope.materialMaster.TaxAmount = $filter('sumByKey')($filter('filter')($scope.materialtaxCategoryList), 'TotalAmount');
-        $scope.materialMaster.FirstCharacteristicsValueId = $scope.char1.CharacteristicsId;
         $scope.materialMaster.FirstCharacteristicsValueId = $scope.char1.CharacteristicsValueId;
         $scope.materialMaster.FreeText = $scope.char1.FreeText;
         $scope.materialMaster.FirstCharacteristicsValue = $scope.char1.Name;
-        $scope.materialMaster.SecondCharacteristicsValueId = $scope.char2.CharacteristicsId;
         $scope.materialMaster.SecondCharacteristicsValueId = $scope.char2.CharacteristicsValueId;
         $scope.materialMaster.SecondCharacteristicsValue = $scope.char2.Name;
         $scope.materialMaster.TransactionUoMId = $scope.materialMaster.TransactionUoMId;
