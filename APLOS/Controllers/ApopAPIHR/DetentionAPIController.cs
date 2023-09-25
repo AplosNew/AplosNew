@@ -1101,6 +1101,19 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetArticleItems(out List<ArticleItem> activelists, ProductionOrderId);
             return activelists;
         }
+        public string PostQualityProcess([FromBody] IEnumerable<QualityPlanProcess> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostQualityProcess(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
         #endregion Quality control 
 
         #region Leave

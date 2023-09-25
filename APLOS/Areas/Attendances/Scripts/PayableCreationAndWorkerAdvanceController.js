@@ -14,6 +14,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     baseService.init($scope.getListUrl);
     //$scope.LoadEmpListUrl = $scope.path + 'LoadPCAACEmployeelist';
     $scope.Action = 'Save';
+    $scope.PCAction = 'Save';
     $scope.passwordShow = true;
     $controller("employeeBaseController", { $scope: $scope, $http: $http });
 
@@ -53,7 +54,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         EmpSystemId: null,
         EmployeeCode: null,
         EmployeeName: null,
-        PayDays: null,
+        PayDays: 0,
         RatePerDay: null,
         RatePerHour: null,
         Amount: null,
@@ -527,8 +528,8 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.GetGoodWorkPaymentData();
                     $scope.ClearPayableCreation();
+                    $scope.GetGoodWorkPaymentData();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -554,7 +555,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.GetGWPDblClick = function (args) {
         $scope.ModelPCNew = Object.assign({}, args.data);
         $scope.GetLoadEmployeeInformation();
-        $scope.Action = 'Update';
+        $scope.PCAction = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
