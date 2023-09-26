@@ -219,7 +219,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             item["Purpose"] = item["Purpose"];
                             item["PurposeCategory"] = item["PurposeCategory"];
                             item["ApprovedById"] = item["ApprovedById"];
-                            item["Minute"] = item["CalculatedTime"];
+                            item["Minute"] = item["Minute"];
                             item["Remarks"] = item["Remark"];
 
                             materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
@@ -308,7 +308,7 @@ namespace Aplos.Areas.Attendances.Controllers
 							,GWD.Purpose,GWD.PurposeCategory,ec.Id EmployeeCategoryId,EC.UserName EmployeeCategory
                             ,EmI.SystemId ApprovedById,EmI.EmployeeCode ApprovedByCode
                             ,EmI.EmployeeName ApprovedByName,GWD.[Minute],GWD.Remark
-							,pr.Id UserGroupId,pr.UserReportGroup UserGroup,ei.GivenDesignationId DesignationId,D.UserName Designation,S.Id SectionId,S.UserName Section
+							,PR.GoodWorkPositionCodeId UserGroupId,PR1.UserReportGroup UserGroup,ei.GivenDesignationId DesignationId,D.UserName Designation,S.Id SectionId,S.UserName Section
 							,SS.Id SubSectionId,SS.UserName SubSection,DEPT.Id DepartmentId,DEPT.UserName Department
                             from GoodworkDetail GWD 
                             left join EmployeeInformation EI on EI.SystemId=GWD.EmpSystemId
@@ -320,6 +320,7 @@ namespace Aplos.Areas.Attendances.Controllers
 							LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
 							LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
 							LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+							LEFT JOIN ORG.Position PR1 ON PR1.Id=PR.GoodWorkPositionCodeId
 							left join hkp.Designation D on D.Id=ei.GivenDesignationId
                             where GWD.GoodWorkId in ('" + goodWorkId + "')";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
@@ -552,6 +553,10 @@ namespace Aplos.Areas.Attendances.Controllers
                         }
                         if (dv.Count > 0)
                         {
+                            if (item["PayDays"]==null)
+                            {
+                                item["PayDays"] = 0;
+                            }
                             ccount++;
                             string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
                             DataRow drmo = dv[0].Row;
