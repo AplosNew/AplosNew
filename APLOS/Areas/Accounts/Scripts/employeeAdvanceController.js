@@ -220,6 +220,10 @@ function employeeAdvanceController(bankService, cboService, baseService, commonM
         {
             "name": "Currency",
             "value": "CurrencyCode"
+        },
+        {
+            "name": "Status",
+            "value": "Status"
         }
     ];
     $scope.advanceDetailList = [];

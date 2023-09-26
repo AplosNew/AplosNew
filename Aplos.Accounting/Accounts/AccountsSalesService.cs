@@ -168,7 +168,7 @@ namespace Library.Accounting.Accounts
 									 , SM.TransactionUoMId, TUoM.UserName AS TransactionUoM
 									 ,C.Code CurrencyName,SM.TransactionQty,SM.TransactionRate,SM.TransactionAmount
 									  , ISNULL(SM.BaseAmount*S.ToCurrencyRate,0)+ISNULL(SM.TaxAmount*S.ToCurrencyRate,0) + ISNULL(SS.Amount*S.ToCurrencyRate,0) AS BaseAmount
-									 , SM.TaxAmount,HSNCode=ISNULL(MHSN.Code,HSN.Code) 
+									 , SM.TaxAmount,HSNCode=ISNULL(MHSN.Code,HSN.Code) ,SM.IsCanceled
 							,MGGL.GLGeneralInfoId
 							,GL.AccountCode GLGeneralInfoCode
 							,GL.UserName GLGeneralInfoName 

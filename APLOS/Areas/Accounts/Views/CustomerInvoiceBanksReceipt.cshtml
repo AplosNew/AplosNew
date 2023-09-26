@@ -446,13 +446,13 @@
                 <td>{{x.DocRefNo}}</td>
                 <td>{{x.CurrencyCode}}</td>
                 <td class="text-right">{{x.Amount | number:2}}</td>
-                <td>{{x.IsPark?'Parked':'Posted'}}</td>
+                <td>{{x.IsPark}}</td>
                 <td align="right">
                     <ul class="list-inline action-list">
-                        <li ng-show="x.IsPark"><a ng-click="confirmPost(x.InvoiceWriteOffGroupNo);" href="" class="btn btn-action tooltip-here">Post</a></li>
+                        <li ng-show="x.IsPark=='Parked'"><a ng-click="confirmPost(x.InvoiceWriteOffGroupNo);" href="" class="btn btn-action tooltip-here">Post</a></li>
                         @*<li><a class="btn btn-action" href="Accounts/invoice/CustomerInvoiceReceiptBanksReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&invoiceWriteOffGroupNo={{x.InvoiceWriteOffGroupNo}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>*@
                         @*<li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.InvoiceWriteOffGroupNo);" href="" class="btn btn-action tooltip-here">Delete</a></li>*@
-                        <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.InvoiceWriteOffGroupNo);" href="" class="btn btn-action tooltip-here">Delete</a></li>
+                        <li ng-show="x.IsPark=='Parked'"><a ng-click="confirmDelete(x.InvoiceWriteOffGroupNo);" href="" class="btn btn-action tooltip-here">Delete</a></li>
 
                         <li><a class="btn btn-action" href="Accounts/invoice/CustomerInvoiceReceiptBanksReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&invoiceWriteOffGroupNo={{x.InvoiceWriteOffGroupNo}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
                         <li><button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf" ng-click="PrintData(x);" style="margin: -6px;"></i></button></li>

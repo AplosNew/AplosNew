@@ -14,6 +14,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     baseService.init($scope.getListUrl);
     //$scope.LoadEmpListUrl = $scope.path + 'LoadPCAACEmployeelist';
     $scope.Action = 'Save';
+    $scope.PCAction = 'Save';
     $scope.passwordShow = true;
     $controller("employeeBaseController", { $scope: $scope, $http: $http });
 
@@ -29,9 +30,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     //***********************************Worker Advance Start ********************************************************//
     $scope.ModelTemp = {
         Id: null,
-        Year: null,
         YearNo: null,
-        Month: null,
         MonthNo: null,
         FromDate: null,
         ToDate: null,
@@ -45,7 +44,6 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         PreparedBy: null,
         PreparedById: null,
         Remarks: null,
-        RoundOff: null,
         PayDaysType: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
@@ -56,7 +54,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         EmpSystemId: null,
         EmployeeCode: null,
         EmployeeName: null,
-        PayDays: null,
+        PayDays: 0,
         RatePerDay: null,
         RatePerHour: null,
         Amount: null,
@@ -66,10 +64,23 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.ModelWADNew = Object.assign({}, $scope.ModelWADTemp);
 
 
-    $scope.yearList = [];
-    cboService.getCboLeaveYear(function (result) {
-        $scope.yearList = result;
-    });
+    $scope.yearlist = [];
+    $scope.GetCbo = function () {
+        $http.get('Attendances/AttendanceProcessUI/GetCbo')
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.yearlist = [];
+                        $scope.yearlist = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+    $scope.GetCbo();
+
+    $scope.ModelNew.YearNo = new Date().getFullYear().toString();
 
     $scope.monthList = [
         {
@@ -121,78 +132,30 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             Text: 'December'
         }
     ];
-    //$scope.DisabledDates = [];
+    $scope.ModelNew.MonthNo = (new Date().getMonth() + 1).toString();
 
     $scope.CalenderFunc = function () {
-        $scope._firstDay = null;
-        $scope._lastDay = null;
-        //$scope.ModelNew.FromDate = null;
-        //$scope.ModelNew.ToDate = null;
+        //$scope._firstDay = null;
+        //$scope._lastDay = null;
 
         $scope._firstDay = $filter('dateFiltering')(new Date($scope.ModelNew.YearNo, $scope.ModelNew.MonthNo - 1, 1), 'dd-MM-yyyy');
         $scope._lastDay = $filter('dateFiltering')(new Date($scope.ModelNew.YearNo, $scope.ModelNew.MonthNo, 0), 'dd-MM-yyyy');
-        //InitializeDate();
 
         $('.datepic').datepicker({
             startDate: $scope._firstDay,
             endDate: $scope._lastDay,
-            //datesDisabled: $scope.DisabledDates,
+            datesDisabled: $scope.DisabledDates,
             format: 'dd-MM-yyyy',
             todayHighlight: true,
             autoclose: true,
             inline: true,
             changeMonth: true
-        }); 
-        /* $("#GFG").datepicker("refresh");*/
+        });
+
     };
-    //function InitializeDate() {
-    //    $(".datepic").datepicker();
-    //}
+    $scope.CalenderFunc();
 
-    //$('.datepicker').datepicker({
-    //    startDate: '-1d',
-    //    endDate: '31d',
-    //    datesDisabled: $scope.DisabledDates,
-    //    format: 'dd-M-yyyy',
-    //    todayHighlight: true,
-    //    autoclose: true,
-    //    inline: true,
-    //    changeMonth: true
-    //});
 
-    $scope.popUpDataList = [];
-    $scope.showByWhomEmployeeListPopUp = function (index) {
-        try {
-            $scope.tempIndex = index;
-            $scope.popUpDataList = [];
-            $http({
-                method: 'GET',
-                url: 'Attendances/GoodWork/GetAllActiveEmployeeData'
-            }).then(function successCallback(response) {
-                $scope.popUpDataList = response.data;
-            });
-            angular.element(document.querySelector('#popUp')).modal('show');
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    };
-
-    $scope.SelectEmployee = function (arg) {
-        $scope.EmployeeMainList[$scope.tempIndex].ApprovedById = arg.data.SystemId;
-        $scope.EmployeeMainList[$scope.tempIndex].ApprovedByCode = arg.data.EmployeeCode;
-        $scope.EmployeeMainList[$scope.tempIndex].ApprovedByName = arg.data.EmployeeName;
-        $scope.closePopUp();
-    }
-
-    $scope.clearEmp = function () {
-        $scope.EmployeeMainList[$scope.tempIndex].ApprovedById = null;
-        $scope.EmployeeMainList[$scope.tempIndex].ApprovedByCode = null;
-        $scope.EmployeeMainList[$scope.tempIndex].ApprovedByName = null;
-    }
-
-    $scope.closePopUp = function () {
-        angular.element(document.querySelector('#popUp')).modal('hide');
-    }
 
     $scope.removeRow = function (data) {
         $scope.empSystemId = data.SystemId;
@@ -273,6 +236,8 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.EmployeeMainList = [];
+        $scope.ModelNew.YearNo = new Date().getFullYear().toString();
+        $scope.ModelNew.MonthNo = (new Date().getMonth() + 1).toString();
         return true;
     };
 
@@ -291,6 +256,9 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
 
     $scope.GetDblClick = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.ModelNew.YearNo = $scope.ModelNew.YearNo.toString();
+        $scope.ModelNew.MonthNo = $scope.ModelNew.MonthNo.toString();
+
         $scope.GetWorkerAdvanceDetailCenter();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
@@ -309,70 +277,99 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         });
     }
 
+    $scope.checkedByList = [];
+    $scope.GetSupervisorCboList = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetIssueSlipCheckByCbo'
+        }).then(function successCallback(response) {
+            $scope.checkedByList = response.data;
+            //for (var i = 0; i < $scope.checkedByList.length; i++) {
+            //    $scope.ModelNew.CheckedById = $scope.checkedByList[i].Value;
+            //    $scope.ModelNew.ApprovedById = $scope.checkedByList[i].Value;
+            //}
+        });
+    }
+    $scope.GetSupervisorCboList();
 
-    $scope.employeeParameters = {
-        limit: 10,
-        offset: 0,
-        order: 'asc',
-        sort: 'EmployeeCode, FirstName, MiddleName, LastName ',
-        searchBy: 'EmployeeCode',
-        pageSize: 10,
-        total_count: 0,
-        search: null,
-        serverPagination: true
-    };
+    $scope.approvedByList = [];
+    $scope.GetApprovedByList = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetApprovedByCbo'
+        }).then(function successCallback(response) {
+            $scope.approvedByList = response.data;
+            //for (var i = 0; i < $scope.checkedByList.length; i++) {
+            //    $scope.ModelNew.CheckedById = $scope.checkedByList[i].Value;
+            //    $scope.ModelNew.ApprovedById = $scope.checkedByList[i].Value;
+            //}
+        });
+    }
+    $scope.GetApprovedByList();
 
-    $scope.employeeDataList = [];
-    $scope.employeeUrl = 'OrderManagements/masterorder/GetEmployeeListResponsible';
-    $scope.showEmployeeListPopUp = function (name) {
+    //$scope.showEmployeeListPopUp = function (name) {
+    //    $scope.Name = name;
+    //    $scope.employee = [];
+    //    $http({
+    //        method: 'GET',
+    //        url: 'Attendances/GoodWork/GetPayableCreationEmployeeData'
+    //    }).then(function successCallback(response) {
+    //        $scope.employeeDataList = response.data;
+    //    });
+    //    angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
+    //}
+
+    //$scope.setEmpData = function (obj) {
+    //    //$scope.Clear();
+    //    var data = obj.data;
+    //    if ($scope.Name === 'AB') {
+    //        $scope.ModelNew.ApprovedById = data.SystemId;
+    //        $scope.ModelNew.ApprovedBy = data.EmployeeName;
+    //    }
+    //    else {
+    //        $scope.ModelNew.CheckedById = data.SystemId;
+    //        $scope.ModelNew.CheckedBy = data.EmployeeName;
+    //    }
+    //    angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+    //};
+
+    //$scope.closeEmployeePopUp = function () {
+    //    angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+    //};
+
+    $scope.popUpDataList = [];
+    $scope.showByWhomEmployeeListPopUp = function (name) {
         try {
             $scope.Name = name;
-            $scope.searchEmployeeByList = [];
-            $scope.getEmployeeData = function (pageno) {
-                baseService.paginationBase($scope.employeeUrl, pageno, $scope.employeeParameters)
-                    .then(function (result) {
-                        $scope.employeeDataList = result.Rows;
-                        $scope.employeeParameters.total_count = result.Total;
-                    }, function () {
-                        ShowResult(commonMessage.NetworkError, 'failure');
-                    }).finally(function () {
-                    });
-            };
-            angular.element(document.querySelector('#employeePopUp')).modal('show');
-            $scope.getEmployeeData();
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'employees/leaveApplication/getemployeelist'
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+            });
+            angular.element(document.querySelector('#popUp')).modal('show');
         } catch (e) {
             ShowResult(e, 'failure');
         }
     };
 
-
-    $scope.selectEmployeePopUp = function (index, id) {
-        $scope.employeeIndex = index;
-        $scope.selectedEmployee = id;
-    };
-
-    $scope.closeEmployeePopUp = function () {
-        if ($scope.employeeIndex !== -1) {
-            var employee = $scope.employeeDataList[$scope.employeeIndex];
-            if ($scope.Name === 'PB') {
-                $scope.ModelNew.PreparedById = employee.SystemId;
-                $scope.ModelNew.PreparedBy = employee.EmployeeName;
-            } else if ($scope.Name === 'AB') {
-                $scope.ModelNew.ApprovedById = employee.SystemId;
-                $scope.ModelNew.ApprovedBy = employee.EmployeeName;
-            }
-            else if ($scope.Name === 'CB') {
-                $scope.ModelNew.CheckedById = employee.SystemId;
-                $scope.ModelNew.CheckedBy = employee.EmployeeName;
-            }
-            else {
-                $scope.ModelPCNew.ByWhomId = employee.SystemId;
-                $scope.ModelPCNew.ByWhom = employee.EmployeeName;
-            }
+    $scope.SelectEmployee = function (arg) {
+        var data = arg.data;
+        if ($scope.Name === 'PB') {
+            $scope.ModelNew.PreparedById = data.SystemID;
+            $scope.ModelNew.PreparedBy = data.EmployeeName;
         }
-        $scope.hideEmployeePopUp();
-    };
+        else {
+            $scope.ModelPCNew.ByWhomId = data.SystemID;
+            $scope.ModelPCNew.ByWhom = data.EmployeeName;
+        }
+        $scope.closePopUp();
+    }
 
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#popUp')).modal('hide');
+    }
 
     $scope.EmployeeList = [];
     $scope.EmployeeMainList = [];
@@ -532,7 +529,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.ClearPayableCreation();
-                    //$scope.getData();
+                    $scope.GetGoodWorkPaymentData();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -558,7 +555,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.GetGWPDblClick = function (args) {
         $scope.ModelPCNew = Object.assign({}, args.data);
         $scope.GetLoadEmployeeInformation();
-        $scope.Action = 'Update';
+        $scope.PCAction = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }

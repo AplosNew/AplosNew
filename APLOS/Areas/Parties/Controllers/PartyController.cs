@@ -46,7 +46,11 @@ namespace Aplos.Areas.Parties.Controllers
             return View();
         }
 
-      
+        [Authorize, HttpGet]
+        public ActionResult Approve()
+        {
+            return View();
+        }
 
         [Authorize, HttpGet]
         public ActionResult Director()
@@ -376,7 +380,7 @@ namespace Aplos.Areas.Parties.Controllers
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
-                var sql = @"select top 100 * from (SELECT  P.Id AS PartyId, P.Code AS PartyCode, P.UserName AS PartyName, P.Id, P.Code, P.UserName, CP.PartyType, CP.PartyAccountGroupId, PAG.Code AS PartyAccountGroupCode, PAG.UserName AS PartyAccountGroupName, CP.CurrencyId, C.Code AS CurrencyCode, C.[Name] AS CurrencyName
+                var sql = @"select top 100 * from (SELECT CheckState=CAST(0 AS bit),P.Id AS PartyId, P.Code AS PartyCode, P.UserName AS PartyName, P.Id, P.Code, P.UserName, CP.PartyType, CP.PartyAccountGroupId, PAG.Code AS PartyAccountGroupCode, PAG.UserName AS PartyAccountGroupName, CP.CurrencyId, C.Code AS CurrencyCode, C.[Name] AS CurrencyName
                                     , CP.PaymentTermId, PT.Code AS PaymentTermCode, PT.UserName AS PaymentTermName, CP.IsPaymentTermChangeable
                                     , NULL AS InvoicingPartyPlantId, NULL AS DeliveryPartyPlantId, CO.Code AS CountryCode, CO.UserName AS CountryName, S.Code AS StateCode, S.UserName AS StateName
                                     , RGL.ReconciliationGLId, RGL.ReconciliationGLCode, RGL.ReconciliationGLName

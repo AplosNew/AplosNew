@@ -6955,7 +6955,7 @@ where EI.SystemId = '" + Id + "'";
             {
                 strSQL = @"select Top 1 EI.SystemId as Value  , EI.EmployeeName as Name from MST.ManpowerBudget MB 
 left join EmployeeInformation EI on EI.BudgetCode = MB.ROBudgetCode
-where MB.ROBudgetCode = '" + Id + "'";
+where EI.EmployeeStatus = 'Active' and MB.ROBudgetCode = '" + Id + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -7794,6 +7794,368 @@ where QII.QMID='" + IssueId + "' and QII.IsActive = 1  order by QII.SNO";
             finally
             {
                 objCon = null;
+            }
+        }
+        public void GetGIEmployee(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct EI.SystemId Value,EI.EmployeeName Name from 
+TRN.QualityIssueControl QIC
+left join dbo.EmployeeInformation EI on EI.SystemId=QIC.QGIEmployeeId
+LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QIC.QGIEmployeeId is not null 
+and QIC.QCId is null";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        public void GetPIEmployee(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct EI.SystemId Value,EI.EmployeeName Name  from 
+TRN.QualityPlanControl QPC
+left join dbo.EmployeeInformation EI on EI.SystemId=QPC.QPEmployeeId
+LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+where EI.EmployeeStatus='Active' and EI.EmployeeCode is not null and QPC.QPEmployeeId is not null 
+and QPC.QCId is null";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetResponsibleEmployee(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct EI.SystemId Value,EI.EmployeeName Name from [MST].[QualityActionResponsiblePerson] QAP
+left join dbo.EmployeeInformation EI on QAP.QualityActionResponsiblePersonId = EI.SystemId";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetProductionBookingLevel(out List<Default2> DataList,string ProcessId ,string EntityId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id Value , ProductionBookingLevel Name from hkp.EntityProcessTag where ProcessId = '" + ProcessId + "' and EntityId = '" + EntityId +  "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetArticleItems(out List<ArticleItem> DataList, string ProductionOrderId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<ArticleItem>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"SELECT DISTINCT so.MasterOrderItemId
+	                                ,ISNULL(so.Id,'') SOId
+                                    
+	                                ,ISNULL(mma.StandardName, '') Article
+                                FROM TRN.ProductionOrderDetail POD
+                               LEFT JOIN (
+	                                SELECT SUM((isnull(qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
+		                                ,s.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+	                                FROM trn.SalesOrder AS s
+	                                INNER JOIN trn.MasterOrderItem AS moi ON moi.Id = s.MasterOrderItemId
+	                                GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+	                                ) so ON POD.SalesOrderId = SO.Id
+                                LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
+                                LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
+                                LEFT JOIN (SELECT SUM(PS.Quantity) TotalProductionQty,PS.SalesOrderId,PS.ProcessId
+	                                FROM [TRN].[ProductionSummary] PS  GROUP BY PS.SalesOrderId,PS.ProcessId
+	                                ) AS PRS ON PRS.SalesOrderId = SO.Id 
+                                LEFT JOIN HKP.Party b ON b.id = mo.PartyId
+                                LEFT JOIN SCS.UnitOfMeasurement u ON u.id = mo.TotalQtyUOMId
+                                LEFT JOIN MST.MaterialMaster mm ON mm.id = moi.MaterialMasterId
+                                LEFT JOIN MST.MaterialMasterArticle mma ON mma.id = moi.ArticleId
+                                LEFT JOIN (SELECT COUNT(Id) CharCount, MaterialMasterId	FROM [MST].[MaterialMasterCharacteristics] GROUP BY MaterialMasterId
+	                                ) mmc ON mmc.MaterialMasterId = mm.id
+                                LEFT JOIN HKP.Buyer BU ON BU.Id = mo.BuyerId
+                                LEFT JOIN [TRN].ProductDefinition AS PD ON PD.MaterialMasterId = MM.Id
+                                LEFT JOIN [MST].[ProductMaster] AS PM ON PD.ProductMasterId = PM.Id
+                                LEFT JOIN (SELECT PS.UserName, PO.Id ProductionOrderId FROM [HKP].[ProductionStatus] PS
+	                                INNER JOIN TRN.ProductionOrder PO ON PO.ProductionStatusId = PS.Id
+	                                ) OS ON OS.ProductionOrderId = POD.ProductionOrderId
+                                LEFT JOIN TRN.ProductionOrder PO ON PO.Id = POD.ProductionOrderId
+                                LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id = PO.ProductionStatusId
+                                LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+                                LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
+                                LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
+                                WHERE  PS.UserName in ('Running','To Close')  AND PO.Id='" + ProductionOrderId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new ArticleItem
+                    {
+                        MasterOrderItemId = dsRef.Tables[0].Rows[i]["MasterOrderItemId"].ToString(),
+                        SOId = dsRef.Tables[0].Rows[i]["SOId"].ToString(),
+                        Article = dsRef.Tables[0].Rows[i]["Article"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public string PostQualityProcess(IEnumerable<QualityHeader> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.QualityControl";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<QualityHeader> items = DataToSave.ToList();
+
+                con.executeQuery("Delete From TRN.QualityPlanControl where QCId is null");
+                con.OpenDataSetThroughAdapter("select * from TRN.QualityControl where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                foreach (QualityHeader item in DataToSave)
+                {
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+
+                        dr["Id"] = "22" + _Id;
+                        dr["PlantId"] = item.PlantId;
+                        dr["EntityId"] = item.EntityId;
+                        dr["ProcessId"] = item.ProcessId;
+                        dr["ProductionDate"] = item.ProductionDate;
+                        dr["ProductionShiftId"] = item.ProductionShiftId;
+                        dr["ProductionOrderId"] = item.ProductionOrderId;
+                        dr["IssueId"] = item.IssueId;
+                        dr["PeriodId"] = item.PeriodId;
+                        dr["ProductionInchargeId"] = item.ProductionInchargeId;
+                        dr["LotNumber"] = item.LotNumber;
+                        dr["Remarks"] = item.Remarks;
+                        dr["MasterOrderItemId"] = item.MasterOrderItemId;
+                        dr["SalesOrderId"] = item.SalesOrderId;
+                        dr["QualityPlanId"] = item.QualityPlanId;
+                        dr["PlanType"] = item.PlanType;
+                        dr["WorkCenterId"] = item.WorkCenterId;
+                        dr["RepeatEntry"] = item.RepeatEntry;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+        public string PostQualityProcess(IEnumerable<QualityPlanProcess> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.QualityPlanControl";
+                string Id = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<QualityPlanProcess> items = DataToSave.ToList();
+                foreach (QualityPlanProcess item in DataToSave)
+                {
+                    Id += ",'" + item.Id + "'";
+                }
+
+                con.executeQuery("Delete From TRN.QualityPlanControl where QCId is null");
+                con.OpenDataSetThroughAdapter("select * from TRN.QualityPlanControl where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                foreach (QualityPlanProcess item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+
+                        dr["Id"] = "23" + _Id;
+                        dr["QPId"] = item.QPId;
+                        dr["POId"] = item.POId;
+                        dr["IssueId"] = item.IssueId;
+                        dr["DependentOn"] = item.DependentOn;
+                        dr["Date"] = item.Date;
+                        dr["QualityPlanDate"] = item.QualityPlanDate;
+                        dr["QCId"] = item.QCId;
+                        dr["QPEmployeeId"] = item.QPEmployeeId;
+                        dr["RepeatEntry"] = item.RepeatEntry;
+                        dr["LotNumber"] = item.LotNumber;
+                        dr["EntryLevel"] = item.EntryLevel;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
             }
         }
         #endregion Quality Control
@@ -9015,6 +9377,36 @@ LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
         public string Status { get; set; }
         public string ConfirmBy { get; set; }
         public string ConfirmationRemarks { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+    }
+
+    public class ArticleItem
+    {
+        public string MasterOrderItemId { get; set; }
+        public string SOId { get; set; }
+        public string Article { get; set; }
+
+    }
+    public class QualityPlanProcess
+    {
+        public string Id { get; set; }
+        public string QPId { get; set; }
+        public string POId { get; set; }
+        public string IssueId { get; set; }
+        public string DependentOn { get; set; }
+        public string Legdays { get; set; }
+        public string Date { get; set; }
+        public string QualityPlanDate { get; set; }
+        public string QCId { get; set; }
+        public string QPEmployeeId { get; set; }
+        public string RepeatEntry { get; set; }
+        public string LotNumber { get; set; }
+        public string EntryLevel { get; set; }
         public string AddedBy { get; set; }
         public string AddedDate { get; set; }
         public string AddedFromIP { get; set; }

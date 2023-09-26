@@ -1068,6 +1068,52 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetQualityChildList(out List<QualityChild> activelists, IssueId, PId);
             return activelists;
         }
+
+        public List<Default2> GetGIEmployee()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetGIEmployee(out List<Default2> activelists);
+            return activelists;
+        }
+
+        public List<Default2> GetPIEmployee()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetPIEmployee(out List<Default2> activelists);
+            return activelists;
+        }
+
+        public List<Default2> GetResponsibleEmployee()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetResponsibleEmployee(out List<Default2> activelists);
+            return activelists;
+        }
+        public List<Default2> GetProductionBookingLevel(string ProcessId, string EntityId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetProductionBookingLevel(out List<Default2> activelists, ProcessId , EntityId);
+            return activelists;
+        }
+        public List<ArticleItem> GetArticleItems(string ProductionOrderId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetArticleItems(out List<ArticleItem> activelists, ProductionOrderId);
+            return activelists;
+        }
+        public string PostQualityProcess([FromBody] IEnumerable<QualityPlanProcess> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostQualityProcess(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
         #endregion Quality control 
 
         #region Leave

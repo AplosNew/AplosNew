@@ -27,6 +27,8 @@ using Library.Model.OrderManagements;
 using Library.Service.Extension.Accounts;
 using Library.Service.Extension;
 using Library.Model.Productions;
+using Library.Crosscutting.Security;
+using System.Threading;
 
 namespace Library.Service.SalesManagements
 {
@@ -232,7 +234,9 @@ namespace Library.Service.SalesManagements
                             AddedFromIP = sales.AddedFromIP,
                             UpdatedBy = null,
                             UpdatedDate = null,
-                            UpdatedFromIP = null
+                            CanceledBy = null,
+                            IsCanceled = false,
+                             Remark=null
                         };
                         if (voucherVM.CurrencyId != companyCurrencyId)
                         {
@@ -929,34 +933,26 @@ namespace Library.Service.SalesManagements
 
         public void DeleteSalesMaterial(string Id)
         {
-            string strPSQL, strBSQL, strOSQL, updatasc=null;
+            string strPSQL, strISCSQL, strBSQL, strOSQL, updatasc=null;
             DataSet dsMaster, dsSC;
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                //string sql = "SELECT * FROM TRN.SalesMaterial WHERE Id='" + Id + "'";
-
-                //objCon = new ConnectionManager.DAL.ConManager("1");
-                //objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
-
               var smdata= _salesMaterialRepository.Find(Id);
                 var secondCharacteristicsData = _secondCharacteristicsRepository.Query(t => t.SalesOrderId == smdata.SalesOrderId && t.Id == smdata.SecondCharacteristicsId).Select(t => t.SalesQty).FirstOrDefault();
-                //string scsql = "SELECT * FROM TRN.SecondCharacteristics WHERE SalesOrderId='" + dsMaster.Tables[0].Rows[0]["SalesOrderId"].ToString() + "' AND Id='"+ dsMaster.Tables[0].Rows[0]["SecondCharacteristicsId"].ToString() + "'";
-                //objCon.OpenDataSetThroughAdapter(scsql, out dsSC, false, "1");
-
                 if (secondCharacteristicsData!=0)
                 {
                     updatasc = "Update TRN.SecondCharacteristics set SalesQty=" + secondCharacteristicsData + "-"+ smdata.BaseQty + " WHERE SalesOrderId='" + smdata.SalesOrderId + "' AND Id='" + smdata.SecondCharacteristicsId + "'";
                 }
 
-                
-
+                strISCSQL = "Update FROM ItemScanChild set SalesMaterialId=NULL,SalesId=NULL,IsDespatch=0 WHERE SalesMaterialId='" + Id + "'";
                 strOSQL = "DELETE FROM TRN.SalesTax WHERE SalesMaterialId='" + Id + "'";
                 strBSQL = "DELETE FROM TRN.SalesMaterial WHERE Id='" + Id + "'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strISCSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strOSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strBSQL, true, "1");
                 if (secondCharacteristicsData != 0)
@@ -984,6 +980,46 @@ namespace Library.Service.SalesManagements
 
         }
 
+        public void CancelSalesMaterial(string Id,string remark)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string strISCSQL, strBSQL, strOSQL = null;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                
+                strOSQL = "Update  TRN.SalesTax set BooksCurrencyTransactionAmount=0,Amount=0 WHERE SalesMaterialId='" + Id + "'";
+                strBSQL = "Update  TRN.SalesMaterial set TaxAmount=0,NetAmount=0,BaseQty=0,BaseAmount=0,TransactionQty=0,TransactionAmount=0,IsCanceled=1,Remark='"+ remark + "',CanceledBy='"+ identity.UserId+ "' WHERE Id='" + Id + "'";
+                strISCSQL = "Update  ItemScanChild set SalesMaterialId=NULL,SalesId=NULL,IsDespatch=0 WHERE SalesMaterialId='" + Id + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strOSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strBSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strISCSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception exx)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+
+        }
+        
         public void DeleteSalesService(string Id)
         {
             string strPSQL, strBSQL, strOSQL;
@@ -1661,21 +1697,15 @@ namespace Library.Service.SalesManagements
                             ThirdCharacteristicsId = salesMaterialVM.ThirdCharacteristicsId,
                             ThirdCharacteristicsValueId = salesMaterialVM.ThirdCharacteristicsValueId,
                             BaseUOMId = salesMaterialVM.BaseUOMId,
-
                             BaseRate = salesMaterialVM.BaseRate,
-                            //BaseQty = salesMaterialVM.BaseQty,
                             BaseQty = salesMaterialVM.SalesQty,
                             BaseAmount = Math.Round(salesMaterialVM.SalesQty * salesMaterialVM.BaseRate, 2),
-
                             BaseUoMFactor = salesMaterialVM.BaseUoMFactor,
                             TransactionUoMId = salesMaterialVM.BaseUOMId,
-
                             TransactionRate = salesMaterialVM.TransactionRate,
                             TransactionQty = salesMaterialVM.SalesQty,
                             TransactionAmount = Math.Round(salesMaterialVM.TransactionRate * salesMaterialVM.SalesQty, 2),
-
                             BooksCurrencyTransactionAmount = Math.Round((salesMaterialVM.TransactionRate * salesMaterialVM.SalesQty) * voucherVM.CompanyCurrencyRate, 2),
-
                             BooksCurrencyBaseRate = Math.Round(voucherVM.CompanyCurrencyRate * salesMaterialVM.TransactionRate, 4),
 
                             TaxAmount = salesMaterialVM.TaxAmount,
@@ -1687,7 +1717,10 @@ namespace Library.Service.SalesManagements
                             AddedFromIP = sales.AddedFromIP,
                             UpdatedBy = null,
                             UpdatedDate = null,
-                            UpdatedFromIP = null
+                            UpdatedFromIP = null,
+                            IsCanceled=false,
+                            CanceledBy=null,
+                            Remark=null
                         };
 
                         if (voucherVM.CurrencyId != companyCurrencyId)
@@ -1959,7 +1992,8 @@ namespace Library.Service.SalesManagements
                                 AddedFromIP = sales.AddedFromIP,
                                 UpdatedBy = sales.UpdatedBy,
                                 UpdatedDate = sales.UpdatedDate,
-                                UpdatedFromIP = sales.UpdatedFromIP
+                                UpdatedFromIP = sales.UpdatedFromIP,
+                                IsCanceled = false,
                             };
                             if (voucherVM.CurrencyId != companyCurrencyId)
                             {
@@ -2071,6 +2105,7 @@ namespace Library.Service.SalesManagements
                                 UpdatedDate = sales.UpdatedDate,
                                 UpdatedFromIP = sales.UpdatedFromIP,
                                 ModelState = ModelState.Modified
+                                ,IsCanceled=false
                             };
 
                             if (voucherVM.CurrencyId != companyCurrencyId)
@@ -3147,7 +3182,10 @@ namespace Library.Service.SalesManagements
                             AddedFromIP = sales.AddedFromIP,
                             UpdatedBy = null,
                             UpdatedDate = null,
-                            UpdatedFromIP = null
+                            UpdatedFromIP = null,
+                            IsCanceled=false,
+                            Remark=null,
+                            CanceledBy=null
                         };
 
                         if (voucherVM.CurrencyId != companyCurrencyId)

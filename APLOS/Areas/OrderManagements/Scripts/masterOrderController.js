@@ -444,10 +444,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.index = -1;
     $scope.SetProductionRef = function (ind) {
         $scope.index = ind;
-
-        $http.get("OrderManagements/MasterOrder/GetProductionRef?pg=" + $scope.itemList[$scope.index].ProductionGrouping)
+        $http.get("OrderManagements/MasterOrder/GetProductionRef?pg=" + $scope.itemList[$scope.index].OwnReferenceNo)
             .then(function (response) {
-                $scope.itemList[$scope.index].OwnReferenceNo = response.data[0].OwnReferenceNo;
+                $scope.itemList[$scope.index].ProductionGrouping = response.data[0].ProductionGrouping;
             });
     }
 
@@ -3887,9 +3886,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.TempList = [];
     $scope.SaveSOCost = function () {
         try {
-            if (baseService.isUndefinedOrNull($scope.soId)) {
-                $scope.soId = $scope.soModel.Id;
-            }
+            //if (baseService.isUndefinedOrNull($scope.soId)) {
+            //    $scope.soId = $scope.soModel.Id;
+            //}
+            $scope.soId = $scope.soModel.Id;
 
             for (var i = 0; i < $scope.costingSOConfirmList.length; i++) {
                 if ($scope.costingSOConfirmList[i].ItemValue !== $scope.costingSOConfirmList[i].SOValue) {

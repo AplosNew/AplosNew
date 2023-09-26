@@ -1,6 +1,6 @@
 ﻿'use strict';
-documentationController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function documentationController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+documentationController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller'];
+function documentationController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
     $rootScope.title = "Documentation";
     $scope.Action = 'Save';
     $scope.index = -1;
@@ -14,7 +14,8 @@ function documentationController(commonMessage, $scope, $rootScope, baseService,
     $scope.getDMSeqUrl = $scope.path + 'GetDMAutoSequence';
     $scope.saveDMUrl = $scope.path + 'CreateDocumentationMaster';
     $scope.deleteDMUrl = $scope.path + 'DeleteDocumentaitonMaster/';
-
+    $scope.partyType = "Party";
+    //  $controller("partyBaseController", { $scope: $scope, $http: $http });
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -390,7 +391,7 @@ function documentationController(commonMessage, $scope, $rootScope, baseService,
         });
     }
 
-    // #region checkbox all
+    // #region checkbox all DocumentMaster
 
     $scope.refreshTemplategrid = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
@@ -497,6 +498,119 @@ function documentationController(commonMessage, $scope, $rootScope, baseService,
 
     };
 
+    $scope.searchByParty = "UserName"; $scope.searchParty = "";
+    $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+    $scope.partyList = [];
+
+    $scope.SavedPartyDocSetList = [];
+    $scope.GetPartyDocumentSetDetailList = function () {
+        $http({
+            method: 'Get',
+            url: $scope.path + "GetPartyDocumentSetDetailList?documentSetId=" + $scope.DocumentSetId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.SavedPartyDocSetList = response.data;
+            for (var i = 0; i < $scope.SavedPartyDocSetList.length; i++) {
+                for (var j = 0; j < $scope.partyList.length; j++) {
+                    if ($scope.SavedPartyDocSetList[i].Id == $scope.partyList[j].Id) {
+                        $scope.partyList[j].CheckState = true;
+                    }
+                }
+            }
+            console.log($scope.partyList);
+        });
+    }
+
+    $scope.showPartyPopUpNew = function (obj) {
+        $scope.DocumentSetId = obj.data.Id;
+        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+
+        $http({
+            method: 'POST',
+            url: $scope.partyUrl,
+            data: { column: $scope.searchByParty, value: $scope.searchParty },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.partyList = response.data;
+            $scope.GetPartyDocumentSetDetailList();
+        });
+
+        angular.element(document.querySelector('#partyPopUp')).modal('show');
+    };
+
+
+    // #region checkbox all Party
+
+    $scope.refreshTemplatePartygrid = function (args) {
+        $("#headchkParty").ejCheckBox({ "change": CheckBoxSelectAllParty });
+    };
+
+    function CheckBoxSelectAllParty(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#partyPopUpGrid").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.partyList.length; i++) {
+                $scope.partyList[i].CheckState = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#partyPopUpGrid").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
+
+    $scope.SelectedpartyList = [];
+    $scope.closeAndSave = function () {
+        try {
+            for (var i = 0; i < $scope.partyList.length; i++) {
+                if ($scope.partyList[i].CheckState == true) {
+                    $scope.SelectedpartyList.push($scope.partyList[i]);
+
+                }
+            }
+
+            if (baseService.arrayLength($scope.SelectedpartyList) === 0) {
+                throw "Select Party.";
+            }
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/documentation/CreateDocumentSetWithParty',
+                data: {
+                    'DocumentSetId': $scope.DocumentSetId,
+                    'SelectedpartyList': JSON.stringify($scope.SelectedpartyList)
+                },
+                dataType: 'JSON'
+                , contentType: "application/json charset=utf-8"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+            
+
+            angular.element(document.querySelector('#partyPopUp')).modal('hide');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    
+   
 
 
 }

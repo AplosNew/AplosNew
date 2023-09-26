@@ -2017,8 +2017,9 @@ WHERE BM.Id='"+ BankMasterID + "'";
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return @"SELECT  VD.Id AS VoucherDetailId  ,V.VoucherNo,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') AS VoucherDate
-                                             ,VD.DocRefNo, VD.PartyType, VD.Narration ,GLT.DrAmount AS Amount 
-	                                         ,'' BankReconciliationUploadedDataId,'' BankRefNo,'' BankParticulars
+                                       ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS PostingDate
+                                       ,VD.DocRefNo, VD.PartyType, VD.Narration ,GLT.DrAmount AS Amount 
+	                                   ,'' BankReconciliationUploadedDataId,'' BankRefNo,'' BankParticulars
                                        FROM TRN.VoucherDetail AS VD
                                        INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
                                        INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
@@ -2028,7 +2029,9 @@ WHERE BM.Id='"+ BankMasterID + "'";
                                        AND VD.DrAmount<>0.0000 
                                        AND VD.Id NOT IN(select VoucherDetailId from TRN.BankReconciliationMap) 
 UNION ALL
-								SELECT  '' VoucherDetailId,'' VoucherNo,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  VoucherDate ,'' DocRefNo, '' PartyType, '' Narration
+								SELECT  '' VoucherDetailId,'' VoucherNo,REPLACE(CONVERT(CHAR(11), BRUD.Addeddate, 106),' ','-') AS  VoucherDate 
+								,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  PostingDate 
+                                ,'' DocRefNo, '' PartyType, '' Narration
 								, CrAmount AS Amount ,BRUD.Id BankReconciliationUploadedDataId, BankRefNo,BankParticulars
                                 FROM TRN.BankReconciliationUploadedData  BRUD
                                 INNER JOIN TRN.BankReconciliationUpload BRU ON BRU.Id=BRUD.BankReconciliationUploadId
@@ -2040,8 +2043,9 @@ UNION ALL
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return @"SELECT  VD.Id AS VoucherDetailId  ,V.VoucherNo,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') AS VoucherDate
-                                             ,VD.DocRefNo, VD.PartyType, VD.Narration ,GLT.CrAmount AS Amount 
-	                                         ,'' BankReconciliationUploadedDataId,'' BankRefNo,'' BankParticulars
+                                      ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS PostingDate
+                                      ,VD.DocRefNo, VD.PartyType, VD.Narration ,GLT.CrAmount AS Amount 
+	                                   ,'' BankReconciliationUploadedDataId,'' BankRefNo,'' BankParticulars
                                        FROM TRN.VoucherDetail AS VD
                                        INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
                                        INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
@@ -2051,7 +2055,9 @@ UNION ALL
                                        AND VD.CrAmount<>0.0000 
                                        AND VD.Id NOT IN(select VoucherDetailId from TRN.BankReconciliationMap) 
 UNION ALL
-								SELECT  '' VoucherDetailId,'' VoucherNo,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  VoucherDate ,'' DocRefNo, '' PartyType, '' Narration
+								SELECT  '' VoucherDetailId,'' VoucherNo,REPLACE(CONVERT(CHAR(11), BRUD.Addeddate, 106),' ','-') AS  VoucherDate 
+								,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  PostingDate 
+                                ,'' DocRefNo, '' PartyType, '' Narration
 								, DrAmount AS Amount ,BRUD.Id BankReconciliationUploadedDataId, BankRefNo,BankParticulars
                                 FROM TRN.BankReconciliationUploadedData  BRUD
                                 INNER JOIN TRN.BankReconciliationUpload BRU ON BRU.Id=BRUD.BankReconciliationUploadId
@@ -2548,9 +2554,13 @@ UNION ALL
                 ROW = 10;
                 COL = 1;
                 #endregion
-                sheet[ROW, COL].Text = "Date";
+                sheet[ROW, COL].Text = "Entry Date";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int colVoucherDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Posting Date";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colPostingDate = COL;
                 COL++;
                 sheet[ROW, COL].Text = "VoucherRowId";
                 sheet[ROW, COL].ColumnWidth = 15;
@@ -2604,6 +2614,7 @@ UNION ALL
                 for (int i = 0; i < dtDRBR.Rows.Count; i++)
                 {
                     sheet[ROW, colVoucherDate].Text = dtDRBR.Rows[i]["VoucherDate"].ToString();
+                    sheet[ROW, colPostingDate].Text = dtDRBR.Rows[i]["PostingDate"].ToString();
                     sheet[ROW, colId].Text = dtDRBR.Rows[i]["VoucherDetailId"].ToString();
                     sheet[ROW, colBankReconciliationUploadedDataId].Text = dtDRBR.Rows[i]["BankReconciliationUploadedDataId"].ToString();
                     sheet[ROW, colDocRefNo].Text = dtDRBR.Rows[i]["DocRefNo"].ToString();
@@ -2750,9 +2761,13 @@ UNION ALL
                 ROW = 10;
                 COL = 1;
                 #endregion
-                sheet[ROW, COL].Text = "Date";
+                sheet[ROW, COL].Text = "Entry Date";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int colVoucherDate = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Posting Date";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colPostingDate = COL;
                 COL++;
                 sheet[ROW, COL].Text = "VoucherRowId";
                 sheet[ROW, COL].ColumnWidth = 15;
@@ -2806,6 +2821,7 @@ UNION ALL
                 for (int i = 0; i < dtDRBR.Rows.Count; i++)
                 {
                     sheet[ROW, colVoucherDate].Text = dtDRBR.Rows[i]["VoucherDate"].ToString();
+                    sheet[ROW, colPostingDate].Text = dtDRBR.Rows[i]["PostingDate"].ToString();
                     sheet[ROW, colId].Text = dtDRBR.Rows[i]["VoucherDetailId"].ToString();
                     sheet[ROW, colBankReconciliationUploadedDataId].Text = dtDRBR.Rows[i]["BankReconciliationUploadedDataId"].ToString();
                     sheet[ROW, colDocRefNo].Text = dtDRBR.Rows[i]["DocRefNo"].ToString();

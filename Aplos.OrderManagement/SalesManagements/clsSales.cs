@@ -201,7 +201,8 @@ namespace Library.OrderManagement.Sales
             var cmdText = @"SELECT SM.Id, SM.SalesId, MGM.UserName AS MaterialGroupMasterName, SM.MaterialMasterId, MM.UserName MaterialMasterName, SM.ArticleId, ART.StandardName AS ArticleName
             , SM.TransactionQty,BUoM.UserName AS BaseUoM, SM.BaseUOMId, SM.TransactionUoMId, TUoM.UserName AS TransactionUoM, SM.TransactionRate
             , CU.Code AS Currency, SM.TransactionAmount, SM.TaxAmount, SM.NetAmount, NULL TaxList ,FC.ValueFreeText,FCV.UserName AS [FreeText] 
-            , SCV.UserName AS SecondCharacteristicsValue,TCV.UserName AS ThirdCharacteristicsValue 
+            , SCV.UserName AS SecondCharacteristicsValue,TCV.UserName AS ThirdCharacteristicsValue,SM.FirstCharacteristicsValueId,SM.SecondCharacteristicsValueId,SM.ThirdCharacteristicsValueId 
+			, SM.IsCanceled,SM.CanceledBy,SM.Remark,SM.FirstCharacteristicsId,SM.SecondCharacteristicsId,SM.ThirdCharacteristicsId
             FROM TRN.SalesMaterial AS SM 
             LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
             LEFT JOIN MST.MaterialMaster AS MM ON MM.Id=SM.MaterialMasterId
@@ -210,7 +211,7 @@ namespace Library.OrderManagement.Sales
             LEFT JOIN TRN.FirstCharacteristics AS FC ON FC.Id=SM.FirstCharacteristicsId
             LEFT JOIN HKP.CharacteristicsValue AS FCV ON FCV.Id=SM.FirstCharacteristicsValueId
             LEFT JOIN TRN.SecondCharacteristics AS SC ON SC.Id=SM.SecondCharacteristicsId
-            LEFT JOIN HKP.CharacteristicsValue AS SCV ON SCV.Id=SM.SecondCharacteristicsId
+            LEFT JOIN HKP.CharacteristicsValue AS SCV ON SCV.Id=SM.SecondCharacteristicsValueId
             LEFT JOIN TRN.ThirdCharacteristics AS TC ON TC.Id=SM.ThirdCharacteristicsId
             LEFT JOIN HKP.CharacteristicsValue AS TCV ON TCV.Id=SM.ThirdCharacteristicsValueId
             LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
@@ -1598,6 +1599,60 @@ WHERE sm.Id IN(" + Ids + ")";
                                 LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
 								LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
                                 LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
+                                WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest'  
+								AND PR.Id IN(select GoodWorkPositionCodeId from org.position WHERE GoodWorkPositionCodeId<>'')
+								Order by EmployeeCodeNumeric";
+				return _sqlRepository.GetDataCollection(CmdText);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		public IEnumerable<object> GetPayableCreationEmployeeData()
+		{
+			try
+			{
+				string CmdText = @"SELECT E.SystemId
+							    	,E.PlantId
+							    	,E.GroupID
+							    	,E.CompanyId
+							    	,E.EmployeeCode,E.EmployeeName
+							    	,PMB.Code BudgetCode
+							    	,PR.UserName PositionName 
+                                    ,E.DepartmentId
+                                    ,E.DivisionId
+									,E.SectionId
+							    	,E.EmpType
+							    	,E.GivenDesignationId 
+							    	,EN.UserName EntityName
+							    	,D.UserName Designation
+							    	,GD.UserName GivenDesignation
+                                    ,LD.UserName LegalDesignation
+							    	,DEPT.UserName AS Department
+							    	,DV.UserName AS Division
+									,SC.UserName AS Section
+                                    ,E.EmployeeCode 
+                                    ,P.UserName Plant
+									,SS.UserName SubSection 
+                                     ,isnull( L.UserName,'') Line,EC.UserName EmployeeCategory
+							    FROM EmployeeInformation E
+							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
+							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
+							    LEFT JOIN ORG.Department DEPT ON E.DepartmentId = DEPT.Id
+							    LEFT JOIN ORG.Division DV ON E.DivisionId = DV.Id
+							    LEFT JOIN ORG.Section SC ON E.SectionId = SC.Id
+							    LEFT JOIN ORG.Entity EN ON PMB.EntityId = EN.Id
+							    LEFT JOIN HKP.Designation D ON PR.DesignationId = D.Id
+							    LEFT JOIN HKP.Designation GD ON E.GivenDesignationId = GD.Id
+                                LEFT JOIN HKP.LegalDesignation LD ON E.LegalDesignationId = LD.Id
+                                LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
+								LEFT JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+                                LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
+								LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
+								left join [MST].[DesignationMaster] DM on DM.DesignationId=E.GivenDesignationId
+								left join [HKP].[EmployeeCategory] EC on EC.Id=DM.EmployeeCategoryId
                                 WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest'  
 								AND PR.Id IN(select GoodWorkPositionCodeId from org.position WHERE GoodWorkPositionCodeId<>'')
 								Order by EmployeeCodeNumeric";

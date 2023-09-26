@@ -5,9 +5,11 @@ using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
+using Library.Model.Parties;
 using Library.Model.Setups;
 using Library.Service.Enums;
 using Library.Service.Setups;
+using Newtonsoft.Json;
 using OTSBD;
 using System;
 using System.Collections.Generic;
@@ -39,15 +41,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
         #endregion Constructor
        
-
-
-        [Authorize]
         public ActionResult Aplos()
         {
             return View();
         }
 
-        [HttpPost]
+        [HttpPost,Authorize]
         public ActionResult GetList(string column, string value)
         {
             string strkey = "1=1";
@@ -203,7 +202,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             dr.EndEdit();
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult GetDMList(string column, string value)
         {
             string strkey = "1=1";
@@ -370,6 +369,87 @@ Where DSD.DocumentSetId='" + documentSetId + "' ORDER BY DM.Sequence";
             {
                 return Json(new { Error = true, Message = ex.Message });
             }
+        }
+
+        [HttpPost,Authorize]
+        public JsonResult CreateDocumentSetWithParty(string DocumentSetId, string SelectedpartyList)
+        {
+            try
+            {
+                var settings = new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                    MissingMemberHandling = MissingMemberHandling.Ignore
+                };
+                List<Party> party = JsonConvert.DeserializeObject<List<Party>>(SelectedpartyList, settings);
+
+                SaveDocumentSetWithParty(DocumentSetId, party);
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+
+        }
+
+        private void SaveDocumentSetWithParty(string DocumentSetId, List<Party> party)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsParty;
+            string id = string.Empty;
+            try
+            {
+                foreach (var item in party)
+                {
+                    if (id == "")
+                        id = "'" + item.Id + "'";
+                    else
+                        id = id + ",'" + item.Id + "'";
+                }
+                string mosql = "SELECT * FROM HKP.Party WHERE Id IN (" + id + ")";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(mosql, out dsParty, false, "1");
+
+                foreach (var item in party)
+                {
+                    DataView dv = new DataView(dsParty.Tables[0]);
+                    dv.RowFilter = "Id='" + item.Id + "'";
+                    
+                    if (dv.Count > 0)
+                    {
+                        DataRow drmo = dv[0].Row;
+
+                        drmo.BeginEdit();
+
+                        drmo["DocumentSetId"] = DocumentSetId;
+                        drmo["UpdatedBy"] = identity.Name;
+                        drmo["UpdatedDate"] = DateTime.Now.ToString();
+                        drmo["UpdatedFromIP"] = identity.IPAddress;
+
+                        drmo.EndEdit();
+
+                    }
+
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsParty);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetPartyDocumentSetDetailList(string documentSetId)
+        {
+            string sql = @"SELECT * FROM HKP.Party WHERE DocumentSetId='"+ documentSetId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
 

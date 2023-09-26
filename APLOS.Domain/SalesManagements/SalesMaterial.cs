@@ -34,6 +34,9 @@ namespace Library.Model.SalesManagements
 
         public string PostCrActivityId { get; set; }
         public string GoodsDescription { get; set; }
+        public bool IsCanceled { get; set; }
+        public string Remark { get; set; }
+        public string CanceledBy { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties

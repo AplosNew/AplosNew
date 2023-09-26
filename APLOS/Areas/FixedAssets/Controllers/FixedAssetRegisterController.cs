@@ -1719,6 +1719,12 @@ namespace Aplos.Areas.FixedAssets.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_fixedAssetQueryService.GetAssetRegisterList(identity.CompanyGroupId, identity.CompanyId, column, value), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public JsonResult GetAssetRegisterChildAdditionList(string masterId)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetAssetRegisterChildAdditionList(masterId), JsonRequestBehavior.AllowGet);
+        }
         [HttpPost, Authorize]
         public JsonResult GetAssetRegisterUpdateList(string column, string value, string capitalizationMasterId)
         {

@@ -680,24 +680,8 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
         }).then(function successCallback(response) {
             $scope.employeeAdvanceDataList = response.data;
         });
-        angular.element(document.querySelector('#employeeAdvancePopUp')).modal('show');
+        angular.element(document.querySelector('#employeeSalaryAdvancePopUp')).modal('show');
     };
-
-    //$scope.showEmployeeAdvanceSalaryPopUpList = function (employeeId) {
-    //    $scope.compareCurrencyId = $scope.advance.CurrencyId;
-    //    $scope.getEmployeeAdvanceData = function (pageno) {
-    //        baseService.paginationBase($scope.employeeAdvanceSalaryUrl, pageno, $scope.employeeAdvanceParameters)
-    //            .then(function (response) {
-    //                $scope.employeeAdvanceDataList = response.Rows;
-    //                $scope.employeeAdvanceParameters.total_count = response.Total;
-    //            }, function () {
-    //                ShowResult(commonMessage.NetworkError, 'failure');
-    //            }).finally(function () {
-    //            });
-    //    };
-    //    angular.element(document.querySelector('#employeeAdvancePopUp')).modal('show');
-    //    $scope.getEmployeeAdvanceData();
-    //};
 
     $scope.clearBankPopUp = function () {
         $scope.advance.BankMasterId = null;
@@ -753,14 +737,14 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
         $scope.advance.JournalType = data.JournalType;
         $scope.GetEmployeeTransactionNo($scope.advance.EmployeeId);
         $scope.closeEmployeePopUp();
-        angular.element(document.querySelector("#employeeAdvancePopUp")).modal("hide");
+        angular.element(document.querySelector("#employeeSalaryAdvancePopUp")).modal("hide");
     };
 
     $scope.closeEmployeePopUp = function () {
         angular.element(document.querySelector('#employeeTotalAdvancePopUp')).modal('hide');
     };
     $scope.closeEmployeeSalaryPopUp = function () {
-        angular.element(document.querySelector('#employeeAdvancePopUp')).modal('hide');
+        angular.element(document.querySelector('#employeeSalaryAdvancePopUp')).modal('hide');
     };
 
 
@@ -799,11 +783,9 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
 
     //TODO:Report
 
-    $scope.EmployeeAdvanceDueList = function () { 
-
-        //var MasterOrderId = "1935";
+    $scope.EmployeeSalaryAdvanceDueList = function () {
         try {
-            var file_src = $scope.url + "/EmployeeAdvanceDueList"; 
+            var file_src = $scope.url + "/EmployeeSalaryAdvanceDueList";
             $rootScope.report(file_src);
 
 
@@ -834,7 +816,6 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    //$window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
                     $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
                 }
             }, function errorCallback(response) {

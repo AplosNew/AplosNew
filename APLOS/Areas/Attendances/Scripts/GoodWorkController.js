@@ -20,17 +20,23 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.ModelTemp = {
         Id: null,
         WorkDate: null,
+        EmployeeCategoryId: null,
         EmployeeCategory: null,
+        DepartmentId: null,
         Department: null,
+        SubSectionId: null,
         SubSection: null,
+        SectionId: null,
         Section: null,
+        DesignationId: null,
         Designation: null,
         ShiftId: null,
         Shift: null,
         FromTime: null,
         ToTime: null,
-        CalculatedTime: null,
+        Minute: null,
         Remarks: null,
+        UserGroupId: null,
         UserGroup: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
@@ -53,7 +59,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         EmployeeName: null,
         FromTime: null,
         ToTime: null,
-        CalculatedTime: null,
+        Minute: null,
         Purpose: null,
         PurposeCategory: null,
         ApprovedById: null,
@@ -120,28 +126,43 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.EmployeeList = [];
     $scope.getEmploymeeList = function () {
         try {
-            if (!baseService.isUndefinedOrNull($scope.ModelNew.FromTime) && !baseService.isUndefinedOrNull($scope.ModelNew.ToTime) && !baseService.isUndefinedOrNull($scope.ModelNew.UserGroup)
-                && !baseService.isUndefinedOrNull($scope.ModelNew.WorkDate)) {
-                $http.get($scope.LoadEmpListUrl + '?empCategory=' + $scope.ModelNew.EmployeeCategory + '&department=' + $scope.ModelNew.Department + '&section=' + $scope.ModelNew.Section
-                    + '&subSection=' + $scope.ModelNew.SubSection + '&designation=' + $scope.ModelNew.Designation + '&userGroup=' + $scope.ModelNew.UserGroup)
-                    .then(function successCallback(response) {
-                        if (response.data.Error === true) {
-                            ShowResult(response.Message, 'failure');
+            if (!baseService.isUndefinedOrNull($scope.ModelNew.FromTime)) {
+                if (!baseService.isUndefinedOrNull($scope.ModelNew.ToTime)) {
+                    if (!baseService.isUndefinedOrNull($scope.ModelNew.WorkDate)) {
+                        if ($scope.ModelNew.Minute > 0) {
+
+                        $http.get($scope.LoadEmpListUrl + '?empCategory=' + $scope.ModelNew.EmployeeCategoryId + '&department=' + $scope.ModelNew.DepartmentId + '&section=' + $scope.ModelNew.SectionId
+                            + '&subSection=' + $scope.ModelNew.SubSectionId + '&designation=' + $scope.ModelNew.DesignationId + '&userGroup=' + $scope.ModelNew.UserGroupId)
+                            .then(function successCallback(response) {
+                                if (response.data.Error === true) {
+                                    ShowResult(response.Message, 'failure');
+                                }
+                                else {
+                                    $scope.EmployeeList = response.data;
+                                    angular.element(document.querySelector("#dialogEmployeeInfo")).modal("show");
+                                    //var eDialog = $("#dialogEmployeeInfo").data("ejDialog");
+                                    //eDialog.open();
+                                }
+                            },
+                                function errorCallBack(response) {
+                                    ShowResult(response.Message, 'failure');
+                                });
                         }
                         else {
-                            $scope.EmployeeList = response.data;
-                            angular.element(document.querySelector("#dialogEmployeeInfo")).modal("show");
-                            //var eDialog = $("#dialogEmployeeInfo").data("ejDialog");
-                            //eDialog.open();
+                            throw "Calculated minute should not be negative value!";
                         }
-                    },
-                        function errorCallBack(response) {
-                            ShowResult(response.Message, 'failure');
-                        });
+                    }
+                    else {
+                        throw "Select Work Date!";
+                    }
+                }
+                else {
+                    throw "Select To Time!";
+                }
             }
 
             else {
-                throw "Select Work Date,From Time, To Time & User Group";
+                throw "Select From Time!";
             }
         }
         catch (e) {
@@ -177,24 +198,24 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
 
     $scope.GetSelectedEmployeeList = function () {
         try {
-            for (var y = 0; y < $scope.ModelList.length; y++) {
-                for (var i = 0; i < $scope.EmployeeList.length; i++) {
-                    if ($scope.ModelList[y].EmpSystemId != $scope.EmployeeList[i].SystemId || $scope.ModelList[y].WorkDate != $scope.ModelNew.WorkDate) {
-                        if (checkItemExist($scope.GoodWorkList, $scope.EmployeeList[i].SystemId) === false) {
-                            if ($scope.EmployeeList[i].CheckBoxSelect === true) {
-                                $scope.EmployeeList[i].FromTime = $scope.ModelNew.FromTime;
-                                $scope.EmployeeList[i].ToTime = $scope.ModelNew.ToTime;
-                                $scope.EmployeeList[i].CalculatedTime = $scope.ModelNew.CalculatedTime;
-                                $scope.GoodWorkList.push($scope.EmployeeList[i]);
-                            }
-                        }
-                    angular.element(document.querySelector("#dialogEmployeeInfo")).modal("hide");
+            //for (var y = 0; y < $scope.ModelList.length; y++) {
+            for (var i = 0; i < $scope.EmployeeList.length; i++) {
+                //if (+$scope.ModelList[y].WorkDate != $scope.ModelNew.WorkDate) {
+                if (checkItemExist($scope.GoodWorkList, $scope.EmployeeList[i].SystemId) === false) {
+                    if ($scope.EmployeeList[i].CheckBoxSelect === true) {
+                        $scope.EmployeeList[i].FromTime = $scope.ModelNew.FromTime;
+                        $scope.EmployeeList[i].ToTime = $scope.ModelNew.ToTime;
+                        $scope.EmployeeList[i].Minute = $scope.ModelNew.Minute;
+                        $scope.GoodWorkList.push($scope.EmployeeList[i]);
                     }
-                    else {
-                    throw "This employee already added in that Date";
                 }
-                }
+                angular.element(document.querySelector("#dialogEmployeeInfo")).modal("hide");
+                //    }
+                //    else {
+                //    throw "This employee already added in that Date";
+                //}
             }
+            //}
         }
         catch (e) {
             ShowResult(e, "failure");
@@ -257,7 +278,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
                 }).then(function successCallback(response) {
 
                     /*data.CalculatedTime = response.data;*/
-                    $scope.ModelNew.CalculatedTime = response.data;
+                    $scope.ModelNew.Minute = response.data;
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 }
@@ -277,7 +298,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
                     data: { 'data': $scope.ModelNewtemp },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
-                    $scope.ModelNewtemp.CalculatedTime = response.data;
+                    $scope.ModelNewtemp.Minute = response.data;
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 }
@@ -393,6 +414,25 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.GoodWorkList = resp.data;
+            for (var i = 0; i < $scope.EmployeeCategoryList.length; i++) {
+                if ($scope.EmployeeCategoryList[i].Id == $scope.GoodWorkList[0].EmployeeCategoryId) {
+                    $scope.ModelNew.EmployeeCategoryId = $scope.GoodWorkList[0].EmployeeCategoryId;
+                    $scope.ModelNew.EmployeeCategory = $scope.GoodWorkList[0].EmployeeCategory;
+                    break;
+                }
+
+            }
+            $scope.ModelNew.DepartmentId = $scope.GoodWorkList[0].DepartmentId;
+            $scope.ModelNew.Department = $scope.GoodWorkList[0].Department;
+            $scope.ModelNew.SectionId = $scope.GoodWorkList[0].SectionId;
+            $scope.ModelNew.Section = $scope.GoodWorkList[0].Section;
+            $scope.ModelNew.SubSectionId = $scope.GoodWorkList[0].SubSectionId;
+            $scope.ModelNew.SubSection = $scope.GoodWorkList[0].SubSection;
+            $scope.ModelNew.DesignationId = $scope.GoodWorkList[0].DesignationId;
+            $scope.ModelNew.Designation = $scope.GoodWorkList[0].Designation;
+            $scope.ModelNew.UserGroupId = $scope.GoodWorkList[0].UserGroupId;
+            $scope.ModelNew.UserGroup = $scope.GoodWorkList[0].UserGroup;
+
         });
     }
 

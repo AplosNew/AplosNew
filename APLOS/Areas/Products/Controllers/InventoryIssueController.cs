@@ -632,7 +632,7 @@ namespace Aplos.Areas.Products.Controllers
                             LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
                             LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
                             LEFT JOIN [TRN].[InventoryIssue] IRM ON  IRM.Id=IID.InventoryIssueId
-                            LEFT join[ORG].[CostCenter] CC On CC.Id=IID.CostCenterId
+                            LEFT join [ORG].[CostCenter] CC On CC.Id=IID.CostCenterId
                             LEFT JOIN (SELECT DISTINCT InventoryIssueDetailId,MaterialStorageId FROM TRN.InventoryIssueHistory WHERE MaterialStorageId='"+ MaterialStorageId + @"' )IIH ON IIH.InventoryIssueDetailId=IID.Id
                             Where CAST(IRM.IssueDate AS DATE) between '" + fromDate + @"' and '" + toDate + "' and CC.Id='" + CostCenterId + "' AND IIH.MaterialStorageId='" + MaterialStorageId + "'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
