@@ -20,7 +20,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.ModelTemp = {
         Id: null,
         WorkDate: null,
-        EmployeeCategoryId:null,
+        EmployeeCategoryId: null,
         EmployeeCategory: null,
         DepartmentId: null,
         Department: null,
@@ -36,6 +36,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         ToTime: null,
         Minute: null,
         Remarks: null,
+        UserGroupId: null,
         UserGroup: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
@@ -125,28 +126,43 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.EmployeeList = [];
     $scope.getEmploymeeList = function () {
         try {
-            if (!baseService.isUndefinedOrNull($scope.ModelNew.FromTime) && !baseService.isUndefinedOrNull($scope.ModelNew.ToTime)
-                && !baseService.isUndefinedOrNull($scope.ModelNew.WorkDate)) {
-                $http.get($scope.LoadEmpListUrl + '?empCategory=' + $scope.ModelNew.EmployeeCategory + '&department=' + $scope.ModelNew.Department + '&section=' + $scope.ModelNew.Section
-                    + '&subSection=' + $scope.ModelNew.SubSection + '&designation=' + $scope.ModelNew.Designation + '&userGroup=' + $scope.ModelNew.UserGroup)
-                    .then(function successCallback(response) {
-                        if (response.data.Error === true) {
-                            ShowResult(response.Message, 'failure');
+            if (!baseService.isUndefinedOrNull($scope.ModelNew.FromTime)) {
+                if (!baseService.isUndefinedOrNull($scope.ModelNew.ToTime)) {
+                    if (!baseService.isUndefinedOrNull($scope.ModelNew.WorkDate)) {
+                        if ($scope.ModelNew.Minute > 0) {
+
+                        $http.get($scope.LoadEmpListUrl + '?empCategory=' + $scope.ModelNew.EmployeeCategoryId + '&department=' + $scope.ModelNew.DepartmentId + '&section=' + $scope.ModelNew.SectionId
+                            + '&subSection=' + $scope.ModelNew.SubSectionId + '&designation=' + $scope.ModelNew.DesignationId + '&userGroup=' + $scope.ModelNew.UserGroupId)
+                            .then(function successCallback(response) {
+                                if (response.data.Error === true) {
+                                    ShowResult(response.Message, 'failure');
+                                }
+                                else {
+                                    $scope.EmployeeList = response.data;
+                                    angular.element(document.querySelector("#dialogEmployeeInfo")).modal("show");
+                                    //var eDialog = $("#dialogEmployeeInfo").data("ejDialog");
+                                    //eDialog.open();
+                                }
+                            },
+                                function errorCallBack(response) {
+                                    ShowResult(response.Message, 'failure');
+                                });
                         }
                         else {
-                            $scope.EmployeeList = response.data;
-                            angular.element(document.querySelector("#dialogEmployeeInfo")).modal("show");
-                            //var eDialog = $("#dialogEmployeeInfo").data("ejDialog");
-                            //eDialog.open();
+                            throw "Calculated Minute should not be Minus Value!";
                         }
-                    },
-                        function errorCallBack(response) {
-                            ShowResult(response.Message, 'failure');
-                        });
+                    }
+                    else {
+                        throw "Select Work Date Plz!";
+                    }
+                }
+                else {
+                    throw "Select To Time Plz!";
+                }
             }
 
             else {
-                throw "Select Work Date,From Time, To Time & User Group";
+                throw "Select From Time Plz!";
             }
         }
         catch (e) {

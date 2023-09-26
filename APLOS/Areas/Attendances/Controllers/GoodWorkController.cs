@@ -219,7 +219,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             item["Purpose"] = item["Purpose"];
                             item["PurposeCategory"] = item["PurposeCategory"];
                             item["ApprovedById"] = item["ApprovedById"];
-                            item["Minute"] = item["CalculatedTime"];
+                            item["Minute"] = item["Minute"];
                             item["Remarks"] = item["Remark"];
 
                             materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
