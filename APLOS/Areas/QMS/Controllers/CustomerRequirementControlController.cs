@@ -62,7 +62,7 @@ namespace Aplos.Areas.QMS.Controllers
                 sql = @"select PAG.UserName CustomerType,XP.UserName Customer,
 MOI.Id LineItemNo,MM.UserName Material,MA.StandardName Article,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,
 PL.Code ProductLibraryCode,PL.UserName ProductLibrary,MOI.ProductionGrouping,POD.ProductionOrderId PONo,MOI.TotalQty ItemQty,
-MOI.Remark,PS.UserName POStatus,CUP.Id,CUP.EmployeeId,CUP.ApprovedById,CUP.CriticalLevel,CUP.Remarks
+MOI.Remark,PS.UserName POStatus,CUP.Id,CUP.EmployeeId,CUP.ApprovedById,CUP.CriticalLevel,CUP.Remarks,MO.Id MasterOrderNo
 from TRN.SalesOrder SO
 left join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 left join MST.MaterialMaster MM on MM.Id=MOI.MaterialMasterId 
