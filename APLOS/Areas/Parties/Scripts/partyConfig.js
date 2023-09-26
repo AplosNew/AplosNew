@@ -137,6 +137,10 @@ function PartyConfig($routeProvider, $locationProvider) {
             templateUrl: "Parties/PartyReport/PartyPaymentStatusReport",
             controller: "partyPaymentStatusReportController"
         })
+        .when("/party-approve", {
+            templateUrl: "Parties/Party/Approve",
+            controller: "partyApprovalController"
+        })
 
 
 

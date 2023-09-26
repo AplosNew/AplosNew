@@ -46,7 +46,11 @@ namespace Aplos.Areas.Parties.Controllers
             return View();
         }
 
-      
+        [Authorize, HttpGet]
+        public ActionResult Approve()
+        {
+            return View();
+        }
 
         [Authorize, HttpGet]
         public ActionResult Director()

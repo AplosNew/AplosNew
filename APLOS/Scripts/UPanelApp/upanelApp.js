@@ -1214,6 +1214,7 @@ upanelApp.controller("BtbPerformanceController", BtbPerformanceController)
 upanelApp.controller("CustomerRequirementControlController", CustomerRequirementControlController)
 upanelApp.controller("CustomerConfirmationParameterController", CustomerConfirmationParameterController)
 upanelApp.controller("CustomerCompletedParameterController", CustomerCompletedParameterController)
+upanelApp.controller("partyApprovalController", partyApprovalController)
 
 
 

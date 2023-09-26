@@ -2115,6 +2115,7 @@
     <Content Include="Areas\OrderManagements\Scripts\documentationController.js" />
     <Content Include="Areas\Packing\Scripts\packingConfig.js" />
     <Content Include="Areas\HumanResource\Scripts\WebBasedPackingController.js" />
+    <Content Include="Areas\Parties\Scripts\partyApprovalController.js" />
     <Content Include="Areas\Processes\Scripts\ProcessManagementController.js" />
     <Content Include="Areas\Processes\Scripts\ProcessTemplateController.js" />
     <Content Include="Areas\Productions\Scripts\DailyPlanningAndProductionReportController.js" />
@@ -4805,6 +4806,7 @@
     <Content Include="Areas\FixedAssets\Views\AssetDepreciationPost.cshtml" />
     <Content Include="Areas\Commercial\Views\LCReports\btb.cshtml" />
     <Content Include="Areas\FixedAssets\Views\AssetsDepreciationReport.cshtml" />
+    <Content Include="Areas\Parties\Views\Party\Approve.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
