@@ -149,20 +149,20 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
                                 });
                         }
                         else {
-                            throw "Calculated Minute should not be Minus Value!";
+                            throw "Calculated minute should not be negative value!";
                         }
                     }
                     else {
-                        throw "Select Work Date Plz!";
+                        throw "Select Work Date!";
                     }
                 }
                 else {
-                    throw "Select To Time Plz!";
+                    throw "Select To Time!";
                 }
             }
 
             else {
-                throw "Select From Time Plz!";
+                throw "Select From Time!";
             }
         }
         catch (e) {
