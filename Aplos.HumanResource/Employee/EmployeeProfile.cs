@@ -1808,7 +1808,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
         {
             try
             {
-                var sql = @"SELECT SystemId AS Value, EmployeeName AS Text FROM EmployeeInformation WHERE GroupID='" + GroupId + @"' AND CompanyId='" + companyId + @"' AND PlantId='" + plantId + @"' AND EmployeeStatus='Active' ORDER BY EmployeeName";
+                var sql = @"SELECT SystemId AS Value, (EmployeeCode+'-'+EmployeeName) AS Text FROM EmployeeInformation WHERE GroupID='" + GroupId + @"' AND CompanyId='" + companyId + @"' AND PlantId='" + plantId + @"' AND EmployeeStatus='Active' ORDER BY EmployeeName";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

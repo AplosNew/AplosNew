@@ -172,7 +172,7 @@
                         <label class="col-sm-4 control-label">Prepared By<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <div class="input-group">
-                                <input tabindex="1" type="text" name="PreparedBy" ng-model="ModelNew.PreparedById" class="form-control" readonly required>
+                                <input tabindex="1" type="text" name="PreparedBy" ng-model="ModelNew.PreparedBy" class="form-control" readonly required>
                                 <span class="input-group-btn">
                                     <button ng-click="showByWhomEmployeeListPopUp('PB');" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
                                 </span>
@@ -265,6 +265,9 @@
                                 <th>SubSection</th>
                                 <th>Department</th>
                                 <th>Pay Days</th>
+                                <th>Standard OT</th>
+                                <th>Additional OT</th>
+                                <th>Good Work</th>
                                 <th>Rate Per Day</th>
                                 <th>Rate Per Hour</th>
                                 <th>Amount</th>
@@ -285,6 +288,9 @@
                                         <input type="number" class="form-control" name="PayDays" ng-model="x.PayDays" e-width="100" ng-disabled="true" />
                                     </span>
                                 </td>
+                                <td><input type="number" class="form-control" name="Standard OT" ng-model="x.StandardOT" e-width="100" ng-disabled="true" /></td>
+                                <td><input type="number" class="form-control" name="Additional OT" ng-model="x.AdditionalOT" e-width="100" ng-disabled="true" /></td>
+                                <td><input type="number" class="form-control" name="Good Work" ng-model="x.GoodWork" e-width="100" ng-disabled="true" /></td>
                                 <td><input type="number" class="form-control" name="Rate Per Day" ng-model="x.RatePerDay" e-width="100" ng-disabled="true" /></td>
                                 <td><input type="number" class="form-control" name="Rate Per Hour" ng-model="x.RatePerHour" e-width="100" ng-disabled="true" /></td>
                                 <td><input type="number" class="form-control" name="Amount" ng-model="x.Amount" e-width="100" ng-disabled="true" /></td>

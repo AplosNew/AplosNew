@@ -556,6 +556,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .config(PayrollsConfig)
     .config(IssueTrackerConfig)
     .config(ProductConfig)
+    .config(ProductionsConfig)
     .config(TaskManagementConfig)
     .config(CommercialConfig)
     .config(AccessControllerConfig)
