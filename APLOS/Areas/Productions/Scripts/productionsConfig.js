@@ -382,5 +382,9 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/QualityActionUpdateReport/Aplos',
             controller: 'QualityActionUpdateReportController'
         })
+        .when('/pro-entity-setup', {
+            templateUrl: 'Productions/ProductionOrderEntitySetup/Aplos',
+            controller: 'ProductionOrderEntitySetupController'
+        })
         ;
 }

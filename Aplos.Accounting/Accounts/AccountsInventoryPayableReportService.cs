@@ -2007,12 +2007,12 @@ namespace Library.Accounting.Accounts
 						LEFT  JOIN [SCS].[FiscalYearPeriod] AS FYP ON V.FiscalYearPeriodId=FYP.Id
                         LEFT JOIN [dbo].[EmployeeInformation] AS EMP ON IR.EmployeeId=EMP.SystemId
 						LEFT JOIN [SCS].[Currency] AS CU ON CU.Id=VDC.ParallelCurrencyId
-                            LEFT JOIN [SCS].[Currency] AS CU1 ON CU1.Id=V.CurrencyId
-                            LEFT JOIN [MST].[BudgetMaster] BMT ON VD.BudgetMasterId=BMT.Id
-                            LEFT JOIN [HKP].[Budget] BUD ON BUD.Id=BMT.BudgetId
-                            LEFT JOIN [HKP].[Activity] AS ACT ON ACT.Id = VD.ActivityId
-                            LEFT JOIN [ORG].[Entity] AS ENT ON ENT.Id = VD.EntityId
-						where IR.Id='" + issueId + "'";
+                        LEFT JOIN [SCS].[Currency] AS CU1 ON CU1.Id=V.CurrencyId
+                        LEFT JOIN [MST].[BudgetMaster] BMT ON VD.BudgetMasterId=BMT.Id
+                        LEFT JOIN [HKP].[Budget] BUD ON BUD.Id=BMT.BudgetId
+                        LEFT JOIN [HKP].[Activity] AS ACT ON ACT.Id = VD.ActivityId
+                        LEFT JOIN [ORG].[Entity] AS ENT ON ENT.Id = VD.EntityId
+						WHERE IR.Id='" + issueId + "' ORDER BY VDC.DrAmount DESC ";
             return _sqlRepository.GetDataTable(sql);
         }
 

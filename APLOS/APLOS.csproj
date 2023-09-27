@@ -638,6 +638,7 @@
     <Compile Include="Areas\HumanResource\Controllers\OTRegionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ResidenceStatusAllocationController.cs" />
     <Compile Include="Areas\Materials\Controllers\InputConfirmationController.cs" />
+    <Compile Include="Areas\Productions\Controllers\ProductionOrderEntitySetupController.cs" />
     <Compile Include="Areas\Productions\Controllers\QualityActionConfirmationController.cs" />
     <Compile Include="Areas\Productions\Controllers\QualityActionUpdateReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\QualityActionUpdateController.cs" />
@@ -654,6 +655,7 @@
     <Compile Include="Areas\QMS\Controllers\CustomerCompletedParameterController.cs" />
     <Compile Include="Areas\QMS\Controllers\CustomerQualityAndTechnicalSupportController.cs" />
     <Compile Include="Areas\QMS\Controllers\CustomerConfirmationParameterController.cs" />
+    <Compile Include="Areas\QMS\Controllers\DefineProcessParameterController.cs" />
     <Compile Include="Areas\QMS\Controllers\DocumentSetupController.cs" />
     <Compile Include="Areas\QMS\Controllers\ProductParameterMasterController.cs" />
     <Compile Include="Areas\QMS\Controllers\ProcessParameterMasterController.cs" />
@@ -2115,6 +2117,7 @@
     <Content Include="Areas\OrderManagements\Scripts\documentationController.js" />
     <Content Include="Areas\Packing\Scripts\packingConfig.js" />
     <Content Include="Areas\HumanResource\Scripts\WebBasedPackingController.js" />
+    <Content Include="Areas\Parties\Scripts\partyApprovalController.js" />
     <Content Include="Areas\Processes\Scripts\ProcessManagementController.js" />
     <Content Include="Areas\Processes\Scripts\ProcessTemplateController.js" />
     <Content Include="Areas\Productions\Scripts\DailyPlanningAndProductionReportController.js" />
@@ -2283,6 +2286,7 @@
     <Content Include="Areas\HumanResource\Scripts\OTConfirmationProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\ScatteredWeekOffController.js" />
     <Content Include="Areas\Materials\Scripts\InputConfirmationController.js" />
+    <Content Include="Areas\Productions\Scripts\ProductionOrderEntitySetupController.js" />
     <Content Include="Areas\Productions\Scripts\QualityActionConfirmationController.js" />
     <Content Include="Areas\Productions\Scripts\QualityActionUpdateReportController.js" />
     <Content Include="Areas\Productions\Scripts\QualityActionUpdateController.js" />
@@ -2304,6 +2308,7 @@
     <Content Include="Areas\QMS\Scripts\CustomerQualityAndTechnicalSupportController.js" />
     <Content Include="Areas\QMS\Scripts\CustomerConfirmationParameterController.js" />
     <Content Include="Areas\QMS\Scripts\DocumentSetupController.js" />
+    <Content Include="Areas\QMS\Scripts\DefineProcessParameterController.js" />
     <Content Include="Areas\QMS\Scripts\ProductParameterMasterController.js" />
     <Content Include="Areas\QMS\Scripts\ProcessParameterMasterController.js" />
     <Content Include="Areas\QMS\Scripts\CustomerRequirementControlController.js" />
@@ -4805,6 +4810,9 @@
     <Content Include="Areas\FixedAssets\Views\AssetDepreciationPost.cshtml" />
     <Content Include="Areas\Commercial\Views\LCReports\btb.cshtml" />
     <Content Include="Areas\FixedAssets\Views\AssetsDepreciationReport.cshtml" />
+    <Content Include="Areas\Parties\Views\Party\Approve.cshtml" />
+    <Content Include="Areas\Accounts\Views\_EmployeeSalaryAdvancePopUp.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionOrderEntitySetup\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -4960,6 +4968,7 @@
     <Content Include="Areas\QMS\Views\CustomerRequirementControl\Aplos.cshtml" />
     <Content Include="Areas\QMS\Views\CustomerConfirmationParameter\Aplos.cshtml" />
     <Content Include="Areas\QMS\Views\CustomerCompletedParameter\Aplos.cshtml" />
+    <Content Include="Areas\QMS\Views\DefineProcessParameter\Aplos.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

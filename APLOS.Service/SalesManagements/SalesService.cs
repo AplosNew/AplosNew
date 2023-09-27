@@ -234,7 +234,9 @@ namespace Library.Service.SalesManagements
                             AddedFromIP = sales.AddedFromIP,
                             UpdatedBy = null,
                             UpdatedDate = null,
-                            UpdatedFromIP = null
+                            CanceledBy = null,
+                            IsCanceled = false,
+                             Remark=null
                         };
                         if (voucherVM.CurrencyId != companyCurrencyId)
                         {
@@ -1695,21 +1697,15 @@ namespace Library.Service.SalesManagements
                             ThirdCharacteristicsId = salesMaterialVM.ThirdCharacteristicsId,
                             ThirdCharacteristicsValueId = salesMaterialVM.ThirdCharacteristicsValueId,
                             BaseUOMId = salesMaterialVM.BaseUOMId,
-
                             BaseRate = salesMaterialVM.BaseRate,
-                            //BaseQty = salesMaterialVM.BaseQty,
                             BaseQty = salesMaterialVM.SalesQty,
                             BaseAmount = Math.Round(salesMaterialVM.SalesQty * salesMaterialVM.BaseRate, 2),
-
                             BaseUoMFactor = salesMaterialVM.BaseUoMFactor,
                             TransactionUoMId = salesMaterialVM.BaseUOMId,
-
                             TransactionRate = salesMaterialVM.TransactionRate,
                             TransactionQty = salesMaterialVM.SalesQty,
                             TransactionAmount = Math.Round(salesMaterialVM.TransactionRate * salesMaterialVM.SalesQty, 2),
-
                             BooksCurrencyTransactionAmount = Math.Round((salesMaterialVM.TransactionRate * salesMaterialVM.SalesQty) * voucherVM.CompanyCurrencyRate, 2),
-
                             BooksCurrencyBaseRate = Math.Round(voucherVM.CompanyCurrencyRate * salesMaterialVM.TransactionRate, 4),
 
                             TaxAmount = salesMaterialVM.TaxAmount,
@@ -1721,7 +1717,10 @@ namespace Library.Service.SalesManagements
                             AddedFromIP = sales.AddedFromIP,
                             UpdatedBy = null,
                             UpdatedDate = null,
-                            UpdatedFromIP = null
+                            UpdatedFromIP = null,
+                            IsCanceled=false,
+                            CanceledBy=null,
+                            Remark=null
                         };
 
                         if (voucherVM.CurrencyId != companyCurrencyId)
@@ -1993,7 +1992,8 @@ namespace Library.Service.SalesManagements
                                 AddedFromIP = sales.AddedFromIP,
                                 UpdatedBy = sales.UpdatedBy,
                                 UpdatedDate = sales.UpdatedDate,
-                                UpdatedFromIP = sales.UpdatedFromIP
+                                UpdatedFromIP = sales.UpdatedFromIP,
+                                IsCanceled = false,
                             };
                             if (voucherVM.CurrencyId != companyCurrencyId)
                             {
@@ -2105,6 +2105,7 @@ namespace Library.Service.SalesManagements
                                 UpdatedDate = sales.UpdatedDate,
                                 UpdatedFromIP = sales.UpdatedFromIP,
                                 ModelState = ModelState.Modified
+                                ,IsCanceled=false
                             };
 
                             if (voucherVM.CurrencyId != companyCurrencyId)
@@ -3181,7 +3182,10 @@ namespace Library.Service.SalesManagements
                             AddedFromIP = sales.AddedFromIP,
                             UpdatedBy = null,
                             UpdatedDate = null,
-                            UpdatedFromIP = null
+                            UpdatedFromIP = null,
+                            IsCanceled=false,
+                            Remark=null,
+                            CanceledBy=null
                         };
 
                         if (voucherVM.CurrencyId != companyCurrencyId)
