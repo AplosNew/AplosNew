@@ -638,6 +638,7 @@
     <Compile Include="Areas\HumanResource\Controllers\OTRegionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ResidenceStatusAllocationController.cs" />
     <Compile Include="Areas\Materials\Controllers\InputConfirmationController.cs" />
+    <Compile Include="Areas\Productions\Controllers\ProductionOrderEntitySetupController.cs" />
     <Compile Include="Areas\Productions\Controllers\QualityActionConfirmationController.cs" />
     <Compile Include="Areas\Productions\Controllers\QualityActionUpdateReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\QualityActionUpdateController.cs" />
@@ -2285,6 +2286,7 @@
     <Content Include="Areas\HumanResource\Scripts\OTConfirmationProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\ScatteredWeekOffController.js" />
     <Content Include="Areas\Materials\Scripts\InputConfirmationController.js" />
+    <Content Include="Areas\Productions\Scripts\ProductionOrderEntitySetupController.js" />
     <Content Include="Areas\Productions\Scripts\QualityActionConfirmationController.js" />
     <Content Include="Areas\Productions\Scripts\QualityActionUpdateReportController.js" />
     <Content Include="Areas\Productions\Scripts\QualityActionUpdateController.js" />
@@ -4810,6 +4812,7 @@
     <Content Include="Areas\FixedAssets\Views\AssetsDepreciationReport.cshtml" />
     <Content Include="Areas\Parties\Views\Party\Approve.cshtml" />
     <Content Include="Areas\Accounts\Views\_EmployeeSalaryAdvancePopUp.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionOrderEntitySetup\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

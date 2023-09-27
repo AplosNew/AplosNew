@@ -108,7 +108,7 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
                     var data = ej.DataManager($scope.RequisitionMergedList).executeLocal(ej.Query().where("AppliedId", "equal", parseInt(AppliedId), true).take(100));
                     e.detailsElement.find("#detailGrid").ejGrid({
                         dataSource: data,
-                        columns: ["Id", "FromDate", "ToDate", "FromTime", "ToTime", "FromLocation", "ToLocation", "ByWhom", "Department", "Purpose", "PersonalOfficial", "AppliedId"],
+                        columns: ["Id", "FromDate", "ToDate", "FromTime", "ToTime", "FromLocation", "ToLocation", "ByWhom","Name", "Department", "Purpose", "PersonalOfficial", "AppliedId"],
                         childGrid: {
                             dataSource: $scope.RequisitionChildList,
                             queryString: "VehicleMovementRequisitionId",
@@ -176,7 +176,7 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
             selectionType: ej.Grid.SelectionType.Single,
             selectionSettings: { selectionMode: ["cell"], cellSelectionMode: ej.Grid.CellSelectionMode.Box },
             cellSelected: $scope.VehicleAllocationPopup,
-            columns: ["Row_Num", "FromLocation", "ToLocation" ,"FromDate", "ToDate", "FromTime", "ToTime", "ByWhome", "ApprovedBy" ,"Purpose", "Department"],
+            columns: ["Row_Num", "FromLocation", "ToLocation", "FromDate", "ToDate", "FromTime", "ToTime", "ByWhom", "Name", "ApprovedBy" ,"Purpose", "Department"],
 
             childGrid: {
 
@@ -185,7 +185,7 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
                 allowSelection: true,
                 selectionType: ej.Grid.SelectionType.Single,
                 selectionSettings: { selectionMode: ["cell"], cellSelectionMode: ej.Grid.CellSelectionMode.Box },
-                columns: ["Row_Num", "FromDate", "ToDate", "FromTime", "ToTime",  "ByWhom", "Department", "Purpose", "PersonalOfficial", "AppliedId"],
+                columns: ["Row_Num", "FromDate", "ToDate", "FromTime", "ToTime", "ByWhom", "Department", "Purpose", "PersonalOfficial", "AppliedId"],
 
                 childGrid: {
                     dataSource: $scope.RequisitionChildList,
