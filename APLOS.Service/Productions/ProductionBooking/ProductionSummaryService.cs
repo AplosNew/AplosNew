@@ -1340,45 +1340,45 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
             {
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
                 conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryLotNumberValidation, false, "1");
-
+                if (!string.IsNullOrEmpty(ps.LotNumber))
+                {
+                    if (dsProductionSummaryLotNumberValidation.Tables[0].Rows.Count == 0)
+                    {
+                        throw new Exception("This Lot Number is already used for another Production Order No.");
+                    }
+                }
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 var ob_fromDB = Find(ps.Id);
                 if (ob_fromDB == null)
                 {
-                    if (dsProductionSummaryLotNumberValidation.Tables[0].Rows.Count == 0)
+                    ps.Id = "P" + GetPK();
+                    ps.ModelState = ModelState.Added;
+                    AuditService.AddedLog(ps);
+                    // ps.AddedDate = DateTime.Now;
+                    var pp = GetProductionPeriodData(ps.AddedDate);
+
+                    if (pp.Tables[0].Rows.Count > 1)
                     {
-                        throw new Exception("Lot Number is Already Exist.");
+                        throw new CustomException("Production Booking Period can not assign in multiple time.");
                     }
                     else
                     {
-                        ps.Id = "P" + GetPK();
-                        ps.ModelState = ModelState.Added;
-                        AuditService.AddedLog(ps);
-                        // ps.AddedDate = DateTime.Now;
-                        var pp = GetProductionPeriodData(ps.AddedDate);
-
-                        if (pp.Tables[0].Rows.Count > 1)
+                        if (pp.Tables[0].Rows.Count > 0)
                         {
-                            throw new CustomException("Production Booking Period can not assign in multiple time.");
+                            ps.ProductionBookingPeriodId = pp.Tables[0].Rows[0]["Id"].ToString();
                         }
                         else
                         {
-                            if (pp.Tables[0].Rows.Count > 0)
-                            {
-                                ps.ProductionBookingPeriodId = pp.Tables[0].Rows[0]["Id"].ToString();
-                            }
-                            else
-                            {
-                                throw new CustomException("There is no Production Booking Period.");
-                            }
+                            throw new CustomException("There is no Production Booking Period.");
                         }
-
-                        ps.Quantity = ps.QtyWithoutScan + ps.ScanQty;
-
-                        base.Insert(ps);
                     }
+
+                    ps.Quantity = ps.QtyWithoutScan + ps.ScanQty;
+
+                    base.Insert(ps);
                 }
+
                 else
                 {
 
@@ -1447,50 +1447,51 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
             {
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
                 conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryLotNumberValidation, false, "1");
+
+                if (!string.IsNullOrEmpty(ps.LotNumber))
+                {
+                    if (dsProductionSummaryLotNumberValidation.Tables[0].Rows.Count == 0)
+                    {
+                        throw new Exception("This Lot Number is already used for another Production Order No.");
+                    }
+                }
+
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 var ob_fromDB = Find(ps.Id);
                 if (ob_fromDB == null)
                 {
-                    if (dsProductionSummaryLotNumberValidation.Tables[0].Rows.Count == 0)
+
+                    ps.Id = "P" + GetPK();
+
+
+                    ps.ModelState = ModelState.Added;
+                    AuditService.AddedLog(ps);
+                    // ps.AddedDate = DateTime.Now;
+                    var pp = GetProductionPeriodData(ps.AddedDate);
+
+                    if (pp.Tables[0].Rows.Count > 1)
                     {
-                        throw new Exception("LotNumber is Already Exist.");
+                        throw new CustomException("Production Booking Period can not assign in multiple time.");
                     }
                     else
                     {
-                        ps.Id = "P" + GetPK();
-
-
-                        ps.ModelState = ModelState.Added;
-                        AuditService.AddedLog(ps);
-                        // ps.AddedDate = DateTime.Now;
-                        var pp = GetProductionPeriodData(ps.AddedDate);
-
-                        if (pp.Tables[0].Rows.Count > 1)
+                        if (pp.Tables[0].Rows.Count > 0)
                         {
-                            throw new CustomException("Production Booking Period can not assign in multiple time.");
+                            ps.ProductionBookingPeriodId = pp.Tables[0].Rows[0]["Id"].ToString();
                         }
                         else
                         {
-                            if (pp.Tables[0].Rows.Count > 0)
-                            {
-                                ps.ProductionBookingPeriodId = pp.Tables[0].Rows[0]["Id"].ToString();
-                            }
-                            else
-                            {
-                                throw new CustomException("There is no Production Booking Period.");
-                            }
+                            throw new CustomException("There is no Production Booking Period.");
                         }
-
-                        ps.Quantity = ps.QtyWithoutScan + ps.ScanQty;
-
-                        base.Insert(ps);
                     }
+
+                    ps.Quantity = ps.QtyWithoutScan + ps.ScanQty;
+
+                    base.Insert(ps);
                 }
                 else
                 {
-
-
                     //ps.Id = ob_fromDB.Id;
                     ob_fromDB.ArticleId = ps.ArticleId;
                     ob_fromDB.MaterialMasterId = ps.MaterialMasterId;
