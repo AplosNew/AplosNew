@@ -1,4 +1,7 @@
-﻿<div class="tab-design">
+﻿<link href="~/Scripts/BootstrapTimePicker/css/bootstrap-timepicker.css" rel="stylesheet" />
+<script src="~/Scripts/BootstrapTimePicker/Scripts/bootstrap.js"></script>
+<script src="~/Scripts/BootstrapTimePicker/js/bootstrap-timepicker.js"></script>
+<div class="tab-design">
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Pending to Start</a></li>
@@ -19,11 +22,20 @@
                                 <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="VehicleRequisitionModel.FromDate" datepicker class="form-control" required>
                             </div>
                         </div>
+                        @*<div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">From Time<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input id="FromTime" e-value="VehicleRequisitionModel.FromTime" width="440" ej-timepicker name="Time" tabindex="4" required />
+
+                                </div>
+                            </div>*@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">From Time<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input id="FromTime" e-value="VehicleRequisitionModel.FromTime" width="440" ej-timepicker name="Time" tabindex="4" required />
-
+                                <div class="input-group bootstrap-timepicker timepicker">
+                                    <input id="FromTime" type="text" class="form-control" ng-model="VehicleRequisitionModel.FromTime" e-width="100" tabindex="3">
+                                    <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group" show-errors>
@@ -59,11 +71,20 @@
                                 <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="VehicleRequisitionModel.ToDate" datepicker class="form-control" required>
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
+                        @*<div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">To Time<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <input id="ToTime" e-value="VehicleRequisitionModel.ToTime" width="430" ej-timepicker name="Time" tabindex="4" required />
 
+                            </div>
+                        </div>*@
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">To Time<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group bootstrap-timepicker timepicker">
+                                    <input id="ToTime" type="text" class="form-control" ng-model="VehicleRequisitionModel.ToTime" e-width="100" tabindex="4">
+                                    <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group" show-errors>
@@ -78,7 +99,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="SaveVehicleAllocation();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
@@ -140,18 +161,18 @@
 
                                 </div>
                                 @*<div class="table-responsive">
-                                    <div ej-grid e-recorddoubleclick="GetOut" e-datasource="VehicleOutListData" e-load="loadGridEdit"
-                                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                                        <div e-columns>
-                                            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-                                            <div e-column e-field="OutDate" e-headertext="OutDate" e-width="2"></div>
-                                            <div e-column e-field="OutTime" e-headertext="OutTime" e-width="3"></div>
-                                            <div e-column e-field="OutKillometer" e-headertext="OutKillometer" e-width="5"></div>
-                                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
+                                        <div ej-grid e-recorddoubleclick="GetOut" e-datasource="VehicleOutListData" e-load="loadGridEdit"
+                                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                            <div e-columns>
+                                                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                                                <div e-column e-field="OutDate" e-headertext="OutDate" e-width="2"></div>
+                                                <div e-column e-field="OutTime" e-headertext="OutTime" e-width="3"></div>
+                                                <div e-column e-field="OutKillometer" e-headertext="OutKillometer" e-width="5"></div>
+                                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>*@
+                                    </div>*@
                             </div>
                         </div>
                     </div>
@@ -168,10 +189,12 @@
 
                         <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
                         <div e-column e-field="TripNumber" e-headertext="Trip No." e-width="50"></div>
-                        <div e-column e-field="ByWhome" e-headertext="By Whome" e-width="80"></div>
+                        <div e-column e-field="ByWhom" e-headertext="By Whom" e-width="80"></div>
+                        <div e-column e-field="Name" e-headertext="Name" e-width="80"></div>
                         <div e-column e-field="FromLocation" e-headertext="From Location" e-width="100"></div>
                         <div e-column e-field="ToLocation" e-headertext="To Location" e-width="100"></div>
                         <div e-column e-field="Purpose" e-headertext="Purpose" e-width="50"></div>
+                        <div e-column e-field="PersonalOfficial" e-headertext="PersonalOfficial" e-width="50"></div>
                         <div e-column e-field="FromDate" e-headertext="From Date" e-width="50"></div>
                         <div e-column e-field="ToDate" e-headertext="To Date" e-width="50"></div>
                         <div e-column e-field="FromTime" e-headertext="From Time" e-width="50"></div>
@@ -314,10 +337,10 @@
                                             <div e-column e-field="OutDate" e-headertext="OutDate" e-width="2"></div>
                                             <div e-column e-field="OutTime" e-headertext="OutTime" e-width="3"></div>
                                             <div e-column e-field="OutReading" e-headertext="Out Reading" e-width="5"></div>-->
-                                            @*<div e-column e-field="InDate" e-headertext="InDate" e-width="2"></div>
-                                            <div e-column e-field="InTime" e-headertext="InTime" e-width="3"></div>
-                                            <div e-column e-field="InReading" e-headertext="In Killometer" e-width="5"></div>*@
-                                            <!--<div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
+                                @*<div e-column e-field="InDate" e-headertext="InDate" e-width="2"></div>
+                                    <div e-column e-field="InTime" e-headertext="InTime" e-width="3"></div>
+                                    <div e-column e-field="InReading" e-headertext="In Killometer" e-width="5"></div>*@
+                                <!--<div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
                                         </div>
                                     </div>
                                 </div>-->
@@ -335,10 +358,12 @@
 
                         <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
                         <div e-column e-field="TripNumber" e-headertext="Trip No." e-width="50"></div>
-                        <div e-column e-field="ByWhome" e-headertext="By Whome" e-width="80"></div>
+                        <div e-column e-field="ByWhom" e-headertext="By Whom" e-width="80"></div>
+                        <div e-column e-field="Name" e-headertext="Name" e-width="80"></div>
                         <div e-column e-field="FromLocation" e-headertext="From Location" e-width="100"></div>
                         <div e-column e-field="ToLocation" e-headertext="To Location" e-width="100"></div>
                         <div e-column e-field="Purpose" e-headertext="Purpose" e-width="50"></div>
+                        <div e-column e-field="PersonalOfficial" e-headertext="PersonalOfficial" e-width="50"></div>
                         <div e-column e-field="FromDate" e-headertext="From Date" e-width="50"></div>
                         <div e-column e-field="ToDate" e-headertext="To Date" e-width="50"></div>
                         <div e-column e-field="FromTime" e-headertext="From Time" e-width="50"></div>
@@ -359,8 +384,8 @@
                     <div e-columns>
                         @*<div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>*@
                         @* RequisitionBy, EmployeeCode, EmployeeName ,FromDate, ToDate, FromTime, ToTime, fromloc,toloc ,Personal/Official, GuestName, Purpose, No.Passenger, ForWhom, Remarks
-                , Requisition Stattus, Approve/Reject by, VehicleName, VehicleNo, DriverId,DriverName, LicenseExpDate, VehicleActualOutDate, VehicleActualOutTime, OutReading
-                , VehicleActualInDate, VehicleActualInTime, InReading, TotalTripTime(outdate - indate) in min., TotalTrip Kl/mtrs*@
+                            , Requisition Stattus, Approve/Reject by, VehicleName, VehicleNo, DriverId,DriverName, LicenseExpDate, VehicleActualOutDate, VehicleActualOutTime, OutReading
+                            , VehicleActualInDate, VehicleActualInTime, InReading, TotalTripTime(outdate - indate) in min., TotalTrip Kl/mtrs*@
 
                         <div e-column e-field="ByWhomEmpCode" e-headertext="ByWhom_EmpCode" e-width="100"></div>
                         <div e-column e-field="ByWhom" e-headertext="By Whom" e-width="100"></div>
@@ -379,7 +404,7 @@
                         <div e-column e-field="ReqRemark" e-headertext="Req Remark" e-width="100"></div>
                         <div e-column e-field="RequisitionStatus" e-headertext="RequisitionStatus" e-width="100"></div>
                         <div e-column e-field="Approved/Reject By" e-headertext="Approved/Reject By" e-width="100"></div>
-                       
+
                         <div e-column e-field="DriverName" e-headertext="DR. Name" e-width="100"></div>
                         <div e-column e-field="VehicleName" e-headertext="Vehicle Name" e-width="100"></div>
                         <div e-column e-field="VehicleNumber" e-headertext="Vehicle Number" e-width="100"></div>
@@ -398,11 +423,33 @@
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="XlsDailyAttendanceReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Download</button></li>
-                        
+
                     </ul>
                 </div>
             </div>
         </div>
-        </div>
     </div>
+</div>
 
+<script type="text/javascript">
+    $('[id*=FromTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
+        var hours = e.time.hours, //Returns a string
+            min = e.time.minutes
+        //merdian = e.time.meridian;
+
+        if (hours.length == 1) {
+            $('[id*=FromTime]').timepicker('setTime', '0' + hours + ':' + min);
+
+        }
+    });
+    $('[id*=ToTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
+        var hours = e.time.hours, //Returns a string
+            min = e.time.minutes
+        //merdian = e.time.meridian;
+
+        if (hours.length == 1) {
+            $('[id*=ToTime]').timepicker('setTime', '0' + hours + ':' + min);
+
+        }
+    });
+</script>

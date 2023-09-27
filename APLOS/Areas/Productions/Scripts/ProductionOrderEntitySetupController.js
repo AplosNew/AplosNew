@@ -22,7 +22,17 @@ function ProductionOrderEntitySetupController(commonMessage, $scope, $rootScope,
     };
     $scope.ProductionOrderEntitySetupNew = Object.assign({}, $scope.ProductionOrderEntitySetup);
 
-    
+    $scope.entityList = [];
+    $scope.getAllEntities = function () {
+        $http({
+            method: 'POST',
+            url: "OrderManagements/productionOrderSchedulingParametersType1/GetEntity"
+        }).then(function successCallback(response) {
+            $scope.entityList = response.data;
+        });
+    }
+    $scope.getAllEntities();
+
     $scope.Get = function (id, index) {
         $scope.index = index;
         $scope.dmm = $scope.dmms[$scope.index];
