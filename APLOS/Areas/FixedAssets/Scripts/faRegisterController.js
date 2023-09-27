@@ -70,18 +70,11 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
             .then(
                 function successCallback(response) {
                     $scope.selectedmaterialMasterList = response.data;
-                    for (var i = 0; i < $scope.selectedmaterialMasterList.length; i++) {
-                        $scope.register.TotalAmount += $scope.selectedmaterialMasterList[i].Amount;
-                        if ($scope.selectedmaterialMasterList[i].Source == 'AUC') {
-                            $scope.register.GRNAmount += $scope.selectedmaterialMasterList[i].Amount;
-                        }
-                        else if ($scope.selectedmaterialMasterList[i].Source == 'CI') {
-                            $scope.register.IssueAmount += $scope.selectedmaterialMasterList[i].Amount;
-                        }
-                        else {
-                            $scope.register.ExpensesAmount += $scope.selectedmaterialMasterList[i].Amount;
-                        }
-                    }
+                    
+                    $scope.register.GRNAmount = Math.round($filter("sumByKey")($filter("filter")($filter("filter")($scope.selectedmaterialMasterList, { Source: 'AUC' })), "Amount") * 100 + Number.EPSILON) / 100;
+                    $scope.register.IssueAmount = Math.round($filter("sumByKey")($filter("filter")($filter("filter")($scope.selectedmaterialMasterList, { Source: 'CI' })), "Amount") * 100 + Number.EPSILON) / 100;
+                    $scope.register.ExpensesAmount = Math.round($filter("sumByKey")($filter("filter")($filter("filter")($scope.selectedmaterialMasterList, { Source: 'Expense' })), "Amount") * 100 + Number.EPSILON) / 100;
+                    $scope.register.TotalAmount = Math.round($filter("sumByKey")($filter("filter")($scope.selectedmaterialMasterList), "Amount") * 100 + Number.EPSILON) / 100;
                 },
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
@@ -375,7 +368,6 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                         ob.InventoryIssueHistoryId = $scope.materialMasterList[i].InventoryIssueHistoryId;
                         ob.VoucherDetailId = $scope.materialMasterList[i].VoucherDetailId;
                         ob.Amount = $scope.materialMasterList[i].Amount;
-                        $scope.register.GRNAmount += $scope.materialMasterList[i].Amount;
                         ob.CurrencyId = $scope.materialMasterList[i].CurrencyId;
                         ob.VoucherNo = $scope.materialMasterList[i].VoucherNo;
                         ob.MaterialMasterName = $scope.materialMasterList[i].MaterialMasterName;
@@ -384,7 +376,6 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                         ob.GRNNo = $scope.materialMasterList[i].GRNNo;
                         ob.Qty = $scope.materialMasterList[i].BaseQty;
                         ob.Source = 'AUC';
-                        $scope.register.TotalAmount += $scope.materialMasterList[i].Amount;
                         $scope.selectedmaterialMasterList.push(ob);
                         ob = {};
                     }
@@ -403,9 +394,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                         ob.Qty = $scope.materialMasterList[i].Qty;
                         ob.GRNNo = $scope.materialMasterList[i].GRNNo;
                         ob.Qty = $scope.materialMasterList[i].BaseQty;
-                        $scope.register.IssueAmount += $scope.materialMasterList[i].Amount;
                         ob.Source = 'CI';
-                        $scope.register.TotalAmount += $scope.materialMasterList[i].Amount;
                         $scope.selectedmaterialMasterList.push(ob);
                         ob = {};
                     }
@@ -426,16 +415,16 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                         ob.Qty = $scope.materialMasterList[i].Qty;
                         ob.GRNNo = $scope.materialMasterList[i].GRNNo;
                         ob.Qty = $scope.materialMasterList[i].BaseQty;
-                        $scope.register.ExpensesAmount += $scope.materialMasterList[i].Amount;
-                        $scope.register.TotalAmount += $scope.materialMasterList[i].Amount;
                         ob.Source = 'Expense';
-
                         $scope.selectedmaterialMasterList.push(ob);
                         ob = {};
                     }
                 }
 
-
+                $scope.register.GRNAmount = Math.round($filter("sumByKey")($filter("filter")($filter("filter")($scope.selectedmaterialMasterList, { Source: 'AUC' })), "Amount") * 100 + Number.EPSILON) / 100;
+                $scope.register.IssueAmount = Math.round($filter("sumByKey")($filter("filter")($filter("filter")($scope.selectedmaterialMasterList, { Source: 'CI' })), "Amount") * 100 + Number.EPSILON) / 100;
+                $scope.register.ExpensesAmount = Math.round($filter("sumByKey")($filter("filter")($filter("filter")($scope.selectedmaterialMasterList, { Source: 'Expense' })), "Amount") * 100 + Number.EPSILON) / 100;
+                $scope.register.TotalAmount = Math.round($filter("sumByKey")($filter("filter")($scope.selectedmaterialMasterList), "Amount") * 100 + Number.EPSILON) / 100;
             }
         }
 
@@ -478,18 +467,11 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
             .then(
                 function successCallback(response) {
                     $scope.selectedmaterialMasterList = response.data;
-                    for (var i = 0; i < $scope.selectedmaterialMasterList.length; i++) {
-                        $scope.register.TotalAmount += $scope.selectedmaterialMasterList[i].Amount;
-                        if ($scope.selectedmaterialMasterList[i].Source == 'AUC') {
-                            $scope.register.GRNAmount += $scope.selectedmaterialMasterList[i].Amount;
-                        }
-                        else if ($scope.selectedmaterialMasterList[i].Source == 'CI') {
-                            $scope.register.IssueAmount += $scope.selectedmaterialMasterList[i].Amount;
-                        }
-                        else {
-                            $scope.register.ExpensesAmount += $scope.selectedmaterialMasterList[i].Amount;
-                        }
-                    }
+                    
+                    $scope.register.GRNAmount = Math.round($filter("sumByKey")($filter("filter")($filter("filter")($scope.selectedmaterialMasterList, { Source: 'AUC' })), "Amount") * 100 + Number.EPSILON) / 100;
+                    $scope.register.IssueAmount = Math.round($filter("sumByKey")($filter("filter")($filter("filter")($scope.selectedmaterialMasterList, { Source: 'CI' })), "Amount") * 100 + Number.EPSILON) / 100;
+                    $scope.register.ExpensesAmount = Math.round($filter("sumByKey")($filter("filter")($filter("filter")($scope.selectedmaterialMasterList, { Source: 'Expense' })), "Amount") * 100 + Number.EPSILON) / 100;
+                    $scope.register.TotalAmount = Math.round($filter("sumByKey")($filter("filter")($scope.selectedmaterialMasterList), "Amount") * 100 + Number.EPSILON) / 100;
                     $scope.SaveRegister();
                 },
                 function errorCallback(response) {
@@ -560,18 +542,11 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
             $scope.register.GRNAmount = 0;
             $scope.register.ExpensesAmount = 0;
             $scope.register.IssueAmount = 0;
-            for (var i = 0; i < $scope.selectedmaterialMasterList.length; i++) {
-                $scope.register.TotalAmount += $scope.selectedmaterialMasterList[i].Amount;
-                if ($scope.selectedmaterialMasterList[i].Source == 'AUC') {
-                    $scope.register.GRNAmount += $scope.selectedmaterialMasterList[i].Amount;
-                }
-                else if ($scope.selectedmaterialMasterList[i].Source == 'CI') {
-                    $scope.register.IssueAmount += $scope.selectedmaterialMasterList[i].Amount;
-                }
-                else {
-                    $scope.register.ExpensesAmount += $scope.selectedmaterialMasterList[i].Amount;
-                }
-            }
+            
+            $scope.register.GRNAmount = Math.round($filter("sumByKey")($filter("filter")($filter("filter")($scope.selectedmaterialMasterList, { Source: 'AUC' })), "Amount") * 100 + Number.EPSILON) / 100;
+            $scope.register.IssueAmount = Math.round($filter("sumByKey")($filter("filter")($filter("filter")($scope.selectedmaterialMasterList, { Source: 'CI' })), "Amount") * 100 + Number.EPSILON) / 100;
+            $scope.register.ExpensesAmount = Math.round($filter("sumByKey")($filter("filter")($filter("filter")($scope.selectedmaterialMasterList, { Source: 'Expense' })), "Amount") * 100 + Number.EPSILON) / 100;
+            $scope.register.TotalAmount = Math.round($filter("sumByKey")($filter("filter")($scope.selectedmaterialMasterList), "Amount") * 100 + Number.EPSILON) / 100;
 
             if ($scope.register.Type === "Addition" ) {
                 if ($scope.checkedAssetRegisterList.length === 0) {
