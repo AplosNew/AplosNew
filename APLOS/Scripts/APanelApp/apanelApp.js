@@ -526,6 +526,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("ManagementChartAccountSetupController", ManagementChartAccountSetupController)
     .controller("DesignationSetupController", DesignationSetupController)
     .controller("AdditionalInfoController", AdditionalInfoController)
+    .controller("ProductionOrderEntitySetupController", ProductionOrderEntitySetupController)
     
 
 
@@ -555,6 +556,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .config(PayrollsConfig)
     .config(IssueTrackerConfig)
     .config(ProductConfig)
+    .config(ProductionsConfig)
     .config(TaskManagementConfig)
     .config(CommercialConfig)
     .config(AccessControllerConfig)

@@ -451,7 +451,7 @@ namespace Library.Service.Productions
 
         public IEnumerable<ComboModel> GetCbo(string plantId, string ProcessId, string entityId, string CompanyId, string shiftId)
         {
-            var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE ProcessId='" + ProcessId + @"' AND PlantId='" + plantId + "'  AND EntityId='" + entityId + "' AND CompanyId='" + CompanyId + "' AND Id IN(SELECT  WorkCenterMasterId FROM [dbo].[WorkCenterWiseShift] WHERE ShiftDefinationID='"+ shiftId + "') Order by Sequence";
+            var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE ProcessId='" + ProcessId + @"' AND PlantId='" + plantId + "'  AND EntityId='" + entityId + "' AND CompanyId='" + CompanyId + "' AND Id IN(SELECT  WorkCenterMasterId FROM [dbo].[WorkCenterWiseShift] WHERE ShiftDefinationID='" + shiftId + "') Order by Sequence";
             return _sqlRepository.GetCombo(sql, "Id", "UserName");
         }
 
@@ -482,11 +482,11 @@ isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEI
         isnull(PQ.Qty, POQ.POQty) as ActualPlannedQty,PPS.Qty ProcessPlanPercentage, RM.TargetProductionFP,isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId = '" + entityId + "' and ProcessId = '" + ProcessId + @"')) as BookingLevel,pw.SalesOrderId,pw.MasterOrderItemId,'' as ReasonId,'' as ReasonName,PPS.Sequence POProcessSequence,isnull(FPP.FirstProductionQty,0) POFirstProcessProductionQty,
 (select MA.StandardName from trn.salesorder SO
 left outer join trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId
-left outer join[MST].[MaterialMasterArticle] MA ON ma.Id = moi.ArticleId
+left outer join [MST].[MaterialMasterArticle] MA ON ma.Id = moi.ArticleId
 where SO.Id = pw.SalesOrderId) as SOArticle,pw.MasterOrderItemId,(select MA.StandardName from trn.MasterOrderItem MOI
-left outer join[MST].[MaterialMasterArticle] MA ON ma.Id = moi.ArticleId
+left outer join [MST].[MaterialMasterArticle] MA ON ma.Id = moi.ArticleId
 where MOI.Id = pw.MasterOrderItemId) as MOIArticle,(select MA.StandardName from trn.MasterOrderItem MOI
-left outer join[MST].[MaterialMasterArticle] MA ON ma.Id = moi.ArticleId
+left outer join [MST].[MaterialMasterArticle] MA ON ma.Id = moi.ArticleId
 where MOI.Id = pw.MasterOrderItemId) as ProductCodeArticle,
                                        Article = STUFF((select distinct ',' + MA.StandardName from trn.ProductionOrderDetail Pod
    
@@ -583,7 +583,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                         LEFT JOIN(select ISNULL(sum(Minute),0) as SumMinute,WorkCenterId, ProductionSummaryId from MachineMasterTransaction MT where MT.ProcessId = '" + ProcessId + "'  and MT.EntityId = '" + entityId + "' AND MT.Date = '" + productionDate + "' AND MT.ShiftId = '" + shiftId + @"'
                         group by WorkCenterId,ProductionSummaryId) SM ON SM.WorkCenterId = wc.Id and SM.ProductionSummaryId = pw.Id
                         where wc.Active = 1 and wc.ProcessId = '" + ProcessId + "'  and wc.EntityId = '" + entityId + "' order by wc.UserName";
-              return _sqlRepository.GetDataCollection(sql);
+            return _sqlRepository.GetDataCollection(sql);
         }
 
         public IEnumerable<object> GetCboWCPIC(string plantId, string ProcessId, string entityId, string productionDate, string shiftId, string ProductionInChargeId, string IssueId, string PeriodId)
@@ -639,11 +639,11 @@ where QII.QMID='" + IssueId + "' and QII.IsActive = 1 " + QCItemId + " order by 
         }
 
         public IEnumerable<object> GetPOWiseData(string ProcessId, string entityId, string POId, string Date, string POStatus, string CustomerId, string IssueId)
-         {
-            string QCProcess="",QCEntity="",QCIssue="",QCPONO="", QCDate="";
+        {
+            string QCProcess = "", QCEntity = "", QCIssue = "", QCPONO = "", QCDate = "";
             if (ProcessId != "null")
             {
-                QCProcess = @"and QID.ProcessId='"+ ProcessId + "'";
+                QCProcess = @"and QID.ProcessId='" + ProcessId + "'";
             }
             if (entityId != "null")
             {
@@ -718,13 +718,13 @@ left join TRN.QualityControl Q on Q.Id=QD.QCId
 GROUP BY Q.ProductionOrderId
 ) AS ProdQ ON ProdQ.ProductionOrderId = QC.ProductionOrderId
 where QID.IssueType in ('Order','General') " + QCDate + " " + QCProcess + " " + QCEntity + " " + QCIssue + " " + QCPONO + "";
-             return _sqlRepository.GetDataCollection(sql);
+            return _sqlRepository.GetDataCollection(sql);
         }
 
         public IEnumerable<object> GetQCComplete(string IssueId, string todate, string fromDate, string POId)
         {
             string QCIssue = "", QCPONO = "", QCDate = "";
-            
+
             if (IssueId != "null")
             {
                 QCIssue = @"and QC.IssueId='" + IssueId + "'";
@@ -737,7 +737,7 @@ where QID.IssueType in ('Order','General') " + QCDate + " " + QCProcess + " " + 
             {
                 QCDate = @"CONVERT(DATE,QC.AddedDate)  between '" + fromDate + "' and '" + todate + "'";
             }
-            
+
             var sql = @"select distinct QC.Id TransactionHeaderId,(select SNO from MST.QualityManagementParameterItem where Id=QCD.ItemId) as ParameterSNO,format(QC.AddedDate,'dd-MMM-yyyy') as ActualDate,
 format(QC.AddedDate,'hh:mm tt') as ActualTime,QID.CheckingInterval as Interval,
 format(DATEADD(hour, QID.CheckingInterval, QC.AddedDate),'dd-MMM-yyyy') as DueDate,
@@ -815,7 +815,7 @@ left join TRN.QualityControl Q on Q.ProductionOrderId=QD.ProductionOrderId
 GROUP BY Q.ProductionOrderId
 ) AS ProdQ ON ProdQ.ProductionOrderId = QC.ProductionOrderId
 where " + QCDate + "  " + QCIssue + " " + QCPONO + "";
-             return _sqlRepository.GetDataCollection(sql);
+            return _sqlRepository.GetDataCollection(sql);
         }
 
         public IEnumerable<object> GetQCSummary(string IssueId, string todate, string fromDate, string POId)
@@ -893,7 +893,7 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
 
  EXEC sp_executesql @sql
  drop table #tempPC";
-             return _sqlRepository.GetDataCollection(sql);
+            return _sqlRepository.GetDataCollection(sql);
         }
 
         public IEnumerable<object> GetWSCWC(string plantId, string ProcessId, string entityId, string Date, string shiftId, string WSMId)
@@ -902,19 +902,19 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
 into #tempPC from 
  (select A.Id,A.ProcessId,A.EntityId,A.ShiftId,A.Date,A.WorkCenterMasterId,A.WorkCenter,A.WorkStation,A.ResponsiblePerson,A.ResponsiblePersonId,A.InCharge,A.InChargeId,A.Remarks,A.ItemName,A.ColumnInfoId,A.Sequence,A.Column1,A.Column2,A.Column3,A.Column4 from
  (SELECT distinct wcs.Id,wcs.ProcessId,wcs.EntityId,wcs.ShiftId,wcs.Date,wc.Id as WorkCenterMasterId,CAST (CASE WHEN wcs.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,wc.UserName as WorkCenter,wc.NoOfWorkStation as WorkStation,
-                        isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.WCWorkStationControlSummary where ProcessId = '" + ProcessId +"' and EntityId='"+ entityId +"' and ShiftId ='"+ shiftId +@"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as ResponsiblePerson,
-                        isnull(R.SystemId,(select SystemId from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.WCWorkStationControlSummary where ProcessId = '"+ ProcessId +"' and EntityId='"+ entityId +"' and ShiftId = '"+ shiftId +@"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as ResponsiblePersonId,
-                        isnull(I.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 InChargeId from TRN.WCWorkStationControlSummary where ProcessId = '"+ ProcessId +"' and EntityId='"+ entityId +"' and ShiftId ='"+ shiftId +@"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InCharge,
-                        isnull(I.SystemId,(select SystemId from EmployeeInformation where SystemId = (select top 1 InChargeId from TRN.WCWorkStationControlSummary where ProcessId = '"+ ProcessId +"' and EntityId='"+ entityId +"' and ShiftId = '"+ shiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InChargeId,
+                        isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.WCWorkStationControlSummary where ProcessId = '" + ProcessId + "' and EntityId='" + entityId + "' and ShiftId ='" + shiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as ResponsiblePerson,
+                        isnull(R.SystemId,(select SystemId from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.WCWorkStationControlSummary where ProcessId = '" + ProcessId + "' and EntityId='" + entityId + "' and ShiftId = '" + shiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as ResponsiblePersonId,
+                        isnull(I.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 InChargeId from TRN.WCWorkStationControlSummary where ProcessId = '" + ProcessId + "' and EntityId='" + entityId + "' and ShiftId ='" + shiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InCharge,
+                        isnull(I.SystemId,(select SystemId from EmployeeInformation where SystemId = (select top 1 InChargeId from TRN.WCWorkStationControlSummary where ProcessId = '" + ProcessId + "' and EntityId='" + entityId + "' and ShiftId = '" + shiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InChargeId,
                         wcs.Remarks,CD.ColumnInfoId,wcs.Column1,wcs.Column2,wcs.Column3,wcs.Column4,CD.ItemName,wc.Sequence
 
                         FROM  SCS.WorkCenterMaster wc 
                         LEFT JOIN TRN.WCWorkStationControlSummary wcs ON wcs.WorkCenterMasterId=wc.Id AND wcs.ProcessId = '" + ProcessId + @"' and wcs.WSMId='" + WSMId + @"'
-                        AND  wcs.EntityId='" + entityId +"' AND wcs.Date='"+ Date +"'  AND wcs.ShiftId='"+ shiftId + @"' 
+                        AND  wcs.EntityId='" + entityId + "' AND wcs.Date='" + Date + "'  AND wcs.ShiftId='" + shiftId + @"' 
                         LEFT JOIN EmployeeInformation R ON wcs.ResponsiblePersonId=R.SystemId
                         LEFT JOIN EmployeeInformation I ON wcs.InChargeId=I.SystemId
 						LEFT JOIN TRN.ColumnsDetails CD ON CD.WSMId='" + WSMId + @"' and CD.Active=1
-                        where wc.Active=1 and wc.ProcessId = '"+ ProcessId +"' and wc.EntityId = '"+ entityId + @"')A
+                        where wc.Active=1 and wc.ProcessId = '" + ProcessId + "' and wc.EntityId = '" + entityId + @"')A
 				)B order by B.Sequence 
 
 DECLARE @sql nvarchar(max), @col nvarchar(max)
@@ -1161,7 +1161,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
 
                             left join TRN.ProductionOrderDetail PD ON PD.SalesOrderId= SO.Id
 
-                            where SO.OrderStatusId<>'Cancelled' and PD.ProductionOrderId = '" + POId + "' and SO.Id = '"+ salesOrderId + @"'  GROUP BY PD.ProductionOrderId
+                            where SO.OrderStatusId<>'Cancelled' and PD.ProductionOrderId = '" + POId + "' and SO.Id = '" + salesOrderId + @"'  GROUP BY PD.ProductionOrderId
                             ) AS SOP ON SOP.ProductionOrderId = PO.Id
 
                             LEFT JOIN
@@ -1174,9 +1174,9 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                             ) AS POQ ON POQ.ProductionOrderId = PO.Id
                             LEFT JOIN
                             (SELECT SUM(PS.Quantity) TotalProductionQty, PS.ProductionOrderId, PS.SalesOrderId
-                            FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '"+ processId + @"'  GROUP BY PS.ProductionOrderId, PS.SalesOrderId
-                            ) AS PRS ON PRS.ProductionOrderId = PO.Id and PRS.SalesOrderId = '"+ salesOrderId + @"'
-                            WHERE PO.Id = '"+ POId + "'";
+                            FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"'  GROUP BY PS.ProductionOrderId, PS.SalesOrderId
+                            ) AS PRS ON PRS.ProductionOrderId = PO.Id and PRS.SalesOrderId = '" + salesOrderId + @"'
+                            WHERE PO.Id = '" + POId + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -1338,14 +1338,21 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
             var flag = false;
             try
             {
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryLotNumberValidation, false, "1");
+                if (!string.IsNullOrEmpty(ps.LotNumber))
+                {
+                    if (dsProductionSummaryLotNumberValidation.Tables[0].Rows.Count == 0)
+                    {
+                        throw new Exception("This Lot Number is already used for another Production Order No.");
+                    }
+                }
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 var ob_fromDB = Find(ps.Id);
                 if (ob_fromDB == null)
                 {
                     ps.Id = "P" + GetPK();
-
-
                     ps.ModelState = ModelState.Added;
                     AuditService.AddedLog(ps);
                     // ps.AddedDate = DateTime.Now;
@@ -1371,9 +1378,10 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
 
                     base.Insert(ps);
                 }
+
                 else
                 {
-                    
+
 
                     //ps.Id = ob_fromDB.Id;
                     ob_fromDB.ArticleId = ps.ArticleId;
@@ -1388,7 +1396,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                     ob_fromDB.MentorId = ps.MentorId;
                     ob_fromDB.ScanQty = ps.ScanQty;
                     ob_fromDB.QtyWithoutScan = ps.QtyWithoutScan;
-                    ob_fromDB.Quantity = ps.QtyWithoutScan+ ps.ScanQty;
+                    ob_fromDB.Quantity = ps.QtyWithoutScan + ps.ScanQty;
                     ob_fromDB.ProductionOrderId = ps.ProductionOrderId;
                     ob_fromDB.SalesOrderId = ps.SalesOrderId;
                     ob_fromDB.MasterOrderItemId = ps.MasterOrderItemId;
@@ -1437,11 +1445,23 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
             var flag = false;
             try
             {
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryLotNumberValidation, false, "1");
+
+                if (!string.IsNullOrEmpty(ps.LotNumber))
+                {
+                    if (dsProductionSummaryLotNumberValidation.Tables[0].Rows.Count == 0)
+                    {
+                        throw new Exception("This Lot Number is already used for another Production Order No.");
+                    }
+                }
+
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 var ob_fromDB = Find(ps.Id);
                 if (ob_fromDB == null)
                 {
+
                     ps.Id = "P" + GetPK();
 
 
@@ -1472,8 +1492,6 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                 }
                 else
                 {
-
-
                     //ps.Id = ob_fromDB.Id;
                     ob_fromDB.ArticleId = ps.ArticleId;
                     ob_fromDB.MaterialMasterId = ps.MaterialMasterId;
@@ -1563,55 +1581,55 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                             //    }
                             //    else
                             //    {
-                                    if (dv.Count == 0)
-                                    {
-                                        //DateTime date1 = Convert.ToDateTime(item["FromTime"]);
-                                        //DateTime date2 = Convert.ToDateTime(item["ToTime"]);
-                                        //DateTime NextDayDate = date2.AddDays(1);
-                                        //TimeSpan ts = date2 - date1;
-                                        //TimeSpan Nd = NextDayDate - date1;
-                                        //int minutes = (int)ts.TotalMinutes;
+                            if (dv.Count == 0)
+                            {
+                                //DateTime date1 = Convert.ToDateTime(item["FromTime"]);
+                                //DateTime date2 = Convert.ToDateTime(item["ToTime"]);
+                                //DateTime NextDayDate = date2.AddDays(1);
+                                //TimeSpan ts = date2 - date1;
+                                //TimeSpan Nd = NextDayDate - date1;
+                                //int minutes = (int)ts.TotalMinutes;
 
-                                        //if (minutes >= 720 || minutes < 0)
-                                        //{
-                                        //    item["ToTime"] = NextDayDate;
-                                        //    item["Minute"] = Nd.TotalMinutes;
-                                        //}
-                                        //else
-                                        //{
-                                        //    item["ToTime"] = date2;
-                                        //    item["Minute"] = ts.TotalMinutes;
-                                        //}
+                                //if (minutes >= 720 || minutes < 0)
+                                //{
+                                //    item["ToTime"] = NextDayDate;
+                                //    item["Minute"] = Nd.TotalMinutes;
+                                //}
+                                //else
+                                //{
+                                //    item["ToTime"] = date2;
+                                //    item["Minute"] = ts.TotalMinutes;
+                                //}
 
-                                        item["Id"] = GetPK();
-                                        AddNewRow(dsProdBooked.Tables[0], item);
-                                    }
-                                    else
-                                    {
+                                item["Id"] = GetPK();
+                                AddNewRow(dsProdBooked.Tables[0], item);
+                            }
+                            else
+                            {
 
-                                        DataRow drpb = dv[0].Row;
-                                        //DateTime date1 = Convert.ToDateTime(item["FromTime"]);
-                                        //DateTime date2 = Convert.ToDateTime(item["ToTime"]);
-                                        //DateTime NextDayDate = date2.AddDays(1);
-                                        //TimeSpan ts = date2 - date1;
-                                        //TimeSpan Nd = NextDayDate - date1;
-                                        //int minutes = (int)ts.TotalMinutes;
+                                DataRow drpb = dv[0].Row;
+                                //DateTime date1 = Convert.ToDateTime(item["FromTime"]);
+                                //DateTime date2 = Convert.ToDateTime(item["ToTime"]);
+                                //DateTime NextDayDate = date2.AddDays(1);
+                                //TimeSpan ts = date2 - date1;
+                                //TimeSpan Nd = NextDayDate - date1;
+                                //int minutes = (int)ts.TotalMinutes;
 
-                                        //if (minutes >= 720 || minutes < 0)
-                                        //{
-                                        //    item["ToTime"] = NextDayDate;
-                                        //    item["Minute"] = Nd.TotalMinutes;
-                                        //}
-                                        //else
-                                        //{
-                                        //    item["ToTime"] = date2;
-                                        //    item["Minute"] = ts.TotalMinutes;
-                                        //}
-                                        EditRow(drpb, item);
-                                    }
-                                    clsStaticInfo obj = new clsStaticInfo();
-                                    obj.SaveDataSets(dsProdBooked);
-                                }
+                                //if (minutes >= 720 || minutes < 0)
+                                //{
+                                //    item["ToTime"] = NextDayDate;
+                                //    item["Minute"] = Nd.TotalMinutes;
+                                //}
+                                //else
+                                //{
+                                //    item["ToTime"] = date2;
+                                //    item["Minute"] = ts.TotalMinutes;
+                                //}
+                                EditRow(drpb, item);
+                            }
+                            clsStaticInfo obj = new clsStaticInfo();
+                            obj.SaveDataSets(dsProdBooked);
+                        }
                         //    }
                         //}
                     }
@@ -2158,6 +2176,8 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                 DataSet dsMaster;
                 string TableName = "TRN.ProductionSummary";
 
+
+
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (DataToSave.Count() == 0)
                     return "";
@@ -2172,6 +2192,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                 {
                     if (dsMaster.Tables[0].Rows.Count == 0 && items[0].Id == null)
                     {
+
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
                         bplib.clsGenID genid = new bplib.clsGenID();

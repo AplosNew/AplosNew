@@ -1,0 +1,435 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>Define Process Parameter
+</h3>
+<style>
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell {
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    .modellgModify {
+        width: 1600px;
+    }
+</style>
+<togglable name="Define Process Parameter"></togglable>
+<div class="form-elements form-horizontal">
+    <div class="row" ng-form="DefineProcessParameterForm">
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Group Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="DefineProcessParameterNew.Group" name="Group" ng-options="item.Value as item.Text for item in GroupList" ng-change="getPPMSubGroup(DefineProcessParameterNew.Group);" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="DefineProcessParameterNew.MasterId" name="User Name" ng-options="item.Value as item.Text for item in UserNameList" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">UserCode<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="UserCode" ng-model="DefineProcessParameterNew.UserCode" required class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">DefineName<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="DefineName" ng-model="DefineProcessParameterNew.DefineName" required class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Sub Group Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="DefineProcessParameterNew.SubGroup" name="Sub Group" ng-options="item.Value as item.Text for item in SubGroupList" ng-change="getPPMUserName(DefineProcessParameterNew.SubGroup);" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Bywhom<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="Bywhom" ng-disabled="true" ng-model="DefineProcessParameterNew.ByWhom" class="form-control" maxlength="100" required autocomplete="off">
+                    </div>
+                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                        <button ng-click="selectByWhom();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <input type="text" name="Remarks" ng-model="DefineProcessParameterNew.Remarks" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                <li> <button ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Delete</button></li>
+                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-12 control-label"></label>
+        <label class="col-sm-12 control-label"></label>
+    </div>
+    <div class="clearfix"></div>
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">Article</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Process Parameter</a></li>
+
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div id="GridDefineProcessParameterArticle" ej-grid e-datasource="DefineProcessParameterArticleList" e-templaterefresh="refreshTemplateArticle" e-recorddoubleclick=""
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplateArticle" e-template="#checkboxTemplateArticle" e-textalign="center" e-width="30"></div>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                        <div e-column e-field="Product" e-headertext="Product" e-width="100"></div>
+                        <div e-column e-field="Material" e-headertext="Material" e-width="100"></div>
+                        <div e-column e-field="Article" e-headertext="Article" e-width="100"></div>
+                        <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>
+                    </div>
+                </div>
+                <script type="text/template" id="checkboxTemplateArticle">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                </script>
+                <script type="text/x-jsrender" id="headerTemplateArticle">
+                    <input type="checkbox" id="Aheadchk" />
+                </script>
+                <script type="text/template" id="Remarks">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
+                    </div>
+                </script>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-disabled="DefineProcessParameterNew.Id===null" ng-click="ArticleSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                </ul>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div style="color:black;" id="GridDefineProcessParaProcess" ej-grid e-datasource="DefineProcessParaProcessList"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                     e-recorddoubleclick="" e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-templaterefresh="refreshTemplateDefineProcess">
+                    <div e-columns>
+                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplateDefineProcess" e-template="#checkboxTemplateDefineProcess" e-textalign="center" e-width="30"></div>
+                        <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
+                        <div e-column e-field="UserName" e-headertext="Process.Para.Master" e-width="100"></div>
+                        <div e-column e-template="#ProcessRemarks" e-headertext="Remarks" e-width="200"></div>
+                        <div e-column e-template="#ProcessParameter" e-headertext="Process Parameter" e-width="200"></div>
+                    </div>
+                </div>
+
+                <script type="text/template" id="checkboxTemplateDefineProcess">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                </script>
+                <script type="text/x-jsrender" id="headerTemplateDefineProcess">
+                    <input type="checkbox" id="DPheadchk" />
+                </script>
+                <script type="text/template" id="ProcessRemarks">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="Process Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
+                    </div>
+                </script>
+                <script type="text/template" id="ProcessParameter">
+                    <div class="form-group">
+                        <div class="col-sm-5 text-center" style="padding:0px;padding-left:2px">
+                            <div class="common-btn">
+                                <ul class="list-inline text-center">
+                                    <li><button ng-disabled="data.Id===null" ng-click="$parent.getProcessParameterPopup(this)" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </script>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-disabled="ProcessParaMasterNew.Id===null" ng-click="ProcessSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridDefineProcessParameter" ej-grid e-datasource="DefineProcessParameterList" e-recorddoubleclick="GetDetails"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="50"></div>
+            <div e-column e-type="string" e-field="Group" e-headertext="Group" e-width="100"></div>
+            <div e-column e-type="string" e-field="SubGroup" e-headertext="Sub Group" e-width="100"></div>
+            <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="100"></div>
+            <div e-column e-type="string" e-field="ByWhom" e-headertext="By Whom" e-width="100"></div>
+            <div e-column e-type="string" e-field="UserCode" e-headertext="User Code" e-width="100"></div>
+            <div e-column e-type="string" e-field="DefineName" e-headertext="Define Name" e-width="100"></div>
+            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="ResponsiblePersonPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Employee List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Employee</p>
+                        <div style="color:black;" id="GridResponsiblePersonPopUp" ej-grid e-datasource="EmployeeList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleEmployee">
+                            <div e-columns>
+                                <div e-column e-field="SystemId" e-headertext="Id" e-visible="false" e-width="120"></div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="120"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="50"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="120"></div>
+                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="120"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="120"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeResponsiblePersonPopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="ProcessParameterPoUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Parameter<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-dialog modal-lg modellgModify">
+                <div id="GridProcessParameter" ej-grid e-datasource="ProcessParameterLists" e-recorddoubleclick="GetItemDetails"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-templaterefresh="refreshTemplateDefineProcessParameter">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Item Id" e-visible="false" e-width="100"></div>
+                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplateDefineProcessParameter" e-template="#checkboxTemplateDefineProcessParameter" e-textalign="center" e-width="30"></div>
+                        <div e-column e-field="SNO" e-headertext="SNO" e-width="60"></div>
+                        <div e-column e-field="ParameterName" e-headertext="Parameter Name" e-width="100"></div>
+                        <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
+                        <div e-column e-field="AGroup" e-headertext="Activity Group" e-width="100"></div>
+                        <div e-column e-field="CriticalLevel" e-headertext="Critical Level" e-width="100"></div>
+                        <div e-column e-field="Category" e-headertext="Category" e-width="100"></div>
+                        <div e-column e-field="UOM" e-headertext="UOM" e-width="100"></div>
+                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                        <div e-column e-field="ExceptionDays" e-headertext="Exception Days" e-width="80"></div>
+                        <div e-column e-template="#Max" e-headertext="Max" e-width="50"></div>
+                        <div e-column e-template="#Min" e-headertext="Min" e-width="50"></div>
+                        <div e-column e-template="#Reason" e-headertext="Para.Reason" e-width="80"></div>
+                        <div e-column e-template="#CheckPoints" e-headertext="Check Points" e-width="80"></div>
+                        <div e-column e-template="#WorkCenter" e-headertext="Work Center" e-width="80"></div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-center">
+                        <li> <button ng-click="ProcessParameterSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                    </ul>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-12 control-label"></label>
+                    <label class="col-sm-12 control-label"></label>
+                </div>
+            </div>
+            <script type="text/template" id="checkboxTemplateDefineProcessParameter">
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+            </script>
+            <script type="text/x-jsrender" id="headerTemplateDefineProcessParameter">
+                <input type="checkbox" id="DPPheadchk" />
+            </script>
+            <script type="text/template" id="Max">
+                <div class="col-sm-10" style="padding:0px;">
+                    <input type="text" name="Max" ng-model="data.Max" ng-click="" class="form-control" maxlength="200">
+                </div>
+            </script>
+            <script type="text/template" id="Min">
+                <div class="col-sm-10" style="padding:0px;">
+                    <input type="text" name="Min" ng-model="data.Min" ng-click="" class="form-control" maxlength="200">
+                </div>
+            </script>
+            <script type="text/template" id="CheckPoints">
+                <div class="form-group">
+                    <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li><button ng-disabled="data.Id===null" ng-click="$parent.getParameterCheckPointsPopup(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </script>
+            <script type="text/template" id="WorkCenter">
+                <div class="form-group">
+                    <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li><button ng-disabled="data.Id===null" ng-click="$parent.getWorkCenterPopup(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </script>
+            <script type="text/template" id="Reason">
+                <div class="form-group">
+                    <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li><button ng-disabled="data.Id===null" ng-click="$parent.getReasonPopup(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </script>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="ReasonPopUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Reason<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-dialog modal-lg modellgModify">
+                <div id="GridReason" ej-grid e-datasource="ReasonLists" 
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-templaterefresh="refreshTemplateDefineReason">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Item Id" e-visible="false" e-width="3"></div>
+                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplateDefineReason" e-template="#checkboxTemplateDefineReason" e-textalign="center" e-width="50"></div>
+                        <div e-column e-field="ParameterId" e-headertext="Parameter Id" e-visible="false" e-width="50"></div>
+                        <div e-column e-field="SNO" e-headertext="SNO" e-width="60"></div>
+                        <div e-column e-field="ReasonName" e-headertext="Reason Name" e-width="100"></div>
+                        <div e-column e-template="#ReasonRemarks" e-headertext="Remarks" e-width="200"></div>
+                        <div e-column e-field="IsActive" e-headertext="Is Active" e-width="100"></div>
+                    </div>
+                </div>
+                <script type="text/template" id="ReasonRemarks">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
+                    </div>
+                </script>
+                <div class="clearfix common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-center">
+                        <li><button ng-click="SaveReasonData();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                    </ul>
+                </div>
+            </div>
+            <script type="text/template" id="checkboxTemplateDefineReason">
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+            </script>
+            <script type="text/x-jsrender" id="headerTemplateDefineReason">
+                <input type="checkbox" id="DRheadchk" />
+            </script>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="ParameterCheckPointsPoUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Check Points<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-dialog modal-lg modellgModify">
+                <div id="GridParameterCheckPoints" ej-grid e-datasource="ParameterCheckPointsLists" 
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-templaterefresh="refreshTemplateDefineCheckPoints">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Item Id" e-visible="false" e-width="3"></div>
+                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplateDefineCheckPoints" e-template="#checkboxTemplateDefineCheckPoints" e-textalign="center" e-width="50"></div>
+                        <div e-column e-field="ParameterId" e-headertext="Parameter Id" e-visible="false" e-width="50"></div>
+                        <div e-column e-field="SNO" e-headertext="SNO" e-width="60"></div>
+                        <div e-column e-field="CheckPoints" e-headertext="Check Points" e-width="100"></div>
+                        <div e-column e-template="#CheckPointsRemarks" e-headertext="Remarks" e-width="200"></div>
+                    </div>
+                </div>
+                <script type="text/template" id="CheckPointsRemarks">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
+                    </div>
+                </script>
+                <div class="clearfix common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-center">
+                        <li><button ng-click="SaveCheckPointsData();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                    </ul>
+                </div>
+            </div>
+            <script type="text/template" id="checkboxTemplateDefineCheckPoints">
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+            </script>
+            <script type="text/x-jsrender" id="headerTemplateDefineCheckPoints">
+                <input type="checkbox" id="CPheadchk" />
+            </script>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="DefineParameterWorkCenterPopUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Work Center<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div id="GridDefineParameterWorkCenter" ej-grid e-datasource="DefineProcessParameterWorkCenterList" e-templaterefresh="refreshTemplateDefineWorkCenter" e-recorddoubleclick=""
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplateDefineWorkCenter" e-template="#checkboxTemplateDefineWorkCenter" e-textalign="center" e-width="30"></div>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                        <div e-column e-field="Code" e-headertext="Code" e-width="100"></div>
+                        <div e-column e-field="Workcenter" e-headertext="WorkCenter" e-width="100"></div>
+                        <div e-column e-field="WorkcenterCategory" e-headertext="WorkCenter Category" e-width="100"></div>
+                        <div e-column e-field="WorkcenterSubCategory" e-headertext="WorkCenter SubCategory" e-width="100"></div>
+                        <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
+                        <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                        <div e-column e-field="Capacity" e-headertext="Capacity" e-width="100"></div>
+                        <div e-column e-field="UOM" e-headertext="UOM" e-width="100"></div>
+                    </div>
+                </div>
+                <script type="text/template" id="checkboxTemplateDefineWorkCenter">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                </script>
+                <script type="text/x-jsrender" id="headerTemplateDefineWorkCenter">
+                    <input type="checkbox" id="DWheadchk" />
+                </script>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-center">
+                    <li> <button  ng-click="DefineWorkCenterSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+

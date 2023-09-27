@@ -1023,7 +1023,7 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"Select distinct VMR.Id, VMR.AppliedId ,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial, VMR.NumberOfPassengers
-,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department,                         
+,VMR.PurposeId,PM.UserName Purpose,VMR.Name, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department,                         
 FromLocation = stuff((select ', ' + LM.UserName 
 							from TRN.VehicleMovementRequisitionChild VMC
 							left join HKP.LocationMaster LM on LM.Id = VMC.FromLocationId
@@ -1040,7 +1040,7 @@ FromLocation = stuff((select ', ' + LM.UserName
                             left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
 							LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId							
                             where VMR.IsApprove is null and VMR.IsReject is null and VMR.isCancel is null and VMC.FromLocationId is not null and 
-							VMC.ToLocationId is not null and VMR.VehiclePurposeResponsiblePersonId = '"+identity.EmployeeId+@"'
+							VMC.ToLocationId is not null and VMR.VehiclePurposeResponsiblePersonId = '" + identity.EmployeeId+@"'
 							--order by VMR.Id Desc, FORMAT(VMR.AddedDate, 'dd-MMM-yyy') Desc";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -1048,7 +1048,7 @@ FromLocation = stuff((select ', ' + LM.UserName
         public JsonResult GetVehicleRequisitiontAproveddData()
         {
             string sql = @"Select distinct VMR.Id, VMR.AppliedId ,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial, VMR.NumberOfPassengers
-,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department,                         
+,VMR.PurposeId,PM.UserName Purpose,VMR.Name, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department,                         
 FromLocation = stuff((select ', ' + LM.UserName 
 							from TRN.VehicleMovementRequisitionChild VMC
 							left join HKP.LocationMaster LM on LM.Id = VMC.FromLocationId
@@ -1090,7 +1090,7 @@ FromLocation = stuff((select ', ' + LM.UserName
         public JsonResult GetMergedRequisition(string appliedid)
         {
             string sql = @"Select Row_Number() OVER(PARTITION BY VMR.AppliedId Order by VMR.Id)Row_Num, VMR.Id, VMR.Id VehicleMovementRequisitionId ,VMR.IsApprove, VMR.AppliedId ,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm:ss tt') FromTime, Format(VMR.ToTime,'hh:mm:ss tt')ToTime, VMR.PersonalOfficial
-                            ,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName ByWhom, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department
+                            ,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName ByWhom, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department,VMR.Name
                             
                                     
                             from [TRN].[VehicleMovementRequisition] VMR							
@@ -1278,7 +1278,7 @@ FromLocation = stuff((select ', ' + LM.UserName
 							FOR XML PATH('')),1,1,'')
 							,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
                             , FORMAT(VT.ToTime, 'hh:mm tt')ToTime
-							,EI.EmployeeName ByWhome,  DEP.UserName Department ,PM.StandardName Purpose, VT.Id, VT.Id AppliedId , ABE.EmployeeName ApprovedBy
+							,EI.EmployeeName ByWhom,  DEP.UserName Department ,PM.StandardName Purpose, VT.Id, VT.Id AppliedId , ABE.EmployeeName ApprovedBy,VMR.Name
 						
 							
                             from TRN.VehicleTrip VT
@@ -1377,13 +1377,13 @@ where VMR.AppliedId = VT.Id FOR XML PATH('')), 1,1,'')FromLocation
 left join TRN.VehicleMovementRequisitionChild VMC on VMC.ToLocationId = LM.Id
 left join TRN.VehicleMovementRequisition VMR on VMR.Id = VMC.VehicleMovementRequisitionId
 where VMR.AppliedId = VT.Id FOR XML PATH('')), 1,1,'')ToLocation
-,AppliedId.ByWhome , AppliedId.Purpose
+,AppliedId.ByWhom , AppliedId.Purpose , AppliedId.Name,AppliedId.PersonalOfficial
 from TRN.VehicleTrip VT
 left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
-left join (select VMR.AppliedId, RP.EmployeeName ByWhome, PM.UserName Purpose from TRN.VehicleMovementRequisition VMR 
+left join (select VMR.AppliedId, RP.EmployeeName ByWhom, PM.UserName Purpose,VMR.Name,VMR.PersonalOfficial from TRN.VehicleMovementRequisition VMR 
 left join EmployeeInformation RP on RP.SystemId = VMR.EmpSystemId
 left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
-group by VMR.AppliedId, RP.EmployeeName, PM.UserName
+group by VMR.AppliedId, RP.EmployeeName, PM.UserName,VMR.Name,VMR.PersonalOfficial
 )AppliedId on AppliedId = VT.Id
 left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
 left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
@@ -1406,14 +1406,14 @@ where VMR.AppliedId = VT.Id FOR XML PATH('')), 1,1,'')FromLocation
 left join TRN.VehicleMovementRequisitionChild VMC on VMC.ToLocationId = LM.Id
 left join TRN.VehicleMovementRequisition VMR on VMR.Id = VMC.VehicleMovementRequisitionId
 where VMR.AppliedId = VT.Id FOR XML PATH('')), 1,1,'')ToLocation
-,AppliedId.ByWhome , AppliedId.Purpose
+,AppliedId.ByWhom , AppliedId.Purpose, AppliedId.Name,AppliedId.PersonalOfficial
 
 from TRN.VehicleTrip VT
 left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
-left join (select VMR.AppliedId, RP.EmployeeName ByWhome, PM.UserName Purpose from TRN.VehicleMovementRequisition VMR 
+left join (select VMR.AppliedId, RP.EmployeeName ByWhom, PM.UserName Purpose,VMR.Name,VMR.PersonalOfficial from TRN.VehicleMovementRequisition VMR 
 left join EmployeeInformation RP on RP.SystemId = VMR.EmpSystemId
 left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
-group by VMR.AppliedId, RP.EmployeeName, PM.UserName
+group by VMR.AppliedId, RP.EmployeeName, PM.UserName,VMR.Name,VMR.PersonalOfficial
 )AppliedId on AppliedId = VT.Id
 
 left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
@@ -1826,7 +1826,7 @@ where VMR.AppliedId is not null and VA.DriverMasterId is not null and VIO.InDate
         public JsonResult GetTripGenerated()
         {
             string sql = @"Select distinct VMR.Id, VMR.AppliedId ,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial, VMR.NumberOfPassengers
-,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department,   VMR.NumberOfPassengers                      
+,VMR.PurposeId,PM.UserName Purpose,VMR.Name, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department,   VMR.NumberOfPassengers                      
 ,FromLocation = stuff((select ', ' + LM.UserName 
 							from TRN.VehicleMovementRequisitionChild VMC
 							left join HKP.LocationMaster LM on LM.Id = VMC.FromLocationId
@@ -1851,7 +1851,7 @@ where VMR.AppliedId is not null and VA.DriverMasterId is not null and VIO.InDate
         public JsonResult ApprovedRequisitionForMerged()
         {
             string sql = @"Select distinct VMR.Id, VMR.AppliedId ,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial, VMR.NumberOfPassengers
-,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department,   VMR.NumberOfPassengers                      
+,VMR.PurposeId,PM.UserName Purpose,VMR.Name, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department,   VMR.NumberOfPassengers                      
 ,FromLocation = stuff((select ', ' + LM.UserName 
 							from TRN.VehicleMovementRequisitionChild VMC
 							left join HKP.LocationMaster LM on LM.Id = VMC.FromLocationId
