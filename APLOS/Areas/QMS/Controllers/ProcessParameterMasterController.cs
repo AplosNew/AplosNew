@@ -1108,6 +1108,129 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
             }
         }
 
+        [Authorize, HttpGet]
+        public ActionResult LoadProcessParameterResponsiblePersonDetails()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select CAST (CASE WHEN PPR.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,PPR.Id,PPR.SNO,PPR.PositionName,EMP.SystemId ResponsiblePersonId, EMP.EmployeeName
+                                from EmployeeInformation EMP 
+								LEFT JOIN [MST].[ProcessParameterResponsiblePerson] PPR ON PPR.ResponsiblePersonId=EMP.SystemId
+                                where EMP.EmployeeStatus = 'Active' order by PPR.Id desc";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult createProcessParameterResponsible(List<Dictionary<string, object>> DataList)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[MST].[ProcessParameterResponsiblePerson]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from " + TableName + "");
+                conC.CommitTransaction();
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                if (DataList != null)
+                {
+
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "R" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
+        [Authorize, HttpGet]
+        public ActionResult LoadProcessParameterApprovalResponsiblePersonDetails()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select CAST (CASE WHEN PPA.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,PPA.Id,PPA.SNO,PPA.PositionName,EMP.SystemId ResponsiblePersonId, EMP.EmployeeName
+                                from EmployeeInformation EMP 
+								LEFT JOIN [MST].[ProcessParameterApprovalResponsiblePerson] PPA ON PPA.ResponsiblePersonId=EMP.SystemId
+                                where EMP.EmployeeStatus = 'Active' order by PPA.Id desc";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult createProcessParameterApproval(List<Dictionary<string, object>> DataList)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[MST].[ProcessParameterApprovalResponsiblePerson]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from " + TableName + "");
+                conC.CommitTransaction();
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                if (DataList != null)
+                {
+
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "A" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

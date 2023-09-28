@@ -7425,7 +7425,7 @@ where PO1.QualityPlanDate < = '" + POIssueDate + "'" + ResponsiblePerson + @" or
             }
         }
 
-        public void GetQualityPO(out List<Default> DataList, string IssueId)
+        public void GetQualityPO(out List<Default> DataList, string EntityId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -7434,7 +7434,11 @@ where PO1.QualityPlanDate < = '" + POIssueDate + "'" + ResponsiblePerson + @" or
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"SELECT distinct QC.ProductionOrderId [Value],QC.ProductionOrderId [Text] FROM TRN.QualityControl QC WHERE QC.IssueId='" + IssueId + "'";
+                strSQL = @"SELECT distinct PO.Id [Value],PO.Id [Text]
+
+								   FROM TRN.ProductionOrder PO 
+								   LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
+								   WHERE PS.UserName in ('Running','To Close') and PO.EntityId='" + EntityId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);

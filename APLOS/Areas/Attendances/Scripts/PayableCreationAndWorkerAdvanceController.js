@@ -3,7 +3,7 @@ PayableCreationAndWorkerAdvanceController.$inject = ['cboService', 'commonMessag
 function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
     $rootScope.title = 'Payable Creation & Multiple Employee advance';
     $rootScope.titleTab1 = 'Payable Creation';
-    $rootScope.titleTab2 = 'Multiple Employee advance';
+    $rootScope.titleTab2 = 'Multiple Employee Advance';
     $scope.WorkerAdvanceList = [];
     $scope.path = 'Attendances/GoodWork/';
     $scope.saveUrl = $scope.path + 'CreateWorkerAdvance';

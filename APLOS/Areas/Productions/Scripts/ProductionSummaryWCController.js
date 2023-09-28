@@ -985,6 +985,9 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.ProductionOrderList = [];
     $scope.getProductionOrderPopUp = function (data) {
         $scope.NewObject = data.data;
+        $scope.NewObject.MOIArticle = null;
+        $scope.NewObject.SOArticle = null;
+        $scope.NewObject.ProductCodeArticle = null;
         if (baseService.isUndefinedOrNull(data.data.WorkCenterMasterId)) {
             return ShowResult('Please Work Center.', 'failure');
         }
@@ -1007,9 +1010,10 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         $scope.NewObject.ProductionOrderId = $event.data.POId;
         $scope.NewObject.LotNumber = $event.data.LotNumber;
         $scope.NewObject.ResponsiblePerson = $scope.productionSummaryNew.HeaderResponsiblePerson;
+        $scope.NewObject.Article = $event.data.Article;
         //$scope.NewObject.RemainingQty = $event.data.RemainingQty;
         $scope.GetTotalProductionBookingQty();
-        $scope.getArticle($scope.NewObject.ProductionOrderId);
+        //$scope.getArticle($scope.NewObject.ProductionOrderId);
         var gridObj = $("#ProductionSummaryWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
 

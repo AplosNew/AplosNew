@@ -206,6 +206,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
         $scope.VehicleInModel = Object.assign({}, args[0]);
         $scope.VehicleInModel.InDate = todaDate;
         $scope.VehicleInModel.InTime = todaDate;
+        //$scope.VehicleInModel.OutReading= todaDate;
         $scope.ActionIn = 'Update';
         if (!$rootScope.isCollapsed) {
             
@@ -295,6 +296,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
             InDate: null,
             InTime: null,
             InReading: null,
+            OutReading: null,
             Remarks: null
         };
         $scope.VehicleInModel = Object.assign({}, $scope.VehicleInTemp);
