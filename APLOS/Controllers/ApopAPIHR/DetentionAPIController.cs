@@ -999,10 +999,10 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
-        public List<Default> GetQualityPO(string IssueId)
+        public List<Default> GetQualityPO(string EntityId)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetQualityPO(out List<Default> activelists, IssueId);
+            clsData.GetQualityPO(out List<Default> activelists, EntityId);
             return activelists;
         }
 
