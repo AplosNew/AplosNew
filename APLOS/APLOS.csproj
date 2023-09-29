@@ -655,6 +655,8 @@
     <Compile Include="Areas\QMS\Controllers\CustomerCompletedParameterController.cs" />
     <Compile Include="Areas\QMS\Controllers\CustomerQualityAndTechnicalSupportController.cs" />
     <Compile Include="Areas\QMS\Controllers\CustomerConfirmationParameterController.cs" />
+    <Compile Include="Areas\QMS\Controllers\OrderWiseQualityReportController.cs" />
+    <Compile Include="Areas\QMS\Controllers\ParameterSettingControlController.cs" />
     <Compile Include="Areas\QMS\Controllers\DefineProcessParameterController.cs" />
     <Compile Include="Areas\QMS\Controllers\DocumentSetupController.cs" />
     <Compile Include="Areas\QMS\Controllers\ProductParameterMasterController.cs" />
@@ -2307,6 +2309,8 @@
     <Content Include="Areas\QMS\Scripts\CustomerCompletedParameterController.js" />
     <Content Include="Areas\QMS\Scripts\CustomerQualityAndTechnicalSupportController.js" />
     <Content Include="Areas\QMS\Scripts\CustomerConfirmationParameterController.js" />
+    <Content Include="Areas\QMS\Scripts\OrderWiseQualityReportController.js" />
+    <Content Include="Areas\QMS\Scripts\ParameterSettingControlController.js" />
     <Content Include="Areas\QMS\Scripts\DocumentSetupController.js" />
     <Content Include="Areas\QMS\Scripts\DefineProcessParameterController.js" />
     <Content Include="Areas\QMS\Scripts\ProductParameterMasterController.js" />
@@ -4969,6 +4973,8 @@
     <Content Include="Areas\QMS\Views\CustomerConfirmationParameter\Aplos.cshtml" />
     <Content Include="Areas\QMS\Views\CustomerCompletedParameter\Aplos.cshtml" />
     <Content Include="Areas\QMS\Views\DefineProcessParameter\Aplos.cshtml" />
+    <Content Include="Areas\QMS\Views\ParameterSettingControl\Aplos.cshtml" />
+    <Content Include="Areas\QMS\Views\OrderWiseQualityReport\Aplos.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

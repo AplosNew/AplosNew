@@ -167,6 +167,14 @@
             templateUrl: 'QMS/CustomerCompletedParameter/aplos',
             controller: 'CustomerCompletedParameterController'
         })
+        .when('/parameter-setting-control', {
+            templateUrl: 'QMS/ParameterSettingControl/aplos',
+            controller: 'ParameterSettingControlController'
+        })
+        .when('/order-wise-quality-report', {
+            templateUrl: 'QMS/OrderWiseQualityReport/aplos',
+            controller: 'OrderWiseQualityReportController'
+        })
 
         
 }
