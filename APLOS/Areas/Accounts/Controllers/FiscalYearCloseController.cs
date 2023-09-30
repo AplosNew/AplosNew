@@ -25,7 +25,7 @@ namespace Aplos.Areas.Accounts.Controllers
             _fiscalYearService = fiscalYearService;
             _sqlRepository = sqlRepository;
         }
-
+        #region Fiscal Year Close 
         [HttpGet]
         public ActionResult FiscalYearClose()
         {
@@ -56,7 +56,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = AplosMessage.Insert });
         }
 
-       
+
 
         //[HttpPost]
         //public ActionResult Delete(string id)
@@ -69,6 +69,16 @@ namespace Aplos.Areas.Accounts.Controllers
         //    return Json(new { Message = AplosMessage.Deleted });
         //}
 
-        
+        #endregion
+
+        #region Fiscal Year Close Post
+        [HttpGet]
+        public ActionResult FiscalYearClosePost()
+        {
+            return View("~/Areas/Accounts/Views/FiscalYearClosePost.cshtml");
+        }
+        #endregion
+
+
     }
 }

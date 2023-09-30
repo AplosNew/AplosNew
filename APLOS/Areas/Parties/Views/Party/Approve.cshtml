@@ -51,7 +51,7 @@
                                 <input type="text" name="Short Name" maxlength="15" ng-model="party.ShortName" class="form-control" required tabindex="3" capitalize>
                             </div>
                         </div>
-                        
+
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Party Category<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -138,6 +138,7 @@
                                 <input type="text" name="Latitude" maxlength="30" ng-model="party.Latitude" class="form-control" tabindex="2">
                             </div>
                         </div>
+
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group" show-errors>
@@ -219,7 +220,7 @@
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Active</label>
-                            <div class="col-sm-8">
+                            <div class="col-sm-2">
                                 <div class="checkbox-site">
                                     <label>
                                         <input type="checkbox" ng-model="party.Active" tabindex="26">
@@ -227,6 +228,15 @@
                                     </label>
                                 </div>
                             </div>
+                                <label class="col-sm-4 control-label">Is Approved</label>
+                                <div class="col-sm-2">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="PartyUpdate.IsApproved" tabindex="26">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Longitude</label>

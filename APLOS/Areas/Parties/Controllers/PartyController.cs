@@ -194,7 +194,7 @@ namespace Aplos.Areas.Parties.Controllers
 						            join trn.InventoryReceive Ir on ir.Id=ird.InventoryReceiveId
 						            where ird.PODetailsId=pod.Id and 
 						            (ir.AuthorizedByStatus!='Reject' OR ir.CheckedByStatus!='Reject'))) PO ON PO.PartyId=P.Id
-                                    WHERE P.Archive=0 AND P.Active=1 AND P.CompanyGroupId='" + companyGroupId + "' AND P.PartyType IN ('" + PartyType.Party + "', '" + PartyType.Company + "') AND CP.CompanyId='" + companyId + "' AND CP.PlantId='" + plantId + "' AND CP.PartyType in ('"+temp+"')) AS TEMP WHERE " + strkey + " ";
+                                    WHERE P.Archive=0 AND P.Active=1 AND P.CompanyGroupId='" + companyGroupId + "' AND P.PartyType IN ('" + PartyType.Party + "', '" + PartyType.Company + "') AND CP.CompanyId='" + companyId + "' AND CP.PlantId='" + plantId + "' AND CP.PartyType in ('" + temp + "')) AS TEMP WHERE " + strkey + " ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -334,10 +334,10 @@ namespace Aplos.Areas.Parties.Controllers
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
             }
         }
-       
-        
+
+
         [HttpPost, Authorize]
-        public JsonResult GetCompanyPartyDataSearch(string column, string value,string partyType, string CompanyId, string PlantId)
+        public JsonResult GetCompanyPartyDataSearch(string column, string value, string partyType, string CompanyId, string PlantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             if (string.IsNullOrEmpty(CompanyId))
@@ -348,7 +348,7 @@ namespace Aplos.Areas.Parties.Controllers
             {
                 PlantId = identity.PlantId;
             }
-            var res= GetCompanyPartyListNew(identity.CompanyGroupId, CompanyId, PlantId, column, value, partyType);
+            var res = GetCompanyPartyListNew(identity.CompanyGroupId, CompanyId, PlantId, column, value, partyType);
             var jsondata = Json(res, JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
@@ -364,18 +364,18 @@ namespace Aplos.Areas.Parties.Controllers
             return jsondata;
         }
 
-        public List<Dictionary<string, object>> GetCompanyPartyListNew( string companyGroupId, string companyId, string plantId,string column, string value, string customerVendor)
+        public List<Dictionary<string, object>> GetCompanyPartyListNew(string companyGroupId, string companyId, string plantId, string column, string value, string customerVendor)
         {
             try
             {
                 string temp = null;
-                if (customerVendor == "Vendor"|| customerVendor == "Customer"|| customerVendor == "Director")
+                if (customerVendor == "Vendor" || customerVendor == "Customer" || customerVendor == "Director")
                 {
                     temp = customerVendor;
                 }
-                if (customerVendor ==null|| customerVendor == "null")
+                if (customerVendor == null || customerVendor == "null")
                 {
-                    temp = "Vendor"+"','"+"Customer";
+                    temp = "Vendor" + "','" + "Customer";
                 }
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
@@ -607,7 +607,7 @@ namespace Aplos.Areas.Parties.Controllers
 
         #region vendor BY Contract
         [HttpPost, Authorize]
-        public JsonResult GetCompanyPartyDataListByContract(string column, string value, string partyType, string ContractId) 
+        public JsonResult GetCompanyPartyDataListByContract(string column, string value, string partyType, string ContractId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var res = GetCompanyPartyDataListByContract(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value, partyType, ContractId);
@@ -615,7 +615,7 @@ namespace Aplos.Areas.Parties.Controllers
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
-        public List<Dictionary<string, object>> GetCompanyPartyDataListByContract(string companyGroupId, string companyId, string plantId, string column, string value, string customerVendor,string ContractId)
+        public List<Dictionary<string, object>> GetCompanyPartyDataListByContract(string companyGroupId, string companyId, string plantId, string column, string value, string customerVendor, string ContractId)
         {
             try
             {
@@ -680,7 +680,7 @@ namespace Aplos.Areas.Parties.Controllers
                                     Left join boq boq ON boq.VendorId=p.Id									
 									LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=boq.MasterOrderItemId
 									LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
-                                    WHERE P.Archive=0 AND P.Active=1 AND P.CompanyGroupId='" + companyGroupId + "' AND CP.PartyType IN ('" + customerVendor + "') AND CP.CompanyId='" + companyId + "' AND CP.PlantId='" + plantId + @"' and so.ContractId='"+ ContractId + @"'
+                                    WHERE P.Archive=0 AND P.Active=1 AND P.CompanyGroupId='" + companyGroupId + "' AND CP.PartyType IN ('" + customerVendor + "') AND CP.CompanyId='" + companyId + "' AND CP.PlantId='" + plantId + @"' and so.ContractId='" + ContractId + @"'
                                     ) AS TEMP WHERE " + strkey + " order by Code ";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -770,7 +770,7 @@ namespace Aplos.Areas.Parties.Controllers
         [HttpPost]
         public JsonResult Edit(Party party, AddressMaster addressMaster, IEnumerable<ContactMaster> contactmasters,
             IEnumerable<CompanyParty> companyPartyDataList, IEnumerable<CompanyPartyGL> companyPartyGLDataList,
-            IEnumerable<PartyPartnerFunction> vendorPartnerFunction,bool isCustomerCurrencyChanges, bool isVendorCurrencyChanges)
+            IEnumerable<PartyPartnerFunction> vendorPartnerFunction, bool isCustomerCurrencyChanges, bool isVendorCurrencyChanges)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             party.CompanyGroupId = identity.CompanyGroupId;
@@ -783,7 +783,7 @@ namespace Aplos.Areas.Parties.Controllers
                 {
                     ConnectionManager.DAL.ConManager objCon;
                     DataSet dsMaster = null;
-                    string sql = "select* from trn.VoucherDetail where PartyId = '" + party.Id + "' and PartyType='"+ item.PartyType + "'";
+                    string sql = "select* from trn.VoucherDetail where PartyId = '" + party.Id + "' and PartyType='" + item.PartyType + "'";
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
 
@@ -795,7 +795,7 @@ namespace Aplos.Areas.Parties.Controllers
             }
             if (isVendorCurrencyChanges == true && listCount > 0)
             {
-                foreach (var item in companyPartyDataList.Where(r=>r.PartyType=="Vendor"))
+                foreach (var item in companyPartyDataList.Where(r => r.PartyType == "Vendor"))
                 {
                     ConnectionManager.DAL.ConManager objCon;
                     DataSet dsMaster = null;
@@ -1011,7 +1011,7 @@ namespace Aplos.Areas.Parties.Controllers
                 throw;
             }
         }
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public JsonResult CreatePartyBank(Dictionary<string, object> data)
         {
             try
@@ -1064,7 +1064,7 @@ namespace Aplos.Areas.Parties.Controllers
 
         }
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public JsonResult EditPartyBank(Dictionary<string, object> data)
         {
             try
@@ -1161,6 +1161,34 @@ namespace Aplos.Areas.Parties.Controllers
             dr.EndEdit();
         }
 
-        #endregion
+        [HttpPost]
+        public JsonResult PartyApprovalUpdate(Dictionary<string, object> data, string PartyId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from HKP.Party where Id='" + PartyId + "'", out dsMaster, false, "1");
+
+                data["IsApproved"] = data["IsApproved"].ToString();
+                data["ApprovedBy"] = identity.EmployeeId;
+                data["ApprovedDate"] = data["ApprovedDate"].ToString();
+
+                EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);
+
+
+                #endregion data update
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return Json(new { Error = false, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
     }
 }
