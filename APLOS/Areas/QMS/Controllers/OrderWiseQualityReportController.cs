@@ -50,7 +50,10 @@ namespace Aplos.Areas.QMS.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string
                 sql = @"select (case when QCD.Id is null then 'Pending' else 'Completed' end) QualityStatus,format(QC.AddedDate,'dd-MMM-yyyy') Date,MOI.Id MOLineItemNo,PS.UserName POStatus,POD.ProductionOrderId PONo,
-QC.LotNumber,MA.StandardName Article,XP.UserName Customer,'' Grade,'' Comment
+QC.LotNumber,MA.StandardName Article,XP.UserName Customer,Reverse(stuff(Reverse((select OWC.Grade +', ' from MST.OrderWiseQualityComment OWC																			
+where OWC.MOLineItemNo=MOI.Id and OWC.PONo=PO.Id and OWC.LotNo=QC.LotNumber for xml PATH(''))),1,2,'')) Grade,
+Reverse(stuff(Reverse((select format(OWC.AddedDate,'dd-MMM-yyyy') + '-' + OWC.Comment +', ' from MST.OrderWiseQualityComment OWC																			
+where OWC.MOLineItemNo=MOI.Id and OWC.PONo=PO.Id and OWC.LotNo=QC.LotNumber for xml PATH(''))),1,2,'')) CommentDetails
 from TRN.SalesOrder SO
 left join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 left join [MST].[MaterialMasterArticle] MA ON MA.Id=MOI.ArticleId
@@ -65,82 +68,66 @@ where SO.OrderStatusId in ('Active','Toship','ToClose') and PS.UserName in ('Run
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet, Authorize]
-        public ActionResult GetCRPCbo(string MasterId, string LineItemNo)
+        [Authorize, HttpGet]
+        public ActionResult getCommentEntryData(string MOLineItemNo, string PONo, string LotNo)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string
-                sql = @"select RD.Id,SD.Id SId,QCD.Id ParameterId,QC.Id TransactionHeaderId,QMM.UserName Issue,QC.IssueId, QCD.ItemId,
-PM.UserName ParameterName,QPM.UOMId,UOM.UserName UOM,'" + MasterId + @"' UCPId,RD.MinRequirement,RD.MaxRequirement,SD.MinStandard,SD.MaxStandard MaxStandard,EI.EmployeeName ResponsiblePerson,RD.Remarks,RD.CriticalLevel,
-(select ArticleId from TRN.MasterOrderItem where CustomerParameterId='" + MasterId + @"' and Id='" + LineItemNo + @"') as ArticleId
-from TRN.QualityControlDetails QCD
-left join TRN.QualityControl QC on QC.Id=QCD.QCId
-left join MST.QualityManagementMaster QMM on QMM.Id= QC.IssueId
-left join MST.QualityManagementParameterItem QPM on QPM.Id=QCD.ItemId
-left join hkp.ParameterMaster PM on PM.Id=QPM.ParameterId
-left join SCS.UnitOfMeasurement UOM on UOM.Id=QPM.UOMId
-left join TRN.UCPRequirementDetails RD on RD.UCPId='" + MasterId + @"' and RD.ParameterId=QCD.Id
-left join TRN.UCPMaxMinStandardDetails SD on SD.ArticleId=(select ArticleId from TRN.MasterOrderItem where CustomerParameterId='" + MasterId + @"' and Id='"+ LineItemNo + @"') and SD.ParameterId=QCD.Id
-left join EmployeeInformation EI on EI.SystemId=RD.ResponsiblePersonId
-where ItemId in (select Id from MST.QualityManagementParameterItem where CustomerParameter = 1)";
-             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            string sql = @"select Id,isnull(MOLineItemNo,'" + MOLineItemNo + "') MOLineItemNo,isnull(PONo,'" + PONo + "') PONo,isnull(LotNo,'" + LotNo + "') LotNo,Comment,ByWhomId," +
+                "(select EmployeeName from EmployeeInformation Where SystemId=(select AuthorizedResPersonId from [HKP].[QualityManagementAuthorizedPerson] where Id=ByWhomId)) ByWhom,Grade " +
+                "from [MST].[OrderWiseQualityComment] where MOLineItemNo='"+ MOLineItemNo + "' and PONo='"+ PONo + "' and LotNo='"+ LotNo + "'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetByWhomLists()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var sql = @"select Id as Value,(select EmployeeName from  employeeinformation where SystemId=AuthorizedResPersonId) as Text from [HKP].[QualityManagementAuthorizedPerson]";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-        public JsonResult createUCPRequirement(Dictionary<string, object> UCPRequirementDetailsData)
+        public JsonResult createComments(Dictionary<string, object> CommentsData, string MOItem, string POId, string LotNumber)
         {
             try
             {
+
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                DataSet dsUCPRequirementDetailsData, dsUCPStandardDetailsData, dsChildId;
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[OrderWiseQualityComment] where Comment='" + CommentsData["Comment"] + "'", out DataSet dsOrderWiseQualityCommentValidation, false, "1");
+
+                DataSet dsOrderWiseQualityComment;
 
                 conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[UCPRequirementDetails] where Id='" + UCPRequirementDetailsData["Id"] + "'", out dsUCPRequirementDetailsData, false, "1");
-                conRack.OpenDataSetThroughAdapter("select count(Id) + 1 as UCPId from TRN.UCPRequirementDetails where UCPId='" + UCPRequirementDetailsData["UCPId"] + "'", out dsChildId, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[UCPMaxMinStandardDetails] where Id='" + UCPRequirementDetailsData["SId"] + "'", out dsUCPStandardDetailsData, false, "1");
-                
-
-                string _Id = "", _SId = "", Id = string.Empty;
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[OrderWiseQualityComment] where Id='" + CommentsData["Id"] + "'", out dsOrderWiseQualityComment, false, "1");
+                string _Id = "";
 
                 #region data update
-                if (dsUCPRequirementDetailsData.Tables[0].Rows.Count == 0)
+                if (dsOrderWiseQualityComment.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    UCPRequirementDetailsData["Id"] = UCPRequirementDetailsData["UCPId"] + "-" + dsChildId.Tables[0].Rows[0]["UCPId"].ToString();
-                    AddNewRow(dsUCPRequirementDetailsData.Tables[0], UCPRequirementDetailsData);
-
+                    genid.GenID("OrderWiseQualityComment", out _Id);
+                    _Id = "OWC" + _Id;
+                    CommentsData["Id"] = _Id;
+                    CommentsData["MOLineItemNo"] = MOItem;
+                    CommentsData["PONo"] = POId;
+                    CommentsData["LotNo"] = LotNumber;
+                    AddNewRow(dsOrderWiseQualityComment.Tables[0], CommentsData);
                 }
                 else
                 {
-                    _Id = UCPRequirementDetailsData["Id"].ToString();
-                    EditRow(dsUCPRequirementDetailsData.Tables[0].Rows[0], UCPRequirementDetailsData);
+                    _Id = CommentsData["Id"].ToString();
+                    EditRow(dsOrderWiseQualityComment.Tables[0].Rows[0], CommentsData);
                 }
-
-                if (dsUCPStandardDetailsData.Tables[0].Rows.Count == 0)
-                {
-                    
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[TRN].[UCPMaxMinStandardDetails]", out _SId);
-                        UCPRequirementDetailsData["Id"] = _SId;
-                        AddNewRow(dsUCPStandardDetailsData.Tables[0], UCPRequirementDetailsData);
-                       
-                }
-                else
-                {
-                    _SId = UCPRequirementDetailsData["SId"].ToString();
-                    UCPRequirementDetailsData["Id"] = _SId;
-                    EditRow(dsUCPStandardDetailsData.Tables[0].Rows[0], UCPRequirementDetailsData);
-                }
-
                 #endregion data update
 
 
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsUCPRequirementDetailsData, dsUCPStandardDetailsData);
+                _info.SaveDataSets(dsOrderWiseQualityComment);
 
-                return Json(new { Error = false, Data = UCPRequirementDetailsData, Message = AplosMessage.Insert });
+                return Json(new { Error = false, Data = CommentsData, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
@@ -152,14 +139,41 @@ where ItemId in (select Id from MST.QualityManagementParameterItem where Custome
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetParameterResponsiblePersonLists()
+        public ActionResult getCommentData(string MOId, string POId, string LotNo)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select OWC.*,(select EmployeeName from EmployeeInformation Where SystemId=(select AuthorizedResPersonId from [HKP].[QualityManagementAuthorizedPerson] where Id=ByWhomId)) ByWhom from [MST].[OrderWiseQualityComment] OWC
+where OWC.MOLineItemNo ='" + MOId + "' and OWC.PONo='" + POId + "' and OWC.LotNo='" + LotNo + "'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadCommentEntryEditData(string CommentId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            var sql = @"select Id as Value,(select EmployeeName from  employeeinformation where SystemId=ResponsiblePersonId) as Text from MST.ProcessParameterResponsiblePerson";
-
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            string sql = @"select OWC.*,(select EmployeeName from EmployeeInformation Where SystemId=(select AuthorizedResPersonId from [HKP].[QualityManagementAuthorizedPerson] where Id=ByWhomId)) ByWhom from [MST].[OrderWiseQualityComment] OWC where Id='" + CommentId + @"'";
+            return Json(new { comment = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public ActionResult CommentsDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from [MST].[OrderWiseQualityComment] where Id ='" + id + @"'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
         [Authorize, HttpGet]
         public JsonResult GetParameterApprovalPersonLists()
@@ -243,25 +257,7 @@ where ItemId in (select Id from MST.QualityManagementParameterItem where Custome
             }
         }
 
-        [Authorize, HttpPost]
-        public ActionResult GetEmployee()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"SELECT EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
-                                    , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
-                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
-                            FROM dbo.EmployeeInformation AS EI
-                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
-                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
-							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
-                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
-                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-                            WHERE EI.EmployeeStatus='Active' and EI.EmployeeCode is not null";
 
-            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
-        }
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

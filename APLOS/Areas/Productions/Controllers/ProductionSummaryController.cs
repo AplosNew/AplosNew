@@ -307,7 +307,7 @@ PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + 
         public ActionResult GetMasterOrderItem(string entityid, string workCenterMasterId, string productionLevel, string processId, string ProductionOrderId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"SELECT DISTINCT mo.MasterOrderNo,so.MasterOrderItemId
+            string str = @"SELECT DISTINCT CAST (CASE WHEN PRS.MasterOrderItemId IS NULL THEN 0 ELSE 1 END AS bit) Flag,mo.MasterOrderNo,so.MasterOrderItemId
 	                                ,ISNULL(so.Id,'') SOId
                                     ,PM.Code as ProductCode
 	                                ,SO.CustomerPOId
@@ -339,8 +339,8 @@ PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + 
 	                                ) so ON POD.SalesOrderId = SO.Id
                                 LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
                                 LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
-                                LEFT JOIN (SELECT SUM(PS.Quantity) TotalProductionQty,PS.SalesOrderId,PS.ProcessId
-	                                FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"' GROUP BY PS.SalesOrderId,PS.ProcessId
+                                LEFT JOIN (SELECT SUM(PS.Quantity) TotalProductionQty,PS.SalesOrderId,PS.ProcessId,PS.MasterOrderItemId
+	                                FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"' GROUP BY PS.SalesOrderId,PS.ProcessId,PS.MasterOrderItemId
 	                                ) AS PRS ON PRS.SalesOrderId = SO.Id AND PRS.ProcessId = '" + processId + @"'
                                 LEFT JOIN HKP.Party b ON b.id = mo.PartyId
                                 LEFT JOIN SCS.UnitOfMeasurement u ON u.id = mo.TotalQtyUOMId
