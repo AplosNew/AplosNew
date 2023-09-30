@@ -16,7 +16,7 @@ function partyApprovalController(addressService, commonMessage, $scope, $rootSco
     $scope.saveUrl = $scope.path + 'create';
     $scope.saveBankUrl = $scope.path + 'CreateBank';
     $scope.updateUrl = $scope.path + 'edit';
-    $scope.deleteUrl = $scope.path + 'delete/';
+    //$scope.deleteUrl = $scope.path + 'delete/';
     $scope.deleteBankUrl = $scope.path + 'DeleteBank';
 
     baseService.init($scope.getListUrl, null, null, null, 'Sequence', null);
@@ -1310,31 +1310,31 @@ function partyApprovalController(addressService, commonMessage, $scope, $rootSco
 
     // #region Delete
 
-    $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.party.Id)) {
-            $http({
-                method: 'POST',
-                url: $scope.deleteUrl + $scope.party.Id,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error == true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.parties.splice($scope.index, 1);
-                    baseService.paginationRemove();
-                    ClearFields(response.data.Sequence);
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
-        }
-        else {
-            ShowResult(commonMessage.primaryKeyNullMessage, 'failure');
-        }
-    };
+    //$scope.Delete = function () {
+    //    if (!baseService.isUndefinedOrNull($scope.party.Id)) {
+    //        $http({
+    //            method: 'POST',
+    //            url: $scope.deleteUrl + $scope.party.Id,
+    //            dataType: 'JSON'
+    //        }).then(function successCallback(response) {
+    //            if (response.data.Error == true) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //            else {
+    //                ShowResult(response.data.Message, 'success');
+    //                $scope.parties.splice($scope.index, 1);
+    //                baseService.paginationRemove();
+    //                ClearFields(response.data.Sequence);
+    //            }
+    //            function errorCallBack(response) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //        });
+    //    }
+    //    else {
+    //        ShowResult(commonMessage.primaryKeyNullMessage, 'failure');
+    //    }
+    //};
     // #endregion
 
     $scope.showContactMaster = true;

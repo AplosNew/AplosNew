@@ -1216,6 +1216,9 @@ upanelApp.controller("CustomerConfirmationParameterController", CustomerConfirma
 upanelApp.controller("CustomerCompletedParameterController", CustomerCompletedParameterController)
 upanelApp.controller("partyApprovalController", partyApprovalController)
 upanelApp.controller("DefineProcessParameterController", DefineProcessParameterController)
+upanelApp.controller("ParameterSettingControlController", ParameterSettingControlController)
+upanelApp.controller("OrderWiseQualityReportController", OrderWiseQualityReportController)
+
 
 
 

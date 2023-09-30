@@ -1339,12 +1339,16 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
             try
             {
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryLotNumberValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryLotNumberValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryPOLotNumberValidation, false, "1");
                 if (!string.IsNullOrEmpty(ps.LotNumber))
                 {
-                    if (dsProductionSummaryLotNumberValidation.Tables[0].Rows.Count == 0)
+                    if (dsProductionSummaryLotNumberValidation.Tables[0].Rows.Count > 0)
                     {
-                        throw new Exception("This Lot Number is already used for another Production Order No.");
+                        if (dsProductionSummaryPOLotNumberValidation.Tables[0].Rows.Count == 0)
+                        {
+                            throw new Exception("This Lot Number is already used for another Production Order No.");
+                        }
                     }
                 }
                 _unitOfWork.BeginTransaction();
@@ -1446,13 +1450,16 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
             try
             {
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryLotNumberValidation, false, "1");
-
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryLotNumberValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryPOLotNumberValidation, false, "1");
                 if (!string.IsNullOrEmpty(ps.LotNumber))
                 {
-                    if (dsProductionSummaryLotNumberValidation.Tables[0].Rows.Count == 0)
+                    if (dsProductionSummaryLotNumberValidation.Tables[0].Rows.Count > 0)
                     {
-                        throw new Exception("This Lot Number is already used for another Production Order No.");
+                        if (dsProductionSummaryPOLotNumberValidation.Tables[0].Rows.Count == 0)
+                        {
+                            throw new Exception("This Lot Number is already used for another Production Order No.");
+                        }
                     }
                 }
 
