@@ -22285,7 +22285,9 @@ group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN (select SUM(VDCW.CrAmount)AdvanceWriteOffBooksAmount,AdvanceId from [TRN].[AdvanceWriteOffDetail] AWD
 				INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.AdvanceWriteOffDetailId=AWD.Id
 				INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
-                LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId WHERE AW.IsPark=0 AND AW.Archive=0 GROUP BY AdvanceId)AW ON AW.AdvanceId=A.Id
+                LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId WHERE AW.IsPark=0 AND AW.Archive=0
+                and ( convert(Date,AW.PostingDate) <= '" + toDate + @"')
+                GROUP BY AdvanceId)AW ON AW.AdvanceId=A.Id
                 where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance'  and A.PartyType='Vendor' 
 				AND ( convert(Date,A.PostingDate) <= '" + toDate + @"' ) and ISNULL(VDCA.DrAmount,0)- ISNULL(AW.AdvanceWriteOffBooksAmount,0)>0
                 
@@ -22370,8 +22372,9 @@ group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN (select SUM(VDCW.DrAmount)AdvanceWriteOffBooksAmount,AdvanceId from [TRN].[AdvanceWriteOffDetail] AWD
 				INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.AdvanceWriteOffDetailId=AWD.Id
 				INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
-                LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId WHERE AW.IsPark=0 AND AW.Archive=0 GROUP BY AdvanceId)AW ON AW.AdvanceId=A.Id
-                where A.PlantId='" + plantId + @"' and A.SourceType='CustomerAdvance'  AND A.IsPark=0
+                LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId WHERE AW.IsPark=0 AND AW.Archive=0 
+                AND ( convert(Date,AW.PostingDate) <= '" + toDate + @"') GROUP BY AdvanceId)AW ON AW.AdvanceId=A.Id
+                WHERE A.PlantId='" + plantId + @"' and A.SourceType='CustomerAdvance'  AND A.IsPark=0
 				AND ( convert(Date,A.PostingDate) <= '" + toDate + @"' ) 
 				and (ISNULL(VDCA.CrAmount,0)- ISNULL(AW.AdvanceWriteOffBooksAmount,0))>0
 
