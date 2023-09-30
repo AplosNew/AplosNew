@@ -29,6 +29,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.saveUrlParameterResponsiblePerson = $scope.path + 'createParameterResponsiblePerson';
     $scope.saveUrlParameterApprovalResponsiblePerson = $scope.path + 'createParameterApprovalResponsiblePerson';
     $scope.saveUrlQualityActionResponsiblePerson = $scope.path + 'createQualityActionResponsiblePerson';
+    $scope.saveUrlAuthorizedPerson = $scope.path + 'createAuthorizedPerson';
 
     $scope.CriticalLevelLists = [
         {
@@ -384,6 +385,18 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         }
     };
 
+    $scope.removeAuthorizedPerson = function (index, data) {
+        try {
+            $scope.popUpIndex = index;
+            $scope.tempAPId = data;
+            $scope.message_confirmation = "Are you sure you want to delete?";
+            angular.element(document.querySelector('#confirmRemoveAuthorizedPerson')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
     $scope.DeleteFrequency = function () {
         $http({
             method: 'POST',
@@ -423,6 +436,27 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
             }
         });
     };
+
+    $scope.DeleteAuthorizedPerson = function () {
+        $http({
+            method: 'POST',
+            url: 'QMS/QualityManagementMaster/AuthorizedPersonDelete?id=' + $scope.tempAPId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getAuthorizedPerson();
+                AuthorizedPersonClearFields();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
 
     $scope.ClearParameter = function () {
         ClearFields();
@@ -524,6 +558,15 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         , IsActive: true
     }
     $scope.ReasonNew = Object.assign({}, $scope.Reason);
+
+    $scope.AuthorizedPerson = {
+        Id: null
+        , SNO: null
+        , PositionName: null
+        , AuthorizedResPerson: null
+        , AuthorizedResPersonId: null
+    }
+    $scope.AuthorizedPersonNew = Object.assign({}, $scope.AuthorizedPerson);
 
     $scope.ReasonNameLists = [];
     $scope.GetReasonNameLists = function () {
@@ -1699,6 +1742,9 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.ReasonMasterClear = function () {
         ReasonMasterClearFields();
     };
+    $scope.AuthorizedPersonClear = function () {
+        AuthorizedPersonClearFields();
+    };
    
     function ScheduleClearFields() {
         $scope.Action = "Save";
@@ -1729,6 +1775,11 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     function ReasonMasterClearFields() {
         $scope.Action = "Save";
         $scope.ReasonMasterNew = Object.assign({}, $scope.ReasonMaster);
+    }
+
+    function AuthorizedPersonClearFields() {
+        $scope.Action = "Save";
+        $scope.AuthorizedPersonNew = Object.assign({}, $scope.AuthorizedPerson);
     }
 
     function ReasonClearFields() {
@@ -1966,5 +2017,76 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
             ShowResult(ex, 'Info');
         }
     };
+
+    $scope.AuthorizedPersonSave = function () {
+        $http({
+            method: 'POST',
+            url: $scope.saveUrlAuthorizedPerson,
+            data: {
+                'AuthorizedPersonData': $scope.AuthorizedPersonNew
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getAuthorizedPerson();
+                AuthorizedPersonClearFields();
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    $scope.AuthorizedPersonList = [];
+    $scope.getAuthorizedPerson = function () {
+        $http({
+            method: 'Get',
+            url: 'QMS/QualityManagementMaster/getAuthorizedPerson'
+        }).then(function successCallback(response) {
+            $scope.AuthorizedPersonList = response.data;
+        }
+        )
+    }
+    $scope.getAuthorizedPerson();
+
+    $scope.GetAuthorizedPersonDetails = function (args) {
+        $http({
+            method: 'Get',
+            url: 'QMS/QualityManagementMaster/getAuthorizedPersonData?AuthorizedId=' + args.data.Id
+        }).then(function successCallback(response) {
+            $scope.AuthorizedPersonNew = response.data.AuthorizedPerson[0];
+        }
+        )
+    }
+
+    $scope.selectAuthorizedPerson = function () {
+        $scope.getAuthorizedResPerson();
+        angular.element(document.querySelector('#AuthorizedPersonPopUp')).modal('show');
+    }
+
+    $scope.AuthorizedResPersonList = [];
+    $scope.getAuthorizedResPerson = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetAuthorizedPerson',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.AuthorizedResPersonList = resp.data;
+        });
+    }
+
+    $scope.doubleAuthorizedPerson = function (e) {
+        $scope.AuthorizedPersonNew.AuthorizedResPersonId = e.data.SystemId;
+        $scope.AuthorizedPersonNew.AuthorizedResPerson = e.data.EmployeeName;
+        angular.element(document.querySelector('#AuthorizedPersonPopUp')).modal('hide');
+    }
+
+    $scope.closeAuthorizedPersonPopUp = function () {
+        angular.element(document.querySelector('#AuthorizedPersonPopUp')).modal('hide');
+    }
 
 }

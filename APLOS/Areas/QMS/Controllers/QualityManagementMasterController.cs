@@ -811,6 +811,24 @@ P.UserReportGroup,QPC.Remarks
             }
         }
 
+        [HttpPost]
+        public ActionResult AuthorizedPersonDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from [HKP].[QualityManagementAuthorizedPerson] where Id ='" + id + @"'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         [Authorize, HttpGet]
         public ActionResult LoadFrequencyList(string ParameterId)
         {
@@ -1685,6 +1703,89 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
             {
                 throw (ex);
             }
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult getAuthorizedPerson()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT QAP.*,(select EmployeeName from EmployeeInformation where SystemId=QAP.AuthorizedResPersonId) AuthorizedResPerson  FROM [HKP].[QualityManagementAuthorizedPerson] QAP order by SNO";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult getAuthorizedPersonData(string AuthorizedId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"select QAP.*,(select EmployeeName from EmployeeInformation where SystemId=QAP.AuthorizedResPersonId) AuthorizedResPerson FROM [HKP].[QualityManagementAuthorizedPerson] QAP where QAP.Id='" + AuthorizedId + @"' order by SNO";
+            return Json(new { AuthorizedPerson = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult createAuthorizedPerson(Dictionary<string, object> AuthorizedPersonData)
+        {
+            try
+            {
+
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [HKP].[QualityManagementAuthorizedPerson] where AuthorizedResPersonId='" + AuthorizedPersonData["AuthorizedResPersonId"] + "'", out DataSet dsQualityManagementAuthorizedResPersonValidation, false, "1");
+
+                DataSet dsQualityManagementAuthorizedPerson;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [HKP].[QualityManagementAuthorizedPerson] where Id='" + AuthorizedPersonData["Id"] + "'", out dsQualityManagementAuthorizedPerson, false, "1");
+                string _Id = "";
+
+                #region data update
+                if (dsQualityManagementAuthorizedPerson.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("QualityManagementAuthorizedPerson", out _Id);
+                    _Id = "A" + _Id;
+                    AuthorizedPersonData["Id"] = _Id;
+                    AddNewRow(dsQualityManagementAuthorizedPerson.Tables[0], AuthorizedPersonData);
+                }
+                else
+                {
+                    _Id = AuthorizedPersonData["Id"].ToString();
+                    EditRow(dsQualityManagementAuthorizedPerson.Tables[0].Rows[0], AuthorizedPersonData);
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsQualityManagementAuthorizedPerson);
+
+                return Json(new { Error = false, Data = AuthorizedPersonData, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetAuthorizedPerson()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"SELECT EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                                    , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
+                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
+                            FROM dbo.EmployeeInformation AS EI
+                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            WHERE EI.EmployeeStatus='Active' and EI.EmployeeCode is not null";
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
         #endregion -- Operations
