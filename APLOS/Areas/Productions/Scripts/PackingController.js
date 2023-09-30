@@ -370,7 +370,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
         PackingId: null,
         Date: $filter("date")(Date.now(), "dd-MMM-yyyy"),
         ByWhom: null,
-        InactiveDate: $filter("date")(Date.now(), "dd-MMM-yyyy")+3,
+        InactiveDate: $filter("date")(Date.now(), "dd-MMM-yyyy")+1,
         Remarks: null,
         CustomerId: null,
         StorageLocId: null,
@@ -379,7 +379,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
     };
 
     $scope.loadInactiveDate = function () {
-        var med = new Date().setDate(new Date().getDate() + 3);
+        var med = new Date().setDate(new Date().getDate() + 1);
         $scope.Packing.InactiveDate = $filter('dateFiltering')(new Date(med), 'dd-MM-yyyy');
 
     }
