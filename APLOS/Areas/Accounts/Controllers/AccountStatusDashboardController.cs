@@ -905,7 +905,6 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
-
             return Json(accountsStatusDashboardService.GetCRInvoicePaymentDetailPopUp(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, crPaymentDetailDueDays, partyId), JsonRequestBehavior.AllowGet);
         }
         #endregion Customer Tab
