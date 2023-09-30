@@ -1,11 +1,11 @@
 ﻿'use strict';
-OrderWiseQualityReportController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter", "$window"];
-function OrderWiseQualityReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
-    $rootScope.title = "OrderWiseQualityReport";
+ParameterSettingControlController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter", "$window"];
+function ParameterSettingControlController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
+    $rootScope.title = "ParameterSettingControl";
     $scope.Action = 'Save';
     $scope.CriticalLevelLists = [];
     $scope.CriticalLevelGridLists = [];
-    $scope.path = 'QMS/OrderWiseQualityReport/';
+    $scope.path = 'QMS/ParameterSettingControl/';
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
     $scope.saveUrlCustomerUpdatePara = $scope.path + 'createCustomerUpdatePara';
@@ -86,7 +86,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
     $scope.GetParameterResponsiblePersonLists = function () {
         $http({
             method: 'GET',
-            url: 'QMS/OrderWiseQualityReport/GetParameterResponsiblePersonLists'
+            url: 'QMS/ParameterSettingControl/GetParameterResponsiblePersonLists'
         }).then(function successCallback(response) {
             $scope.ParameterResponsiblePersonLists = response.data;
         });
@@ -97,7 +97,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
     $scope.GetParameterApprovalPersonLists = function () {
         $http({
             method: 'GET',
-            url: 'QMS/OrderWiseQualityReport/GetParameterApprovalPersonLists'
+            url: 'QMS/ParameterSettingControl/GetParameterApprovalPersonLists'
         }).then(function successCallback(response) {
             $scope.ParameterApprovalPersonLists = response.data;
         });
@@ -131,13 +131,13 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
         angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
     }
 
-    $scope.OrderWiseQualityReportList = [];
+    $scope.ParameterSettingControlList = [];
     $scope.View = function () {
         try {
-            $scope.OrderWiseQualityReportList = [];
-            $http.get('QMS/OrderWiseQualityReport/LoadOrderWiseQualityReport')
+            $scope.ParameterSettingControlList = [];
+            $http.get('QMS/ParameterSettingControl/LoadParameterSettingControl')
                 .then(function (response) {
-                    $scope.OrderWiseQualityReportList = response.data;
+                    $scope.ParameterSettingControlList = response.data;
                 });
         } catch (e) {
             ShowResult(e, 'failure');
@@ -186,7 +186,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
     $scope.CUPDList = [];
     $scope.loadCUPD = function () {
         try {
-            $http.get('QMS/OrderWiseQualityReport/GetCRPCbo?MasterId=' + $scope.UCPId + '&LineItemNo=' + $scope.CustomerUpdateParaNew.LineItemNo)
+            $http.get('QMS/ParameterSettingControl/GetCRPCbo?MasterId=' + $scope.UCPId + '&LineItemNo=' + $scope.CustomerUpdateParaNew.LineItemNo)
                 .then(function (response) {
                     $scope.CUPDList = response.data;
                 });
