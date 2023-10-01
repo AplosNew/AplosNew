@@ -1,10 +1,8 @@
 ﻿'use strict';
-ProductionOrderEntitySetupController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function ProductionOrderEntitySetupController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+ProductionOrderEntitySetupController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','cboService'];
+function ProductionOrderEntitySetupController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService) {
     $rootScope.title = "Production Order Entity Setup";
     $scope.Action = 'Save';
-    $scope.index = -1;
-    $scope.dmms = [];
     $scope.path = 'Productions/ProductionOrderEntitySetup/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
@@ -13,115 +11,136 @@ function ProductionOrderEntitySetupController(commonMessage, $scope, $rootScope,
 
     $scope.ProductionOrderEntitySetup = {
         Id: null,
+        CompanyId: null,
+        PlantId: null,
         ProductionEntityId: null,
         FromEntityId: null,
         Type: null,
-        MasterOrderType: null,
         OrderType: null,
-        Applicable: null
+        IsApplicable: false
     };
     $scope.ProductionOrderEntitySetupNew = Object.assign({}, $scope.ProductionOrderEntitySetup);
 
+    $scope.companyList = [];
+    cboService.getCompanyGroupCompanyCbo(null, function (result) {
+        $scope.companyList = result;
+    });
+
+    $scope.PlantList = [];
+    $scope.getPlant = function () {
+        cboService.getCboPlantByCompany($scope.ProductionOrderEntitySetupNew.CompanyId, function (result) {
+            $scope.PlantList = result;
+        });
+    };
+
+
+
     $scope.entityList = [];
-    $scope.getAllEntities = function () {
+    $scope.getEntity = function () {
+        $scope.entities = [];
+        $scope.entityValue = [];
         $http({
             method: 'POST',
-            url: "OrderManagements/productionOrderSchedulingParametersType1/GetEntity"
+            url: "Processes/EntityProcessTag/GetEntity?plantId=" + $scope.ProductionOrderEntitySetupNew.PlantId
         }).then(function successCallback(response) {
             $scope.entityList = response.data;
         });
-    }
-    $scope.getAllEntities();
+    };
 
-    $scope.Get = function (id, index) {
-        $scope.index = index;
-        $scope.dmm = $scope.dmms[$scope.index];
-        $scope.dmmNew = Object.assign({}, $scope.dmm);
+    $scope.typeList = [
+        { Value: "Process", Text: "Process" },
+        { Value: "MasterOrderEntity", Text: "MasterOrderEntity" }
+    ];
+
+    $scope.OrderTypeList = [
+        { Value: "Manufacture", Text: "Manufacture" },
+        { Value: "JobWork", Text: "Job Work" },
+        { Value: "OutSource", Text: "Out Source" },
+        { Value: "Other", Text: "Other" }
+    ];
+    $scope.searchBy = "PlantId"; $scope.search = "";
+    $scope.ModelList = [];
+    $scope.getData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetList?column=' + $scope.searchBy + '&value=' + $scope.search + '&CompanyId=' + $scope.ProductionOrderEntitySetupNew.CompanyId + '&PlantId=' + $scope.ProductionOrderEntitySetupNew.PlantId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelList = response.data;
+           
+        });
+    }
+
+    $scope.Get = function (args) {
+        $scope.ProductionOrderEntitySetupNew = Object.assign({}, args.data);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
     };
     $scope.Save = function () {
-        angular.copy($scope.dmmNew, $scope.dmm);
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.dmmNewForm.$valid) {
-            if ($scope.Action == "Save") {
-                $http({
-                    method: 'POST',
-                    url: $scope.saveUrl,
-                    data: $scope.dmm,
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error == true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.dmms.push(response.data.DMM);
-                        $scope.dmms = $filter('orderBy')($scope.dmms, 'Sequence');
-                        baseService.paginationAdd();
-                        ClearFields(response.data.Sequence);
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            }
-            else if ($scope.Action == "Update") {
-                $http({
-                    method: 'POST',
-                    url: $scope.updateUrl,
-                    data: $scope.dmm,
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error == true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        if ($scope.index > -1) {
-                            $scope.dmms[$scope.index] = $scope.dmm;
-                            $scope.dmms = $filter('orderBy')($scope.dmms, 'Sequence');
-                        }
-                        ClearFields(response.data.Sequence);
-                    }
-                }, function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                });
-            }
-        }
-    }
-    $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.dmmNew.Id)) {
+        if ($scope.ProductionOrderEntitySetupForm.$valid) {
             $http({
                 method: 'POST',
-                url: $scope.deleteUrl + $scope.dmmNew.Id,
+                url: $scope.saveUrl,
+                data: { 'data': $scope.ProductionOrderEntitySetupNew },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
-                if (response.data.Error == true) {
+                if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.dmms.splice($scope.index, 1);
-                    baseService.paginationRemove();
-                    ClearFields(response.data.Sequence);
+                    ClearFields();
+                    $scope.getData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.Delete = function () {
+        if (!baseService.isUndefinedOrNull($scope.ProductionOrderEntitySetupNew.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrl + $scope.ProductionOrderEntitySetupNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFields();
+                    $scope.getData();
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 }
             });
         }
-        else {
-            ShowResult(commonMessage.primaryKeyNullMessage, 'failure');
-        }
-    }
+    };
     $scope.Clear = function () {
         ClearFields();
         return true;
     }
     function ClearFields() {
-        $scope.ProductionOrderEntitySetup = {};
-        $scope.ProductionOrderEntitySetupNew = {};
+        $scope.PlantId = $scope.ProductionOrderEntitySetupNew.PlantId;
+        $scope.CompanyId = $scope.ProductionOrderEntitySetupNew.CompanyId;
+        $scope.ProductionOrderEntitySetup = {
+            Id: null,
+            CompanyId: $scope.CompanyId,
+            PlantId: $scope.PlantId,
+            ProductionEntityId: null,
+            FromEntityId: null,
+            Type: null,
+            OrderType: null,
+            IsApplicable: false
+        };
+        $scope.ProductionOrderEntitySetupNew = Object.assign({}, $scope.ProductionOrderEntitySetup);
     }
 }
