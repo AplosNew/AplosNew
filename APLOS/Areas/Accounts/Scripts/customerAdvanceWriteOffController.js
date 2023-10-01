@@ -185,6 +185,8 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         VoucherNo: null,
         VoucherDate: $filter("dateFiltering")(Date.now()),
         PostingDate: null,
+        BankTransactionDate: null,
+        BankReferenceNo: null,
         DocDate: null,
         DocRefNo: null,
         FiscalYearId: null,
@@ -687,6 +689,7 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
             $scope.advance.DocDate = $scope.advance.PostingDate;
             $scope.advanceNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
             $scope.advanceNew.PostingDate = $filter('dateFiltering')($scope.voucherTypeList[0].LastPostingDate);
+            $scope.advanceNew.BankTransactionDate = $filter('dateFiltering')($scope.voucherTypeList[0].LastPostingDate);
             $scope.advanceNew.DocDate = $scope.advanceNew.PostingDate;
         }
     });
