@@ -1383,7 +1383,6 @@ namespace Aplos.Areas.Products.Controllers
 
         [Authorize, HttpGet]
         public JsonResult GetListForServicePOBYReq(string POTypeStatus, string POType)
-
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_purchaseOrderService.GetListForServicePOBYReq(identity.PlantId, POTypeStatus, POType), JsonRequestBehavior.AllowGet);
