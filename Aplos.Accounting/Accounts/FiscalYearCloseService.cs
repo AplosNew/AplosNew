@@ -167,5 +167,23 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
             }
         }
+        #region
+        public List<Dictionary<string, object>> GetFiscalYearClosePostedList(string column, string value, string companyId)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+            var sql = @"select top 100 * from (SELECT V.Id,V.VoucherNo,V.DocRefNo,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate
+				,FY.FiscalYearName,C.UserName CompanyName,P.UserName PlantName,FYC.AdjustmentAmount Amount
+				FROM TRN.Voucher V 
+				INNER JOIN [SCS].[FiscalYearClose] FYC ON FYC.VoucherId=V.Id
+				LEFT JOIN [SCS].[FiscalYear] AS FY  ON FY.Id=FYC.FiscalYearId
+				LEFT JOIN  [ORG].[Company] AS C  ON C.Id=FYC.CompanyId
+                LEFT JOIN [ORG].[Plant] AS P  ON P.Id=FYC.PlantId
+                WHERE V.CompanyId='" + companyId + @"' AND V.Archive=0 
+                ) AS TEMP WHERE " + strkey + " order by PostingDate DESC   ";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        #endregion
     }
 }
