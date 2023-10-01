@@ -21,6 +21,8 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
         VoucherNo: null,
         VoucherDate: $filter("dateFiltering")(Date.now()),
         PostingDate: null,
+        BankTransactionDate: null,
+        BankReferenceNo: null,
         DocDate: null,
         DocRefNo: null,
         Amount: null,
@@ -458,6 +460,7 @@ function cashJournalController(cboService, commonMessage, $scope, $rootScope, ba
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
                 $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
+                $scope.voucher.BankTransactionDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
                 $scope.voucher.DocDate = $scope.voucher.PostingDate;
                 $scope.GetCurrencyExchangeRateList();
             }
