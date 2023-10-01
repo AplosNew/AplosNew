@@ -3550,7 +3550,8 @@ namespace Library.Service.Invoices
                 _unitOfWork.BeginTransaction();
                 ConnectionManager.DAL.ConManager objCon1;
                 DataSet dsMaster1 = null;
-                string setOffsql = @"select AWD.InvoiceWriteOffId,A.IsPark,V.IsPark,AW.IsPark,V.AddedDate ,VW.VoucherNo,VW.AddedDate from trn.AdjustmentNote A
+                string setOffsql = @"select AWD.InvoiceWriteOffId,A.IsPark,V.IsPark,AW.IsPark,V.AddedDate ,VW.VoucherNo,VW.AddedDate ,A.SourceType,A.DocRefNo,V.VoucherNo
+                                     from trn.AdjustmentNote A
                                      LEFT JOIN TRN.Voucher V ON V.Id=A.VoucherId
                                      LEFT JOIN TRN.InvoiceWriteOffDetail AWD ON AWD.AdjustmentNoteId=A.Id
                                      LEFT JOIN TRN.InvoiceWriteOff AW ON AW.Id=AWD.InvoiceWriteOffId
@@ -3561,7 +3562,7 @@ namespace Library.Service.Invoices
 
                 if (dsMaster1.Tables[0].Rows.Count > 0)
                 {
-                    throw new CustomException("Voucher Post not allowed!");
+                    throw new CustomException(dsMaster1.Tables[0].Rows[0]["SourceType"].ToString()+" VoucherNo "+ dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + " have to Post first!");
                 }
                 flag = true;
                 var financing = _invoiceWriteOffRepository.Find(invoiceWriteOffId);
