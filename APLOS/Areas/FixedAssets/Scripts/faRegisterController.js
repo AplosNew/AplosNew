@@ -257,7 +257,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
             ChkOrUnchk = true;
         }
 
-        var filtered = $("#Grid").data("ejGrid").getFilteredRecords();
+        var filtered = $("#GridAUC").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
             for (var i = 0; i < $scope.materialMasterList.length; i++) {
                 $scope.materialMasterList[i].Flag = ChkOrUnchk;
@@ -268,7 +268,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                 filtered[j].Flag = ChkOrUnchk;
             }
         }
-        var gridObj = $("#Grid").data("ejGrid");
+        var gridObj = $("#GridAUC").data("ejGrid");
         gridObj.refreshContent();
     };
 
@@ -626,7 +626,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         var g = null;
 
         if ($scope.FaType == 'AUC') {
-            g = $("#Grid").data("ejGrid");
+            g = $("#GridAUC").data("ejGrid");
         } else if ($scope.FaType == 'CI') {
             g = $("#GridCI").data("ejGrid");
         }
