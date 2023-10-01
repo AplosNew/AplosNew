@@ -173,6 +173,7 @@
                 <input type="text" maxlength="50" id="SpotRate" name="SpotRate" ng-disabled="companyCurrencyId==advance.CurrencyId" ng-model="advance.OtherCompanyCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off">
             </div>
         </div>
+        
         <div id="div_TransactionType" class="form-group" ng-show="advance.SettlementType=='@Library.Model.Payments.SettlementType.InterTransaction.ToString()'">
             <label class="col-sm-4 control-label">Transaction Type</label>
 
@@ -214,6 +215,18 @@
             <label class="col-sm-3 control-label">Narration<sup>*</sup></label>
             <div class="col-sm-9 show-message">
                 <textarea rows="4" type="text" name="Narration" tabindex="10" class="form-control" ng-model="advance.Narration" required capitalize></textarea>
+            </div>
+        </div>
+        <div class="form-group" ng-show="advance.BankMasterId">
+            <label class="col-sm-4 control-label">Bank Ref No</label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="50" id="Bank Reference No" name="Bank Reference No" ng-model="advance.BankReferenceNo" class="form-control" tabindex="5" autocomplete="off">
+            </div>
+        </div>
+        <div class="form-group" ng-show="advance.BankMasterId">
+            <label class="col-sm-4 control-label">Bank Trn Date</label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="BankTransactionDate" ng-model="advance.BankTransactionDate" datepicker class="form-control" tabindex="4">
             </div>
         </div>
     </div>

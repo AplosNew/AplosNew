@@ -34,6 +34,8 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
         VoucherNo: null,
         VoucherDate: $filter("dateFiltering")(Date.now()),
         PostingDate: null,
+        BankTransactionDate: null,
+        BankReferenceNo: null,
         DocDate: null,
         BaseOnDueDate: null,
         BaseNoOfDays: null,
@@ -411,6 +413,7 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
                 $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
+                $scope.voucher.BankTransactionDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
                 $scope.voucher.DocDate = $scope.voucher.PostingDate;
                 $scope.getTaxCodeByTaxYear($scope.voucher.PostingDate);
 

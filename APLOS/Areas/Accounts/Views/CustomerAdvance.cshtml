@@ -39,9 +39,9 @@
                     <span class="cr" tabindex="9"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Cash.ToString()
                 </label>
                 @*<label>
-                        <input ng-click="clearCashPopUp()" type="radio" name="source" ng-model="advance.PaymentSource" value="@Library.Model.Payments.PaymentSource.Journal.ToString()">
-                        <span class="cr" tabindex="10"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Journal.ToString()
-                    </label>*@
+                    <input ng-click="clearCashPopUp()" type="radio" name="source" ng-model="advance.PaymentSource" value="@Library.Model.Payments.PaymentSource.Journal.ToString()">
+                    <span class="cr" tabindex="10"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Journal.ToString()
+                </label>*@
             </div>
         </div>
         <div class="form-group" ng-show="advance.PaymentSource=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">
@@ -72,6 +72,19 @@
                 <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" ng-model="advance.BankAmount">
             </div>
         </div>
+        <div class="form-group" ng-show="advance.BankMasterId">
+            <label class="col-sm-4 control-label">Bank Ref No</label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="50" id="Bank Reference No" name="Bank Reference No" ng-model="advance.BankReferenceNo" class="form-control" tabindex="5" autocomplete="off">
+            </div>
+        </div>
+        <div class="form-group" ng-show="advance.BankMasterId">
+            <label class="col-sm-4 control-label">Bank Trn Date</label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="BankTransactionDate" ng-model="advance.BankTransactionDate" datepicker class="form-control" tabindex="4">
+            </div>
+        </div>
+
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Narration<sup>*</sup></label>
             <div class="col-sm-8 show-message">

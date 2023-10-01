@@ -945,7 +945,7 @@ namespace Library.Service.SalesManagements
                     updatasc = "Update TRN.SecondCharacteristics set SalesQty=" + secondCharacteristicsData + "-"+ smdata.BaseQty + " WHERE SalesOrderId='" + smdata.SalesOrderId + "' AND Id='" + smdata.SecondCharacteristicsId + "'";
                 }
 
-                strISCSQL = "Update FROM ItemScanChild set SalesMaterialId=NULL,SalesId=NULL,IsDespatch=0 WHERE SalesMaterialId='" + Id + "'";
+                strISCSQL = "Update ItemScanChild set SalesMaterialId=NULL,SalesId=NULL,IsDespatch=0 WHERE SalesMaterialId='" + Id + "'";
                 strOSQL = "DELETE FROM TRN.SalesTax WHERE SalesMaterialId='" + Id + "'";
                 strBSQL = "DELETE FROM TRN.SalesMaterial WHERE Id='" + Id + "'";
 
