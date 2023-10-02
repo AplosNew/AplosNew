@@ -87,7 +87,7 @@ namespace Aplos.Areas.Costings.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT im.Id,im.InquirySource,FORMAT( im.InquiryDate,'dd-MMM-yyyy') AS InquiryDate, im.OrderYear,im.ProjectedQty,uom.UserName AS UOM,p.UserName AS Party,b.UserName AS Buyer,bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
+            string sql = @"select * from (SELECT im.Id,im.InquirySource,FORMAT( im.InquiryDate,'dd-MMM-yyyy') AS InquiryDate, im.OrderYear,im.ProjectedQty,uom.UserName AS UOM,p.UserName AS Party,b.UserName AS Buyer,bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
                                                     bd2.UserName AS BuyerDepartment,s.UserName AS Season,ei.EmployeeName AS ResponsiblePerson,im.ResponsiblePersonId
                                                       FROM trn.InquiryMaster AS im
                                                     LEFT OUTER JOIN hkp.Party AS p ON p.Id=im.PartyId
@@ -144,7 +144,7 @@ namespace Aplos.Areas.Costings.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT im.Id,FORMAT( im.AddedDate,'dd-MMM-yyyy') AS MasterOrderDate, 
+            string sql = @"select * from (SELECT im.Id,FORMAT( im.AddedDate,'dd-MMM-yyyy') AS MasterOrderDate, 
 im.OrderYear,im.TotalQty,uom.UserName AS UOM,p.UserName AS Party,b.UserName AS Buyer,
 bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
 ContractNo=STUFF((select distinct ','+cx.ContractNo from  trn.SalesOrder SO
@@ -218,7 +218,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select qcm.*, p.UserName as Customer, pm.UserName as ProductMaster 
+            string sql = @"select * from (select qcm.*, p.UserName as Customer, pm.UserName as ProductMaster 
 							,pc.UserName as ProductCategory,CUR.Code AS Currency,ct.UserName AS CostingTypeName
 							,psc.UserName as ProductSubCategory
                              ,pm.CostingType,qcm.CostingStage AS CurrentCostStage
@@ -279,7 +279,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
                 strkey += " AND ProductMasterId='" + ProductMasterId + "'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select qcm.*, p.UserName as Customer, pm.UserName as ProductMaster 
+            string sql = @"select * from (select qcm.*, p.UserName as Customer, pm.UserName as ProductMaster 
 							,pc.UserName as ProductCategory,CUR.Code AS Currency,ct.UserName AS CostingTypeName
 							,psc.UserName as ProductSubCategory
                              ,pm.CostingType,qcm.CostingStage AS CurrentCostStage
@@ -332,7 +332,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
                 strkey += " AND ProductMasterId='" + ProductMasterId + "'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select qcm.*, p.UserName as Customer, pm.UserName as ProductMaster 
+            string sql = @"select * from (select qcm.*, p.UserName as Customer, pm.UserName as ProductMaster 
 							,pc.UserName as ProductCategory,CUR.Code AS Currency,ct.UserName AS CostingTypeName
 							,psc.UserName as ProductSubCategory
                              ,pm.CostingType
