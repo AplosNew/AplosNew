@@ -7,14 +7,14 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
     $scope.path = "accounts/FiscalYearClose/";
 
     $scope.searchBy = "VoucherNo"; $scope.search = "";
-    $scope.searchByList = [{ value: 'VoucherNo', name: "Voucher No" }, { value: 'PostingDate', name: "Posting Date" }, { value: 'FixedAssetMasterId', name: "Asset Master Id" }, { value: 'FixedAssetItemId', name: "Asset Item Id" }, { value: 'FixedAssetMaster', name: "Asset Master" }, { value: 'FixedAssetItem', name: "Asset Item" }, { value: 'FixedAssetCategory', name: "Asset Category" }, { value: 'FixedAssetSubCategory', name: "Asset Sub Category" }];
+    $scope.searchByList = [{ value: 'VoucherNo', name: "Voucher No" }, { value: 'PostingDate', name: "Posting Date" }, { value: 'DocRefNo', name: "DocRefNo" }, { value: 'FiscalYearName', name: "Fiscal Year" }, { value: 'CompanyName', name: "Company" }, { value: 'PlantName', name: "Plant" }];
 
     $scope.voucherList = [];
     $scope.getData = function () {
         $http({
             method: 'Post'
-            , url: 'FixedAssets/FixedAssetRegister/GetCapitalizeAssetRegisterPostedList'
-            , data: { column: $scope.searchBy, value: $scope.search, type: "New" }
+            , url: 'accounts/FiscalYearClose/GetFiscalYearClosePostedList'
+            , data: { column: $scope.searchBy, value: $scope.search }
             , dataType: 'JSON'
         }).then(function (response) {
             $scope.voucherList = response.data;

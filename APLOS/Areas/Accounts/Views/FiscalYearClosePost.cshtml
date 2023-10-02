@@ -75,9 +75,9 @@
                 </div>
             </div>
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Capitalization Date<sup>*</sup></label>
+                <label class="col-sm-4 control-label">Fiscal Year<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" name="CapitalizationDate" ng-model="voucher.CapitalizationDate" datepicker class="form-control" disabled required>
+                    <input type="text" name="FiscalYearName" ng-model="voucher.FiscalYearName" datepicker class="form-control" disabled required>
                 </div>
             </div>
             <div class="form-group" show-errors>
@@ -137,113 +137,29 @@
                 </div>
             </div>
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Asset Item</label>
+                <label class="col-sm-4 control-label">Company</label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" ng-maxlength="50" name="Asset Item" ng-model="voucher.FixedAssetItem" class="form-control" tabindex="7" readonly autocomplete="off">
+                    <input type="text" ng-maxlength="200" name="CompanyName" ng-model="voucher.CompanyName" class="form-control" tabindex="7" readonly autocomplete="off">
                 </div>
             </div>
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Asset Qty</label>
+                <label class="col-sm-4 control-label">Plant</label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" ng-maxlength="50" name="Asset Qty" ng-model="voucher.Qty" class="form-control" tabindex="7" readonly autocomplete="off">
+                    <input type="text" ng-maxlength="200" name="PlantName" ng-model="voucher.PlantName" class="form-control" tabindex="7" readonly autocomplete="off">
                 </div>
             </div>
         </div>
     </fieldset>
-
-    @*<div class="clearfix"></div>
-        <div class="col-xs-12 col-sm-12 col-md-12" style="margin-bottom:10px">
-            <div class="table-responsive modal-table">
-                <table class="table table-striped">
-                    <caption>Asset Register</caption>
-                    <thead>
-                        <tr>
-                            <th>Asset Register Id</th>
-                            <th>Asset Item Id</th>
-                            <th>Asset Item</th>
-                            <th>Asset Master</th>
-                            <th>Amount</th>
-                            <th class="col-sm-1">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="x in AssetRegisterList">
-                            <td>{{x.AssetRegisterId}}</td>
-                            <td>{{x.FixedAssetItemId}}</td>
-                            <td>{{x.FixedAssetItem}}</td>
-                            <td>{{x.FixedAssetMaster}}</td>
-                            <td>
-                                <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" readonly name="Amount" autocomplete="off" ng-model="x.Amount">
-                            </td>
-                            <td class="text-right">
-                                <ul class="list-inline action-list">
-                                    <li><button ng-click="ShowFixedAssetMasterItem($index,x.AssetRegisterId)" class="btn btn-action tooltip-here" data-placement="top" title="Modify"><i class="glyphicon glyphicon-search"></i></button></li>
-                                </ul>
-                            </td>
-
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="clearfix"></div>
-
-            <div class="common-btn" style="margin-top:5px;">
-                <ul class="common-btn list-inline text-right">
-                    <li> <button ng-click="UpdateAssetRegisterAmount();" class="btn"> Update Asset Register</button></li>
-                </ul>
-            </div>
-        </div>*@
     <div class="clearfix"></div>
 
     <div class="tab-design">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Material Info</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Transaction" role="tab" data-toggle="tab">Journal</a></li>
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Transaction" role="tab" data-toggle="tab">Journal</a></li>
             </ul>
         </div>
         <div class="tab-content">
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-form="tabForm1">
-                <div class="table-responsive modal-table" ng-show="selectedmaterialMasterList.length">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Voucher No</th>
-                                <th>Material</th>
-                                <th>Article</th>
-                                <th>GRN No</th>
-                                <th>Qty</th>
-                                <th>Amount</th>
-                                <th>Source</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="x in selectedmaterialMasterList">
-
-                                <td>{{x.VoucherNo}}</td>
-                                <td>{{x.MaterialMasterName}}</td>
-                                <td>{{x.ArticleStandardName}}</td>
-                                <td>{{x.GRNNo}}</td>
-                                <td class="text-right">{{x.Qty}}</td>
-                                <td class="text-right">{{x.Amount}}</td>
-                                <td>{{x.Source}}</td>
-                            </tr>
-                            <tr>
-                                <td><label>Total </label></td>
-                                <td colspan="4"></td>
-                                <td class="text-right">
-                                    <label>
-                                        {{selectedmaterialMasterList | sumByKey : 'Amount'|number:2}}
-                                    </label>
-                                </td>
-                                <td></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-            </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }" ng-form="tabForm2" ng-keypress="materialConfigMassege()">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-form="tabForm1" ng-keypress="materialConfigMassege()">
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>
@@ -260,13 +176,13 @@
                                 <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
                                 <td>{{x.BudgetName}}</td>
                                 <td>{{x.ActivityName}}</td>
-                                <td class="text-right">{{x.Dr | number| setDecimal:4}}</td>
-                                <td class="text-right">{{x.Cr | number| setDecimal:4}}</td>
+                                <td class="text-right">{{x.Dr | number| setDecimal:2}}</td>
+                                <td class="text-right">{{x.Cr | number| setDecimal:2}}</td>
                             </tr>
                             <tr>
                                 <td colspan="3"></td>
-                                <td class="text-right"><strong>{{capitalizationJVList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
-                                <td class="text-right"><strong>{{capitalizationJVList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
+                                <td class="text-right"><strong>{{capitalizationJVList | sumByKey : 'Dr' | number| setDecimal:2}}</strong></td>
+                                <td class="text-right"><strong>{{capitalizationJVList | sumByKey : 'Cr' | number| setDecimal:2}}</strong></td>
                             </tr>
                         </tbody>
                     </table>
@@ -279,7 +195,7 @@
 
     <div class="common-btn">
         <ul class="common-btn list-inline text-right">
-            <li> <button ng-click="Post();" ng-disabled="ispostDisable" class="btn"> Post</button></li>
+            <li> <button ng-click="Post();" class="btn"> Post</button></li>
             <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
@@ -313,17 +229,12 @@
         <div e-columns>
             <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="70" e-filter="false"></div>
             <div e-column e-field="PostingDate" e-headertext="Posting Date" e-width="60"></div>
-            <div e-column e-field="CapitalizationMasterId" e-headertext="Capitalization Master Id" e-width="40" e-filter="false"></div>
-            <div e-column e-field="FixedAssetMasterId" e-headertext="Asset Master Id" e-width="40" e-filter="false"></div>
-            <div e-column e-field="FixedAssetItemId" e-headertext="Asset Item Id" e-width="40" e-filter="false"></div>
-            <div e-column e-field="FixedAssetItem" e-headertext="Asset Item" e-width="100"></div>
-            <div e-column e-field="FixedAssetMaster" e-headertext="Asset Master" e-width="100"></div>
-            <div e-column e-field="FixedAssetCategory" e-headertext="Asset Category" e-width="100"></div>
-            <div e-column e-field="FixedAssetSubCategory" e-headertext="Asset Sub Category" e-width="100"></div>
-            <div e-column e-field="Type" e-headertext="Type" e-width="100"></div>
-            <div e-column e-field="Qty" e-headertext="Qty" e-width="30" e-type="numeric" e-textalign="center"></div>
+            <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="60"></div>
+            <div e-column e-field="FiscalYearName" e-headertext="Fiscal Year" e-width="80" e-filter="false"></div>
+            <div e-column e-field="CompanyName" e-headertext="Company" e-width="60" e-filter="false"></div>
+            <div e-column e-field="PlantName" e-headertext="Plant" e-width="60" e-filter="false"></div>
             <div e-column e-field="Amount" e-headertext="Amount" e-width="60" e-type="numeric" e-format="{0:0.00}" e-textalign="right"></div>
-            <div e-column e-template="#ShowActionButtonsassigned" e-headertext="Actions" e-width="120" e-textalign="center"></div>
+            <div e-column e-template="#ShowActionButtonsassigned" e-headertext="Actions" e-width="60" e-textalign="center"></div>
 
         </div>
     </div>

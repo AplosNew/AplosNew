@@ -96,6 +96,8 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
         VoucherNo: null,
         VoucherDate: $filter("dateFiltering")(Date.now()),
         PostingDate: null,
+        BankTransactionDate: null,
+        BankReferenceNo: null,
         DocDate: null,
         DocRefNo: null,
         FiscalYearId: null,
@@ -814,6 +816,7 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
             if ($scope.voucherTypeList.length === 1) {
                 $scope.advance.VoucherTypeId = $scope.voucherTypeList[0].Value;
                 $scope.advance.PostingDate = $filter('dateFiltering')($scope.voucherTypeList[0].LastPostingDate);
+                $scope.advance.BankTransactionDate = $filter('dateFiltering')($scope.voucherTypeList[0].LastPostingDate);
                 $scope.advance.DocDate = $scope.advance.PostingDate;
             }
         });

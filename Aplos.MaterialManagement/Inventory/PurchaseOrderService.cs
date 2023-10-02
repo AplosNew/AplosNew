@@ -7125,7 +7125,7 @@ ORDER BY IR.ID DESC";
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                var sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='PurchaseOrderCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 return _sqlRepository.GetDataCollection(sql);
@@ -7144,7 +7144,7 @@ ORDER BY IR.ID DESC";
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                var sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='IssueSlipCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 return _sqlRepository.GetDataCollection(sql);
@@ -7163,7 +7163,7 @@ ORDER BY IR.ID DESC";
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"select E.SystemId As Value, E.EmployeeCode+'-'+E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                var sql = @"select E.SystemId As Value, (E.EmployeeCode+'-'+E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='PurchaseOrderApproveBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 return _sqlRepository.GetDataCollection(sql);
@@ -7184,7 +7184,7 @@ ORDER BY IR.ID DESC";
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"select E.SystemId As Value, E.EmployeeCode+'-'+E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                var sql = @"select E.SystemId As Value, (E.EmployeeCode+'-'+E.EmployeeName )As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='RequisitionApproveBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 return _sqlRepository.GetDataCollection(sql);
@@ -11442,7 +11442,7 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                var sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='ServicePOCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 return _sqlRepository.GetDataCollection(sql);
@@ -13626,13 +13626,13 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if (CheckedBy == "true" && ApprovedBy == "true")
                 {
-                    sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                    sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='PurchaseOrderCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "true")
                 {
-                    sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                    sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='PurchaseOrderApproveBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
@@ -13659,14 +13659,14 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if (CheckedBy == "true" && ApprovedBy == "true")
                 {
-                    sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                    sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='OutSourceCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                     return _sqlRepository.GetDataCollection(sql);
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "true")
                 {
-                    sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                    sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           --where  A.ActionStatus='OutSourceApprovedBy'
                             where  A.ActionStatus='OutSourceApproveBy' AND E.EmployeeStatus='Active' ";//A.PlantId='" + identity.PlantId + "' AND
@@ -13697,13 +13697,13 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if (CheckedBy == "true" && ApprovedBy == "true")
                 {
-                    sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                    sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='ServicePOCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "true")
                 {
-                    sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                    sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='ServicePOApproveBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
@@ -13738,13 +13738,13 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if (CheckedBy == "true" && ApprovedBy == "true")
                 {
-                    sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                    sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='ServiceAcknowledgementCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "true")
                 {
-                    sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                    sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='ServiceAcknowledgementApproveBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }

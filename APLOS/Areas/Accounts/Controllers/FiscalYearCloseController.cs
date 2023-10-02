@@ -77,6 +77,14 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return View("~/Areas/Accounts/Views/FiscalYearClosePost.cshtml");
         }
+        [Authorize, HttpPost]
+        public ActionResult GetFiscalYearClosePostedList(string column, string value)
+        {
+            FiscalYearCloseService _fiscalYearCloseService = new FiscalYearCloseService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            return Json(_fiscalYearCloseService.GetFiscalYearClosePostedList(column, value, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
         #endregion
 
 
