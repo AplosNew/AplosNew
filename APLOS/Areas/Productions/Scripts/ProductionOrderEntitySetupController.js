@@ -143,4 +143,37 @@ function ProductionOrderEntitySetupController(commonMessage, $scope, $rootScope,
         };
         $scope.ProductionOrderEntitySetupNew = Object.assign({}, $scope.ProductionOrderEntitySetup);
     }
+
+    $scope.message_detailconfirmation = null;
+    $scope.removeDetail = function (obj) {
+        $scope.modelNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.modelNew.Id))
+            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.modelNew.Id + ' ]';
+        angular.element(document.querySelector('#confirmDetailPopUp')).modal('show');
+    }
+
+    $scope.DeleteBomDetail = function () {
+        $http({
+            method: 'POST',
+            url: 'Productions/ProductionOrderEntitySetup/Delete?id=' + $scope.modelNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getData();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+
+
+
+
+
+
 }

@@ -1,4 +1,5 @@
 ﻿using bplib;
+using ConnectionManager;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -382,7 +383,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
         public void GetEmpwithPFPolicyMaster(ParaList para, string sPFMstSystemID, string sGroupID, string sPlantID, out System.Data.DataSet dsRef)
         {
             string strSQL;
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon;
+            ConnectionManager.clsConnectionManager con;
             try
             {
                 //string _WC = " WHERE IsApproved = 1 ";
@@ -422,8 +424,11 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 strSQL += @"
                                 ORDER BY E.GivenDesignationId, E.SystemId";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+
+                con = new clsConnectionManager(3600);
+                con.getDataSet(strSQL, out dsRef);
             }
             catch (Exception ex)
             {
@@ -431,7 +436,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             }
             finally
             {
-                objCon = null;
+                con = null;
             }
         }//End Function
         public void GetTagEmployeeListWithPFPolicyMaster(ParaList para, string sPFMstSystemID, string sGroupID, string sPlantID, out System.Data.DataSet dsRef)
@@ -1317,7 +1322,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
         }//End Function
         public void Load_Salary_Struc(ParaList para, string sEmpInfo, bool IsBack, out DataSet dsRef)
         {
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon;
+            ConnectionManager.clsConnectionManager con;
             string strSql = "";
 
             try
@@ -1499,8 +1505,12 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 strSql += @"
                             ORDER BY EmpInfoSystemID, HeadType DESC";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
+
+                con = new clsConnectionManager(3600);
+                con.getDataSet(strSql, out dsRef);
+
             }
             catch (Exception ex)
             {
@@ -1508,7 +1518,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             }
             finally
             {
-                objCon = null;
+                con = null;
             }
         }//End Function
         public void LoadEmpSlrDefForSlrProcessFORVPF(ParaList para, string sEmpInfo, out DataSet dsRef)

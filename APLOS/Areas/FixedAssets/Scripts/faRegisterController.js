@@ -119,14 +119,17 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         $scope.getSearchData(faType);
 
         if (faType == 'AUC') {
+            var gridObj = $("#GridAUC").data("ejGrid");        
             angular.element(document.querySelector("#assetmodal")).modal("show");
         } else if (faType == 'CI') {
+            var gridObj = $("#GridCI").data("ejGrid");
             angular.element(document.querySelector("#assetmodalCI")).modal("show");
         }
         else {
+            var gridObj = $("#GridEX").data("ejGrid");
             angular.element(document.querySelector("#assetmodalEx")).modal("show");
         }
-
+        gridObj.clearFiltering();  // clears all the filtering
     };
     $scope.searchBy = "FiscalYearName"; $scope.search = "";
     $scope.searchByList = [
