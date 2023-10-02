@@ -1664,6 +1664,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         #endregion Grn with out invoice
+
         #region Party Status
         [HttpPost, Authorize]
         public ActionResult GetPartyStatusDataList(string toDate)
