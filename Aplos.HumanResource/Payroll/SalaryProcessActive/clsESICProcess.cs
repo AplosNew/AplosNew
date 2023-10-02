@@ -287,7 +287,9 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
         public void GetESICActiveEmp(ESICParaList para, string sESICMstSystemID, out System.Data.DataSet dsRef)
         {
             string strSQL;
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon;
+            ConnectionManager.clsConnectionManager con;
+
             try
             {
                 strSQL = @"SELECT       DM.ESICPolicyMasterID, E.* 
@@ -303,8 +305,10 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 strSQL += @"
                               ORDER BY E.GivenDesignationId, E.SystemId";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                con = new clsConnectionManager(3600);
+                con.getDataSet(strSql, out dsRef);
             }
             catch (Exception ex)
             {
@@ -312,7 +316,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             }
             finally
             {
-                objCon = null;
+                con = null;
             }
         }//End Function
         public void GetTagEmployeeListWithESICPolicyMaster(ESICParaList para, string sESICMstSystemID, out System.Data.DataSet dsRef)
