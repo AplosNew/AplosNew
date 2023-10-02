@@ -190,6 +190,7 @@ namespace Aplos.Areas.Employees.Controllers
                 int cpDesignation = 0;
                 int cGN = 0;
                 int cNID = 0;
+                int cTIN = 0;
                 int cES = 0;
                 int cJL = 0;
                 int cPA = 0;
@@ -299,6 +300,7 @@ namespace Aplos.Areas.Employees.Controllers
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Card Number"); cN = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Finger Print", 11); cFP = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "NID"); cNID = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "TIN"); cTIN = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOB"); cDOB = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DOJ"); cDOJ = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Tenure(Month)", 14); cTenureMonth = xlsCol; xlsCol++;
@@ -430,6 +432,7 @@ namespace Aplos.Areas.Employees.Controllers
                     oRU.SetText(ref sheet1, xlsRow, cN, dsEmpInfo.Tables[0].Rows[i]["CardNumber"].ToString());
                     oRU.SetText(ref sheet1, xlsRow, cFP, dsEmpInfo.Tables[0].Rows[i]["Fingerprint"].ToString());
                     oRU.SetText(ref sheet1, xlsRow, cNID, dsEmpInfo.Tables[0].Rows[i]["NationalID"].ToString());
+                    oRU.SetText(ref sheet1, xlsRow, cTIN, dsEmpInfo.Tables[0].Rows[i]["TIN"].ToString());
                     oRU.SetText(ref sheet1, xlsRow, cDOB, dsEmpInfo.Tables[0].Rows[i]["DOB"].ToString());
                     oRU.SetText(ref sheet1, xlsRow, cDOJ, dsEmpInfo.Tables[0].Rows[i]["DOJ"].ToString());
                     oRU.SetText(ref sheet1, xlsRow, cDOS, dsEmpInfo.Tables[0].Rows[i]["DOS"].ToString());
@@ -792,7 +795,7 @@ namespace Aplos.Areas.Employees.Controllers
                 }
 
                 strSQL = @"SELECT E.SystemId, E.EmployeeId, E.EmployeeCode,E.EmployeeName,E.FatherName,E.MotherName,E.SpouseName,E.PresentAddress1,E.PresentAddress2, PRPS.UserName PresThana
-                            ,PRCT.UserName PresCity, PRD.UserName PresDistrict, PRST.UserName PresState, PRC.UserName PresCountry,E.ParmanentAddress1,E.ParmanentAddress2,PPS.UserName ParmThana
+                            ,PRCT.UserName PresCity, PRD.UserName PresDistrict, PRST.UserName PresState, PRC.UserName PresCountry,E.ParmanentAddress1,E.ParmanentAddress2,PPS.UserName ParmThana,E.TIN
                             ,PCT.UserName ParmCity,PDS.UserName ParmDistrict,PST.UserName ParmState,PC.UserName ParmCountry,E.ParmanentArea,E.PresentArea,PRT.UserName ContractorName,E.GenderID,Reli.UserName Religion
                             ,BG.UserName BloodGroup,e.CellPhnNo,Picture = CASE WHEN E.EmpPicPath IS NULL THEN 'NO' WHEN (E.EmpPicPath IS NOT NULL) THEN 'YES' ELSE 'NO' END
                             ,E.CardNumber,Fingerprint = CASE WHEN FP.Id IS NULL THEN 'NO' WHEN (FP.Id IS NOT NULL) THEN 'YES' ELSE 'NO' END,E.NationalID,FORMAT(E.DOB,'dd-MMM-yyyy') DOB

@@ -10902,7 +10902,7 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
             if (POTypeStatus == "ForChecked")
             {
                 Sql = @"--DECLARE @plantId VARCHAR(10)='20171';
-                Select * from              (                     SELECT ROW_NUMBER()  OVER (ORDER BY  SPOM.Id) AS SiNo,SPOM.Id
+                SELECT * FROM    (  SELECT ROW_NUMBER()  OVER (ORDER BY  SPOM.Id) AS SiNo,SPOM.Id
 		                            , REPLACE(CONVERT(CHAR(11), SPOM.PODate, 106),' ','-') AS PODate
 		                            , SPOM.CompanyGroupId, SPOM.CompanyId, SPOM.PlantId, SPOM.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
 		                            , CP.UserName AS PartyAccountGroupName
@@ -10914,7 +10914,7 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
 		                            ,SPOM.ToCurrencyRate
 		                            , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, SPOM.IsTaxApplicable
 		                            , SPOM.IsApproved, SPOM.IsPaymentHold, SP.Id AS PlantStateId
-		                            ,pgl.CtnId
+		                            ,pgl.CtnId,SPOM.DiscountAmount
 		                            ,SPOM.AddedBy
 		                            ,SPOM.CheckedByStatus AS CheckedByStatus
 		                            ,SPOM.ApprovedByStatus AS ApprovedByStatus,eI.EmployeeName AS CheckedBy,eI1.EmployeeName AS ApprovedBy,PT.PaymentMode
@@ -10963,7 +10963,7 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
 		                            ,SPOM.ToCurrencyRate
 		                            , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, SPOM.IsTaxApplicable
 		                            , SPOM.IsApproved, SPOM.IsPaymentHold, SP.Id AS PlantStateId
-		                            ,pgl.CtnId
+		                            ,pgl.CtnId,SPOM.DiscountAmount
 		                            ,SPOM.AddedBy
 		                            ,SPOM.CheckedByStatus AS CheckedByStatus
 		                            ,SPOM.ApprovedByStatus AS ApprovedByStatus,eI.EmployeeName AS CheckedBy,eI1.EmployeeName AS ApprovedBy,PT.PaymentMode
@@ -11011,7 +11011,7 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
 		                            ,SPOM.ToCurrencyRate
 		                            , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, SPOM.IsTaxApplicable
 		                            , SPOM.IsApproved, SPOM.IsPaymentHold, SP.Id AS PlantStateId
-		                            ,pgl.CtnId
+		                            ,pgl.CtnId,SPOM.DiscountAmount
 		                            ,SPOM.AddedBy
 		                            ,SPOM.CheckedByStatus AS CheckedByStatus
 		                            ,SPOM.ApprovedByStatus AS ApprovedByStatus,eI.EmployeeName AS CheckedBy,eI1.EmployeeName AS ApprovedBy,PT.PaymentMode
@@ -11049,7 +11049,6 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
 							)X
 							
 							Order by Id DESC
-
 ";
 
 
