@@ -22241,7 +22241,7 @@ group by Id) O60 ON O60.Id=IV.Id
 							WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= '" + toDate + @"' )
 							GROUP BY iwd.InvoiceDetailId,iw.PartyId
 							)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
-						WHERE VI.IsPark=0 --AND VD.PartyId='202017395'
+						WHERE VI.IsPark=0 
 						GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount
 				 ) AS IVD ON IVD.InvoiceId=IV.Id AND IVD.PartyId=IV.PartyId
                 LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
@@ -22265,7 +22265,7 @@ group by Id) O60 ON O60.Id=IV.Id
 										INNER JOIN [TRN].[InvoiceWriteOff] IW ON IW.Id=IWD.InvoiceWriteOffId
 										INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.InvoiceWriteOffDetailId=IWD.Id
 										 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
-										where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
+										where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null AND ( convert(Date,IW.PostingDate) <= '" + toDate + @"')
 										GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=IVD.AdjustmentNoteId
                 WHERE IV.Archive=0  AND V.IsPark=0 AND IV.PartyType='Vendor' AND IV.SourceType in ('VendorPayment','CreditNote')
                     AND ISNULL(VDC.CrAmount,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)>0
@@ -22305,7 +22305,7 @@ group by Id) O60 ON O60.Id=IV.Id
 								INNER JOIN [TRN].[InvoiceWriteOff] IW ON IW.Id=IWD.InvoiceWriteOffId
 								INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.InvoiceWriteOffDetailId=IWD.Id
 								INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
-								where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
+								where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null AND ( convert(Date,IW.PostingDate) <= '" + toDate + @"' )
 								GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=AD.AdjustmentNoteId
                 where A.PlantId='" + plantId + @"' and VDA.PartyType='Vendor' and A.SourceType in('DebitNote','InventoryReturnPayable')  AND A.IsPark=0
 				AND ( convert(Date,A.PostingDate) <= '" + toDate + @"' ) AND ( ISNULL(VDC.DrAmount,0)- ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0))>0
@@ -22354,7 +22354,7 @@ group by Id) O60 ON O60.Id=IV.Id
 								INNER JOIN [TRN].[InvoiceWriteOff] IW ON IW.Id=IWD.InvoiceWriteOffId
 								INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.InvoiceWriteOffDetailId=IWD.Id
 								INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
-								where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
+								WHERE IW.IsPark=0 AND IWD.AdjustmentNoteId is not null AND ( convert(Date,IW.PostingDate) <= '" + toDate + @"' )
 								GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=AD.AdjustmentNoteId
                 where A.PlantId='" + plantId + @"' and VDA.PartyType='Customer' and A.SourceType in('DebitNote','CustomerReceipt')  AND A.IsPark=0
 				AND ( convert(Date,A.PostingDate) <= '" + toDate + @"' ) AND ( ISNULL(VDC.DrAmount,0)- ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0))>0
@@ -22392,7 +22392,7 @@ group by Id) O60 ON O60.Id=IV.Id
 								INNER JOIN [TRN].[InvoiceWriteOff] IW ON IW.Id=IWD.InvoiceWriteOffId
 								INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.InvoiceWriteOffDetailId=IWD.Id
 								INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
-								where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
+								where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null AND ( convert(Date,IW.PostingDate) <= '" + toDate + @"' )
 								GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=AD.AdjustmentNoteId
                 where A.PlantId='" + plantId + @"' and VDA.PartyType='Customer' and A.SourceType in('CreditNote')  AND A.IsPark=0
 				AND ( convert(Date,A.PostingDate) <= '" + toDate + @"' ) AND ( ISNULL(VDC.CrAmount,0)- ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0))>0
