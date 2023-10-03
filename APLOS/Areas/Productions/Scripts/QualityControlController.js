@@ -1236,7 +1236,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         try {
             $scope.SaveList = [];
             for (var i = 0; i < $scope.wcList.length; i++) {
-                if (!baseService.isUndefinedOrNull($scope.wcList[i].Value)) {
+                if (!baseService.isUndefinedOrNull($scope.wcList[i].Value) && !baseService.isUndefinedOrNull($scope.wcList[i].GradeId)) {
                     //if ($scope.wcList[i].IsWorkCenter == true && baseService.isUndefinedOrNull($scope.wcList[i].WorkCenterId)) {
                     //    throw "Please Select WorkCenter and Proceed";
                     //}
@@ -1280,6 +1280,9 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         try {
             if (baseService.isUndefinedOrNull(data.data.Value)) {
                 throw "Please enter Value and proceed";
+            }
+            if (baseService.isUndefinedOrNull(data.data.GradeId)) {
+                throw "Please enter Grade and proceed";
             }
             if (data.data.IsWorkCenter == true && baseService.isUndefinedOrNull(data.data.WorkCenterId)) {
                 throw "Please select WorkCenter and Proceed";
