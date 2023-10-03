@@ -184,6 +184,16 @@ namespace Library.Accounting.Accounts
                 ) AS TEMP WHERE " + strkey + " order by PostingDate DESC   ";
             return _sqlRepository.GetDataCollection(sql);
         }
+        public List<Dictionary<string, object>> GetFiscalYearCloseListForPosting()
+        {
+            string sql = @"SELECT FYC.Id,FY.Id Sequence,FY.FiscalYearName,C.UserName CompanyName,P.UserName PlantName,'' Amount
+                                FROM [SCS].[FiscalYearClose] As FYC
+                                LEFT JOIN [SCS].[FiscalYear] AS FY  ON FY.Id=FYC.FiscalYearId
+                                LEFT JOIN  [ORG].[Company] AS C  ON C.Id=FYC.CompanyId
+                                LEFT JOIN [ORG].[Plant] AS P  ON P.Id=FYC.PlantId
+                                Where FYC.VoucherId IS NULL";
+            return _sqlRepository.GetDataCollection(sql);
+        }
         #endregion
     }
 }

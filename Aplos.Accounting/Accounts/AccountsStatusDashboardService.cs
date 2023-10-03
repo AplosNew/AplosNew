@@ -22200,25 +22200,25 @@ group by Id) O60 ON O60.Id=IV.Id
         {
             try
             {
-                var sql = @"Select x.PartyId,x.PartyCode,x.PartyName,round(sum(x.VendorAdvance),4) VendorAdvance,round(sum(x.VendorDebitNote),4) VendorDebitNote,round(sum(x.Payable),4) Payable
-                ,round(sum(x.CustomerAdvance),4) CustomerAdvance,round(sum(x.CustomerCreditNote),4) CustomerCreditNote,round(sum(x.Receivable),4) Receivable
-                ,ToBePayment=Case when round((sum(x.Payable)-sum(x.VendorAdvance)-sum(x.VendorDebitNote)-sum(x.Receivable)+sum(x.CustomerAdvance)+sum(x.CustomerCreditNote)),4)>0 then round((sum(x.Payable)-sum(x.VendorAdvance)-sum(x.VendorDebitNote)-sum(x.Receivable)+sum(x.CustomerAdvance)+sum(x.CustomerCreditNote)),4) else 0 end
-                ,ToBeReceived=Case when round((sum(x.Receivable)-sum(x.Payable)+sum(x.VendorAdvance)+sum(x.VendorDebitNote)-sum(x.CustomerAdvance)-sum(x.CustomerCreditNote)),4)>0 then round((sum(x.Receivable)-sum(x.Payable)+sum(x.VendorAdvance)+sum(x.VendorDebitNote)-sum(x.CustomerAdvance)-sum(x.CustomerCreditNote)),4) else 0 end
-                ,ISNULL((SELECT  ABS(SUM(ISNULL(CC.CompanyCurrencyDrAmount, 0)) - SUM(ISNULL(CC.CompanyCurrencyCrAmount, 0))) AS VendorLedgerBalanceAmount
+                var sql = @"Select x.PartyId,x.PartyCode,x.PartyName,round(sum(x.VendorAdvance),2) VendorAdvance,round(sum(x.VendorDebitNote),2) VendorDebitNote,round(sum(x.Payable),2) Payable
+                ,round(sum(x.CustomerAdvance),2) CustomerAdvance,round(sum(x.CustomerCreditNote),2) CustomerCreditNote,round(sum(x.Receivable),2) Receivable
+                ,ToBePayment=Case when round((sum(x.Payable)-sum(x.VendorAdvance)-sum(x.VendorDebitNote)-sum(x.Receivable)+sum(x.CustomerAdvance)+sum(x.CustomerCreditNote)),2)>0 then round((sum(x.Payable)-sum(x.VendorAdvance)-sum(x.VendorDebitNote)-sum(x.Receivable)+sum(x.CustomerAdvance)+sum(x.CustomerCreditNote)),2) else 0 end
+                ,ToBeReceived=Case when round((sum(x.Receivable)-sum(x.Payable)+sum(x.VendorAdvance)+sum(x.VendorDebitNote)-sum(x.CustomerAdvance)-sum(x.CustomerCreditNote)),2)>0 then round((sum(x.Receivable)-sum(x.Payable)+sum(x.VendorAdvance)+sum(x.VendorDebitNote)-sum(x.CustomerAdvance)-sum(x.CustomerCreditNote)),2) else 0 end
+                ,ISNULL((SELECT  round(SUM(ISNULL(CC.CompanyCurrencyCrAmount, 0)) - SUM(ISNULL(CC.CompanyCurrencyDrAmount, 0)),2) AS VendorLedgerBalanceAmount
                     FROM [TRN].[VoucherDetail] AS VD
                     LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                     LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
 	                    FROM [TRN].[VoucherDetailCurrency] AS VDC) AS CC ON CC.VoucherDetailId=VD.Id
                     WHERE V.Archive=0 AND V.IsPark=0 AND V.PlantId='" + plantId + @"' AND convert(Date,V.PostingDate) <= '" + toDate + @"' AND VD.PartyId=X.PartyId AND VD.PartyType IN ('Vendor') 
 					GROUP BY VD.PartyId),0) VendorLedgerBalanceAmount
-                ,ISNULL((SELECT  ABS(SUM(ISNULL(CC.CompanyCurrencyDrAmount, 0)) - SUM(ISNULL(CC.CompanyCurrencyCrAmount, 0))) AS CustomerLedgerBalanceAmount
+                ,ISNULL((SELECT  round(SUM(ISNULL(CC.CompanyCurrencyDrAmount, 0)) - SUM(ISNULL(CC.CompanyCurrencyCrAmount, 0)),2) AS CustomerLedgerBalanceAmount
                     FROM [TRN].[VoucherDetail] AS VD
                     LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                     LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
 	                    FROM [TRN].[VoucherDetailCurrency] AS VDC) AS CC ON CC.VoucherDetailId=VD.Id
                     WHERE V.Archive=0 AND V.IsPark=0 AND V.PlantId='" + plantId + @"' AND convert(Date,V.PostingDate) <= '" + toDate + @"' AND VD.PartyId=X.PartyId AND VD.PartyType IN ('Customer') 
 					GROUP BY VD.PartyId),0) CustomerLedgerBalanceAmount
-                ,round(sum(x.RemainingPOPayable),4) RemainingPOAmount
+                ,round(sum(x.RemainingPOPayable),2) RemainingPOAmount
         from (
         SELECT P.Id PartyId,P.Code PartyCode,P.UserName PartyName
                 , 0 VendorAdvance, 0 VendorDebitNote

@@ -1032,7 +1032,8 @@ namespace Aplos.Areas.Accounts.Controllers
             if (voucherVM.CompanyCurrencyRate <= 0)
                 throw new CustomException("Please Input Rate.");
             var bankamount = banksDetailVMList.Sum(r => r.Amount);
-            var bankChargeamount = bankChargeDetailVMList.Sum(r => r.Amount);
+            var bankChargeamount = bankChargeDetailVMList==null?0: bankChargeDetailVMList.Sum(r => r.Amount);
+
             var Totalbankamount = bankamount + bankChargeamount;
             if (bankChargeDetailVMList != null && voucherDetailVMList.Sum(r => r.Amount) != banksDetailVMList.Sum(r => r.Amount) + bankChargeDetailVMList.Sum(r => r.Amount))
                 throw new CustomException("Invoice Total amount should same Bank Total Amount and Bank Charges Amount");
