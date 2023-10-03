@@ -11490,9 +11490,19 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
                     columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
                 DataTable dsMaterialItems = ServicePODetail(purchaseOrderId);
                 var materialTotal = MakeMaterialDetailsTable(document, dsMaterialItems, purchaseOrderId);//Material Details 
+                //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                //document.Replace("{TotalInWords}", ru.InWord(clsStaticInfo.dbl(materialTotal + serviceTotal), dsMaterialItems.Rows[0]["CurrencyId"].ToString()), true, true);
+
+
+                var DiscountAmount = "";
+                DiscountAmount = dsOrderMaster.Rows[0]["DiscountAmount"].ToString();
                 document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{DiscountAmount}", (DiscountAmount).ToString() + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{AfterDiscountTotal}", ((clsStaticInfo.dbl(materialTotal.ToString()) + clsStaticInfo.dbl(serviceTotal.ToString())) - clsStaticInfo.dbl(DiscountAmount.ToString())).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{TotalInWords}", ru.InWord(((clsStaticInfo.dbl(materialTotal.ToString()) + clsStaticInfo.dbl(serviceTotal.ToString())) - clsStaticInfo.dbl(DiscountAmount.ToString())), dsOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
+
+
                 Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
-                document.Replace("{TotalInWords}", ru.InWord(clsStaticInfo.dbl(materialTotal + serviceTotal), dsMaterialItems.Rows[0]["CurrencyId"].ToString()), true, true);
                 TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
                 List<string> strReplace = new List<string>();
                 for (int i = 0; i < allresult.Length; i++)
@@ -11572,7 +11582,7 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
 		                                        ,POD.InventoryMaterialId MaterialMasterId
 		                                        ,SPO.DocRefNo
                                                 ,REPLACE(Convert(VARCHAR(11), SPO.DocDate, 106), ' ', '-') AS DocDate
-		                                   
+		                                         ,Convert(decimal(18,2), ISNULL(SPO.DiscountAmount, 0)) DiscountAmount
 		                                        ,SPO.AddedDate
 		                                        ,SPO.UpdatedBy
 		                                        ,SPO.UpdatedDate
