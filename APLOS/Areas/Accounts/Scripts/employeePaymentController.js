@@ -34,7 +34,7 @@ function employeePaymentController(cboService, commonMessage, $scope, $rootScope
         VoucherNo: null,
         VoucherDate: $filter("dateFiltering")(Date.now()),
         PostingDate: $filter("dateFiltering")(Date.now()),
-        BankTransactionDate: $filter("dateFiltering")(Date.now()),,
+        BankTransactionDate: $filter("dateFiltering")(Date.now()),
         BankReferenceNo: null,
         DocDate: $filter("dateFiltering")(Date.now()),
         BaseOnDueDate: null,
