@@ -45,10 +45,20 @@ namespace Aplos.Areas.Productions.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT S.*,PE.UserName ProductionEntity,FE.UserName FromEntity FROM [dbo].[ProductionOrderEntitySetup] S
+            string sql = @"select top 100 * from (SELECT S.*,PE.UserName ProductionEntity,FE.UserName FromEntity,DRG.UserName DrGLGeneralInfoName,DRB.UserName DrBudget,DRA.UserName DrActivity
+,CRG.UserName CrGLGeneralInfoName,CRB.UserName CrBudget,CRA.UserName CrActivity
+FROM [dbo].[ProductionOrderEntitySetup] S
 LEFT JOIN ORG.Entity PE ON PE.Id=S.ProductionEntityId
 LEFT JOIN ORG.Entity FE ON FE.Id=S.FromEntityId
-Where S.CompanyId='"+ CompanyId + @"' AND S.PlantId='"+ PlantId + @"') AS TEMP WHERE " + strkey + "";
+LEFT JOIN [HKP].[GLGeneralInfo] DRG ON DRG.Id=S.DrGLGeneralInfoId
+LEFT JOIN [MST].[BudgetMaster] DRBM ON DRBM.Id=S.DrBudgetMasterId
+LEFT JOIN [HKP].[Budget] DRB ON DRB.Id=DRBM.BudgetId
+LEFT JOIN [HKP].[Activity] DRA ON DRA.Id=S.DrActivityId
+LEFT JOIN [HKP].[GLGeneralInfo] CRG ON CRG.Id=S.CrGLGeneralInfoId
+LEFT JOIN [MST].[BudgetMaster] CRBM ON CRBM.Id=S.CrBudgetMasterId
+LEFT JOIN [HKP].[Budget] CRB ON CRB.Id=CRBM.BudgetId
+LEFT JOIN [HKP].[Activity] CRA ON CRA.Id=S.CrActivityId
+Where S.CompanyId='" + CompanyId + @"' AND S.PlantId='"+ PlantId + @"') AS TEMP WHERE " + strkey + "";
 
 
 
@@ -61,15 +71,11 @@ Where S.CompanyId='"+ CompanyId + @"' AND S.PlantId='"+ PlantId + @"') AS TEMP W
         {
             try
             {
-                DataSet dsMaster;
+                DataSet dsMaster,dsDrMaster, dsCrMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                //con.OpenDataSetThroughAdapter("select * from dbo.ProductionOrderEntitySetup where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                //if (dsMaster.Tables[0].Rows.Count > 0)
-                //    throw new Exception("Same Code already exists!!!");
+                con.OpenDataSetThroughAdapter("Select  Id  from MST.BudgetMasterActivity Where BudgetMasterId='"+ data["DrBudgetMasterId"].ToString() + "' AND ActivityId='"+ data["DrActivityId"].ToString() + "'", out dsDrMaster, false, "1");
 
-                //con.OpenDataSetThroughAdapter("select * from dbo.ProductionOrderEntitySetup where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                //if (dsMaster.Tables[0].Rows.Count > 0)
-                //    throw new Exception("Same User Name already exists!!!");
+                con.OpenDataSetThroughAdapter("Select  Id  from MST.BudgetMasterActivity Where BudgetMasterId='" + data["DrBudgetMasterId"].ToString() + "' AND ActivityId='" + data["DrActivityId"].ToString() + "'", out dsCrMaster, false, "1");
 
 
                 con.OpenDataSetThroughAdapter("select * from dbo.ProductionOrderEntitySetup where Id='" + data["Id"] + "'", out dsMaster, false, "1");
@@ -83,11 +89,15 @@ Where S.CompanyId='"+ CompanyId + @"' AND S.PlantId='"+ PlantId + @"') AS TEMP W
                     genid.GenID("ProductionOrderEntitySetup", out _Id);
 
                     data["Id"] = _Id;
+                    data["DrControlId"] = dsDrMaster.Tables[0].Rows[0]["Id"].ToString();
+                    data["CrControlId"] = dsCrMaster.Tables[0].Rows[0]["Id"].ToString();
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
                     _Id = data["Id"].ToString();
+                    data["DrControlId"] = dsDrMaster.Tables[0].Rows[0]["Id"].ToString();
+                    data["CrControlId"] = dsCrMaster.Tables[0].Rows[0]["Id"].ToString();
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion data update
