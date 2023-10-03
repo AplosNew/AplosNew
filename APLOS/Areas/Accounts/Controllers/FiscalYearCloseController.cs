@@ -85,6 +85,12 @@ namespace Aplos.Areas.Accounts.Controllers
 
             return Json(_fiscalYearCloseService.GetFiscalYearClosePostedList(column, value, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public JsonResult GetFiscalYearCloseListForPosting()
+        {
+            FiscalYearCloseService _fiscalYearCloseService = new FiscalYearCloseService(_sqlRepository);
+            return Json(_fiscalYearCloseService.GetFiscalYearCloseListForPosting(), JsonRequestBehavior.AllowGet);
+        }
         #endregion
 
 
