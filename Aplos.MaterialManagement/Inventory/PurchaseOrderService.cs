@@ -7125,7 +7125,7 @@ ORDER BY IR.ID DESC";
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                var sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='PurchaseOrderCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 return _sqlRepository.GetDataCollection(sql);
@@ -7144,7 +7144,7 @@ ORDER BY IR.ID DESC";
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                var sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='IssueSlipCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 return _sqlRepository.GetDataCollection(sql);
@@ -7163,7 +7163,7 @@ ORDER BY IR.ID DESC";
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"select E.SystemId As Value, E.EmployeeCode+'-'+E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                var sql = @"select E.SystemId As Value, (E.EmployeeCode+'-'+E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='PurchaseOrderApproveBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 return _sqlRepository.GetDataCollection(sql);
@@ -7184,7 +7184,7 @@ ORDER BY IR.ID DESC";
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"select E.SystemId As Value, E.EmployeeCode+'-'+E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                var sql = @"select E.SystemId As Value, (E.EmployeeCode+'-'+E.EmployeeName )As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='RequisitionApproveBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 return _sqlRepository.GetDataCollection(sql);
@@ -10902,7 +10902,7 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
             if (POTypeStatus == "ForChecked")
             {
                 Sql = @"--DECLARE @plantId VARCHAR(10)='20171';
-                Select * from              (                     SELECT ROW_NUMBER()  OVER (ORDER BY  SPOM.Id) AS SiNo,SPOM.Id
+                SELECT * FROM    (  SELECT ROW_NUMBER()  OVER (ORDER BY  SPOM.Id) AS SiNo,SPOM.Id
 		                            , REPLACE(CONVERT(CHAR(11), SPOM.PODate, 106),' ','-') AS PODate
 		                            , SPOM.CompanyGroupId, SPOM.CompanyId, SPOM.PlantId, SPOM.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
 		                            , CP.UserName AS PartyAccountGroupName
@@ -10914,7 +10914,7 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
 		                            ,SPOM.ToCurrencyRate
 		                            , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, SPOM.IsTaxApplicable
 		                            , SPOM.IsApproved, SPOM.IsPaymentHold, SP.Id AS PlantStateId
-		                            ,pgl.CtnId
+		                            ,pgl.CtnId,SPOM.DiscountAmount
 		                            ,SPOM.AddedBy
 		                            ,SPOM.CheckedByStatus AS CheckedByStatus
 		                            ,SPOM.ApprovedByStatus AS ApprovedByStatus,eI.EmployeeName AS CheckedBy,eI1.EmployeeName AS ApprovedBy,PT.PaymentMode
@@ -10963,7 +10963,7 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
 		                            ,SPOM.ToCurrencyRate
 		                            , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, SPOM.IsTaxApplicable
 		                            , SPOM.IsApproved, SPOM.IsPaymentHold, SP.Id AS PlantStateId
-		                            ,pgl.CtnId
+		                            ,pgl.CtnId,SPOM.DiscountAmount
 		                            ,SPOM.AddedBy
 		                            ,SPOM.CheckedByStatus AS CheckedByStatus
 		                            ,SPOM.ApprovedByStatus AS ApprovedByStatus,eI.EmployeeName AS CheckedBy,eI1.EmployeeName AS ApprovedBy,PT.PaymentMode
@@ -11011,7 +11011,7 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
 		                            ,SPOM.ToCurrencyRate
 		                            , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, SPOM.IsTaxApplicable
 		                            , SPOM.IsApproved, SPOM.IsPaymentHold, SP.Id AS PlantStateId
-		                            ,pgl.CtnId
+		                            ,pgl.CtnId,SPOM.DiscountAmount
 		                            ,SPOM.AddedBy
 		                            ,SPOM.CheckedByStatus AS CheckedByStatus
 		                            ,SPOM.ApprovedByStatus AS ApprovedByStatus,eI.EmployeeName AS CheckedBy,eI1.EmployeeName AS ApprovedBy,PT.PaymentMode
@@ -11049,7 +11049,6 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
 							)X
 							
 							Order by Id DESC
-
 ";
 
 
@@ -11443,7 +11442,7 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                var sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='ServicePOCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 return _sqlRepository.GetDataCollection(sql);
@@ -11491,9 +11490,19 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
                     columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
                 DataTable dsMaterialItems = ServicePODetail(purchaseOrderId);
                 var materialTotal = MakeMaterialDetailsTable(document, dsMaterialItems, purchaseOrderId);//Material Details 
+                //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                //document.Replace("{TotalInWords}", ru.InWord(clsStaticInfo.dbl(materialTotal + serviceTotal), dsMaterialItems.Rows[0]["CurrencyId"].ToString()), true, true);
+
+
+                var DiscountAmount = "";
+                DiscountAmount = dsOrderMaster.Rows[0]["DiscountAmount"].ToString();
                 document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{DiscountAmount}", (DiscountAmount).ToString() + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{AfterDiscountTotal}", ((clsStaticInfo.dbl(materialTotal.ToString()) + clsStaticInfo.dbl(serviceTotal.ToString())) - clsStaticInfo.dbl(DiscountAmount.ToString())).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{TotalInWords}", ru.InWord(((clsStaticInfo.dbl(materialTotal.ToString()) + clsStaticInfo.dbl(serviceTotal.ToString())) - clsStaticInfo.dbl(DiscountAmount.ToString())), dsOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
+
+
                 Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
-                document.Replace("{TotalInWords}", ru.InWord(clsStaticInfo.dbl(materialTotal + serviceTotal), dsMaterialItems.Rows[0]["CurrencyId"].ToString()), true, true);
                 TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
                 List<string> strReplace = new List<string>();
                 for (int i = 0; i < allresult.Length; i++)
@@ -11573,7 +11582,7 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
 		                                        ,POD.InventoryMaterialId MaterialMasterId
 		                                        ,SPO.DocRefNo
                                                 ,REPLACE(Convert(VARCHAR(11), SPO.DocDate, 106), ' ', '-') AS DocDate
-		                                   
+		                                         ,Convert(decimal(18,2), ISNULL(SPO.DiscountAmount, 0)) DiscountAmount
 		                                        ,SPO.AddedDate
 		                                        ,SPO.UpdatedBy
 		                                        ,SPO.UpdatedDate
@@ -13627,13 +13636,13 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if (CheckedBy == "true" && ApprovedBy == "true")
                 {
-                    sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                    sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='PurchaseOrderCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "true")
                 {
-                    sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                    sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='PurchaseOrderApproveBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
@@ -13660,14 +13669,14 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if (CheckedBy == "true" && ApprovedBy == "true")
                 {
-                    sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                    sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='OutSourceCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                     return _sqlRepository.GetDataCollection(sql);
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "true")
                 {
-                    sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                    sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           --where  A.ActionStatus='OutSourceApprovedBy'
                             where  A.ActionStatus='OutSourceApproveBy' AND E.EmployeeStatus='Active' ";//A.PlantId='" + identity.PlantId + "' AND
@@ -13698,13 +13707,13 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if (CheckedBy == "true" && ApprovedBy == "true")
                 {
-                    sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                    sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='ServicePOCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "true")
                 {
-                    sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                    sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='ServicePOApproveBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
@@ -13739,13 +13748,13 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if (CheckedBy == "true" && ApprovedBy == "true")
                 {
-                    sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                    sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='ServiceAcknowledgementCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "true")
                 {
-                    sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                    sql = @"select E.SystemId As Value, (E.Employeecode+'-'+ E.EmployeeName) As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='ServiceAcknowledgementApproveBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }

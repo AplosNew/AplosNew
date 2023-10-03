@@ -7,14 +7,14 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
     $scope.path = "accounts/FiscalYearClose/";
 
     $scope.searchBy = "VoucherNo"; $scope.search = "";
-    $scope.searchByList = [{ value: 'VoucherNo', name: "Voucher No" }, { value: 'PostingDate', name: "Posting Date" }, { value: 'FixedAssetMasterId', name: "Asset Master Id" }, { value: 'FixedAssetItemId', name: "Asset Item Id" }, { value: 'FixedAssetMaster', name: "Asset Master" }, { value: 'FixedAssetItem', name: "Asset Item" }, { value: 'FixedAssetCategory', name: "Asset Category" }, { value: 'FixedAssetSubCategory', name: "Asset Sub Category" }];
+    $scope.searchByList = [{ value: 'VoucherNo', name: "Voucher No" }, { value: 'PostingDate', name: "Posting Date" }, { value: 'DocRefNo', name: "DocRefNo" }, { value: 'FiscalYearName', name: "Fiscal Year" }, { value: 'CompanyName', name: "Company" }, { value: 'PlantName', name: "Plant" }];
 
     $scope.voucherList = [];
     $scope.getData = function () {
         $http({
             method: 'Post'
-            , url: 'FixedAssets/FixedAssetRegister/GetCapitalizeAssetRegisterPostedList'
-            , data: { column: $scope.searchBy, value: $scope.search, type: "New" }
+            , url: 'accounts/FiscalYearClose/GetFiscalYearClosePostedList'
+            , data: { column: $scope.searchBy, value: $scope.search }
             , dataType: 'JSON'
         }).then(function (response) {
             $scope.voucherList = response.data;
@@ -65,7 +65,7 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
     $scope.masterList = [];
     $scope.getMasterData = function () {
         $scope.masterList = [];
-        $http.get("fixedassets/fixedassetregister/GetApprovedCapitalizeData?type=" + "New")
+        $http.get("accounts/FiscalYearClose/GetFiscalYearCloseListForPosting")
             .then(
                 function successCallback(response) {
                     $scope.masterList = response.data;
@@ -73,11 +73,11 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
                 });
-        angular.element(document.querySelector('#CapitalpopUp')).modal('show');
+        angular.element(document.querySelector('#FiscalYearClosepopUp')).modal('show');
     };
 
     $scope.closePopUp = function () {
-        angular.element(document.querySelector('#CapitalpopUp')).modal('hide');
+        angular.element(document.querySelector('#FiscalYearClosepopUp')).modal('hide');
     }
 
     $scope.selectedmaterialMasterList = [];
@@ -114,7 +114,7 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
             $rootScope.toggle();
         }
 
-        angular.element(document.querySelector('#CapitalpopUp')).modal('hide');
+        angular.element(document.querySelector('#FiscalYearClosepopUp')).modal('hide');
     };
     $scope.capitalizationJVList = [];
     $scope.getCapitalizationJV = function (Id) {
@@ -131,18 +131,7 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
         };
 
     };
-    
-
-    // #region TAB CHANGE Main
-    $scope.tabMain = 1;
-    $scope.setTabMain = function (newTab) {
-        $scope.tabMain = newTab;
-    };
-    $scope.isSetMain = function (tabNum) {
-        return $scope.tabMain === tabNum;
-    };
-    // #endregion TAB CHANGE Main
-
+   
     // #region TAB CHANGE New
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -164,7 +153,6 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
     cboService.getCboTransactionCurrencyByCompany("", function (result) {
         $scope.tranCurrencyList = result;
         $scope.voucher.CurrencyId = $scope.baseCurrencyId;
-        $scope.voucherAddition.CurrencyId = $scope.baseCurrencyId;
         $scope.GetCurrencyExchangeRateList();
     });
 
@@ -175,9 +163,6 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
                 $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
                 $scope.voucher.DocDate = $scope.voucher.PostingDate;
-                $scope.voucherAddition.VoucherTypeId = $scope.voucherTypeList[0].Value;
-                $scope.voucherAddition.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
-                $scope.voucherAddition.DocDate = $scope.voucher.PostingDate;
                 $scope.GetCurrencyExchangeRateList();
             }
         });
@@ -255,7 +240,7 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
 
     $scope.Post = function () {
         if ($scope.form0.$valid) {
-            $scope.SaveUrl = "fixedassets/FixedAssetRegister/CreatetCapitalizeAssetRegisterPost"
+            $scope.SaveUrl = "accounts/FiscalYearClose/CreatetCapitalizeAssetRegisterPost"
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",

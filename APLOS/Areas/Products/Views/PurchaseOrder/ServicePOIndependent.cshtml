@@ -754,6 +754,7 @@
                 </div>
                 <div class="col-md-12">
                     <div class="col-xs-12 col-sm-6 col-md-6">
+
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label" ng-show="checkedByList.length">{{productNew.labelCheckAndApproved}}</label>
                             <div class="col-sm-8 show-message">
@@ -762,6 +763,14 @@
                                         <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
                                     </select>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" id="div_docNo">
+                            <label class="col-sm-5 control-label"><b>Discount Amount</b><sup>*</sup></label>
+                            <div class="col-sm-7 show-message">
+                                <input type="number" name="DiscountAmount" ng-model="productNew.DiscountAmount" class="form-control" maxlength="20" tabindex="" autocomplete="off" style="text-align:right;">
                             </div>
                         </div>
                     </div>

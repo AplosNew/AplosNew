@@ -111,7 +111,7 @@
             <label class="col-sm-3 control-label">Transaction Type<sup>*</sup></label>
             <div class="col-sm-9 show-message">
                 <div class="select-style">
-                    <select ng-change="getTransactionTypeGL(advance.EmployeeTransactionTypeId)" name="Transaction Type" class="form-control" ng-model="advance.EmployeeTransactionTypeId" tabindex="7" >
+                    <select ng-change="getTransactionTypeGL(advance.EmployeeTransactionTypeId)" name="Transaction Type" class="form-control" ng-model="advance.EmployeeTransactionTypeId" tabindex="7">
                         <option value="">--Select--</option>
                         <option ng-repeat="option in employeeTransactionTypeList" value="{{option.EmployeeTransactionTypeId}}">{{option.EmployeeTransactionTypeName}}</option>
                     </select>
@@ -152,6 +152,18 @@
                         <option value="">--Select--</option>
                     </select>
                 </div>
+            </div>
+        </div>
+        <div class="form-group" ng-show="advance.BankMasterId">
+            <label class="col-sm-4 control-label">Bank Ref No</label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="50" id="Bank Reference No" name="Bank Reference No" ng-model="advance.BankReferenceNo" class="form-control" tabindex="5" autocomplete="off">
+            </div>
+        </div>
+        <div class="form-group" ng-show="advance.BankMasterId">
+            <label class="col-sm-4 control-label">Bank Trn Date</label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="BankTransactionDate" ng-model="advance.BankTransactionDate" datepicker class="form-control" tabindex="4">
             </div>
         </div>
         <div class="form-group" ng-show="advance.PaymentSource=='@Library.Model.Payments.PaymentSource.Cash.ToString()'">

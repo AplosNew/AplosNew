@@ -104,7 +104,7 @@
                     <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5);GetDateRangeWisePaymentData();" href="" data-toggle="tab">Payment</a></li>
                     <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6);GetBankMasterListData();" href="" data-toggle="tab">Bank</a></li>
                     <li role="presentation" ng-class="{ active: isSet(7) }"><a ng-click="setTab(7);GetCashListData();" href="" data-toggle="tab">Cash</a></li>
-                    <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);GetDateRangeWisePayableData();" href="" data-toggle="tab">Current Fund Position</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);getCurrentFundPositionData();" href="" data-toggle="tab">Current Fund Position</a></li>
                     <li role="presentation" ng-class="{ active: isSet(8) }"><a ng-click="setTab(8)" href="" data-toggle="tab">Check</a></li>
                     <li role="presentation" ng-class="{ active: isSet(9) }"><a ng-click="setTab(9);GetFixedAssetsList();" href="" data-toggle="tab">Fixed Assets</a></li>
                     <li role="presentation" ng-class="{ active: isSet(10) }"><a ng-click="setTab(10);GetLoanListData();" href="" data-toggle="tab">Loan Taken</a></li>
@@ -2427,8 +2427,10 @@
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Receivable" e-headertext="Receivable" e-width="80" e-textalign="right" style="height: 20px;"></div>
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ToBePayment" e-headertext="To Be Payment" e-width="80" e-textalign="right" style="height: 20px;"></div>
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ToBeReceived" e-headertext="To Be Received" e-width="80" e-textalign="right" style="height: 20px;"></div>
-                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="VendorLedgerBalanceAmount" e-headertext="Vendor Ledger Balance" e-width="80" e-textalign="right" style="height: 20px;"></div>
-                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="CustomerLedgerBalanceAmount" e-headertext="Customer Ledger Balance" e-width="80" e-textalign="right" style="height: 20px;"></div>
+                                    @*<div e-column e-type="numeric" e-format="{0:0.00}" e-field="VendorLedgerBalanceAmount" e-headertext="Vendor Ledger Balance" e-width="80" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="CustomerLedgerBalanceAmount" e-headertext="Customer Ledger Balance" e-width="80" e-textalign="right" style="height: 20px;"></div>*@
+                                    <div e-column e-type="numeric" e-field="VendorLedgerBalanceAmount" e-headertext="Vendor Ledger Balance" e-width="80" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-field="CustomerLedgerBalanceAmount" e-headertext="Customer Ledger Balance" e-width="80" e-textalign="right" style="height: 20px;"></div>
                                     <div e-column e-type="numeric" e-format="{0:0.00}" e-field="RemainingPOAmount" e-headertext="Remaining PO Amount" e-width="80" e-textalign="right" style="height: 20px;"></div>
                                 </div>
                             </div>

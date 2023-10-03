@@ -119,14 +119,17 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         $scope.getSearchData(faType);
 
         if (faType == 'AUC') {
+            var gridObj = $("#GridAUC").data("ejGrid");        
             angular.element(document.querySelector("#assetmodal")).modal("show");
         } else if (faType == 'CI') {
+            var gridObj = $("#GridCI").data("ejGrid");
             angular.element(document.querySelector("#assetmodalCI")).modal("show");
         }
         else {
+            var gridObj = $("#GridEX").data("ejGrid");
             angular.element(document.querySelector("#assetmodalEx")).modal("show");
         }
-
+        gridObj.clearFiltering();  // clears all the filtering
     };
     $scope.searchBy = "FiscalYearName"; $scope.search = "";
     $scope.searchByList = [
@@ -257,7 +260,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
             ChkOrUnchk = true;
         }
 
-        var filtered = $("#Grid").data("ejGrid").getFilteredRecords();
+        var filtered = $("#GridAUC").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
             for (var i = 0; i < $scope.materialMasterList.length; i++) {
                 $scope.materialMasterList[i].Flag = ChkOrUnchk;
@@ -268,7 +271,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                 filtered[j].Flag = ChkOrUnchk;
             }
         }
-        var gridObj = $("#Grid").data("ejGrid");
+        var gridObj = $("#GridAUC").data("ejGrid");
         gridObj.refreshContent();
     };
 
@@ -626,7 +629,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         var g = null;
 
         if ($scope.FaType == 'AUC') {
-            g = $("#Grid").data("ejGrid");
+            g = $("#GridAUC").data("ejGrid");
         } else if ($scope.FaType == 'CI') {
             g = $("#GridCI").data("ejGrid");
         }
