@@ -34,6 +34,8 @@ function employeePaymentController(cboService, commonMessage, $scope, $rootScope
         VoucherNo: null,
         VoucherDate: $filter("dateFiltering")(Date.now()),
         PostingDate: $filter("dateFiltering")(Date.now()),
+        BankTransactionDate: $filter("dateFiltering")(Date.now()),,
+        BankReferenceNo: null,
         DocDate: $filter("dateFiltering")(Date.now()),
         BaseOnDueDate: null,
         BaseNoOfDays: null,
@@ -333,6 +335,7 @@ function employeePaymentController(cboService, commonMessage, $scope, $rootScope
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
                 $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
+                $scope.voucher.BankTransactionDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
                 $scope.voucher.DocDate = $scope.voucher.PostingDate;
             }
         });
