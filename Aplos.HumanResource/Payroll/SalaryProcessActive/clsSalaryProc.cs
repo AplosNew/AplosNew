@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Data;
 using System.Web.UI.WebControls;
+using ConnectionManager;
 
 namespace Library.HumanResource.Payroll.SalaryProcessActive
 {
@@ -3334,7 +3335,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
         }//End Function
         public void GetESICStructureData(string sEmpInfo, string sDate, out DataSet dsRef)
         {
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon;
+            ConnectionManager.clsConnectionManager objCon;
             string strSql = "";
             try
             {
@@ -3391,8 +3393,10 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 						    WHERE ISNULL(SH.HeadCategory, '') != 'Tax' AND ISNULL(SH.HeadCategory, '') != 'ESIC Voluntary' AND FC.EmpSystemID IN (" + sEmpInfo + @") 
 						    ORDER BY FC.EmpSystemID";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
+                objCon = new clsConnectionManager(3600);
+                objCon.getDataSet(strSql, out dsRef);
             }
             catch (Exception ex)
             {
