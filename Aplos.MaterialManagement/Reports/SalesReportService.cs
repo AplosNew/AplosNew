@@ -6237,7 +6237,7 @@ Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
             }
               
             WordDocument document = new WordDocument(File, FormatType.Docx);
-
+             
             try
             {
                 WSection section = document.Sections[0];
