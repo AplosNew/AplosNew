@@ -6874,7 +6874,7 @@ Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
                                     s.tocurrencyRate,
                                     IRT.Percentage,
                                     (IRT.Amount * s.tocurrencyRate) as TaxAmount
-                                   	,ISNULL(IRT.BooksCurrencyTransactionAmount,0) BooksCurrencyTransactionAmount
+                                   	,ISNULL(IRT.Amount,0) BooksCurrencyTransactionAmount
 									,ISNULL(po.BooksCurrencyTaxAmount,0) BooksCurrencyTaxAmount
 									,ISNULL(po.BooksCurrencyBaseRate,0) BooksCurrencyBaseRate
 
@@ -6882,7 +6882,7 @@ Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
                                Inner join trn.SalesReturnTax IRT ON IRT.SalesReturnDetailId = PO.Id 
                                LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=IRT.TaxCategoryId
 							   left outer join trn.sales as s on s.id=po.salesId
-                                 WHERE PO.SalesId='" + salesReturnId + @"'
+                                 WHERE PO.SalesReturnId='" + salesReturnId + @"'
 								 and IRT.SalesReturnDetailId  IS NOT NULL
 								 ORDER BY tg.[Sequence]";
 
