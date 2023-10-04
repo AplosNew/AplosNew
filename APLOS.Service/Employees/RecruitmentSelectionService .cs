@@ -226,45 +226,6 @@ namespace Library.Service.Employees
                     var em = new EmailSender(dom.Host, dom.Port, dom.MailingUserName, dom.Password, dom.IsSSL);
                     em.Send(emailSetup.SenderName + " <" + emailSetup.SenderEmail + ">", item.Email, cc, emailSetup.Subject, emailSetup.Message);
 
-                    //MailMessage msg = new MailMessage();
-
-                    //msg.From = new MailAddress(dom.MailingUserName);
-                    //msg.To.Add(item.Email);
-                    //msg.Subject = "" + plantName + " recruitment system";
-
-                    //msg.Body = @"Dear " + item.FullName + @",<br /><br /><b>Congratulations!</b><br /><br />"
-                    //  + cgMessage + "<br />Please update your profile by " + date + ", using the following information.<br/>"
-                    //  + "URL: " + emailSetup.Url + "/prerecruitment"
-                    //  + "<br/>ID : " + item.Id + " <br/>OTP : " + item.InitialPIN
-                    //  + "<br/><b>N.B.</b> Google Chrome is recommended browser.";
-
-
-                    //SmtpClient client = new SmtpClient();
-                    //client.Host = dom.Host;
-                    //var credentials = new System.Net.NetworkCredential(dom.MailingUserName, dom.Password);
-                    //client.Credentials = credentials;
-                    //client.Port = dom.Port;
-                    //client.EnableSsl = dom.IsSSL;
-                    //// client.UseDefaultCredentials = true;
-                    //client.Send(msg);
-
-
-                    //SmtpClient client = new SmtpClient();
-                    //client.Port = 587;
-                    //client.Host = "cedaartextile.com";
-                    //client.EnableSsl = true;
-                    //client.Timeout = 100000;
-                    //client.DeliveryMethod = SmtpDeliveryMethod.Network;
-                    //client.UseDefaultCredentials = false;
-
-
-                    //client.Credentials = new System.Net.NetworkCredential(dom.MailingUserName, dom.Password);
-                    //System.Net.Mail.MailMessage reportEmail = new System.Net.Mail.MailMessage(dom.MailingUserName, emailSetup.SenderEmail, emailSetup.Subject, emailSetup.Message);
-                    //reportEmail.BodyEncoding = UTF8Encoding.UTF8;
-                    //reportEmail.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
-                    //reportEmail.IsBodyHtml = true;
-                    //client.Send(reportEmail);
-
                 }
             }
             catch (Exception ex)

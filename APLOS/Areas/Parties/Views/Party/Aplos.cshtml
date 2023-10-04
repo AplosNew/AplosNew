@@ -51,7 +51,7 @@
                                 <input type="text" name="Short Name" maxlength="15" ng-model="party.ShortName" class="form-control" required tabindex="3" capitalize>
                             </div>
                         </div>
-                        
+
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Party Category<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -138,11 +138,11 @@
                                 <input type="text" name="Latitude" maxlength="30" ng-model="party.Latitude" class="form-control" tabindex="2">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Party Nature</label>
-                            <div class="col-sm-8">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Party Nature<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select name="PartyNature" ng-model="party.PartyNature" class="form-control" tabindex="11">
+                                    <select name="PartyNature" ng-model="party.PartyNature" class="form-control" tabindex="11" required>
                                         <option value="">--Select--</option>
                                         <option value="Overseas">Overseas</option>
                                         <option value="Domestic">Domestic</option>

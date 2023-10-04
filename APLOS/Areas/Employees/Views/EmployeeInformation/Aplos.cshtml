@@ -1007,11 +1007,11 @@
 
 
                                         @*<div class="form-group">
-                                            <label class="col-sm-4 control-label">Name<sup ng-show="IsReferenceRequired===true">*</sup></label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="Name" ng-model="empReferenceInformation.Ref1Name" class="form-control" maxlength="150">
-                                            </div>
-                                        </div>*@
+                                                <label class="col-sm-4 control-label">Name<sup ng-show="IsReferenceRequired===true">*</sup></label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" name="Name" ng-model="empReferenceInformation.Ref1Name" class="form-control" maxlength="150">
+                                                </div>
+                                            </div>*@
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Name<sup ng-show="IsReferenceRequired===true">*</sup></label>
                                             <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
@@ -1058,8 +1058,8 @@
                                             <div class="col-sm-8">
                                                 <input type="email" name="Ref1Email" maxlength="50" ng-model="empReferenceInformation.Ref1Email" class="form-control" placeholder="example@gmail.co">
                                                 @*<span class="msg-error" ng-show="empReferenceInformationForm1.Ref1Email.$error.email">
-                    Not valid email!
-                </span>*@
+                                                        Not valid email!
+                                                    </span>*@
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -1997,14 +1997,14 @@
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-6" ng-show="employeeInformation.AnyRelativeWorkedHere==true">
                                         @*<div class="form-group" show-errors id="div_Employee">
-                                            <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
-                                            <div class="col-sm-6 show-message">
-                                                <input type="text" class="form-control" ng-model="employeeInformation.RelativeSystemId" readonly style="width: 254px;">
-                                            </div>
-                                            <div class="col-sm-2">
-                                                <button class="single-btn tooltip-here" data-placement="top" title="Employee" ng-click="showEmployeeListPopUp();"><i class="fa fa-search"></i></button>
-                                            </div>
-                                        </div>*@
+                                                <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
+                                                <div class="col-sm-6 show-message">
+                                                    <input type="text" class="form-control" ng-model="employeeInformation.RelativeSystemId" readonly style="width: 254px;">
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <button class="single-btn tooltip-here" data-placement="top" title="Employee" ng-click="showEmployeeListPopUp();"><i class="fa fa-search"></i></button>
+                                                </div>
+                                            </div>*@
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Relative Employee</label>
                                             <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
@@ -2582,7 +2582,7 @@
                             <label class="col-sm-4 control-label">Payment Mode<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="employeeNew.PaymentMode" name="Payment Mode" required tabindex="12">
+                                    <select class="form-control" ng-model="employeeNew.PaymentMode" name="Payment Mode" required tabindex="12" ng-change="ShowBankPopUp();">
                                         <option value="">--Select--</option>
                                         <option value="Bank">Bank</option>
                                         <option value="Cheque">Cheque</option>
@@ -3099,32 +3099,115 @@
             </div>
             <div class="modal-body">
                 @*<label ng-click="DownloadImageFile(d)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{FileNam}}" target="_self"></a>{{FileNam}}</label>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>File Name</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="d in documentdataList">
-                    <td ng-click="DownloadImageFile(d)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{d.FileName}}"target="_self"></a><label style="text-decoration:underline">{{d.FileName}}</label> </td>
-                </tr>
-            </tbody>
-        </table>*@
-                <p><a href="{{dwonloadUrl}}" ng-click="DownloadImageFile()" style="text-decoration:underline" download="{{FileNam}}" target="_self"></a><label ng-click="DownloadImageFile()"  style="text-decoration:underline">{{FileNam}}</label></p>
-                
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>File Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="d in documentdataList">
+                                <td ng-click="DownloadImageFile(d)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{d.FileName}}"target="_self"></a><label style="text-decoration:underline">{{d.FileName}}</label> </td>
+                            </tr>
+                        </tbody>
+                    </table>*@
+                <p><a href="{{dwonloadUrl}}" ng-click="DownloadImageFile()" style="text-decoration:underline" download="{{FileNam}}" target="_self"></a><label ng-click="DownloadImageFile()" style="text-decoration:underline">{{FileNam}}</label></p>
+
                 <center>
                     <embed src="{{dwonloadUrl}}" width="500" height="800">
                 </center>
             </div>
             <div class="modal-footer common-btn">
-              
-                
+
+
             </div>
         </div>
     </div>
 </div>
 
+<div class="modal fade site-modal in" id="EmpBankPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><i class="glyphicon glyphicon-info-sign"></i> Employee Bank Info</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-element-ctrl form-horizontal">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Bank Name<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="EmployeeName" ng-model="EmpBankInfoModel.UserName" class="form-control" required readonly>
+                                    <span class="input-group-btn">
+                                        <button name="submit" ng-click="GetBankInfo()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Account No</label>
+                            <div class="col-sm-6">
+                                <input type="text" ng-model="EmpBankInfoModel.BankAccNo" class="form-control" maxlength="100" tabindex="2" only-numbers>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">IFSCCode</label>
+                            <div class="col-sm-6">
+                                <input type="text" ng-model="EmpBankInfoModel.IFSCCode" class="form-control" maxlength="100" tabindex="2">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Bank Branch :</label>
+                            <div class="col-sm-8">
+                                <label>{{EmpBankInfoModel.BankBranch}}</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Salary Percentage</label>
+                            <div class="col-sm-6">
+                                <input type="text" ng-model="EmpBankInfoModel.SalaryPercentage" class="form-control" maxlength="100" tabindex="2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseBankPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="BankInFoPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Bank Info<button type="button" class="close" ng-click="closeBankInfoPopUp();">&times;</button></div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridEmpB" ej-grid e-datasource="BankInfolist" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="SetBankData" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="UserName" e-headertext="Bank Name" e-width="80"></div>
+                            <div e-column e-field="BankBranch" e-headertext="Bank Branch" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeBankInfoPopUp();" class="btn"><i class=""></i> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="loader" data-loader>
     Please wait
     <div class="bounce1"></div>

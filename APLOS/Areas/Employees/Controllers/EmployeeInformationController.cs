@@ -701,7 +701,7 @@ namespace Aplos.Areas.Employees.Controllers
         //}
 
         [HttpPost]
-        public JsonResult CreateNew(EmployeeInformation entity, string EmployeeCodeCheckLevel, EmpReferenceInformation empRef)
+        public JsonResult CreateNew(EmployeeInformation entity, string EmployeeCodeCheckLevel, EmpReferenceInformation empRef, Dictionary<string, object> empBank)
         {
             try
             {
@@ -750,7 +750,7 @@ namespace Aplos.Areas.Employees.Controllers
                         }
                     }
                 }
-                employeeProfile.SaveData(entity, para, EmployeeCodeCheckLevel, empRef); //, WeekOff, OT
+                employeeProfile.SaveData(entity, para, EmployeeCodeCheckLevel, empRef,empBank); //, WeekOff, OT
                 return Json(new { EmployeeInformation = entity, Message = AplosMessage.Insert + "Employee Code: " + entity.EmployeeCode + "" });
             }
             catch (Exception ex)
