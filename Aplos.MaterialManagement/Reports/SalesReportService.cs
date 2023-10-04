@@ -6235,7 +6235,7 @@ Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
             {
                 throw new CustomException("File <" + fileName + "> Not Found.");
             }
-
+              
             WordDocument document = new WordDocument(File, FormatType.Docx);
 
             try
