@@ -214,16 +214,16 @@
                     </div>
                 </div>
                 @*<div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Position Code<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="col-sm-10" style="padding:0px;">
-                    <input type="text" name="Position Code" ng-disabled="true" ng-model="IssueNew.PositionCode" class="form-control" maxlength="100" required autocomplete="off">
-                </div>
-                <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                    <button ng-click="selectPositionCode();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                </div>
-            </div>
-        </div>*@
+                        <label class="col-sm-4 control-label">Position Code<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="col-sm-10" style="padding:0px;">
+                                <input type="text" name="Position Code" ng-disabled="true" ng-model="IssueNew.PositionCode" class="form-control" maxlength="100" required autocomplete="off">
+                            </div>
+                            <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                                <button ng-click="selectPositionCode();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            </div>
+                        </div>
+                    </div>*@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">IsWorkCenter Applicable</label>
                     <div class="col-sm-8">
@@ -507,7 +507,7 @@
                     <label class="col-sm-4 control-label">Issue Name<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style">
-                            <select class="form-control" ng-model="IssueItemNew.IssueId" name="Issue Name"  ng-options="item.Value as item.Text for item in IssueItemIssueList" required>
+                            <select class="form-control" ng-model="IssueItemNew.IssueId" name="Issue Name" ng-options="item.Value as item.Text for item in IssueItemIssueList" required>
                                 <option value=""></option>
                             </select>
                         </div>
@@ -553,11 +553,11 @@
                 <ul class="list-inline text-right">
                     <li> <button ng-click="IssueItemSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
                     @*<li> <button ng-click="removeIssueItemModal($index,IssueItemNew.Id);" ng-disabled="IssueItemNew.Id===null" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete </button></li>
-                <li> <button ng-click="IssueItemClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+                        <li> <button ng-click="IssueItemClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
                 </ul>
             </div>
         </div>
-        </div>
+    </div>
     <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
         <div class="form-element-ctrl form-horizontal row" ng-form="GradeDetailsForm">
             <div class="col-xs-12 col-sm-4 col-md-4">
@@ -597,6 +597,44 @@
                     <div class="col-sm-8 show-message">
                         <input type="text" name="GradeValue" ng-model="GradeNew.GradeValue" class="form-control" required autocomplete="off">
                     </div>
+                </div>
+                <div class="form-group">
+                    <fieldset class="scheduler-border" style="width: 530px;">
+                        <legend class="scheduler-border">Grade Status</legend>
+                        <div class="col-sm-12">
+                            <div class="radio">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="GradeNew.IsPassValue" ng-change="showFormulaDiv('IsPassValue')">
+                                        <span class="cr"><i class="cr-icon"></i></span>
+                                    </label>
+                                    <label class="control-label">Pass Value</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                                <div class="radio">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="GradeNew.IsFailValue" ng-change="showFormulaDiv('IsFailValue')">
+                                            <span class="cr"><i class="cr-icon"></i></span>
+                                        </label>
+                                        <label class="control-label">Fail Value</label>
+                                    </div>
+                                </div>
+                        </div>
+                        <div class="col-sm-12">
+                                <div class="radio">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="GradeNew.IsRejectValue" ng-change="showFormulaDiv('IsRejectValue')">
+                                            <span class="cr"><i class="cr-icon"></i></span>
+                                        </label>
+                                        <label class="control-label">Reject Value</label>
+                                    </div>
+                                </div>
+                        </div>
+                    </fieldset>
                 </div>
             </div>
             <div class="common-btn">

@@ -3588,7 +3588,7 @@ namespace Library.Accounting.Accounts
 				,ISNULL( P.Code,'') PartyCode,ISNULL( P.UserName,'') PartyName,ISNULL( c.Code,'') CurrencyCode
                 ,ISNULL(IVD.Amount,0) AS GrossSales
 				,ISNULL(IVD.WrittenOffAmount ,0) AS Receipts
-				, ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
+				, ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0) AS Balance
                 , ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0) AS ActualBalance
                  ,ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGrossSales
 				,ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0) AS BooksReceipts

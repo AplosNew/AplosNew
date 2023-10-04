@@ -181,6 +181,9 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         , GradeValue: null
         , Remarks: null
         , ActionApplicable: false
+        , IsPassValue: true
+        , IsFailValue: false
+        , IsRejectValue: false
     };
     $scope.GradeNew = Object.assign({}, $scope.Grade);
 
@@ -258,6 +261,33 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
             'Text': 'Critical'
         }
     ];
+
+    $scope.showFormulaDiv = function (value) {
+        if (value === 'IsPassValue') {
+            $scope.GradeNew.IsPassValue = true;
+            $scope.GradeNew.IsFailValue = false;
+            $scope.GradeNew.IsRejectValue = false;
+        } else {
+            $scope.GradeNew.IsPassValue = false;
+        }
+
+        if (value === 'IsFailValue') {
+            $scope.GradeNew.IsFailValue = true;
+            $scope.GradeNew.IsRejectValue = false;
+            $scope.GradeNew.IsPassValue = false;
+        } else {
+            $scope.GradeNew.IsFailValue = false;
+        }
+
+        if (value === 'IsRejectValue') {
+            $scope.GradeNew.IsRejectValue = true;
+            $scope.GradeNew.IsFailValue = false;
+            $scope.GradeNew.IsPassValue = false;
+            
+        } else {
+            $scope.GradeNew.IsRejectValue = false;
+        }
+    }
 
     $scope.productionSummary = {
         Id: null,
