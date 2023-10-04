@@ -6474,7 +6474,7 @@ Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
 						LEFT JOIN dbo.SalesPacking SP ON pla.ProductLibraryId = SP.ProductLibraryId
 						WHERE SP.SalesId=IR.Id
 						for XML PATH('')
-						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy
+						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy,FORMAT(SR.SalesReturnDate,'dd-MMM-yyyy')SalesReturnDate,SR.Id SalesReturnNo
                         FROM TRN.SalesReturn SR
 						 left join TRN.Sales IR on IR.Id=SR.SalesId
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
