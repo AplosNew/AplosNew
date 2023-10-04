@@ -342,7 +342,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
         }//End Function
 
 
-        public void SaveData(EmployeeInformation data, IdentityParameter para, string EmployeeCodeCheckLevel, EmpReferenceInformation empRef)
+        public void SaveData(EmployeeInformation data, IdentityParameter para, string EmployeeCodeCheckLevel, EmpReferenceInformation empRef, Dictionary<string, object> empBank)
         {
             // , Dictionary<string, object> WeekOff, Dictionary<string, object> OT
             #region DataSet Declare
@@ -1043,7 +1043,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                     dvEmpRef.RowFilter = null;
 
 
-                    #endregion Employee PIN
+                    #endregion Employee Ref
 
                     #region Employee Weekly Off
 
@@ -1111,9 +1111,35 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
 
                     #endregion
 
+                    #region EmpBank
+                    ConnectionManager.DAL.ConManager objCon;
+                    DataSet dsEmpBankMaster;
+                    string sql = "SELECT * FROM [dbo].[EmployeeBankInfo] WHERE RowID='" + empBank["RowID"] + "'";
+                    objCon = new ConnectionManager.DAL.ConManager("1");
+                    objCon.OpenDataSetThroughAdapter(sql, out dsEmpBankMaster, false, "1");
+                    if (dsEmpBankMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsEmpBankMaster.Tables[0].NewRow();
+                        
+                        dr["EmpSystemID"] = data.SystemId;
+                        dr["BankSystemID"] = empBank["BankSystemID"];
+                        dr["BankBranchId"] = empBank["BankBranchId"];
+                        dr["BankAccNo"] = empBank["BankAccNo"];
+                        dr["SalaryPercentage"] = empBank["SalaryPercentage"];
+                        dr["IFSCCode"] = empBank["IFSCCode"];
+                        dr["IsApproved"] = false;
+                        dr["ApprovedDateTime"] = DBNull.Value;
+
+                        dr["AddedBy"] = para.AddedBy;
+                        dr["DateAdded"] = DateTime.Now;
+
+                        dsEmpBankMaster.Tables[0].Rows.Add(dr);
+                    }
 
 
-                    objApp.SaveDataSets(dsLocal, dsShiftAssign, dsEmpJbLc, dsWeekOffByDay, dsEmpPin, dsEmpRef); // , dsWeeklyOff, dsNonOT
+                    #endregion EmpBank
+
+                    objApp.SaveDataSets(dsLocal, dsShiftAssign, dsEmpJbLc, dsWeekOffByDay, dsEmpPin, dsEmpRef, dsEmpBankMaster); // , dsWeeklyOff, dsNonOT
 
 
                     #region att process only for new emp
