@@ -138,6 +138,18 @@
                                 <input type="text" name="Latitude" maxlength="30" ng-model="party.Latitude" class="form-control" tabindex="2">
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Party Nature</label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select name="PartyNature" ng-model="party.PartyNature" class="form-control" tabindex="11">
+                                        <option value="">--Select--</option>
+                                        <option value="Overseas">Overseas</option>
+                                        <option value="Domestic">Domestic</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group" show-errors>
@@ -1104,6 +1116,7 @@
                 <th>Short Name</th>
                 <th>Standard Name</th>
                 <th>User Define Name</th>
+                <th>Party Nature</th>
                 <th>Active</th>
             </tr>
         </thead>
@@ -1115,6 +1128,7 @@
                 <td>{{x.ShortName}}</td>
                 <td>{{x.StandardName}}</td>
                 <td>{{x.UserName}}</td>
+                <td>{{x.PartyNature}}</td>
                 <td>{{x.Active? 'Yes':'No'}}</td>
             </tr>
         </tbody>
