@@ -172,13 +172,14 @@ namespace Aplos.Areas.Employees.Controllers
 						                            AND  SystemID=( SELECT TOP 1 SystemID FROM  EmployeeShiftAssign WHERE EmpSystemID='" + EmpId + @"' ORDER BY EffectiveDate) 
                                 DELETE  FROM EmployeeShiftAssign WHERE EffectiveDate<'" + NewDOJ + @"'  AND EmpSystemID='" + EmpId + @"'    
    
-   
                                 UPDATE EmployeeWeekOffByDay SET EffectiveDate = '" + NewDOJ + @"'  WHERE EmpSystemID='" + EmpId + @"' 
 			                            AND  SystemID=( SELECT TOP 1 SystemID FROM  EmployeeWeekOffByDay WHERE EmpSystemID='" + EmpId + @"' ORDER BY EffectiveDate)  
-                                DELETE  FROM EmployeeWeekOffByDay WHERE EffectiveDate<'" + NewDOJ + @"'  AND EmpSystemID='" + EmpId + @"'  
+                                DELETE FROM EmployeeWeekOffByDay WHERE EffectiveDate<'" + NewDOJ + @"'  AND EmpSystemID='" + EmpId + @"'  
 
                                 DELETE FROM EmpDateWiseShiftAssign WHERE WorkDate<'" + NewDOJ + @"'  AND EmpSystemID='" + EmpId + @"' 
-                                DELETE  FROM AttdnProcessData WHERE WorkDate<'" + NewDOJ + @"'  AND EmpSystemID='" + EmpId + @"' ";
+                                DELETE FROM dbo.ManualEntryRemarks where RowId IN(Select RowId FROM AttdnProcessData WHERE WorkDate<'" + NewDOJ + @"'  AND EmpSystemID='" + EmpId + @")' 
+                                DELETE FROM AttdnProcessData WHERE WorkDate<'" + NewDOJ + @"'  AND EmpSystemID='" + EmpId + @"' 
+";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsEmployeeFinalSettlement, false, "1");
 

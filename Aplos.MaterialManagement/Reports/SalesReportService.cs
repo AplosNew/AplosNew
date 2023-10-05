@@ -6235,9 +6235,9 @@ Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
             {
                 throw new CustomException("File <" + fileName + "> Not Found.");
             }
-
+              
             WordDocument document = new WordDocument(File, FormatType.Docx);
-
+             
             try
             {
                 WSection section = document.Sections[0];
@@ -6474,7 +6474,7 @@ Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
 						LEFT JOIN dbo.SalesPacking SP ON pla.ProductLibraryId = SP.ProductLibraryId
 						WHERE SP.SalesId=IR.Id
 						for XML PATH('')
-						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy
+						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy,FORMAT(SR.SalesReturnDate,'dd-MMM-yyyy')SalesReturnDate,SR.Id SalesReturnNo
                         FROM TRN.SalesReturn SR
 						 left join TRN.Sales IR on IR.Id=SR.SalesId
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
@@ -6874,7 +6874,7 @@ Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
                                     s.tocurrencyRate,
                                     IRT.Percentage,
                                     (IRT.Amount * s.tocurrencyRate) as TaxAmount
-                                   	,ISNULL(IRT.BooksCurrencyTransactionAmount,0) BooksCurrencyTransactionAmount
+                                   	,ISNULL(IRT.Amount,0) BooksCurrencyTransactionAmount
 									,ISNULL(po.BooksCurrencyTaxAmount,0) BooksCurrencyTaxAmount
 									,ISNULL(po.BooksCurrencyBaseRate,0) BooksCurrencyBaseRate
 
@@ -6882,7 +6882,7 @@ Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
                                Inner join trn.SalesReturnTax IRT ON IRT.SalesReturnDetailId = PO.Id 
                                LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=IRT.TaxCategoryId
 							   left outer join trn.sales as s on s.id=po.salesId
-                                 WHERE PO.SalesId='" + salesReturnId + @"'
+                                 WHERE PO.SalesReturnId='" + salesReturnId + @"'
 								 and IRT.SalesReturnDetailId  IS NOT NULL
 								 ORDER BY tg.[Sequence]";
 
