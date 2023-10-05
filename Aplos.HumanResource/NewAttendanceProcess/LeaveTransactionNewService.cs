@@ -1447,6 +1447,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 if (leaveTransaction.LeaveDayType == "FirstHalfDay" || leaveTransaction.LeaveDayType == "SecondHalfDay")
                 {
                     leaveTransaction.LeaveDays = 0.5m;
+                    leaveTransaction.ToDate = leaveTransaction.FromDate;
                 }
                 else
                 {
@@ -1831,6 +1832,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 if (leaveTransaction.LeaveDayType == "FirstHalfDay" || leaveTransaction.LeaveDayType == "SecondHalfDay")
                 {
                     leaveTransaction.LeaveDays = 0.5m;
+                    leaveTransaction.ToDate = leaveTransaction.FromDate;
                 }
                 else
                 {
