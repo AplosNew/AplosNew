@@ -63,6 +63,9 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         MaterialMaster: null,
         ArticleId: null,
         Article: null,
+        MOIArticle: null,
+        SOArticle: null,
+        ProductCodeArticle: null,
         WorkCenterMasterId: null,
         ProductionDate: $filter("date")(Date.now(), 'dd-MMM-yyyy'),
         ProductionShiftId: null,
@@ -1717,6 +1720,9 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     ShowResult(response.data.Message, 'success');
                     $scope.NewObject.Id = response.data.ProductionSummary.Id;
                     $scope.ValidateProdQty($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.ProductionOrderId);
+                    for (var i = 0; i < $scope.wcList.length; i++) {
+                            $scope.wcList[i].ClickRow = false;
+                    }
                     var gridObj = $("#ProductionSummaryWC").data("ejGrid");
                     gridObj.refreshContent();
                     gridObj.refreshTemplate();
@@ -2865,9 +2871,29 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     }
 
     $scope.getMasterOrderItemPopUp = function (data) {
-        $scope.NewobjectMOI = data.data;
-        $scope.getMasterOrderItem();
-        angular.element(document.querySelector('#MasterOrderItemPopup')).modal('show');
+        try {
+            $scope.NewobjectMOI = data.data;
+            for (var i = 0; i < $scope.wcList.length; i++) {
+                if ($scope.wcList[i].WorkCenterMasterId == $scope.NewobjectMOI.WorkCenterMasterId) {
+                    $scope.wcList[i].ClickRow = true;
+                    break;
+                }
+            }
+            var getRow = $filter("filter")($scope.wcList, { "ClickRow": true });
+            if (getRow.length > 1) {
+                throw "First complete pending record.";
+            }
+            else
+            {
+                $scope.getMasterOrderItem();
+                angular.element(document.querySelector('#MasterOrderItemPopup')).modal('show');
+            }
+           
+        }
+        catch (e)
+        {
+            ShowResult(e, 'failure');
+        }
     }
 
     $scope.MasterOrderItemList = [];
@@ -2881,72 +2907,71 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         });
     }
 
-    $scope.refreshTemplateMOItem = function (args) {
-        $("#Mheadchk").ejCheckBox({ "change": CheckBoxSelectAllMOItem });
-    };
-    function CheckBoxSelectAllMOItem(e) {
-        var ChkOrUnchk = false;
-        if (e.model.checkState === "check") {
-            ChkOrUnchk = true;
-        }
+    //$scope.refreshTemplateMOItem = function (args) {
+    //    $("#Mheadchk").ejCheckBox({ "change": CheckBoxSelectAllMOItem });
+    //};
+    //function CheckBoxSelectAllMOItem(e) {
+    //    var ChkOrUnchk = false;
+    //    if (e.model.checkState === "check") {
+    //        ChkOrUnchk = true;
+    //    }
 
-        var filtered = $("#MasterOrderItemGrid").data("ejGrid").getFilteredRecords();
-        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.MasterOrderItemList.length; i++) {
-                $scope.MasterOrderItemList[i].Flag = ChkOrUnchk;
-            }
-        }
-        else {
-            for (var j = 0; j < filtered.length; j++) {
-                filtered[j].Flag = ChkOrUnchk;
-            }
-        }
-        var gridObj = $("#MasterOrderItemGrid").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-    };
+    //    var filtered = $("#MasterOrderItemGrid").data("ejGrid").getFilteredRecords();
+    //    if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+    //        for (var i = 0; i < $scope.MasterOrderItemList.length; i++) {
+    //            $scope.MasterOrderItemList[i].Flag = ChkOrUnchk;
+    //        }
+    //    }
+    //    else {
+    //        for (var j = 0; j < filtered.length; j++) {
+    //            filtered[j].Flag = ChkOrUnchk;
+    //        }
+    //    }
+    //    var gridObj = $("#MasterOrderItemGrid").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    //};
 
     $scope.ItemId = null;
-    $scope.selectMasterOrderItem = function () {
+    $scope.selectMasterOrderItem = function (data) {
         try {
-            var getRow = $filter("filter")($scope.MasterOrderItemList, { "Flag": true });
-            if (getRow.length > 1) {
-                throw "Select only one row";
-            }
-            $scope.NewobjectMOI.MasterOrderItemId = getRow[0].MasterOrderItemId;
-            $scope.NewobjectMOI.MOIArticle = getRow[0].Article;
+
+            //$scope.NewobjectMOI.MasterOrderItemId = getRow[0].MasterOrderItemId;
+            //$scope.NewobjectMOI.MOIArticle = getRow[0].Article;
+            $scope.NewobjectMOI.MasterOrderItemId = data.data.MasterOrderItemId;
+            $scope.NewobjectMOI.MOIArticle = data.data.Article;
             $scope.BookingLevel = $scope.NewobjectMOI.BookingLevel;
             $scope.ItemId = $scope.NewobjectMOI.MasterOrderItemId;
             $scope.GetMasterOrderItemQty();
             angular.element(document.querySelector('#MasterOrderItemPopup')).modal('hide');
-       
+
         }
         catch (e) {
-        ShowResult(e, 'failure');
+            ShowResult(e, 'failure');
+        }
     }
-}
 
-$scope.getProductCodePopUp = function (data) {
-    $scope.NewobjectPC = data.data;
-    $scope.getProductCode();
-    angular.element(document.querySelector('#ProductCodePopup')).modal('show');
-}
+    $scope.getProductCodePopUp = function (data) {
+        $scope.NewobjectPC = data.data;
+        $scope.getProductCode();
+        angular.element(document.querySelector('#ProductCodePopup')).modal('show');
+    }
 
-$scope.ProductCodeList = [];
-$scope.getProductCode = function () {
-    $http({
-        method: 'POST',
-        url: $scope.path + 'GetProductCode?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.NewobjectPC.WorkCenterMasterId + '&productionLevel=' + $scope.NewobjectPC.BookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + $scope.NewobjectPC.ProductionOrderId,
-        dataType: 'JSON'
-    }).then(function succ(resp) {
-        $scope.ProductCodeList = resp.data;
-    });
-}
+    $scope.ProductCodeList = [];
+    $scope.getProductCode = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetProductCode?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.NewobjectPC.WorkCenterMasterId + '&productionLevel=' + $scope.NewobjectPC.BookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + $scope.NewobjectPC.ProductionOrderId,
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.ProductCodeList = resp.data;
+        });
+    }
 
-$scope.selectProductCode = function (e) {
-    $scope.NewobjectPC.MasterOrderItemId = e.data.MOIId;
-    $scope.NewobjectPC.ProductCodeArticle = e.data.Article;
-    $scope.BookingLevel = $scope.NewobjectPC.BookingLevel;
-    $scope.ItemId = $scope.NewobjectPC.MasterOrderItemId;
-    $scope.GetProductCodeItemQty();
-    angular.element(document.querySelector('#ProductCodePopup')).modal('hide');
-}
+    $scope.selectProductCode = function (e) {
+        $scope.NewobjectPC.MasterOrderItemId = e.data.MOIId;
+        $scope.NewobjectPC.ProductCodeArticle = e.data.Article;
+        $scope.BookingLevel = $scope.NewobjectPC.BookingLevel;
+        $scope.ItemId = $scope.NewobjectPC.MasterOrderItemId;
+        $scope.GetProductCodeItemQty();
+        angular.element(document.querySelector('#ProductCodePopup')).modal('hide');
+    }
 }
