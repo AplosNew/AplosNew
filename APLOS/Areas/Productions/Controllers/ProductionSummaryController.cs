@@ -307,7 +307,7 @@ PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + 
         public ActionResult GetMasterOrderItem(string entityid, string workCenterMasterId, string productionLevel, string processId, string ProductionOrderId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"SELECT DISTINCT CAST (CASE WHEN PRS.MasterOrderItemId IS NULL THEN 0 ELSE 1 END AS bit) Flag,mo.MasterOrderNo,so.MasterOrderItemId
+            string str = @"SELECT DISTINCT mo.MasterOrderNo,so.MasterOrderItemId
 	                                ,ISNULL(so.Id,'') SOId
                                     ,PM.Code as ProductCode
 	                                ,SO.CustomerPOId
