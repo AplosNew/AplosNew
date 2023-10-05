@@ -1659,6 +1659,9 @@ namespace Aplos.Areas.FixedAssets.Controllers
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
+            if (voucherDetailVMList.Sum(r => r.Amount) == 0)
+                throw new CustomException("Dr Cr Amount not match !.");
+            
             _fixedAssetDisposeService.InsertCapitalizeAssetRegisterPosting(voucherVM, voucherDetailVMList, capitalizationMasterdata);
 
             return Json(new { Message = AplosMessage.Insert });
