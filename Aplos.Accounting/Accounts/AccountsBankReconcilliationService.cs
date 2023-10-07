@@ -657,5 +657,18 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        #region Bank Reconciliation Closing
+        public List<Dictionary<string, object>> GetBankReconciliationClosingList(string column, string value, string companyGroupId, string companyId, string plantId)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+            var sql = @"select top 100 * from (SELECT  BRC.[Id], [BankMasterId], [FiscalYearId], [DrAmount], [CrAmount], [CompanyGroupId], [CompanyId], [PlantId], [AddedBy], [AddedDate], [AddedFromIP], [UpdatedBy], [UpdatedDate], [UpdatedFromIP]
+                        FROM [TRN].[BankReconciliationClosing] BRC
+                        WHERE BRC.CompanyGroupId='" + companyGroupId + "' AND BRC.CompanyId='" + companyId + "' AND BRC.PlantId='" + plantId + @"'
+                ) AS TEMP WHERE " + strkey + " order by AddedDate DESC   ";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        #endregion
     }
 }
