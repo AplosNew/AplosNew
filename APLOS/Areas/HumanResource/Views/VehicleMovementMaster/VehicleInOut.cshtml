@@ -72,12 +72,12 @@
                             </div>
                         </div>
                         @*<div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">To Time<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input id="ToTime" e-value="VehicleRequisitionModel.ToTime" width="430" ej-timepicker name="Time" tabindex="4" required />
+            <label class="col-sm-4 control-label">To Time<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input id="ToTime" e-value="VehicleRequisitionModel.ToTime" width="430" ej-timepicker name="Time" tabindex="4" required />
 
-                            </div>
-                        </div>*@
+            </div>
+        </div>*@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">To Time<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -99,11 +99,17 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Cancel Reason</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="2" ng-model="VehicleRequisitionModel.CancelReason" maxlength="250" tabindex="6"></textarea>
+                            </div>
+                        </div>
 
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="SaveVehicleAllocation();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-
+                                <li> <button ng-click="SaveVehicleMovement();" class="btn"><i class="glyphicon glyphicon-stop"></i> Cancel</button></li>
                                 <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             </ul>
                         </div>
