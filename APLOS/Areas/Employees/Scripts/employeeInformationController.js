@@ -288,6 +288,63 @@ function employeeInformationController(addressService, fileReader, cboService, c
         })
     };
 
+    $scope.EmpBankInfoModel = {
+        RowID: null,
+        EmpSystemID: null,
+        BankSystemID: null,
+        BankBranchId: null,
+        BankAccNo: null,
+        SalaryPercentage: 0,
+        IsApproved: false,
+        ApprovedDateTime: 0,
+        PaymentMode: null,
+        IFSCCode: null,
+        MICRCode: null
+    }
+
+
+    $scope.ShowBankPopUp = function () {
+        if ($scope.employeeNew.PaymentMode == "Bank") {
+            $scope.EmpBankInfoModel.PaymentMode = $scope.employeeNew.PaymentMode;
+            angular.element(document.querySelector('#EmpBankPopUp')).modal('show');
+        } else {
+            angular.element(document.querySelector('#EmpBankPopUp')).modal('hide');
+        }
+    }
+
+    $scope.CloseBankPopUp = function () {
+            angular.element(document.querySelector('#EmpBankPopUp')).modal('hide');
+    }
+
+    $scope.BankInfolist = [];
+    $scope.GetBankInfo = function () {
+        $http.get('Leave/EmployeeBankInfoInformation/GetCbo')
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.BankInfolist = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        angular.element(document.querySelector('#BankInFoPopUp')).modal('show');
+
+    };
+    $scope.closeBankInfoPopUp = function () {
+        angular.element(document.querySelector('#BankInFoPopUp')).modal('hide');
+    }
+
+    $scope.SetBankData = function (obj) {
+        var Bankinfo = obj.data;
+        $scope.EmpBankInfoModel.UserName = Bankinfo.UserName;
+        $scope.EmpBankInfoModel.BankBranch = Bankinfo.BankBranch;
+        $scope.EmpBankInfoModel.BankSystemID = Bankinfo.BankSystemID;
+        $scope.EmpBankInfoModel.BankBranchId = Bankinfo.BankBranchId;
+
+        angular.element(document.querySelector('#BankInFoPopUp')).modal('hide');
+    };
+
     $scope.nomineeInfo = {
         Id: null,
         EmpSystemId: null,
@@ -1795,7 +1852,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
             $http({
                 method: 'POST',
                 url: $scope.saveNewUrl,
-                data: { 'entity': $scope.employeeNew, 'EmployeeCodeCheckLevel': $scope.EmployeeCodeCheckLevel, 'empRef': $scope.empReferenceInformation },
+                data: { 'entity': $scope.employeeNew, 'EmployeeCodeCheckLevel': $scope.EmployeeCodeCheckLevel, 'empRef': $scope.empReferenceInformation, 'empBank': $scope.EmpBankInfoModel },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -1848,6 +1905,19 @@ function employeeInformationController(addressService, fileReader, cboService, c
             Ref2Email: null,
             Ref2Address: null
         };
+        $scope.EmpBankInfoModel = {
+            RowID: null,
+            EmpSystemID: null,
+            BankSystemID: null,
+            BankBranchId: null,
+            BankAccNo: null,
+            SalaryPercentage: 0,
+            IsApproved: false,
+            ApprovedDateTime: 0,
+            PaymentMode: null,
+            IFSCCode: null,
+            MICRCode: null
+        }
     }
 
     $scope.Save = function () {

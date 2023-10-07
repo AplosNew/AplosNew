@@ -171,6 +171,7 @@ upanelApp.controller("fabricRollMasterController", fabricRollMasterController);
 upanelApp.controller("fgcomponentController", FGComponentController);
 upanelApp.controller("fgzoneController", FGZoneController);
 upanelApp.controller("fiscalYearBaseController", fiscalYearBaseController);
+upanelApp.controller("fiscalYearClosePostController", fiscalYearClosePostController);
 upanelApp.controller("fixedAssetExpenseReportController", fixedAssetExpenseReportController);
 upanelApp.controller("fixedAssetMasterOpeningBalanceController", fixedAssetMasterOpeningBalanceController);
 upanelApp.controller("fixedAssetObReportController", FixedAssetObReportController);

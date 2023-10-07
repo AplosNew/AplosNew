@@ -2248,7 +2248,7 @@ namespace Library.Accounting.FixedAssets
                         FROM [TRN].[CapitalizationMaster] CM
                         LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
                         LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById
-                        Where CM.IsApproved=1 AND CM.VoucherId IS NULL";
+                        Where CM.IsApproved=1 AND CM.VoucherId IS NULL ORDER BY CapitalizationDate ";
              return _sqlRepository.GetDataCollection(sql);
         }
         public List<Dictionary<string, object>> GetFixedAssetMasterItem()

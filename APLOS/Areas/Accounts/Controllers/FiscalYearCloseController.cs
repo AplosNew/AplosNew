@@ -25,7 +25,7 @@ namespace Aplos.Areas.Accounts.Controllers
             _fiscalYearService = fiscalYearService;
             _sqlRepository = sqlRepository;
         }
-
+        #region Fiscal Year Close 
         [HttpGet]
         public ActionResult FiscalYearClose()
         {
@@ -56,7 +56,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = AplosMessage.Insert });
         }
 
-       
+
 
         //[HttpPost]
         //public ActionResult Delete(string id)
@@ -69,6 +69,30 @@ namespace Aplos.Areas.Accounts.Controllers
         //    return Json(new { Message = AplosMessage.Deleted });
         //}
 
-        
+        #endregion
+
+        #region Fiscal Year Close Post
+        [HttpGet]
+        public ActionResult FiscalYearClosePost()
+        {
+            return View("~/Areas/Accounts/Views/FiscalYearClosePost.cshtml");
+        }
+        [Authorize, HttpPost]
+        public ActionResult GetFiscalYearClosePostedList(string column, string value)
+        {
+            FiscalYearCloseService _fiscalYearCloseService = new FiscalYearCloseService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            return Json(_fiscalYearCloseService.GetFiscalYearClosePostedList(column, value, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public JsonResult GetFiscalYearCloseListForPosting()
+        {
+            FiscalYearCloseService _fiscalYearCloseService = new FiscalYearCloseService(_sqlRepository);
+            return Json(_fiscalYearCloseService.GetFiscalYearCloseListForPosting(), JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+
+
     }
 }

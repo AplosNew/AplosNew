@@ -1379,7 +1379,10 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                 sheet1.Range[xlsRow, iShiftName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet1.Range[xlsRow, iShiftName].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                sheet1.Range[xlsRow, iShiftIntime].Text = dvBioDvAC[i]["ShiftInTimeShow"].ToString();
+                                if (!string.IsNullOrEmpty(dvBioDvAC[i]["ShiftInTimeShow"].ToString()))
+                                {
+                                    sheet1.Range[xlsRow, iShiftIntime].Text = dvBioDvAC[i]["ShiftInTimeShow"].ToString(); 
+                                }
                                 sheet1.Range[xlsRow, iShiftIntime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                 sheet1.Range[xlsRow, iShiftIntime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
@@ -1745,7 +1748,10 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                 else
                                 {
                                     sheet1.Range[xlsRow, iInTime].NumberFormat = "hh:mm AM/PM";
-                                    sheet1.Range[xlsRow, iInTime].DateTime = Convert.ToDateTime(dvBioDvAC[i]["InTimeShow"].ToString());
+                                    if (!string.IsNullOrEmpty(dvBioDvAC[i]["InTimeShow"].ToString()))
+                                    {
+                                        sheet1.Range[xlsRow, iInTime].DateTime = Convert.ToDateTime(dvBioDvAC[i]["InTimeShow"].ToString()); 
+                                    }
 
                                     if (dvBioDvAC[i]["OutTimeShow"].ToString() != "")
                                     {
@@ -3251,7 +3257,10 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                 else
                                 {
                                     sheet1.Range[xlsRow, iInTime].NumberFormat = "hh:mm AM/PM";
-                                    sheet1.Range[xlsRow, iInTime].DateTime = Convert.ToDateTime(dvBioDvAC[i]["InTimeShow"].ToString());
+                                    if (!string.IsNullOrEmpty(dvBioDvAC[i]["InTimeShow"].ToString()))
+                                    {
+                                        sheet1.Range[xlsRow, iInTime].DateTime = Convert.ToDateTime(dvBioDvAC[i]["InTimeShow"].ToString()); 
+                                    }
 
                                     if (dvBioDvAC[i]["OutTimeShow"].ToString() != "")
                                     {

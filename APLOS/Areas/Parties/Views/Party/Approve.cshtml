@@ -51,7 +51,7 @@
                                 <input type="text" name="Short Name" maxlength="15" ng-model="party.ShortName" class="form-control" required tabindex="3" capitalize>
                             </div>
                         </div>
-                        
+
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Party Category<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -138,6 +138,7 @@
                                 <input type="text" name="Latitude" maxlength="30" ng-model="party.Latitude" class="form-control" tabindex="2">
                             </div>
                         </div>
+
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group" show-errors>
@@ -219,7 +220,7 @@
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Active</label>
-                            <div class="col-sm-8">
+                            <div class="col-sm-2">
                                 <div class="checkbox-site">
                                     <label>
                                         <input type="checkbox" ng-model="party.Active" tabindex="26">
@@ -227,6 +228,15 @@
                                     </label>
                                 </div>
                             </div>
+                                <label class="col-sm-4 control-label">Is Approved</label>
+                                <div class="col-sm-2">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="PartyUpdate.IsApproved" tabindex="26">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Longitude</label>
@@ -245,7 +255,7 @@
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
                                     <select name="Continent" ng-model="addressMaster.ContinentId" ng-change="onContinentChange(addressMaster.ContinentId)" class="col-sm-3 form-control"
-                                            ng-options="item.Value as item.Text for item in ContinentList" tabindex="1" required></select>
+                                            ng-options="item.Value as item.Text for item in ContinentList" tabindex="1" ng-disabled="true" required></select>
                                 </div>
                             </div>
                         </div>
@@ -253,7 +263,7 @@
                             <label class="col-sm-4 control-label">State/Division<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select name="State/Division" ng-model="addressMaster.StateId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in StateList" tabindex="3" required ng-change="onStateChange(addressMaster.StateId)"></select>
+                                    <select name="State/Division" ng-model="addressMaster.StateId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in StateList" tabindex="3" ng-disabled="true" required ng-change="onStateChange(addressMaster.StateId)"></select>
                                 </div>
                             </div>
                         </div>
@@ -262,7 +272,7 @@
                             <div class="col-sm-8">
                                 <div class="select-style">
                                     <select name="City" ng-model="addressMaster.CityId" ng-change="onCityChange(addressMaster.CityId)" class="col-sm-3 form-control"
-                                            ng-options="item.Value as item.Text for item in CityList" tabindex="5"></select>
+                                             ng-disabled="true" ng-options="item.Value as item.Text for item in CityList" tabindex="5"></select>
                                 </div>
                             </div>
                         </div>
@@ -271,38 +281,38 @@
                             <div class="col-sm-8">
                                 <div class="select-style">
                                     <select name="Area" ng-model="addressMaster.AreaId" class="col-sm-3 form-control"
-                                            ng-options="item.Value as item.Text for item in AreaList" tabindex="7"></select>
+                                             ng-disabled="true" ng-options="item.Value as item.Text for item in AreaList" tabindex="7"></select>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Thana</label>
                             <div class="col-sm-8">
-                                <input name="Thana" maxlength="50" type="text" ng-model="addressMaster.Thana" class="form-control" tabindex="9">
+                                <input name="Thana" maxlength="50" type="text" ng-model="addressMaster.Thana" class="form-control" ng-disabled="true" tabindex="9">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Ward</label>
                             <div class="col-sm-8">
-                                <input type="text" name="Ward" maxlength="50" ng-model="addressMaster.Ward" class="form-control" tabindex="11">
+                                <input type="text" name="Ward" maxlength="50" ng-model="addressMaster.Ward" class="form-control" ng-disabled="true" tabindex="11">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Phone</label>
                             <div class="col-sm-8">
-                                <input type="text" name="Phone" maxlength="20" ng-model="addressMaster.Phone" class="form-control" tabindex="13">
+                                <input type="text" name="Phone" maxlength="20" ng-model="addressMaster.Phone" class="form-control" ng-disabled="true" tabindex="13">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Website</label>
                             <div class="col-sm-8">
-                                <input type="text" name="Website" maxlength="50" ng-model="addressMaster.Website" class="form-control" tabindex="15">
+                                <input type="text" name="Website" maxlength="50" ng-model="addressMaster.Website" class="form-control" ng-disabled="true" tabindex="15">
                             </div>
                         </div>
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Address Line1<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <textarea class="form-control" rows="3" ng-model="addressMaster.Address1" name="Address Line1" maxlength="300" tabindex="17" required capitalize></textarea>
+                                <textarea class="form-control" rows="3" ng-model="addressMaster.Address1" name="Address Line1" maxlength="300" ng-disabled="true" tabindex="17" required capitalize></textarea>
                             </div>
                         </div>
                     </div>
@@ -312,7 +322,7 @@
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
                                     <select name="Country" ng-model="addressMaster.CountryId" ng-change="onCountryChange(addressMaster.CountryId);" class="col-sm-3 form-control"
-                                            ng-options="item.Value as item.Text for item in CountryList" tabindex="2" required></select>
+                                             ng-disabled="true" ng-options="item.Value as item.Text for item in CountryList" tabindex="2" required></select>
                                 </div>
                             </div>
                         </div>
@@ -321,32 +331,32 @@
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
                                     <select name="District" ng-model="addressMaster.DistrictId" ng-change="onDistictChange(addressMaster.DistrictId)" class="col-sm-3 form-control"
-                                            ng-options="item.Value as item.Text for item in districtList" tabindex="4" required></select>
+                                             ng-disabled="true" ng-options="item.Value as item.Text for item in districtList" tabindex="4" required></select>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Circle</label>
                             <div class="col-sm-8">
-                                <input type="text" name="Circle" maxlength="50" ng-model="addressMaster.Circle" class="form-control" tabindex="6">
+                                <input type="text" name="Circle" maxlength="50" ng-model="addressMaster.Circle" class="form-control" ng-disabled="true" tabindex="6">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Village</label>
                             <div class="col-sm-8">
-                                <input type="text" name="Village" maxlength="100" ng-model="addressMaster.Village" class="form-control" tabindex="8">
+                                <input type="text" name="Village" maxlength="100" ng-model="addressMaster.Village" class="form-control" ng-disabled="true" tabindex="8">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Postcode</label>
                             <div class="col-sm-8">
-                                <input type="text" name="Postcode" maxlength="50" ng-model="addressMaster.Postcode" class="form-control" tabindex="10">
+                                <input type="text" name="Postcode" maxlength="50" ng-model="addressMaster.Postcode" class="form-control" ng-disabled="true" tabindex="10">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Email</label>
                             <div class="col-sm-8">
-                                <input type="email" name="Email" maxlength="50" ng-model="addressMaster.Email" class="form-control" placeholder="example@gmail.co" tabindex="12">
+                                <input type="email" name="Email" maxlength="50" ng-model="addressMaster.Email" class="form-control" placeholder="example@gmail.co" ng-disabled="true" tabindex="12">
                                 <span class="msg-error" ng-show="partyForm3.Email.$error.email">
                                     Not valid email!
                                 </span>
@@ -355,7 +365,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Address Line2</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" rows="3" ng-model="addressMaster.Address2" name="Address Line2" maxlength="300" tabindex="14" capitalize></textarea>
+                                <textarea class="form-control" rows="3" ng-model="addressMaster.Address2" name="Address Line2" maxlength="300" ng-disabled="true" tabindex="14" capitalize></textarea>
                             </div>
                         </div>
                     </div>
@@ -439,7 +449,7 @@
                 </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li> <button class="btn" ng-click="addRow()"><i class="glyphicon glyphicon-plus"></i>{{ContactAction}}</button></li>
+                        <li> <button class="btn" ng-click="addRow()" ng-disabled="true"><i class="glyphicon glyphicon-plus"></i>{{ContactAction}}</button></li>
                         <li> <button ng-click="ClearContact();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear Contact Form</button></li>
                     </ul>
                 </div>
@@ -491,7 +501,7 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Apply</th>
+                                @*<th>Apply</th>*@
                                 <th>Company</th>
                                 <th>Plant</th>
                                 <th>Party Account Group</th>
@@ -506,30 +516,30 @@
                         </thead>
                         <tbody>
                             <tr ng-repeat="v in companyPartyList| filter: {'PartyType':'Vendor'}">
-                                <td>
+                                @*<td>
                                     <div class="checkbox-site">
                                         <label>
                                             <input type="checkbox" ng-model="v.Active" checked="{{v.Active}};" ng-change="GetVendorAccountGroup(v.Active,v.COAId,$index);">
                                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                         </label>
                                     </div>
-                                </td>
+                                </td>*@
                                 <td>{{v.CompanyName}}</td>
                                 <td>{{v.PlantName}}</td>
                                 <td>
-                                    <select class="form-control" name="Vendor Account Group" id="VendorAccountGroupId" ng-model="v.PartyAccountGroupId" ng-disabled="!v.Active" ng-change="changePartyAccountGroupCbo(c.PartyAccountGroupId)">
+                                    <select class="form-control" name="Vendor Account Group" id="VendorAccountGroupId" ng-model="v.PartyAccountGroupId" ng-disabled="true" ng-change="changePartyAccountGroupCbo(c.PartyAccountGroupId)" >
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in partyAccountGroupList | filter: { 'AccountType': 'Vendor', 'IsInterCompany': false}" value="{{option.Value}}">{{option.Text}}</option>
                                     </select>
                                 </td>
                                 <td>
-                                    <select id="CurrencyIds" class="form-control" name="Currency" ng-model="v.CurrencyId" ng-disabled="!v.Active" ng-change="checkVendorCurrencyChange()">
+                                    <select id="CurrencyIds" class="form-control" name="Currency" ng-model="v.CurrencyId" ng-disabled="true" ng-change="checkVendorCurrencyChange()">
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in tranCurrencyList | filter: {'CompanyId': v.CompanyId}" value="{{option.Value}}">{{option.Text}}</option>
                                     </select>
                                 </td>
                                 <td>
-                                    <select id="PaymentTermId" class="form-control" name="Payment Term" ng-model="v.PaymentTermId" ng-disabled="!v.Active">
+                                    <select id="PaymentTermId" class="form-control" name="Payment Term" ng-model="v.PaymentTermId" ng-disabled="true">
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
                                     </select>
@@ -537,14 +547,14 @@
                                 <td>
                                     <div class="checkbox-site">
                                         <label>
-                                            <input type="checkbox" ng-model="v.IsPaymentTermChangeable" checked="{{v.IsPaymentTermChangeable}}" ng-disabled="!v.Active">
+                                            <input type="checkbox" ng-model="v.IsPaymentTermChangeable" checked="{{v.IsPaymentTermChangeable}}" ng-disabled="true">
                                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                         </label>
                                     </div>
                                 </td>
 
                                 <td>
-                                    <select id="taxApplicableId" class="form-control" name="Tax Applicable" ng-model="v.TaxApplicable" ng-disabled="!v.Active">
+                                    <select id="taxApplicableId" class="form-control" name="Tax Applicable" ng-model="v.TaxApplicable" ng-disabled="true">
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in taxApplicableList" value="{{option.Value}}">{{option.Text}}</option>
                                     </select>
@@ -552,16 +562,16 @@
                                 <td>
                                     <div class="checkbox-site">
                                         <label>
-                                            <input type="checkbox" ng-model="v.IsTaxApplicableChangeable" checked="{{v.IsTaxApplicableChangeable}}" ng-disabled="!v.Active">
+                                            <input type="checkbox" ng-model="v.IsTaxApplicableChangeable" checked="{{v.IsTaxApplicableChangeable}}" ng-disabled="true">
                                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                         </label>
                                     </div>
                                 </td>
                                 <td>
-                                    <button class="btn" ng-click="GetGLList(v.CompanyId, v.Id, v.PartyAccountGroupId)" ng-disabled="!v.Active || v.Id==null"><i class="fa fa-search"></i></button>
+                                    <button class="btn" ng-click="GetGLList(v.CompanyId, v.Id, v.PartyAccountGroupId)" ng-disabled="true || v.Id==null"><i class="fa fa-search"></i></button>
                                 </td>
                                 <td class="text-right">
-                                    <button name="submit" class="btn" ng-click="GetPartyBankList(v.CompanyId,v.Id);" ng-disabled="!v.Active || v.Id==null"><i class="fa fa-search"></i></button>
+                                    <button name="submit" class="btn" ng-click="GetPartyBankList(v.CompanyId,v.Id);" ng-disabled="true || v.Id==null"><i class="fa fa-search"></i></button>
                                 </td>
                             </tr>
                         </tbody>
@@ -573,7 +583,7 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Apply</th>
+                                @*<th>Apply</th>*@
                                 <th>Company</th>
                                 <th>Plant</th>
                                 <th>Party Account Group</th>
@@ -589,30 +599,30 @@
                         </thead>
                         <tbody>
                             <tr ng-repeat="c in companyPartyList| filter: {'PartyType':'Customer'}">
-                                <td>
+                                @*<td>
                                     <div class="checkbox-site">
                                         <label>
                                             <input type="checkbox" ng-model="c.Active" checked="{{c.Active}};" ng-change="GetCustomerAccountGroup(c.Active,c.COAId,$index);">
                                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                         </label>
                                     </div>
-                                </td>
+                                </td>*@
                                 <td>{{c.CompanyName}}</td>
                                 <td>{{c.PlantName}}</td>
                                 <td>
-                                    <select class="form-control" name="Customer Account Group" id="CustomerAccountGroupId" ng-disabled="!c.Active" ng-model="c.PartyAccountGroupId" ng-change="changePartyAccountGroupCbo(c.PartyAccountGroupId)">
+                                    <select class="form-control" name="Customer Account Group" id="CustomerAccountGroupId" ng-disabled="true" ng-model="c.PartyAccountGroupId" ng-change="changePartyAccountGroupCbo(c.PartyAccountGroupId)">
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in partyAccountGroupList | filter: { 'AccountType': 'Customer', 'IsInterCompany': false}" value="{{option.Value}}">{{option.Text}}</option>
                                     </select>
                                 </td>
                                 <td>
-                                    <select id="CurrencyId" class="form-control" name="Currency" ng-model="c.CurrencyId" ng-disabled="!c.Active" ng-change="checkCustomerCurrencyChange()">
+                                    <select id="CurrencyId" class="form-control" name="Currency" ng-model="c.CurrencyId" ng-disabled="true" ng-change="checkCustomerCurrencyChange()">
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in tranCurrencyList | filter: {'CompanyId': c.CompanyId}" value="{{option.Value}}">{{option.Text}}</option>
                                     </select>
                                 </td>
                                 <td>
-                                    <select id="PaymentTermId" class="form-control" name="Payment Term" ng-model="c.PaymentTermId" ng-disabled="!c.Active" >
+                                    <select id="PaymentTermId" class="form-control" name="Payment Term" ng-model="c.PaymentTermId" ng-disabled="true" >
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in customerpaymentTermList" value="{{option.Value}}">{{option.Text}}</option>
                                     </select>
@@ -620,13 +630,13 @@
                                 <td>
                                     <div class="checkbox-site">
                                         <label>
-                                            <input type="checkbox" ng-model="c.IsPaymentTermChangeable" checked="{{c.IsPaymentTermChangeable}}" ng-disabled="!c.Active">
+                                            <input type="checkbox" ng-model="c.IsPaymentTermChangeable" checked="{{c.IsPaymentTermChangeable}}" ng-disabled="true">
                                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                         </label>
                                     </div>
                                 </td>
                                 <td>
-                                    <select id="taxApplicableId" class="form-control" name="Tax Applicable" ng-model="c.TaxApplicable" ng-disabled="!c.Active">
+                                    <select id="taxApplicableId" class="form-control" name="Tax Applicable" ng-model="c.TaxApplicable" ng-disabled="true">
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in taxApplicableList" value="{{option.Value}}">{{option.Text}}</option>
                                     </select>
@@ -634,19 +644,19 @@
                                 <td>
                                     <div class="checkbox-site">
                                         <label>
-                                            <input type="checkbox" ng-model="c.IsTaxApplicableChangeable" checked="{{c.IsTaxApplicableChangeable}}" ng-disabled="!c.Active">
+                                            <input type="checkbox" ng-model="c.IsTaxApplicableChangeable" checked="{{c.IsTaxApplicableChangeable}}" ng-disabled="true">
                                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                         </label>
                                     </div>
                                 </td>
                                 <td>
-                                    <input type="text" only-numbers ng-model=" c.TransitDays" class="form-control"  ng-disabled="!c.Active">
+                                    <input type="text" only-numbers ng-model=" c.TransitDays" class="form-control"  ng-disabled="true">
                                 </td>
                                 <td>
-                                    <button class="btn" ng-click="GetGLList(c.CompanyId, c.Id, c.PartyAccountGroupId)" ng-disabled="!c.Active || c.Id==null"><i class="fa fa-search"></i></button>
+                                    <button class="btn" ng-click="GetGLList(c.CompanyId, c.Id, c.PartyAccountGroupId)" ng-disabled="true || c.Id==null"><i class="fa fa-search"></i></button>
                                 </td>
                                 <td class="text-right">
-                                    <button name="submit" class="btn" ng-click="GetPartyBankList(c.CompanyId,c.Id);" ng-disabled="!c.Active || c.Id==null"><i class="fa fa-search"></i></button>
+                                    <button name="submit" class="btn" ng-click="GetPartyBankList(c.CompanyId,c.Id);" ng-disabled="true || c.Id==null"><i class="fa fa-search"></i></button>
                                 </td>
                             </tr>
                         </tbody>
@@ -777,7 +787,7 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(8), active: isSet(8) }">
                 <div class="common-btn">
                     <ul class="list-inline text-left">
-                        <li> <button ng-click="AddPlant()" ng-disabled="party.Id===null ||party.Id===undefined" class="btn"><i class="glyphicon glyphicon-plus"></i> Add</button></li>
+                        <li> <button ng-click="AddPlant()" ng-disabled="true || party.Id===null ||party.Id===undefined" class="btn"><i class="glyphicon glyphicon-plus"></i> Add</button></li>
                     </ul>
                 </div>
                 <div class="table-responsive modal-table" ng-show="partyPlants.length > 0">
@@ -802,7 +812,7 @@
                                 <td class="text-right table-td">
                                     <ul class="list-inline action-list">
                                         <li>
-                                            <button ng-click="PartyPlantData(x, $index);" class="btn btn-action tooltip-here" data-placement="top" title="Edit">
+                                            <button ng-click="PartyPlantData(x, $index);" class="btn btn-action tooltip-here" data-placement="top" title="Edit" ng-disabled="true">
                                                 <i class="glyphicon glyphicon-pencil"></i>
                                             </button>
                                         </li>
@@ -1068,7 +1078,7 @@
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            <li><button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            @*<li><button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
             <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>

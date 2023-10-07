@@ -1,4 +1,5 @@
 ﻿using bplib;
+using ConnectionManager;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -18,7 +19,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
         public void GetESICPolicyMaster(string sESICMstSystemID, string sGroupID, string sPlantID, out System.Data.DataSet dsRef)
         {
             string strSQL;
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon; 
+            ConnectionManager.clsConnectionManager objCon;
             try
             {
                 if (sESICMstSystemID != "")
@@ -35,8 +37,11 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 WHERE GroupID = '" + sGroupID + @"' AND PlantID = '" + sPlantID + @"'";
                 }
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+
+                objCon = new clsConnectionManager(3600);
+                objCon.getDataSet(strSQL, out dsRef);
             }
             catch (Exception ex)
             {
@@ -50,14 +55,17 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
         public void GetESICPolicyDetails(string sESICMstSystemID, out System.Data.DataSet dsRef)
         {
             string strSQL;
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon; 
+            ConnectionManager.clsConnectionManager con;
             try
             {
                 strSQL = @"SELECT *
                                 FROM [dbo].[ESICPolicyDetails] WHERE ESICPolicyMasterID = '" + sESICMstSystemID + @"'";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                con = new clsConnectionManager(3600);
+                con.getDataSet(strSQL, out dsRef);
             }
             catch (Exception ex)
             {
@@ -65,7 +73,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             }
             finally
             {
-                objCon = null;
+                con = null;
             }
         }//End Function
         public void GetESICPolicyLeaveType(string sESICMstSystemID, out System.Data.DataSet dsRef)
@@ -92,14 +100,17 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
         public void GetESICPolicyMonthNo(string sESICMstSystemID, out System.Data.DataSet dsRef)
         {
             string strSQL;
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon;
+            ConnectionManager.clsConnectionManager con;
             try
             {
                 strSQL = @"SELECT * FROM ESICPolicyMonthNo
                               WHERE ESICPolicyMasterID = '" + sESICMstSystemID + @"'";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                con = new clsConnectionManager(3600);
+                con.getDataSet(strSQL, out dsRef);
             }
             catch (Exception ex)
             {
@@ -107,7 +118,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             }
             finally
             {
-                objCon = null;
+                con = null;
             }
         }//End Function
         public void GetSalaryHead(out System.Data.DataSet dsRef)
@@ -287,7 +298,9 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
         public void GetESICActiveEmp(ESICParaList para, string sESICMstSystemID, out System.Data.DataSet dsRef)
         {
             string strSQL;
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon;
+            ConnectionManager.clsConnectionManager con;
+
             try
             {
                 strSQL = @"SELECT       DM.ESICPolicyMasterID, E.* 
@@ -303,8 +316,10 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 strSQL += @"
                               ORDER BY E.GivenDesignationId, E.SystemId";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                con = new clsConnectionManager(3600);
+                con.getDataSet(strSQL, out dsRef);
             }
             catch (Exception ex)
             {
@@ -312,7 +327,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             }
             finally
             {
-                objCon = null;
+                con = null;
             }
         }//End Function
         public void GetTagEmployeeListWithESICPolicyMaster(ESICParaList para, string sESICMstSystemID, out System.Data.DataSet dsRef)
@@ -1056,7 +1071,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
         public void GetEnumEligibility(string EmpSystemId, out System.Data.DataSet dsRef)
         {
             string strSQL;
-            ConnectionManager.DAL.ConManager objCon;
+            //ConnectionManager.DAL.ConManager objCon;
+            ConnectionManager.clsConnectionManager con;
             try
             {
                 //strSQL = @"select * from (
@@ -1068,8 +1084,11 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                         ) x
                               where (" + EmpSystemId + ") ";
 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                //objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+
+                con = new clsConnectionManager(3600);
+                con.getDataSet(strSQL, out dsRef);
             }
             catch (Exception ex)
             {
@@ -1077,7 +1096,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             }
             finally
             {
-                objCon = null;
+                con = null;
             }
         }//End Function
         public void LoadCurrencyRule(ESICParaList para, out System.Data.DataSet dsRef)

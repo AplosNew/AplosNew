@@ -61,9 +61,7 @@ namespace Library.Model.Inventory
 
         public string PurchaseLCId { get; set; }
         public string OrderSpecific { get; set; } 
-
-        
-
+        public decimal DiscountAmount { get; set; }
 
         #endregion Scalar Properties
 

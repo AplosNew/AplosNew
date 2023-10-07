@@ -101,6 +101,12 @@
                 </div>
             </div>
         </div>
+        <div class="form-group" ng-show="voucher.OtherBankMasterId">
+            <label class="col-sm-3 control-label">Bank Reference No <sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <input type="text" maxlength="50" id="Bank Reference No" name="Doc Ref" ng-model="voucher.BankReferenceNo" class="form-control" tabindex="5"  autocomplete="off">
+            </div>
+        </div>
         <div class="form-group" ng-show="isBankAmount">
             <label class="col-sm-3 control-label">Bank Amount<sup>*</sup></label>
             <div class="col-sm-9">
@@ -125,6 +131,12 @@
             <label class="col-sm-3 control-label">Rate<sup>*</sup></label>
             <div class="col-sm-9 show-message">
                 <input type="text" n-decimals="4" id="Rate" name="Rate" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off" required ng-disabled="voucher.CurrencyId==companyCurrencyId">
+            </div>
+        </div>
+        <div id="div_DocDate" class="form-group" ng-show="voucher.OtherBankMasterId">
+            <label class="col-sm-3 control-label">BankTransactionDate<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <input type="text" name="BankTransactionDate" ng-model="voucher.BankTransactionDate" datepicker required class="form-control" tabindex="4">
             </div>
         </div>
     </div>

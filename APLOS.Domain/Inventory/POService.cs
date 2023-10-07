@@ -16,9 +16,6 @@ namespace Library.Model.Inventory
         public string Description { get; set; }
 
 
-
-
-
         #endregion Scalar Properties
 
         #region Audit Properties

@@ -23,10 +23,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         IsBudgetLevel: false,
         IsActivityLevel: true,
         IsDetailLevel: false,
-
-        //ReportFormat: 'Pdf',
-        ////FromDate: $filter('dateFiltering')(Date.now()),
-        //FromDate: $filter('dateFiltering')(Date.now()),
         ToDate: $filter('dateFiltering')(Date.now()),
         AssetsLiability: ''
     };
@@ -115,28 +111,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         }
     }
 
-    //$scope.getReport = function () {
-
-    //    if (baseService.isUndefinedOrNull($scope.report.FromDate)) {
-    //        manualValidation("div_FromDate", true, "From Date is required.");
-    //    }
-    //    else if (baseService.isUndefinedOrNull($scope.report.ToDate)) {
-    //        manualValidation("div_ToDate", true, "To Date is required.");
-    //    }
-    //    else if (new Date($scope.report.FromDate) > new Date($scope.report.ToDate)) {
-    //        manualValidation("div_FromDate", true, "From date must be below or equal to To Date");
-    //    }
-    //    else if (new Date($scope.report.ToDate) < new Date($scope.report.FromDate)) {
-    //        manualValidation("div_ToDate", true, "To date must be above or equal to From Date.");
-    //    }
-    //    else {
-    //        var url = "Accounts/TaxReport/GetGSTR2Report?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate;
-    //        $rootScope.report(url);
-
-    //    }
-    //};
-
-
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -182,11 +156,8 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     }
 
     $scope.GetInvoiceList = function () {
-        //$scope.FromDateValidation();
-        //$scope.ToDatevalidation();
         if (!$scope.invalidFromDate && !$scope.invalidDocDate) {
             try {
-                
                 $http({
                     method: 'POST',
                     url: $scope.path + "GetPartyPaymentStatusInvoiceList",
@@ -198,10 +169,9 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
                 }).then(function successCallback(response) {
                     if (response.data.Error == false) {
-                        //for (var i = 0; i < response.data.DATA.length; i++) {
-                        //    // response.data.DATA[i].MasterLCDate = new Date(response.data.DATA[i].MasterLCDate);
-                        //}
                         $scope.MasterLCList = response.data.DATA;
+                        $scope.GetPPSAgingList();
+                        $scope.GetPartyPaymentStatusPendingAdjustmentList();
                     }
                     else {
                         ShowResult(response.data.Message, 'failure');
@@ -219,7 +189,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             }
         }
     }
-    $scope.GetInvoiceList();
+    //$scope.GetInvoiceList();
 
     $scope.GetInvoiceListDateRange = function () {
         $scope.FromDateValidation();
@@ -452,7 +422,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-    $scope.GetPPSAgingList();
+    
 
     var ATTNPieChart;
     $scope.totalAgingdonught = 0.00;
@@ -875,51 +845,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         $rootScope.report(file_src);
     }
 
-    //$scope.DateRangeWisePayableList = [];
-    //$scope.GetDateRangeWisePayableData = function () {
-    //    try {
-
-    //        $http({
-    //            method: 'POST',
-    //            url: 'Accounts/AccountStatusDashboard/GetDateRangeWisePayableData',
-    //            data: {
-    //                FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate
-    //            },
-    //            dataType: 'JSON'
-
-    //        }).then(function successCallback(response) {
-    //            $scope.DateRangeWisePayableList = response.data.DATA;
-    //        }),
-    //            function errorCallBack(response) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            }
-    //    }
-    //    catch (e) {
-
-    //    }
-    //}
-    //$scope.GetDateRangeWisePayableData();
-
-    //$scope.DateRangeWiseReport = function () {
-
-    //    if (baseService.isUndefinedOrNull($scope.reportParameters.FromDate)) {
-    //        manualValidation("div_FromDate", true, "From Date is required.");
-    //    }
-    //    else if (baseService.isUndefinedOrNull($scope.reportParameters.ToDate)) {
-    //        manualValidation("div_ToDate", true, "To Date is required.");
-    //    }
-    //    else if (new Date($scope.report.FromDate) > new Date($scope.reportParameters.ToDate)) {
-    //        manualValidation("div_FromDate", true, "From date must be below or equal to To Date");
-    //    }
-    //    else if (new Date($scope.report.ToDate) < new Date($scope.reportParameters.FromDate)) {
-    //        manualValidation("div_ToDate", true, "To date must be above or equal to From Date.");
-    //    }
-    //    else {
-    //        var url = 'Accounts/AccountStatusDashboard/GetDateRangeWiseReport?fromDate=' + $scope.reportParameters.FromDate + '&toDate=' + $scope.reportParameters.ToDate;
-    //        $rootScope.report(url);
-    //    }
-    //}
-
     //#regon...... Pending Adjustment Vendor Payable
     $scope.PayablePostedAmount = 0;
     $scope.PayableUnPostedAmount = 0;
@@ -967,7 +892,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-    $scope.GetPartyPaymentStatusPendingAdjustmentList();
+    
     //#endregon...... Pending Adjustment Vendor Payable
 
     //#regon...... Pending Adjustment Customer Receivable
@@ -1017,7 +942,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-    $scope.GetPartyReceiveStatusPendingAdjustmentData();
+    
     //#endregon...... Pending Adjustment Customer Receivable
 
     $scope.DateRangeWisePaymentList = [];
@@ -1323,7 +1248,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                     labels: {
                         border: 1
                     }
-                    //onClick: (e) => e.stopPropagation()
                 },
                 title: {
                     display: true,
@@ -1350,10 +1274,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                             },
                             stacked: true
                         }
-                        //scaleLabel: {
-                        //    display: true,
-                        //    labelString: $scope.BaseCurrencyCode
-                        //}
                     }],
                     xAxes: [{
                         //stacked: true,
@@ -1388,8 +1308,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     $scope.FixedAssetsList = [];
     $scope.GetFixedAssetsList = function () {
         try {
-
-
             $http({
                 method: 'POST',
                 url: $scope.path + "GetFixedAssetsList",
@@ -1420,7 +1338,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-    $scope.GetFixedAssetsList();
 
     $scope.FixedArticalList = [];
     $scope.GetFixedArticalList = function (id) {
@@ -1449,9 +1366,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             }),
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
-
                 }
-
         }
 
         catch (e) {
@@ -1511,28 +1426,8 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     function GetFixedAssetsRegisterPopUp(args) {
         //alert('dd');
         this.preventClick = true;
-        // var obj = $("#detailGrid").ejGrid("instance");
-
-        //var obj1 = $("#detailGrid").data("ejGrid");
-        //var data1 = obj1.getSelectedRecords();
-        //var index = this.element.closest("tr").index();
-        //var record = obj.getCurrentViewData()[index];
-
-        // var data = obj.model.dataSource;
-        //for (var i = 0; i < data.length; i++) {
-        //    $scope.tempMaterialMasterId = data[i].MaterialMasterId
-        //    $scope.tempMaterialMasterArticleId = data[i].MaterialMasterArticleId
-        //}
-        //$scope.tempMaterialMasterId = data[0].MaterialMasterId
-        //$scope.tempMaterialMasterArticleId = data[0].MaterialMasterAritcleId
-
         $scope.tempMaterialMasterId = args.data.MaterialMasterId;
         $scope.tempMaterialMasterArticleId = args.data.MaterialMasterArticleId;
-
-        //var data = obj.model.dataSource;
-        //$scope.tempMaterialMasterId = data[0].MaterialMasterId
-        //$scope.tempMaterialMasterArticleId = data[0].MaterialMasterArticleId 
-
         $http({
             method: 'POST',
             url: 'Accounts/AccountStatusDashboard/GetFixedAssetsRegisterPopUpList',
@@ -1579,50 +1474,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         return string;
     }
-
-    //$scope.getMasterReport2 = function () {
-    //    try {
-
-    //        var filtered = $("#gridTab").data("ejGrid").getFilteredRecords();
-
-    //        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-    //            filtered = $scope.FixedAssetsList;
-
-    //            var file_src = $scope.path + 'MaterialMasterReport2';
-    //            $rootScope.report(file_src);
-    //        }
-    //        else {
-
-    //            //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
-    //            var MaterialMasterId = getString(filtered, "MaterialMasterId");
-    //            var MaterialTypeId = getString(filtered, "MaterialTypeId");
-    //            var AssetMasterId = getString(filtered, "AssetMasterId");
-
-    //            var MaterialGroup1Id = getString(filtered, "MaterialGroup1Id");
-    //            var BaseUOMId = getString(filtered, "BaseUOMId");
-    //            var IsAsset = getString(filtered, "IsAsset");
-    //            var Machine = getString(filtered, "Machine");
-    //            var Process = getString(filtered, "ProcessId");
-    //            var SkillId = getString(filtered, "SkillId");
-    //            var FACount = getString(filtered, "FACount");
-
-
-    //            var file_src = $scope.path + 'MaterialMasterFilteringReport?materialMasterId=' + MaterialMasterId + '&materialTypeId=' + MaterialTypeId + '&assetMasterId=' + AssetMasterId +
-    //                '&materialGroup1Id=' + MaterialGroup1Id +
-    //                '&baseUOMId=' + BaseUOMId +
-    //                '&isAsset=' + IsAsset + '&machine=' + Machine +
-    //                '&process=' + Process + '&skillId=' + SkillId + '&fACount=' + FACount;
-
-    //            //var file_src = $scope.path + 'MaterialMasterReport2';
-    //            $rootScope.report(file_src);
-
-               
-    //        }
-    //    }
-    //    catch (e) {
-
-    //    }
-    //}
 
     $scope.exportMaterialgriddataUrl = 'Accounts/AccountStatusDashboard/MaterialMasterReport2';
     //$scope.downloadgriddataUrl = 'Accounts/AccountStatusDashboard/Download';
@@ -1675,8 +1526,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 }
                 else {
                     $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
-                    // $rootScope.report($scope.downloadgriddataUrl + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
-                    //$rootScope.report($scope.downloadgriddataUrl);//downloadgriddataUrlPath
                 }
             });
         } catch (e) {
@@ -1684,114 +1533,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         }
     };
 
-   // $scope.exportgriddataUrl = 'Accounts/AccountStatusDashboard/MaterialMasterReport2';
-    //$scope.downloadgriddataUrl = 'Accounts/AccountStatusDashboard/Download';
-    //$scope.downloadgriddataUrlPath = 'AccountStatusDashboard/DownloadUsingFullPath';//DownloadUsingPath
-    //$scope.getMasterReport2 = function () {
-    //    try {
-    //        var filtered = $("#gridTab").data("ejGrid").getFilteredRecords();
-
-    //        if (!angular.isUndefinedOrNull(filtered) || filtered.length != 0) {
-    //            //    filtered = $scope.FixedAssetsList;
-    //            //}
-    //            //filtered = ej.DataManager(filtered).executeLocal(ej.Query().select(["AccountGroupName"]));
-    //            var MaterialMasterId = getString(filtered, "MaterialMasterId");
-    //            var MaterialTypeId = getString(filtered, "MaterialTypeId");
-    //            var AssetMasterId = getString(filtered, "AssetMasterId");
-
-    //            var MaterialGroup1Id = getString(filtered, "MaterialGroup1Id");
-    //            var BaseUOMId = getString(filtered, "BaseUOMId");
-    //            var IsAsset = getString(filtered, "IsAsset");
-    //            var Machine = getString(filtered, "Machine");
-    //            var Process = getString(filtered, "ProcessId");
-    //            var SkillId = getString(filtered, "SkillId");
-    //            var FACount = getString(filtered, "FACount");
-
-    //            //$scope.fileName = $scope.report.AssetsLiability + ".xls";
-    //            $scope.fileName = "MaterialMasterReport.xls";
-
-    //            $http({
-    //                method: 'POST',
-    //                // url: 'Attendances/DailyAttendanceReport/DailyAttendanceStatusReport',
-    //                url: $scope.exportgriddataUrl,
-    //                data: {
-    //                    'materialMasterId': MaterialMasterId
-    //                    //"voucherDetailVMList": JSON.stringify($scope.voucherDetailList)
-    //                    , 'materialTypeId': MaterialTypeId
-    //                    , 'assetMasterId': AssetMasterId
-    //                    , 'materialGroup1Id': MaterialGroup1Id
-    //                    , 'baseUOMId': BaseUOMId
-    //                    , 'isAsset': IsAsset
-    //                    , 'isMachine': Machine
-    //                    , 'process': Process
-    //                    , 'skillId': SkillId
-    //                    , 'fACount': FACount
-
-
-    //                },
-    //                dataType: 'JSON'
-    //                , contentType: "application/json charset=utf-8"
-
-    //            }).then(function successCallback(response) {
-    //                if (response.data.Error === true) {
-    //                    ShowResult(response.data.Message, 'failure');
-    //                }
-    //                else {
-    //                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
-    //                    // $rootScope.report($scope.downloadgriddataUrl + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
-    //                    //$rootScope.report($scope.downloadgriddataUrl);//downloadgriddataUrlPath
-    //                }
-    //            });
-    //        }
-    //        else {
-    //            $http({
-    //                method: 'POST',
-    //                // url: 'Attendances/DailyAttendanceReport/DailyAttendanceStatusReport',
-    //                url: $scope.exportgriddataUrl,
-    //                data: {
-    //                    'materialMasterId': MaterialMasterId
-    //                    //"voucherDetailVMList": JSON.stringify($scope.voucherDetailList)
-    //                    , 'materialTypeId': MaterialTypeId
-    //                    , 'assetMasterId': AssetMasterId
-    //                    , 'materialGroup1Id': MaterialGroup1Id
-    //                    , 'baseUOMId': BaseUOMId
-    //                    , 'isAsset': IsAsset
-    //                    , 'isMachine': Machine
-    //                    , 'process': Process
-    //                    , 'skillId': SkillId
-    //                    , 'fACount': FACount
-
-
-    //                },
-    //                dataType: 'JSON'
-    //                , contentType: "application/json charset=utf-8"
-
-    //            }).then(function successCallback(response) {
-    //                if (response.data.Error === true) {
-    //                    ShowResult(response.data.Message, 'failure');
-    //                }
-    //                else {
-    //                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
-    //                    // $rootScope.report($scope.downloadgriddataUrl + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
-    //                    //$rootScope.report($scope.downloadgriddataUrl);//downloadgriddataUrlPath
-    //                }
-    //            });
-    //        }
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
-    //};
-
-
-    //$scope.getMaterialMasterArticalReport = function () {
-    //    try {
-    //        var file_src = $scope.path + 'MaterialMasterArticalReport';
-    //        $rootScope.report(file_src);
-
-    //    } catch (e) {
-
-    //    }
-    //}
 
     $scope.exportgriddataArticleUrl = 'Accounts/AccountStatusDashboard/MaterialMasterArticalReport';
     //$scope.downloadgriddataUrl = 'Accounts/AccountStatusDashboard/Download';
@@ -1846,26 +1587,12 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 }
                 else {
                     $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
-                    // $rootScope.report($scope.downloadgriddataUrl + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
-                    //$rootScope.report($scope.downloadgriddataUrl);//downloadgriddataUrlPath
                 }
             });
         } catch (e) {
             ShowResult(e, 'failure');
         }
     };
-
-
-    //$scope.getFixedAssetRegisterReport = function () {
-    //    try {
-    //        //var file_src = $scope.path + 'MaterialMasterReport2?MaterialTypeId=' + $scope.materialMasterReportNew.MaterialTypeId + '&Article=' + $scope.materialMasterReportNew.WithArticle;;
-    //        var file_src = $scope.path + 'GetFixedAssetRegisterReport';
-    //        $rootScope.report(file_src);
-
-    //    } catch (e) {
-
-    //    }
-    //}
 
     $scope.exportRegistergriddataUrl = 'Accounts/AccountStatusDashboard/GetFixedAssetRegisterReport';
     //$scope.downloadgriddataUrl = 'Accounts/AccountStatusDashboard/Download';
@@ -1920,8 +1647,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 }
                 else {
                     $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
-                    // $rootScope.report($scope.downloadgriddataUrl + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
-                    //$rootScope.report($scope.downloadgriddataUrl);//downloadgriddataUrlPath
                 }
             });
         } catch (e) {
@@ -2029,10 +1754,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                             },
                             stacked: true
                         }
-                        //scaleLabel: {
-                        //    display: true,
-                        //    labelString: $scope.BaseCurrencyCode
-                        //}
                     }],
                     xAxes: [{
                         //stacked: true,
@@ -2076,120 +1797,8 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             }, {});
 
             createFixedAssetsBarChart(result);
-            // createLoanTakenBarChart(filtereddata);
         }
     }
-
-
-    //Quantity Bar Chart
-    //var fixedAssetsQuantityBarChart;
-    //$scope.fixedAssetsQuantityBarList = [];
-    //function createFixedAssetsQuantityBarChart(fixedAssetsQuantitylist) {
-    //    //var postingDate = "";
-    //    $scope.fixedAssetsQuantityBarList = [];
-    //    // $scope.postingDate = []
-    //    $scope.fixedAssetsQuantity = [];
-    //   // $scope.accDepBaseAmount = [];
-
-    //    angular.forEach(fixedAssetsQuantitylist, function (item, i) {
-    //        $scope.fixedAssetsQuantityBarList.push(item.MaterialMaster);
-    //        $scope.fixedAssetsQuantity.push(item.FACount);
-    //       // $scope.accDepBaseAmount.push(item.ADBaseAmount);
-    //    });
-
-    //    Chart.defaults.global.legend.display = false;
-    //    var MPctx = document.getElementById("FixedAssetsQuantityStackedBarChart").getContext('2d');
-    //    if (fixedAssetsQuantityBarChart !== undefined && typeof fixedAssetsQuantityBarChart === 'object' && typeof fixedAssetsQuantityBarChart.destroy === 'function') fixedAssetsQuantityBarChart.destroy();
-    //    fixedAssetsQuantityBarChart = new Chart(MPctx, {
-    //        type: 'bar',
-    //        data: {
-    //            labels: $scope.fixedAssetsQuantityBarList,
-    //            datasets: [{
-    //                label: 'Quantity',
-    //                data: $scope.fixedAssetsQuantity,
-    //                backgroundColor: window.chartColors.green,
-    //                borderColor: window.chartColors.green,
-    //                fill: true,
-    //                borderWidth: 2
-    //            }//,
-    //            //{
-    //            //    label: 'Acc.Dep.Amount',
-    //            //    data: $scope.accDepBaseAmount,
-    //            //    backgroundColor: window.chartColors.blue,
-    //            //    borderColor: window.chartColors.blue,
-    //            //    fill: true,
-    //            //    borderWidth: 2
-    //            //}
-
-    //                //{
-    //                //    label: 'GL',
-    //                //    data: $scope.GL,
-    //                //    backgroundColor: window.chartColors.green,
-    //                //    borderColor: window.chartColors.green,
-    //                //    fill: true,
-    //                //    borderWidth: 2
-    //                //}
-    //            ]
-    //        },
-    //        options: {
-    //            legend: {
-    //                display: true,
-    //                labels: {
-    //                    border: 1
-    //                }
-    //                //onClick: (e) => e.stopPropagation()
-    //            },
-    //            title: {
-    //                display: true,
-    //                text: 'Fixed Assets Quantity List',
-    //                position: 'bottom'
-    //            },
-    //            hover: {
-    //                mode: 'nearest',
-    //                intersect: true
-    //            },
-    //            tooltips: {
-    //                mode: 'index',
-    //                intersect: true
-    //            },
-    //            scales: {
-    //                yAxes: [{
-    //                    ticks: {
-    //                        beginAtZero: true,
-    //                        userCallback: function (value, index, values) {
-    //                            value = value.toString();
-    //                            value = value.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
-    //                            return value;
-    //                        },
-    //                        stacked: true
-    //                    }
-    //                    //scaleLabel: {
-    //                    //    display: true,
-    //                    //    labelString: $scope.BaseCurrencyCode
-    //                    //}
-    //                }],
-    //                xAxes: [{
-    //                    //stacked: true,
-    //                    ticks: {
-    //                        beginAtZero: true,
-    //                        autoSkip: false,
-    //                        maxRotation: 90,
-    //                        minRotation: 90
-    //                    },
-    //                    stacked: true
-
-    //                }]
-    //            },
-    //            elements: {
-    //                line: {
-    //                    tension: 0
-    //                }
-    //            }
-    //        }
-    //    });
-
-    //}
-
 
     //Cash Tab
     $scope.CashList = [];
@@ -2215,7 +1824,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-    $scope.getCashListData();
 
     //Bank Tab
     $scope.BankMasterList = [];
@@ -2276,13 +1884,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 ]
             },
             options: {
-                //legend: {
-                //    display: true
-                //    //labels: {
-                //    //    border: 1
-                //    //}//,
-                //    //onClick: (e) => e.stopPropagation()
-                //},
                 title: {
                     display: true,
                     text: 'Cash List',
@@ -2305,23 +1906,15 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                                 value = value.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
                                 return value;
                             },
-                            //stacked: true
                         }
-                        //scaleLabel: {
-                        //    display: true,
-                        //    labelString: $scope.BaseCurrencyCode
-                        //}
                     }],
                     xAxes: [{
-                        //stacked: true,
                         ticks: {
                             beginAtZero: true,
                             autoSkip: false,
                             maxRotation: 90,
                             minRotation: 90
                         },
-                        //stacked: true
-
                     }]
                 },
                 elements: {
@@ -2361,26 +1954,9 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                     fill: true,
                     borderWidth: 2
                 }
-                    //{
-                    //    label: 'Employee',
-                    //    data: $scope.Employee,
-                    //    backgroundColor: window.chartColors.blue,
-                    //    borderColor: window.chartColors.blue,
-                    //    fill: true,
-                    //    borderWidth: 2
-                    //},
-
-
                 ]
             },
             options: {
-                //legend: {
-                //    display: true
-                //    //labels: {
-                //    //    border: 1
-                //    //}//,
-                //    //onClick: (e) => e.stopPropagation()
-                //},
                 title: {
                     display: true,
                     text: 'Bank List',
@@ -2403,23 +1979,15 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                                 value = value.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
                                 return value;
                             },
-                            //stacked: true
                         }
-                        //scaleLabel: {
-                        //    display: true,
-                        //    labelString: $scope.BaseCurrencyCode
-                        //}
                     }],
                     xAxes: [{
-                        //stacked: true,
                         ticks: {
                             beginAtZero: true,
                             autoSkip: false,
                             maxRotation: 90,
                             minRotation: 90
                         },
-                        //stacked: true
-
                     }]
                 },
                 elements: {
@@ -2457,7 +2025,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-    $scope.GetLoanListData();
+   
 
     $scope.summaryRows = [{
         title: "Total Balance", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Balance", dataMember: "Balance", format: "{0:N2}" }],
@@ -2669,13 +2237,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 ]
             },
             options: {
-                //legend: {
-                //    display: true
-                //    //labels: {
-                //    //    border: 1
-                //    //}//,
-                //    //onClick: (e) => e.stopPropagation()
-                //},
                 title: {
                     display: true,
                     text: 'Loan Taken List',
@@ -2698,22 +2259,16 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                                 value = value.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
                                 return value;
                             },
-                            //stacked: true
                         }
-                        //scaleLabel: {
-                        //    display: true,
-                        //    labelString: $scope.BaseCurrencyCode
-                        //}
+                      
                     }],
                     xAxes: [{
-                        //stacked: true,
                         ticks: {
                             beginAtZero: true,
                             autoSkip: false,
                             maxRotation: 90,
                             minRotation: 90
                         },
-                        //stacked: true
                     }]
                 },
                 elements: {
@@ -2751,8 +2306,11 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
-                $scope.CustomerReceiptMasterList = response.data.DATA;
-
+                if (response.data.Error == false) {
+                    $scope.CustomerReceiptMasterList = response.data.DATA;
+                    $scope.GetPartyReceiveStatusPendingAdjustmentData();
+                    $scope.GetCustomerReceivablePaiChartList();
+                }
             }),
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -2954,7 +2512,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-    $scope.GetCustomerReceivablePaiChartList();
+    
 
     var CUSRPieChart;
     $scope.totalCustomerReceivableAgingPiaAndTable = 0.00;
@@ -3318,18 +2876,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     //........#regoin Trian Balance.................
 
-    //$scope.report = {
-    //    IsUpToLevel: 'Detail',
-    //    IsBudgetLevel: false,
-    //    IsActivityLevel: true,
-    //    IsDetailLevel: false,
-
-    //    //ReportFormat: 'Pdf',
-    //    ////FromDate: $filter('dateFiltering')(Date.now()),
-    //    //FromDate: $filter('dateFiltering')(Date.now()),
-    //    ToDate: $filter('dateFiltering')(Date.now()),
-    //    AssetsLiability: null
-    //};
 
     $scope.upToLevelList = [];
     $scope.getLevelType = function () {
@@ -3604,26 +3150,14 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CompanyCurrencyDrAmount", dataMember: "CompanyCurrencyDrAmount", format: "{0:N2}" },
         { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CompanyCurrencyCrAmount", dataMember: "CompanyCurrencyCrAmount", format: "{0:N2}" }],
         showCaptionSummary: true,
-
-        //title: "Cloging Balance", summaryColumns: [{ summaryType: ej.Grid.SummaryType.sum, displayColumn: "DrAmount", dataMember: "DrAmount", format: "{0:N2}" },
-        //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CrAmount", dataMember: "CrAmount", format: "{0:N2}" },
-        //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CompanyCurrencyDrAmount", dataMember: "CompanyCurrencyDrAmount", format: "{0:N2}" },
-        //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "CompanyCurrencyCrAmount", dataMember: "CompanyCurrencyCrAmount", format: "{0:N2}" }],
-        //showCaptionSummary: true
     }];
 
 
     $scope.getvouchardetailjs = function (obj) {
         var reportformat = "pdf";
         var file_src = "";
-        //if (baseservice.isundefinedornull(data.data.voucherid))
-        //    return showresult('no id found', 'failure');
-        //else {
-
-        // file_src = 'accounts/voucherReport/GetCommonVoucherReport?reportformat=' + 'pdf' + '&compnaygroupid=' + obj.data.CompanyGroupId + '&companyid=' + obj.data.CompanyId + '&plantid=' + obj.data.PlantId + '&sourcetype=' + obj.data.SourceType + '&voucherid=' + obj.data.VoucherId;
         file_src = 'Accounts/VoucherReport/GetCommonVoucherReport?reportFormat=' + 'Pdf' + '&compnayGroupId=' + obj.data.CompanyGroupId + '&companyId=' + obj.data.CompanyId + '&plantId=' + obj.data.PlantId + '&sourceType=' + obj.data.SourceType + '&voucherId=' + obj.data.VoucherId + '&inventoryIssueId=' + obj.data.InventoryIssueId + '&inventoryReceiveId=' + obj.data.InventoryReceiveId + '&salesSourceType=' + obj.data.SalesSourceType + '&invoiceWriteOffGroupNo=' + obj.data.InvoiceWriteOffGroupNo + '&openingBalanceId=' + obj.data.OpeningBalanceId;
         $window.open(file_src, '_blank');
-        //}
     };
 
 
@@ -3827,46 +3361,18 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         $scope.toDate = $scope.reportParameters.ToDate
 
         if (args.BankMasterId != null) {
-            //if (baseService.isUndefinedOrNull(args.BudgetMasterId)) {
-            //    args.BudgetMasterId = null;
-            //}
-            //if (baseService.isUndefinedOrNull(args.ActivityId)) {
-            //    args.ActivityId = null;
-            //}
-            //if (baseService.isUndefinedOrNull(args.Particulars)) {
-            //    args.Particulars = null;
-            //}
-
+          
             $scope.getTrialBLAllLevelBankMasterLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.BankMasterId, $scope.toDate)
             $scope.getTrialBLAllLevelBankMasterHeaderLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.BankMasterId, $scope.toDate)
         }
         else if (args.CashMasterId != null) {
-            //if (baseService.isUndefinedOrNull(args.BudgetMasterId)) {
-            //    args.BudgetMasterId = null;
-            //}
-            //if (baseService.isUndefinedOrNull(args.ActivityId)) {
-            //    args.ActivityId = null;
-            //}
-            //if (baseService.isUndefinedOrNull(args.Particulars)) {
-            //    args.Particulars = null;
-            //}
-
+           
             $scope.getTrialBLAllLevelCashMasterLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.CashMasterId, $scope.toDate)
             $scope.getTrialBLHeadingAllLevelCashMasterLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.CashMasterId, $scope.toDate)
 
         }
         else if (args.PartyId != null) {
-            //if (baseService.isUndefinedOrNull(args.BudgetMasterId)) {
-            //    args.BudgetMasterId = null;
-            //}
-            //if (baseService.isUndefinedOrNull(args.ActivityId)) {
-            //    args.ActivityId = null;
-            //}
-            //if (baseService.isUndefinedOrNull(args.Particulars)) {
-            //    args.Particulars = null;
-            //}
-
-
+           
             $scope.getTrialBLAllLevelPartyLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, $scope.toDate)
             $scope.getTrialBLAllLevelHeadingPartyLedgerPopUpData(args.Particulars, args.AccountCodeId, args.BudgetMasterId, args.ActivityId, args.PartyId, args.PartyPlantId, $scope.toDate)
         }
@@ -4179,12 +3685,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     //..........#Material Management.................
 
-    //$scope.getDateRangeWiseGRNPostedData();
-    //$scope.searchByPostedGRN = "Id"; $scope.searchGRN = "";
-    //$scope.searchByPostedGRNList = [{ value: 'Id', name: "GRN No" }, { value: 'GRNDate', name: "GRN Date" }, { value: 'Particular', name: "Particular" }, { value: 'VoucherNo', name: "VoucherNo" }
-    //    , { value: 'PostingDate', name: "PostingDate" }, { value: 'GateEntryNo', name: "Gate EntryNo" }, { value: 'DocRefNo', name: "DocRef No" }
-    //    , { value: 'DocDate', name: "Doc Date" }];
-
+  
     $scope.products = [];
     $scope.acceptancePostedList = [];
     $scope.getDataList = function () {
@@ -4214,19 +3715,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             });
         }
     }
-    // $scope.getDataList();
-
-
-    //$scope.GRNPostedGrideView = true;
-    //$scope.getDataList = function () {
-    //    $scope.AcceptancePostedGrideView = true;
-    //}
-
-    //$scope.showSecondDiv = function () {
-    //    $scope.showFinanceDB = false;
-    //}
-
-
+   
     $scope.GRNPostedReport = function () {
         try {
             //var file_src = 'Accounts/Invoice/GetAutoMailReport';
@@ -4279,15 +3768,11 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                     }
                 }
                 $scope.AcceptanceLiabilityMaturityList = response.data.DATA;
-
-                //$scope.cashOutflowInvPayBooksBalance = $filter("sumByKey")($filter("filter")($scope.MasterCashOutFlowList, { SourceType: "InventoryPayable" }), "BooksBalance");
-                //$scope.cashOutflowVenInvBooksBalance = $filter("sumByKey")($filter("filter")($scope.MasterCashOutFlowList, { SourceType: "VendorInvoice" }), "BooksBalance");
             }),
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 }
         }
-
         catch (e) {
 
         }
@@ -4308,11 +3793,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     $scope.TotalGRNWithoutInvoice = [{
         title: "Total", summaryColumns: [
-            //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalMaterialTranAmount", dataMember: "TotalMaterialTranAmount", format: "{0:N2}" },
-            //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "InvoiceAmount", dataMember: "InvoiceAmount", format: "{0:N2}" },
-            //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Balance", dataMember: "Balance", format: "{0:N2}" },
             { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalMaterialBooksCurrencyAmount", dataMember: "TotalMaterialBooksCurrencyAmount", format: "{0:N2}" }
-            //{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "PLCAmount", dataMember: "PLCAmount", format: "{0:N2}" }
         ],
         showCaptionSummary: true
     }];
@@ -4378,9 +3859,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                     }
                 }
                 $scope.AcceptanceLiabilityList = response.data.DATA;
-
-                //$scope.cashOutflowInvPayBooksBalance = $filter("sumByKey")($filter("filter")($scope.MasterCashOutFlowList, { SourceType: "InventoryPayable" }), "BooksBalance");
-                //$scope.cashOutflowVenInvBooksBalance = $filter("sumByKey")($filter("filter")($scope.MasterCashOutFlowList, { SourceType: "VendorInvoice" }), "BooksBalance");
             }),
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -4442,17 +3920,6 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
-
-                //if (response.data.Error == false) {
-                //    for (var i = 0; i < response.data.DATA.length; i++) {
-                //        // response.data.DATA[i].MasterLCDate = new Date(response.data.DATA[i].MasterLCDate);
-                //    }
-                //    $scope.OthersLiabilityList = response.data.DATA;
-                //}
-                //else {
-                //    ShowResult(response.data.Message, 'failure');
-                //}
-
                 $scope.OthersLiabilityList = response.data.DATA;
             }),
                 function errorCallBack(response) {
@@ -4501,59 +3968,10 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             }],
         showCaptionSummary: true
     }];
-    //$scope.refreshTemplateOthersLiab = function (args) {
-    //    $("#headchkOLia").ejCheckBox({ "change": CheckBoxSelectAllOthersLiab });
-    //};
-
-    //function CheckBoxSelectAllOthersLiab(liab) {
-
-    //    var ChkOrUnchk = false;
-    //    if (liab.model.checkState === "check") {
-    //        ChkOrUnchk = true;
-
-    //    }
-
-    //    var filtered = $("#GrideOhtersLiability").data("ejGrid").getFilteredRecords();
-    //    if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-    //        for (var i = 0; i < $scope.OthersLiabilityList.length; i++) {
-    //            $scope.OthersLiabilityList[i].isSelected = ChkOrUnchk;
-    //        }
-    //    }
-    //    else {
-
-    //        for (var j = 0; j < filtered.length; j++) {
-
-    //            filtered[j].isSelected = ChkOrUnchk;
-    //        }
-
-
-    //    }
-    //    var gridObj = $("#GrideOhtersLiability").data("ejGrid");
-    //    gridObj.refreshContent();
-    //};
 
     $scope.OthersLiabilitySummaryReport = function () {
 
         try {
-            //var NewOthersLiabilityList = [];
-            //for (var i = 0; i < $scope.OthersLiabilityList.length; i++) {
-            //    if ($scope.OthersLiabilityList[i].isSelected == true) {
-
-            //        if (NewOthersLiabilityList, $scope.OthersLiabilityList[i].PartyId) {
-            //            NewOthersLiabilityList.push($scope.OthersLiabilityList[i].PartyId);
-            //        }
-            //    }
-            //}
-            //if (NewOthersLiabilityList.length == 0) {
-            //    //(angular.isUndefinedOrNull(NewMasterLCList)) 
-            //    ShowResult('Please select at least one Party', 'failure');
-            //    //throw 'Please enter to date';
-
-            //} else {
-            //    var file_src = $scope.path + "OthersLiabilitySummaryReport?othersLiabilityList=" + NewOthersLiabilityList;
-            //    $rootScope.report(file_src);
-            //}
-
             var file_src = $scope.path + 'OthersLiabilitySummaryReport?toDate=' + $scope.reportParameters.ToDate + '&isWithAdvance=' + $scope.reportParameters.IsWithAdvance;
             $rootScope.report(file_src);
 
@@ -4566,28 +3984,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     $scope.OthersLiabilityAgingDetailReport = function () {
 
         try {
-            //if (angular.isUndefinedOrNull($scope.reportParameters.FromDate))
-            //    throw 'Please enter from date';
-
-            //if (angular.isUndefinedOrNull($scope.reportParameters.ToDate))
-            //    throw 'Please enter to date';
-
-            //var NewMasterLCList = [];
-            //for (var i = 0; i < $scope.MasterLCList.length; i++) {
-            //    if ($scope.MasterLCList[i].isSelected == true) {
-
-            //        if (NewMasterLCList, $scope.MasterLCList[i].PartyId) {
-            //            NewMasterLCList.push($scope.MasterLCList[i].PartyId);
-            //        }
-            //    }
-            //}
-            //if (NewMasterLCList.length == 0) {
-            //    ShowResult('Please select at least one Party', 'failure');
-            //}
-            //else {
-            //    var file_src = $scope.path + "PartyPaymentStatusAgingReport?MasterLCList=" + NewMasterLCList;
-            //    $rootScope.report(file_src);
-            //}
+            
             var file_src = $scope.path + "OthersLiabilityAgingDetailReport?toDate=" + $scope.reportParameters.ToDate /*+ '&isWithAdvance=' + $scope.reportParameters.IsWithAdvance*/;
             $rootScope.report(file_src);
 
@@ -4608,27 +4005,8 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
-                //for (var i = 0; i < response.data.DATA.length; i++) {
-                //    try {
-                //        if (angular.isUndefinedOrNull(response.data.DATA[i].PostingDate) == false)
-                //            response.data.DATA[i].PostingDate = new Date(response.data.DATA[i].PostingDate);
-
-                //        if (angular.isUndefinedOrNull(response.data.DATA[i].ActualDueDate) == false)
-                //            response.data.DATA[i].ActualDueDate = new Date(response.data.DATA[i].ActualDueDate);
-
-
-                //        if (angular.isUndefinedOrNull(response.data.DATA[i].DueDateBaseON) == false)
-                //            response.data.DATA[i].DueDateBaseON = new Date(response.data.DATA[i].DueDateBaseON);
-
-                //    } catch (e) {
-
-                //    }
-                //}
-
+               
                 $scope.GRNWithOutInvoiceList = response.data.DATA;
-
-                //$scope.cashOutflowInvPayBooksBalance = $filter("sumByKey")($filter("filter")($scope.MasterCashOutFlowList, { SourceType: "InventoryPayable" }), "BooksBalance");
-                //$scope.cashOutflowVenInvBooksBalance = $filter("sumByKey")($filter("filter")($scope.MasterCashOutFlowList, { SourceType: "VendorInvoice" }), "BooksBalance");
             }),
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -4966,14 +4344,13 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
     //**********************#startregion Current Fund Position **************************
     $scope.ModelList = [];
-    $scope.getData = function () {
+    $scope.getCurrentFundPositionData = function () {
         $scope.ModelList = [];
         $http.get('Banks/BankJournal/getCurrentFundPositionlist?PostingDate=' + $filter("dateFiltering")(Date.now()))
             .then(function (response) {
                 $scope.ModelList = response.data;
             });
     };
-    $scope.getData();
 
     $scope.ReportCurrentFundPosition = function () {
         try {

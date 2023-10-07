@@ -201,14 +201,14 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
 
     $scope.Save = function () {
         try {
-            $scope.FD = $filter('dateFiltering')(new Date($scope.ModelNew.FromDate), 'dd-MM-yyyy');
-            $scope.TD = $filter('dateFiltering')(new Date($scope.ModelNew.ToDate), 'dd-MM-yyyy');
+            //$scope.FD = $filter('dateFiltering')(new Date($scope.ModelNew.FromDate), 'dd-MM-yyyy');
+            //$scope.TD = $filter('dateFiltering')(new Date($scope.ModelNew.ToDate), 'dd-MM-yyyy');
 
-            $scope.$broadcast('show-errors-check-validity');
-            if ($scope._firstDay == $scope.FD || $scope._lastDay == $scope.TD) {
-                ShowResult('You can not select 1st Date & Last Date of the Month!', 'failure');
-                return false;
-            }
+            //$scope.$broadcast('show-errors-check-validity');
+            //if ($scope._firstDay == $scope.FD || $scope._lastDay == $scope.TD) {
+            //    ShowResult('You can not select 1st Date & Last Date of the Month!', 'failure');
+            //    return false;
+            //}
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -386,6 +386,19 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             ShowResult('Select From Pay Days', 'failure');
             return false;
         }
+        $scope.FD = $filter('dateFiltering')(new Date($scope.ModelNew.FromDate), 'dd-MM-yyyy');
+        $scope.TD = $filter('dateFiltering')(new Date($scope.ModelNew.ToDate), 'dd-MM-yyyy');
+
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope._firstDay == $scope.FD) {
+            ShowResult('You can not select 1st Date!', 'failure');
+            return false;
+        }
+        if ($scope._lastDay == $scope.TD) {
+            ShowResult('You can not select Last Date of the Month!', 'failure');
+            return false;
+        }
+
         $http({
             method: 'POST',
             url: $scope.path + "LoadPCAACEmployeelist",
@@ -393,7 +406,26 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.EmployeeList = response.data;
+
             angular.element(document.querySelector("#dialogEmployeeInfo")).modal("show");
+        });
+    }
+
+    $scope.getPayDaysAmount = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "LoadPCAACEmployeelist",
+            data: { 'fromDate': $scope.ModelNew.FromDate, 'toDate': $scope.ModelNew.ToDate, 'payDaysType': $scope.ModelNew.PayDaysType },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.EmployeeList = response.data;
+            for (var i = 0; i < $scope.EmployeeList.length; i++) {
+                for (var j = 0; j < $scope.EmployeeMainList.length; j++) {
+                    if ($scope.EmployeeMainList[j].SystemId == $scope.EmployeeList[i].SystemId) {
+                        $scope.EmployeeMainList[j].PayDays = $scope.EmployeeList[i].PayDays;
+                    }
+                }
+            }
         });
     }
 
