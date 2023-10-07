@@ -2896,6 +2896,13 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         }
     }
 
+    $scope.getMasterOrderItemViewPopUp = function (data) {
+            $scope.NewobjectMOI = data.data;
+            $scope.getMasterOrderItemView();
+            angular.element(document.querySelector('#MasterOrderItemViewPopup')).modal('show');
+    }
+
+
     $scope.MasterOrderItemList = [];
     $scope.getMasterOrderItem = function () {
         $http({
@@ -2904,6 +2911,17 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.MasterOrderItemList = resp.data;
+        });
+    }
+
+    $scope.MasterOrderItemViewList = [];
+    $scope.getMasterOrderItemView = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetMasterOrderItem?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.NewobjectMOI.WorkCenterMasterId + '&productionLevel=' + $scope.NewobjectMOI.BookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + $scope.NewobjectMOI.ProductionOrderId,
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.MasterOrderItemViewList = resp.data;
         });
     }
 

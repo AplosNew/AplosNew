@@ -1795,7 +1795,8 @@ namespace Library.Accounting.FixedAssets
                 var rdBuilder = new System.Text.StringBuilder();
                 var builderSql = "";
                 var voucherDrId = "";
-
+                decimal totalDrAmount = 0;
+                decimal totalCrAmount = 0;
 
                 var voucher = new Voucher
                 {
@@ -1855,6 +1856,7 @@ namespace Library.Accounting.FixedAssets
                             DrAmount = voucherDr.DrAmount
                         }, ref _drvDetailCurrencyData);
 
+                        totalDrAmount += voucherDr.DrAmount;
                         voucherDrId = voucherDr.Id;
                         if (capitalizationMasterdata != null)
                         {
@@ -1878,6 +1880,7 @@ namespace Library.Accounting.FixedAssets
                             DrAmount = 0,
                             CrAmount = voucherDetailVM.Amount,
                         };
+
                         currentVoucherDetaiRecord++;
                         _accountsCommonService.InsertVoucherDetail(voucher, voucherCr, currentVoucherDetaiRecord, ref _crvDetailData);
 
@@ -1890,9 +1893,13 @@ namespace Library.Accounting.FixedAssets
                             ToCurrencyConversion = 1,
                             CrAmount = voucherCr.CrAmount
                         }, ref _crvDetailCurrencyData);
+
+                        totalCrAmount += voucherCr.CrAmount;
                     }
                 }
-                
+                if (totalCrAmount != totalDrAmount)
+                    throw new CustomException("Dr Cr Amount not match !.");
+
                 clsStaticInfo objApp = new clsStaticInfo();
                 objApp.SaveDataSets(_vdataset, _drvDetailData, _drvDetailCurrencyData, _crvDetailData, _crvDetailCurrencyData);
                 if (capitalizationMasterdata != null)
