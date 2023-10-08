@@ -30,6 +30,8 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         Section: null,
         DesignationId: null,
         Designation: null,
+        Purpose: null,
+        PurposeCategory: null,
         ShiftId: null,
         Shift: null,
         FromTime: null,
@@ -121,14 +123,14 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
 
     $scope.sectionList = [];
     $scope.changeSectionByDept = function () {
-        cboService.getSectionCboByDepartmentId($scope.employeeInformation.DepartmentId, function (result) {
+        cboService.getSectionCboByDepartmentId($scope.ModelNew.DepartmentId, function (result) {
             $scope.sectionList = result;
         });
     }
 
     $scope.subSectionList = [];
     $scope.changeSubSectionBySection = function () {
-        cboService.getSubSectionCboBySectionId($scope.employeeInformation.SectionId, function (result) {
+        cboService.getSubSectionCboBySectionId($scope.ModelNew.SectionId, function (result) {
             $scope.subSectionList = result;
         });
     }
