@@ -1219,6 +1219,7 @@ upanelApp.controller("partyApprovalController", partyApprovalController)
 upanelApp.controller("DefineProcessParameterController", DefineProcessParameterController)
 upanelApp.controller("ParameterSettingControlController", ParameterSettingControlController)
 upanelApp.controller("OrderWiseQualityReportController", OrderWiseQualityReportController)
+upanelApp.controller("GoodWorkSetupController", GoodWorkSetupController)
 
 
 

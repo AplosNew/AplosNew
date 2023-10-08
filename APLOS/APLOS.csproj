@@ -403,6 +403,7 @@
     <Compile Include="Areas\Administration\Controllers\ServicesApprovingAuthorityController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AdditionalPayDayController.cs" />
     <Compile Include="Areas\Attendances\Controllers\EOTController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\GoodWorkSetupController.cs" />
     <Compile Include="Areas\Attendances\Controllers\MultipleEmployeeIndividualLockController.cs" />
     <Compile Include="Areas\Attendances\Controllers\NewProcessAttendanceReProcessController.cs" />
     <Compile Include="Areas\Attendances\Controllers\OTFinalInformationNewController.cs" />
@@ -1915,6 +1916,7 @@
     <Content Include="Areas\Administration\Scripts\VehicleMovementLocationsController.js" />
     <Content Include="Areas\Administration\Scripts\ServicesApprovingAuthorityController.js" />
     <Content Include="Areas\Attendances\Scripts\BuyerjobCardcomplianceReportController.js" />
+    <Content Include="Areas\Attendances\Scripts\GoodWorkSetupController.js" />
     <Content Include="Areas\Attendances\Scripts\EOTController.js" />
     <Content Include="Areas\Attendances\Scripts\PayableCreationAndWorkerAdvanceController.js" />
     <Content Include="Areas\Attendances\Scripts\MultipleEmployeeIndividualLockController.js" />
@@ -4819,6 +4821,7 @@
     <Content Include="Areas\Accounts\Views\_EmployeeSalaryAdvancePopUp.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionOrderEntitySetup\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\FiscalYearClosePost.cshtml" />
+    <Content Include="Areas\Attendances\Views\GoodWorkSetup\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
