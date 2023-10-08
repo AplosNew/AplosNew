@@ -586,7 +586,7 @@ FORMAT(ISNULL(ATO.RevisedCommitmentDate,ATO.CommitmentDate),'dd-MMM-yyyy') AS  C
                             FORMAT(ISNULL(ATO.RevisedCommitmentDate,ATO.CommitmentDate),'dd-MMM-yyyy') AS  CommitmentDate FROM 
                                 TaskManagerMaster AS TM
 								LEFT OUTER JOIN (Select distinct TaskManagerMasterId,ResponsiblePersonId from TaskAudit Where AuthorizationType='CreatedBy') AS AB ON ab.TaskManagerMasterId=tm.Id
-								LEFT OUTER JOIN (Select distinct TaskManagerMasterId,ResponsiblePersonId,RevisedCommitmentDate,CommitmentDate,DueDate from TaskAudit Where AuthorizationType='AssignTo') AS ATO ON ATO.TaskManagerMasterId=tm.Id 
+								LEFT OUTER JOIN (Select distinct TaskManagerMasterId,ResponsiblePersonId,RevisedCommitmentDate,CommitmentDate,DueDate,isRead from TaskAudit Where AuthorizationType='AssignTo') AS ATO ON ATO.TaskManagerMasterId=tm.Id 
 								LEFT OUTER JOIN EmployeeInformation AS EATO ON EATO.SystemId=ATO.ResponsiblePersonId
 								LEFT OUTER JOIN EmployeeInformation AS EABY ON EABY.SystemId=AB.ResponsiblePersonId
 								LEFT OUTER JOIN org.Department AS DTO ON dto.Id=eato.DepartmentId

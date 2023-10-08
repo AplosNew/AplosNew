@@ -4,6 +4,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
     $rootScope.title = "Vehicle In & Out"
     $scope.path = 'HumanResource/VehicleMovementMaster/';
     $scope.saveVehicleReqUrl = $scope.path + 'UpdateVehicleAllocation';
+    $scope.saveVehicleMovementReqUrl = $scope.path + 'UpdateVehicleMovement';
     $scope.ActionIn = "Save";
     $scope.ActionOut = "Save";
     $scope.Action = 'Update';
@@ -60,6 +61,40 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
+        }
+
+    }
+
+    $scope.SaveVehicleMovement = function () {
+
+
+        try {
+            if (baseService.isUndefinedOrNull($scope.VehicleRequisitionModel.CancelReason)) {
+                throw "Cancel Reason is required.";
+            }
+
+            $http({
+                method: 'POST',
+                url: $scope.saveVehicleMovementReqUrl,
+                data: {
+                    'data': $scope.VehicleRequisitionModel,
+                    // 'tripId': $scope.TripId
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+
         }
 
     }
@@ -123,7 +158,8 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
         VehicleMasterId: null,
         DriverMasterId: null,
         FromLocation: null,
-        
+        CancelReason: null,
+        MovementMasterId: null
 
     };
     $scope.VehicleRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
@@ -145,7 +181,9 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
             VehicleMasterId: null,
             DriverMasterId: null,
             FromLocation: null,
-            VehicleAllocationId:null
+            VehicleAllocationId:null,
+            CancelReason: null,
+            MovementMasterId:null
         };
         $scope.VehicleRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
     }
