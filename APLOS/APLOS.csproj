@@ -2011,6 +2011,7 @@
     <Content Include="Areas\Attendances\Scripts\attendanceBonusPolicyController.js" />
     <Content Include="Areas\Attendances\Scripts\shiftTimeChangeController.js" />
     <Content Include="Areas\Attendances\Scripts\SandwichProcessController.js" />
+    <Content Include="Areas\Banks\Scripts\bankReconciliationClosingController.js" />
     <Content Include="Areas\Banks\Scripts\bankReconciliationDataUploadReconciledController.js" />
     <Content Include="Areas\Banks\Scripts\BankReconciliationDataUploadController.js" />
     <Content Include="Areas\Banks\Scripts\CurrentFundPositionController.js" />
@@ -4821,6 +4822,7 @@
     <Content Include="Areas\Accounts\Views\_EmployeeSalaryAdvancePopUp.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionOrderEntitySetup\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\FiscalYearClosePost.cshtml" />
+    <Content Include="Areas\Banks\Views\BankReconciliationClosing.cshtml" />
     <Content Include="Areas\Attendances\Views\GoodWorkSetup\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
