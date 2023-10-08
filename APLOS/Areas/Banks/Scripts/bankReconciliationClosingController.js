@@ -7,8 +7,8 @@ function bankReconciliationClosingController(commonMessage, $scope, $rootScope, 
     $scope.path = "banks/bankreconciliation/";
     $controller("bankBaseController", { $scope: $scope, $http: $http });
 
-    $scope.searchBy = "FixedAssetItem"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'CapitalizationDate', name: "Capitalization Date" }, { value: 'AddedDate', name: "Added Date" }, { value: 'FixedAssetMasterId', name: "Asset Master Id" }, { value: 'FixedAssetItemId', name: "Asset Item Id" }, { value: 'FixedAssetMaster', name: "Asset Master" }, { value: 'FixedAssetItem', name: "Asset Item" }, { value: 'Type', name: "Type" }, { value: 'CMStatus', name: "Status" }];
+    $scope.searchBy = "FiscalYearName"; $scope.search = "";
+    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'FiscalYearName', name: "Fiscal Year" }, { value: 'BankName', name: "Bank" }];
 
     $scope.masterList = [];
     $scope.getData = function () {
@@ -84,7 +84,7 @@ function bankReconciliationClosingController(commonMessage, $scope, $rootScope, 
                 $scope.saveBtnDisable = true;
                 $http({
                     method: "POST",
-                    url: $scope.path + "CreateCapitalize",
+                    url: $scope.path + "SaveBankReconciliationClosing",
                     dataType: "JSON",
                     data: {
                         "data": $scope.bankReconciliationClosing,
@@ -113,6 +113,7 @@ function bankReconciliationClosingController(commonMessage, $scope, $rootScope, 
     };
 
     $scope.Clear = function () {
+        $scope.Action = "Save";
         $scope.bankReconciliationClosing = {
             Id: null,
             CompanyGroupId: $window.companyGroupId,

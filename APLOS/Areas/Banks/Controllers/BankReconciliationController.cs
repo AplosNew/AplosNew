@@ -517,6 +517,21 @@ namespace Aplos.Areas.Banks.Controllers
 
             return Json(accountsBankReconcilliationService.GetBankReconciliationClosingList(column, value, identity.CompanyGroupId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
+        [HttpPost]
+        public JsonResult SaveBankReconciliationClosing(Dictionary<string, object> data)
+        {
+            try
+            {
+                AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+                accountsBankReconcilliationService.SaveBankReconciliationClosingData(data, out string masterId);
+                return Json(new { Id = masterId, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+
+        }
         #endregion
     }
 }
