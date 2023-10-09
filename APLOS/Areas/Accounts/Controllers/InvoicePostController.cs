@@ -120,6 +120,20 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = AplosMessage.Insert });
         }
 
+        [HttpPost, Authorize]
+        public JsonResult InsertCreditNoteAdditionalTaxPost(string additionalTaxId, VoucherViewModel voucherVM)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.SourceType = SourceType.VendorPayment.ToString();
+            voucherVM.PaymentSource = PaymentSource.Tax.ToString();
+            voucherVM.PartyType = "Vendor";
+            _inventoryPayableService.InsertCreditNoteAdditionalTaxPost(voucherVM, additionalTaxId);
+            return Json(new { Message = AplosMessage.Insert });
+        }
+
 
 
         #endregion

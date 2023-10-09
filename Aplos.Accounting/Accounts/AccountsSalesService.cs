@@ -2861,28 +2861,71 @@ namespace Library.Accounting.Accounts
 			}
 		}
 
-		public IEnumerable<object> GetSalesReturnPostedData(string plantId)
+		public IEnumerable<object> GetSalesReturnPostedData(string column, string value, string plantId)
 		{
 			try
 			{
-				string CmdText = @"SELECT  II.Id,II.DocRefNo,II.SalesReturnDate,II.VoucherId,V.VoucherNo,V.PostingDate,V.SourceType, P.UserName PartyName,
+				string strkey = "1=1";
+				if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+					strkey = column + " like '%" + value + "%'";
+				var sql = @"select top 300 * from (SELECT  II.Id,II.DocRefNo,II.SalesReturnDate,S.ToCurrencyRate,V.CurrencyId,II.SalesReturnDate DocDate,II.VoucherId,V.VoucherNo,V.PostingDate,V.SourceType, P.UserName PartyName,
 								[Park/Post]=CASE WHEN V.IsPark=0 THEN 'Posted' ELSE 'Parked' END,
-                                SUM(IID.TransactionQty) Qty,II.Narration,II.SalesId
+                                IID.TransactionQty Qty,II.Narration,II.SalesId,II.AddedDate,ADN.Id AdditionalTaxId,ADN.VoucherId TDSTaxVoucherId
+								,VADN.VoucherNo TDSVoucherNo,IsTDSTaxPost=case when VADN.IsPark=0 then 'TDSPosted'  when VADN.IsPark=1 then 'TDSParked' ELSE '' END
                                 FROM [TRN].[SalesReturn] AS II
-                                JOIN TRN.SalesReturnDetail AS IID ON IID.SalesReturnId=II.Id
+                                JOIN (SELECT SUM(TransactionQty) TransactionQty,SalesReturnId FROM TRN.SalesReturnDetail GROUP BY SalesReturnId) AS IID ON IID.SalesReturnId=II.Id
 								JOIN TRN.Sales S ON S.Id=II.SalesId
+								LEFT JOIN TRN.AdjustmentNote AN ON AN.SalesReturnId=II.Id
+								LEFT JOIN TRN.AdditionalTax ADN ON ADN.AdjustmentNoteId=AN.Id
 								LEFT JOIN TRN.Voucher V ON V.Id=II.VoucherId
+								LEFT JOIN TRN.Voucher VADN ON VADN.Id=ADN.VoucherId
 								LEFT JOIN HKP.Party P ON P.Id=S.PartyId
-								WHERE S.PlantId='"+ plantId + @"' AND II.VoucherId<>''
-                                GROUP BY II.Id,II.Narration,II.Id,II.SalesId,II.DocRefNo,II.SalesReturnDate
-								,II.Addeddate,II.VoucherId,V.VoucherNo,V.PostingDate, P.UserName, v.IsPark,V.SourceType
-								Order By II.AddedDate desc";
-				return _sqlRepository.GetDataCollection(CmdText);
+								WHERE II.VoucherId<>'') AS TEMP WHERE " + strkey + @"
+								Order By AddedDate desc";
+				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)
 			{
 				throw ex;
 			}
 		}
+
+		public IEnumerable<object> GetCreditNoteAdditionalTaxDetail(string additionalTaxId)
+		{
+			try
+			{
+				var sql = @"SELECT  GL.AccountCode+' - '+ GL.UserName GLName,BU.UserName BudgetName,A.UserName ActivityName,0 DrAmount,ATD.Amount CrAmount,ATD.AdditionalTaxId
+                            ,ATD.GLGeneralInfoId, ATD.BudgetMasterId, ATD.ActivityId,TC.Id TaxCategoryId,ATD.TaxCodeId,ATD.AType
+                            FROM TRN.AdditionalTaxDetail ATD 
+                            JOIN TRN.AdditionalTax ATX ON ATX.Id=ATD.AdditionalTaxId
+                            LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=ATD.GLGeneralInfoId
+                            LEFT JOIN MST.BudgetMaster BM ON BM.Id=ATD.BudgetMasterId
+                            LEFT JOIN HKP.Budget BU ON BU.Id=BM.BudgetId
+                            LEFT JOIN HKP.Activity A ON A.Id=ATD.ActivityId
+							LEFT JOIN MST.TaxCode TAC ON TAC.Id=ATD.TaxCodeId
+							LEFT JOIN MST.TaxCategory TC ON TC.Id=TAC.TaxCategoryId
+							WHERE ATX.Id='" + additionalTaxId + @"'
+
+                            UNION
+							SELECT  GL.AccountCode+' - '+ GL.UserName GLName,BU.UserName BudgetName,A.UserName ActivityName,ATX.TaxAmount DrAmount,0 CrAmount,ATX.Id AdditionalTaxId
+							,IVD.GLGeneralInfoId, IVD.BudgetMasterId, IVD.ActivityId,NULL TaxCategoryId,NULL TaxCodeId,'Dr' AType
+                            FROM  TRN.AdditionalTax ATX 
+							LEFT JOIN TRN.AdjustmentNote IV ON IV.Id=ATX.AdjustmentNoteId
+							LEFT JOIN TRN.AdjustmentNoteDetail IVD ON IVD.AdjustmentNoteId=IV.Id
+                            LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=IVD.GLGeneralInfoId
+                            LEFT JOIN MST.BudgetMaster BM ON BM.Id=IVD.BudgetMasterId
+                            LEFT JOIN HKP.Budget BU ON BU.Id=BM.BudgetId
+                            LEFT JOIN HKP.Activity A ON A.Id=IVD.ActivityId
+							WHERE ATX.Id='" + additionalTaxId + "' ";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+		}
+
 	}
 }

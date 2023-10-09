@@ -96,28 +96,35 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
     }
    
 
-    $scope.searchBy = "Id"; $scope.search = "";
+    $scope.searchByPosted = "Id"; $scope.searchPosted = "";
     $scope.searchByList = [{ value: 'Id', name: "Sales Return No" }
         , { value: 'SalesId', name: "Sales No" }
         , { value: 'VoucherNo', name: "VoucherNo" }
         , { value: 'PartyName', name: "Party" }
         , { value: 'DocRefNo', name: "DocRef No" }
         , { value: '[Park/Post]', name: "[Park/Post]" }
-        , { value: 'PostingDate', name: "Posting Date" }];
+        , { value: 'PostingDate', name: "Posting Date" }
+        ];
 
     $scope.SalesReturnPostedList = [];
     $scope.getData = function () {
         $http({
-            method: "GET",
-            dataType: 'JSON',
+            method: "POST",
             url: 'SalesManagements/Sales/GetSalesReturnPostedList',
-            data: { column: $scope.searchBy, value: $scope.search},
-
+            data: { column: $scope.searchByPosted, value: $scope.searchPosted},
+            dataType: 'JSON',
         }).then(function successCallback(response) {
             $scope.SalesReturnPostedList = response.data;
+            var rowdata = $filter("filter")($scope.SalesReturnPostedList, { "Id": $scope.tempSalesReturnId });
+            if (!baseService.isUndefinedOrNull(rowdata[0].AdditionalTaxId)) {
+                $scope.onClickadditionalTaxPop(rowdata[0]);
+            }
+            else { $scope.tempSalesReturnId = null;}
         });
     };
     $scope.getData();
+
+  
 
     $scope.searchBySalesReturn = "Id"; $scope.searchSalesReturn = "";
     $scope.searchBySalesReturnList = [{ value: 'Id', name: "Sales Return No" }
@@ -204,12 +211,12 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
     };
     function getSalesReturnDetailList() {
         $scope.returnDetailurl = 'SalesManagements/Sales/GetSalesReturnDetailDataBySalesReturn?salesReturnId=' + $scope.productNew.SalesReturnId
-
         $http.get($scope.returnDetailurl)
             .then(function (response) {
                 $scope.detailList = response.data;
             });
     }
+
     $scope.salesReceiveDetailList = [];
     $scope.salesReturnJVList = [];
     $scope.newList = [];
@@ -270,8 +277,9 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
                 var has = false;
                 for (var a = 0; a < baseService.arrayLength(newList); a++) {
                     if (row.OtherName === newList[a].OtherName && row.TrnType === newList[a].TrnType && row.GLGeneralInfoId === newList[a].GLGeneralInfoId && row.BudgetMasterId === newList[a].BudgetMasterId && row.ActivityId === newList[a].ActivityId) {
-                        newList[a].Dr += row.Dr;
-                        newList[a].Amount += row.Dr;
+                        var dr = parseFloat(newList[a].Dr.toFixed(4)) + parseFloat(row.Dr.toFixed(4));
+                        newList[a].Dr = parseFloat(dr.toFixed(4));
+                        newList[a].Amount = parseFloat(dr.toFixed(4));
                         has = true;
                         break;
                     }
@@ -293,15 +301,6 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
                 if (!has)
                     newList.push(list[i]);
             }
-            else if (row.OtherName !== 'Svc' && row.OtherName === 'Vendor' && $scope.AcceptanceId === null && $scope.PurchaseLCId == null) {
-                newList.push(list[i]);
-                $scope.TotalPayableAmount += list[i].Amount;
-            }
-            else if (row.OtherName !== 'Svc' && row.OtherName === 'LCBase' && $scope.PurchaseLCId != null) {
-                newList.push(list[i]);
-                $scope.TotalPayableAmount += list[i].Amount;
-            }
-
         }
     }
     function getInvTaxList() {
@@ -379,10 +378,9 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
    
 
 
-
+    $scope.tempSalesReturnId = null;
     $scope.Save = function () {
-        //debugger;
-        // $scope.SavePOPUpConfirm();
+        $scope.tempSalesReturnId = null;
         if ($scope.detailList.length === 0) {
             ShowResult('Please select Atlest one material');
             return false;
@@ -395,6 +393,7 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
         }
         
         if ($scope.Action === "Save") {
+            $scope.tempSalesReturnId=$scope.productNew.SalesReturnId;
             $http({
                 method: 'POST'
                 , url: $scope.saveUrl
@@ -402,7 +401,7 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
                     'voucherVM': $scope.productNew
                     , 'voucherDetailVMList': $scope.newList
                     , 'salesReturnDetailList': $scope.salesReturnDetailGLList
-                    , 'invoiceTaxVMList': null
+                    , 'tdsTaxList': $scope.TDSList
                 }
                 , dataType: 'JSON'
             }).then(function (response) {
@@ -410,10 +409,8 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
                     ShowResult(response.data.Message, 'failure');
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.productNew.Id = response.data.inventoryIssue.Id;
-                    $scope.getdataInventorySales();
-                    $scope.SalesDetails();
                     $scope.getData();
+                    $scope.SalesDetails();
                     $scope.Clear();
                 }
             }), function (response) {
@@ -486,4 +483,159 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
     $scope.LocalTaxInvoiceReport = function (data) {
         location.href = "Sales/SalesReturnReport?salesReturnId=" + data.Id;
     };
+
+
+    $scope.TDSCboList = [];
+    $scope.TDSlistMessage = "";
+    $scope.getTDS = function (date) {
+        $http({
+            method: "get",
+            url: "accounts/TaxCode/GetTDSCbo?postingDate=" + $filter("dateFiltering")(date)
+        }).then(
+            function successCallback(response) {
+                if (response.data.Error === true) {
+                    $scope.TDSlistMessage = response.data.Message;
+                }
+                else {
+                    $scope.TDSCboList = response.data;;
+                }
+            },
+            function errorCallback(response) {
+            });
+    };
+
+    $scope.getTDS($filter("dateFiltering")(Date.now()));
+    $scope.TDS = {
+        TaxCodeId: null,
+        Text: null,
+        TaxAmount: null,
+        ValueOfFixed: null,
+        CompanyCurrencyAmount: null,
+        Type: null
+    };
+    $scope.selectTDS = function () {
+        $scope.TDS.ValueOfFixed = $.grep($scope.TDSCboList, function (item) {
+            return item.Id === $scope.TDS.TaxCodeId;
+        })[0].ValueOfFixed;
+        $scope.TDS.Type = $.grep($scope.TDSCboList, function (item) {
+            return item.Id === $scope.TDS.TaxCodeId;
+        })[0].Type;
+        $scope.TDS.TaxCategoryId = $.grep($scope.TDSCboList, function (item) {
+            return item.Id === $scope.TDS.TaxCodeId;
+        })[0].TaxCategoryId;
+        if ($scope.TDS.Type == 'FixedPercentage' && !baseService.isUndefinedOrNull($scope.TDS.ValueOfFixed)) {
+            $scope.TDS.TaxAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryReceivedList), "TaxableAmount") * $scope.TDS.ValueOfFixed / 100).toFixed(4);
+        }
+    }
+    $scope.TDSList = [];
+    $scope.addTDS = function () {
+        if (manualValidation("td_TDS_TaxCode", baseService.isUndefinedOrNull($scope.TDS.TaxCodeId), "Tax Code is required.")) {
+            $scope.invalidRow = true;
+        }
+        else if (manualValidation("td_TDS_TaxCodeAmount", baseService.isUndefinedOrNull($scope.TDS.TaxAmount), "Amount is required.")) {
+            $scope.invalidRow = true;
+        }
+        else if (manualValidation("td_TDS_TaxCodeCompanyCurrencyAmount", baseService.isUndefinedOrNull($scope.TDS.CompanyCurrencyAmount), $scope.companyCurrencyCode + " is required.")) {
+            $scope.invalidRow = true;
+        }
+        else {
+            $scope.TDS.TaxName = $.grep($scope.TDSCboList, function (item) {
+                return item.Id === $scope.TDS.TaxCodeId;
+            })[0].UserName;
+
+            $scope.TDSList.push($scope.TDS);
+            $scope.TDS = {};
+        }
+        $scope.calBaseAmount();
+    };
+    $scope.removeTDSRow = function (index) {
+        $scope.TDSList.splice(index, 1);
+    };
+
+
+
+    $scope.copyTaxesAmount = function () {
+        if ($scope.advance.CurrencyId === $scope.companyCurrencyId) {
+            $scope.advanceTax.CompanyCurrencyAmount = $scope.advanceTax.TaxAmount;
+        }
+        else {
+            $scope.advanceTax.CompanyCurrencyAmount = ($scope.advanceTax.TaxAmount * $scope.advance.CompanyCurrencyRate).toFixed(2);
+        }
+    };
+
+    $scope.removeTaxesRow = function (index) {
+        $scope.advanceTaxesList.splice(index, 1);
+    };
+
+    $scope.voucherTypeListnew = [];
+    $scope.additionalTaxVoucherTypeId = null;
+    $scope.getPaymentVoucherType = function () {
+        cboService.getCboVoucherTypePaymentList(function (result) {
+            $scope.voucherTypeListnew = result;
+            if (baseService.arrayLength($scope.voucherTypeListnew) === 1)
+                $scope.additionalTaxVoucherTypeId = $scope.voucherTypeListnew[0].Value;
+        });
+    }
+
+    $scope.additionalTaxPostUrl = 'Accounts/InvoicePost/InsertCreditNoteAdditionalTaxPost';
+    $scope.additionalTaxDetailList = [];
+    $scope.onClickadditionalTaxPop = function (x) {
+        $scope.additionalTaxData = {};
+        var data = x;
+        data.VoucherTypeId = null;
+        data.VoucherTypeId = $scope.additionalTaxVoucherTypeId;
+        data.VoucherDate = new Date();
+        $scope.additionalTaxData = data;
+        $http({
+            method: 'POST',
+            url: 'SalesManagements/Sales/GetCreditNoteAdditionalTaxDetail?additionalTaxId=' + data.AdditionalTaxId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.additionalTaxDetailList = response.data;
+        });
+        $scope.getPaymentVoucherType();
+        angular.element(document.querySelector('#additionalTaxPopUp')).modal('show');
+    };
+
+    $scope.postAdditionalTax = function () {
+        if ($scope.additionalTaxVoucherTypeId == null)
+            ShowResult('Please select VoucherType', 'failure', 'additionalTaxPopUp');
+
+        $scope.additionalTaxData.VoucherTypeId = $scope.additionalTaxVoucherTypeId;
+        if ($scope.additionalTaxData != null && $scope.additionalTaxVoucherTypeId != null) {
+            $http({
+                method: 'POST',
+                url: $scope.additionalTaxPostUrl,
+                data: {
+                    "additionalTaxId": $scope.additionalTaxData.AdditionalTaxId
+                    , "voucherVM": $scope.additionalTaxData
+                },
+                dataType: 'JSON'
+            }).then(function (response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getDataList();
+                }
+            }), function (response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+            angular.element(document.querySelector('#additionalTaxPopUp')).modal('hide');
+        }
+
+    }
+    $scope.closeAdditionalTax = function () {
+        $scope.additionalTaxData = {};
+        angular.element(document.querySelector('#additionalTaxPopUp')).modal('hide');
+
+    }
+    $scope.additionalTaxPrint = function () {
+        try {
+            var file_src = 'Accounts/invoice/VendorInvoicePaymentReport?reportFormat=' + 'Excel' + '&voucherId=' + $scope.additionalTaxData.TDSTaxVoucherId
+            $rootScope.report(file_src);
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 }
