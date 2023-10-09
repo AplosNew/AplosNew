@@ -200,7 +200,9 @@ LEFT OUTER JOIN (SELECT
         [AllowAnonymous]
         public JsonResult GetMinDueDate()
         {
-            return Json(_sqlRepository.GetDataCollection("SELECT MIN(DueDate) FromDate,format(getdate(),'dd-MMM-yyyy') AS ToDate  from taskAudit"), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection(@"SELECT MIN(DueDate) FromDate,format(getdate(),'dd-MMM-yyyy') AS ToDate  from taskAudit
+UNION
+SELECT MIN(DueDate) FromDate,format(getdate(),'dd-MMM-yyyy') AS ToDate  from taskAudit Where ISNULL(isDone,0)<>1"), JsonRequestBehavior.AllowGet);
         }
 
         //  [HttpPost, Authorize]
