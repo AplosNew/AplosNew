@@ -6,28 +6,19 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
-            </div>
-        </div>
-
-    </div>
-    <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="2" maxlength="10">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
+                <input type="text" name="User Defined Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-4 control-label">Remarks</label>
-            <div class="col-sm-8">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+            <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+            <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
+                <input type="hidden" name="ByWhom" ng-model="ModelNew.ResponsiblePersonId" class="form-control">
+                <span class="input-group-addon">{{ModelNew.ResponsiblePersonCode}}</span>
+                <input type="text" name="ByWhom" ng-model="ModelNew.ResponsiblePerson" class="form-control" readonly>
+                <span class="input-group-btn">
+                    <button ng-click="showEmployeeListPopUp();" class="btn single-small-btn" tabindex="13"><i class="glyphicon glyphicon-search"></i></button>
+                    <button ng-click="clearEmp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                </span>
             </div>
         </div>
         <div class="form-group">
@@ -41,6 +32,22 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">User Code<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="UserCode" ng-model="ModelNew.UserCode" class="form-control" required tabindex="2" maxlength="10">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+            </div>
+        </div>
+        
     </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
@@ -66,12 +73,12 @@
                     <div class="col-sm-12 col-sm-12 col-md-12">
                         <div class="common-btn">
                             <ul class="list-inline text-left">
-                                <li><button ng-click="showProcessPopUp();" ng-disabled="sopDocumentNew.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                <li><button ng-click="entityPopUp();" ng-disabled="ModelNew.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
                             </ul>
                         </div>
                     </div>
                     <div class="col-xs-12">
-                        <div style="color:black;" id="GridSelectedProcess" ej-grid e-datasource="SelectedProcessList"
+                        <div style="color:black;" id="GridSelectedEntity" ej-grid e-datasource="SelectedEntityList"
                              e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                              e-allowselection="false" e-filtersettings-filterType="excel">
                             <div e-columns>
@@ -80,7 +87,6 @@
                                 <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
                                 <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
                                 <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="140"></div>
-                                @*delete*@
                                 <div e-column e-template="#DeleteDocumentProcess" e-width="40"></div>
                             </div>
                         </div>
@@ -101,7 +107,7 @@
                 <div class="row">
                     @*Department body*@
 
-                    <div class="col-sm-12 col-sm-12 col-md-12">
+                    <!--<div class="col-sm-12 col-sm-12 col-md-12">
                         <div class="common-btn">
                             <ul class="list-inline text-left">
                                 <li><button ng-click="showDepartmentPopUp();" ng-disabled="sopDocumentNew.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
@@ -117,9 +123,9 @@
                                 <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="80"></div>
                                 <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
                                 <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
-                                <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="140"></div>
+                                <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="140"></div>-->
                                 @*delete*@
-                                <div e-column e-template="#DeleteDocumentDepartment" e-width="40"></div>
+                                <!--<div e-column e-template="#DeleteDocumentDepartment" e-width="40"></div>
                             </div>
                         </div>
 
@@ -131,14 +137,14 @@
                             </div>
                         </script>
 
-                    </div>
+                    </div>-->
                 </div>
             </div>
 
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
                 <div class="row">
                     @*DocumentSource body*@
-                    <div class="col-sm-12 col-sm-12 col-md-12">
+                    <!--<div class="col-sm-12 col-sm-12 col-md-12">
                         <div class="common-btn">
                             <ul class="list-inline text-left">
                                 <li><button ng-click="showDocumentSourcePopUp();" ng-disabled="sopDocumentNew.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
@@ -154,9 +160,9 @@
                                 <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="80"></div>
                                 <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
                                 <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
-                                <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="140"></div>
+                                <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="140"></div>-->
                                 @*delete*@
-                                <div e-column e-template="#DeleteDocumentDocumentSource" e-width="40"></div>
+                                <!--<div e-column e-template="#DeleteDocumentDocumentSource" e-width="40"></div>
                             </div>
                         </div>
 
@@ -168,14 +174,14 @@
                             </div>
                         </script>
 
-                    </div>
+                    </div>-->
                 </div>
             </div>
 
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
                 <div class="row">
                     @*DocumentPreparedBy body*@
-                    <div class="col-sm-12 col-sm-12 col-md-12">
+                    <!--<div class="col-sm-12 col-sm-12 col-md-12">
                         <div class="common-btn">
                             <ul class="list-inline text-left">
                                 <li><button ng-click="showDocumentPreparedByPopUp();" ng-disabled="sopDocumentNew.Id==null" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
@@ -202,9 +208,9 @@
                                 <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="80"></div>
                                 <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="80"></div>
                                 <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
-                                <div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
+                                <div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>-->
                                 @*delete*@
-                                <div e-column e-template="#DeleteDocumentDocumentPreparedBy" e-width="40"></div>
+                                <!--<div e-column e-template="#DeleteDocumentDocumentPreparedBy" e-width="40"></div>
                             </div>
                         </div>
 
@@ -216,7 +222,7 @@
                             </div>
                         </script>
 
-                    </div>
+                    </div>-->
                 </div>
             </div>
 
@@ -232,7 +238,7 @@
                         </div>
                     </div>
                     <div class="col-xs-12">
-                        <div style="color:black;" id="GridSelectedLocation" ej-grid e-datasource="SelectedLocationList"
+                        <!--<div style="color:black;" id="GridSelectedLocation" ej-grid e-datasource="SelectedLocationList"
                              e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                              e-allowselection="false" e-filtersettings-filterType="excel">
                             <div e-columns>
@@ -240,9 +246,9 @@
                                 <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="80"></div>
                                 <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
                                 <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
-                                <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="140"></div>
+                                <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="140"></div>-->
                                 @*delete*@
-                                <div e-column e-template="#DeleteDocumentLocation" e-width="40"></div>
+                                <!--<div e-column e-template="#DeleteDocumentLocation" e-width="40"></div>
                             </div>
                         </div>
 
@@ -252,7 +258,7 @@
                                     <li><button ng-click="$parent.ConfirmDeleteLocation(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
                                 </ul>
                             </div>
-                        </script>
+                        </script>-->
 
                     </div>
                 </div>
@@ -282,17 +288,14 @@
     </div>
 </div>
 <div class="table-responsive aplos-grid-toggle">
-    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
-            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
-            @*<div e-column e-field="AddedDate" e-format="{0:dd-MMM-yyyy}"  e-type="date" e-headertext="Date Added" e-width="2"></div>*@
-            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
-            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
-            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+            <div e-column e-field="UserCode" e-headertext="User Code" e-width="3"></div>
             <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+            <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="5"></div>
             <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
         </div>
     </div>
@@ -334,6 +337,88 @@
     <script type="text/x-jsrender" id="empimage">
         <img src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;" />
     </script>
+</div>
+
+<div class="modal fade site-modal in" id="entityPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Entity Informations</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="entityParameters.searchBy">
+                                            <option ng-repeat="option in entitySearchList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="entityParameters.search" ng-enter="getEntityData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getEntityData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped" ng-show="entityDataList.length">
+                        <thead>
+                            <tr>
+                                @*<th ng-repeat="x in entitySearchList">{{x.Text}}</th>*@
+                                <th>Select</th>
+                                <th>Code</th>
+                                <th>User Name</th>
+                                <th>Plant</th>
+                                <th>Division</th>
+                                <th>Sub Division</th>
+                                <th>Unit</th>
+                                <th>Effective Date</th>
+                                <th>Is Production Entity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in entityDataList|itemsPerPage:entityParameters.pageSize" total-items="entityParameters.total_count" pagination-id="metaData.name + 'entityDataList'">
+                                @*<td ng-repeat="y in entitySearchList">{{x[y.Value]}}</td>*@
+                                <td class="text-right table-td">
+                                    <div class="checkbox-site">
+                                        <input type="checkbox" ng-model="x.Flag" ng-click="selectChValueId($event,x)">
+                                    </div>
+                                </td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.Plant}}</td>
+                                <td>{{x.Division}}</td>
+                                <td>{{x.SubDivision}}</td>
+                                <td>{{x.Unit}}</td>
+                                <td>{{x.EffectiveDate | dateFiltering}}</td>
+                                <td>{{x.IsProductionEntity?'Yes':'No'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'entityDataList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getEntityData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <ul class="list-inline text-right">
+                    <li><button type="button" class="btn btn-default" ng-click="closeEntityPopUp();">Close</button></li>
+                    <li><button ng-click="selectEntityPopUp();" class="btn">Select</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
 
 <confirm-modal></confirm-modal>
