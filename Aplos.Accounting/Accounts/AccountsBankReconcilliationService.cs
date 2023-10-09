@@ -1,4 +1,5 @@
 ﻿using Library.Core;
+using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
@@ -12,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
+using System.Threading;
 
 namespace Library.Accounting.Accounts
 {
@@ -657,5 +659,104 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        #region Bank Reconciliation Closing
+        public List<Dictionary<string, object>> GetBankReconciliationClosingList(string column, string value, string companyGroupId, string companyId, string plantId)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+            var sql = @"select top 100 * from (SELECT  BRC.*,B.UserName AS BankName, FY.FiscalYearName
+                        FROM [TRN].[BankReconciliationClosing] BRC
+						INNER JOIN [SCS].[FiscalYear] FY ON FY.Id=BRC.FiscalYearId						
+						INNER JOIN [MST].[BankMaster] BM ON BM.Id=BRC.BankMasterId
+						LEFT JOIN [HKP].[Bank] AS B ON B.Id=BM.BankId
+                        WHERE BRC.CompanyGroupId='" + companyGroupId + "' AND BRC.CompanyId='" + companyId + "' AND BRC.PlantId='" + plantId + @"'
+                ) AS TEMP WHERE " + strkey + " order by AddedDate DESC   ";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        public void SaveBankReconciliationClosingData(Dictionary<string, object> data, out string masterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster;
+            string _Id = string.Empty;
+            
+            try
+            {
+                bplib.clsGenID genid = new bplib.clsGenID();
+
+                string sql = "SELECT * FROM [TRN].[BankReconciliationClosing] WHERE Id='" + data["Id"] + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "BankReconciliationClosing", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
+        #endregion
     }
 }

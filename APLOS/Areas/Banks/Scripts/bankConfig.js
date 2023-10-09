@@ -45,6 +45,10 @@ function bankConfig($routeProvider, $locationProvider) {
             templateUrl: "Banks/bankreconciliation/BankReconciliation",
             controller: "bankReconciliationController"
         })
+        .when("/bank-reconciliation-closing", {
+            templateUrl: "Banks/bankreconciliation/BankReconciliationClosing",
+            controller: "bankReconciliationClosingController"
+        })
         .when("/bank-reconciliation-data-upload", {
             templateUrl: "Banks/bankreconciliation/BankReconciliationDataUpload",
             controller: "bankReconciliationDataUploadController"

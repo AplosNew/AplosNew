@@ -46,6 +46,7 @@ upanelApp.controller("bankOpeningBalanceController", bankOpeningBalanceControlle
 upanelApp.controller("bankOpeningBalanceLedgerController", bankOpeningBalanceLedgerController);
 upanelApp.controller("bankReconcileReportController", bankReconcileReportController);
 upanelApp.controller("bankReconciliationController", bankReconciliationController);
+upanelApp.controller("bankReconciliationClosingController", bankReconciliationClosingController);
 upanelApp.controller("bankReconciliationDataUploadController", bankReconciliationDataUploadController);
 upanelApp.controller("bankReconciliationDataUploadReconciledController", bankReconciliationDataUploadReconciledController);
 upanelApp.controller("baseAttributeAndCharacteristicsValueController", baseAttributeAndCharacteristicsValueController);
@@ -1219,6 +1220,7 @@ upanelApp.controller("partyApprovalController", partyApprovalController)
 upanelApp.controller("DefineProcessParameterController", DefineProcessParameterController)
 upanelApp.controller("ParameterSettingControlController", ParameterSettingControlController)
 upanelApp.controller("OrderWiseQualityReportController", OrderWiseQualityReportController)
+upanelApp.controller("GoodWorkSetupController", GoodWorkSetupController)
 
 
 
