@@ -1123,24 +1123,32 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetLeaveBalanceType(out List<Leavesystem> activelists, EmpId, CalId);
             return activelists;
         }
-       /* public IHttpActionResult GetLeaveBalance(string EmpId, string CalId)
-        {
-            try
-            {
-                clsDataContext app = new clsDataContext();
-                var result = app.GetLeaveBalanceType(EmpId, CalId);
-                //var result = _leaveapp.GetLeaveBalanceType(GroupId, PlantId, EmpId, CalId);
-                return Json(result);
-            }
-            catch (Exception ex)
-            {
-                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
-                {
-                    ReasonPhrase = ex.Message
-                };
-                throw new HttpResponseException(resp);
-            }
-        }*/
+        /* public IHttpActionResult GetLeaveBalance(string EmpId, string CalId)
+         {
+             try
+             {
+                 clsDataContext app = new clsDataContext();
+                 var result = app.GetLeaveBalanceType(EmpId, CalId);
+                 //var result = _leaveapp.GetLeaveBalanceType(GroupId, PlantId, EmpId, CalId);
+                 return Json(result);
+             }
+             catch (Exception ex)
+             {
+                 var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                 {
+                     ReasonPhrase = ex.Message
+                 };
+                 throw new HttpResponseException(resp);
+             }
+         }*/
         #endregion Leave
+        #region EmployeeUserId
+        public List<Default2> GetEmployeeUserId(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetEmployeeUserId(out List<Default2> activelists, UserId);
+            return activelists;
+        }
+        #endregion EmployeeUserId
     }
 }
