@@ -409,9 +409,8 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
                     ShowResult(response.data.Message, 'failure');
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.getData();
-                    $scope.SalesDetails();
                     $scope.Clear();
+                    $scope.getData();
                 }
             }), function (response) {
                 ShowResult(response.data.Message, 'failure');
@@ -452,9 +451,11 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
         $scope.productNew = { FixedAssetOrInventory: 'Inventory', PODepended: false, AlongwithInvoice: false, IssueType: 'Revenue', InvoicingPartyPlantId: $scope.productNew.InvoicingPartyPlantId };
         //$scope.productNew.InvoicingPartyPlantId=$scope.productNew.InvoicingPartyPlantId;
         $scope.detailModel = {};
+        $scope.TDS = {};
         $scope.clearCharNames();
         $scope.detailList = [];
         $scope.specificStockList = [];
+        $scope.TDSList = [];
         $scope.IssueType = 'Revenue';
     }
 
@@ -524,7 +525,7 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
             return item.Id === $scope.TDS.TaxCodeId;
         })[0].TaxCategoryId;
         if ($scope.TDS.Type == 'FixedPercentage' && !baseService.isUndefinedOrNull($scope.TDS.ValueOfFixed)) {
-            $scope.TDS.TaxAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryReceivedList), "TaxableAmount") * $scope.TDS.ValueOfFixed / 100).toFixed(4);
+            $scope.TDS.TaxAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.detailList), "ReturnAmount") * $scope.TDS.ValueOfFixed / 100).toFixed(4);
         }
     }
     $scope.TDSList = [];

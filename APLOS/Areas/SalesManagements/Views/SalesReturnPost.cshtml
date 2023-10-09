@@ -145,7 +145,6 @@
         <div class="form-group" id="div_docNo">
             <label class="col-sm-4 control-label">Customer Doc. RefNo</label>
             <div class="col-sm-8">
-
                 <label style="padding:7px">{{productNew.DocRefNo}}</label>
             </div>
 
@@ -435,22 +434,19 @@
                 <div e-column e-field="Id" e-headertext="Sales Return No" e-width="20"></div>
                 <div e-column e-field="SalesId" e-headertext="Sales No" e-width="30"></div>
                 <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="40"></div>
-                <div e-column e-field="PostingDate" e-headertext="PostingDate" e-width="20"></div>
-                <div e-column e-field="PartyName" e-headertext="PartyName" e-width="20"></div>
+                <div e-column e-field="PostingDate" e-headertext="PostingDate" e-width="30"></div>
+                <div e-column e-field="PartyName" e-headertext="PartyName" e-width="100"></div>
                 <div e-column e-field="Qty" e-headertext="Qty" e-width="30"></div>
                 <div e-column e-field="TDSVoucherNo" e-headertext="TDSVoucherNo" e-width="30"></div>
                 <div e-column e-field="IsTDSTaxPost" e-headertext="TDSStatus" e-width="30"></div>
-                <div e-column e-headertext="Report" e-template="#ReportTemplate" e-width="100"></div>
+                <div e-column e-headertext="Report" e-template="#ReportTemplate" e-width="100" ></div>
 
             </div>
         </div>
         <script id="ReportTemplate" type="text/template">
             <div class="common-btn">
-                <ul class="common-btn list-inline text-center">
+                <ul class="common-btn list-inline text-left">
                     <li>
-                        <button ng-show="data.AdditionalTaxId" ng-click="$parent.onClickadditionalTaxPop(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="TDS">
-                            TDS
-                        </button>
                         <button ng-click="$parent.onClickReportDownloadWord(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
                             <i class="fa fa-file-pdf-o"></i>
                         </button>
@@ -459,6 +455,9 @@
                         </button>
                         <button ng-click="$parent.LocalTaxInvoiceReport(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Sales Return">
                             <i class="glyphicon glyphicon-file" style="color:orangered;"></i>
+                        </button>
+                        <button ng-show="data.AdditionalTaxId" ng-click="$parent.onClickadditionalTaxPop(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="TDS">
+                            TDS
                         </button>
                     </li>
                 </ul>

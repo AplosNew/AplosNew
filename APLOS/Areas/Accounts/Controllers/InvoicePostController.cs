@@ -129,7 +129,7 @@ namespace Aplos.Areas.Accounts.Controllers
             voucherVM.PlantId = identity.PlantId;
             voucherVM.SourceType = SourceType.VendorPayment.ToString();
             voucherVM.PaymentSource = PaymentSource.Tax.ToString();
-            voucherVM.PartyType = "Vendor";
+            voucherVM.PartyType = "Customer";
             _inventoryPayableService.InsertCreditNoteAdditionalTaxPost(voucherVM, additionalTaxId);
             return Json(new { Message = AplosMessage.Insert });
         }
