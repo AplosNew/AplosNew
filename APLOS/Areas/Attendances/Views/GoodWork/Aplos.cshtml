@@ -49,14 +49,14 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Purpose<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                    <input type="text" name="Purpose" ng-model="ModelNew.Purpose" class="form-control" maxlength="15" required tabindex="3">
+                <input type="text" name="Purpose" ng-model="ModelNew.Purpose" class="form-control" maxlength="15" required tabindex="9">
             </div>
         </div>
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">From Time<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="input-group bootstrap-timepicker timepicker">
-                    <input id="FromTime" type="text" class="form-control" ng-model="ModelNew.FromTime" ng-change="getMinute();" e-width="100" tabindex="9">
+                    <input id="FromTime" type="text" class="form-control" ng-model="ModelNew.FromTime" ng-change="getMinute();" e-width="100" tabindex="11">
                     <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
                 </div>
             </div>
@@ -67,9 +67,15 @@
             <label class="col-sm-4 control-label">To Time<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="input-group bootstrap-timepicker timepicker">
-                    <input id="ToTime" type="text" class="form-control" ng-model="ModelNew.ToTime" ng-change="getMinute();" e-width="100" tabindex="11">
+                    <input id="ToTime" type="text" class="form-control" ng-model="ModelNew.ToTime" ng-change="getMinute();" e-width="100" tabindex="13">
                     <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
                 </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8 show-message">
+                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="15"></textarea>
             </div>
         </div>
     </div>
@@ -123,7 +129,7 @@
             <label class="col-sm-4 control-label">Purpose Category<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select id="PC" class="form-control" ng-model="ModelNew.PurposeCategory" name="Designation" tabindex="7">
+                    <select id="PC" class="form-control" ng-model="ModelNew.PurposeCategory" name="PurposeCategory" tabindex="10">
                         <option value="">--Select--</option>
                         <option value="BreakDown">BreakDown</option>
                         <option value="Additional">Additional</option>
@@ -136,14 +142,14 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Calculated Minute<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="number" class="form-control" name="Minute" ng-model="ModelNew.Minute" e-width="100" disabled tabindex="10" />
+                <input type="number" class="form-control" name="Minute" ng-model="ModelNew.Minute" e-width="100" disabled tabindex="12" />
             </div>
         </div>
 
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Remarks</label>
+            <label class="col-sm-4 control-label">Reason</label>
             <div class="col-sm-8 show-message">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="12"></textarea>
+                <textarea class="form-control" rows="3" ng-model="ModelNew.Reason" maxlength="250" tabindex="14"></textarea>
             </div>
         </div>
     </div>
