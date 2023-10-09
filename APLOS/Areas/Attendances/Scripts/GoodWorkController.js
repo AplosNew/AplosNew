@@ -37,6 +37,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         FromTime: null,
         ToTime: null,
         Minute: null,
+        Reason: null,
         Remarks: null,
         UserGroupId: null,
         UserGroup: null

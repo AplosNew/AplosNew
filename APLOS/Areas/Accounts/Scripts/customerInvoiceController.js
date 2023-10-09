@@ -1399,4 +1399,22 @@ function customerInvoiceController(cboService, commonMessage, $scope, $rootScope
     $scope.OtherInvoiceVouchereReport = function (reportFormat, voucherId) {
         $window.open('Accounts/Invoice/CustomerInvoiceReceiptReport?reportFormat=' + reportFormat + '&voucherId=' + voucherId, '_blank');
     }
+
+    $scope.invoiceSetOffDetailList = [];
+    $scope.getInvoiceSetOffDetailByInvoice = function (id) {
+        $scope.invoiceSetOffDetailList = [];
+        $http({
+            method: "get",
+            url: "accounts/invoice/getInvoiceSetOffDetailByInvoice?invoiceId=" + id
+        }).then(function successCallback(response) {
+            $scope.invoiceSetOffDetailList = response.data;
+
+            angular.element(document.querySelector('#invoiceetOffByInvoicePopUp')).modal('show');
+
+        });
+    };
+    $scope.closeInvoiceSetOffDetailByInvoice = function () {
+        angular.element(document.querySelector('#invoiceetOffByInvoicePopUp')).modal('hide');
+
+    }
 }
