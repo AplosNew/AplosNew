@@ -938,7 +938,7 @@ and  PositionID in (select PositionCodeId from MST.QualityIssueDetails where Id=
                                 LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
                                 WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName in ('Running','To Close') AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + ProductionOrderId + "'";
 
-             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
@@ -1744,7 +1744,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         public ActionResult UpdateQIC(List<Dictionary<string, object>> DataList, string PId)
         {
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsProdBooked, dsChildId;
+            DataSet dsProdBooked, dsChildId, dsGradeApplicable;
             string TableName = "[TRN].[QualityControlDetails]";
             string contId = string.Empty;
             string _Id, Id = string.Empty;
@@ -1760,20 +1760,31 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                     foreach (var item in DataList)
                     {
                         objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and QCId='" + PId + "'", out dsProdBooked, false, "1");
-                       
+                        objCon.OpenDataSetThroughAdapter("select ActionApplicable from [MST].[QualityGradeDetails] where Id='" + item["GradeId"] + "'", out dsGradeApplicable, false, "1");
+
                         DataView dv = new DataView(dsProdBooked.Tables[0]);
-                        
-                        if (dv.Count == 0)
+                        if (clsStaticInfo.GetBoolData(dsGradeApplicable.Tables[0].Rows[0]["ActionApplicable"].ToString()) == true && item["ActionToBeTaken"] == null)
                         {
-                            //bplib.clsGenID genid = new bplib.clsGenID();
-                            item["Id"] = PId + "-" + QCDId++;
-                            item["QCID"] = PId;
-                            AddNewRow(dsProdBooked.Tables[0], item);
+                            throw new Exception("Please enter ActionToBeTaken and proceed.");
+                        }
+                        else if (clsStaticInfo.GetBoolData(dsGradeApplicable.Tables[0].Rows[0]["ActionApplicable"].ToString()) == true && item["ResponsiblePerson"] == null)
+                        {
+                            throw new Exception("Please enter Responsible Person and proceed.");
                         }
                         else
                         {
-                            DataRow drpb = dv[0].Row;
-                            EditRow(drpb, item);
+                            if (dv.Count == 0)
+                            {
+                                //bplib.clsGenID genid = new bplib.clsGenID();
+                                item["Id"] = PId + "-" + QCDId++;
+                                item["QCID"] = PId;
+                                AddNewRow(dsProdBooked.Tables[0], item);
+                            }
+                            else
+                            {
+                                DataRow drpb = dv[0].Row;
+                                EditRow(drpb, item);
+                            }
                         }
                         clsStaticInfo obj = new clsStaticInfo();
                         obj.SaveDataSets(dsProdBooked);
@@ -1853,7 +1864,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 int QCDId = Convert.ToInt32(dsChildId.Tables[0].Rows[0]["QCDId"].ToString());
                 if (DataList != null)
                 {
-                   
+
                     foreach (var item in DataList)
                     {
                         DataView dv = new DataView(dsProdBooked.Tables[0]);
@@ -1904,9 +1915,10 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                DataSet dsQualityControlDetailsData, dsChildId;
+                DataSet dsQualityControlDetailsData, dsChildId, dsGradeApplicable;
 
                 conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select ActionApplicable from [MST].[QualityGradeDetails] where Id='" + QualityControlDetailsData["GradeId"] + "'", out dsGradeApplicable, false, "1");
                 conRack.OpenDataSetThroughAdapter("select * from [TRN].[QualityControlDetails] where Id='" + QualityControlDetailsData["Id"] + "'", out dsQualityControlDetailsData, false, "1");
                 conRack.OpenDataSetThroughAdapter("select count(Id) + 1 as QCDId from TRN.QualityControlDetails where QCId='" + QualityControlDetailsData["QCId"] + "'", out dsChildId, false, "1");
                 string _Id = "", Id = string.Empty;
@@ -1914,12 +1926,22 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 #region data update
                 if (dsQualityControlDetailsData.Tables[0].Rows.Count == 0)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    //genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[TRN].[QualityControlDetails]", out _Id);
-                    QualityControlDetailsData["Id"] = QualityControlDetailsData["QCId"] + "-" + dsChildId.Tables[0].Rows[0]["QCDId"].ToString();
-                    QualityControlDetailsData["PlantId"] = identity.PlantId;
-                    AddNewRow(dsQualityControlDetailsData.Tables[0], QualityControlDetailsData);
-
+                    if (clsStaticInfo.GetBoolData(dsGradeApplicable.Tables[0].Rows[0]["ActionApplicable"].ToString()) == true && QualityControlDetailsData["ActionToBeTaken"] == null)
+                    {
+                        throw new Exception("Please enter ActionToBeTaken and proceed.");
+                    }
+                    else if (clsStaticInfo.GetBoolData(dsGradeApplicable.Tables[0].Rows[0]["ActionApplicable"].ToString()) == true && QualityControlDetailsData["ResponsiblePerson"] == null)
+                    {
+                        throw new Exception("Please enter Responsible Person and proceed.");
+                    }
+                    else
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        //genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[TRN].[QualityControlDetails]", out _Id);
+                        QualityControlDetailsData["Id"] = QualityControlDetailsData["QCId"] + "-" + dsChildId.Tables[0].Rows[0]["QCDId"].ToString();
+                        QualityControlDetailsData["PlantId"] = identity.PlantId;
+                        AddNewRow(dsQualityControlDetailsData.Tables[0], QualityControlDetailsData);
+                    }
                 }
                 else
                 {

@@ -101,7 +101,8 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
         PartyCategoryId: null,
         PartySubCategoryId: null,
         Latitude: null,
-        Longitude:null
+        Longitude:null,
+        PartyNature:null
     };
 
     $scope.contactMaster = {

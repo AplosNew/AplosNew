@@ -58,6 +58,10 @@ namespace Aplos.Areas.Banks.Controllers
         {
             return View("~/Areas/Banks/Views/BankReconciliationDataUploadReconciled.cshtml");
         }
+        public ActionResult BankReconciliationClosing()
+        {
+            return View("~/Areas/Banks/Views/BankReconciliationClosing.cshtml");
+        }
 
         #endregion Aplos
 
@@ -503,5 +507,31 @@ namespace Aplos.Areas.Banks.Controllers
 
         }
         #endregion Operation
+
+        #region Bank Reconciliation Closing
+        [Authorize, HttpPost]
+        public ActionResult GetBankReconciliationClosingList(string column, string value)
+        {
+            AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            return Json(accountsBankReconcilliationService.GetBankReconciliationClosingList(column, value, identity.CompanyGroupId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public JsonResult SaveBankReconciliationClosing(Dictionary<string, object> data)
+        {
+            try
+            {
+                AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+                accountsBankReconcilliationService.SaveBankReconciliationClosingData(data, out string masterId);
+                return Json(new { Id = masterId, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+
+        }
+        #endregion
     }
 }

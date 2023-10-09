@@ -79,7 +79,7 @@ namespace Aplos.Areas.Attendances.Controllers
             }
             if (userGroup != "null")
             {
-                userGr = "and isnull(PR.GoodWorkPositionCodeId,'') in ('" + userGroup + @"')";
+                userGr = "and isnull(PR.UserReportGroup,'') in ('" + userGroup + @"')";
             }
             try
             {
@@ -331,7 +331,7 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             try
             {
-                string strSQL = @"select distinct UserReportGroup, Id from org.position";
+                string strSQL = @"select distinct UserReportGroup from org.position";
                 return Json(_sqlRepository.GetDataCollection(strSQL), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
