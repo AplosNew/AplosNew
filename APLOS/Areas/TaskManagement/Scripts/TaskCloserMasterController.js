@@ -48,6 +48,64 @@ function TaskCloserMasterController($window, $timeout, cboService, commonMessage
     }
     //$scope.GetOpenTask();
 
+    // #region checkbox all task
+
+    $scope.refreshtaskTemplate = function (args) {
+        $("#headchktask").ejCheckBox({ "change": CheckBoxSelectAllTaskWise });
+    };
+
+    function CheckBoxSelectAllTaskWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#Grid").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.OpenTaskList.length; i++) {
+                $scope.OpenTaskList[i].isSelected = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#Grid").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
+
+    // #region checkbox all issue
+
+    $scope.refreshissueTemplate = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllIssueWise });
+    };
+
+    function CheckBoxSelectAllIssueWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#gridIssue").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.OpenTaskList.length; i++) {
+                $scope.OpenTaskList[i].isSelected = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#gridIssue").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
+
     $scope.CloseOpenTask = function () {
         $scope.CheckedOpenTaskList = [];
         $scope.CheckedOpenIssueList = [];
