@@ -37,6 +37,8 @@ using Library.Service.Helpers;
 using System.Drawing;
 using Syncfusion.Pdf;
 using Syncfusion.ExcelToPdfConverter;
+using Library.Model.Accounts;
+using Library.Service.Systems;
 //using OTSBD;
 
 namespace Aplos.Areas.SalesManagements.Controllers
@@ -736,12 +738,12 @@ namespace Aplos.Areas.SalesManagements.Controllers
             return View("~/Areas/SalesManagements/Views/SalesReturnPost.cshtml");
         }
 
-        [Authorize, HttpGet]
-        public JsonResult GetSalesReturnPostedList()
+        [Authorize, HttpPost]
+        public JsonResult GetSalesReturnPostedList(string column, string value)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
-            return Json(accountsSalesService.GetSalesReturnPostedData(identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(accountsSalesService.GetSalesReturnPostedData(column, value,identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
@@ -757,6 +759,14 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
             return Json(accountsSalesService.GetSalesReturnDetailBySalesReturn(salesReturnId), JsonRequestBehavior.AllowGet);
+
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult GetCreditNoteAdditionalTaxDetail(string additionalTaxId)
+        {
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+            return Json(accountsSalesService.GetCreditNoteAdditionalTaxDetail(additionalTaxId), JsonRequestBehavior.AllowGet);
 
         }
 
@@ -784,7 +794,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [HttpPost]
-        public JsonResult InsertSalesReturnCreditNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, List<Dictionary<string, object>> salesReturnDetailList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList)
+        public JsonResult InsertSalesReturnCreditNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, List<Dictionary<string, object>> salesReturnDetailList , IEnumerable<InvoiceTaxViewModel> tdsTaxList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -809,27 +819,29 @@ namespace Aplos.Areas.SalesManagements.Controllers
             else
                 throw new CustomException("No Journal");
             voucherVM.SourceType = SourceType.CreditNote.ToString();
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, PostSalesReturn(voucherVM, voucherDetailVMList, salesReturnDetailList, invoiceTaxVMList)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, PostSalesReturn(voucherVM, voucherDetailVMList, salesReturnDetailList, tdsTaxList)) });
         }
-        public string PostSalesReturn(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, List<Dictionary<string, object>> salesReturnDetailList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList)
+        public string PostSalesReturn(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, List<Dictionary<string, object>> salesReturnDetailList, IEnumerable<InvoiceTaxViewModel> additionalTaxList)
         {
             try
             {
                 var flag = false;
                 AccountsCommonService _accountsCommonService = new AccountsCommonService(_sqlRepository);
+                AccountCommonExtensionService _accountsCommonExtensionService = new AccountCommonExtensionService();
+
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
                 DataSet _ajNDetailData = null;
                 DataSet _invTaxDetailData = null;
-                DataSet _invTaxDetailCrData = null;
+                DataSet _invTaxDetailCrData = null; DataSet _adTaxDetailCrData = null;
                 DataSet _drvDetailData = null;
                 DataSet _drvDetailCurrencyData = null;
                 DataSet _crvDetailData = null;
                 DataSet _crvDetailCurrencyData = null;
                 DataSet _salesReturnData = null;
                 DataSet _iTaxDrdataset = null;
-                DataSet _iTaxCrdataset = null;
+                DataSet _iTaxCrdataset = null; DataSet _aTaxCrdataset = null;
                 DataSet dsitemscanChild;
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 //_unitOfWork.BeginTransaction();
@@ -882,7 +894,8 @@ namespace Aplos.Areas.SalesManagements.Controllers
                     NoteType = voucherVM.NoteType,
                     InvoiceId = voucherVM.InvoiceId,
                     Archive = false,
-                    SettlementType = voucherVM.SettlementType
+                    SettlementType = voucherVM.SettlementType,
+                    SalesReturnId= voucherVM.SalesReturnId
                 };
                 if (adjustmentNote.SourceType == SourceType.CreditNote.ToString())
                 {
@@ -1145,12 +1158,64 @@ namespace Aplos.Areas.SalesManagements.Controllers
                         _accountsCommonService.InsertInvoiceTaxDetail(invoiceTax, invoiceTaxDetail, ref _invTaxDetailCrData);
                     }
                 }
+                if (null != additionalTaxList && additionalTaxList.Count() > 0)
+                {
+                    var tdsTax = new AdditionalTax
+                    {
+
+                        TaxYearId = voucher.TaxYearId,
+                        TaxYearPeriodId = voucher.TaxYearPeriodId,
+                        TaxAmount = additionalTaxList.Sum(r => r.TaxAmount),
+                        TaxAutoAmount = additionalTaxList.Sum(r => r.TaxAutoAmount),
+                        AdjustmentNoteId= adjustmentNote.Id,
+                        PartyId = voucherVM.PlantId,
+                        PartyPlantId = voucherVM.PartyPlantId,
+                        //InvoiceId = invoice.Id,
+                        AddedBy = voucher.AddedBy,
+                        AddedDate = voucher.AddedDate,
+                        AddedFromIP = voucher.AddedFromIP
+                    };
+                    _accountsCommonService.InsertAddtionalTax(adjustmentNote, tdsTax, ref _aTaxCrdataset);
+
+                    int addtionalTaxDetailId = 0;
+                    foreach (var tdsTaxVM in additionalTaxList)
+                    {
+
+                        if (null == tdsTaxVM.TaxCodeId)
+                            throw new CustomException("Tax code not found!");
+
+                        var taxCodeGL = _accountsCommonExtensionService.GetTaxCodeGL(tdsTaxVM.TaxCodeId);
+
+
+                        addtionalTaxDetailId++;
+                        var tdsTaxDetail = new AdditionalTaxDetail
+                        {
+                            GLGeneralInfoId = taxCodeGL["WithholdCreditableGLId"].ToString(),
+                            BudgetMasterId = taxCodeGL["WithholdCreditableBudgetMasterId"].ToString(),
+                            ActivityId = taxCodeGL["WithholdCreditableActivityId"].ToString(),
+                            Amount = tdsTaxVM.TaxAmount,
+                            AdditionalTaxId = tdsTax.Id,
+                            TaxCodeId = tdsTaxVM.TaxCodeId,
+                            TaxCategoryId = tdsTaxVM.TaxCategoryId,
+                            AType = "Cr",
+                            Id = _accountsCommonService.MakePK(tdsTax.Id, addtionalTaxDetailId, 3),
+                            AddedBy = voucher.AddedBy,
+                            AddedDate = voucher.AddedDate,
+                            AddedFromIP = voucher.AddedFromIP
+                        };
+                        _accountsCommonService.InsertAddtionalTaxDetail(tdsTax, tdsTaxDetail, ref _adTaxDetailCrData);
+
+
+                    }
+                }
+
+
 
 
                 if (totalAmountDr != totalAmountCr)
                     throw new CustomException("Dr and Cr amount is not equal.");
                 clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_vdataset, _ANdataset, _ajNDetailData, _crvDetailData, _crvDetailCurrencyData, _iTaxDrdataset, _invTaxDetailData, _drvDetailData, _drvDetailCurrencyData, _iTaxCrdataset, _invTaxDetailCrData, _salesReturnData, dsitemscanChild);
+                objApp.SaveDataSets(_vdataset, _ANdataset, _ajNDetailData, _crvDetailData, _crvDetailCurrencyData, _iTaxDrdataset, _invTaxDetailData, _drvDetailData, _drvDetailCurrencyData, _iTaxCrdataset, _invTaxDetailCrData, _salesReturnData, dsitemscanChild,_aTaxCrdataset,_adTaxDetailCrData);
                 return voucher.VoucherNo;
             }
             catch (CustomException)
