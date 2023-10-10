@@ -623,12 +623,13 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
             return true;
         }
     };
-
+    $scope.saveBtnDisable = false;
     $scope.PostAddition = function () {
         $scope.validation();
         if ($scope.formAddition.$valid && !$scope.validation()) {
             $scope.SaveUrl = "fixedassets/FixedAssetRegister/CreatetCapitalizeAssetRegisterPostAddition"
             if ($scope.Action === "Save") {
+                $scope.saveBtnDisable = true;
                 $http({
                     method: "POST",
                     url: $scope.SaveUrl,
@@ -642,15 +643,18 @@ function CapitalizeAssetRegisterPostingController(addressService, commonMessage,
                     , contentType: "application/json charset=utf-8"
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
+                        $scope.saveBtnDisable = false;
                         ShowResult(response.data.Message, "failure");
                     }
                     else {
                         ShowResult(response.data.Message, "success");
                         $scope.getDataAddition();
                         $scope.ClearAddition();
+                        $scope.saveBtnDisable = false;
                     }
                 }, function errorCallback(response) {
                     ShowResult(response.status.Message, "failure");
+                    $scope.saveBtnDisable = false;
                 });
                 return true;
             }
