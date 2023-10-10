@@ -809,10 +809,12 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 /*CheckField("Production Grade", $scope.productionSummaryNew.ProductionGrade);*/
                 //CheckField("Quantity", $scope.productionSummaryNew.Quantity);
             }
-            
-            var getRow = $filter("filter")($scope.MasterOrderItemValidateList, { "MasterOrderItemId": $scope.NewObject.MasterOrderItemId });
-            if (getRow.length === 0) {
-                throw "MO Item not belongs to the selected PO please refresh and proceed.";
+
+            if ($scope.productionSummaryNew.ProductionBookingLevel === "MasterOrderItem") {
+                var getRow = $filter("filter")($scope.MasterOrderItemValidateList, { "MasterOrderItemId": $scope.NewObject.MasterOrderItemId });
+                if (getRow.length === 0) {
+                    throw "MO Item not belongs to the selected PO please refresh and proceed.";
+                }
             }
             //else if ($scope.productionSummaryNew.ProductionBookingLevel === "SalesOrder") {
             //    CheckField("Sales Order", $scope.productionSummaryNew.SalesOrderId);
