@@ -10,10 +10,8 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
     $scope.saveUrlComments = $scope.path + 'createComments';
-    //$scope.saveUrlUCPDValue = $scope.path + 'createUCPRequirement';
-    //$scope.ParameterStatusLists = [];
-    //var date = new Date(), y = date.getFullYear(), m = date.getMonth();
-    //date.setDate(date.getDate() - 3);
+    var todate = new Date(), y = todate.getFullYear(), m = todate.getMonth();
+    todate.setDate(todate.getDate() - 7);
 
     $scope.OrderWiseQualityReportList = [];
     $scope.View = function () {
@@ -224,8 +222,8 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
 
     $scope.status = {
         Id: null,
-        FromDate: null,
-        ToDate: null
+        FromDate: $filter('dateFiltering')(todate, 'dd-MM-yyyy'), 
+        ToDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
     };
     $scope.statusNew = Object.assign({}, $scope.status);
 
