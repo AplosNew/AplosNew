@@ -295,7 +295,7 @@
             <div class="col-sm-9 show-message">
                 <div class="input-group">
                     <div class="select-style">
-                        <select class="form-control" name="Other Bill To" ng-model="otherVoucher.PartyPlantId" ng-options="item.Value as item.Text for item in otherPartyPlantList| filter:{ PartyId: x.PartyId }" ng-change="billShippAddress(otherVoucher.PartyPlantId,'billTo')" >
+                        <select class="form-control" name="Other Bill To" ng-model="otherVoucher.PartyPlantId" ng-options="item.Value as item.Text for item in otherPartyPlantList| filter:{ PartyId: x.PartyId }" ng-change="billShippAddress(otherVoucher.PartyPlantId,'billTo')">
                             <option value=""></option>
                         </select>
                     </div>
@@ -368,7 +368,10 @@
                     <td>{{x.PostingDate | dateFiltering}}</td>
                     <td>{{x.CurrencyCode}}</td>
                     <td class="text-right">{{x.Amount | number:2}}</td>
-                    <td class="text-right">{{x.WrittenOffAmount | number:2}}</td>
+
+                    @*<td class="text-right">{{x.WrittenOffAmount | number:2}}</td>*@
+                    <td class="text-right"><ul class="list-inline action-list"><li><a ng-click="getInvoiceSetOffDetailByInvoice(x.Id)" href="">{{x.WrittenOffAmount | number:3}}</a></li></ul></td>
+
                     <td class="text-right">{{x.Amount-x.WrittenOffAmount | number:2}}</td>
                     <td>{{x.Status}}</td>
                     <td class="text-right">
@@ -392,6 +395,7 @@
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
 @Html.Partial("~/Areas/Parties/Views/Party/_PartyOtherPopUpNew.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLMappingPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_InvoiceSetOffDetailByInvoicePopUp.cshtml")
 
 <div class="modal fade site-modal in" id="JournalPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">

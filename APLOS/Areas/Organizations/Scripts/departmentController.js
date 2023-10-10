@@ -32,6 +32,9 @@ function DepartmentController(cboService, commonMessage, $scope, $rootScope, bas
         AddedDate: new Date(),
         AddedFromIP: null,
         UpdatedDate: null,
+        DepartmentHeadCode: null,
+        DepartmentHead: null,
+        DepartmentHeadId:null
     };
     $scope.departmentNew = angular.copy($scope.department);
 
@@ -66,6 +69,44 @@ function DepartmentController(cboService, commonMessage, $scope, $rootScope, bas
             $rootScope.toggle();
         }
     };
+
+    $scope.popUpDataList = [];
+    $scope.showEmployeeListPopUp = function () {
+        try {
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'OrderManagements/SalesOrderApproval/GetAllActiveEmpData'
+
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+            });
+
+            angular.element(document.querySelector('#popUp')).modal('show');
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.SelectEmployee = function (arg) {
+        $scope.departmentNew.DepartmentHeadId = arg.data.SystemId;
+        $scope.departmentNew.DepartmentHead = arg.data.EmployeeName;
+        $scope.departmentNew.DepartmentHeadCode = arg.data.EmployeeCode;
+        $scope.closePopUp();
+    }
+
+
+    $scope.clearEmp = function () {
+        $scope.departmentNew.DepartmentHeadId = null;
+        $scope.departmentNew.DepartmentHead = null;
+        $scope.departmentNew.DepartmentHeadCode = null;
+    }
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#popUp')).modal('hide');
+    }
+
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');

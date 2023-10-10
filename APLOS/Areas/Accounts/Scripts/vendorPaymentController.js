@@ -1785,36 +1785,53 @@ function vendorPaymentController(bankService, accountService, cboService, common
     $scope.employeeAdvanceSearch = [];
     $scope.employeeAdvanceUrl = 'accounts/Advance/GetEmployeeAvilabeAdvanceList';
     $scope.employeeAdvanceSelectedIndex = -1;
-    $scope.employeeAdvanceParameters = {
-        limit: 10,
-        offset: 0,
-        order: 'ASC',
-        sort: 'VoucherNo',
-        searchBy: 'VoucherNo',
-        pageSize: 10,
-        total_count: 0,
-        search: null,
-        serverPagination: true
-    };
+    //$scope.employeeAdvanceParameters = {
+    //    limit: 10,
+    //    offset: 0,
+    //    order: 'ASC',
+    //    sort: 'VoucherNo',
+    //    searchBy: 'VoucherNo',
+    //    pageSize: 10,
+    //    total_count: 0,
+    //    search: null,
+    //    serverPagination: true
+    //};
 
-    $scope.showEmployeeAdvancePopUpList = function (employeeId) {
+    //$scope.showEmployeeAdvancePopUpList = function (employeeId) {
+    //    $scope.compareCurrencyId = $scope.advance.CurrencyId;
+    //    $scope.getEmployeeAdvanceData = function (pageno) {
+    //        baseService.paginationBase($scope.employeeAdvanceUrl, pageno, $scope.employeeAdvanceParameters)
+    //            .then(function (response) {
+    //                $scope.employeeAdvanceDataList = response.Rows;
+    //                $scope.employeeAdvanceParameters.total_count = response.Total;
+    //            }, function () {
+    //                ShowResult(commonMessage.NetworkError, 'failure');
+    //            }).finally(function () {
+    //            });
+    //    };
+    //    angular.element(document.querySelector('#employeeAdvancePopUp')).modal('show');
+    //    $scope.getEmployeeAdvanceData();
+    //};
+
+    $scope.employeeAdvanceDataList = [];
+    $scope.employeeAdvanceSearch = [];
+    $scope.searchByEmployeeAdvance = "EmployeeName"; $scope.searchAdvance = "";
+    $scope.showEmployeeAdvancePopUpList = function () {
         $scope.compareCurrencyId = $scope.advance.CurrencyId;
-        $scope.getEmployeeAdvanceData = function (pageno) {
-            baseService.paginationBase($scope.employeeAdvanceUrl, pageno, $scope.employeeAdvanceParameters)
-                .then(function (response) {
-                    $scope.employeeAdvanceDataList = response.Rows;
-                    $scope.employeeAdvanceParameters.total_count = response.Total;
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, 'failure');
-                }).finally(function () {
-                });
-        };
+        $http({
+            method: 'POST',
+            url: 'accounts/Advance/GetEmployeeAvilabeAllAdvanceList',
+            data: { column: $scope.searchByEmployeeAdvance, value: $scope.searchAdvance },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.employeeAdvanceDataList = response.data;
+        });
         angular.element(document.querySelector('#employeeAdvancePopUp')).modal('show');
-        $scope.getEmployeeAdvanceData();
     };
 
     $scope.advanceList = [];
-    $scope.closeEmployeeSalaryAdvancePopUp = function (data) {
+    $scope.closeEmployeeAdvancePopUp = function (obj) {
+        var data = obj.data;
         $scope.advanceList = [];
         $scope.advance.EmployeeId = data.EmployeeId;
         $scope.advance.EmployeeName = data.EmployeeName;

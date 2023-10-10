@@ -60,5 +60,6 @@ namespace Library.Service.Invoices
         void DeleteTDSServicePayable(string additionalTaxId,string voucherId);
         void DeleteIssueJournal(string issueId, string voucherId);
         void DeleteIssueReturnJournal(string issueId, string voucherId);
+        string InsertCreditNoteAdditionalTaxPost(VoucherViewModel voucherVM, string additionalTaxId);
     }
 }
