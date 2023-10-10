@@ -253,6 +253,7 @@ namespace Library.Service.OrderManagements
                                     , A.OrderType, A.PartyId, P.Code CustomerCode, P.UserName AS CustomerName, A.BuyerId,B.UserName Buyer
                                     , A.BuyerBrandId, A.BuyerDivisionId, A.TestingStandardId, A.MasterOrderNo, A.OrderStatusId	
                                     , A.OrderCategoryId,OC.UserName AS OrderCategory, A.SeasonId, A.OrderYear, A.CurrencyId, A.TotalQty	
+									,MS.TotalAmount
                                     , A.NoOfLineItem, A.ResponsiblePersonId, EI.EmployeeName AS ResponsiblePersonName
                                     , A.InvoicingPartyPlantId, InvPP.UserName AS InvoicingPartyPlant, A.InvoicingByAddress
 		                            , A.DeliveryPartyPlantId, DeliPP.UserName AS DeliveryPartyPlant, A.DeliveryByAddress
@@ -292,6 +293,10 @@ namespace Library.Service.OrderManagements
                             LEFT JOIN hkp.OrderCategory AS oc ON oc.Id=a.OrderCategoryId
                             LEFT JOIN HKP.Buyer B ON B.Id=A.BuyerId
                             LEFT JOIN ORG.Entity EN ON EN.Id=A.EntityId
+							LEFT JOIN(select moi.MasterOrderId,TotalAmount=AVG(so.Rate )*SUM(SO.Qty) 
+									from TRN.MasterOrderItem moi
+									LEFT JOIN TRN.SalesOrder so on so.MasterOrderItemId=moi.Id
+									Group By moi.MasterOrderId) MS ON MS.MasterOrderId=A.Id
                             WHERE A.CompanyId='" + companyId + "') AS TEMP WHERE " + strkey + " ORDER BY AddedDate Desc";
 
             return _sqlRepository.GetDataCollection(sql, null);
