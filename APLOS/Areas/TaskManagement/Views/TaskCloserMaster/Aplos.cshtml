@@ -60,13 +60,13 @@
             </ul>
         </div>
         <div id="taskgrid" class="table-responsive" style="border:1px solid white">
-            <div id="Grid" ej-grid e-datasource="OpenTaskList" e-load="loadGridEdit"
+            <div id="Grid" ej-grid e-datasource="OpenTaskList" e-load="loadGridEdit" e-templaterefresh="refreshtaskTemplate"
                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                 <div e-columns>
                     <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-                    <div e-column e-headertext="Close Task" e-template="#checkboxUnallocationTemplate" e-textalign="center" e-width="100"></div>
-
+                    @*<div e-column e-headertext="Close Task" e-template="#checkboxUnallocationTemplate" e-textalign="center" e-width="100"></div>*@
+                    <div e-column e-headertext="" e-headertemplateid="#headertaskTemplate" e-template="#checkboxUnallocationTemplate" e-textalign="center" e-width="30"></div>
                     <div e-column e-field="Task" e-headertext="Task" e-width="250"></div>
                     <div e-column e-field="TaskType" e-headertext="Task Type" e-width="100"></div>
                     <div e-column e-field="AssignedDate" e-headertext="AssignedDate" e-width="200"></div>
@@ -86,7 +86,9 @@
             <script type="text/template" id="checkboxUnallocationTemplate">
                 <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" ng-model="data.Active" />
             </script>
-
+            <script type="text/x-jsrender" id="headertaskTemplate">
+                <input type="checkbox" id="headchktask" />
+            </script>
             <div class="common-btn">
                 <ul class="list-inline text-right">
                     <li> <button ng-click="CloseOpenTask();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
@@ -98,39 +100,41 @@
 
 
         @*Issue Grid*@
-        <div id="issuegrid" class="table-responsive" style="border:1px solid white">
-            <div id="gridIssue" ej-grid e-datasource="OpenTaskList" e-load="loadGridEdit"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                <div e-columns>
-                    <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-                    <div e-column e-headertext="Close Issue" e-template="#checkboxIssueTemplate" e-textalign="center" e-width="100"></div>
+    <div id="issuegrid" class="table-responsive" style="border:1px solid white">
+        <div id="gridIssue" ej-grid e-datasource="OpenTaskList" e-load="loadGridEdit" e-templaterefresh="refreshissueTemplate"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                @*<div e-column e-headertext="Close Issue" e-template="#checkboxIssueTemplate" e-textalign="center" e-width="100"></div>*@
+                <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxIssueTemplate" e-textalign="center" e-width="30"></div>
+                <div e-column e-field="Issue" e-headertext="Issue" e-width="250"></div>
+                <div e-column e-field="IssueDetail" e-headertext="Issue Detail" e-width="100"></div>
+                <div e-column e-field="IssueType" e-headertext="Issue Type" e-width="100"></div>
+                <div e-column e-field="FinalStatus" e-headertext="Final Status" e-width="100"></div>
 
-                    <div e-column e-field="Issue" e-headertext="Isse" e-width="250"></div>
-                    <div e-column e-field="IssueDetail" e-headertext="Issue Detail" e-width="100"></div>
-                    <div e-column e-field="IssueType" e-headertext="Issue Type" e-width="100"></div>
-                    <div e-column e-field="FinalStatus" e-headertext="Final Status" e-width="100"></div>
+                <div e-column e-type="date" e-field="IssueDate" e-headertext="Issue Date" e-width="150"></div>
+                <div e-column e-field="DueDate" e-headertext="Due Date" e-width="150"></div>
 
-                    <div e-column e-type="date" e-field="IssueDate" e-headertext="Issue Date" e-width="150"></div>
-                    <div e-column e-field="DueDate" e-headertext="Due Date" e-width="150"></div>
+                <div e-column e-field="AssignBy" e-headertext="Assign By" e-width="100"></div>
+                <div e-column e-field="AssignTo" e-headertext="Assign To" e-width="250"></div>
 
-                    <div e-column e-field="AssignBy" e-headertext="Assign By" e-width="100"></div>
-                    <div e-column e-field="AssignTo" e-headertext="Assign To" e-width="250"></div>
-
-                </div>
-            </div>
-            <script type="text/template" id="checkboxIssueTemplate">
-                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
-            </script>
-
-
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button ng-click="CloseOpenTask();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionB}}</button></li>
-                    <li> <button ng-click="XlsNotCloseIssueReport()" class="btn" tabindex="9"><i class="glyphicon glyphicon-export"></i> Export to Excel</button></li>
-
-                </ul>
             </div>
         </div>
+        <script type="text/template" id="checkboxIssueTemplate">
+            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
+        </script>
+        <script type="text/x-jsrender" id="headerTemplate">
+            <input type="checkbox" id="headchk" />
+        </script>
+
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="CloseOpenTask();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionB}}</button></li>
+                <li> <button ng-click="XlsNotCloseIssueReport()" class="btn" tabindex="9"><i class="glyphicon glyphicon-export"></i> Export to Excel</button></li>
+
+            </ul>
+        </div>
+    </div>
     </div>
 </div>

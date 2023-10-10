@@ -45,26 +45,150 @@ namespace Aplos.Areas.QMS.Controllers
         #region -- Operations
 
         [HttpGet, Authorize]
-        public ActionResult LoadOrderWiseQualityReport()
+        public ActionResult LoadOrderWiseQualityReport(string FromDate, string ToDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string
-                sql = @"select (case when QCD.Id is null then 'Pending' else 'Completed' end) QualityStatus,format(QC.AddedDate,'dd-MMM-yyyy') Date,MOI.Id MOLineItemNo,PS.UserName POStatus,POD.ProductionOrderId PONo,
-QC.LotNumber,MA.StandardName Article,XP.UserName Customer,Reverse(stuff(Reverse((select OWC.Grade +', ' from MST.OrderWiseQualityComment OWC																			
-where OWC.MOLineItemNo=MOI.Id and OWC.PONo=PO.Id and OWC.LotNo=QC.LotNumber for xml PATH(''))),1,2,'')) Grade,
+                sql = @"select (case when Z.RejectValue > 0  then 'Reject'
+when Z.FailValue > 0  then 'Fail'
+when Z.EntryMissing > 0  then 'Pending'
+else 'Pass' end) QualityStatus,
+Date=(select top 1 Format(AddedDate,'dd-MMM-yyyy') from TRN.QualityControl where IssueId=Z.IssueId),
+POStatus=(select UserName from hkp.ProductionStatus where Id=(select ProductionStatusId from TRN.ProductionOrder where Id=Z.PONo)),
+MOLineItemNo= STUFF((select distinct ','+ XMOI.Id from trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+where Z.PONo=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+Article=STUFF((select distinct ','+MA.StandardName from
+											MST.MaterialMasterArticle MA
+											left join TRN.MasterOrderItem moi on moi.ArticleId=MA.Id
+											left join trn.SalesOrder AS xp on xp.MasterOrderItemId=moi.Id
+											JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=xp.Id
+											where Z.PONo=Xpod.ProductionOrderId for xml path('') ), 1, 1, '')
+,Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+where Z.PONo=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+Z.PONo,Z.LotNumber,
+Z.Entity,Z.IssueId,
+Sum(Convert(Int,Z.PassValue)) Pass,Sum(Convert(Int,Z.FailValue)) Fail,Sum(Convert(Int,Z.RejectValue)) Reject,Sum(Z.EntryMissing) MissingEntry,
+Reverse(stuff(Reverse((select OWC.Grade +', ' from MST.OrderWiseQualityComment OWC																			
+where OWC.MOLineItemNo=Z.MOLineItemNo and OWC.PONo=Z.PONo and OWC.LotNo=Z.LotNumber for xml PATH(''))),1,2,'')) Grade,
 Reverse(stuff(Reverse((select format(OWC.AddedDate,'dd-MMM-yyyy') + '-' + OWC.Comment +', ' from MST.OrderWiseQualityComment OWC																			
-where OWC.MOLineItemNo=MOI.Id and OWC.PONo=PO.Id and OWC.LotNo=QC.LotNumber for xml PATH(''))),1,2,'')) CommentDetails
-from TRN.SalesOrder SO
-left join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
-left join [MST].[MaterialMasterArticle] MA ON MA.Id=MOI.ArticleId
-left join trn.ProductionOrderDetail POD on POD.SalesOrderId=SO.Id
-left join trn.ProductionOrder PO on PO.Id=POD.ProductionOrderId
-left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
-left join Trn.MasterOrder MO on MO.Id=MOI.MasterOrderId
-left join [HKP].[Party] Xp on XP.Id=MO.PartyId
-left join TRN.QualityControl QC on QC.ProductionOrderId=PO.Id
-left join TRN.QualityControlDetails QCD on QCD.QCId=QC.Id and QCD.ItemId in (select Id from MST.QualityManagementParameterItem where CustomerParameter=1)
-where SO.OrderStatusId in ('Active','Toship','ToClose') and PS.UserName in ('Running','To Close') order by QC.AddedDate desc";
+where OWC.MOLineItemNo=Z.MOLineItemNo and OWC.PONo=Z.PONo and OWC.LotNo=Z.LotNumber for xml PATH(''))),1,2,'')) CommentDetails
+from (select QCData.QCDate,M.MOLineItemNo,M.POStatus,M.ProductionOrderId PONo,M.LotNumber,M.Article,M.Customer, 
+M.IssueId,M.IssueName,M.ParameterSequence,M.ParameterId,M.ParameterName,M.UOM,QCData.Value,QCData.GradeName,QCData.ParameterRemark,QCData.ActionToBeTakenName,QCData.ResponsiblePerson,QCData.PassValue,QCData.FailValue,QCData.RejectValue,
+QCData.HeaderId,QCData.ChildId,QCData.QCDDate,(Case When (QCData.Value is null or QCData.Value = '0') then 1 else 0 end) EntryMissing,M.Process,M.Entity from (Select  P.*,CP.IssueName,CP.IssueId,CP.ParameterId,CP.ParameterName,CP.UOM,CP.ParameterSequence,CP.Process from (select Distinct PS.ProductionOrderId,PS.LotNumber,E.UserName Entity,
+MOLineItemNo= STUFF((select distinct ','+ XMOI.Id from trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+where PS.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),  
+Article=STUFF((select distinct ','+MA.StandardName from
+											MST.MaterialMasterArticle MA
+											left join TRN.MasterOrderItem moi on moi.ArticleId=MA.Id
+											left join trn.SalesOrder AS xp on xp.MasterOrderItemId=moi.Id
+											JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=xp.Id
+											where PS.ProductionOrderId=Xpod.ProductionOrderId for xml path('') ), 1, 1, '')
+,Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+where PS.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+1 PlanSet,PST.UserName POStatus
+from TRN.ProductionSummary PS
+left join trn.ProductionOrder PO on PO.Id=PS.ProductionOrderId
+left join hkp.ProductionStatus PST on PST.Id=PO.ProductionStatusId
+left join org.Entity E on E.Id=PS.EntityId
+where PS.AddedDate between '" + FromDate + "' and '" + ToDate + @"') P
+Left Join (select QMM.UserName IssueName,QMP.QMID IssueId,QMP.Id ParameterId,PM.UserName ParameterName,QMP.SNO ParameterSequence,UOM.UserName UOM,1 as PlanSet,PR.UserName Process
+ from MST.QualityManagementParameterItem QMP
+ left join MST.QualityManagementMaster QMM on QMM.Id=QMP.QMID
+ left join Hkp.ParameterMaster PM on PM.Id=QMP.ParameterId
+ left join SCS.UnitOfMeasurement UOM on UOM.Id=QMP.UOMId
+ left join hkp.Process PR on  PR.Id=QMP.ProcessId
+ where CustomerParameter = 1) CP on CP.PlanSet=P.PlanSet) M
+ left join (select QC.IssueId,QMM.UserName IssueName,QCD.ItemId ParameterId,PM.UserName ParameterName,QC.LotNumber,QC.ProductionOrderId,
+ QCD.Value,QGD.GradeName,QCD.Remarks ParameterRemark,QAT.ActionToBeTakenName,EI.EmployeeName ResponsiblePerson,
+ format(QC.AddedDate,'dd-MMM-yyyy') QCDate,format(QCD.AddedDate,'dd-MMM-yyyy') QCDDate,QC.Id HeaderId,QCD.Id ChildId,QGD.IsPassValue PassValue,QGD.IsFailValue FailValue,QGD.IsRejectValue RejectValue
+ from TRN.QualityControlDetails QCD
+ left join TRN.QualityControl QC on QC.Id=QCD.QCId
+ left join MST.QualityManagementMaster QMM on QMM.Id=QC.IssueId
+ left join MST.QualityManagementParameterItem QMP on QMP.Id=QCD.ItemId
+ left join Hkp.ParameterMaster PM on PM.Id=QMP.ParameterId
+ left join MST.QualityGradeDetails QGD on QGD.Id=QCD.GradeId
+ left join MST.QualityActionToBeTakenDetails QAT on QAT.Id=QCD.ActionToBeTaken
+ left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
+ where QCD.ItemId in (select Id from MST.QualityManagementParameterItem where CustomerParameter = 1)) QCData on QCData.IssueId=M.IssueId and QCData.ParameterId=M.ParameterId
+ and QCData.ProductionOrderId=M.ProductionOrderId and QCData.LotNumber=M.LotNumber) Z Group By Z.PONo,Z.LotNumber,Z.IssueId,Z.IssueName,Z.EntryMissing,Z.Entity,Z.MOLineItemNo,Z.RejectValue,Z.FailValue,Z.PassValue order by  (case 
+when Z.RejectValue > 0  then 'A'
+when Z.FailValue > 0  then 'B'
+when Z.EntryMissing > 0  then 'C'
+else 'D' end) ";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getOrderWiseParameterData(string FromDate, string ToDate,string IssueId, string ProductionOrderId, string LotNumber)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string
+                sql = @"select QCData.QCDate,M.MOLineItemNo,M.POStatus,M.ProductionOrderId PONo,M.LotNumber,M.Article,M.Customer, 
+M.IssueId,M.IssueName,M.ParameterSequence,M.ParameterId,M.ParameterName,M.UOM,QCData.Value,QCData.GradeName,QCData.ParameterRemark,QCData.ActionToBeTakenName,QCData.ResponsiblePerson,QCData.PassValue,QCData.FailValue,QCData.RejectValue,
+QCData.HeaderId,QCData.ChildId,QCData.QCDDate,(Case When (QCData.Value is null or QCData.Value = '0') then 1 else 0 end) EntryMissing,M.Process,M.Entity,Reverse(stuff(Reverse((select OWC.Grade +', ' from MST.OrderWiseQualityComment OWC																			
+where OWC.MOLineItemNo=M.MOLineItemNo and OWC.PONo=M.ProductionOrderId and OWC.LotNo=M.LotNumber for xml PATH(''))),1,2,'')) Grade,
+Reverse(stuff(Reverse((select format(OWC.AddedDate,'dd-MMM-yyyy') + '-' + OWC.Comment +', ' from MST.OrderWiseQualityComment OWC																			
+where OWC.MOLineItemNo=M.MOLineItemNo and OWC.PONo=M.ProductionOrderId and OWC.LotNo=M.LotNumber for xml PATH(''))),1,2,'')) CommentDetails,
+QCData.ActionTaken,QCData.ActionBy,QCData.ConfirmRemarks,QCData.QAURemarks,QCData.ReasonName
+from (Select  P.*,CP.IssueName,CP.IssueId,CP.ParameterId,CP.ParameterName,CP.UOM,CP.ParameterSequence,CP.Process from (select Distinct PS.ProductionOrderId,PS.LotNumber,E.UserName Entity,
+MOLineItemNo= STUFF((select distinct ','+ XMOI.Id from trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+where PS.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),  
+Article=STUFF((select distinct ','+MA.StandardName from
+											MST.MaterialMasterArticle MA
+											left join TRN.MasterOrderItem moi on moi.ArticleId=MA.Id
+											left join trn.SalesOrder AS xp on xp.MasterOrderItemId=moi.Id
+											JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=xp.Id
+											where PS.ProductionOrderId=Xpod.ProductionOrderId for xml path('') ), 1, 1, '')
+,Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+where PS.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+1 PlanSet,PST.UserName POStatus
+from TRN.ProductionSummary PS
+left join trn.ProductionOrder PO on PO.Id=PS.ProductionOrderId
+left join hkp.ProductionStatus PST on PST.Id=PO.ProductionStatusId
+left join org.Entity E on E.Id=PS.EntityId
+where PS.AddedDate between '" + FromDate + "' and '" + ToDate + @"') P
+Left Join (select QMM.UserName IssueName,QMP.QMID IssueId,QMP.Id ParameterId,PM.UserName ParameterName,QMP.SNO ParameterSequence,UOM.UserName UOM,1 as PlanSet,PR.UserName Process
+ from MST.QualityManagementParameterItem QMP
+ left join MST.QualityManagementMaster QMM on QMM.Id=QMP.QMID
+ left join Hkp.ParameterMaster PM on PM.Id=QMP.ParameterId
+ left join SCS.UnitOfMeasurement UOM on UOM.Id=QMP.UOMId
+ left join hkp.Process PR on  PR.Id=QMP.ProcessId
+ where CustomerParameter = 1) CP on CP.PlanSet=P.PlanSet) M
+ left join (select QC.IssueId,QMM.UserName IssueName,QCD.ItemId ParameterId,PM.UserName ParameterName,QC.LotNumber,QC.ProductionOrderId,
+ QCD.Value,QGD.GradeName,QCD.Remarks ParameterRemark,QAT.ActionToBeTakenName,EI.EmployeeName ResponsiblePerson,
+ format(QC.AddedDate,'dd-MMM-yyyy') QCDate,format(QCD.AddedDate,'dd-MMM-yyyy') QCDDate,QC.Id HeaderId,QCD.Id ChildId,QGD.IsPassValue PassValue,QGD.IsFailValue FailValue,QGD.IsRejectValue RejectValue,
+ QAU.ActionTaken,QAE.EmployeeName ActionBy,QAU.Remarks QAURemarks,isnull(QAU.ReasonName,(select UserName from [HKP].[QualityManagementReasonMaster] where Id=(select ReasonId from [MST].[QualityManagementParameterReason] where Id=QAU.ReasonId))) ReasonName,QAU.ConfirmRemarks
+ from TRN.QualityControlDetails QCD
+ left join TRN.QualityControl QC on QC.Id=QCD.QCId
+ left join MST.QualityManagementMaster QMM on QMM.Id=QC.IssueId
+ left join MST.QualityManagementParameterItem QMP on QMP.Id=QCD.ItemId
+ left join Hkp.ParameterMaster PM on PM.Id=QMP.ParameterId
+ left join MST.QualityGradeDetails QGD on QGD.Id=QCD.GradeId
+ left join MST.QualityActionToBeTakenDetails QAT on QAT.Id=QCD.ActionToBeTaken
+ left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
+ left join TRN.QualityActionTakenUpdate QAU on QAU.ParameterId=QCD.Id
+ left join EmployeeInformation QAE on QAE.SystemId=QAU.ActionById
+ where QCD.ItemId in (select Id from MST.QualityManagementParameterItem where CustomerParameter = 1)) QCData on QCData.IssueId=M.IssueId and QCData.ParameterId=M.ParameterId
+ and QCData.ProductionOrderId=M.ProductionOrderId and QCData.LotNumber=M.LotNumber
+where M.IssueId='" + IssueId+"' and M.ProductionOrderId='"+ProductionOrderId+"' and M.LotNumber='"+LotNumber+"'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 

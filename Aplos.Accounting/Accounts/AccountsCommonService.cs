@@ -985,6 +985,45 @@ namespace Library.Accounting.Accounts
         }
 
 
+        public AdditionalTax InsertAddtionalTax(AdjustmentNote adjustmentNote, AdditionalTax additionalTax, ref DataSet dsData)
+        {
+            additionalTax.Id = GetAutoNumber(nameof(AdditionalTax), PKGeneratorEnum.Yearly, null, DateTime.Now);
+            additionalTax.TaxYearId = adjustmentNote.TaxYearId;
+            additionalTax.TaxYearPeriodId = adjustmentNote.TaxYearPeriodId;
+            //additionalTax.VoucherId = adjustmentNote.VoucherId;
+            additionalTax.PartyId = adjustmentNote.PartyId;
+            additionalTax.PartyPlantId = adjustmentNote.PartyPlantId;
+            additionalTax.SourceType = adjustmentNote.SourceType;
+            additionalTax.Archive = false;
+            additionalTax.AddedBy = adjustmentNote.AddedBy;
+            additionalTax.AddedDate = adjustmentNote.AddedDate;
+            additionalTax.AddedFromIP = adjustmentNote.AddedFromIP;
+
+            if (dsData == null)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from TRN.AdditionalTax where 1=2", out dsData);
+            }
+            AddNewRow<AdditionalTax>(dsData.Tables[0], additionalTax);
+            return additionalTax;
+        }
+
+        public AdditionalTaxDetail InsertAddtionalTaxDetail(AdditionalTax invoiceTax, AdditionalTaxDetail invoiceTaxDetail, ref DataSet ivTaxDetailData)
+        {
+            invoiceTaxDetail.Archive = invoiceTax.Archive;
+            invoiceTaxDetail.AddedBy = invoiceTax.AddedBy;
+            invoiceTaxDetail.AddedDate = invoiceTax.AddedDate;
+            invoiceTaxDetail.AddedFromIP = invoiceTax.AddedFromIP;
+            if (ivTaxDetailData == null)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from TRN.AdditionalTaxDetail where 1=2", out ivTaxDetailData);
+            }
+
+            AddNewRow<AdditionalTaxDetail>(ivTaxDetailData.Tables[0], invoiceTaxDetail);
+            return invoiceTaxDetail;
+        }
+
         #endregion
         #region VoucherGLUpdate
         public void UpdateVoucherGl(IEnumerable<VoucherDetailViewModel> voucherDetailVMList)

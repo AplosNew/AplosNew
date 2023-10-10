@@ -1482,6 +1482,18 @@ namespace Library.Service.Invoices
             base.InsertGraph(adjustmentNote);
             return adjustmentNote;
         }
+        public IEnumerable<AdjustmentNoteDetail> QueryInvoiceDetailEnumerable(IEnumerable<string> query)
+        {
+            return _adjustmentNoteDetailRepository.Query(r => query.Contains(r.Id)).Select().ToList();
+        }
+        public IQueryFluent<AdjustmentNoteDetail> QueryAdjustmentNoteDetail(string adjustmentNoteId)
+        {
+            return _adjustmentNoteDetailRepository.Query(r => r.AdjustmentNoteId == adjustmentNoteId);
+        }
+        public void UpdateAdjustmentNoteDetail(AdjustmentNoteDetail adjustmentNoteDetail)
+        {
+            _adjustmentNoteDetailRepository.Update(adjustmentNoteDetail);
+        }
         private void Check(AdjustmentNote entity)
         {
             CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.Id != entity.Id && r.PartyId == entity.PartyId && r.DocRefNo == entity.DocRefNo);

@@ -19,7 +19,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
     $scope.View = function () {
         try {
             $scope.OrderWiseQualityReportList = [];
-            $http.get('QMS/OrderWiseQualityReport/LoadOrderWiseQualityReport')
+            $http.get('QMS/OrderWiseQualityReport/LoadOrderWiseQualityReport?FromDate='+ $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate)
                 .then(function (response) {
                     $scope.OrderWiseQualityReportList = response.data;
                 });
@@ -27,7 +27,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
             ShowResult(e, 'failure');
         }
     }
-    $scope.View();
+    //$scope.View();
 
     $scope.CommentEntryLists = [];
     $scope.MOId = null;
@@ -178,199 +178,111 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
         });
     };
 
-    //$scope.ParameterStatusLists = [
-    //    {
-    //        'Value': 'Pending',
-    //        'Text': 'Pending'
-    //    },
-    //    {
-    //        'Value': 'ToApprove',
-    //        'Text': 'ToApprove'
-    //    }
-    //];
+    $scope.Parameter = {
+        QualityStatus: null
+        , Date: null
+        , MOLineItemNo: null
+        , POStatus: null
+        , PONo: null
+        , LotNo: null
+        , Article: null
+        , Customer: null
+        , Grade: null
+        , Comment: null
+        , IssueId: null
+    }
+    $scope.ParameterNew = Object.assign({}, $scope.Parameter);
 
-    //$scope.CriticalLevelLists = [
-    //    {
-    //        'Value': 'High',
-    //        'Text': 'High'
-    //    },
-    //    {
-    //        'Value': 'Very High',
-    //        'Text': 'Very High'
-    //    },
-    //    {
-    //        'Value': 'Medium',
-    //        'Text': 'Medium'
-    //    },
-    //    {
-    //        'Value': 'Low',
-    //        'Text': 'Low'
-    //    }
-    //];
+    $scope.ParameterLists = [];
+    $scope.getParameterPopup = function (data) {
+        $scope.NewObject = data.data;
+        $scope.ParameterNew.QualityStatus = $scope.NewObject.QualityStatus;
+        $scope.ParameterNew.Date = $scope.NewObject.Date;
+        $scope.ParameterNew.POStatus = $scope.NewObject.POStatus;
+        $scope.ParameterNew.MOLineItemNo = $scope.NewObject.MOLineItemNo;
+        $scope.ParameterNew.Article = $scope.NewObject.Article;
+        $scope.ParameterNew.Customer = $scope.NewObject.Customer;
+        $scope.ParameterNew.PONo = $scope.NewObject.PONo;
+        $scope.ParameterNew.LotNo = $scope.NewObject.LotNumber;
+        $scope.ParameterNew.Grade = $scope.NewObject.Grade;
+        $scope.ParameterNew.Comment = $scope.NewObject.Comment;
+        try {
+            $http.get('QMS/OrderWiseQualityReport/getOrderWiseParameterData?IssueId=' + $scope.NewObject.IssueId + '&ProductionOrderId=' + $scope.NewObject.PONo + '&LotNumber=' + $scope.NewObject.LotNumber +'&FromDate='+ $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate)
+                .then(
+                    function successCallback(response) {
+                        $scope.ParameterLists = response.data;
+                    },
+                    function errorCallback(response) {
+                        ShowResult(response, 'failure');
+                    });
+            var gridObj = $("#GridParameter").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#ParameterPopUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
 
-    //$scope.CriticalLevelGridLists = [
-    //    {
-    //        'Value': 'High',
-    //        'Text': 'High'
-    //    },
-    //    {
-    //        'Value': 'Very High',
-    //        'Text': 'Very High'
-    //    },
-    //    {
-    //        'Value': 'Medium',
-    //        'Text': 'Medium'
-    //    },
-    //    {
-    //        'Value': 'Low',
-    //        'Text': 'Low'
-    //    }
-    //];
+    $scope.status = {
+        Id: null,
+        FromDate: null,
+        ToDate: null
+    };
+    $scope.statusNew = Object.assign({}, $scope.status);
 
-    //$scope.status = {
-    //    Id: null,
-    //    ParameterStatus: null,
-    //};
-    //$scope.statusNew = Object.assign({}, $scope.status);
+    $scope.OWQReport = function () {
+        var dataList = [];
+        var g = $("#GridOrderWiseQualityReport").data("ejGrid");
+        dataList = g.getFilteredRecords();
 
-    //$scope.CustomerUpdatePara = {
-    //    Id: null,
-    //    LineItemNo: null,
-    //    EmployeeId: null,
-    //    ApprovedById: null,
-    //    CriticalLevel: null,
-    //    Remarks: null,
-    //    ApprovalStatus:null
-    //};
-    //$scope.CustomerUpdateParaNew = Object.assign({}, $scope.CustomerUpdatePara);
+        if (dataList.length == 0) {
+            dataList = $scope.OrderWiseQualityReportList;
+        }
 
-    //$scope.ParameterResponsiblePersonLists = [];
-    //$scope.GetParameterResponsiblePersonLists = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'QMS/OrderWiseQualityReport/GetParameterResponsiblePersonLists'
-    //    }).then(function successCallback(response) {
-    //        $scope.ParameterResponsiblePersonLists = response.data;
-    //    });
-    //}
-    //$scope.GetParameterResponsiblePersonLists();
+        $scope.fileName = "Order Wise Quality Report";
 
-    //$scope.ParameterApprovalPersonLists = [];
-    //$scope.GetParameterApprovalPersonLists = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'QMS/OrderWiseQualityReport/GetParameterApprovalPersonLists'
-    //    }).then(function successCallback(response) {
-    //        $scope.ParameterApprovalPersonLists = response.data;
-    //    });
-    //}
-    //$scope.GetParameterApprovalPersonLists();
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrlUpd,
+            data: { 'reportFileName': $scope.fileName, 'data': dataList },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
 
-    //$scope.selectGridResponsible = function (data) {
-    //    $scope.Newobject = data.data;
-    //    $scope.getEmployee();
-    //    angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('show');
-    //}
+    $scope.OWParameterReport = function () {
+        var dataList = [];
+        var g = $("#GridParameter").data("ejGrid");
+        dataList = g.getFilteredRecords();
 
-    //$scope.EmployeeList = [];
-    //$scope.getEmployee = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + 'GetEmployee',
-    //        dataType: 'JSON'
-    //    }).then(function succ(resp) {
-    //        $scope.EmployeeList = resp.data;
-    //    });
-    //}
+        if (dataList.length == 0) {
+            dataList = $scope.ParameterLists;
+        }
 
-    //$scope.doubleEmployee = function (e) {
-    //    $scope.Newobject.ResponsiblePersonId = e.data.SystemId;
-    //    $scope.Newobject.ResponsiblePerson = e.data.EmployeeName;
-    //    angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
-    //}
+        $scope.fileName = "Order Wise Parameter Report";
 
-    //$scope.closeResponsiblePersonPopUp = function () {
-    //    angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
-    //}
-
-    
-    //$scope.GetDetails = function ($event) {
-    //    $scope.CustomerUpdateParaNew.LineItemNo = $event.data.LineItemNo;
-    //    $scope.CustomerUpdateParaNew.Id = $event.data.Id;
-    //    $scope.CustomerUpdateParaNew.EmployeeId = $event.data.EmployeeId;
-    //    $scope.CustomerUpdateParaNew.ApprovedById = $event.data.ApprovedById;
-    //    $scope.CustomerUpdateParaNew.CriticalLevel = $event.data.CriticalLevel;
-    //    $scope.CustomerUpdateParaNew.Remarks = $event.data.Remarks;
-    //    $scope.GetParameterResponsiblePersonLists();
-    //    $scope.GetParameterApprovalPersonLists();
-    //    $scope.CUPDList = [];
-    //    //$scope.loadCUPD();
-    //    angular.element(document.querySelector('#UpdateCustomerParameterPopUp')).modal('show');
-    //}
-    //$scope.UCPId = null;
-    //$scope.CustomerUpdateSave = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.saveUrlCustomerUpdatePara,
-    //        data: {
-    //            'CustomerUpdateParaData': $scope.CustomerUpdateParaNew,
-    //            'ApprovalStatus':  'ToApprove'
-    //        },
-    //        dataType: 'JSON'
-    //    }).then(function successCallback(response) {
-    //        if (response.data.Error === true) {
-    //            ShowResult(response.data.Message, 'failure');
-    //        }
-    //        else {
-    //            ShowResult(response.data.Message, 'success');
-    //            $scope.UCPId = response.data.Data.Id;
-    //            $scope.loadCUPD();
-    //            $scope.View();
-    //        }
-    //    }), function errorCallBack(response) {
-    //        ShowResult(response.data.Message, 'failure');
-    //    }
-    //};
-
-    //$scope.CUPDList = [];
-    //$scope.loadCUPD = function () {
-    //    try {
-    //        $http.get('QMS/OrderWiseQualityReport/GetCRPCbo?MasterId=' + $scope.UCPId + '&LineItemNo=' + $scope.CustomerUpdateParaNew.LineItemNo)
-    //            .then(function (response) {
-    //                $scope.CUPDList = response.data;
-    //            });
-    //    } catch (ex) {
-    //        ShowResult(ex, 'Info');
-    //    }
-    //};
-
-    //$scope.SaveUCPD = function (data) {
-    //    try {
-    //        if (baseService.isUndefinedOrNull(data.data.MinRequirement) && baseService.isUndefinedOrNull(data.data.MaxRequirement)) {
-    //            throw "Please enter requirement and proceed";
-    //        }
-    //        data.data.UCPId = $scope.UCPId;
-    //        $http({
-    //            method: 'POST',
-    //            url: $scope.saveUrlUCPDValue,
-    //            data: { 'UCPRequirementDetailsData': data.data },
-    //            dataType: 'JSON'
-    //        }).then(function successCallback(response) {
-    //            if (response.data.Error === true) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            }
-    //            else {
-    //                ShowResult(response.data.Message, 'success');
-    //                $scope.loadCUPD();
-    //            }
-    //        }), function errorCallBack(response) {
-    //            ShowResult(response.data.Message, 'failure');
-    //        }
-
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-
-    //    }
-    //};
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrlUpd,
+            data: { 'reportFileName': $scope.fileName, 'data': dataList },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
 }
 
