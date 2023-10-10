@@ -28,9 +28,9 @@
             <label class="col-sm-4 control-label">Section<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select id="Category" class="form-control" ng-model="ModelNew.SectionId" name="Section" tabindex="5">
+                    <select id="Category" class="form-control" ng-model="ModelNew.SectionId" name="Section" ng-change="changeSubSectionBySection();" tabindex="5">
                         <option value="">--Select--</option>
-                        <option ng-repeat="option in SectionList" value="{{option.Value}}">{{option.Text}}</option>
+                        <option ng-repeat="option in sectionList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
                 </div>
             </div>
@@ -47,10 +47,16 @@
             </div>
         </div>
         <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Purpose<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Purpose" ng-model="ModelNew.Purpose" class="form-control" maxlength="15" required tabindex="9">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">From Time<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="input-group bootstrap-timepicker timepicker">
-                    <input id="FromTime" type="text" class="form-control" ng-model="ModelNew.FromTime" ng-change="getMinute();" e-width="100" tabindex="9">
+                    <input id="FromTime" type="text" class="form-control" ng-model="ModelNew.FromTime" ng-change="getMinute();" e-width="100" tabindex="11">
                     <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
                 </div>
             </div>
@@ -61,9 +67,15 @@
             <label class="col-sm-4 control-label">To Time<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="input-group bootstrap-timepicker timepicker">
-                    <input id="ToTime" type="text" class="form-control" ng-model="ModelNew.ToTime" ng-change="getMinute();" e-width="100" tabindex="11">
+                    <input id="ToTime" type="text" class="form-control" ng-model="ModelNew.ToTime" ng-change="getMinute();" e-width="100" tabindex="13">
                     <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
                 </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8 show-message">
+                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="15"></textarea>
             </div>
         </div>
     </div>
@@ -72,7 +84,7 @@
             <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="input-group" tabindex="208">
-                    <input type="text" name="Shift" ng-model="ModelNew.Shift" ng-disabled="true" class="form-control" maxlength="200"  tabindex="2" required readonly>
+                    <input type="text" name="Shift" ng-model="ModelNew.Shift" ng-disabled="true" class="form-control" maxlength="200" tabindex="2" required readonly>
                     <span class="input-group-btn">
                         <button ng-click="selectShift()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
@@ -84,7 +96,7 @@
             <label class="col-sm-4 control-label">Department<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select id="Category" class="form-control" ng-model="ModelNew.DepartmentId" name="Department" tabindex="4">
+                    <select id="Category" class="form-control" ng-model="ModelNew.DepartmentId" name="Department" ng-change="changeSectionByDept();" tabindex="4">
                         <option value="">--Select--</option>
                         <option ng-repeat="option in DepartmentList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
@@ -97,33 +109,47 @@
                 <div class="select-style">
                     <select id="Category" class="form-control" ng-model="ModelNew.SubSectionId" name="SubSection" tabindex="6">
                         <option value="">--Select--</option>
-                        <option ng-repeat="option in SubSectionList" value="{{option.Value}}">{{option.Text}}</option>
+                        <option ng-repeat="option in subSectionList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
                 </div>
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-4 control-label">User Group</label>
-            <div class="col-sm-8"> 
+            <div class="col-sm-8">
                 <div class="select-style">
                     <select id="Category" class="form-control" ng-model="ModelNew.UserGroupId" name="UserGroup" tabindex="8">
                         <option value="">--Select--</option>
-                        <option ng-repeat="option in UserGroupList" value="{{option.Id}}">{{option.UserReportGroup}}</option>
+                        <option ng-repeat="option in UserGroupList" value="{{option.UserReportGroup}}">{{option.UserReportGroup}}</option>
                     </select>
                 </div>
             </div>
         </div>
         <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Purpose Category<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select id="PC" class="form-control" ng-model="ModelNew.PurposeCategory" name="PurposeCategory" tabindex="10">
+                        <option value="">--Select--</option>
+                        <option value="BreakDown">BreakDown</option>
+                        <option value="Additional">Additional</option>
+                        <option value="New">New</option>
+                        <option value="Normal">Normal</option>
+                    </select>
+                </div> 
+            </div>
+        </div>
+        <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Calculated Minute<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="number" class="form-control" name="Minute" ng-model="ModelNew.Minute" e-width="100" disabled  tabindex="10"/>
+                <input type="number" class="form-control" name="Minute" ng-model="ModelNew.Minute" e-width="100" disabled tabindex="12" />
             </div>
         </div>
 
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Remarks</label>
+            <label class="col-sm-4 control-label">Reason</label>
             <div class="col-sm-8 show-message">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="12"></textarea>
+                <textarea class="form-control" rows="3" ng-model="ModelNew.Reason" maxlength="250" tabindex="14"></textarea>
             </div>
         </div>
     </div>

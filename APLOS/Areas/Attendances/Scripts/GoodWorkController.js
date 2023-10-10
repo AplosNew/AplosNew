@@ -30,11 +30,14 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         Section: null,
         DesignationId: null,
         Designation: null,
+        Purpose: null,
+        PurposeCategory: null,
         ShiftId: null,
         Shift: null,
         FromTime: null,
         ToTime: null,
         Minute: null,
+        Reason: null,
         Remarks: null,
         UserGroupId: null,
         UserGroup: null
@@ -111,13 +114,27 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     cboService.getCboDepartmentByCompanyGroup(null, function (result) {
         $scope.DepartmentList = result;
     });
-    cboService.getCboSectionByCompanyGroup(null, function (result) {
-        $scope.SectionList = result;
-    });
+    //cboService.getCboSectionByCompanyGroup(null, function (result) {
+    //    $scope.SectionList = result;
+    //});
 
-    cboService.getCboSubSectionByCompanyGroup(null, function (result) {
-        $scope.SubSectionList = result;
-    });
+    //cboService.getCboSubSectionByCompanyGroup(null, function (result) {
+    //    $scope.SubSectionList = result;
+    //});
+
+    $scope.sectionList = [];
+    $scope.changeSectionByDept = function () {
+        cboService.getSectionCboByDepartmentId($scope.ModelNew.DepartmentId, function (result) {
+            $scope.sectionList = result;
+        });
+    }
+
+    $scope.subSectionList = [];
+    $scope.changeSubSectionBySection = function () {
+        cboService.getSubSectionCboBySectionId($scope.ModelNew.SectionId, function (result) {
+            $scope.subSectionList = result;
+        });
+    }
     cboService.getbyDesignationMasterCbo(function (result) {
         $scope.designationList = result;
     });

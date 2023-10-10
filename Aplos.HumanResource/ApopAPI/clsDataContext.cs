@@ -8368,6 +8368,42 @@ LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
             }
         }
         #endregion Leave
+        #region EmployeeUsrId
+        public void GetEmployeeUserId(out List<Default2> DataList, string UserId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select EI.SystemId Value, EI.EmployeeCode Name from sec.[User] US
+left join EmployeeInformation EI on EI.SystemId  = US.EmployeeId where US.UserId = '" + UserId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        #endregion EmployeeUsrId
     }
 
 

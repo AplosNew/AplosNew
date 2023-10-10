@@ -1200,6 +1200,40 @@ FromLocation = stuff((select ', ' + LM.UserName
             #endregion data update
         }
 
+        public ActionResult UpdateVehicleMovement(Dictionary<string, object> data)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                string TableName = "[TRN].[VehicleMovementRequisition]";
+                DataSet dsMaster;
+
+                con.OpenDataSetThroughAdapter("select * from [TRN].[VehicleMovementRequisition] where Id ='" + data["MovementMasterId"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+
+                    data["Id"] = data["MovementMasterId"];
+                    data["isCancel"] = true;
+
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return Json(new { Error = false, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            #endregion data update
+        }
+
         public ActionResult saveRejectForm(Dictionary<string, object> data, List<Dictionary<string, object>> reqdata)
         {
             try
@@ -1366,37 +1400,8 @@ where VA.TripId is not null";
 
         public JsonResult GetPendingInTrip()
         {
-            string sql = @"select Row_Number() OVER(Order by VT.Id)Row_Num, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
-, FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber ,VIO.Id , VA.Id VehicleAllocationId
-,stuff((select ',' + LM.UserName from HKP.LocationMaster LM
-left join TRN.VehicleMovementRequisitionChild VMC on VMC.FromLocationId = LM.Id
-left join TRN.VehicleMovementRequisition VMR on VMR.Id = VMC.VehicleMovementRequisitionId
-where VMR.AppliedId = VT.Id FOR XML PATH('')), 1,1,'')FromLocation
-
-,stuff((select ',' + LM.UserName from HKP.LocationMaster LM
-left join TRN.VehicleMovementRequisitionChild VMC on VMC.ToLocationId = LM.Id
-left join TRN.VehicleMovementRequisition VMR on VMR.Id = VMC.VehicleMovementRequisitionId
-where VMR.AppliedId = VT.Id FOR XML PATH('')), 1,1,'')ToLocation
-,AppliedId.ByWhom , AppliedId.Purpose , AppliedId.Name,AppliedId.PersonalOfficial
-from TRN.VehicleTrip VT
-left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
-left join (select VMR.AppliedId, RP.EmployeeName ByWhom, PM.UserName Purpose,VMR.Name,VMR.PersonalOfficial from TRN.VehicleMovementRequisition VMR 
-left join EmployeeInformation RP on RP.SystemId = VMR.EmpSystemId
-left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
-group by VMR.AppliedId, RP.EmployeeName, PM.UserName,VMR.Name,VMR.PersonalOfficial
-)AppliedId on AppliedId = VT.Id
-left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
-left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
-left join EmployeeInformation EI on EI.SystemId = DM.DriverId
-left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
-where VIO.InReading is null  and VIO.Id is not null and VA.TripId is not null";
-            return Json(_sqlRepository.GetDataCollection(sql));
-        }
-
-        public JsonResult GetPendingOutTrip()
-        {
             string sql = @"select distinct Row_Number() OVER(Order by VT.Id)Row_Num, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
-, FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber , VM.VehicleName ,VIO.Id ,  VA.Id VehicleAllocationId
+, FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber , VM.VehicleName ,VIO.Id ,  VA.Id VehicleAllocationId ,VMR.Id as MovementMasterId
 ,stuff((select ',' + LM.UserName from HKP.LocationMaster LM
 left join TRN.VehicleMovementRequisitionChild VMC on VMC.FromLocationId = LM.Id
 left join TRN.VehicleMovementRequisition VMR on VMR.Id = VMC.VehicleMovementRequisitionId
@@ -1420,7 +1425,40 @@ left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
 left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
 left join EmployeeInformation EI on EI.SystemId = DM.DriverId
 left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
-where VIO.OutReading is null and VA.Id is not null and VA.VehicleMasterId is not null and VA.DriverMasterId is not null and VA.TripId is not null and VIO.Id is null";
+left join TRN.VehicleMovementRequisition VMR on VMR.AppliedId = VT.Id
+where VIO.OutReading is null and VA.Id is not null and VA.VehicleMasterId is not null and VA.DriverMasterId is not null and VA.TripId is not null and VIO.Id is null and VMR.isCancel is null";
+            return Json(_sqlRepository.GetDataCollection(sql));
+        }
+
+        public JsonResult GetPendingOutTrip()
+        {
+            string sql = @"select distinct Row_Number() OVER(Order by VT.Id)Row_Num, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
+, FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber , VM.VehicleName ,VIO.Id ,  VA.Id VehicleAllocationId,VMR.Id as MovementMasterId
+,stuff((select ',' + LM.UserName from HKP.LocationMaster LM
+left join TRN.VehicleMovementRequisitionChild VMC on VMC.FromLocationId = LM.Id
+left join TRN.VehicleMovementRequisition VMR on VMR.Id = VMC.VehicleMovementRequisitionId
+where VMR.AppliedId = VT.Id FOR XML PATH('')), 1,1,'')FromLocation
+
+,stuff((select ',' + LM.UserName from HKP.LocationMaster LM
+left join TRN.VehicleMovementRequisitionChild VMC on VMC.ToLocationId = LM.Id
+left join TRN.VehicleMovementRequisition VMR on VMR.Id = VMC.VehicleMovementRequisitionId
+where VMR.AppliedId = VT.Id FOR XML PATH('')), 1,1,'')ToLocation
+,AppliedId.ByWhom , AppliedId.Purpose, AppliedId.Name,AppliedId.PersonalOfficial
+
+from TRN.VehicleTrip VT
+left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
+left join (select VMR.AppliedId, RP.EmployeeName ByWhom, PM.UserName Purpose,VMR.Name,VMR.PersonalOfficial from TRN.VehicleMovementRequisition VMR 
+left join EmployeeInformation RP on RP.SystemId = VMR.EmpSystemId
+left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
+group by VMR.AppliedId, RP.EmployeeName, PM.UserName,VMR.Name,VMR.PersonalOfficial
+)AppliedId on AppliedId = VT.Id
+
+left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
+left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
+left join EmployeeInformation EI on EI.SystemId = DM.DriverId
+left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
+left join TRN.VehicleMovementRequisition VMR on VMR.AppliedId = VT.Id
+where VIO.OutReading is null and VA.Id is not null and VA.VehicleMasterId is not null and VA.DriverMasterId is not null and VA.TripId is not null and VIO.Id is null and VMR.isCancel is null";
             return Json(_sqlRepository.GetDataCollection(sql));
         }
 
