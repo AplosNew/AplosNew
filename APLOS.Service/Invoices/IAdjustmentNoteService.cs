@@ -1,4 +1,5 @@
 ﻿using Library.Core;
+using Library.Data.Repositories;
 using Library.Model.Enums;
 using Library.Model.Finances;
 using Library.Model.Invoices;
@@ -26,8 +27,10 @@ namespace Library.Service.Invoices
         GridModel GetDebitNoteList(GridParameter parameters, string companyGroupId, string companyId, string plantId, string partyId, string partyType);
         GridModel GetCreditNoteList(GridParameter parameters, string companyGroupId, string companyId, string plantId, string partyId, string partyType);
         void DeleteAdjustmentNote(string adjustmentNoteId, string voucherId);
+        IEnumerable<AdjustmentNoteDetail> QueryInvoiceDetailEnumerable(IEnumerable<string> query);
+        void UpdateAdjustmentNoteDetail(AdjustmentNoteDetail adjustmentNoteDetail);
+        IQueryFluent<AdjustmentNoteDetail> QueryAdjustmentNoteDetail(string adjustmentNoteId);
 
 
-       
     }
 }
