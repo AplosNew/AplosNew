@@ -44,20 +44,11 @@ namespace Aplos.Areas.Parties.Controllers
 
                 if (active)
                 {
-                    //if (reportFormat == ReportFormat.Pdf)
-                    //{
-                        //var workbook = _partyReportService.GetPartyLedgerReportGroupByGL(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
-                        //var reportFileName = DateTime.Now.ToString("yyMMdd") + " Party Ledger";
-
-                        //return RenderReportAsPdf(workbook, reportFileName);
-                    //}
-                    //else
-                    //{
                         var workbook = _partyReportService.GetPartyLedgerReportGroupByGLReportLongSizeXls(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
                         var reportFileName = DateTime.Now.ToString("yyMMdd") + " Party Ledger";
 
                         return RenderReportAsExcel(workbook, reportFileName);
-                   // }
+                   
                 }
                 else
                 {
@@ -103,24 +94,37 @@ namespace Aplos.Areas.Parties.Controllers
                 }
                 else
                 {
-                    if (reportFormat == ReportFormat.Pdf)
+                    if (partyType == PartyType.Party)
                     {
-                        //var workbook = _partyReportService.GetPartyLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
-                        //var reportFileName = DateTime.Now.ToString("yyMMdd") + "Party Ledger";
-
-                        var workbook = _partyReportService.GetPartyLedgerReportXls(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
-                        var reportFileName = DateTime.Now.ToString("yyMMdd") + "Party Ledger";
-
-
-                        return RenderReportAsPdf(workbook, reportFileName);
+                        if (reportFormat == ReportFormat.Pdf)
+                        {
+                            var workbook = _partyReportService.GetPartyLedgerReportBothCustomerVendor(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
+                            var reportFileName = DateTime.Now.ToString("yyMMdd") + "Party Ledger Both Customer and Vendor";
+                            return RenderReportAsPdf(workbook, reportFileName);
+                        }
+                        else
+                        {
+                            var workbook = _partyReportService.GetPartyLedgerReportBothCustomerVendor(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
+                            var reportFileName = DateTime.Now.ToString("yyMMdd") + "Party Ledger Both Customer and Vendor";
+                            return RenderReportAsExcel(workbook, reportFileName);
+                        }
                     }
                     else
                     {
-                        var workbook = _partyReportService.GetPartyLedgerReportXls(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
-                        var reportFileName = DateTime.Now.ToString("yyMMdd") + "Party Ledger";
-
-                        return RenderReportAsExcel(workbook, reportFileName);
+                        if (reportFormat == ReportFormat.Pdf)
+                        {
+                            var workbook = _partyReportService.GetPartyLedgerReportXls(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
+                            var reportFileName = DateTime.Now.ToString("yyMMdd") + "Party Ledger";
+                            return RenderReportAsPdf(workbook, reportFileName);
+                        }
+                        else
+                        {
+                            var workbook = _partyReportService.GetPartyLedgerReportXls(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
+                            var reportFileName = DateTime.Now.ToString("yyMMdd") + "Party Ledger";
+                            return RenderReportAsExcel(workbook, reportFileName);
+                        }
                     }
+                    
                 }
             }
 
