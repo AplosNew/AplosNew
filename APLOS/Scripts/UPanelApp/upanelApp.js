@@ -1221,6 +1221,7 @@ upanelApp.controller("DefineProcessParameterController", DefineProcessParameterC
 upanelApp.controller("ParameterSettingControlController", ParameterSettingControlController)
 upanelApp.controller("OrderWiseQualityReportController", OrderWiseQualityReportController)
 upanelApp.controller("GoodWorkSetupController", GoodWorkSetupController)
+upanelApp.controller("ServiceAcknowledgementController", ServiceAcknowledgementController)
 
 
 
