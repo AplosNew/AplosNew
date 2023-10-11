@@ -46,6 +46,7 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.GetGoodWorkEntitySetupData();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -88,6 +89,58 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
     $scope.closePopUp = function () {
         angular.element(document.querySelector('#popUp')).modal('hide');
     }
+
+ 
+
+    $scope.Save = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.ModelNewForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'data': $scope.ModelNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ModelNew.Id = response.data.Data.Id;
+                    $scope.getData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.Delete = function () {
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrl + $scope.ModelNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFields();
+                    $scope.getData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+
+    //#region Entity
 
     $scope.entitySearchList = [];
     $scope.entityDataList = [];
@@ -158,11 +211,48 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         else
             $scope.selectedEntityList = [];
         angular.forEach($scope.selectedEntityList, function (a) {
-            if (!baseService.valueCheckInList($scope.entityDataList, 'Id', a.ReportingGroupId))
+            if (!baseService.valueCheckInList($scope.entityDataList, 'Id', a.EntityId))
                 $scope.selectedEntityList.splice(a, 1);
         });
         $scope.closeEntityPopUp();
+        $scope.SaveEntity();
     };
+
+    $scope.SaveEntity = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'Attendances/GoodWorkSetup/CreateEntity',
+                data: {
+                    'data': $scope.selectedEntityList
+                    , 'goodWorkSetupId': $scope.ModelNew.Id
+                },
+                dataType: 'JSON'
+                , contentType: "application/json charset=utf-8"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetGoodWorkEntitySetupData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.GetGoodWorkEntitySetupData = function () {
+        $http({
+            method: 'GET',
+            url: "Attendances/GoodWorkSetup/GetGoodWorkEntitySetupData?goodWorkSetupId=" + $scope.ModelNew.Id
+        }).then(function (response) {
+            $scope.selectedEntityList = response.data;
+        });
+    }
 
 
     $scope.tempList = [];
@@ -197,52 +287,7 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
     }
 
 
-    $scope.Save = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.ModelNewForm.$valid) {
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.ModelNew.Id = response.data.Data.Id;
-                    $scope.getData();
-
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-
-        }
-    };
-
-    $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
-            $http({
-                method: 'POST',
-                url: $scope.deleteUrl + $scope.ModelNew.Id,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    ClearFields();
-                    $scope.getData();
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
-        }
-    };
+    //#endregion
 
     $scope.Clear = function () {
         ClearFields($scope.GetSequence());

@@ -102,7 +102,10 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
         PartySubCategoryId: null,
         Latitude: null,
         Longitude:null,
-        PartyNature:null
+        PartyNature: null,
+        ResponsiblePersonId: null,
+        ResponsiblePersonCode: null,
+        ResponsiblePerson:null
     };
 
     $scope.contactMaster = {
@@ -310,6 +313,45 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
         $scope.taxApplicableList = result;
     });
     // #endregion
+
+
+    $scope.popUpDataList = [];
+    $scope.showEmployeeListPopUp = function () {
+        try {
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'OrderManagements/SalesOrderApproval/GetAllActiveEmpData'
+
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+            });
+
+            angular.element(document.querySelector('#popUp')).modal('show');
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.SelectEmployee = function (arg) {
+        $scope.party.ResponsiblePersonId = arg.data.SystemId;
+        $scope.party.ResponsiblePerson = arg.data.EmployeeName;
+        $scope.party.ResponsiblePersonCode = arg.data.EmployeeCode;
+        $scope.closePopUp();
+    }
+
+
+    $scope.clearEmp = function () {
+        $scope.party.ResponsiblePersonId = null;
+        $scope.party.ResponsiblePerson = null;
+        $scope.party.ResponsiblePersonCode = null;
+    }
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#popUp')).modal('hide');
+    }
+
 
     // #region Get
 
