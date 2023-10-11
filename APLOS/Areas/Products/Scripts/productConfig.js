@@ -434,5 +434,9 @@ function ProductConfig($routeProvider, $locationProvider) {
             templateUrl: 'Products/inventoryIssue/POWiseMaterialIssue',
             controller: 'POWiseMaterialIssueController'
         })
+        .when('/service-acknowledgement', {
+            templateUrl: 'Products/PurchaseOrder/ServiceAcknowledgement',
+            controller: 'ServiceAcknowledgementController'
+        })
         ;
 }
