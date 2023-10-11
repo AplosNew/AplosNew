@@ -176,7 +176,10 @@ namespace Aplos.Areas.Products.Controllers
         {
             return View();
         }
-
+        public ActionResult ServiceAcknowledgement()
+        {
+            return View();
+        }
 
         #endregion Aplos
 

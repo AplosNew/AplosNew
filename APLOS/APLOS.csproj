@@ -2309,6 +2309,7 @@
     <Content Include="Areas\Products\Scripts\IssueSlipApprovedByController.js" />
     <Content Include="Areas\Products\Scripts\IssueSlipCheckedByController.js" />
     <Content Include="Areas\Products\Scripts\POWiseMaterialIssueController.js" />
+    <Content Include="Areas\Products\Scripts\ServiceAcknowledgementController.js" />
     <Content Include="Areas\QMS\Scripts\ComplaintController.js" />
     <Content Include="Areas\QMS\Scripts\CustomerCompletedParameterController.js" />
     <Content Include="Areas\QMS\Scripts\CustomerQualityAndTechnicalSupportController.js" />
@@ -4982,6 +4983,7 @@
     <Content Include="Areas\QMS\Views\DefineProcessParameter\Aplos.cshtml" />
     <Content Include="Areas\QMS\Views\ParameterSettingControl\Aplos.cshtml" />
     <Content Include="Areas\QMS\Views\OrderWiseQualityReport\Aplos.cshtml" />
+    <Content Include="Areas\Products\Views\PurchaseOrder\ServiceAcknowledgement.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />
