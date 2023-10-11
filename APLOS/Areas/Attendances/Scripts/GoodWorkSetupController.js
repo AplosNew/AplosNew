@@ -131,10 +131,39 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         angular.element(document.querySelector('#entityPopUp')).modal('hide');
     };
 
+    $scope.selectedEntityList = [];
     $scope.selectEntityPopUp = function () {
-       
-        angular.element(document.querySelector('#entityPopUp')).modal('hide');
+        if (baseService.arrayLength($scope.entityDataList) > 0) {
+            angular.forEach($scope.entityDataList, function (a) {
+                if (checkExistTempList($scope.selectedEntityList, a.Id) === false) {
+                    if (a.Flag) {
+                        $scope.selectedEntityList.push({
+                            Id: null
+                            , EntityId: a.Id
+                            , GoodWorkSetupId: $scope.ModelNew.Id
+                            , Code: a.Code
+                            , UserName: a.UserName
+                            , Plant: a.Plant
+                            , Division: a.Division
+                            , SubDivision: a.SubDivision
+                            , Unit: a.Unit
+                            , EffectiveDate: a.EffectiveDate
+                            , IsProductionEntity: a.IsProductionEntity
+                        });
+                    }
+                }
+
+            });
+        }
+        else
+            $scope.selectedEntityList = [];
+        angular.forEach($scope.selectedEntityList, function (a) {
+            if (!baseService.valueCheckInList($scope.entityDataList, 'Id', a.ReportingGroupId))
+                $scope.selectedEntityList.splice(a, 1);
+        });
+        $scope.closeEntityPopUp();
     };
+
 
     $scope.tempList = [];
     $scope.selectChValueId = function (event, data) {
@@ -160,7 +189,7 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
 
     function checkExistTempList(list, Id) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].Id === Id) {
+            if (list[i].EntityId === Id) {
                 return true;
             }
         }

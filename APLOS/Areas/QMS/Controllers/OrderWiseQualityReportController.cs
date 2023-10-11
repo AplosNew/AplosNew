@@ -163,19 +163,19 @@ left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
 left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
 where PS.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-1 PlanSet,PST.UserName POStatus
+1 PlanSet,PST.UserName POStatus,PS.ProcessId
 from TRN.ProductionSummary PS
 left join trn.ProductionOrder PO on PO.Id=PS.ProductionOrderId
 left join hkp.ProductionStatus PST on PST.Id=PO.ProductionStatusId
 left join org.Entity E on E.Id=PS.EntityId
 where PS.AddedDate between '" + FromDate + "' and '" + ToDate + @"') P
-Left Join (select QMM.UserName IssueName,QMP.QMID IssueId,QMP.Id ParameterId,PM.UserName ParameterName,QMP.SNO ParameterSequence,UOM.UserName UOM,1 as PlanSet,PR.UserName Process
+inner Join (select QMM.UserName IssueName,QMP.QMID IssueId,QMP.Id ParameterId,PM.UserName ParameterName,QMP.SNO ParameterSequence,UOM.UserName UOM,1 as PlanSet,PR.UserName Process,QMP.ProcessId
  from MST.QualityManagementParameterItem QMP
  left join MST.QualityManagementMaster QMM on QMM.Id=QMP.QMID
  left join Hkp.ParameterMaster PM on PM.Id=QMP.ParameterId
  left join SCS.UnitOfMeasurement UOM on UOM.Id=QMP.UOMId
  left join hkp.Process PR on  PR.Id=QMP.ProcessId
- where CustomerParameter = 1) CP on CP.PlanSet=P.PlanSet) M
+ where CustomerParameter = 1) CP on CP.PlanSet=P.PlanSet and CP.ProcessId=P.ProcessId) M
  left join (select QC.IssueId,QMM.UserName IssueName,QCD.ItemId ParameterId,PM.UserName ParameterName,QC.LotNumber,QC.ProductionOrderId,
  QCD.Value,QGD.GradeName,QCD.Remarks ParameterRemark,QAT.ActionToBeTakenName,EI.EmployeeName ResponsiblePerson,
  format(QC.AddedDate,'dd-MMM-yyyy') QCDate,format(QCD.AddedDate,'dd-MMM-yyyy') QCDDate,QC.Id HeaderId,QCD.Id ChildId,QGD.IsPassValue PassValue,QGD.IsFailValue FailValue,QGD.IsRejectValue RejectValue,
