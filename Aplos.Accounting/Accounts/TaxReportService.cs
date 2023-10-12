@@ -1,4 +1,5 @@
 ﻿using Library.Core;
+using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Service.Enums;
@@ -12,6 +13,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 
 namespace Library.Accounting.Accounts
 {
@@ -160,8 +162,8 @@ namespace Library.Accounting.Accounts
                         FROM [MST].[TaxCodeYear] AS TCY
                         LEFT JOIN [SCS].[TaxYear] AS TY ON TY.Id=TCY.TaxYearId
                         LEFT JOIN [SCS].[TaxYearPeriod] AS TYP ON TYP.TaxYearId=TY.Id
-                        WHERE (Year(TYP.StartDate) = Year('"+ fromDate + @"')  and Month(TYP.StartDate) = Month('"+ fromDate + @"')) or
-                        (Year(TYP.EndDate) = Year('" + toDate + @"')  and Month(TYP.EndDate) = Month('"+ toDate + @"'))";
+                        WHERE (Year(TYP.StartDate) = Year('" + fromDate + @"')  and Month(TYP.StartDate) = Month('" + fromDate + @"')) or
+                        (Year(TYP.EndDate) = Year('" + toDate + @"')  and Month(TYP.EndDate) = Month('" + toDate + @"'))";
                 DataTable dtTax = _sqlRepository.GetDataTable(sql);
                 taxYearId = "''";
                 if (dtTax.Rows.Count > 0)
@@ -6376,7 +6378,7 @@ UNION ALL
                 sheet1.Range[xlsRow, xlsCol].Text = "Party Name";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
                 xlsCol++;
-                
+
                 int iPostingDate = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Posting Date";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
@@ -6392,12 +6394,12 @@ UNION ALL
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
                 xlsCol++;
 
-                int iDocRefNo = xlsCol; 
+                int iDocRefNo = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "DocRef No";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20;
                 xlsCol++;
 
-                int iNarration = xlsCol; 
+                int iNarration = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Narration";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
                 xlsCol++;
@@ -6487,14 +6489,14 @@ UNION ALL
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
 
-               
+
                 int startRow = 0;
                 int perStartRow = 0;
-                
+
                 xlsRow++;
                 startRow = xlsRow;
                 perStartRow = xlsRow;
-                
+
                 for (int i = 0; i < dtGStReceivableF3.Rows.Count; i++)
                 {
                     sheet1.Range[xlsRow, iType].Text = dtGStReceivableF3.Rows[i]["PartyType"].ToString();
@@ -6505,8 +6507,8 @@ UNION ALL
                     sheet1.Range[xlsRow, iDocDate].Text = dtGStReceivableF3.Rows[i]["DocDate"].ToString();
                     sheet1.Range[xlsRow, iReviewDate].Text = dtGStReceivableF3.Rows[i]["ReviewDate"].ToString();
                     sheet1.Range[xlsRow, iDocRefNo].Text = dtGStReceivableF3.Rows[i]["DocRefNo"].ToString();
-                    
-                    
+
+
                     sheet1.Range[xlsRow, iNarration].Text = dtGStReceivableF3.Rows[i]["Narration"].ToString();
                     sheet1.Range[xlsRow, iGL].Text = dtGStReceivableF3.Rows[i]["GL"].ToString();
                     sheet1.Range[xlsRow, iBudget].Text = dtGStReceivableF3.Rows[i]["Budget"].ToString();
@@ -6516,7 +6518,7 @@ UNION ALL
                     sheet1.Range[xlsRow, iBankName].Text = dtGStReceivableF3.Rows[i]["BankName"].ToString();
                     sheet1.Range[xlsRow, iCashName].Text = dtGStReceivableF3.Rows[i]["CashName"].ToString();
                     sheet1.Range[xlsRow, iCurrencyCode].Text = dtGStReceivableF3.Rows[i]["CurrencyCode"].ToString();
-                    
+
 
                     sheet1.Range[xlsRow, iReceivable].Number = clsStaticInfo.dbl(dtGStReceivableF3.Rows[i]["Receivable"].ToString());
                     sheet1.Range[xlsRow, iReceivable].NumberFormat = "#,##0.00;(#,##0.00)";
@@ -6532,7 +6534,7 @@ UNION ALL
                     sheet1.Range[xlsRow, iBookBalance].NumberFormat = "#,##0.00;(#,##0.00)";
 
                     xlsRow++;
-                    
+
                 }
                 sheet1[perStartRow, iType, xlsRow - 1, iType].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iVoucherRowId, xlsRow - 1, iVoucherRowId].BorderAround(ExcelLineStyle.Hair);
@@ -6542,7 +6544,7 @@ UNION ALL
                 sheet1[perStartRow, iDocDate, xlsRow - 1, iDocDate].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iReviewDate, xlsRow - 1, iReviewDate].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iDocRefNo, xlsRow - 1, iDocRefNo].BorderAround(ExcelLineStyle.Hair);
-                
+
                 sheet1[perStartRow, iNarration, xlsRow - 1, iNarration].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iGL, xlsRow - 1, iGL].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iBudget, xlsRow - 1, iBudget].BorderAround(ExcelLineStyle.Hair);
@@ -6552,7 +6554,7 @@ UNION ALL
                 sheet1[perStartRow, iBankName, xlsRow - 1, iBankName].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iCashName, xlsRow - 1, iCashName].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iCurrencyCode, xlsRow - 1, iCurrencyCode].BorderAround(ExcelLineStyle.Hair);
-                
+
                 sheet1[perStartRow, iReceivable, xlsRow - 1, iReceivable].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iReceived, xlsRow - 1, iReceived].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iBalance, xlsRow - 1, iBalance].BorderAround(ExcelLineStyle.Hair);
@@ -6578,7 +6580,7 @@ UNION ALL
                         IPictureShape pic = null;
 
                         pic = sheet1.Pictures.AddPicture(1, 1, companyLogo);
-                       
+
                     }
                 }
                 catch (Exception ex)
@@ -12411,8 +12413,8 @@ FROM (SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS Adjust
                         sheet1.Range[xlsRow, GSTIN].Text = dtRCMPayable.Rows[i]["GSTIN"].ToString();
 
                         sheet1.Range[xlsRow, iTDSPer].Text = dtRCMPayable.Rows[i]["TDSPer"].ToString();//TaxableAmount
-                        //sheet1.Range[xlsRow, iTDSPer].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                        
+                                                                                                       //sheet1.Range[xlsRow, iTDSPer].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+
                         sheet1.Range[xlsRow, iPercentage].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["ValueOfFixed"].ToString());//TaxableAmount
                         sheet1.Range[xlsRow, iPercentage].NumberFormat = reportUtility.NumberFormatDecimalTwo();
 
@@ -13329,7 +13331,7 @@ where TC.TaxCategoryType='TDS' AND ITD.AType='Cr'
 	               LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @") AND TACD.TaxCodeYearId=TAY.Id) TAXC ON TAXC.Id=ATX.TaxCodeId
 				
 				where TC.TaxCategoryType='TCS' AND ITD.AType='Dr' 
-				AND V.PostingDate between '"+ fromDate + "' AND '"+ toDate + "' and V.PlantId = '"+ plantId + @"' and V.IsPark=0
+				AND V.PostingDate between '" + fromDate + "' AND '" + toDate + "' and V.PlantId = '" + plantId + @"' and V.IsPark=0
              
 
 				UNION ALL
@@ -13399,6 +13401,576 @@ where TC.TaxCategoryType='TDS' AND ITD.AType='Cr'
 				";
 
             return _sqlRepository.GetDataTable(strSql);
+
+        }
+
+        public string GSTDetailReport(string FromDate, string ToDate, string SheetName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "GSTDetailReport";
+                sheet = workbook.Worksheets[0];
+                DataTable data;
+                GSTDetailReportSQL(FromDate, ToDate, out data);
+
+                int ROW = 5; int COL = 1;
+
+                #region columns
+                sheet[ROW, COL].Text = "Voucher Type";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColVoucherType = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Party Id";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColPartyId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Party Name";
+                sheet[ROW, COL].ColumnWidth = 30;
+                int ColPartyName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "GSTIN(Party Plant)";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColGSTIN = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Party Type";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColPartyType = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Party Nature";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColPartyNature = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Party Category";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColPartyCategory = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Party Sub Category";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColPartySubCategory = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Material";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int ColMaterial = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Article";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int ColArticle = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Particulars";
+                sheet[ROW, COL].ColumnWidth = 30;
+                int ColParticulars = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "HSN Code";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColHSN = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Voucher No";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColVoucherNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Entry Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColEntryDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Posting Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColPostingDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "DocRef No";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColDocRefNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Doc Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColDocDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "GRN No";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColGRNNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Taxable Amount";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColTaxableAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "IGST";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColIGST = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "CGST";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColCGST = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SGST";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColSGST = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "TCS";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColTCS = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Total Tax";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColTotalTax = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Gross Amount";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColGrossAmount = COL;
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+                int startRow = ROW;
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, ColVoucherType].Text = data.Rows[i]["SourceType"].ToString();
+                    sheet[ROW, ColPartyId].Text = data.Rows[i]["PartyId"].ToString();
+                    sheet[ROW, ColPartyName].Text = data.Rows[i]["PartyName"].ToString();
+                    sheet[ROW, ColGSTIN].Text = data.Rows[i]["GSTIN"].ToString();
+                    sheet[ROW, ColPartyType].Text = data.Rows[i]["PartyType"].ToString();
+                    sheet[ROW, ColPartyNature].Text = data.Rows[i]["PartyNature"].ToString();
+                    sheet[ROW, ColPartyCategory].Text = data.Rows[i]["PartyCategory"].ToString();
+                    sheet[ROW, ColPartySubCategory].Text = data.Rows[i]["PartySubCategory"].ToString();
+                    sheet[ROW, ColMaterial].Text = data.Rows[i]["Material"].ToString();
+                    sheet[ROW, ColArticle].Text = data.Rows[i]["Article"].ToString();
+                    sheet[ROW, ColParticulars].Text = data.Rows[i]["Narration"].ToString();
+                    sheet[ROW, ColHSN].Text = data.Rows[i]["HSNCode"].ToString();
+                    sheet[ROW, ColVoucherNo].Text = data.Rows[i]["VoucherNo"].ToString();
+                    sheet[ROW, ColEntryDate].Text = data.Rows[i]["EntryDate"].ToString();
+                    sheet[ROW, ColPostingDate].Text = data.Rows[i]["PostingDate"].ToString();
+                    sheet[ROW, ColDocRefNo].Text = data.Rows[i]["DocRefNo"].ToString();
+                    sheet[ROW, ColDocDate].Text = data.Rows[i]["DocDate"].ToString();
+                    sheet[ROW, ColGRNNo].Text = data.Rows[i]["GRNNo"].ToString();
+
+                    sheet[ROW, ColTaxableAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TaxableAmount"].ToString());
+                    sheet[ROW, ColTaxableAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColIGST].Number = clsStaticInfo.dbl(data.Rows[i]["IGST"].ToString());
+                    sheet[ROW, ColIGST].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, ColCGST].Number = clsStaticInfo.dbl(data.Rows[i]["CGST"].ToString());
+                    sheet[ROW, ColCGST].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColSGST].Number = clsStaticInfo.dbl(data.Rows[i]["SGST"].ToString());
+                    sheet[ROW, ColSGST].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, ColTCS].Number = clsStaticInfo.dbl(data.Rows[i]["TCS"].ToString());
+                    sheet[ROW, ColTCS].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    var TotalTax = clsStaticInfo.dbl(data.Rows[i]["IGST"].ToString()) + clsStaticInfo.dbl(data.Rows[i]["CGST"].ToString()) + clsStaticInfo.dbl(data.Rows[i]["SGST"].ToString()) + clsStaticInfo.dbl(data.Rows[i]["TCS"].ToString());
+                    var GrossAmn = TotalTax + clsStaticInfo.dbl(data.Rows[i]["TaxableAmount"].ToString());
+
+                    sheet[ROW, ColTotalTax].Number = TotalTax;
+                    sheet[ROW, ColTotalTax].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColGrossAmount].Number = GrossAmn;
+                    sheet[ROW, ColGrossAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "GST Detail Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void GSTDetailReportSQL(string FromDate, string ToDate, out DataTable data)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                string strSQL = @"select  SourceType,
+                        VoucherNo,VoucherDate,PostingDate,DocRefNo,DocDate,PartyId,PartyName,PartyPlantName,PartyCategory,PartySubCategory
+                        ,PartyNature,PartyType,Material,Article,HSNCode,GSTIN , TaxCategoryType
+                        , TaxCode , TaxableAmount, ISNULL(DrAmount,0) DrAmount, CrAmount ,EntryDate,GRNNo,Narration
+                        into #tempOT from
+                        (
+                        SELECT	x.SourceType,x.VoucherNo,x.VoucherDate,x.PostingDate,x.DocRefNo,x.DocDate,x.PartyId,x.PartyName,x.PartyPlantName,X.PartyCategory,X.PartySubCategory
+                        ,X.PartyNature,X.PartyType,X.Material,X.Article,X.HSNCode,x.GSTIN
+		                        ,x.TaxCategoryType,x.TaxCode--,x.TaxPercentage
+		                        ,SUM(x.TaxableAmount) TaxableAmount,SUM(x.DrAmount) DrAmount,SUM(x.CrAmount) CrAmount
+		                        ,x.TCSequence,x.EntryDate,x.GRNNo,X.Narration
+		                        FROM 
+
+                        (
+                        SELECT 
+						'Expenses' SourceType
+                            ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate
+							,P.Id PartyId,P.UserName PartyName,PP.GSTIN
+							,NULL GRNNo,pp.UserName PartyPlantName,P.PartyNature,IV.PartyType,NULL Material,NULL Article,PC.UserName PartyCategory,PSC.UserName PartySubCategory
+                            ,LineItemType=case when v.SourceType='InventoryPayable' then 'Material'
+                            WHEN v.SourceType='VendorInvoice' THEN 'GL'
+                            WHEN v.SourceType='VendorPayment' THEN 'GL'
+                            ELSE '' END
+                            ,TaxableAmount=case when v.SourceType='InventoryPayable' then 0
+                            when v.SourceType='VendorInvoice' then ISNULL(VD.DrAmount,0)
+                            when v.SourceType='VendorPayment' then ISNULL(IWD.Amount,0) else 0 end
+                            ,DrAmount=case when ITD.AType='Dr' then ISNULL(IT.TaxAmount,0) else 0 end
+							,0 CrAmount
+	                        ,format( v.VoucherDate,'dd-MMM-yyyy')VoucherDate
+                            ,TC.TaxCategoryType,TC.Code TaxCode,TC.Sequence TCSequence,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM
+							
+                            ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,0 IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
+                            ,0 [Percentage],NULL HSNCode
+							,TaxPercentage= case when v.SourceType='VendorInvoice' then taxc.ValueOfFixed else 0 end
+							, Format (IT.AddedDate,'dd-MMM-yyyy')EntryDate,V.Narration
+                            from TRN.InvoiceTax IT
+                            left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Dr'
+                            LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
+                            LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
+                            LEFT JOIN HKP.Activity TA ON TA.Id=ITD.ActivityId
+                            LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
+							Left join hkp.PartyPlant PP on PP.Id=IT.PartyPlantId
+							Left join hkp.PartyCategory PC on PC.Id=P.PartyCategoryId
+							Left join hkp.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+                            LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
+                            LEFT JOIN( select distinct TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC
+                            LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
+                            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN ('','7') ) TAXC ON TAXC.Id=IT.TaxCodeId
+                            LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IT.VoucherDetailId
+                            LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
+                            LEFT JOIN (SELECT IW.InvoiceWriteOffId,IW.ActivityId,SUM(I.Amount) Amount FROM TRN.InvoiceWriteOffDetail IW
+                            JOIN TRN.Invoice I ON I.Id=IW.InvoiceId
+                            GROUP BY InvoiceWriteOffId,ActivityId) IWD ON IWD.InvoiceWriteOffId=IT.InvoiceWriteOffId
+                            LEFT JOIN HKP.Activity AP ON AP.Id=IWD.ActivityId
+                            where TC.TaxCategoryType='GST' AND TAXC.IsRCM=0 AND  V.IsPark=0 AND V.PlantId='" + identity.PlantId + @"'
+							and V.PostingDate between '" + FromDate + @"' and '" + ToDate + @"'
+                            AND v.SourceType IN ('VendorInvoice','VendorPayment')
+                            
+                            UNION all
+
+							SELECT 'GRN' SourceType
+                            ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate,P.Id PartyId,P.UserName PartyName,PP.GSTIN
+							, IRD.InventoryReceiveId GRNNo,pp.UserName PartyPlantName,P.PartyNature,IV.PartyType,MM.UserName Material,MMA.StandardName Article
+							,PC.UserName PartyCategory,PSC.UserName PartySubCategory
+                            ,LineItemType=case when v.SourceType='InventoryPayable' then 'Material'
+                            WHEN v.SourceType='VendorInvoice' THEN 'GL'
+                            WHEN v.SourceType='VendorPayment' THEN 'GL'
+                            ELSE '' END
+                            
+                            ,TaxableAmount=IRD.TotalMaterialTranAmount
+                            ,DrAmount=case when ITD.AType='Dr' then sum(ISNULL(IRT.TaxAmount,0)) else 0 end,0 CrAmount
+	                        ,format( v.VoucherDate,'dd-MMM-yyyy')VoucherDate
+                            ,TC.TaxCategoryType,TC.Code TaxCode,TC.Sequence TCSequence,TC.UserName+'-'+TC.Code TaxCategory
+							,IsNULL(TAXC.IsRCM,0) IsRCM
+                            ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable
+							,TAXC.[Type],TAXC.ValueOfFixed
+                            ,IRT.[Percentage],HC.Code HSNCode
+							,TaxPercentage= case  when v.SourceType='InventoryPayable' AND IRT.[Percentage]>0 THEN IRT.[Percentage]
+												 else 0 end
+												 ,Format (it.AddedDate ,'dd-MMM-yyyy') EntryDate,V.Narration
+                            from TRN.InvoiceTax IT
+                            left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Dr'
+                            LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
+                            LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
+                            LEFT JOIN HKP.Activity TA ON TA.Id=ITD.ActivityId
+                            LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
+                            Left join hkp.PartyCategory PC on PC.Id=P.PartyCategoryId
+							Left join hkp.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+							
+                            LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
+                            LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC
+                            LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
+                            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN ('','7') 
+							) TAXC ON TAXC.Id=IT.TaxCodeId
+                            LEFT JOIN TRN.InventoryReceive IR ON IR.VoucherId=V.Id
+                            LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId=IR.Id
+                            LEFT JOIN TRN.InventoryReceiveTax IRT ON IRD.Id=IRT.InventoryReceiveDetailId AND IRT.TaxCategoryId=IT.TaxCategoryId
+                            LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
+                            LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
+                            LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=IM.ArticleId
+                            LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IT.VoucherDetailId
+                            LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
+							LEFT JOIN HKP.HSNCode HC ON HC.Id=IRT.HSNCodeId
+                            Left join hkp.PartyPlant pp on pp.Id=IR.InvoicingPartyPlantId
+                            where TC.TaxCategoryType='GST' AND IR.IsTaxApplicable=0 AND V.IsPark=0
+							AND V.PlantId = '" + identity.PlantId + @"' and V.PostingDate between '" + FromDate + @"' and '" + ToDate + @"'
+                            AND v.SourceType='InventoryPayable' and IRT.InventoryServiceId IS NULL
+                            GROUP BY 
+							V.VoucherNo,V.PostingDate, V.DocRefNo,V.DocDate,P.Id,P.UserName ,PP.GSTIN
+							, IRD.InventoryReceiveId ,pp.UserName 
+                            , v.SourceType
+                            ,v.VoucherDate,IRD.TotalMaterialTranAmount
+                            ,TC.TaxCategoryType,TC.Code ,TC.Sequence ,TC.UserName,TC.Code
+							,IsNULL(TAXC.IsRCM,0) ,V.Narration
+                            ,IsNULL(IV.IsExcludingTax,0) ,IsNULL(IR.IsTaxApplicable,0) 
+							,TAXC.[Type],TAXC.ValueOfFixed,ITD.AType,PC.UserName,PSC.UserName
+                            ,IRT.[Percentage],IRT.[Percentage] ,it.AddedDate,P.PartyNature,IV.PartyType ,MM.UserName,MMA.StandardName
+                            ,HC.Code 
+
+                             UNION all
+                            SELECT 'GRN' SourceType
+                            ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate,P.Id PartyId,P.UserName PartyName,PP.GSTIN
+							, IRD.InventoryReceiveId GRNNo,pp.UserName PartyPlantName,P.PartyNature,IV.PartyType,NULL Material,NULL Article
+							,PC.UserName PartyCategory,PSC.UserName PartySubCategory
+                            ,LineItemType=case when v.SourceType='InventoryPayable' then 'Material'
+                            WHEN v.SourceType='VendorInvoice' THEN 'GL'
+                            WHEN v.SourceType='VendorPayment' THEN 'GL'
+                            ELSE '' END
+                            
+                            ,TaxableAmount=case when v.SourceType='InventoryPayable' then 0
+                            else 0 end
+                            ,DrAmount=case when ITD.AType='Dr' then sum(ISNULL(IRT.TaxAmount,0)) else 0 end,0 CrAmount
+	                        ,format( v.VoucherDate,'dd-MMM-yyyy')VoucherDate
+                            ,TC.TaxCategoryType,TC.Code TaxCode,TC.Sequence TCSequence,TC.UserName+'-'+TC.Code TaxCategory
+							,IsNULL(TAXC.IsRCM,0) IsRCM
+                            ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable
+							,TAXC.[Type],TAXC.ValueOfFixed
+                            ,IRT.[Percentage],NULL HSNCode
+							,TaxPercentage= case  when v.SourceType='InventoryPayable' AND IRT.[Percentage]>0 THEN IRT.[Percentage]
+												 else 0 end
+												 ,Format (it.AddedDate ,'dd-MMM-yyyy') EntryDate,V.Narration
+                            from TRN.InvoiceTax IT
+                            left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Dr'
+                            LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
+                            LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
+                            LEFT JOIN HKP.Activity TA ON TA.Id=ITD.ActivityId
+                            LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
+							Left join hkp.PartyCategory PC on PC.Id=P.PartyCategoryId
+							Left join hkp.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+                            LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
+                            LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC
+                            LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
+                            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN ('','7')
+							--and tac.IsRCM=0
+							) TAXC ON TAXC.Id=IT.TaxCodeId
+                            --LEFT JOIN SCS.TaxYear TY ON TY.Id=TAY.TaxYearId
+                            LEFT JOIN TRN.InventoryReceive IR ON IR.VoucherId=V.Id
+                            LEFT JOIN TRN.InventoryService IRD ON IRD.InventoryReceiveId=IR.Id
+                            LEFT JOIN TRN.InventoryReceiveTax IRT ON IRD.Id=IRT.InventoryServiceId AND IRT.TaxCategoryId=IT.TaxCategoryId
+                            LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IT.VoucherDetailId
+                            LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
+                            Left join hkp.PartyPlant pp on pp.Id=IR.InvoicingPartyPlantId
+                            where TC.TaxCategoryType='GST' AND IR.IsTaxApplicable=0 AND V.IsPark=0
+							AND V.PlantId = '" + identity.PlantId + @"' and V.PostingDate between '" + FromDate + @"' and '" + ToDate + @"' 
+                            AND v.SourceType='InventoryPayable'  and IRT.InventoryServiceId<>''
+							 
+                            GROUP BY 
+							V.VoucherNo,V.PostingDate, V.DocRefNo,V.DocDate,P.Id,P.UserName ,PP.GSTIN
+							, IRD.InventoryReceiveId ,pp.UserName 
+                            , v.SourceType
+                            ,v.VoucherDate,V.Narration
+                            ,TC.TaxCategoryType,TC.Code ,TC.Sequence ,TC.UserName,TC.Code
+							,IsNULL(TAXC.IsRCM,0) 
+                            ,IsNULL(IV.IsExcludingTax,0) ,IsNULL(IR.IsTaxApplicable,0) 
+							,TAXC.[Type],TAXC.ValueOfFixed,ITD.AType,PC.UserName,PSC.UserName
+                            ,IRT.[Percentage],IRT.[Percentage] ,it.AddedDate,P.PartyNature,IV.PartyType
+
+							UNION ALL
+
+							--****************TCS*********************************
+                            SELECT 'GRN' SourceType
+                            ,V.VoucherNo,format( V.PostingDate,'dd-MMM-yyyy')PostingDate, V.DocRefNo,format (V.DocDate,'dd-MMM-yyyy')DocDate,P.Id PartyId,P.UserName PartyName,PP.GSTIN
+							, IRD.InventoryReceiveId GRNNo,pp.UserName PartyPlantName,P.PartyNature,IV.PartyType,NULL Material,NULL Article
+							,PC.UserName PartyCategory,PSC.UserName PartySubCategory
+                            ,LineItemType=case when v.SourceType='InventoryPayable' then 'Material'
+                            WHEN v.SourceType='VendorInvoice' THEN 'GL'
+                            WHEN v.SourceType='VendorPayment' THEN 'GL'
+                            ELSE '' END
+                            
+                            ,TaxableAmount=case when v.SourceType='InventoryPayable' then 0
+                            else 0 end
+                            ,DrAmount=case when ITD.AType='Dr' then sum(ISNULL(ITD.Amount,0)) else 0 end,0 CrAmount
+	                        ,format( v.VoucherDate,'dd-MMM-yyyy')VoucherDate
+                            ,TC.TaxCategoryType,TC.Code TaxCode,TC.Sequence TCSequence,TC.UserName+'-'+TC.Code TaxCategory
+							,IsNULL(TAXC.IsRCM,0) IsRCM
+                            ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable
+							,TAXC.[Type],TAXC.ValueOfFixed
+                            ,NULL [Percentage],NULL HSNCode
+							,NULL TaxPercentage
+												 ,Format (it.AddedDate ,'dd-MMM-yyyy') EntryDate,V.Narration
+                            from TRN.InvoiceTax IT
+                            left join TRN.InvoiceTaxDetail ITD ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Dr'
+                            LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
+                            LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
+                            --LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
+                            LEFT JOIN HKP.Activity TA ON TA.Id=ITD.ActivityId
+                            LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
+							Left join hkp.PartyCategory PC on PC.Id=P.PartyCategoryId
+							Left join hkp.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+                            LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId
+                            LEFT JOIN( select TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC
+                            LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
+                            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN ('','7')
+							--and tac.IsRCM=0
+							) TAXC ON TAXC.Id=IT.TaxCodeId
+                            --LEFT JOIN SCS.TaxYear TY ON TY.Id=TAY.TaxYearId
+                            LEFT JOIN TRN.InventoryReceive IR ON IR.VoucherId=V.Id
+                            LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.InventoryReceiveId=IR.Id
+                            LEFT JOIN TRN.VoucherDetail VD ON VD.Id=IT.VoucherDetailId
+                            LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
+                            Left join hkp.PartyPlant pp on pp.Id=IR.InvoicingPartyPlantId
+                            where TC.TaxCategoryType='TCS' AND IR.IsTaxApplicable=0 AND V.IsPark=0
+							AND V.PlantId = '" + identity.PlantId + @"' and V.PostingDate between '" + FromDate + @"' and '" + ToDate + @"'
+							AND v.SourceType='InventoryPayable'  
+							 
+                            GROUP BY 
+							V.VoucherNo,V.PostingDate, V.DocRefNo,V.DocDate,P.Id,P.UserName ,PP.GSTIN
+							, IRD.InventoryReceiveId ,pp.UserName 
+                            , v.SourceType
+                            ,v.VoucherDate,V.Narration
+                            ,TC.TaxCategoryType,TC.Code ,TC.Sequence ,TC.UserName,TC.Code
+							,IsNULL(TAXC.IsRCM,0) 
+                            ,IsNULL(IV.IsExcludingTax,0) ,IsNULL(IR.IsTaxApplicable,0) 
+							,TAXC.[Type],TAXC.ValueOfFixed,ITD.AType
+                           ,it.AddedDate ,P.PartyNature,IV.PartyType,PC.UserName,PSC.UserName
+
+			                UNION	ALL			
+                            SELECT 'Service' SourceType
+                            ,V.VoucherNo,format(V.PostingDate, 'dd-MMM-yyyy')PostingDate, V.DocRefNo,format(V.DocDate, 'dd-MMM-yyyy')DocDate,P.Id PartyId,P.UserName PartyName, PP.GSTIN
+							, IRD.ServiceAcknowledgementMasterId GRNNo,pp.UserName PartyPlantName,P.PartyNature,IV.PartyType,NULL Material,NULL Article
+							,PC.UserName PartyCategory,PSC.UserName PartySubCategory
+                              , LineItemType =case when v.SourceType = 'ServicePayable' then 'Service' ELSE '' END
+                            
+                            ,TaxableAmount =case when v.SourceType = 'ServicePayable' then ISNULL(IRD.Amount,0)
+
+                             else 0 end
+                            ,DrAmount =case when ITD.AType = 'Dr' then ISNULL(IRT.TaxAmount,0) else 0 end,0 CrAmount
+	                        ,format(v.VoucherDate, 'dd-MMM-yyyy')VoucherDate
+                            ,TC.TaxCategoryType,TC.Code TaxCode, TC.Sequence TCSequence, TC.UserName + '-' + TC.Code TaxCategory,IsNULL(TAXC.IsRCM, 0) IsRCM
+                                   , IsNULL(IV.IsExcludingTax, 0) IsExcludingTax,IsNULL(IR.IsTaxApplicable, 0) IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
+                            ,IRT.[Percentage],HC.Code HSNCode
+							,TaxPercentage = case  when v.SourceType = 'InventoryPayable'  THEN IRT.[Percentage]
+
+                                                 else 0 end
+												 ,Format (it.AddedDate ,'dd-MMM-yyyy') EntryDate,V.Narration
+                            from TRN.InvoiceTax IT
+                            left
+                            join TRN.InvoiceTaxDetail ITD ON IT.Id = ITD.InvoiceTaxId AND ITD.AType = 'Dr'
+                            LEFT JOIN TRN.Voucher V ON V.Id = IT.VoucherId
+                            LEFT JOIN TRN.Invoice IV ON IV.Id = IT.InvoiceId
+                            LEFT JOIN HKP.Activity TA ON TA.Id = ITD.ActivityId
+                            LEFT JOIN HKP.Party P ON P.Id = IT.PartyId
+							Left join hkp.PartyCategory PC on PC.Id=P.PartyCategoryId
+							Left join hkp.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+                            LEFT JOIN MST.TaxCategory TC ON TC.Id = IT.TaxCategoryId
+                            LEFT JOIN(select TAC.Id, TAC.UserName, TAC.IsRCM, TAY.[Type], TACD.ValueOfFixed from MST.TaxCode TAC
+                            LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId= TAC.Id
+                            LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId= TAC.Id WHERE TAY.TaxYearId IN ('','7') 
+							) TAXC ON TAXC.Id = IT.TaxCodeId
+                            LEFT JOIN TRN.ServiceAcknowledgementMaster IR ON IR.VoucherId = V.Id
+                            LEFT JOIN TRN.ServicePOAckTax IRT ON IRT.ServiceAcknowledgementMasterId = IR.Id AND IRT.TaxCategoryId = IT.TaxCategoryId
+                            --LEFT JOIN MST.HSNTaxPercentage HSNP ON IRT.HSNCodeId = HSNP.HSNCodeId AND HSNP.TaxCategoryId = IT.TaxCategoryId
+                            LEFT JOIN TRN.ServiceAcknowledgementDetail IRD ON IRD.Id = IRT.ServiceAcknowledgementDetailId
+                            LEFT JOIN hkp.ServiceMaster SM ON SM.Id = IRD.ServiceMasterId
+                             Left join hkp.PartyPlant pp on pp.Id=IR.InvoicingPartyPlantId
+							 LEFT JOIN HKP.HSNCode HC ON HC.Id=IRT.HSNCodeId
+                            LEFT JOIN TRN.VoucherDetail VD ON VD.Id = IT.VoucherDetailId
+                            LEFT JOIN HKP.Activity A ON A.Id = VD.ActivityId
+                            LEFT JOIN(SELECT IW.InvoiceWriteOffId, IW.ActivityId, SUM(I.Amount) Amount FROM TRN.InvoiceWriteOffDetail IW
+                            JOIN TRN.Invoice I ON I.Id= IW.InvoiceId
+                            GROUP BY InvoiceWriteOffId, ActivityId) IWD ON IWD.InvoiceWriteOffId = IT.InvoiceWriteOffId
+                            LEFT JOIN HKP.Activity AP ON AP.Id = IWD.ActivityId
+                            where TC.TaxCategoryType = 'GST' AND IR.IsTaxApplicable = 0 AND V.IsPark = 0
+							 AND V.PlantId = '" + identity.PlantId + @"' and V.PostingDate between '" + FromDate + @"' and '" + ToDate + @"'
+                            AND v.SourceType = 'ServicePayable' 
+                            ) x
+
+							
+
+							group by x.VoucherNo,x.VoucherDate,x.PostingDate,x.DocRefNo,x.DocDate,x.PartyId,x.PartyName
+							,x.TCSequence,x.PartyPlantName,x.GSTIN,x.SourceType,X.HSNCode,X.Narration
+							,x.TaxCategoryType,x.EntryDate,x.TaxCode,x.GRNNo,X.PartyNature,X.PartyType,X.Material,X.Article,X.PartyCategory,X.PartySubCategory --,x.TaxPercentage
+							--ORDER BY 1,2,4
+							)B
+DECLARE @sql nvarchar(max), @col nvarchar(max)
+                            SELECT @col = (
+                                SELECT DISTINCT ','+QUOTENAME(REPLACE(CONVERT(VARCHAR(40), TaxCode, 113), ' ', '-'))    
+                                FROM #tempOT 
+                                FOR XML PATH ('')
+                            ) 
+							  
+							SELECT @sql = N'
+                            (SELECT *
+                            FROM #tempOT
+                            PIVOT (
+                                MAX([DrAmount]) FOR [TaxCode] IN ('+STUFF(@col,1,1,'')+')
+                            ) as pvt)' 
+                            EXEC sp_executesql @sql
+                            drop table #tempOT";
+
+                data = _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
 
         }
 

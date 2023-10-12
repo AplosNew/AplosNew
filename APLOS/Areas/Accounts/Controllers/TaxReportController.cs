@@ -393,6 +393,22 @@ namespace Aplos.Areas.Accounts.Controllers
                     return RenderReportAsExcel(workbook, reportFileName);
             }
         }
+
+        [HttpPost, Authorize]
+        public ActionResult GetGSTDetailReport(string FromDate, string ToDate)
+        {
+            try
+            {
+                string fileName = ""; 
+                fileName = _taxReportServiceService.GSTDetailReport(FromDate, ToDate, "GST Detail Report");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
     }
 
 

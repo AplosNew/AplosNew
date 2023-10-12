@@ -449,7 +449,6 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
         $scope.Action = "Save";
         $scope.product = {};
         $scope.productNew = { FixedAssetOrInventory: 'Inventory', PODepended: false, AlongwithInvoice: false, IssueType: 'Revenue', InvoicingPartyPlantId: $scope.productNew.InvoicingPartyPlantId };
-        //$scope.productNew.InvoicingPartyPlantId=$scope.productNew.InvoicingPartyPlantId;
         $scope.detailModel = {};
         $scope.TDS = {};
         $scope.clearCharNames();

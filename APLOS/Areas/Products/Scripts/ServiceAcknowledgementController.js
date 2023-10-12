@@ -42,10 +42,6 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
 
 
-
-
-    //#region notification setting for Service Requisition
-
     $scope.NotificationSettingStatus = function () {
         //debugger;
         $http({
@@ -66,10 +62,7 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
             else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true) {
                 $scope.productNew.labelCheckAndApproved = 'To be checked by';
             }
-            //else {
-            //    $scope.productNew.labelCheckAndApproved = 'To be checked/approved by';
-            //}
-
+            
         });
     }
     $scope.NotificationSettingStatus();
