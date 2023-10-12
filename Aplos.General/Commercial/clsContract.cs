@@ -1079,6 +1079,28 @@ LEFT JOIN HKP.TermsAndConditions TC ON TC.Id=CT.TermsAndConditionsId
             }
         }
 
+        public IEnumerable<object> GetGoodWorkEntitySetupData(string goodWorkSetupId)
+        {
+            try
+            {
+
+                var sql = @"SELECT ES.*,E.Code,E.UserName,P.UserName Plant,D.UserName Division,SD.UserName SubDivision,U.UserName Unit,FORMAT(E.EffectiveDate,'dd-MMM-yyyy')EffectiveDate FROM dbo.GoodWorkEntitySetup ES
+LEFT JOIN ORG.Entity E  ON E.Id=ES.EntityId
+LEFT JOIN ORG.Division D ON D.Id=E.DivisionId
+LEFT JOIN ORG.SubDivision SD ON SD.Id=E.SubDivisionId
+LEFT JOIN ORG.Unit U ON U.Id=E.UnitId
+LEFT JOIN ORG.Plant P ON P.Id=E.PlantId where  GoodWorkSetupId='" + goodWorkSetupId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
+
     }
 }
 

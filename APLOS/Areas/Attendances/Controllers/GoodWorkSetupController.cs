@@ -8,6 +8,7 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
+using Library.General.Commercial;
 using Library.HumanResource.Payroll.Allowance;
 using Library.Model.Setups;
 using Library.OrderManagement.Sales;
@@ -32,7 +33,7 @@ namespace Aplos.Areas.Attendances.Controllers
     {
         #region Constructor
         private readonly ISqlRepository _sqlRepository;
-        clsSales clsSales = new clsSales();
+        clsContract clsCon = new clsContract();
         public GoodWorkSetupController(ISqlRepository R)
         {
             _sqlRepository = R;
@@ -84,7 +85,7 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID("GoodWorkSetup", out _Id);
 
-                    data["Id"] =  _Id;
+                    data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -107,6 +108,77 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
 
             }
         }
+
+
+
+        [HttpPost, Authorize]
+        public JsonResult CreateEntity(List<Dictionary<string, object>> data, string goodWorkSetupId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            bplib.clsGenID genid = new bplib.clsGenID();
+            DataSet dsEntity;
+            string _Id = string.Empty;
+            int c = 0;
+            try
+            {
+                #region Entity 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.GoodWorkEntitySetup where  GoodWorkSetupId='" + goodWorkSetupId + "'", out dsEntity, false, "1");
+                if (data != null)
+                {
+                    genid.GenID("GoodWorkEntitySetup", out _Id);
+                    foreach (var item in data)
+                    {
+                        c++;
+                        DataView dv = new DataView(dsEntity.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = goodWorkSetupId + "-" + _Id + "-" + c;
+                            item["GoodWorkSetupId"] = goodWorkSetupId;
+
+                            AddNewRow(dsEntity.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsEntity);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetGoodWorkEntitySetupData(string goodWorkSetupId)
+        {
+            try
+            {
+                return Json(clsCon.GetGoodWorkEntitySetupData(goodWorkSetupId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        
 
         public ActionResult Delete(string id)
         {

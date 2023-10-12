@@ -61,7 +61,18 @@
                                 </div>
                             </div>
                         </div>
-
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Party Nature<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="PartyNature" ng-model="party.PartyNature" class="form-control" tabindex="11" required>
+                                        <option value="">--Select--</option>
+                                        <option value="Overseas">Overseas</option>
+                                        <option value="Domestic">Domestic</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Pin Code</label>
                             <div class="col-sm-8">
@@ -138,18 +149,7 @@
                                 <input type="text" name="Latitude" maxlength="30" ng-model="party.Latitude" class="form-control" tabindex="2">
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Party Nature<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select name="PartyNature" ng-model="party.PartyNature" class="form-control" tabindex="11" required>
-                                        <option value="">--Select--</option>
-                                        <option value="Overseas">Overseas</option>
-                                        <option value="Domestic">Domestic</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group" show-errors>
@@ -167,7 +167,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Party SubCategory<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -177,7 +177,18 @@
                                 </div>
                             </div>
                         </div>
-
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Responsible Person</label>
+                            <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
+                                <input type="hidden" name="ByWhom" ng-model="party.ResponsiblePersonId" class="form-control">
+                                <span class="input-group-addon">{{party.ResponsiblePersonCode}}</span>
+                                <input type="text" name="ByWhom" ng-model="party.ResponsiblePerson" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="showEmployeeListPopUp();" class="btn single-small-btn" tabindex="13"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="clearEmp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                </span>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Excise Range</label>
                             <div class="col-sm-8">
@@ -1138,6 +1149,44 @@
 <confirm-modal></confirm-modal>
 @Html.Partial("~/Areas/Parties/Views/Party/_CompanyPartyGL.cshtml")
 @*@Html.Partial("~/Areas/Parties/Views/Party/_PartyBank.cshtml")*@
+<div class="modal fade site-modal in" id="popUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <disv class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridPopUp" ej-grid e-datasource="popUpDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="SelectEmployee" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SystemId" e-headertext="SystemId" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-headertext="" e-template="#empimage" e-textalign="center" e-width="40"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="Company" e-headertext="Company" e-width="80"></div>
+                            <div e-column e-field="Plant" e-headertext="Plant" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                    </div>
+                </disv>
+            </div>
+            <div class="modal-footer">
+                <ul class="common-btn list-inline text-right" style="padding: 20px;">
+                    <li><button ng-click="closePopUp();" class="btn" tabindex="10"><i class="glyphicon glyphicon-info-sign right"></i> Close</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script type="text/x-jsrender" id="empimage">
+        <img src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;" />
+    </script>
+</div>
+
 <div class="modal fade site-modal in" id="BankPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content" ng-form="BankForm">
