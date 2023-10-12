@@ -534,13 +534,24 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                          ltd.SystemID LvPolDetailsSystemID,
                                          --ltd.IsProrataPreviousyear,
                                          ltd.IsProratacurrentyear
-                                        ---,els.DaysCanBeSanctioned
-										 ,DaysCanBeSanctioned=case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+                                       ,DaysCanBeSanctioned= CASE WHEN
+										 (case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
 																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
-																   else Isnull(els.DaysCanBeSanctioned,0) end
-                                                                    ,CurrentAllocationDCBS=case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+																   else Isnull(els.DaysCanBeSanctioned,0) end)=0 THEN 
+																   ISNULL(CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(els.DaysCanBeSanctioned, 0) END,0)
+																   ELSE 
+																   case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
 																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
-																   else Isnull(els.DaysCanBeSanctioned,0) end
+																   else Isnull(els.DaysCanBeSanctioned,0) end END
+,CurrentAllocationDCBS= CASE WHEN
+										(case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) end)=0 THEN 
+																   ISNULL(CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(els.DaysCanBeSanctioned, 0) END,0)
+																   ELSE 
+																   case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) end END
 
                                         ,els.EncashedInbetween
                                         ,ltd.IsAvailExceptionAllowedOnSpecialAppeal,
@@ -694,13 +705,24 @@ SELECT els.CalanderYearID, ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed
                                          --ISNULL(ltd.IsProrataPreviousyear,0)IsProrataPreviousyear,
                                          ,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear
                                         
-                                         ---,els.DaysCanBeSanctioned
-										 ,DaysCanBeSanctioned=case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+                                         ,DaysCanBeSanctioned= CASE WHEN
+										 (case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
 																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
-																   else Isnull(els.DaysCanBeSanctioned,0) end
- ,CurrentAllocationDCBS=case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+																   else Isnull(els.DaysCanBeSanctioned,0) end)=0 THEN 
+																   ISNULL(CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(els.DaysCanBeSanctioned, 0) END,0)
+																   ELSE 
+																   case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
 																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
-																   else Isnull(els.DaysCanBeSanctioned,0) end
+																   else Isnull(els.DaysCanBeSanctioned,0) end END
+,CurrentAllocationDCBS= CASE WHEN
+										(case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) end)=0 THEN 
+																   ISNULL(CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(els.DaysCanBeSanctioned, 0) END,0)
+																   ELSE 
+																   case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) end END
 										,els.EncashedInbetween
                                         ,ISNULL(ltd.IsAvailExceptionAllowedOnSpecialAppeal,0)IsAvailExceptionAllowedOnSpecialAppeal,
 										 0.00 Balance,
