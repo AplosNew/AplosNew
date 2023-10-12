@@ -809,6 +809,13 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 /*CheckField("Production Grade", $scope.productionSummaryNew.ProductionGrade);*/
                 //CheckField("Quantity", $scope.productionSummaryNew.Quantity);
             }
+
+            if ($scope.productionSummaryNew.ProductionBookingLevel === "MasterOrderItem") {
+                var getRow = $filter("filter")($scope.MasterOrderItemValidateList, { "MasterOrderItemId": $scope.NewObject.MasterOrderItemId });
+                if (getRow.length === 0) {
+                    throw "MO Item not belongs to the selected PO please refresh and proceed.";
+                }
+            }
             //else if ($scope.productionSummaryNew.ProductionBookingLevel === "SalesOrder") {
             //    CheckField("Sales Order", $scope.productionSummaryNew.SalesOrderId);
             //    CheckField("Master Order No", $scope.productionSummaryNew.MasterOrderNo);
@@ -1973,6 +1980,9 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     ShowResult(response.data.Message, 'success');
                     $scope.NewObject.Id = response.data.ProductionSummary.Id;
                     $scope.ValidateProdQty($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.ProductionOrderId);
+                    for (var i = 0; i < $scope.wcList.length; i++) {
+                        $scope.wcList[i].ClickRow = false;
+                    }
                     var gridObj = $("#ProductionSummaryWC").data("ejGrid");
                     gridObj.refreshContent();
                     gridObj.refreshTemplate();
@@ -2291,6 +2301,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 if (baseService.isUndefinedOrNull($scope.NewObject.MasterOrderItemId)) {
                     throw "Select MO Item please.";
                 }
+                $scope.getMasterOrderValidateView($scope.NewObject.WorkCenterMasterId, $scope.NewObject.BookingLevel, $scope.NewObject.ProductionOrderId);
             }
 
             var processid = $scope.productionSummaryNew.ProcessId;
@@ -2308,18 +2319,20 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.productionSummaryNew.ProductionInCharge = PInCharg;
             $scope.TotalPreviousProcessQty = $scope.NewObject.POPreviousProdQty;
 
-            $scope.ProcessParaList = [];
-            $http.get('Productions/ProductionSummary/GetProcessParaData?processId=' + $scope.productionSummaryNew.ProcessId + '&masterId=' + data.data.Id + '&ProductionOrderId=' + data.data.ProductionOrderId)
-                .then(
-                    function successCallback(response) {
-                        $scope.ProcessParaList = response.data;
-                        $scope.GetTotalProductionBookingQty();
-                    },
-                    function errorCallback(response) {
-                        ShowResult(response, 'failure');
-                    });
+            
+                $scope.ProcessParaList = [];
+                $http.get('Productions/ProductionSummary/GetProcessParaData?processId=' + $scope.productionSummaryNew.ProcessId + '&masterId=' + data.data.Id + '&ProductionOrderId=' + data.data.ProductionOrderId)
+                    .then(
+                        function successCallback(response) {
+                            $scope.ProcessParaList = response.data;
+                            $scope.GetTotalProductionBookingQty();
+                        },
+                        function errorCallback(response) {
+                            ShowResult(response, 'failure');
+                        });
 
-            angular.element(document.querySelector('#ProcessParaPopup')).modal('show');
+                angular.element(document.querySelector('#ProcessParaPopup')).modal('show');
+            
         } catch (e) {
             ShowResult(e, 'failure');
         }
@@ -2922,6 +2935,17 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.MasterOrderItemViewList = resp.data;
+        });
+    }
+
+    $scope.MasterOrderItemValidateList = [];
+    $scope.getMasterOrderValidateView = function (wcid, bl, poid) {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetMasterOrderItem?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + wcid + '&productionLevel=' + bl + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + poid,
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.MasterOrderItemValidateList = resp.data;
         });
     }
 

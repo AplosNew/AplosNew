@@ -19,6 +19,7 @@ using System.Threading;
 using System.Linq;
 using System.Web.Mvc;
 using System.Linq.Expressions;
+using Library.Service.Properties;
 
 namespace Aplos.Areas.Parties.Controllers
 {
@@ -447,6 +448,105 @@ namespace Aplos.Areas.Parties.Controllers
             }
         }
         [HttpPost, Authorize]
+        public JsonResult GetCompanyPartyDataListForReport(string column, string value, string partyType)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var res = GetCompanyPartyListForReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value, partyType);
+            var jsondata = Json(res, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        public List<Dictionary<string, object>> GetCompanyPartyListForReport(string companyGroupId, string companyId, string plantId, string column, string value, string customerVendor)
+        {
+            try
+            {
+                string temp = null;
+                var sql = "";
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                if (customerVendor == "Vendor" || customerVendor == "Customer" || customerVendor == "Director")
+                {
+                    temp = customerVendor;
+                    sql = @"select top 100 * from (SELECT CheckState=CAST(0 AS bit),P.Id AS PartyId, P.Code AS PartyCode, P.UserName AS PartyName, P.Id, P.Code, P.UserName, CP.PartyType, CP.PartyAccountGroupId, PAG.Code AS PartyAccountGroupCode, PAG.UserName AS PartyAccountGroupName, CP.CurrencyId, C.Code AS CurrencyCode, C.[Name] AS CurrencyName
+                                    , CP.PaymentTermId, PT.Code AS PaymentTermCode, PT.UserName AS PaymentTermName, CP.IsPaymentTermChangeable
+                                    , NULL AS InvoicingPartyPlantId, NULL AS DeliveryPartyPlantId, CO.Code AS CountryCode, CO.UserName AS CountryName, S.Code AS StateCode, S.UserName AS StateName
+                                    , RGL.ReconciliationGLId, RGL.ReconciliationGLCode, RGL.ReconciliationGLName
+                                    , RGL.ReconciliationBudgetId, RGL.ReconciliationBudgetCode, RGL.ReconciliationBudgetName
+                                    , RGL.ReconciliationActivityId, RGL.ReconciliationActivityCode, RGL.ReconciliationActivityName
+                                    , DGL.DownPaymentGLId, DGL.DownPaymentGLCode, DGL.DownPaymentGLName
+                                    , DGL.DownPaymentBudgetId, DGL.DownPaymentBudgetCode, DGL.DownPaymentBudgetName
+                                    , DGL.DownPaymentActivityId, DGL.DownPaymentActivityCode, DGL.DownPaymentActivityName
+                                    , SGL.SuspenseGLId, SGL.SuspenseGLCode, SGL.SuspenseGLName
+                                    , SGL.SuspenseBudgetId, SGL.SuspenseBudgetCode, SGL.SuspenseBudgetName
+                                    , SGL.SuspenseActivityId, SGL.SuspenseActivityCode, SGL.SuspenseActivityName
+                                    , CP.TaxApplicable, CP.IsTaxApplicableChangeable
+									, (SELECT COUNT(Id) FROM [HKP].[PartyPlant] WHERE PartyId=P.Id) AS TotalPartyPlant
+                                    FROM [HKP].[Party] AS P
+                                    LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id
+                                    LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=CP.PartyAccountGroupId
+                                    LEFT JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
+                                    LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=CP.PaymentTermId
+                                    LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=P.AddressMasterId
+									LEFT JOIN [SCS].[Country] AS CO ON CO.Id=AM.CountryId
+									LEFT JOIN [SCS].[State] AS S ON S.Id=AM.StateId
+                                    LEFT JOIN(
+                                    SELECT CPGL.CompanyPartyId, CPGL.GLGeneralInfoId AS ReconciliationGLId, GL.AccountCode AS ReconciliationGLCode, GL.UserName AS ReconciliationGLName
+                                    , CPGL.BudgetMasterId AS ReconciliationBudgetId, B.Code AS ReconciliationBudgetCode, B.UserName AS ReconciliationBudgetName
+                                    , CPGL.ActivityId AS ReconciliationActivityId, A.Code AS ReconciliationActivityCode, A.UserName AS ReconciliationActivityName
+                                    FROM [HKP].[CompanyPartyGL] AS CPGL
+                                    LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON GL.Id=CPGL.GLGeneralInfoId
+                                    LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=CPGL.BudgetMasterId
+                                    LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                    LEFT JOIN [HKP].[Activity] AS A ON A.Id=CPGL.ActivityId
+                                    WHERE CPGL.PartyGLType='" + PartyGLType.ReconciliationGL + @"'
+                                    ) AS RGL ON RGL.CompanyPartyId=CP.Id
+                                    LEFT JOIN(
+                                    SELECT CPGL.CompanyPartyId, CPGL.GLGeneralInfoId AS DownPaymentGLId, GL.AccountCode AS DownPaymentGLCode, GL.UserName AS DownPaymentGLName
+                                    , CPGL.BudgetMasterId AS DownPaymentBudgetId, B.Code AS DownPaymentBudgetCode, B.UserName AS DownPaymentBudgetName
+                                    , CPGL.ActivityId AS DownPaymentActivityId, A.Code AS DownPaymentActivityCode, A.UserName AS DownPaymentActivityName
+                                    FROM [HKP].[CompanyPartyGL] AS CPGL
+                                    LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON GL.Id=CPGL.GLGeneralInfoId
+                                    LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=CPGL.BudgetMasterId
+                                    LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                    LEFT JOIN [HKP].[Activity] AS A ON A.Id=CPGL.ActivityId
+                                    WHERE CPGL.PartyGLType='" + PartyGLType.DownPaymentGL + @"'
+                                    ) AS DGL ON DGL.CompanyPartyId=CP.Id
+                                    LEFT JOIN(
+										SELECT CPGL.CompanyPartyId, CPGL.GLGeneralInfoId AS SuspenseGLId, GL.AccountCode AS SuspenseGLCode, GL.UserName AS SuspenseGLName
+										, CPGL.BudgetMasterId AS SuspenseBudgetId, B.Code AS SuspenseBudgetCode, B.UserName AS SuspenseBudgetName
+										, CPGL.ActivityId AS SuspenseActivityId, A.Code AS SuspenseActivityCode, A.UserName AS SuspenseActivityName
+										FROM [HKP].[CompanyPartyGL] AS CPGL
+										LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON GL.Id=CPGL.GLGeneralInfoId
+										LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=CPGL.BudgetMasterId
+										LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+										LEFT JOIN [HKP].[Activity] AS A ON A.Id=CPGL.ActivityId
+										WHERE CPGL.PartyGLType='" + PartyGLType.SuspenseGL + @"'
+                                    ) AS SGL ON SGL.CompanyPartyId=CP.Id
+                                    WHERE P.Archive=0 AND P.Active=1 AND P.CompanyGroupId='" + companyGroupId + "' AND CP.PartyType IN ('" + temp + "') AND CP.CompanyId='" + companyId + "' AND CP.PlantId='" + plantId + @"'
+                                    ) AS TEMP WHERE " + strkey + " order by Code ";
+                }
+                if (customerVendor == null || customerVendor == "null")
+                {
+                    temp = "Vendor" + "','" + "Customer";
+                    sql = @"select top 100 * from (SELECT distinct P.Id AS PartyId,P.Code AS PartyCode, P.UserName AS PartyName, P.Id, P.Code, P.UserName
+                                    FROM [HKP].[Party] AS P
+                                    LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id
+                                    LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=CP.PartyAccountGroupId
+                                    WHERE P.Archive=0 AND P.Active=1 AND P.CompanyGroupId='" + companyGroupId + "' AND CP.PartyType IN ('" + temp + "') AND CP.CompanyId='" + companyId + "' AND CP.PlantId='" + plantId + @"'
+                                    ) AS TEMP WHERE " + strkey + " order by Code ";
+                }
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
+            }
+        }
+        [HttpPost, Authorize]
         public JsonResult GetCompanyPartyDataListNew_Loan(string column, string value, string partyType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -702,6 +802,36 @@ namespace Aplos.Areas.Parties.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_partyService.GetCompanyPartyReconAdditionalGLList(identity.CompanyId, identity.PlantId, partyId, partyType), JsonRequestBehavior.AllowGet);
+        }
+
+
+        public IEnumerable<object> GetAuthorizeByEmployee(string employeeId)
+        {
+            try
+            {
+                var _sql = @"SELECT * FROM dbo.[AuthorizationConfig] WHERE ActionStatus ='PartyApproveBy' AND EmployeeId='"+ employeeId + "'";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetPartyListToApprove(GridParameter parameters)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var entity = GetAuthorizeByEmployee(identity.EmployeeId);
+            if (entity == null || !entity.Any())
+            throw new CustomException("You are not authorize person to approve.");
+            return Json(_partyService.Query(parameters, identity.CompanyGroupId, PartyType.Party), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

@@ -10,7 +10,7 @@ function partyApprovalController(addressService, commonMessage, $scope, $rootSco
     $scope.parties = [];
     $scope.bankListT = [];
     $scope.path = 'Parties/party/';
-    $scope.getListUrl = $scope.path + 'getpartylist';
+    $scope.getListUrl = $scope.path + 'GetPartyListToApprove';
     $scope.getPartyContactListUrl = 'addresses/contactmasterparty/getlistbyparty/';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
