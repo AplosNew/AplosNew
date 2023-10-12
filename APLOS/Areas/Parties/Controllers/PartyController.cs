@@ -19,6 +19,7 @@ using System.Threading;
 using System.Linq;
 using System.Web.Mvc;
 using System.Linq.Expressions;
+using Library.Service.Properties;
 
 namespace Aplos.Areas.Parties.Controllers
 {
@@ -801,6 +802,36 @@ namespace Aplos.Areas.Parties.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_partyService.GetCompanyPartyReconAdditionalGLList(identity.CompanyId, identity.PlantId, partyId, partyType), JsonRequestBehavior.AllowGet);
+        }
+
+
+        public IEnumerable<object> GetAuthorizeByEmployee(string employeeId)
+        {
+            try
+            {
+                var _sql = @"SELECT * FROM dbo.[AuthorizationConfig] WHERE ActionStatus ='PartyApproveBy' AND EmployeeId='"+ employeeId + "'";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetPartyListToApprove(GridParameter parameters)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var entity = GetAuthorizeByEmployee(identity.EmployeeId);
+            if (entity == null || !entity.Any())
+            throw new CustomException("You are not authorize person to approve.");
+            return Json(_partyService.Query(parameters, identity.CompanyGroupId, PartyType.Party), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
