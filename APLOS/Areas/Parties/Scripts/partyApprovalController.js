@@ -10,7 +10,7 @@ function partyApprovalController(addressService, commonMessage, $scope, $rootSco
     $scope.parties = [];
     $scope.bankListT = [];
     $scope.path = 'Parties/party/';
-    $scope.getListUrl = $scope.path + 'getpartylist';
+    $scope.getListUrl = $scope.path + 'GetPartyListToApprove';
     $scope.getPartyContactListUrl = 'addresses/contactmasterparty/getlistbyparty/';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
@@ -1227,93 +1227,6 @@ function partyApprovalController(addressService, commonMessage, $scope, $rootSco
         }
     }
 
-    $scope.Save = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        reDirectToRequiredTab();
-        try {
-            for (var i = 0; i < $scope.companyPartyList.length; i++) {
-                if ($scope.companyPartyList[i].Active) {
-                    if (baseService.isUndefinedOrNull($scope.companyPartyList[i].PartyAccountGroupId)) {
-                        throw "Select Account Group.";
-                    }
-                    if (baseService.isUndefinedOrNull($scope.companyPartyList[i].CurrencyId)) {
-                        throw "Select Currency.";
-                    }
-                    if (baseService.isUndefinedOrNull($scope.companyPartyList[i].PaymentTermId)) {
-                        throw "Select PaymentTerm.";
-                    }
-                }
-            }
-            Validation();
-            ValidationDuplicate();
-            ValidationCust();
-            ValidationDuplicateCust();
-            if ($scope.partyForm1.$valid && $scope.partyForm2.$valid && $scope.partyForm3.$valid && $scope.partyForm4.$valid && $scope.partyForm5.$valid) {
-                if ($scope.Action === 'Save') {
-                    $http({
-                        method: 'POST',
-                        url: $scope.saveUrl,
-                        data: {
-                            'party': $scope.party, 'addressMaster': $scope.addressMaster, 'contactMasters': $scope.contactMasters,
-                            'companyPartyDataList': $scope.companyPartyList, 'partyPartnerFunction': $scope.partyPartnerFunctionList
-                        },
-                        dataType: 'JSON'
-                    }).then(function successCallback(response) {
-                        if (response.data.Error == true) {
-                            ShowResult(response.data.Message, 'failure');
-                        }
-                        else {
-                            ShowResult(response.data.Message, 'success');
-                            $scope.party = response.data.Party;
-                            $scope.parties.push($scope.party);
-                            $scope.parties = $filter('orderBy')($scope.parties, 'Sequence');
-                            baseService.paginationAdd();
-                            $scope.party.Code = response.data.Party.Code;
-                            $scope.party.Id = response.data.Party.Id;
-                            $scope.popCode('success', 'Party Code Successfully Created : ' + $scope.party.Code);
-                            ClearFields(response.data.Sequence);
-                            $scope.getData();
-                        }
-                    }), function errorCallBack(response) {
-                        ShowResult(response.data.Message, 'failure');
-                    };
-                }
-                else if ($scope.Action === 'Update') {
-                    $http({
-                        method: 'POST',
-                        url: $scope.updateUrl,
-                        data: {
-                            'party': $scope.party, 'addressMaster': $scope.addressMaster, 'contactMasters': $scope.contactMasters,
-                            'companyPartyDataList': $scope.companyPartyList, 'companyPartyGLDataList': $scope.companyPartyGLList,
-                            'partyPartnerFunction': $scope.partyPartnerFunctionList, 'isCustomerCurrencyChanges': $scope.IsCustomerCurrencyChanges, 'isVendorCurrencyChanges': $scope.IsVendorCurrencyChanges
-                        },
-                        dataType: 'JSON'
-                    }).then(function successCallBack(response) {
-                        if (response.data.Error == true) {
-                            ShowResult(response.data.Message, 'failure');
-                        }
-                        else {
-                            ShowResult(response.data.Message, 'success');
-                            if ($scope.index > -1) {
-                                $scope.parties[$scope.index] = $scope.party;
-                                $scope.party.Id = response.data.Party.Id;
-                                $scope.parties = $filter('orderBy')($scope.parties, 'Sequence');
-                                $scope.tempList = [];
-                                $scope.IsCustomerCurrencyChanges = false;
-                                $scope.IsVendorCurrencyChanges = false;
-                            }
-                            ClearFields(response.data.Sequence);
-                            $scope.getData();
-                        }
-                    }, function errorCallback(response) {
-                        ShowResult(response.data.Message, 'failure');
-                    });
-                }
-            }
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    };
     // #endregion
 
     //#region Update
@@ -1341,35 +1254,7 @@ function partyApprovalController(addressService, commonMessage, $scope, $rootSco
 
     //#endregion
 
-    // #region Delete
-
-    //$scope.Delete = function () {
-    //    if (!baseService.isUndefinedOrNull($scope.party.Id)) {
-    //        $http({
-    //            method: 'POST',
-    //            url: $scope.deleteUrl + $scope.party.Id,
-    //            dataType: 'JSON'
-    //        }).then(function successCallback(response) {
-    //            if (response.data.Error == true) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            }
-    //            else {
-    //                ShowResult(response.data.Message, 'success');
-    //                $scope.parties.splice($scope.index, 1);
-    //                baseService.paginationRemove();
-    //                ClearFields(response.data.Sequence);
-    //            }
-    //            function errorCallBack(response) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            }
-    //        });
-    //    }
-    //    else {
-    //        ShowResult(commonMessage.primaryKeyNullMessage, 'failure');
-    //    }
-    //};
-    // #endregion
-
+    
     $scope.showContactMaster = true;
 
     // #region Clear

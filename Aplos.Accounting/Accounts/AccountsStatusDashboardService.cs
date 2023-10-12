@@ -157,6 +157,7 @@ namespace Library.Accounting.Accounts
 				,sum(X.Onword60) Onword60
                 ,sum(x.BooksDiscountAmount)BooksDiscountAmount
                 ,SUM(x.TaxAmount)TaxAmount
+                ,CASE WHEN (SELECT COUNT(Id) FROM HKP.CompanyParty WHERE PartyId=X.PartyId AND PartyType='Customer')>0 THEN 'Yes' ELSE 'No' END IsCustomer
                 FROM (
                 SELECT IV.PartyId NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,IV.PartyId,P.Code PartyCode,P.UserName PartyName,c.Code CurrencyCode
                  , ISNULL(IVD.InvoiceBooksAmount,0) AS Gross
@@ -613,7 +614,11 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colOnword60 = COL;
                 worksheet[ROW, COL].ColumnWidth = 15;
-                // COL++;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Is Customer";
+                int colIsCustomer = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
 
                 int endCol = COL;
 
@@ -725,6 +730,8 @@ namespace Library.Accounting.Accounts
 
                     worksheet[ROW, colOnword60].Number = clsStaticInfo.dbl(dt.Rows[i]["Onword60"].ToString());
                     worksheet[ROW, colOnword60].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colIsCustomer].Text = dt.Rows[i]["IsCustomer"].ToString();
 
                     ROW++;
                 }
@@ -3503,7 +3510,7 @@ namespace Library.Accounting.Accounts
 				,ISNULL( sum(X.EightToThirtyBalance),0) EightToThirtyBalance
 				,ISNULL( sum(X.ThirtyToSixtyBalance) ,0)ThirtyToSixtyBalance
 				,ISNULL( sum(X.Onword60),0) Onword60
-				--,CompanyCurrencyRate
+				,CASE WHEN (SELECT COUNT(Id) FROM HKP.CompanyParty WHERE PartyId=X.PartyId AND  PartyType='Vendor')>0 THEN 'Yes' ELSE 'No' END IsVendor
 				
                 FROM (
                 SELECT ISNULL( IV.PartyId,'') NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,ISNULL( IV.PartyId,'')PartyId
@@ -4153,7 +4160,11 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colOnword60 = COL;
                 worksheet[ROW, COL].ColumnWidth = 15;
-                // COL++;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Is Vendor";
+                int colIsVendor = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
 
                 int endCol = COL;
 
@@ -4261,6 +4272,8 @@ namespace Library.Accounting.Accounts
                     worksheet[ROW, colLedgerBalanceAmount].NumberFormat = "#,##0.00;(#,##0.00)";
 
                     worksheet[ROW, colWriteOffPendingPost].Text = dsData.Rows[i]["WriteOffPendingPost"].ToString();
+
+                    worksheet[ROW, colIsVendor].Text = dsData.Rows[i]["IsVendor"].ToString();
 
                     ROW++;
                 }
@@ -22214,7 +22227,10 @@ group by Id) O60 ON O60.Id=IV.Id
         {
             try
             {
-                var sql = @"Select x.PartyNature,x.PartyGroup,x.PartyId,x.PartyName,round(sum(x.VendorAdvance),2) VendorAdvance,round(sum(x.VendorDebitNote),2) VendorDebitNote,round(sum(x.Payable),2) Payable
+                var sql = @"SELECT y.* ,CASE WHEN y.ToBePayment>0 OR ToBeReceived>0 THEN 'Yes' ELSE 'No' END PaymentApplicable
+            ,CASE WHEN (SELECT COUNT(Id) FROM HKP.CompanyParty WHERE PartyId=y.PartyId AND  PartyType='Vendor')>0 THEN 'Yes' ELSE 'No' END IsVendor
+            ,CASE WHEN (SELECT COUNT(Id) FROM HKP.CompanyParty WHERE PartyId=y.PartyId AND PartyType='Customer')>0 THEN 'Yes' ELSE 'No' END IsCustomer
+            FROM(Select x.PartyNature,x.PartyGroup,x.PartyCategory,x.PartySubCategory,x.PartyId,x.PartyName,round(sum(x.VendorAdvance),2) VendorAdvance,round(sum(x.VendorDebitNote),2) VendorDebitNote,round(sum(x.Payable),2) Payable
                 ,round(sum(x.CustomerAdvance),2) CustomerAdvance,round(sum(x.CustomerCreditNote),2) CustomerCreditNote,round(sum(x.Receivable),2) Receivable
                 ,ToBePayment=Case when round((sum(x.Payable)-sum(x.VendorAdvance)-sum(x.VendorDebitNote)-sum(x.Receivable)+sum(x.CustomerAdvance)+sum(x.CustomerCreditNote)),2)>0 then round((sum(x.Payable)-sum(x.VendorAdvance)-sum(x.VendorDebitNote)-sum(x.Receivable)+sum(x.CustomerAdvance)+sum(x.CustomerCreditNote)),2) else 0 end
                 ,ToBeReceived=Case when round((sum(x.Receivable)-sum(x.Payable)+sum(x.VendorAdvance)+sum(x.VendorDebitNote)-sum(x.CustomerAdvance)-sum(x.CustomerCreditNote)),2)>0 then round((sum(x.Receivable)-sum(x.Payable)+sum(x.VendorAdvance)+sum(x.VendorDebitNote)-sum(x.CustomerAdvance)-sum(x.CustomerCreditNote)),2) else 0 end
@@ -22234,7 +22250,7 @@ group by Id) O60 ON O60.Id=IV.Id
 					GROUP BY VD.PartyId),0) CustomerLedgerBalanceAmount
                 ,round(sum(x.RemainingPOPayable),2) RemainingPOAmount
         from (
-        SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,P.PartyNature,P.UserName PartyName
+        SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,P.PartyNature,P.UserName PartyName
                 , 0 VendorAdvance, 0 VendorDebitNote
 				, ISNULL(IVD.InvoiceBooksAmount-IVD.SetOffBooksAmount,0) AS Payable
 				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS ActualPayable
@@ -22260,13 +22276,15 @@ group by Id) O60 ON O60.Id=IV.Id
 				 ) AS IVD ON IVD.InvoiceId=IV.Id AND IVD.PartyId=IV.PartyId
                 LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
 				 WHERE IV.Archive=0 AND  V.IsPark=0  AND IV.SourceType in ('VendorInvoice','InventoryPayable','PurchaseDocAcceptance','SuspensePayable','ServicePayable','EmployeePayable')
                AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + @"' AND IV.PlantId='" + plantId + @"' AND ( convert(Date,IV.PostingDate) <= '" + toDate + @"' )
                 and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
 
                 UNION ALL
-				SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,P.PartyNature,P.UserName PartyName
+				SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,P.PartyNature,P.UserName PartyName
                 , 0 VendorAdvance, 0 VendorDebitNote
 				, ISNULL(VDC.CrAmount-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0),0) AS Payable
 				, 0 ActualPayable,0 CustomerAdvance,0 CustomerCreditNote,0 Receivable,0 ActualReceivable ,0 RemainingPOPayable
@@ -22274,6 +22292,8 @@ group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
                 LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
                 LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=IVD.Id
                 LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
@@ -22289,13 +22309,15 @@ group by Id) O60 ON O60.Id=IV.Id
 
 
                 UNION ALL
-				 SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,P.PartyNature,P.UserName PartyName
+				 SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,P.PartyNature,P.UserName PartyName
                 , ISNULL(VDCA.DrAmount,0)- ISNULL(AW.AdvanceWriteOffBooksAmount,0) VendorAdvance
 				, 0 VendorDebitNote, 0 Payable, 0 ActualPayable
 				,0 CustomerAdvance,0 CustomerCreditNote,0 Receivable,0 ActualReceivable ,0 RemainingPOPayable
 				FROM TRN.Advance A
 				LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
 				INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
 				INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
 				INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCA ON VDCA.VoucherDetailId=VDA.Id
@@ -22309,13 +22331,15 @@ group by Id) O60 ON O60.Id=IV.Id
 				AND ( convert(Date,A.PostingDate) <= '" + toDate + @"' ) and ISNULL(VDCA.DrAmount,0)- ISNULL(AW.AdvanceWriteOffBooksAmount,0)>0
                 
                 UNION ALL
-				 SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,P.PartyNature,P.UserName PartyName
+				 SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,P.PartyNature,P.UserName PartyName
 				 ,0 VendorAdvance
                 , ( ISNULL(VDC.DrAmount,0)- ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)) VendorDebitNote
 				, 0 Payable, 0 ActualPayable,0 CustomerAdvance,0 CustomerCreditNote,0 Receivable,0 ActualReceivable ,0 RemainingPOPayable
 				FROM [TRN].[AdjustmentNote] A
 				LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
 				INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
                 INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
                 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VDA.Id
@@ -22329,7 +22353,7 @@ group by Id) O60 ON O60.Id=IV.Id
 				AND ( convert(Date,A.PostingDate) <= '" + toDate + @"' ) AND ( ISNULL(VDC.DrAmount,0)- ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0))>0
 
 				UNION ALL
-				SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,P.PartyNature,P.UserName PartyName
+				SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,P.PartyNature,P.UserName PartyName
                 ,0 VendorAdvance,0 DebitNote,0 Payable,0 ActualPayable,0 CustomerAdvance,0 CustomerCreditNote
 				,ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0) AS Receivable
 				,ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS  ActualReceivable
@@ -22354,19 +22378,23 @@ group by Id) O60 ON O60.Id=IV.Id
 				 ) AS IVD ON IVD.InvoiceId=IV.Id AND IVD.PartyId=IV.PartyId
                 LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
 				WHERE IV.Archive=0 AND  V.IsPark=0  AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice','InventorySales') 
                AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + @"' AND IV.PlantId='" + plantId + @"' AND ( convert(Date,IV.PostingDate) <= '" + toDate + @"' )
                 and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
 				
                 UNION ALL
-				SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,P.PartyNature,P.UserName PartyName
+				SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,P.PartyNature,P.UserName PartyName
 				,0 VendorAdvance ,0 VendorDebitNote,0 Payable,0 ActualPayable,0 CustomerAdvance,0 CustomerCreditNote
 				,( ISNULL(VDC.DrAmount,0)- ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)) Receivable
 				,0 ActualReceivable ,0 RemainingPOPayable
 				FROM [TRN].[AdjustmentNote] A
 				LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
 				INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
                 INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
                 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VDA.Id
@@ -22380,13 +22408,15 @@ group by Id) O60 ON O60.Id=IV.Id
 				AND ( convert(Date,A.PostingDate) <= '" + toDate + @"' ) AND ( ISNULL(VDC.DrAmount,0)- ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0))>0
 
                 UNION ALL
-				 SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,P.PartyNature,P.UserName PartyName
+				 SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,P.PartyNature,P.UserName PartyName
                 ,0 VendorAdvance,0 DebitNote,0 Payable,0 ActualPayable
 				,ISNULL(VDCA.CrAmount,0)- ISNULL(AW.AdvanceWriteOffBooksAmount,0) CustomerAdvance
                 ,0 CustomerCreditNote,0 Receivable,0 ActualReceivable ,0 RemainingPOPayable
 				FROM TRN.Advance A
 				LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
 				INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
 				INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
 				INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCA ON VDCA.VoucherDetailId=VDA.Id
@@ -22400,13 +22430,15 @@ group by Id) O60 ON O60.Id=IV.Id
 				and (ISNULL(VDCA.CrAmount,0)- ISNULL(AW.AdvanceWriteOffBooksAmount,0))>0
 
                 UNION ALL
-				SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,P.PartyNature,P.UserName PartyName
+				SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,P.PartyNature,P.UserName PartyName
 				,0 VendorAdvance ,0 VendorDebitNote,0 Payable,0 ActualPayable,0 CustomerAdvance
                 ,( ISNULL(VDC.CrAmount,0)- ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)) CustomerCreditNote
                 ,0 Receivable,0 ActualReceivable ,0 RemainingPOPayable
 				FROM [TRN].[AdjustmentNote] A
 				LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
 				INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
                 INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
                 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VDA.Id
@@ -22420,7 +22452,7 @@ group by Id) O60 ON O60.Id=IV.Id
 				AND ( convert(Date,A.PostingDate) <= '" + toDate + @"' ) AND ( ISNULL(VDC.CrAmount,0)- ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0))>0
                 
                 UNION ALL
-                SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,P.PartyNature,P.UserName PartyName
+                SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,P.PartyNature,P.UserName PartyName
                 ,0 VendorAdvance,0 VendorDebitNote,0 Payable,0 ActualPayable,0 CustomerAdvance,0 CustomerCreditNote,0 Receivable,0 ActualReceivable 
                 ,ISNULL(pod.BaseAmount,0)-ISNULL(IRD.GRNAmount,0) RemainingPOPayable
                 from trn.PurchaseOrderdetail pod 
@@ -22431,10 +22463,13 @@ group by Id) O60 ON O60.Id=IV.Id
                 )IRD ON IRD.PodetailsId=pod.id
                 left join hkp.Party P ON P.Id=po.PartyId
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
                  where (ISNULL(pod.BaseAmount,0)-ISNULL(IRD.GRNAmount,0))>0 AND ISNULL(po.IsClosed,0)=0
                 
                 ) x
-				group by x.PartyNature,x.PartyGroup,x.PartyId,x.PartyName order by x.PartyNature,x.PartyGroup,x.PartyName";
+				group by x.PartyNature,x.PartyGroup,x.PartyCategory,x.PartySubCategory,x.PartyId,x.PartyName )y
+				order by y.PartyNature,y.PartyGroup,y.PartyName";
                 return _sqlRepository.GetDataCollection(sql);
 
             }

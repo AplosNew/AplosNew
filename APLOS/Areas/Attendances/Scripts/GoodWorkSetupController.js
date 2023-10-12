@@ -46,6 +46,7 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.GetGoodWorkEntitySetupData();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -89,84 +90,7 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         angular.element(document.querySelector('#popUp')).modal('hide');
     }
 
-    $scope.entitySearchList = [];
-    $scope.entityDataList = [];
-    $scope.entitySearch = [];
-    $scope.entityUrl = 'Organizations/entity/getlist?companyId=';
-    $scope.entityParameters = {
-        limit: 10,
-        offset: 0,
-        order: 'ASC',
-        sort: 'UserName',
-        searchBy: 'Code',
-        pageSize: 10,
-        total_count: 0,
-        search: null,
-        serverPagination: true
-    };
-
-    $scope.entityPopUp = function () {
-        $scope.getEntityData = function (pageno) {
-            baseService.paginationBase($scope.entityUrl + $window.companyId, pageno, $scope.entityParameters)
-                .then(function (response) {
-                    for (var i = 0; i < response.Rows.length; i++) {
-                        response.Rows[i].Flag = false;
-                    }
-                    $scope.entityDataList = response.Rows;
-                    $scope.entityParameters.total_count = response.Total;
-                    if (baseService.arrayLength($scope.entitySearchList) === 0) {
-                        baseService.getDDLSearchColumn($scope.entityDataList, $scope.entitySearchList);
-                    }
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, 'failure');
-                }).finally(function () {
-                });
-        };
-        angular.element(document.querySelector('#entityPopUp')).modal('show');
-        $scope.getEntityData();
-    };
-    $scope.closeEntityPopUp = function () {
-        $scope.entityId = '';
-        $scope.EntityName = '';
-        angular.element(document.querySelector('#entityPopUp')).modal('hide');
-    };
-
-    $scope.selectEntityPopUp = function () {
-       
-        angular.element(document.querySelector('#entityPopUp')).modal('hide');
-    };
-
-    $scope.tempList = [];
-    $scope.selectChValueId = function (event, data) {
-        try {
-            if (event.currentTarget.checked) {
-                if (checkExistTempList($scope.tempList, data.Id) === false) {
-                    $scope.tempList.push(data);
-                }
-            }
-            else {
-                for (var i = 0; i < $scope.tempList.length; i++) {
-                    if ($scope.tempList[i].Id === data.Id) {
-                        $scope.tempList.splice(i, 1);
-                        break;
-                    }
-                }
-            }
-        } catch (e) {
-            event.currentTarget.checked = false;
-            ShowResult(e, "failure");
-        }
-    };
-
-    function checkExistTempList(list, Id) {
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].Id === Id) {
-                return true;
-            }
-        }
-        return false;
-    }
-
+ 
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
@@ -214,6 +138,156 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
             });
         }
     };
+
+
+    //#region Entity
+
+    $scope.entitySearchList = [];
+    $scope.entityDataList = [];
+    $scope.entitySearch = [];
+    $scope.entityUrl = 'Organizations/entity/getlist?companyId=';
+    $scope.entityParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'ASC',
+        sort: 'UserName',
+        searchBy: 'Code',
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+    $scope.entityPopUp = function () {
+        $scope.getEntityData = function (pageno) {
+            baseService.paginationBase($scope.entityUrl + $window.companyId, pageno, $scope.entityParameters)
+                .then(function (response) {
+                    for (var i = 0; i < response.Rows.length; i++) {
+                        response.Rows[i].Flag = false;
+                    }
+                    $scope.entityDataList = response.Rows;
+                    $scope.entityParameters.total_count = response.Total;
+                    if (baseService.arrayLength($scope.entitySearchList) === 0) {
+                        baseService.getDDLSearchColumn($scope.entityDataList, $scope.entitySearchList);
+                    }
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure');
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector('#entityPopUp')).modal('show');
+        $scope.getEntityData();
+    };
+    $scope.closeEntityPopUp = function () {
+        $scope.entityId = '';
+        $scope.EntityName = '';
+        angular.element(document.querySelector('#entityPopUp')).modal('hide');
+    };
+
+    $scope.selectedEntityList = [];
+    $scope.selectEntityPopUp = function () {
+        if (baseService.arrayLength($scope.entityDataList) > 0) {
+            angular.forEach($scope.entityDataList, function (a) {
+                if (checkExistTempList($scope.selectedEntityList, a.Id) === false) {
+                    if (a.Flag) {
+                        $scope.selectedEntityList.push({
+                            Id: null
+                            , EntityId: a.Id
+                            , GoodWorkSetupId: $scope.ModelNew.Id
+                            , Code: a.Code
+                            , UserName: a.UserName
+                            , Plant: a.Plant
+                            , Division: a.Division
+                            , SubDivision: a.SubDivision
+                            , Unit: a.Unit
+                            , EffectiveDate: a.EffectiveDate
+                            , IsProductionEntity: a.IsProductionEntity
+                        });
+                    }
+                }
+
+            });
+        }
+        else
+            $scope.selectedEntityList = [];
+        angular.forEach($scope.selectedEntityList, function (a) {
+            if (!baseService.valueCheckInList($scope.entityDataList, 'Id', a.EntityId))
+                $scope.selectedEntityList.splice(a, 1);
+        });
+        $scope.closeEntityPopUp();
+        $scope.SaveEntity();
+    };
+
+    $scope.SaveEntity = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'Attendances/GoodWorkSetup/CreateEntity',
+                data: {
+                    'data': $scope.selectedEntityList
+                    , 'goodWorkSetupId': $scope.ModelNew.Id
+                },
+                dataType: 'JSON'
+                , contentType: "application/json charset=utf-8"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetGoodWorkEntitySetupData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.GetGoodWorkEntitySetupData = function () {
+        $http({
+            method: 'GET',
+            url: "Attendances/GoodWorkSetup/GetGoodWorkEntitySetupData?goodWorkSetupId=" + $scope.ModelNew.Id
+        }).then(function (response) {
+            $scope.selectedEntityList = response.data;
+        });
+    }
+
+
+    $scope.tempList = [];
+    $scope.selectChValueId = function (event, data) {
+        try {
+            if (event.currentTarget.checked) {
+                if (checkExistTempList($scope.tempList, data.Id) === false) {
+                    $scope.tempList.push(data);
+                }
+            }
+            else {
+                for (var i = 0; i < $scope.tempList.length; i++) {
+                    if ($scope.tempList[i].Id === data.Id) {
+                        $scope.tempList.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+        } catch (e) {
+            event.currentTarget.checked = false;
+            ShowResult(e, "failure");
+        }
+    };
+
+    function checkExistTempList(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].EntityId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    //#endregion
 
     $scope.Clear = function () {
         ClearFields($scope.GetSequence());
