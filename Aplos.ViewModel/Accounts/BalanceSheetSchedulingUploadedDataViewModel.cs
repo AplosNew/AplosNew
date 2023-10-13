@@ -20,5 +20,11 @@ namespace Library.ViewModel.Accounts
         public string Activity { get; set; }
         public string Register { get; set; }
         public string BalanceSheetSchedulingId { get; set; }
+        public string TaxApplicable { get; set; }
+        public string TaxType { get; set; }
+        public string UserCategory { get; set; }
+        public string UserSubCategory { get; set; }
+        public string UserItem { get; set; }
+        public string UserReport { get; set; }
     }
 }
