@@ -1791,6 +1791,12 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     $scope.SaveMasterWC = function (data) {
         $scope.NewObject = data.data;
+        //if ($scope.NewObject.BookingLevel === 'MasterOrderItem') {
+        //    if (baseService.isUndefinedOrNull($scope.NewObject.MasterOrderItemId)) {
+        //        throw "Select MO Item please.";
+        //    }
+        //    $scope.getMasterOrderValidateView($scope.NewObject.WorkCenterMasterId, $scope.NewObject.BookingLevel, $scope.NewObject.ProductionOrderId);
+        //}
         var processid = $scope.productionSummaryNew.ProcessId;
         var entityid = $scope.productionSummaryNew.EntityId;
         var productiondate = $scope.productionSummaryNew.ProductionDate;
