@@ -49,8 +49,8 @@ namespace Aplos.Areas.QMS.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            var sql = @" select Distinct EntityId as Value,E.UserName as Text from TRN.ProductionSummary 
-left join ORG.Entity E on E.Id=EntityId";
+            var sql = @"select * from (select Distinct EntityId as Value,E.UserName as Text from TRN.ProductionSummary 
+left join ORG.Entity E on E.Id=EntityId)EI order by EI.Text";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -93,13 +93,13 @@ left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
 left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
 where Z.PONo=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-Z.PartyNature,
+Z.PartyNature,Z.EntityId,
 Z.Entity,sum(Convert(Int,Z.PassValue)) Pass,sum(Convert(Int,Z.FailValue)) Fail,sum(Convert(Int,Z.RejectValue)) Reject,
 Sum(Z.EntryMissing) MissingEntry,sum(Z.ToClose) ToClose,sum(Z.ToConfirm) ToConfirm,Z.IssueId,
 Reverse(stuff(Reverse((select OWC.Grade +', ' from MST.OrderWiseQualityComment OWC																			
-where OWC.MOLineItemNo=Z.MOLineItemNo and OWC.PONo=Z.PONo and OWC.LotNo=Z.LotNumber for xml PATH(''))),1,2,'')) Grade,
+where OWC.MOLineItemNo=Z.MOLineItemNo and OWC.PONo=Z.PONo and OWC.LotNo=Z.LotNumber and OWC.EntityId=Z.EntityId for xml PATH(''))),1,2,'')) Grade,
 Reverse(stuff(Reverse((select format(OWC.AddedDate,'dd-MMM-yyyy') + '-' + OWC.Comment +', ' from MST.OrderWiseQualityComment OWC																			
-where OWC.MOLineItemNo=Z.MOLineItemNo and OWC.PONo=Z.PONo and OWC.LotNo=Z.LotNumber for xml PATH(''))),1,2,'')) CommentDetails
+where OWC.MOLineItemNo=Z.MOLineItemNo and OWC.PONo=Z.PONo and OWC.LotNo=Z.LotNumber  and OWC.EntityId=Z.EntityId for xml PATH(''))),1,2,'')) CommentDetails
 from (select distinct QCData.QCDate,M.MOLineItemNo,M.POStatus,M.ProductionOrderId PONo,M.LotNumber,M.Article,M.Customer,M.PartyNature, 
 M.IssueId,M.IssueName,M.ParameterSequence,M.ParameterId,M.ParameterName,M.UOM,QCData.Value,QCData.GradeName,QCData.ParameterRemark,QCData.ActionToBeTakenName,QCData.ResponsiblePerson,QCData.PassValue,QCData.FailValue,QCData.RejectValue,QCData.ToClose,QCData.ToConfirm,
 QCData.HeaderId,QCData.ChildId,QCData.QCDDate,(Case When (QCData.Value is null or QCData.Value = '0') then 1 else 0 end) EntryMissing,M.Process,M.Entity,M.EntityId from (Select  P.*,CP.IssueName,CP.IssueId,CP.ParameterId,CP.ParameterName,CP.UOM,CP.ParameterSequence,CP.Process from (select Distinct PS.ProductionOrderId,PS.LotNumber,E.UserName Entity,PS.EntityId,
@@ -154,7 +154,7 @@ inner Join (select QMM.UserName IssueName,QMP.QMID IssueId,QMP.Id ParameterId,PM
  where QCD.ItemId in (select Id from MST.QualityManagementParameterItem where CustomerParameter = 1)) QCData on QCData.IssueId=M.IssueId and QCData.ParameterId=M.ParameterId
  and QCData.ProductionOrderId=M.ProductionOrderId and QCData.LotNumber=M.LotNumber)Z 
  where 1=1 " + FilterPartyNature + @" " + FilterEntity + @"
- Group By Z.PONo,Z.LotNumber,Z.IssueId,Z.Entity,Z.EntryMissing,Z.MOLineItemNo,Z.PartyNature
+ Group By Z.PONo,Z.LotNumber,Z.IssueId,Z.Entity,Z.EntityId,Z.EntryMissing,Z.MOLineItemNo,Z.PartyNature
  order by  (Case when sum(Convert(Int,Z.RejectValue)) > 0  then 'A'
 when sum(Convert(Int,Z.FailValue)) > 0  then 'B'
 when Z.EntryMissing > 0  then 'C'
@@ -163,13 +163,13 @@ else 'D' end) ";
         }
 
         [HttpGet, Authorize]
-        public ActionResult getOrderWiseParameterData(string FromDate, string ToDate,string IssueId, string ProductionOrderId, string LotNumber)
+        public ActionResult getOrderWiseParameterData(string FromDate, string ToDate,string IssueId, string ProductionOrderId, string LotNumber, string EntityId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string
                 sql = @"select distinct QCData.QCDate,M.MOLineItemNo,M.POStatus,M.ProductionOrderId PONo,M.LotNumber,M.Article,M.Customer, 
 M.IssueId,M.IssueName,M.ParameterSequence,M.ParameterId,M.ParameterName,M.UOM,QCData.Value,QCData.GradeName,QCData.ParameterRemark,QCData.ParameterStatus,QCData.ActionToBeTakenName,QCData.ResponsiblePerson,QCData.PassValue,QCData.FailValue,QCData.RejectValue,
-QCData.ToClose,QCData.ToConfirm,QCData.HeaderId,QCData.ChildId,QCData.QCDDate,(Case When (QCData.Value is null or QCData.Value = '0') then 1 else 0 end) EntryMissing,M.Process,M.Entity,
+QCData.ToClose,QCData.ToConfirm,QCData.HeaderId,QCData.ChildId,QCData.QCDDate,QCData.QCDTime,(Case When (QCData.Value is null or QCData.Value = '0') then 1 else 0 end) EntryMissing,M.Process,M.Entity,M.EntityId,
 Reverse(stuff(Reverse((select OWC.Grade +', ' from MST.OrderWiseQualityComment OWC																			
 where OWC.MOLineItemNo=M.MOLineItemNo and OWC.PONo=M.ProductionOrderId and OWC.LotNo=M.LotNumber for xml PATH(''))),1,2,'')) Grade,
 Reverse(stuff(Reverse((select format(OWC.AddedDate,'dd-MMM-yyyy') + '-' + OWC.Comment +', ' from MST.OrderWiseQualityComment OWC																			
@@ -196,7 +196,7 @@ left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
 left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
 where PS.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-1 PlanSet,PST.UserName POStatus,PS.ProcessId
+1 PlanSet,PST.UserName POStatus,PS.ProcessId,PS.EntityId
 from TRN.ProductionSummary PS
 left join trn.ProductionOrder PO on PO.Id=PS.ProductionOrderId
 left join hkp.ProductionStatus PST on PST.Id=PO.ProductionStatusId
@@ -209,9 +209,9 @@ inner Join (select QMM.UserName IssueName,QMP.QMID IssueId,QMP.Id ParameterId,PM
  left join SCS.UnitOfMeasurement UOM on UOM.Id=QMP.UOMId
  left join hkp.Process PR on  PR.Id=QMP.ProcessId
  where CustomerParameter = 1) CP on CP.PlanSet=P.PlanSet and CP.ProcessId=P.ProcessId) M
- left join (select QC.IssueId,QMM.UserName IssueName,QCD.ItemId ParameterId,PM.UserName ParameterName,QC.LotNumber,QC.ProductionOrderId,
+ left join (select distinct QC.IssueId,QMM.UserName IssueName,QCD.ItemId ParameterId,PM.UserName ParameterName,QC.LotNumber,QC.ProductionOrderId,
  QCD.Value,QGD.GradeName,QCD.Remarks ParameterRemark,QAT.ActionToBeTakenName,EI.EmployeeName ResponsiblePerson,
- format(QC.AddedDate,'dd-MMM-yyyy') QCDate,format(QCD.AddedDate,'dd-MMM-yyyy') QCDDate,QC.Id HeaderId,QCD.Id ChildId,QGD.IsPassValue PassValue,QGD.IsFailValue FailValue,QGD.IsRejectValue RejectValue,
+ format(QC.AddedDate,'dd-MMM-yyyy') QCDate,format(QCD.AddedDate,'dd-MMM-yyyy') QCDDate,format(QCD.AddedDate,'hh:mm tt') QCDTime,QC.Id HeaderId,QCD.Id ChildId,QGD.IsPassValue PassValue,QGD.IsFailValue FailValue,QGD.IsRejectValue RejectValue,
  QAU.ActionTaken,QAE.EmployeeName ActionBy,QAU.Remarks QAURemarks,isnull(QAU.ReasonName,(select UserName from [HKP].[QualityManagementReasonMaster] where Id=(select ReasonId from [MST].[QualityManagementParameterReason] where Id=QAU.ReasonId))) ReasonName,QAU.ConfirmRemarks,
  (case when (QGD.IsFailValue <> 0 and QCD.Status not in ('Close','Complete')) then 1 else 0 end) ToClose,
  (case when (QGD.IsFailValue <> 0 and QCD.Status not in ('Complete')) then 1 else 0 end) ToConfirm,
@@ -228,15 +228,15 @@ inner Join (select QMM.UserName IssueName,QMP.QMID IssueId,QMP.Id ParameterId,PM
  left join EmployeeInformation QAE on QAE.SystemId=QAU.ActionById
  where QCD.ItemId in (select Id from MST.QualityManagementParameterItem where CustomerParameter = 1)) QCData on QCData.IssueId=M.IssueId and QCData.ParameterId=M.ParameterId
  and QCData.ProductionOrderId=M.ProductionOrderId and QCData.LotNumber=M.LotNumber
-where M.IssueId='" + IssueId+"' and M.ProductionOrderId='"+ProductionOrderId+"' and M.LotNumber='"+LotNumber+"'";
+where M.IssueId='" + IssueId+"' and M.ProductionOrderId='"+ProductionOrderId+"' and M.LotNumber='"+LotNumber+"' and M.EntityId='"+ EntityId + "' order by M.ParameterSequence,QCData.QCDDate,QCData.QCDTime";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
  
         [Authorize, HttpGet]
-        public ActionResult getCommentEntryData(string MOLineItemNo, string PONo, string LotNo)
+        public ActionResult getCommentEntryData(string MOLineItemNo, string PONo, string LotNo, string EntityId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select Id,isnull(MOLineItemNo,'" + MOLineItemNo + "') MOLineItemNo,isnull(PONo,'" + PONo + "') PONo,isnull(LotNo,'" + LotNo + "') LotNo,Comment,ByWhomId," +
+            string sql = @"select Id,Comment,isnull(MOLineItemNo,'" + MOLineItemNo + "') MOLineItemNo,isnull(PONo,'" + PONo + "') PONo,isnull(LotNo,'" + LotNo + "') LotNo,isnull(EntityId,'" + EntityId + "') EntityId,ByWhomId," +
                 "(select EmployeeName from EmployeeInformation Where SystemId=(select AuthorizedResPersonId from [HKP].[QualityManagementAuthorizedPerson] where Id=ByWhomId)) ByWhom,Grade " +
                 "from [MST].[OrderWiseQualityComment] where MOLineItemNo='"+ MOLineItemNo + "' and PONo='"+ PONo + "' and LotNo='"+ LotNo + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -253,7 +253,7 @@ where M.IssueId='" + IssueId+"' and M.ProductionOrderId='"+ProductionOrderId+"' 
         }
 
         [HttpPost]
-        public JsonResult createComments(Dictionary<string, object> CommentsData, string MOItem, string POId, string LotNumber)
+        public JsonResult createComments(Dictionary<string, object> CommentsData, string MOItem, string POId, string LotNumber, string EntityId)
         {
             try
             {
@@ -277,6 +277,7 @@ where M.IssueId='" + IssueId+"' and M.ProductionOrderId='"+ProductionOrderId+"' 
                     CommentsData["MOLineItemNo"] = MOItem;
                     CommentsData["PONo"] = POId;
                     CommentsData["LotNo"] = LotNumber;
+                    CommentsData["EntityId"] = EntityId;
                     AddNewRow(dsOrderWiseQualityComment.Tables[0], CommentsData);
                 }
                 else
