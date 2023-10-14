@@ -300,6 +300,12 @@ namespace Aplos.Areas.Accounts.Controllers
                                 vm.Activity = dsExcel.Tables[0].Rows[i][12].ToString().Trim();
                                 vm.Register = dsExcel.Tables[0].Rows[i][13].ToString().Trim();
                                 vm.BalanceSheetSchedulingId = dsExcel.Tables[0].Rows[i][14].ToString().Trim();
+                                vm.TaxApplicable = dsExcel.Tables[0].Rows[i][15].ToString().Trim();
+                                vm.TaxType = dsExcel.Tables[0].Rows[i][16].ToString().Trim();
+                                vm.UserCategory = dsExcel.Tables[0].Rows[i][17].ToString().Trim();
+                                vm.UserSubCategory = dsExcel.Tables[0].Rows[i][18].ToString().Trim();
+                                vm.UserItem = dsExcel.Tables[0].Rows[i][19].ToString().Trim();
+                                vm.UserReport = dsExcel.Tables[0].Rows[i][20].ToString().Trim();
                                 data.Add(vm);
 
                             }

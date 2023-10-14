@@ -4,7 +4,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
     $rootScope.title = "OrderWiseQualityReport";
     $scope.Action = 'Save';
     $scope.GradeLists = [];
-    //$scope.CriticalLevelLists = [];
+    $scope.PartyNatureLists = [];
     //$scope.CriticalLevelGridLists = [];
     $scope.path = 'QMS/OrderWiseQualityReport/';
     $scope.downloadgriddataUrl = 'GridReports/Download';
@@ -17,7 +17,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
     $scope.View = function () {
         try {
             $scope.OrderWiseQualityReportList = [];
-            $http.get('QMS/OrderWiseQualityReport/LoadOrderWiseQualityReport?FromDate='+ $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate)
+            $http.get('QMS/OrderWiseQualityReport/LoadOrderWiseQualityReport?FromDate=' + $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate + '&PartyNature=' + $scope.statusNew.PartyNature + '&EntityId=' + $scope.statusNew.EntityId)
                 .then(function (response) {
                     $scope.OrderWiseQualityReportList = response.data;
                 });
@@ -109,6 +109,32 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
             'Text': 'Reject'
         }
     ];
+
+    $scope.PartyNatureLists = [
+        {
+            'Value': 'Domestic',
+            'Text': 'Domestic'
+        },
+        {
+            'Value': 'Domestic,Overseas',
+            'Text': 'Domestic,Overseas'
+        },
+        {
+            'Value': 'Overseas',
+            'Text': 'Overseas'
+        }
+    ];
+
+    $scope.EntityLists = [];
+    $scope.GetEntityLists = function () {
+        $http({
+            method: 'GET',
+            url: 'QMS/OrderWiseQualityReport/GetEntityLists'
+        }).then(function successCallback(response) {
+            $scope.EntityLists = response.data;
+        });
+    }
+    $scope.GetEntityLists();
 
     $scope.ByWhomLists = [];
     $scope.GetByWhomLists = function () {
@@ -223,7 +249,9 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
     $scope.status = {
         Id: null,
         FromDate: $filter('dateFiltering')(todate, 'dd-MM-yyyy'), 
-        ToDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
+        ToDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy'),
+        PartyNature: null,
+        EntityId: null,
     };
     $scope.statusNew = Object.assign({}, $scope.status);
 

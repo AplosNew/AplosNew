@@ -3077,7 +3077,13 @@ namespace Library.Accounting.Accounts
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "RefNo"); int colRefNo = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Activity"); int colActivity = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Register"); int colRegister = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BalanceSheetSchedulingId"); int colBalanceSheetSchedulingId = xlsCol;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BalanceSheetSchedulingId"); int colBalanceSheetSchedulingId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "TaxApplicable"); int colTaxApplicable = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "TaxType"); int colTaxType = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UserCategory"); int colUserCategory = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UserSubCategory"); int colUserSubCategory = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UserItem"); int colUserItem = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UserReport"); int colUserReport = xlsCol;
 
                 endXlsCol = xlsCol;
 
@@ -3109,6 +3115,12 @@ namespace Library.Accounting.Accounts
                     sheet1[xlsRow, colActivity].Text = dtBudgetMaster.Rows[i]["Activity"].ToString();
                     sheet1[xlsRow, colRegister].Text = dtBudgetMaster.Rows[i]["Register"].ToString();
                     sheet1[xlsRow, colBalanceSheetSchedulingId].Text = dtBudgetMaster.Rows[i]["BalanceSheetSchedulingId"].ToString();
+                    sheet1[xlsRow, colTaxApplicable].Text = dtBudgetMaster.Rows[i]["TaxApplicable"].ToString();
+                    sheet1[xlsRow, colTaxType].Text = dtBudgetMaster.Rows[i]["TaxType"].ToString();
+                    sheet1[xlsRow, colUserCategory].Text = dtBudgetMaster.Rows[i]["UserCategory"].ToString();
+                    sheet1[xlsRow, colUserSubCategory].Text = dtBudgetMaster.Rows[i]["UserSubCategory"].ToString();
+                    sheet1[xlsRow, colUserItem].Text = dtBudgetMaster.Rows[i]["UserItem"].ToString();
+                    sheet1[xlsRow, colUserReport].Text = dtBudgetMaster.Rows[i]["UserReport"].ToString();
                     xlsRow++;
                 }
 
@@ -3152,7 +3164,8 @@ namespace Library.Accounting.Accounts
             var cmdText = @"SELECT  BMA.Id BudgetMasterActivityId,C1.UserName AS Level1,C2.UserName AS Level2,  C3.UserName AS Level3, C4.UserName AS Level4
                             , GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLName,BG.UserName AS BudgetGroup
 							, BC.UserName AS BudgetCategory,BSC.UserName AS BudgetSubCategory, B.UserName AS Budget, BM.RefNo
-							,A.UserName AS Activity, R.UserName AS Register,BMA.BalanceSheetSchedulingId
+							,A.UserName AS Activity, R.UserName AS Register,BMA.BalanceSheetSchedulingId,ISNULL(BMA.TaxApplicable,'No')TaxApplicable
+							,BMA.TaxType,BMA.UserCategory,BMA.UserSubCategory,BMA.UserItem,ISNULL(BMA.UserReport,'No')UserReport
                             FROM  [MST].[BudgetMasterActivity] AS BMA
 							LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=BMA.BudgetMasterId
 							LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id

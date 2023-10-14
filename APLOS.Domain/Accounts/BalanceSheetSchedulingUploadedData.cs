@@ -49,6 +49,13 @@ namespace Library.Model.Accounts
         #region Navigation Properties
         public string BudgetMasterActivityId { get; set; }
         public string BalanceSheetSchedulingId { get; set; }
+        public string TaxApplicable { get; set; }
+        public string TaxType { get; set; }
+        public string UserCategory { get; set; }
+        public string UserSubCategory { get; set; }
+        public string UserItem { get; set; }
+        public string UserReport { get; set; }
+
         #endregion Navigation Properties
     }
 }

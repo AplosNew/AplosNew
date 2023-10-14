@@ -52,7 +52,7 @@ namespace Library.Accounting.Accounts
                 searchDateODue = "AND ( convert(Date,I.PostingDate) <= '" + toDate + @"' )";
             }
 
-            var sql = @"SELECT count(X.NoOfInvoice) NoOfInvoice,convert(bit,0) AS isSelected,x.PartyNature,x.PartyGroup,X.PartyId,X.PartyName,x.CurrencyCode
+            var sql = @"SELECT count(X.NoOfInvoice) NoOfInvoice,convert(bit,0) AS isSelected,x.PartyNature,x.PartyGroup,x.PartyCategory,x.PartySubCategory,X.PartyId,X.PartyName,x.CurrencyCode
                 , ISNULL((SELECT sum(VDCA.DrAmount) -sum(ISNULL(AW.AdvanceWriteOffBooksAmount,0)) FROM TRN.Advance A
 					INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
 					INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
@@ -159,7 +159,7 @@ namespace Library.Accounting.Accounts
                 ,SUM(x.TaxAmount)TaxAmount
                 ,CASE WHEN (SELECT COUNT(Id) FROM HKP.CompanyParty WHERE PartyId=X.PartyId AND PartyType='Customer')>0 THEN 'Yes' ELSE 'No' END IsCustomer
                 FROM (
-                SELECT IV.PartyId NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,IV.PartyId,P.Code PartyCode,P.UserName PartyName,c.Code CurrencyCode
+                SELECT IV.PartyId NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,IV.PartyId,P.Code PartyCode,P.UserName PartyName,c.Code CurrencyCode
                  , ISNULL(IVD.InvoiceBooksAmount,0) AS Gross
 				, ISNULL(IVD.SetOffBooksAmount ,0) AS SetOff
 				, ISNULL(IVD.InvoiceBooksAmount-IVD.SetOffBooksAmount,0) AS Balance
@@ -211,6 +211,8 @@ namespace Library.Accounting.Accounts
                         ) DIWD ON DIWD.InvoiceId=IV.Id
                 LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
@@ -262,7 +264,7 @@ namespace Library.Accounting.Accounts
                AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
                 AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
                 UNION ALL
-                SELECT  IV.PartyId NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,IV.PartyId,P.Code PartyCode,P.UserName PartyName,c.Code CurrencyCode
+                SELECT  IV.PartyId NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,IV.PartyId,P.Code PartyCode,P.UserName PartyName,c.Code CurrencyCode
 				, ISNULL(IVD.InvoiceBooksAmount,0) AS Gross,
                   ISNULL(IVD.SetOffBooksAmount ,0) AS SetOff
 				 , ISNULL(IVD.InvoiceBooksAmount-IVD.SetOffBooksAmount,0) AS Balance
@@ -315,6 +317,8 @@ namespace Library.Accounting.Accounts
                         ) DIWD ON DIWD.InvoiceId=IV.Id
                 LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
@@ -360,7 +364,7 @@ namespace Library.Accounting.Accounts
                  and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
 
                 union all
-				 SELECT IV.PartyId NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,IV.PartyId,P.Code PartyCode,P.UserName PartyName,c.Code CurrencyCode
+				 SELECT IV.PartyId NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,IV.PartyId,P.Code PartyCode,P.UserName PartyName,c.Code CurrencyCode
                  ,ISNULL(IVD.Amount,0) AS Gross
 				, ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)  AS SetOff
 				, ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)  AS Balance
@@ -382,6 +386,8 @@ namespace Library.Accounting.Accounts
                 LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
                 LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
                 LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=IVD.Id
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
@@ -451,7 +457,7 @@ namespace Library.Accounting.Accounts
 				)
                 X
 				--where x.PartyCode='2020100'
-                GROUP BY PartyNature,PartyGroup,PartyId,PartyName,CurrencyCode
+                GROUP BY PartyNature,PartyGroup,PartyCategory,PartySubCategory,PartyId,PartyName,CurrencyCode
                 order by x.PartyNature,x.PartyGroup,x.PartyName";
             return _sqlRepository.GetDataCollection(sql);
 
@@ -479,6 +485,16 @@ namespace Library.Accounting.Accounts
 
                 worksheet[ROW, COL].Text = "Party Group";
                 int colPartyGroup = COL;
+                worksheet[ROW, COL].ColumnWidth = 12;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Party Category";
+                int colPartyCategory = COL;
+                worksheet[ROW, COL].ColumnWidth = 12;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Party Sub Category";
+                int colPartySubCategory = COL;
                 worksheet[ROW, COL].ColumnWidth = 12;
                 COL++;
 
@@ -672,6 +688,8 @@ namespace Library.Accounting.Accounts
                     worksheet[ROW, colNoOfInvoice].Number = clsStaticInfo.dbl(dt.Rows[i]["NoOfInvoice"].ToString());
                     worksheet[ROW, colPartyNature].Text = dt.Rows[i]["PartyNature"].ToString();
                     worksheet[ROW, colPartyGroup].Text = dt.Rows[i]["PartyGroup"].ToString();
+                    worksheet[ROW, colPartyCategory].Text = dt.Rows[i]["PartyCategory"].ToString();
+                    worksheet[ROW, colPartySubCategory].Text = dt.Rows[i]["PartySubCategory"].ToString();
                     worksheet[ROW, colPartyCode].Text = dt.Rows[i]["PartyId"].ToString();
                     worksheet[ROW, colPartyName].Text = dt.Rows[i]["PartyName"].ToString();
                     worksheet[ROW, colAdvance].Number = clsStaticInfo.dbl(dt.Rows[i]["Advance"].ToString());
@@ -828,6 +846,8 @@ namespace Library.Accounting.Accounts
                 int startRow2 = ROW2;
                 sheet2[ROW2, COL2].Text = "Party Nature"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartyNature2 = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "Party Group"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartyGroup2 = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Party Category"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartyCategory2 = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Party Sub Category"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartySubCategory2 = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "Party Id"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartyId2 = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "Party Name"; sheet2[ROW2, COL2].ColumnWidth = 25; int colPartyName2 = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "Voucher Type"; sheet2[ROW2, COL2].ColumnWidth = 14; int colVoucherType = COL2; COL2++;
@@ -853,6 +873,8 @@ namespace Library.Accounting.Accounts
                 {
                     sheet2[ROW2, colPartyNature2].Text = dtPending.Rows[i]["PartyNature"].ToString();
                     sheet2[ROW2, colPartyGroup2].Text = dtPending.Rows[i]["PartyGroup"].ToString();
+                    sheet2[ROW2, colPartyCategory2].Text = dtPending.Rows[i]["PartyCategory"].ToString();
+                    sheet2[ROW2, colPartySubCategory2].Text = dtPending.Rows[i]["PartySubCategory"].ToString();
                     sheet2[ROW2, colPartyId2].Text = dtPending.Rows[i]["PartyId"].ToString();
                     sheet2[ROW2, colPartyName2].Text = dtPending.Rows[i]["PartyName"].ToString();
                     sheet2[ROW2, colVoucherType].Text = dtPending.Rows[i]["VoucherType"].ToString();
@@ -900,7 +922,7 @@ namespace Library.Accounting.Accounts
 
         public DataTable GetWriteOffPendingPostingData(string companyGroupId, string companyId, string plantId, string partyType, string fromDate, string toDate)
         {
-            var cmdText = @"SELECT P.PartyNature,PG.UserName PartyGroup,P.Id PartyId,ISNULL( P.Code,'') PartyCode,ISNULL( P.UserName,'') PartyName
+            var cmdText = @"SELECT P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,P.Id PartyId,ISNULL( P.Code,'') PartyCode,ISNULL( P.UserName,'') PartyName
                         ,VoucherType=v.SourceType , V.VoucherNo,Replace(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') PostingDate
                         ,Replace(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') DocDate ,V.DocRefNo
 		                ,CASE WHEN SUM(VDC.CrAmount)=0 THEN SUM(VDC.DrAmount) ELSE SUM(VDC.CrAmount) END Amount
@@ -909,9 +931,11 @@ namespace Library.Accounting.Accounts
 		                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
 		                LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
                         LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                        LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                        LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
                         WHERE V.IsPark=1 AND VD.PartyType='" + partyType + "' and V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId ='" + companyId + "' AND V.PlantId='" + plantId + "' AND CONVERT(DATE, V.PostingDate) <= '" + toDate + @"'
                         AND V.SourceType in ('CreditNoteSetOff','CustomerAdvanceWriteOff','CustomerBanksReceipt','CustomerReceipt','DebitNoteSetOff','ReceiptByBank','VendorAdvanceWriteOff','VendorPayment','VendorInvoiceCharge','InvoiceCharge')
-                        GROUP BY P.PartyNature,PG.UserName,P.Id,ISNULL( P.Code,'') ,ISNULL( P.UserName,'') ,v.SourceType , V.VoucherNo
+                        GROUP BY P.PartyNature,PG.UserName,PC.UserName,PSC.UserName,P.Id,ISNULL( P.Code,'') ,ISNULL( P.UserName,'') ,v.SourceType , V.VoucherNo
 		                ,Replace(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') ,Replace(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-')  ,V.DocRefNo
 		                ORDER BY P.PartyNature,PG.UserName,ISNULL( P.UserName,'')  ASC";
             return _sqlRepository.GetDataTable(cmdText);
@@ -3403,7 +3427,7 @@ namespace Library.Accounting.Accounts
                 searchDateODue = "AND ( convert(Date,I.PostingDate) <= '" + toDate + @"' )";
             }
             var sql = @"SELECT ISNULL( count(X.NoOfInvoice),0 )NoOfInvoice, convert(bit,0) AS isSelected
-                    ,x.PartyNature,x.PartyGroup,ISNULL( X.PartyId,'')PartyId,ISNULL( X.PartyCode,'')PartyCode
+                    ,x.PartyNature,x.PartyGroup,x.PartyCategory,x.PartySubCategory,ISNULL( X.PartyId,'')PartyId,ISNULL( X.PartyCode,'')PartyCode
                     ,ISNULL( X.PartyName,'')PartyName,ISNULL( x.CurrencyCode,'')CurrencyCode
 
 				 ,ISNULL(SUM(X.GrossSales),0 )GrossSales 
@@ -3513,7 +3537,7 @@ namespace Library.Accounting.Accounts
 				,CASE WHEN (SELECT COUNT(Id) FROM HKP.CompanyParty WHERE PartyId=X.PartyId AND  PartyType='Vendor')>0 THEN 'Yes' ELSE 'No' END IsVendor
 				
                 FROM (
-                SELECT ISNULL( IV.PartyId,'') NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,ISNULL( IV.PartyId,'')PartyId
+                SELECT ISNULL( IV.PartyId,'') NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,ISNULL( IV.PartyId,'')PartyId
 				,ISNULL( P.Code,'') PartyCode,ISNULL( P.UserName,'') PartyName ,ISNULL( c.Code,'') CurrencyCode
                 , ISNULL(IVD.InvoiceBooksAmount,0) AS GrossSales
 				, ISNULL(IVD.SetOffBooksAmount,0) AS Receipts
@@ -3554,6 +3578,8 @@ namespace Library.Accounting.Accounts
                  
                 LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
@@ -3606,7 +3632,7 @@ namespace Library.Accounting.Accounts
                 and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
                 
                 union all
-				 SELECT ISNULL( IV.PartyId,'') NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,ISNULL( IV.PartyId,'')PartyId
+				 SELECT ISNULL( IV.PartyId,'') NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,ISNULL( IV.PartyId,'')PartyId
 				,ISNULL( P.Code,'') PartyCode,ISNULL( P.UserName,'') PartyName,ISNULL( c.Code,'') CurrencyCode
                 ,ISNULL(IVD.Amount,0) AS GrossSales
 				,ISNULL(IVD.WrittenOffAmount ,0) AS Receipts
@@ -3629,6 +3655,8 @@ namespace Library.Accounting.Accounts
                 LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
                 LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
                 LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=IVD.Id
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
@@ -3694,7 +3722,7 @@ namespace Library.Accounting.Accounts
                  and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
 				)
 				X 
-                GROUP BY x.PartyNature,x.PartyGroup,PartyId,PartyName,PartyCode,CurrencyCode
+                GROUP BY x.PartyNature,x.PartyGroup,x.PartyCategory,x.PartySubCategory,PartyId,PartyName,PartyCode,CurrencyCode
                 order by x.PartyNature,x.PartyGroup,x.PartyName";
             return _sqlRepository.GetDataCollection(sql);
 
@@ -4039,6 +4067,16 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, COL].ColumnWidth = 12;
                 COL++;
 
+                worksheet[ROW, COL].Text = "Party Category";
+                int colPartyCategory = COL;
+                worksheet[ROW, COL].ColumnWidth = 12;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Party Sub Category";
+                int colPartySubCategory = COL;
+                worksheet[ROW, COL].ColumnWidth = 12;
+                COL++;
+
                 worksheet[ROW, COL].Text = "Party Id";
                 int colPartyId = COL;
                 worksheet[ROW, COL].ColumnWidth = 12;
@@ -4216,6 +4254,8 @@ namespace Library.Accounting.Accounts
                     worksheet[ROW, colNoOfInvoice].Number = clsStaticInfo.dbl(dsData.Rows[i]["NoOfInvoice"].ToString());
                     worksheet[ROW, colPartyNature].Text = dsData.Rows[i]["PartyNature"].ToString();
                     worksheet[ROW, colPartyGroup].Text = dsData.Rows[i]["PartyGroup"].ToString();
+                    worksheet[ROW, colPartyCategory].Text = dsData.Rows[i]["PartyCategory"].ToString();
+                    worksheet[ROW, colPartySubCategory].Text = dsData.Rows[i]["PartySubCategory"].ToString();
                     worksheet[ROW, colPartyId].Text = dsData.Rows[i]["PartyId"].ToString();
                     worksheet[ROW, colPartyName].Text = dsData.Rows[i]["PartyName"].ToString();
                     
@@ -4351,6 +4391,8 @@ namespace Library.Accounting.Accounts
                 int startRow2 = ROW2;
                 sheet2[ROW2, COL2].Text = "Party Nature"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartyNature2 = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "Party Group"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartyGroup2 = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Party Category"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartyCategory2 = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Party Sub Category"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartySubCategory2 = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "Party Id"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartyId2 = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "Party Name"; sheet2[ROW2, COL2].ColumnWidth = 25; int colPartyName2 = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "Voucher Type"; sheet2[ROW2, COL2].ColumnWidth = 14; int colVoucherType = COL2; COL2++;
@@ -4376,6 +4418,8 @@ namespace Library.Accounting.Accounts
                 {
                     sheet2[ROW2, colPartyNature2].Text = dtPending.Rows[i]["PartyNature"].ToString();
                     sheet2[ROW2, colPartyGroup2].Text = dtPending.Rows[i]["PartyGroup"].ToString();
+                    sheet2[ROW2, colPartyCategory2].Text = dtPending.Rows[i]["PartyCategory"].ToString();
+                    sheet2[ROW2, colPartySubCategory2].Text = dtPending.Rows[i]["PartySubCategory"].ToString();
                     sheet2[ROW2, colPartyId2].Text = dtPending.Rows[i]["PartyId"].ToString();
                     sheet2[ROW2, colPartyName2].Text = dtPending.Rows[i]["PartyName"].ToString();
                     sheet2[ROW2, colVoucherType].Text = dtPending.Rows[i]["VoucherType"].ToString();
