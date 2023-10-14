@@ -376,71 +376,8 @@ function ServiceAckCheckedApprovedByController(accountService, addressService, $
         var x = "#" + z;
         var gridObj = $(x).data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
-        location.href = " PurchaseOrder/ServiceAcknowledgementReport?SurviceAckId=" + data.Id;
+        location.href = "Products/PurchaseOrder/ServiceAcknowledgementReport?SurviceAckId=" + data.Id;
     };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
