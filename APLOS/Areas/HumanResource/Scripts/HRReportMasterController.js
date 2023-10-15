@@ -276,7 +276,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.ModelNew.Id = response.data.Id;
+                    $scope.ModelNew.Id = response.data.Data.Id;
                     //ClearFields(response.data.Sequence);
                     $scope.getData();
                     $scope.getEmployee($scope.ModelNew.Id);

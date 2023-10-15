@@ -154,7 +154,8 @@ order by Sequence
 
             
 
-            bgtQuery = @"select BGT.Id, HMC.Active , E.UserName Entity, D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
+            bgtQuery = @"select BGT.Id--, HMC.Active 
+, E.UserName Entity, D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
 , DSG.UserName Designation, A.UserName Activity,SDF.UserName [Shift], P.Code PositionCode
 , P.UserName Position ,BGT.Code BudgetCode, BGT.Id ManpowerBudgetId --, isSelected=CAST (CASE WHEN HMC.Id IS NULL THEN 0 ELSE 1 END AS bit)
 from  MST.ManpowerBudget BGT 
@@ -467,10 +468,11 @@ order by HMC.ManpowerBudgetId DESC";
 
                     }
                     else
-                    {
+                    {                      
+                        DataRow dr = dsChild.Tables[0].NewRow();
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID("TRN.HRReportMasterBudgetUserGroup", out _UserGroupId);
-                        DataRow dr = dsChild.Tables[0].NewRow();
+
                         dr["Id"] = _UserGroupId;
                         dr["HRReportMasterChildId"] = contId;
                         dr["UserGroupId"] = item["UserGroupId"];
