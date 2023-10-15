@@ -5,7 +5,6 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
     $scope.Action = 'Save';
     $scope.GradeLists = [];
     $scope.PartyNatureLists = [];
-    //$scope.CriticalLevelGridLists = [];
     $scope.path = 'QMS/OrderWiseQualityReport/';
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
@@ -31,15 +30,17 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
     $scope.MOId = null;
     $scope.POId = null;
     $scope.Lot = null;
+    $scope.EI = null;
     $scope.CommentEntry = function (data) {
         $scope.CommentEntryLists = [];
         $scope.NewObject = data.data;
         $scope.MOId = $scope.NewObject.MOLineItemNo;
         $scope.POId = $scope.NewObject.PONo;
         $scope.Lot = $scope.NewObject.LotNumber;
+        $scope.EI = $scope.NewObject.EntityId;
 
         try {
-            $http.get('QMS/OrderWiseQualityReport/getCommentEntryData?MOLineItemNo=' + $scope.NewObject.MOLineItemNo + '&PONo=' + $scope.NewObject.PONo + '&LotNo=' + $scope.NewObject.LotNumber)
+            $http.get('QMS/OrderWiseQualityReport/getCommentEntryData?MOLineItemNo=' + $scope.NewObject.MOLineItemNo + '&PONo=' + $scope.NewObject.PONo + '&LotNo=' + $scope.NewObject.LotNumber  +'&EntityId=' + $scope.NewObject.EntityId)
                 .then(
                     function successCallback(response) {
                         $scope.CommentEntryLists = response.data;
@@ -88,6 +89,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
         , Comment: null
         , ByWhomId: null
         , Grade: null
+        , EntityId: null
     }
     $scope.CommentsNew = Object.assign({}, $scope.Comments);
 
@@ -116,12 +118,12 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
             'Text': 'Domestic'
         },
         {
-            'Value': 'Domestic,Overseas',
-            'Text': 'Domestic,Overseas'
-        },
-        {
             'Value': 'Overseas',
             'Text': 'Overseas'
+        },
+        {
+            'Value': 'Domestic,Overseas',
+            'Text': 'Domestic,Overseas'
         }
     ];
 
@@ -155,7 +157,9 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
                 'CommentsData': $scope.CommentsNew,
                 'MOItem': $scope.MOId,
                 'POId': $scope.POId,
-                'LotNumber': $scope.Lot
+                'LotNumber': $scope.Lot,
+                'EntityId': $scope.EI
+
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -231,7 +235,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
         $scope.ParameterNew.Grade = $scope.NewObject.Grade;
         $scope.ParameterNew.Comment = $scope.NewObject.Comment;
         try {
-            $http.get('QMS/OrderWiseQualityReport/getOrderWiseParameterData?IssueId=' + $scope.NewObject.IssueId + '&ProductionOrderId=' + $scope.NewObject.PONo + '&LotNumber=' + $scope.NewObject.LotNumber +'&FromDate='+ $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate)
+            $http.get('QMS/OrderWiseQualityReport/getOrderWiseParameterData?IssueId=' + $scope.NewObject.IssueId + '&ProductionOrderId=' + $scope.NewObject.PONo + '&LotNumber=' + $scope.NewObject.LotNumber + '&FromDate=' + $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate + '&EntityId=' + $scope.NewObject.EntityId)
                 .then(
                     function successCallback(response) {
                         $scope.ParameterLists = response.data;
