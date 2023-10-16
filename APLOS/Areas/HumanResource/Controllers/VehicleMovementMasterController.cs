@@ -1,4 +1,5 @@
 ﻿using Aplos.Controllers;
+using Aplos.MaterialManagement;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
@@ -7,6 +8,7 @@ using Library.Data.Sql;
 using Library.Security.Core;
 using Library.Service.Enums;
 using Library.Service.Logs;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -1997,6 +1999,23 @@ where VMR.AppliedId is not null and VA.DriverMasterId is not null and VIO.InDate
         //}
         #endregion Trip Schedule
 
-
+        #region vehicle inout report
+        [HttpPost, Authorize]
+        public ActionResult GetDailyAttendanceReport(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                string fileName = "";
+                InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+                fileName = obj.GetDailyAttendanceReport(data, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+ 
+        #endregion vehicle inout report
     }
 }
