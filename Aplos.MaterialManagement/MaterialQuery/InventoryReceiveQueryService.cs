@@ -7582,47 +7582,47 @@ namespace Aplos.MaterialManagement
 
 			#region columns
 			sheet[ROW, COL].Text = "Sr. No";
-			sheet[ROW, COL].ColumnWidth = 12;
+			sheet[ROW, COL].ColumnWidth = 6;
 			int ColSrNo = COL;
 			COL++;
 
 			sheet[ROW, COL].Text = "Vehicle No";
-			sheet[ROW, COL].ColumnWidth = 8;
+			sheet[ROW, COL].ColumnWidth = 10;
 			int ColVehicleNo = COL;
 			COL++;
 
 			sheet[ROW, COL].Text = "Out Date";
-			sheet[ROW, COL].ColumnWidth = 8;
+			sheet[ROW, COL].ColumnWidth = 10;
 			int ColOutDate = COL;
 			COL++;
 
 			sheet[ROW, COL].Text = "In Date";
-			sheet[ROW, COL].ColumnWidth = 12;
+			sheet[ROW, COL].ColumnWidth = 10;
 			int ColInDate = COL;
 			COL++;
 
 			sheet[ROW, COL].Text = "Out Time";
-			sheet[ROW, COL].ColumnWidth = 15;
+			sheet[ROW, COL].ColumnWidth = 10;
 			int ColOutTime = COL;
 			COL++;
 
 			sheet[ROW, COL].Text = "In Time";
-			sheet[ROW, COL].ColumnWidth = 12;
+			sheet[ROW, COL].ColumnWidth = 10;
 			int ColInTime = COL;
 			COL++;
 
 			sheet[ROW, COL].Text = "Used By";
-			sheet[ROW, COL].ColumnWidth = 12;
+			sheet[ROW, COL].ColumnWidth = 15;
 			int ColUsedBy = COL;
 			COL++;
 
 			sheet[ROW, COL].Text = "Purpose";
-			sheet[ROW, COL].ColumnWidth = 15;
+			sheet[ROW, COL].ColumnWidth = 20;
 			int ColPurpose = COL;
 			COL++;
 
 			sheet[ROW, COL].Text = "Driver Name";
-			sheet[ROW, COL].ColumnWidth = 20;
+			sheet[ROW, COL].ColumnWidth = 15;
 			int ColDriverName = COL;
 			COL++;
 
@@ -7632,23 +7632,24 @@ namespace Aplos.MaterialManagement
 			COL++;
 
 			sheet[ROW, COL].Text = "To Location";
-			sheet[ROW, COL].ColumnWidth = 10;
+			sheet[ROW, COL].ColumnWidth = 20;
 			int ColToLocation = COL;
 			COL++;
 
-			sheet[ROW, COL].Text = "Total Time";
+			sheet[ROW, COL].Text = "Total Time"; 
+			sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 			sheet[ROW, COL].ColumnWidth = 10;
 			int ColTotalTime = COL;
 			COL++;
 
 			sheet[ROW, COL].Text = "Total KM";
+			sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 			sheet[ROW, COL].ColumnWidth = 20;
 			int ColTotalKM = COL;
 			COL++;
 			 
 			sheet[ROW, COL].Text = "Remarks";
-			sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-			sheet[ROW, COL].ColumnWidth = 15;
+			sheet[ROW, COL].ColumnWidth = 20;
 			int ColRemarks = COL;
 
 			#endregion columns
@@ -7667,20 +7668,20 @@ namespace Aplos.MaterialManagement
 
 			for (int i = 0; i < data.Count; i++)
 			{
-				sheet[ROW, ColSrNo].Text = data[i]["FileNo"].ToString();
+				sheet[ROW, ColSrNo].Text = data[i]["SrNo"].ToString();
 				sheet[ROW, ColVehicleNo].Text = data[i]["VehicleNumber"].ToString();
 				sheet[ROW, ColOutDate].Text = data[i]["OutDate"].ToString();
 				sheet[ROW, ColInDate].Text = data[i]["InDate"].ToString();
 				sheet[ROW, ColOutTime].Text = data[i]["OutTime"].ToString();
 				sheet[ROW, ColInTime].Text = data[i]["InTime"].ToString();
-				sheet[ROW, ColUsedBy].Text = data[i]["SupplierName"].ToString();
+				sheet[ROW, ColUsedBy].Text = data[i]["ApprovedRejectBy"].ToString();
 				sheet[ROW, ColPurpose].Text = data[i]["Purpose"].ToString();
 				sheet[ROW, ColDriverName].Text = data[i]["DriverName"].ToString();
 				sheet[ROW, ColFromLocation].Text = data[i]["FromLocation"].ToString();
 				sheet[ROW, ColToLocation].Text = data[i]["ToLocation"].ToString();
-				sheet[ROW, ColTotalTime].Text = data[i]["AcceptanceDate"].ToString();
-				sheet[ROW, ColTotalKM].Number = clsStaticInfo.dbl(data[i]["Percentage"].ToString());
-				sheet[ROW, ColRemarks].Number = clsStaticInfo.dbl(data[i]["AcceptanceAmount"].ToString()); 
+				sheet[ROW, ColTotalTime].Number = clsStaticInfo.dbl(data[i]["Total_Trip_Time"].ToString());
+				sheet[ROW, ColTotalKM].Number = clsStaticInfo.dbl(data[i]["TotalTripReading"].ToString());
+				sheet[ROW, ColRemarks].Text = data[i]["ReqRemark"].ToString();
 
 				sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 				sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -7695,7 +7696,7 @@ namespace Aplos.MaterialManagement
 
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			ReportUtility reportUtility = new ReportUtility();
-			reportUtility.PlantHeader(ref sheet, endCol, "BTB Performance Report", identity.PlantId);
+			reportUtility.PlantHeader(ref sheet, endCol, "Vehicle Movement Report", identity.PlantId);
 			reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape); 
 			sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
 			sheet.UsedRange.WrapText = true;
