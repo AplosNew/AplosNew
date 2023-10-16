@@ -7569,6 +7569,159 @@ namespace Aplos.MaterialManagement
 			excelEngine.Dispose();
 			return filePath;
 		}
+
+		public string GetDailyAttendanceReport(List<Dictionary<string, object>> data, string ReportHeader, string reportFileName)
+		{
+			var excelEngine = new ExcelEngine();
+			var report = new ReportUtility();
+			var workbook = report.GetWorkbook(ref excelEngine, 1);
+			workbook.Version = ExcelVersion.Excel2016;
+			var sheet = workbook.Worksheets[0];
+
+			int ROW = 5; int COL = 1;
+
+			#region columns
+			sheet[ROW, COL].Text = "Sr. No";
+			sheet[ROW, COL].ColumnWidth = 6;
+			int ColSrNo = COL;
+			COL++;
+
+			sheet[ROW, COL].Text = "Vehicle No";
+			sheet[ROW, COL].ColumnWidth = 10;
+			int ColVehicleNo = COL;
+			COL++;
+
+			sheet[ROW, COL].Text = "Out Date";
+			sheet[ROW, COL].ColumnWidth = 10;
+			int ColOutDate = COL;
+			COL++;
+
+			sheet[ROW, COL].Text = "In Date";
+			sheet[ROW, COL].ColumnWidth = 10;
+			int ColInDate = COL;
+			COL++;
+
+			sheet[ROW, COL].Text = "Out Time";
+			sheet[ROW, COL].ColumnWidth = 10;
+			int ColOutTime = COL;
+			COL++;
+
+			sheet[ROW, COL].Text = "In Time";
+			sheet[ROW, COL].ColumnWidth = 10;
+			int ColInTime = COL;
+			COL++;
+
+			sheet[ROW, COL].Text = "Used By";
+			sheet[ROW, COL].ColumnWidth = 15;
+			int ColUsedBy = COL;
+			COL++;
+
+			sheet[ROW, COL].Text = "Purpose";
+			sheet[ROW, COL].ColumnWidth = 20;
+			int ColPurpose = COL;
+			COL++;
+
+			sheet[ROW, COL].Text = "Driver Name";
+			sheet[ROW, COL].ColumnWidth = 15;
+			int ColDriverName = COL;
+			COL++;
+
+			sheet[ROW, COL].Text = "From Location";
+			sheet[ROW, COL].ColumnWidth = 20;
+			int ColFromLocation = COL;
+			COL++;
+
+			sheet[ROW, COL].Text = "To Location";
+			sheet[ROW, COL].ColumnWidth = 20;
+			int ColToLocation = COL;
+			COL++;
+
+			sheet[ROW, COL].Text = "Total Time"; 
+			sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+			sheet[ROW, COL].ColumnWidth = 10;
+			int ColTotalTime = COL;
+			COL++;
+
+			sheet[ROW, COL].Text = "Total KM";
+			sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+			sheet[ROW, COL].ColumnWidth = 20;
+			int ColTotalKM = COL;
+			COL++;
+			 
+			sheet[ROW, COL].Text = "Remarks";
+			sheet[ROW, COL].ColumnWidth = 20;
+			int ColRemarks = COL;
+
+			#endregion columns
+
+			int endCol = COL;
+			sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+			//sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+			sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+			sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+			sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+			sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+			ROW++;
+
+			int startRow = ROW;
+
+			for (int i = 0; i < data.Count; i++)
+			{
+				sheet[ROW, ColSrNo].Text = data[i]["SrNo"].ToString();
+				sheet[ROW, ColVehicleNo].Text = data[i]["VehicleNumber"].ToString();
+				sheet[ROW, ColOutDate].Text = data[i]["OutDate"].ToString();
+				sheet[ROW, ColInDate].Text = data[i]["InDate"].ToString();
+				sheet[ROW, ColOutTime].Text = data[i]["OutTime"].ToString();
+				sheet[ROW, ColInTime].Text = data[i]["InTime"].ToString();
+				sheet[ROW, ColUsedBy].Text = data[i]["ApprovedRejectBy"].ToString();
+				sheet[ROW, ColPurpose].Text = data[i]["Purpose"].ToString();
+				sheet[ROW, ColDriverName].Text = data[i]["DriverName"].ToString();
+				sheet[ROW, ColFromLocation].Text = data[i]["FromLocation"].ToString();
+				sheet[ROW, ColToLocation].Text = data[i]["ToLocation"].ToString();
+				sheet[ROW, ColTotalTime].Number = clsStaticInfo.dbl(data[i]["Total_Trip_Time"].ToString());
+				sheet[ROW, ColTotalKM].Number = clsStaticInfo.dbl(data[i]["TotalTripReading"].ToString());
+				sheet[ROW, ColRemarks].Text = data[i]["ReqRemark"].ToString();
+
+				sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+				sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+				sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+				ROW++;
+			}
+ 
+			sheet.UsedRange.WrapText = true;
+			sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+			sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+			sheet["A" + startRow.ToString()].FreezePanes();
+
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			ReportUtility reportUtility = new ReportUtility();
+			reportUtility.PlantHeader(ref sheet, endCol, "Vehicle Movement Report", identity.PlantId);
+			reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape); 
+			sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+			sheet.UsedRange.WrapText = true;
+			sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+			sheet.IsGridLinesVisible = false;
+ 
+			//#endregion ******************Report Header******************
+			sheet.PageSetup.TopMargin = 0.2;
+			sheet.PageSetup.BottomMargin = 0.8; 
+			sheet.PageSetup.LeftMargin = 0.2;
+			sheet.PageSetup.RightMargin = 0.2;
+			sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+			sheet.PageSetup.FitToPagesTall = 0;
+			sheet.PageSetup.FitToPagesWide = 1;
+			sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+			sheet.PageSetup.CenterHorizontally = true;
+			 
+			var filePath = "";
+			filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+			workbook.SaveAs(filePath);
+			workbook.Close();
+			excelEngine.Dispose();
+			return filePath;
+		}
+
 		string GetFormulaGrandTotal(ArrayList al, int col)
 		{
 			string _formula = string.Empty;

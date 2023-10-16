@@ -4,8 +4,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
     $rootScope.title = "OrderWiseQualityReport";
     $scope.Action = 'Save';
     $scope.GradeLists = [];
-    //$scope.CriticalLevelLists = [];
-    //$scope.CriticalLevelGridLists = [];
+    $scope.PartyNatureLists = [];
     $scope.path = 'QMS/OrderWiseQualityReport/';
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
@@ -17,7 +16,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
     $scope.View = function () {
         try {
             $scope.OrderWiseQualityReportList = [];
-            $http.get('QMS/OrderWiseQualityReport/LoadOrderWiseQualityReport?FromDate='+ $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate)
+            $http.get('QMS/OrderWiseQualityReport/LoadOrderWiseQualityReport?FromDate=' + $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate + '&PartyNature=' + $scope.statusNew.PartyNature + '&EntityId=' + $scope.statusNew.EntityId)
                 .then(function (response) {
                     $scope.OrderWiseQualityReportList = response.data;
                 });
@@ -31,15 +30,17 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
     $scope.MOId = null;
     $scope.POId = null;
     $scope.Lot = null;
+    $scope.EI = null;
     $scope.CommentEntry = function (data) {
         $scope.CommentEntryLists = [];
         $scope.NewObject = data.data;
         $scope.MOId = $scope.NewObject.MOLineItemNo;
         $scope.POId = $scope.NewObject.PONo;
         $scope.Lot = $scope.NewObject.LotNumber;
+        $scope.EI = $scope.NewObject.EntityId;
 
         try {
-            $http.get('QMS/OrderWiseQualityReport/getCommentEntryData?MOLineItemNo=' + $scope.NewObject.MOLineItemNo + '&PONo=' + $scope.NewObject.PONo + '&LotNo=' + $scope.NewObject.LotNumber)
+            $http.get('QMS/OrderWiseQualityReport/getCommentEntryData?MOLineItemNo=' + $scope.NewObject.MOLineItemNo + '&PONo=' + $scope.NewObject.PONo + '&LotNo=' + $scope.NewObject.LotNumber  +'&EntityId=' + $scope.NewObject.EntityId)
                 .then(
                     function successCallback(response) {
                         $scope.CommentEntryLists = response.data;
@@ -88,6 +89,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
         , Comment: null
         , ByWhomId: null
         , Grade: null
+        , EntityId: null
     }
     $scope.CommentsNew = Object.assign({}, $scope.Comments);
 
@@ -110,6 +112,32 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
         }
     ];
 
+    $scope.PartyNatureLists = [
+        {
+            'Value': 'Domestic',
+            'Text': 'Domestic'
+        },
+        {
+            'Value': 'Overseas',
+            'Text': 'Overseas'
+        },
+        {
+            'Value': 'Domestic,Overseas',
+            'Text': 'Domestic,Overseas'
+        }
+    ];
+
+    $scope.EntityLists = [];
+    $scope.GetEntityLists = function () {
+        $http({
+            method: 'GET',
+            url: 'QMS/OrderWiseQualityReport/GetEntityLists'
+        }).then(function successCallback(response) {
+            $scope.EntityLists = response.data;
+        });
+    }
+    $scope.GetEntityLists();
+
     $scope.ByWhomLists = [];
     $scope.GetByWhomLists = function () {
         $http({
@@ -129,7 +157,9 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
                 'CommentsData': $scope.CommentsNew,
                 'MOItem': $scope.MOId,
                 'POId': $scope.POId,
-                'LotNumber': $scope.Lot
+                'LotNumber': $scope.Lot,
+                'EntityId': $scope.EI
+
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -205,7 +235,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
         $scope.ParameterNew.Grade = $scope.NewObject.Grade;
         $scope.ParameterNew.Comment = $scope.NewObject.Comment;
         try {
-            $http.get('QMS/OrderWiseQualityReport/getOrderWiseParameterData?IssueId=' + $scope.NewObject.IssueId + '&ProductionOrderId=' + $scope.NewObject.PONo + '&LotNumber=' + $scope.NewObject.LotNumber +'&FromDate='+ $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate)
+            $http.get('QMS/OrderWiseQualityReport/getOrderWiseParameterData?IssueId=' + $scope.NewObject.IssueId + '&ProductionOrderId=' + $scope.NewObject.PONo + '&LotNumber=' + $scope.NewObject.LotNumber + '&FromDate=' + $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate + '&EntityId=' + $scope.NewObject.EntityId)
                 .then(
                     function successCallback(response) {
                         $scope.ParameterLists = response.data;
@@ -223,7 +253,9 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
     $scope.status = {
         Id: null,
         FromDate: $filter('dateFiltering')(todate, 'dd-MM-yyyy'), 
-        ToDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
+        ToDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy'),
+        PartyNature: null,
+        EntityId: null,
     };
     $scope.statusNew = Object.assign({}, $scope.status);
 

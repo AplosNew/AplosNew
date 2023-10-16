@@ -1301,17 +1301,21 @@ namespace Aplos.Areas.Parties.Controllers
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from HKP.Party where Id='" + PartyId + "'", out dsMaster, false, "1");
 
-                data["IsApproved"] = data["IsApproved"].ToString();
-                data["ApprovedBy"] = identity.EmployeeId;
-                data["ApprovedDate"] = data["ApprovedDate"].ToString();
-
-                EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);
-
-
+                DataView dv = new DataView(dsMaster.Tables[0]);
+                dv.RowFilter = "Id='" + PartyId + "'";
+                if (dv.Count > 0) 
+                {
+                    DataRow drmo = dv[0].Row;
+                    data["IsApproved"] = data["IsApproved"].ToString();
+                    data["ApprovedBy"] = identity.EmployeeId;
+                    data["ApprovedDate"] = data["ApprovedDate"].ToString();
+                    EditRow(drmo, data);
+                }
+                 
                 #endregion data update
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
-                return Json(new { Error = false, Message = AplosMessage.Insert });
+                return Json(new { Error = false, Message = AplosMessage.Updated });
             }
             catch (Exception ex)
             {

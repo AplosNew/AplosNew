@@ -1265,32 +1265,33 @@ namespace Library.Accounting.Accounts
         {
             try
             {
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                DataSet _BalanceSheetSchedulingUploadedData = null;
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var uploadedData = new System.Text.StringBuilder();
+                var uploadedDatasql = "";
                 foreach (var item in balanceSheetSchedulingUploadedDataList)
                 {
                     if (item.BalanceSheetSchedulingId != null && item.BalanceSheetSchedulingId != "null" && item.BalanceSheetSchedulingId != "")
                     {
-                        var balanceSheetSchedulingUploadedData = new BalanceSheetSchedulingUploadedData
-                        {
-                            BudgetMasterActivityId = item.BudgetMasterActivityId,
-                            BalanceSheetSchedulingId = item.BalanceSheetSchedulingId,
-                        };
-                        InserBalanceSheetSchedulingUploadedData(balanceSheetSchedulingUploadedData, ref _BalanceSheetSchedulingUploadedData);
+                        uploadedDatasql = @"UPDATE BMA SET  BMA.BalanceSheetSchedulingId='" + item.BalanceSheetSchedulingId + @"'
+                                    ,BMA.TaxApplicable= '" + item.TaxApplicable + "',BMA.TaxType= '" + item.TaxType + @"'
+                                    ,BMA.UserCategory= '" + item.UserCategory + "',BMA.UserSubCategory= '" + item.UserSubCategory + @"'
+                                    ,BMA.UserItem= '" + item.UserItem + "',BMA.UserReport= '" + item.UserReport + @"'
+                                    FROM [MST].[BudgetMasterActivity] BMA
+                                    WHERE BMA.Id='" + item.BudgetMasterActivityId + @"'";
+                        uploadedData.Append(uploadedDatasql);
+                    }
+                    if (item.BalanceSheetSchedulingId == null || item.BalanceSheetSchedulingId == "null" || item.BalanceSheetSchedulingId == "")
+                    {
+                        uploadedDatasql = @"UPDATE BMA SET BMA.TaxApplicable= '" + item.TaxApplicable + "',BMA.TaxType= '" + item.TaxType + @"'
+                                    ,BMA.UserCategory= '" + item.UserCategory + "',BMA.UserSubCategory= '" + item.UserSubCategory + @"'
+                                    ,BMA.UserItem= '" + item.UserItem + "',BMA.UserReport= '" + item.UserReport + @"'
+                                    FROM [MST].[BudgetMasterActivity] BMA
+                                    WHERE BMA.Id='" + item.BudgetMasterActivityId + @"'";
+                        uploadedData.Append(uploadedDatasql);
+                        
                     }
                 }
-
-                clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_BalanceSheetSchedulingUploadedData);
-
-                var uploadedData = new System.Text.StringBuilder();
-                var uploadedDatasql = "";
-                uploadedDatasql = @"UPDATE BMA SET  BMA.BalanceSheetSchedulingId=BUD.BalanceSheetSchedulingId FROM [MST].[BudgetMasterActivity] BMA
-                                    INNER JOIN [TRN].[BalanceSheetSchedulingUploadedData] BUD ON BUD.BudgetMasterActivityId=BMA.Id
-                                    DELETE FROM  [TRN].[BalanceSheetSchedulingUploadedData]";
-                uploadedData.Append(uploadedDatasql);
                 _sqlRepository.ExecuteSqlCommand(uploadedData.ToString());
+
             }
             catch (Exception ex)
             {
