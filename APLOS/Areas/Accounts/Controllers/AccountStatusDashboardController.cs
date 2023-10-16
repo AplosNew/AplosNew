@@ -41,7 +41,6 @@ namespace Aplos.Areas.Accounts.Controllers
             return View("~/Areas/Accounts/Views/FinancialStatusDashboard/PartyPaymentStatus.cshtml");
         }
 
-
         public ActionResult CustomerReceivableInvoiceDetail()
         {
             return View("~/Areas/Accounts/Views/FinancialStatusDashboard/CustomerReceivableInvoiceDetail.cshtml");
