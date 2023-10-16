@@ -11,7 +11,7 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
     $scope.getListUrl1 = $scope.path + 'GetListForGRNSaveData';
     $scope.getListUrl2 = $scope.path + 'GetListForGrnByPoReq';
 
-    $scope.saveUrl = $scope.path + 'CreateServiceAcknowledge';
+    $scope.saveUrl = $scope.path + 'CreateIndependentServiceAcknowledge';
     $scope.updateUrl1 = $scope.path + 'UpdareGRN';
 
     //$scope.saveUrl = $scope.path + 'InsertGRN';
@@ -106,6 +106,47 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
         $scope.getListServiceApprovedPO();
         angular.element(document.querySelector('#POPopUp')).modal('show');
 
+    };
+    $scope.closePartyPopUp = function (x) {
+        var party = x.data;
+        $scope.productNew.PartyCode = party.Code;
+        $scope.productNew.PartyName = party.UserName;
+        $scope.productNew.PartyId = party.Id;
+        $scope.productNew.PaymentTermId = party.PaymentTermId;
+        $scope.productNew.CurrencyId = party.CurrencyId;
+        $scope.IsBaseOnDueDateEnable = false;
+        $scope.productNew.BaseOnDueDate = null;
+        $scope.productNew.BaseNoOfDays = null;
+        $scope.productNew.MatureDate = null;
+        $scope.productNew.TaxApplicable = party.TaxApplicable;
+        $scope.productNew.IsTaxApplicableChangeable = party.IsTaxApplicableChangeable;
+        if (party.TaxApplicable === 'Mandatory')
+            $scope.productNew.IsTaxApplicable = true;
+        else
+            $scope.productNew.IsTaxApplicable = false;
+
+        if (!baseService.isUndefinedOrNull($scope.productNew.DocDate))
+            $scope.changePaymentTerm();
+        getPartyPlantList();
+        $scope.hidePartyPopUp();
+    };
+
+    $scope.changePaymentTerm = function () {
+        if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
+            var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.productNew.PaymentTermId; })[0];
+            $scope.productNew.PaymentTermCode = paymentTerm.PaymentTermCode;
+            $scope.productNew.BaseNoOfDays = paymentTerm.NoOfDay;
+            if (paymentTerm.BaseLineDate !== null)
+                if (paymentTerm.BaseLineDate === 'documentdate') {
+                    $scope.productNew.BaseOnDueDate = $filter('dateFiltering')($scope.productNew.DocDate);
+                    $scope.IsBaseOnDueDateEnable = true;
+                }
+                else {
+                    $scope.productNew.BaseOnDueDate = null;
+                    $scope.IsBaseOnDueDateEnable = false;
+                }
+            $scope.getMatureDate($scope.productNew.BaseOnDueDate, $scope.productNew.BaseNoOfDays);
+        }
     };
 
     $scope.POPopUpClose = function () {
@@ -318,11 +359,9 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'Products/PurchaseOrder/GetListServiceAcknowledgementData?tabType=' + $scope.tabType,
+            url: 'Products/PurchaseOrder/GetListIndependentServiceAcknowledgementData?tabType=' + $scope.tabType,
         }).then(function successCallback(response) {
-            // url: $scope.getListUrl1,
             $scope.GriddataMaster = response.data;
-            //entrydata = copy(searchdata);
         });
     };
     $scope.getalldataMaster();
@@ -428,7 +467,6 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
 
 
     $scope.Save = function () {
-        //debugger;
         try {
             if ($scope.productNew.NoteForAccounts === '' || $scope.productNew.NoteForAccounts === null || $scope.productNew.NoteForAccounts === undefined) {
                 ShowResult("Enter Note for accounts", 'failure');
@@ -438,12 +476,8 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
             if (baseService.isUndefinedOrNull($scope.productNew.DeliveryPartyPlantId)) return ShowResult('Delivery by is required', 'failure');
             $scope.modelValidation('div_docNo', 'productNew', 'DocRefNo');
             $scope.modelValidation('div_docDate', 'productNew', 'DocDate');
-            //$scope.modelValidation('div_entryNo', 'productNew', 'GateEntryNo');
-            //$scope.modelValidation('div_entryDate', 'productNew', 'EntryDate', 'Gate Entry Date');
             if ($scope.Action === 'Update')
                 $scope.modelValidation('div_grnNo', 'productNew', 'Id');
-            //$scope.modelValidation('div_grnDate', 'productNew', 'AcknowledgementDate');
-
             $scope.manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');
 
             if ($scope.productNew.CurrencyId !== $scope.productNew.BaseCurrencyId)
@@ -453,33 +487,12 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
 
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.productNewForm.$valid) {
-                //if (new Date($scope.productNew.EntryDate) < new Date($scope.productNew.DocDate))
-                //    return manualValidation('div_entryDate', true, "Gate entry date can't be less than Doc Date");
-                //else
-                //    manualValidation('div_entryDate', false);
-                //if (new Date($scope.productNew.AcknowledgementDate) < new Date($scope.productNew.EntryDate))
-                //    return manualValidation('div_grnDate', true, "GRN date can't be less than gate entry date");
-                //else
-                //    manualValidation('div_grnDate', false);
-
                 $scope.productNew.BaseCurrencyId = $scope.baseCurrencyId;
                 $scope.product = Object.assign({}, $scope.productNew);
                 $scope.product.POId = $scope.POId;
                 // $scope.product.Id = null;
                 if ($scope.Action === "Save") {
-                    //for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
-                    //    if ($scope.inventoryMaterialListPO[i].check == true) {
-                    //        $scope.inventoryMaterialListPOnew.push($scope.inventoryMaterialListPO[i]);
-
-                    //    }
-                    //    //else if ($scope.inventoryMaterialList[i].check == true) {                           
-                    //    //    $scope.inventoryMaterialListPOnew.push($scope.inventoryMaterialList[i]);
-                    //    //}
-                    //    //else {
-                    //    //    ShowResult('Please select Material', 'failure');
-                    //    //    break;
-                    //    //}
-                    //}
+                 
                     $scope.chargesListPOnew = [];
                     for (var i = 0; i < $scope.chargesListPO.length; i++) {
                         if (isNaN($scope.chargesListPO[i].CurrentQty) || baseService.isUndefinedOrNull($scope.chargesListPO[i].CurrentQty))
@@ -529,11 +542,9 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
                         data:
                         {
                             'entity': $scope.product,
-                            'DetailList': $scope.chargesListPOnew,
                             'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
                             'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti,
-                            'Status': 'Save',
-                            'ServicePOAndAckTax': $scope.ServicePOAndAckTax
+                            'Status': 'Save'
 
                         },
                         dataType: 'JSON'
@@ -548,61 +559,13 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
                             $scope.productNew.PartyName = $scope.product.PartyName;
                             $scope.tabType = "ForChecking";
                             $scope.getalldataMaster();
-                            $scope.ServiceListDetails();
-                            getServiceChargeList($scope.productId);
-                            getACKTaxList($scope.productId);
                             $scope.Action = "Update";
                         }
                     }), function (response) {
                         ShowResult(response.data.Message, 'failure');
                     };
                 }
-                else if ($scope.Action === "Update") {
-                    $scope.chargesListPOnew = [];
-                    for (var i = 0; i < $scope.chargesListPO.length; i++) {
-                        if ($scope.chargesListPO[i].check == true) {
-                            $scope.chargesListPOnew.push($scope.chargesListPO[i]);
-                            $scope.tabType = "ForChecking";
-                            $scope.getalldataMaster();
-                            //$scope.chargesListPOnew.push($scope.chargesList[i]);
-                        }
-                        //else if ($scope.chargesList[i].check == true) {                           
-                        //    $scope.chargesListPOnew.push($scope.chargesList[i]);
-                        //}
-                        else {
-
-                        }
-                    }
-                    $scope.productNew.Id = $scope.productId;
-
-                    $http({
-                        method: 'POST',
-                        //url: $scope.updateUrl,
-                        url: $scope.saveUrl,
-                        //data: $scope.product,
-                        data:
-                        {
-                            'entity': $scope.product,
-                            'DetailList': $scope.chargesListPOnew,
-                            'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
-                            'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti,
-                            'Status': 'Update',
-                            'ServicePOAndAckTax': $scope.ServicePOAndAckTax
-                        },
-                        dataType: 'JSON'
-                    }).then(function successCallback(response) {
-                        if (response.data.Error === true) {
-                            ShowResult(response.data.Message, 'failure');
-                        }
-                        else {
-                            ShowResult(response.data.Message, 'success');
-                            $scope.getalldataMaster();
-                            $scope.ServiceListDetails();
-                        }
-                    }, function errorCallBack(response) {
-                        ShowResult(response.data.Message, 'failure');
-                    });
-                }
+                
             }
         } catch (e) {
             throw e;
@@ -717,27 +680,19 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
         ClearFields();
         var x = $event;
         var Id = x.data.Id;
-
-        //debugger;
-        //$scope.POId = x.data.POID;
         $scope.POId1 = x.data.POID;
-        //$scope.index = index;
         $scope.POID = x.data.POID;
-        // $scope.product = $scope.products[$scope.index];
-        //$scope.productNew = Object.assign({}, $scope.product);
         $scope.productNew = x.data;
-        //$scope.productNew.AcknowledgementDate = x.data.GRNDate1;
         $scope.productNew.CheckedBy = x.data.CheckedBy;
         getPartyPlantList();
-        //getInventoryMaterialList(Id);
         $scope.productNew.TaxOptionAddiTax = 'Yes';
-        getServiceChargeList(Id);
-        getServiceChargeListForCharge(Id);
+        //getServiceChargeList(Id);
+        //getServiceChargeListForCharge(Id);
         getACKTaxList(Id);
         $scope.productId = Id;
-        $scope.GetSavedPOList1(Id);
-        $scope.ImagedataLoad(Id);
-        $scope.TotalSumAfterTCS();
+        //$scope.GetSavedPOList1(Id);
+        //$scope.ImagedataLoad(Id);
+        //$scope.TotalSumAfterTCS();
         if (baseService.isUndefinedOrNull(x.data.CheckedById) && !baseService.isUndefinedOrNull(x.data.ApprovedById)) {
             $scope.CheckedByStatusForNoti = false;
             $scope.ApprovedByStatusForNoti = true;
@@ -760,25 +715,18 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
             $scope.productNew.CheckedBy = x.data.CheckedById;
             $scope.productNew.labelCheckAndApproved = 'To be checked by';
         }
-        
-        //getServiceChargeListForCharge($scope.productNew.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) $rootScope.toggle();
-
     }
 
 
     function getServiceChargeList(inveReveiveId) {
         $scope.masterId12 = inveReveiveId;
-        //debugger;
         $http.get($scope.path + 'GetServiceLisrByAckid?Id=' + inveReveiveId)
             .then(function (response) {
-                //$scope.chargesList = [];
                 $scope.chargesListPO = response.data;
-                // $scope.getServiceTaxList();
                 $scope.GetAdvanceTaxInfo($scope.productId);
                 $scope.TotalSumAfterTCS();
-
             });
     }
 
@@ -1442,89 +1390,6 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
         $scope.advanceTax.TotalSumAfterTCSVal = parseFloat(((parseFloat($filter("sumByKey")($filter("filter")($scope.chargesListPO), "Amount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.chargesListPO), "TotalTaxAmount"))) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount")))).toFixed(2);
     }
 
-    //#endregion
-
-
-
-    ////#region ServiceAcknowledgement Register Report
-
-
-    //$scope.PurchaseRegisterLst = [];
-    //$scope.pivotTableFieldListID = [];
-    //$scope.GetPurchaseRegister = function () {
-    //    debugger;
-
-    //    if ($scope.report.FromDate === null || $scope.report.FromDate === "") {
-    //        ShowResult('Select From Date', 'failure');
-    //        return false;
-    //    }
-    //    else if ($scope.report.ToDate === null || $scope.report.ToDate === "") {
-    //        ShowResult('Select To Date', 'failure');
-    //        return false;
-    //    }
-    //    $http({
-    //        method: 'POST',
-    //        //url: $scope.getSearchListUrl,
-    //        url: 'Materials/MaterialLedger/GetServiceAcknowledgementRegister',
-    //        data: {
-    //            fromDate: $scope.report.FromDate,
-    //            toDate: $scope.report.ToDate,
-    //            Type: $scope.productNew.Type
-    //        },
-    //        dataType: 'JSON'
-    //    }).then(function successCallback(response) {
-    //        $scope.PurchaseRegisterLst = response.data;
-
-    //        for (var i = 0; i < $scope.PurchaseRegisterLst.length; i++) {
-    //            response.data[i].GRNEntryDate = new Date($scope.PurchaseRegisterLst[i].GRNEntryDate);
-    //        }
-
-    //        $scope.load();
-    //    });
-
-    //};
-
-    //$scope.getPurchaseRegisterReport = function () {
-    //    $scope.GetPurchaseRegister();
-    //}
-
-
-    //$scope.ServiceAcknowledgementRegisterReportPdf = function (id, reportFormat) {
-
-    //    if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-    //        ShowResult('Select From Date', 'failure');
-    //        return false;
-    //    }
-    //    if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-    //        ShowResult('Select To Date', 'failure');
-    //        return false;
-    //    }
-    //    var reportFormat = "Pdf";
-    //    //if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-    //    $window.open('Materials/MaterialLedger/ServiceAcknowledgementRegisterReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Type=' + $scope.productNew.Type, '_blank');
-    //};
-
-    //$scope.ServiceAcknowledgementRegisterReportExcel = function (reportFormat) {
-    //    if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-    //        ShowResult('Select From Date', 'failure');
-    //        return false;
-    //    }
-    //    if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-    //        ShowResult('Select To Date', 'failure');
-    //        return false;
-    //    }
-    //    try {
-    //        var Excel;
-    //        var file_src = 'Materials/MaterialLedger/ServiceAcknowledgementRegisterReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.WithStock + '&Inventory=' + $scope.productNew.WithoutStock;
-    //        $rootScope.report(file_src);
-
-    //    } catch (e) {
-
-    //    }
-    //}calculateAckRcvAmount
-
-
-    ////#endregion ServiceAcknowledgement Register Report
 
     $scope.calculateAckRcvAmount = function (data) {
         if ($scope.Action === 'Save') {
@@ -1612,219 +1477,7 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
             }
         }
     }
-    $scope.serviceModel = {
-        Id: null
-        , ServiceMasterId: null
-        , InventoryReceiveId: $scope.productNew.Id
-        , CurrencyName: angular.element("#currency :selected").text()
-        , CurrencyId: $scope.productNew.CurrencyId
-        , BaseCurrencyId: $scope.baseCurrencyId
-        , DocDate: $scope.productNew.DocDate
-        , TransactionAmount: 0
-        , BaseAmount: 0
-        , TotalTaxAmount: 0
-        , ToCurrencyRate: $scope.productNew.ToCurrencyRate
-        , IsNonCreditable: $scope.productNew.IsNonCreditable
-    };
-    $scope.serviceChargePopUp = function () {
-        $scope.productNew.TaxOptionService = 'Yes';
-        $scope.taxCategoryList = null;
-        $scope.serviceModel = {
-            Id: null
-            , ServiceMasterId: null
-            , InventoryReceiveId: $scope.productNew.Id
-            , CurrencyName: angular.element("#currency :selected").text()
-            , CurrencyId: $scope.productNew.CurrencyId
-            , BaseCurrencyId: $scope.baseCurrencyId
-            , DocDate: $scope.productNew.DocDate
-            , TransactionAmount: 0
-            , BaseAmount: 0
-            , TotalTaxAmount: 0
-            , ToCurrencyRate: $scope.productNew.ToCurrencyRate
-            , IsNonCreditable: $scope.productNew.IsNonCreditable
-        };
-        angular.element(document.querySelector('#serviceChargePopUp')).modal('show');
-    };
-
-    $http.get('Setups/CompanyServiceMaster/GetCboList')
-        .then(function (response) {
-            $scope.serviceList = response.data;
-        });
-    $scope.closeServiceChargePopUp = function () {
-        $scope.serviceModel = {};
-        angular.element(document.querySelector('#serviceChargePopUp')).modal('hide');
-    };
-
-    $scope.taxCategoryList = [];
-    function getTaxCategoryList(hsnCodeId, HSNCode) {
-        $scope.taxCategoryList = [];
-        $http({
-            method: 'GET'
-            , url: 'Products/PurchaseOrder/getserviceTaxByTaxCategoryList?receiveId=' + $scope.GriddataSelected[0].id + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.productNew.AcknowledgementDate
-        }).then(function (response) {
-            $scope.taxCategoryList = response.data;
-            for (var i = 0; i < $scope.taxCategoryList.length; i++) {
-                if (baseService.isUndefinedOrNull($scope.taxCategoryList[i].hsnCodeId)) {
-                    $scope.taxCategoryList[i].HSNCode = HSNCode;
-                    $scope.taxCategoryList[i].HSNCodeId = hsnCodeId;
-                }
-            }
-        });
-    }
-    $scope.changeService = function () {
-        if (baseService.isUndefinedOrNull($scope.serviceModel.ServiceMasterId))
-            return getTaxCategoryList(hsnCodeId);//$scope.taxCategoryList = [];
-        var hsnCodeId = $.grep($scope.serviceList, function (item) { return item.Value === $scope.serviceModel.ServiceMasterId; })[0].HSNCodeId;
-        var HSNCode = $.grep($scope.serviceList, function (item) { return item.Value === $scope.serviceModel.ServiceMasterId; })[0].HSNCode;
-        getTaxCategoryList(hsnCodeId, HSNCode);
-    };
-
-    $scope.calculateSvcTaxCategory = function () {
-        $scope.serviceModel.TotalTaxAmount = 0;
-        for (var i = 0; i < baseService.arrayLength($scope.taxCategoryList); i++) {
-            $scope.taxCategoryList[i].TaxAmount = ((parseFloat($scope.taxCategoryList[i].Percentage) * $scope.serviceModel.TransactionAmount) / 100).toFixed($rootScope.currencyPrecision);
-            $scope.serviceModel.TotalTaxAmount = (parseFloat($scope.serviceModel.TotalTaxAmount) + parseFloat($scope.taxCategoryList[i].TaxAmount)).toFixed($rootScope.currencyPrecision);
-        }
-        if (isNaN($scope.serviceModel.TotalTaxAmount)) $scope.serviceModel.TotalTaxAmount = 0;
-    };
-
-    $scope.sumSvcTaxAmount = function () {
-        $scope.serviceModel.TotalTaxAmount = 0;
-        for (var i = 0; i < baseService.arrayLength($scope.taxCategoryList); i++) {
-            $scope.serviceModel.TotalTaxAmount = (parseFloat($scope.serviceModel.TotalTaxAmount) + parseFloat($scope.taxCategoryList[i].TaxAmount)).toFixed($rootScope.currencyPrecision);
-        }
-    };
-
-    $scope.AddCharges = function () {
-        $scope.chargesListPO.push($scope.serviceModel)
-        for (var i = 0; i < $scope.taxCategoryList.length; i++) {
-            $scope.receiveTaxList.push($scope.taxCategoryList[i]);
-        }
-        $scope.serviceModel = {};
-        angular.element(document.querySelector('#serviceChargePopUp')).modal('hide');
-    };
-    $scope.serviceSave = function () {
-        try {
-            if ($scope.ActionService == 'Save') {
-
-                $scope.manualValidationAddRemove('div_svc', 'serviceModel', 'ServiceMasterId');
-                $scope.manualValidationAddRemove('div_svcRate', 'serviceModel', 'TransactionAmount', 'Amount');
-                if (!baseService.isUndefinedOrNull($scope.serviceModel.InventoryReceiveId)) {
-                    $scope.serviceModel.ServiceAcknowledgementMasterId = $scope.serviceModel.InventoryReceiveId;
-                }
-                $http({
-                    method: 'POST',
-                    url: $scope.sreviceSaveUrl1,
-                    data: {
-                        entity: $scope.serviceModel
-                        , taxCategoryList: $scope.taxCategoryList
-                    },
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true)
-                        ShowResult(response.data.Message, 'failure', 'serviceChargePopUp');
-                    else {
-                        ShowResult(response.data.Message, 'success', 'serviceChargePopUp');
-                        $scope.serviceModel = {
-                            Id: null
-                            , ServiceMasterId: null
-                            , InventoryReceiveId: $scope.productNew.Id
-                            , CurrencyName: angular.element("#currency :selected").text()
-                            , CurrencyId: $scope.productNew.CurrencyId
-                            , BaseCurrencyId: $scope.baseCurrencyId
-                            , DocDate: $scope.productNew.DocDate
-                            , TransactionAmount: 0
-                            , BaseAmount: 0
-                            , TotalTaxAmount: 0
-                            , ToCurrencyRate: $scope.productNew.ToCurrencyRate
-                            , IsNonCreditable: $scope.productNew.IsNonCreditable
-                        };
-                        $scope.taxCategoryList = [];
-                        getServiceChargeList($scope.productNew.Id);
-                        //getInventoryMaterialList($scope.productNew.Id);
-                        getServiceChargeListForCharge($scope.productNew.Id);
-                        //$scope.getDataList();
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure', 'serviceChargePopUp');
-                };
-            }
-            else {
-                $http({
-                    method: 'POST',
-                    url: $scope.sreviceUpdateUrl,
-                    data: {
-                        entity: $scope.serviceModel
-                        , taxCategoryList: $scope.taxCategoryList
-                    },
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true)
-                        ShowResult(response.data.Message, 'failure', 'serviceChargePopUp');
-                    else {
-                        ShowResult(response.data.Message, 'success', 'serviceChargePopUp');
-                        $scope.serviceModel = {
-                            Id: null
-                            , ServiceMasterId: null
-                            , InventoryReceiveId: $scope.productNew.Id
-                            , CurrencyName: angular.element("#currency :selected").text()
-                            , CurrencyId: $scope.productNew.CurrencyId
-                            , BaseCurrencyId: $scope.baseCurrencyId
-                            , DocDate: $scope.productNew.DocDate
-                            , TransactionAmount: 0
-                            , BaseAmount: 0
-                            , TotalTaxAmount: 0
-                            , ToCurrencyRate: $scope.productNew.ToCurrencyRate
-                            , IsNonCreditable: $scope.productNew.IsNonCreditable
-                        };
-                        $scope.taxCategoryList = [];
-                         getServiceChargeList($scope.productNew.Id);
-                        //getInventoryMaterialList($scope.productNew.Id);
-                        getServiceChargeListForCharge($scope.productNew.Id);
-                        //$scope.getDataList();
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure', 'serviceChargePopUp');
-                };
-            }
-        } catch (e) {
-            ShowResult(e, 'info');
-        }
-    };
-    $scope.chargesList = [];
-    function getServiceChargeListForCharge(MasterId) {
-        $http.get($scope.path + 'GetServiceChargeListForCharge?MasterId=' + MasterId)
-            .then(function (response) {
-                $scope.chargesList = response.data;
-            });
-    }
-    $scope.getServiceTaxList1 = function (data, flag) {
-        //debugger;
-        $scope.ActionService = 'Update';
-        $scope.productNew.TaxOptionService = 'Yes';
-        $scope.taxAbleAmnt = data.Amount;// + data.TotalTaxAmount;
-        $scope.percentageColumn = flag;
-        $scope.LoadTaxButtonClick();
-        $scope.serviceModel = data;
-        $scope.serviceModel.TransactionAmount = data.Amount;
-        $scope.serviceModel.ServiceAcknowledgementMasterId = data.ServiceAcknowledgementMasterId;
-        $http({
-            method: 'GET',
-            url: $scope.path + 'GetServiceTaxListForTaxDetail?serviceId=' + data.Id
-        }).then(function (response) {
-            $scope.taxCategoryList = response.data;
-            angular.element(document.querySelector('#serviceChargePopUp')).modal('show');
-            //$scope.HSNCode = $scope.receiveTaxList[0].HSNCode;
-        });
-
-    }
-    $scope.POPopUpGateEntry = function () {
-        $scope.getalldataGateEntry();
-        angular.element(document.querySelector('#POPopUpGateEntry')).modal('show');
-    };
-    $scope.POPopUpCloseGateEntry = function () {
-        angular.element(document.querySelector('#POPopUpGateEntry')).modal('hide');
-    };
+   
     $scope.GriddataGateEntry = [];
     $scope.getalldataGateEntry = function () {
         //debugger;
@@ -1970,59 +1623,7 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
         }
     };
 
-    $scope.serviceSave = function () {
-        try {
-            $scope.manualValidationAddRemove('div_svc', 'serviceModel', 'ServiceMasterId');
-            $scope.manualValidationAddRemove('div_svcRate', 'serviceModel', 'TransactionAmount', 'Amount');
-
-            $http({
-                method: 'POST',
-                url: $scope.sreviceSaveUrl,
-                data: {
-                    entity: $scope.serviceModel
-                    , taxCategoryList: $scope.taxCategoryList
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true)
-                    ShowResult(response.data.Message, 'failure', 'serviceChargePopUp');
-                else {
-                    ShowResult(response.data.Message, 'success', 'serviceChargePopUp');
-                    $scope.serviceModel = {
-                        Id: null
-                        , ServiceMasterId: null
-                        , CurrencyName: angular.element("#currency :selected").text()
-                        , CurrencyId: $scope.productNew.CurrencyId
-                        , BaseCurrencyId: $scope.baseCurrencyId
-                        , DocDate: $scope.productNew.DocDate
-                        , TransactionAmount: null
-                        , BaseAmount: 0
-                        , TotalTaxAmount: 0
-                        , ToCurrencyRate: $scope.productNew.ToCurrencyRate
-                        , IsNonCreditable: $scope.productNew.IsNonCreditable
-                        , ServicePOMasterId: null
-                        , ServiceMasterId: null
-                        , Amount: null
-                        , GRNServiceAmount: null
-                        , AmountStatus: null
-                        , Description: null
-                        , ServiceRequsitionDetailId: null
-                        , ServiceReqMasterId: null
-                    };
-                    $scope.taxCategoryList = [];
-                    getServiceChargeList($scope.productNew.Id);
-                    getInventoryMaterialList($scope.productNew.Id);
-                    $scope.getDataList();
-                    $scope.getalldata();
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure', 'serviceChargePopUp');
-            };
-        } catch (e) {
-            //ShowResult(e, 'fail', 'detailPopUp');
-        }
-    };
-
+   
     $scope.delModal = function (id) {
         $scope.id = id;
         $scope.message = 'Are you sure want to permanently delete this?';
@@ -2130,9 +1731,6 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
             url: 'Products/PurchaseOrder/UpdateServiceAndTax',
             data: {
                 entity: $scope.chargesList,
-                // ChargeTaxList: $scope.ChargeTaxList
-                //TotalTaxAmount: TotalTaxAmount,
-                //InventoryReceiveDetailId: InventoryReceiveDetailId,
                 receiveTaxList: $scope.receiveTaxList
             },
             dataType: 'JSON'
@@ -2155,30 +1753,6 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
 
         //}
 
-        $scope.serviceModel = {
-            Id: null
-            , ServiceMasterId: null
-            , CurrencyName: angular.element("#currency :selected").text()
-            , CurrencyId: $scope.productNew.CurrencyId
-            , BaseCurrencyId: $scope.baseCurrencyId
-            , DocDate: $scope.productNew.DocDate
-            , TransactionAmount: null
-            , BaseAmount: 0
-            , TotalTaxAmount: 0
-            , ToCurrencyRate: $scope.productNew.ToCurrencyRate
-            , IsNonCreditable: $scope.productNew.IsNonCreditable
-            , ServicePOMasterId: null
-            , ServiceMasterId: null
-            , Amount: null
-            , GRNServiceAmount: null
-            , AmountStatus: null
-            , Description: null
-            , ServiceRequsitionDetailId: null
-            , ServiceReqMasterId: null
-        };
-
-
-        //angular.element(document.querySelector('#serviceChargePopUpEdit')).modal('show');
     };
 	// #endregion Service
     $scope.uom = function () {
@@ -2208,67 +1782,85 @@ function ServiceAcknowledgementController(accountService, addressService, $windo
             ShowResult('Enter the Qty and Rate');
             return false;
         }
-
-        //$scope.Griddatatemp = [];
-        //$scope.Griddatatemp1 = [];
-        //var partyId = null;
-        //$scope.tempList = [];
-        //for (var j = 0; j < $scope.getListPOByReqG.length; j++) {
-        //    if ($scope.getListPOByReqG[j].Active === true) {
-        //        $scope.tempList.push($scope.getListPOByReqG[j]);
-        //    }
-        //}
-        //var flagTemp = false;
-        //if ($scope.tempList.length > 0) {
-        //    for (var k = 0; k < $scope.tempList.length; k++) {
-        //        if ($scope.tempList[k].PartyId != $scope.tempList[0].PartyId) {// && $scope.tempList[k].CurrencyId != $scope.tempList[0].CurrencyId
-        //            flagTemp = true;
-        //            // angular.element(document.querySelector('#POPopUp')).modal('hide');
-        //            ShowResult('Please select Same vendor', 'POPopUp');
-        //            return;
-
-        //        }
-
-        //    }
-        //}
-        //if (flagTemp == false) {
-
-        //    var gridObj = $("#Grid").data("ejGrid");
-        //    var $event = gridObj.getSelectedRecords()[0];
-        //    var x = $event;
-        //    var Id = x.Id;
-        //    $scope.productNew = x;
-        //    $scope.productId = "";
-        //    $scope.POId = x.Id;
-        //    $scope.productNew.AcknowledgementDate = $filter("dateFiltering")(Date.now());
-        //    //$scope.product.POId = $scope.POId;
-        //    var id1 = "''";
-        //    for (var i = 0; i < $scope.getListPOByReqG.length; i++) {
-        //        if ($scope.getListPOByReqG[i].Active === true) {
-        //            id1 += ",'" + $scope.getListPOByReqG[i].id + "'";
-        //        }
-        //    }
-
-        //    getPartyPlantList();
-        //    getServiceChargeListPO(id1);
-        //    GetServicePOAndAckTax(id1);//x.id
-        //    //getPartyPlantEditList();
-        //    // GetInventoryMaterialListByPO(id1);
-
-        //    $scope.GriddataSelected = [];
-        //    for (var x = 0; x < $scope.getListPOByReqG.length; x++) {
-
-        //        if ($scope.getListPOByReqG[x].Active === true) {
-        //            $scope.GriddataSelected.push($scope.getListPOByReqG[x]);
-        //        }
-        //    }
-        //    $scope.NotificationSettingStatus();
-        //    $scope.POPopUpClose();
-        //    if (!$rootScope.isCollapsed) $rootScope.toggle();
-        //}
-
-
+        $scope.chargesList.push($scope.serviceModel);
     }
+    $scope.detailSaveIndividualService = function () {
+        //debugger;  
+        try {
+           
+            if (baseService.isUndefinedOrNull($scope.serviceModel.Qty) || $scope.serviceModel.Qty === 0) {
+                ShowResult('Enter the Qty');
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.serviceModel.TransactionUoMId)) {
+                ShowResult('Select The UoM');
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.serviceModel.Rate) || $scope.serviceModel.Rate === 0) {
+                ShowResult('Enter the Rate');
+                return false;
+            }
+            if (baseService.isUndefinedOrNull($scope.serviceModel.TransactionAmount) || $scope.serviceModel.TransactionAmount === 0) {
+                ShowResult('Enter the Qty and Rate');
+                return false;
+            }
+            $scope.materialValidation();
+            $scope.serviceModel.Amount = $scope.serviceModel.TransactionAmount;
+            //$scope.invalid = true;
+            if ($scope.invalid) {
+                if ($scope.Action1 === 'Save') {
+                    $http({
+                        method: 'POST',
+                        url: $scope.detailSaveUrlIndependent,
+                        data: {
+                            'entity': $scope.serviceModel,
+                            'ServicePoMasterId': $scope.productNew.Id,
+                            'taxCategoryList': $scope.taxCategoryList
+                        },
+                        dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true)
+                            ShowResult(response.data.Message, 'failure', 'serviceChargePopUp');
+                        else {
+                            ShowResult(response.data.Message, 'success', 'serviceChargePopUp');
+                            $scope.taxCategoryListNew = [];
+                            getServiceChargeList($scope.productNew.Id);
+                            $scope.RequisitionListHide();
+                            $scope.setTabIndex(1);
 
+                        }
+                    }), function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure', 'serviceChargePopUp');
+                    };
+
+                }
+                else if ($scope.Action1 === "Update") {
+                    $http({
+                        method: 'POST',
+                        url: $scope.detailUpdateUrl,
+                        data: {
+                            entity: $scope.GetListForMasterOrdernew
+                            , taxCategoryList: $scope.taxCategoryList
+                            , PoId: $scope.productNew.Id
+                            , groupList: $scope.groupList
+                        },
+                        dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true)
+                            ShowResult(response.data.Message, 'failure', 'ListOfRequisition');
+                        else {
+                            ShowResult(response.data.Message, 'success', 'ListOfRequisition');
+                            getInventoryMaterialList($scope.productNew.Id);
+                        }
+                    }), function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure', 'ListOfRequisition');
+                    };
+
+                }
+            }
+        } catch (e) {
+            ShowResult(e, 'failure', 'ListOfRequisition');
+        }
+    };
 
 }

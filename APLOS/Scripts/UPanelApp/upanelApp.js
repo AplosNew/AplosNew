@@ -1226,10 +1226,6 @@ upanelApp.controller("ServiceAcknowledgementController", ServiceAcknowledgementC
 
 
 
-
-
-
-
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);
 upanelApp.config(accountConfig);

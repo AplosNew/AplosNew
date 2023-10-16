@@ -2254,6 +2254,7 @@ SELECT ROW_NUMBER()  OVER(ORDER BY  SPOM.Id) AS SiNo, SPOM.Id
             }
         }
 
+       
         [HttpPost]
         public ActionResult DeleteServiceAck(string id)
         {
@@ -2494,8 +2495,6 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
 									AS TU ON TU.ServiceAcknowledgementMasterId=IR.Id
                        WHERE  IR.CheckedByStatus='Checked' AND IR.ApprovedByStatus= 'For Approval' AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' ";
                 }
-
-
                 else if (tabType == "ApprovedHoldReject")
                 {
                     sql = @"
@@ -2737,30 +2736,7 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                //            var sql = @"Select 
-                //             a.id
-                //            ,a.PODate
-                //            ,P.Id PartyId
-                //            ,p.UserName PartyName 
-                //            ,a.DocRefNo
-                //            ,a.DocDate
-                //            ,C.Code
-                //            ,b.Amount ,a.IsNonCreditable,0 Active
-                //            ,C.Id CurrencyId
-                //            ,a.ToCurrencyRate
-                //            ,a.BaseNoOfDays
-                //,a.BaseOnDueDate
-                //,a.BaseCurrencyId
-                //            ,a.MatureDate
-                //            FROM TRN.ServicePOMaster a
-                //            LEFT join (Select ServicePOMasterId,Sum(Amount) Amount from TRN.ServicePODetail group by ServicePOMasterId) b On b.ServicePOMasterId=a.Id
-                //            LEFT JOIN hkp.Party p On P.id=a.PartyId
-                //            LEFT JOIn [SCS].[Currency] C on C.Id=a.CurrencyId 
-                //            LEFT JOIN TRN.ServiceAcknowledgementMaster SAMS ON  SAMS.ServicePOId=a.Id
-                //LEFT JOIN [MST].[PaymentTerm] PT ON PT.ID=a.PaymentTermId
-                //            Where a.ApprovedByStatus='Approved'
-                //AND IsNull (PT.PaymentMode,'') <>'LC' 
-                //            AND a.Id NOT IN (Select ServicePOMasterId Id from TRN.ServiceAcknowledgementDetail where ServicePOMasterId is not null)";//A.PlantId='" + identity.PlantId + "' AND
+              
                 var sql = @"Select 
                              a.id
                             ,REPLACE(CONVERT(CHAR(11), a.PODate, 106),' ','-') AS PODate 
@@ -3110,6 +3086,71 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
                 throw new CustomException(ex.Message, ex,
                     Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+
+        #endregion
+        #region Independent Service Aknowledge
+        [Authorize, HttpGet]
+        public JsonResult GetListIndependentServiceAcknowledgementData(string tabType)
+        {
+            return Json(_serviceRequsitionMasterService.GetListIndependentServiceAcknowledgementData(tabType), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult CreateIndependentServiceAcknowledge(ServiceAcknowledgementMaster entity, string Status, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                if (identity.EmployeeId == entity.CheckedBy)
+                {
+                    throw new CustomException("Please select another employee for Check by.");
+                }
+                if (Status == "Save")
+                {
+                    entity.Id = null;
+                }
+                entity.CompanyGroupId = identity.CompanyGroupId;
+                entity.CompanyId = identity.CompanyId;
+                entity.PlantId = identity.PlantId;
+                entity.IsApproved = false;
+                if (identity.EmployeeId == entity.CheckedBy)
+                {
+                    throw new CustomException("Please select another employee for Check by.");
+                }
+                else if ((CheckedByStatusForNoti == "True" && ApprovedByStatusForNoti == "True") && string.IsNullOrEmpty(entity.CheckedBy))
+                {
+                    throw new CustomException("Please Set Check By and Approve by Name.");
+                }
+                else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+                {
+                    entity.ApprovedBy = entity.CheckedBy;
+                    entity.ApprovedByStatus = "For Approval";
+                    entity.CheckedBy = null;
+                    entity.CheckedByStatus = null;
+                }
+                else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+                {
+                    entity.CheckedByStatus = null;
+                    entity.ApprovedByStatus = null;
+                    entity.CheckedBy = null;
+                    entity.ApprovedBy = null;
+                }
+                else
+                {
+                    entity.CheckedBy = entity.CheckedBy;
+                    entity.CheckedByStatus = "For Checking";
+                    entity.ApprovedBy = null;
+                    entity.ApprovedByStatus = null;
+                }
+                _purchaseOrderService.InsertIndependentServiceAck(entity);
+                return Json(new { entity, Message = AplosMessage.Success + " Service No <b>" + entity.Id + "</b>" });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 
