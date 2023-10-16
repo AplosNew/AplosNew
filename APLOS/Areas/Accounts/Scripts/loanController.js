@@ -137,9 +137,12 @@ function loanController(accountService, bankService, cboService, commonMessage, 
         $scope.voucher.DocDate = $scope.voucher.PostingDate;
     };
 
-    cboService.getCboOtherFinancingType($scope.sourceType, function (result) {
-        $scope.financingTypeList = result;
-    });
+    $scope.getFinancingType = function () {
+        cboService.getCboOtherFinancingType($scope.sourceType, function (result) {
+            $scope.financingTypeList = result;
+        });
+    }
+    $scope.getFinancingType();
 
     $scope.getById = function (id) {
         $http({
@@ -342,6 +345,10 @@ function loanController(accountService, bankService, cboService, commonMessage, 
             ShowResult("Please select Master Order!", 'failure');
             return;
         }
+        if ($scope.voucher.FinancingTypeId === null ) {
+            ShowResult("Please select Loan Type!", 'failure');
+            return;
+        }
         if ($scope.form0.$valid && !$scope.invalidDocDate && !$scope.invalidPostingDate) {
             if ($scope.Action === "Save") {
                 $http({
@@ -486,6 +493,7 @@ function loanController(accountService, bankService, cboService, commonMessage, 
         $scope.voucher.IsPayment = true;
         $scope.voucher.Amount = "";
         $scope.voucher.CurrencyId = null;
+        $scope.voucher.FinancingTypeId = null;
         $scope.voucher.IsSchedule = false;
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucher.PaymentSource = "Bank";
@@ -494,6 +502,7 @@ function loanController(accountService, bankService, cboService, commonMessage, 
         $scope.voucher.OrderSpecific = "No";
         $scope.ExistingLoanList = [];
         $scope.currencyExchangeRate = [];
+        $scope.getFinancingType();
         $scope.getCboVoucherTypeLoanList();
         $scope.loanRepaymentSchedulelist = [];
         $scope.selectedMasterOrderList = [];

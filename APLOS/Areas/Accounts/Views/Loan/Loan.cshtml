@@ -141,13 +141,6 @@
         <div id="div_TransactionType" class="form-group" show-errors>
             <label class="col-sm-4 control-label">Loan Type<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                @*<div class="select-style" ng-show="voucher.TransactionType=='LoanGiven'">
-                    <select ng-change="getTransactionTypeGL(voucher.FinancingTypeId)" name="Loan Type" class="form-control searchableDDL" ng-model="voucher.FinancingTypeId" tabindex="16" required>
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in financingTypeList" value="{{option.Value}}">{{option.AssetUserName}}</option>
-                    </select>
-                </div>*@
-
                 <div class="select-style" ng-show="voucher.TransactionType=='LoanGiven'">
                     <select name="Budget" class="form-control searchableDDL1" ng-model="voucher.FinancingTypeId" ng-change="getTransactionTypeGL(voucher.FinancingTypeId)">
                         <option value="">--Select--</option>
