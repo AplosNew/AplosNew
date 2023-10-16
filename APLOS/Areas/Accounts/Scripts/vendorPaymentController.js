@@ -751,7 +751,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
 
     $scope.calBankAmount = function () {
         if ($scope.voucher.BankMasterId != null) {
-            $scope.voucher.Amount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 1000 + Number.EPSILON) / 1000 + Math.round($filter("sumByKey")($filter("filter")($scope.bankChargesList), "CompanyCurrencyAmount") * 1000 + Number.EPSILON) / 1000 + Math.round($filter("sumByKey")($filter("filter")($scope.purchaseLCChargesList), "BankAmount") * 1000 + Number.EPSILON) / 1000;
+            $scope.voucher.Amount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 1000 + Number.EPSILON) / 1000 + Math.round($filter("sumByKey")($filter("filter")($scope.bankChargesList), "CompanyCurrencyAmount") * 1000 + Number.EPSILON) / 1000 + Math.round($filter("sumByKey")($filter("filter")($scope.purchaseLCChargesList), "ChargesValue") * 1000 + Number.EPSILON) / 1000;
             if ($scope.voucher.CurrencyId == $scope.voucher.BankCurrencyId) {
                 //if ($scope.voucher.ExchangeType == 'ExchangeLoss')
                 //    $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount + $scope.voucher.ExchangeAmount) * 1000 + Number.EPSILON) / 1000;
@@ -766,7 +766,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
                     $scope.voucher.BankBookAmount = Math.round((($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate) - $scope.voucher.ExchangeAmount) * 1000 + Number.EPSILON) / 1000;
                 else
                     $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
-                    $scope.voucher.BankAmount = $scope.voucher.Amount;
+                $scope.voucher.BankAmount = Math.round($scope.voucher.Amount * 1000 + Number.EPSILON) / 1000;
             }
             if ($scope.voucher.CurrencyId != $scope.voucher.BankCurrencyId) {
                 $scope.voucher.Amount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 1000 + Number.EPSILON) / 1000 + Math.round($filter("sumByKey")($filter("filter")($scope.bankChargesList), "Amount") * 1000 + Number.EPSILON) / 1000 + Math.round($filter("sumByKey")($filter("filter")($scope.purchaseLCChargesList), "ChargesValue") * 1000 + Number.EPSILON) / 1000;
