@@ -7570,7 +7570,7 @@ namespace Aplos.MaterialManagement
 			return filePath;
 		}
 
-		public string GetDailyAttendanceReport(List<Dictionary<string, object>> data, string ReportHeader, string reportFileName)
+		public string GetVehicleReport(List<Dictionary<string, object>> data, string ReportHeader, string reportFileName)
 		{
 			var excelEngine = new ExcelEngine();
 			var report = new ReportUtility();
@@ -7696,7 +7696,7 @@ namespace Aplos.MaterialManagement
 
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			ReportUtility reportUtility = new ReportUtility();
-			reportUtility.PlantHeader(ref sheet, endCol, "Vehicle Movement Report", identity.PlantId);
+			reportUtility.PlantHeader(ref sheet, endCol, "Vehicle Report", identity.PlantId);
 			reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape); 
 			sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
 			sheet.UsedRange.WrapText = true;

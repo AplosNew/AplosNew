@@ -1,0 +1,75 @@
+﻿<link href="~/Scripts/BootstrapTimePicker/css/bootstrap-timepicker.css" rel="stylesheet" />
+<script src="~/Scripts/BootstrapTimePicker/Scripts/bootstrap.js"></script>
+<script src="~/Scripts/BootstrapTimePicker/js/bootstrap-timepicker.js"></script>
+<div class="tab-design">
+
+    <div class="common-btn">
+        <ul class="list-inline text-left">
+            <li> <button ng-click="XlsVehicleReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Download</button></li>
+
+        </ul>
+    </div>
+
+    <div class="table-responsive aplos-grid-toggle">
+        <div id="GridEdit" ej-grid e-datasource="ReportDataList" e-load="loadGridEdit"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div e-columns> 
+                <div e-column e-field="ByWhomEmpCode" e-headertext="ByWhom_EmpCode" e-width="100"></div>
+                <div e-column e-field="ByWhom" e-headertext="By Whom" e-width="100"></div>
+                <div e-column e-field="ForWhomeEmpCode" e-headertext="For Whom" e-width="100"></div>
+                <div e-column e-field="FromDate" e-headertext="FromDate" e-width="100"></div>
+                <div e-column e-field="ToDate" e-headertext="ToDate" e-width="100"></div>
+                <div e-column e-field="FromTime" e-headertext="FromTime" e-width="100"></div>
+                <div e-column e-field="ToTime" e-headertext="ToTime" e-width="100"></div>
+                <div e-column e-field="FromLocation" e-headertext="From Location" e-width="100"></div>
+                <div e-column e-field="ToLocation" e-headertext="To Location" e-width="100"></div>
+                <div e-column e-field="Personal/Official" e-headertext="Personal/Official" e-width="100"></div>
+                <div e-column e-field="GuestName" e-headertext="GuestName" e-width="100"></div>
+
+                <div e-column e-field="Purpose" e-headertext="Purpose" e-width="100"></div>
+                <div e-column e-field="NumberOfPassengers" e-headertext="No. of Passegengers" e-width="100"></div>
+                <div e-column e-field="ReqRemark" e-headertext="Req Remark" e-width="100"></div>
+                <div e-column e-field="RequisitionStatus" e-headertext="RequisitionStatus" e-width="100"></div>
+                <div e-column e-field="ApprovedRejectBy" e-headertext="Approved/Reject By" e-width="100"></div>
+
+                <div e-column e-field="DriverName" e-headertext="DR. Name" e-width="100"></div>
+                <div e-column e-field="VehicleName" e-headertext="Vehicle Name" e-width="100"></div>
+                <div e-column e-field="VehicleNumber" e-headertext="Vehicle Number" e-width="100"></div>
+                <div e-column e-field="License Exp Date" e-headertext="License Exp Date" e-width="100"></div>
+                <div e-column e-field="OutDate" e-type="date" e-headertext="OutDate" e-width="100"></div>
+                <div e-column e-field="OutTime" e-headertext="Out Time" e-width="100"></div>
+                <div e-column e-field="InDate" e-type="date" e-headertext="InDate" e-width="100"></div>
+                <div e-column e-field="InTime" e-headertext="In Time" e-width="100"></div>
+                <div e-column e-field="OutReading" e-headertext="Out Reading" e-width="100"></div>
+                <div e-column e-field="InReading" e-headertext="In Reading" e-width="100"></div>
+                <div e-column e-field="InReading" e-headertext="In Reading" e-width="100"></div>
+                <div e-column e-field="TotalTripReading" e-headertext="TotalTripReading" e-width="100"></div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('[id*=FromTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
+        var hours = e.time.hours, //Returns a string
+            min = e.time.minutes
+        //merdian = e.time.meridian;
+
+        if (hours.length == 1) {
+            $('[id*=FromTime]').timepicker('setTime', '0' + hours + ':' + min);
+
+        }
+    });
+    $('[id*=ToTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
+        var hours = e.time.hours, //Returns a string
+            min = e.time.minutes
+        //merdian = e.time.meridian;
+
+        if (hours.length == 1) {
+            $('[id*=ToTime]').timepicker('setTime', '0' + hours + ':' + min);
+
+        }
+    });
+</script>

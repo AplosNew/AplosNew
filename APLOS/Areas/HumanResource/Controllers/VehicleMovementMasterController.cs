@@ -59,6 +59,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return View();
         }
+        public ActionResult Vehiclereport()
+        {
+            return View();
+        }
+
         #endregion Views
 
 
@@ -2001,13 +2006,13 @@ where VMR.AppliedId is not null and VA.DriverMasterId is not null and VIO.InDate
 
         #region vehicle inout report
         [HttpPost, Authorize]
-        public ActionResult GetDailyAttendanceReport(List<Dictionary<string, object>> data, string reportFileName)
+        public ActionResult GetVehicleReport(List<Dictionary<string, object>> data, string reportFileName)
         {
             try
             {
                 string fileName = "";
                 InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
-                fileName = obj.GetDailyAttendanceReport(data, "", reportFileName);
+                fileName = obj.GetVehicleReport(data, "", reportFileName);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

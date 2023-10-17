@@ -1222,6 +1222,7 @@ upanelApp.controller("ParameterSettingControlController", ParameterSettingContro
 upanelApp.controller("OrderWiseQualityReportController", OrderWiseQualityReportController)
 upanelApp.controller("GoodWorkSetupController", GoodWorkSetupController)
 upanelApp.controller("ServiceAcknowledgementController", ServiceAcknowledgementController)
+upanelApp.controller("VehicleReportController", VehicleReportController)
 
 
 
