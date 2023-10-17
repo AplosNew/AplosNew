@@ -78,6 +78,7 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
                 sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
                 ROW++;
+                
 
                 COL = 1;
                 int StartRow = ROW;
@@ -109,7 +110,7 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].Text = "Article";
                 int colArticle = COL;
                 ROW++;
-                
+
                 StartRow = ROW;
                 COL = 1;
                 sheet[ROW, COL].Text = "Buyer";
@@ -120,17 +121,16 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].Text = "Style";
                 int colStyle = COL;
                 ROW = StartRow;
-                COL = colMaterial + 2; 
+                COL = colMaterial + 2;
 
                 sheet[ROW, COL].Text = "Order Qty";
                 int colOrderQty = COL;
-                
+
                 int ColEnd = COL;
-                sheet.Range[ColEnd+1, 1, 8, ColEnd + 1].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ColEnd + 1, 1, 8, ColEnd + 1].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ColEnd + 1, 1, 8, ColEnd + 1].BorderInside(ExcelLineStyle.Hair);
-
+                double orderquantity = 0;
                 ROW++;
-
                 StartRow = 6; //row 20
                 for (int i = 0; i < dtOrderInfo.Rows.Count; i++)
                 {
@@ -164,9 +164,10 @@ namespace Library.OrderManagement.Costing
 
                     sheet[ROW, colOrderQty + 1].Number = clsStaticInfo.dbl(dtOrderInfo.Rows[i]["OrderQty"].ToString());
                     sheet[ROW, colOrderQty + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    orderquantity = clsStaticInfo.dbl(dtOrderInfo.Rows[i]["OrderQty"].ToString());
                     ROW++;
-                }
 
+                }
                 #endregion Order Information
 
                 #region Header
@@ -591,7 +592,7 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colPreCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString());
 
                     if (clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) != 0)
-                    { 
+                    {
                         double preSum = clsStaticInfo.dbl(dtCostingDetailInfo.Compute("SUM(TotalGrossAmount)", null));
                         //sheet[ROW, colPreCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) + "/" + clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[0]["TargetSellingPrice"].ToString()) + "%";
 
@@ -600,9 +601,9 @@ namespace Library.OrderManagement.Costing
                         sheet.Range[ROW, colPreCostingPer].NumberFormat = "#,##0.00;(#,##0.00)";
                     }
 
-                    sheet[ROW, colTotalBuyerCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["BuyerTarget"].ToString()) * clsStaticInfo.dbl(OrderQTY);
-                    sheet[ROW, colTotalQuickCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["CostingValue"].ToString()) * clsStaticInfo.dbl(OrderQTY);
-                    sheet[ROW, colTotalPreCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
+                    sheet[ROW, colTotalBuyerCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["BuyerTarget"].ToString()) * orderquantity;
+                    sheet[ROW, colTotalQuickCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["CostingValue"].ToString()) * orderquantity;
+                    sheet[ROW, colTotalPreCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) * orderquantity;
                     if (preCosting == "1")
                     {
                         sheet[ROW, colProcCosting].Number = 0;
@@ -613,10 +614,10 @@ namespace Library.OrderManagement.Costing
                     }
                     else
                     {
-                        sheet[ROW, colProcCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString());
+                        sheet[ROW, colProcCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) * orderquantity;
 
                         if (clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) != 0)
-                        { 
+                        {
                             double proSum = clsStaticInfo.dbl(dtCostingDetailInfo.Compute("SUM(TotalProcurementGrossAmount)", null));
                             sheet[ROW, colProcCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) + "/" + proSum + "*" + 100; ;
 
@@ -1029,7 +1030,7 @@ namespace Library.OrderManagement.Costing
             for (int i = 0; i < dvDistinctCostingComponent.Rows.Count; i++)
             {
                 ROW++;
-               // sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
+                // sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
                 COL = 1;
 
                 sheet[ROW, COL].Text = "CostingItem";
