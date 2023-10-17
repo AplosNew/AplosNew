@@ -1340,7 +1340,9 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
             {
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
                 conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryLotNumberValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  MasterOrderItemId='" + ps.MasterOrderItemId + "'", out DataSet dsProductionSummaryArticleValidation, false, "1");
                 conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryPOLotNumberValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "' and MasterOrderItemId='"+ps.MasterOrderItemId+"'", out DataSet dsProductionSummaryPOArticleValidation, false, "1");
                 if (!string.IsNullOrEmpty(ps.LotNumber))
                 {
                     if (dsProductionSummaryLotNumberValidation.Tables[0].Rows.Count > 0)
@@ -1348,6 +1350,13 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                         if (dsProductionSummaryPOLotNumberValidation.Tables[0].Rows.Count == 0)
                         {
                             throw new Exception("This Lot Number is already used for another Production Order No.");
+                        }
+                    }
+                    if (dsProductionSummaryArticleValidation.Tables[0].Rows.Count > 0)
+                    {
+                        if (dsProductionSummaryPOArticleValidation.Tables[0].Rows.Count == 0)
+                        {
+                            throw new Exception("This Article is already used for same PO in another LotNumber.");
                         }
                     }
                 }
@@ -1451,7 +1460,9 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
             {
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
                 conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryLotNumberValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  MasterOrderItemId='" + ps.MasterOrderItemId + "'", out DataSet dsProductionSummaryArticleValidation, false, "1");
                 conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryPOLotNumberValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "' and MasterOrderItemId='" + ps.MasterOrderItemId + "'", out DataSet dsProductionSummaryPOArticleValidation, false, "1");
                 if (!string.IsNullOrEmpty(ps.LotNumber))
                 {
                     if (dsProductionSummaryLotNumberValidation.Tables[0].Rows.Count > 0)
@@ -1459,6 +1470,13 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                         if (dsProductionSummaryPOLotNumberValidation.Tables[0].Rows.Count == 0)
                         {
                             throw new Exception("This Lot Number is already used for another Production Order No.");
+                        }
+                    }
+                    if (dsProductionSummaryArticleValidation.Tables[0].Rows.Count > 0)
+                    {
+                        if (dsProductionSummaryPOArticleValidation.Tables[0].Rows.Count == 0)
+                        {
+                            throw new Exception("This Article Number is already used for another LotNumber and Production Order No.");
                         }
                     }
                 }
