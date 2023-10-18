@@ -1839,7 +1839,7 @@ left join HKP.LocationMaster LM on LM.Id = VMC.FromLocationId
 where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''),ToLocation =  stuff((select ',  ' + TM.UserName 
 from TRN.VehicleMovementRequisitionChild VMC
 left join HKP.LocationMaster TM on TM.Id = VMC.ToLocationId
-where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''), VMR.PersonalOfficial [Personal/Official], GuestName = case when VMR.[Name] is null then '-' else VMR.[Name] end
+where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''), VMR.PersonalOfficial, GuestName = case when VMR.[Name] is null then '-' else VMR.[Name] end
 , PM.UserName Purpose, VMR.NumberOfPassengers,isnull(VMR.Remarks,'') ReqRemark 
 ,RequisitionStatus = case when VMR.AppliedId is not null then 'Approved' when VMR.IsReject = 1 then 'Reject'end
 ,ApprovedRejectBy = case when VMR.AppliedId is not null then VT.AddedBy  when VMR.IsReject = 1 then VMR.UpdatedBy end
