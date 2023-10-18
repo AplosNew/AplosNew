@@ -125,8 +125,12 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-4 control-label">Is Pre-Define Lot Applicable</label>
-            <div class="col-sm-4" style="padding-top: 8px;">
+            <label class="col-sm-3 control-label">User LotNo</label>
+            <div class="col-sm-3">
+                <input type="text" name="UserDefineLotNo" ng-model="model.UserDefineLotNo" class="form-control" tabindex="5" maxlength="50">
+            </div>
+            <label class="col-sm-3 control-label">Is Pre-Define Lot Applicable</label>
+            <div class="col-sm-3" style="padding-top: 8px;">
                 <div class="checkbox-site">
                     <label>
                         <input type="checkbox" ng-model="model.IsPreDefineLotApplicable" tabindex="8">
@@ -569,8 +573,8 @@
                                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.DelFlag" />
                                     </script>
                                     @*<script type="text/x-jsrender" id="headerDelTemplate">
-                                        <input type="checkbox" id="headchk" />
-                                    </script>*@
+                                            <input type="checkbox" id="headchk" />
+                                        </script>*@
                                     <script type="text/template" id="Sequence">
                                         <div class="col-sm-10" style="padding:0px; width:70px;">
                                             <input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.Sequence" e-width="80" />
@@ -583,8 +587,8 @@
                                     </script>
                                     <script type="text/template" id="OperationCategory">
                                         @*<div class="col-sm-10" style="padding:0px; width:90px;margin:-12px;">
-                                            <input ej-dropdownlist e-datasource="$parent.OperationCategoryList" e-value="data.OperationCategoryId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
-                                        </div>*@
+                                                <input ej-dropdownlist e-datasource="$parent.OperationCategoryList" e-value="data.OperationCategoryId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                                            </div>*@
                                         <div class="select-style">
                                             <select class="form-control" ng-model="data.OperationCategoryId" name="Operation Category">
                                                 <option value="">--Select--</option>
