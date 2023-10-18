@@ -1,9 +1,4 @@
-﻿<link href="~/Scripts/BootstrapTimePicker/css/bootstrap-timepicker.css" rel="stylesheet" />
-<script src="~/Scripts/BootstrapTimePicker/Scripts/bootstrap.js"></script>
-<script src="~/Scripts/BootstrapTimePicker/js/bootstrap-timepicker.js"></script>
-<div class="tab-design">
-
-    <div class="common-btn">
+﻿    <div class="common-btn">
         <ul class="list-inline text-left">
             <li> <button ng-click="XlsVehicleReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Download</button></li>
 
@@ -31,27 +26,5 @@
             </div>
         </div>
     </div>
-</div>
+ 
 
-<script type="text/javascript">
-    $('[id*=FromTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
-        var hours = e.time.hours, //Returns a string
-            min = e.time.minutes
-        //merdian = e.time.meridian;
-
-        if (hours.length == 1) {
-            $('[id*=FromTime]').timepicker('setTime', '0' + hours + ':' + min);
-
-        }
-    });
-    $('[id*=ToTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
-        var hours = e.time.hours, //Returns a string
-            min = e.time.minutes
-        //merdian = e.time.meridian;
-
-        if (hours.length == 1) {
-            $('[id*=ToTime]').timepicker('setTime', '0' + hours + ':' + min);
-
-        }
-    });
-</script>
