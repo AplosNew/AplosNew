@@ -7644,7 +7644,7 @@ namespace Aplos.MaterialManagement
 
 			sheet[ROW, COL].Text = "Total KM";
 			sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-			sheet[ROW, COL].ColumnWidth = 20;
+			sheet[ROW, COL].ColumnWidth = 10;
 			int ColTotalKM = COL;
 			COL++;
 			 
@@ -7655,9 +7655,10 @@ namespace Aplos.MaterialManagement
 			#endregion columns
 
 			int endCol = COL;
-			sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
-			//sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
-			sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+			sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(0, 0, 0);
+			//sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Blue_grey;
+            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
 			sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
 			sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 			sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
