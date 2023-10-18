@@ -56,6 +56,7 @@ function ProcessController(commonMessage, $scope, $rootScope, baseService, $rout
         , CompanyGroupId: null
         , MaterialTypeId: null
         , ProcessGroupId: null
+        , POControlMilestoneSequence:null
         , Sequence: null
         , Code: null
         , ShortName: null
