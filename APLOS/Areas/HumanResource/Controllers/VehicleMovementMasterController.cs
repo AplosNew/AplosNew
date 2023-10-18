@@ -59,6 +59,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return View();
         }
+        public ActionResult Vehiclereport()
+        {
+            return View();
+        }
+
         #endregion Views
 
 
@@ -1834,7 +1839,7 @@ left join HKP.LocationMaster LM on LM.Id = VMC.FromLocationId
 where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''),ToLocation =  stuff((select ',  ' + TM.UserName 
 from TRN.VehicleMovementRequisitionChild VMC
 left join HKP.LocationMaster TM on TM.Id = VMC.ToLocationId
-where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''), VMR.PersonalOfficial [Personal/Official], GuestName = case when VMR.[Name] is null then '-' else VMR.[Name] end
+where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''), VMR.PersonalOfficial, GuestName = case when VMR.[Name] is null then '-' else VMR.[Name] end
 , PM.UserName Purpose, VMR.NumberOfPassengers,isnull(VMR.Remarks,'') ReqRemark 
 ,RequisitionStatus = case when VMR.AppliedId is not null then 'Approved' when VMR.IsReject = 1 then 'Reject'end
 ,ApprovedRejectBy = case when VMR.AppliedId is not null then VT.AddedBy  when VMR.IsReject = 1 then VMR.UpdatedBy end
@@ -2001,13 +2006,13 @@ where VMR.AppliedId is not null and VA.DriverMasterId is not null and VIO.InDate
 
         #region vehicle inout report
         [HttpPost, Authorize]
-        public ActionResult GetDailyAttendanceReport(List<Dictionary<string, object>> data, string reportFileName)
+        public ActionResult GetVehicleReport(List<Dictionary<string, object>> data, string reportFileName)
         {
             try
             {
                 string fileName = "";
                 InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
-                fileName = obj.GetDailyAttendanceReport(data, "", reportFileName);
+                fileName = obj.GetVehicleReport(data, "", reportFileName);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

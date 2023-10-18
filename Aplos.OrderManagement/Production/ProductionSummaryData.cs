@@ -183,7 +183,7 @@ namespace Library.OrderManagement.Production
 	                                ,ISNULL(mma.Id, '') ArticleId
 	                                ,mmc.CharCount
 	                                ,ISNULL(POD.ProductionOrderId, '') POId
-	                                ,B.UserName Buyer
+	                                ,BU.UserName Buyer
 	                                ,PM.UserName AS ProductMasterName
 	                                ,CEILING(SO.PlannedQty) PlannedQty
 	                               	,CEILING(ISNULL(PRS.TotalProductionQty,0)) TotalProductionQty
