@@ -607,5 +607,41 @@ from trn.ProductionOrderDetail AS pod JOIN  trn.SalesOrder SO ON pod.SalesOrderI
                 throw ex;
             }
         }
+
+        public IEnumerable<object> GetPOLotControlData(string poId, string entityId)
+        {
+            try
+            {
+
+                var sql = @"SELECT LC.Id,ISNULL(LP.Id,P.Id) ProcessId,ISNULL(LP.UserName,P.UserName) Process
+,EP.ProductionBookingLevel,PS.ProductionOrderId
+,MasterOrderItemId=CASE WHEN (EP.ProductionBookingLevel='MasterOrderItem' OR EP.ProductionBookingLevel='SalesOrder') THEN ISNULL(LC.MasterOrderItemId,MOI.Id) ELSE NULL END
+,SalesOrderId=CASE WHEN (EP.ProductionBookingLevel='MasterOrderItem' OR EP.ProductionBookingLevel='ProductionOrder') THEN NULL ELSE ISNULL(LC.SalesOrderId,SO.Id) END
+,LotNo=FORMAT(GETDATE(), 'yy')+''+FORMAT(GETDATE(), 'MM')+''+PO.Id
+,UserLotNo=FORMAT(GETDATE(), 'yy')+''+FORMAT(GETDATE(), 'MM')+''+PO.Id
+,LotQty=CASE WHEN EP.ProductionBookingLevel='MasterOrderItem' THEN MOI.TotalQty 
+		 WHEN EP.ProductionBookingLevel='SalesOrder' THEN SO.Qty 
+		ELSE PO.Qty END
+,LC.Remark,RANK() OVER(PARTITION BY moi.Id ORDER BY moi.Id DESC) Rank
+FROM TRN.ProductionOrderProcessSet PS
+LEFT JOIN [dbo].[ProductionOrderLotControl] LC ON LC.ProductionOrderId=PS.ProductionOrderId AND PS.ProcessId=LC.ProcessId
+LEFT JOIN HKP.Process P ON P.Id=PS.ProcessId
+LEFT JOIN HKP.Process LP ON LP.Id=LC.ProcessId
+LEFT JOIN [HKP].[EntityProcessTag] EP ON EP.ProcessId=PS.ProcessId AND EP.EntityId='"+ entityId + @"'
+LEFT JOIN TRN.ProductionOrder PO ON PO.Id=PS.ProductionOrderId
+LEFT JOIN TRN.ProductionOrderDetail POD ON POD.ProductionOrderId=PS.ProductionOrderId
+LEFT JOIN TRN.SalesOrder SO ON SO.Id=POD.SalesOrderId
+LEFT JOIN TRN.[MasterOrderItem] MOI ON SO.MasterOrderItemId=moi.Id
+Where PS.ProductionOrderId='" + poId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
     }
 }
