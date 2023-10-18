@@ -1,8 +1,10 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
+using Library.Accounting.Accounts;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
+using Library.Data.Sql;
 using Library.Model.Enums;
 using Library.Model.Parties;
 using Library.Service.Finances;
@@ -19,22 +21,29 @@ namespace Aplos.Areas.Accounts.Controllers
         private readonly IInvestmentService _investmentService;
         private readonly IInvestmentReportService _investmentReportService;
         private readonly IFinancingService _financingService;
+        private readonly ISqlRepository _sqlRepository;
 
         public InvestmentController(
             IInvestmentService investmentService
             , IInvestmentReportService investmentReportService
-            , IFinancingService financingService
+            , IFinancingService financingService, ISqlRepository sqlRepository
             )
         {
             _investmentService = investmentService;
             _investmentReportService = investmentReportService;
             _financingService = financingService;
+            _sqlRepository = sqlRepository;
         }
 
        
         public ActionResult Investment()
         {
             return View("~/Areas/Accounts/Views/Investment.cshtml");
+        }
+
+        public ActionResult InvestmentSettelment()
+        {
+            return View("~/Areas/Accounts/Views/InvestmentSettelment.cshtml");
         }
 
         [Authorize, HttpGet]
@@ -115,6 +124,14 @@ namespace Aplos.Areas.Accounts.Controllers
                 default:
                     return RenderReportAsExcel(workbook, reportFileName);
             }
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetInvestmentPopUpList(string transactionType)
+        {
+            AccountsLoanService _accountsLoanService = new AccountsLoanService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsLoanService.GetInvestmentList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, transactionType), JsonRequestBehavior.AllowGet);
         }
     }
 }

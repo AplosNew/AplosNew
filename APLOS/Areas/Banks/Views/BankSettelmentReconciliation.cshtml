@@ -1,0 +1,247 @@
+﻿<style>
+    .tbl table {
+        border: 1px solid #659EC7;
+    }
+
+        .tbl table thead th {
+            border: 1px solid #659EC7;
+        }
+
+    .tbl tbody td {
+        border: 1px solid #659EC7;
+    }
+</style>
+
+<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Bank Reconciliation</h3>
+<div class="form-elements form-horizontal" ng-form id="bankReconciliationNew" name="bankReconciliationNewForm">
+    <input type="hidden" ng-model="bankReconciliationNew.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Bank Information</legend>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Bank</label>
+                <div class="col-sm-7 pdr3">
+                    <input type="text" ng-model="bankReconciliationNew.BankName" class="form-control" readonly>
+                </div>
+                <button ng-click="showBankPopUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Branch</label>
+                <label class="col-sm-7 control-label">: {{bankReconciliationNew.BankBranch}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Account</label>
+                <label class="col-sm-7 control-label">: {{bankReconciliationNew.BankAccount}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Bank GL</label>
+                <label class="col-sm-7 control-label">: {{bankReconciliationNew.BankGL}}</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Bank Currency</label>
+                <label class="col-sm-7 control-label">: {{bankReconciliationNew.BankCurrency}}</label>
+            </div>
+        </fieldset>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Date Range</legend>
+            <div class="form-group" id="div_ToDate" show-errors>
+                <label class="col-sm-1 control-label">From</label>
+                <div class="col-sm-4 pdr3">
+                    <input type="text" ng-model="bankReconciliationNew.FromDate" datepicker class="form-control" required tabindex="2">
+                </div>
+                <label class="col-sm-1 control-label pdl3" style="margin-right: -19px;">To</label>
+                <div class="col-sm-4 show-message">
+                    <input type="text" ng-model="bankReconciliationNew.ToDate" datepicker="checkDocDate();" class="form-control" required tabindex="3">
+                </div>
+                <div class="pdr3">
+                    <button ng-click="getBnkReconList()" ng-disabled="bankReconciliationNew.BankName==null" class="btn single-small-btn" tabindex="4"><i class="glyphicon glyphicon-hourglass"></i> Load</button>
+                </div>
+            </div>
+
+        </fieldset>
+        
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Save();" class="btn" tabindex="10"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+        </ul>
+    </div>
+    <!-- #region Tab -->
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="address" role="tab" data-toggle="tab">Dr. Reconcile Pending</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="address" role="tab" data-toggle="tab">Cr. Reconcile Pending</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <fieldset class="scheduler-border">
+                            <legend class="scheduler-border">Dr. Reconcile Pending</legend>
+                            <div class="content-container-fluid" style="color:black;overflow:scroll">
+                                <div style="color:black;" id="GridbankDrReconList"
+                                     ej-grid e-datasource="bankDrReconDataList"
+                                     e-allowfiltering="true"
+                                     e-allowpaging="true"
+                                     e-gridlines="vertical" e-allowscrolling="true"
+                                     e-filtersettings-filterType="excel"
+                                     e-enabletouch="false"
+                                     e-allowresizing="true"
+                                     e-allowselection="false"
+                                     e-allowsorting="true">
+                                    <div e-columns>
+                                        <div e-column e-field="VoucherDetailId" e-headertext="Id" e-width="60" e-textalign="center"></div>
+                                        <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="50" e-textalign="center"></div>
+                                        <div e-column e-field="PostingDate" e-headertext="Posting Date" e-width="40" e-textalign="center"></div>
+                                        <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="40" e-textalign="center"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Amount" e-headertext="Amount" e-width="50" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-headertext="Select" e-template="#checkbankDrRecon" e-textalign="center" e-width="30"></div>
+                                    </div>
+                                </div>
+                                <script type="text/template" id="checkbankDrRecon">
+                                    <input type="checkbox" ng-model="data.Flag" ng-checked="data.Flag" ng-click="$parent.isReconciledBankDrReconAmount($event,data,4,'bankDrReconAmount');$parent.listMergebankDrTempList($event,data);">
+                                </script>
+                            </div>
+                            <fieldset>
+                                <div class="form-group">
+                                    <label class="col-sm-5 control-label">Selected Reconciled Amount </label>
+                                    <label class="col-sm-7 control-label">: {{bankDrReconAmount}}</label>
+                                </div>
+                            </fieldset>
+                        </fieldset>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <fieldset class="scheduler-border">
+                            <legend class="scheduler-border">Uploaded data Pending</legend>
+                            <div class="content-container-fluid" style="color:black;overflow:scroll">
+                                <div style="color:black;" id="GridbankDrReconUploadedDataList"
+                                     ej-grid e-datasource="bankDrReconUploadedDataList"
+                                     e-allowfiltering="true"
+                                     e-allowpaging="true"
+                                     e-gridlines="vertical" e-allowscrolling="true"
+                                     e-filtersettings-filterType="excel"
+                                     e-enabletouch="false"
+                                     e-allowresizing="true"
+                                     e-allowselection="false"
+                                     e-allowsorting="true">
+                                    <div e-columns>
+                                        <div e-column e-headertext="Select" e-template="#checkbankDrReconUploadedData" e-textalign="center" e-width="20"></div>
+                                        <div e-column e-field="Id" e-headertext="Id" e-width="30" e-textalign="center"></div>
+                                        <div e-column e-field="BankStatementDate" e-headertext="Date" e-width="30" e-textalign="center"></div>
+                                        <div e-column e-field="BankRefNo" e-headertext="Bank RefNo" e-width="50" e-textalign="center"></div>
+                                        <div e-column e-field="BankParticulars" e-headertext="Bank Particulars" e-width="50" e-textalign="center"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="DrAmount" e-headertext="Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
+                                    </div>
+                                </div>
+                                <script type="text/template" id="checkbankDrReconUploadedData">
+                                    <input type="checkbox" ng-model="data.Flag" ng-checked="data.Flag" ng-click="$parent.isReconciledBankDrReconUploadedDataAmount($event,data,4,'bankDrReconUploadedDataAmount');$parent.listMergebankDrUploadedDataTempList($event,data);">
+                                </script>
+                            </div>
+                            <fieldset>
+                                <div class="form-group">
+                                    <label class="col-sm-5 control-label">Selected Uploaded Amount </label>
+                                    <label class="col-sm-7 control-label">: {{bankDrReconUploadedDataAmount}}</label>
+                                </div>
+                            </fieldset>
+                        </fieldset>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="DRREconcileReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download </button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <fieldset class="scheduler-border">
+                            <legend class="scheduler-border">Cr. Reconcile Pending</legend>
+                            <div class="content-container-fluid" style="color:black;overflow:scroll">
+                                <div style="color:black;" id="GridbankCrReconList"
+                                     ej-grid e-datasource="bankCrReconDataList"
+                                     e-allowfiltering="true"
+                                     e-allowpaging="true"
+                                     e-gridlines="vertical" e-allowscrolling="true"
+                                     e-filtersettings-filterType="excel"
+                                     e-enabletouch="false"
+                                     e-allowresizing="true"
+                                     e-allowselection="false"
+                                     e-allowsorting="true">
+                                    <div e-columns>
+                                        <div e-column e-field="VoucherDetailId" e-headertext="Id" e-width="60" e-textalign="center"></div>
+                                        <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="50" e-textalign="center"></div>
+                                        <div e-column e-field="PostingDate" e-headertext="Posting Date" e-width="40" e-textalign="center"></div>
+                                        <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="40" e-textalign="center"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Amount" e-headertext="Amount" e-width="50" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-headertext="Select" e-template="#checkbankCrRecon" e-textalign="center" e-width="30"></div>
+                                    </div>
+                                </div>
+                                <script type="text/template" id="checkbankCrRecon">
+                                    <input type="checkbox" ng-model="data.Flag" ng-checked="data.Flag" ng-click="$parent.isReconciledBankCrReconAmount($event,data,4,'bankCrReconAmount');$parent.listMergebankCrTempList($event,data);">
+                                </script>
+                            </div>
+                            <fieldset>
+                                <div class="form-group">
+                                    <label class="col-sm-5 control-label">Selected Reconciled Amount </label>
+                                    <label class="col-sm-7 control-label">: {{bankCrReconAmount}}</label>
+                                </div>
+                            </fieldset>
+                        </fieldset>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <fieldset class="scheduler-border">
+                            <legend class="scheduler-border">Uploaded data Pending</legend>
+                            <div class="content-container-fluid" style="color:black;overflow:scroll">
+                                <div style="color:black;" id="GridbankCrReconUploadedDataList"
+                                     ej-grid e-datasource="bankCrReconUploadedDataList"
+                                     e-allowfiltering="true"
+                                     e-allowpaging="true"
+                                     e-gridlines="vertical" e-allowscrolling="true"
+                                     e-filtersettings-filterType="excel"
+                                     e-enabletouch="false"
+                                     e-allowresizing="true"
+                                     e-allowselection="false"
+                                     e-allowsorting="true">
+                                    <div e-columns>
+                                        <div e-column e-headertext="Select" e-template="#checkbankCrReconUploadedData" e-textalign="center" e-width="20"></div>
+                                        <div e-column e-field="Id" e-headertext="Id" e-width="30" e-textalign="center"></div>
+                                        <div e-column e-field="BankStatementDate" e-headertext="Date" e-width="30" e-textalign="center"></div>
+                                        <div e-column e-field="BankRefNo" e-headertext="Bank RefNo" e-width="50" e-textalign="center"></div>
+                                        <div e-column e-field="BankParticulars" e-headertext="Bank Particulars" e-width="50" e-textalign="center"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="CrAmount" e-headertext="Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
+                                    </div>
+                                </div>
+                                <script type="text/template" id="checkbankCrReconUploadedData">
+                                    <input type="checkbox" ng-model="data.Flag" ng-checked="data.Flag" ng-click="$parent.isReconciledBankCrReconUploadedDataAmount($event,data,4,'bankCrReconUploadedDataAmount');$parent.listMergebankCrUploadedDataTempList($event,data);">
+                                </script>
+                            </div>
+                            <fieldset>
+                                <div class="form-group">
+                                    <label class="col-sm-5 control-label">Selected Uploaded Amount </label>
+                                    <label class="col-sm-7 control-label">: {{bankCrReconUploadedDataAmount}}</label>
+                                </div>
+                            </fieldset>
+                        </fieldset>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="CRREconcileReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download </button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+            </div>
+        </div>
+
+        <confirm-modal></confirm-modal>
+        <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(voucherDetailId)"></confirm-archive-generic>
+        <confirm-archive-generic modalid="confirmSavePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="SaveAdjustmentJournal()"></confirm-archive-generic>
+        @Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")

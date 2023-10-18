@@ -10,9 +10,11 @@ using Library.Model.Parties;
 using Library.Model.Payments;
 using Library.Model.Vouchers;
 using Library.Service.Calendars;
+using Library.Service.Core;
 using Library.Service.Currencies;
 using Library.Service.Enums;
 using Library.Service.Logs;
+using Library.Service.Systems;
 using Library.Service.Taxations;
 using Library.Service.Vouchers;
 using Library.ViewModel.Vouchers;
@@ -38,7 +40,8 @@ namespace Library.Service.Finances
         private readonly IRepositoryAsync<CashMaster> _cashMasterRepository;
         private readonly IRepositoryAsync<CompanyParty> _companyPartyRepository;
         private readonly IRepositoryAsync<CompanyPartyGL> _companyPartyGLRepository;
-
+        private readonly IRepositoryAsync<FinancingSubsequentTransaction> _loanInterestPayableRepository;
+        private readonly IPKGeneratorService _pkGeneratorService;
         public InvestmentService(
              IUnitOfWork unitOfWork
             , ISqlRepository sqlRepository
@@ -52,6 +55,8 @@ namespace Library.Service.Finances
             , IRepositoryAsync<CompanyParty> companyPartyRepository
             , ICompanyParallelCurrencyService companyParallelCurrencyService
             , IRepositoryAsync<CompanyPartyGL> companyPartyGLRepository
+            , IPKGeneratorService pkGeneratorService
+             , IRepositoryAsync<FinancingSubsequentTransaction> loanInterestPayableRepository
             )
         {
             _unitOfWork = unitOfWork;
@@ -66,6 +71,8 @@ namespace Library.Service.Finances
             _companyPartyRepository = companyPartyRepository;
             _companyPartyGLRepository = companyPartyGLRepository;
             _companyParallelCurrencyService = companyParallelCurrencyService;
+            _loanInterestPayableRepository = loanInterestPayableRepository;
+            _pkGeneratorService = pkGeneratorService;
         }
 
         #endregion Constructor
@@ -83,7 +90,10 @@ namespace Library.Service.Finances
                                 WHERE A.OpeningBalanceId IS NULL AND A.Archive=0 AND V.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' AND A.SourceType='" + sourceType + "'";
             return _sqlRepository.GetGridData(parameters);
         }
-
+        private string GetSubsequentInvestmentPK()
+        {
+            return _pkGeneratorService.GetAutoNumber("FinancingSubsequentTransaction", PKGeneratorEnum.Auto, null, DateTime.Now);
+        }
         public string InsertInvestment(VoucherViewModel voucherVM)
         {
             var flag = false;
@@ -116,6 +126,7 @@ namespace Library.Service.Finances
                     SourceType = voucherVM.SourceType,
                     PaymentSource = voucherVM.PaymentSource,
                     Amount = voucherVM.Amount,
+                    OtherBankMasterId = voucherVM.OtherBankMasterId,
                     BankMasterId = voucherVM.BankMasterId,
                     CashMasterId = voucherVM.CashMasterId,
                     TransactionType = voucherVM.TransactionType,
@@ -129,7 +140,33 @@ namespace Library.Service.Finances
                 };
                 _financingService.InsertFinancing(financing);
                 var voucher = _voucherService.InsertVoucher(voucherVM);
-
+                var loanInterestPayable = new FinancingSubsequentTransaction
+                {
+                    CompanyGroupId = voucherVM.CompanyGroupId,
+                    CompanyId = voucherVM.CompanyId,
+                    PlantId = voucherVM.PlantId,
+                    EntityId = voucherVM.EntityId,
+                    VoucherTypeId = voucherVM.VoucherTypeId,
+                    FinancingId = financing.Id,
+                    PartyId = voucherVM.PartyId,
+                    PartyPlantId = voucherVM.PartyPlantId,
+                    PartyType = voucherVM.PartyType,
+                    CurrencyId = voucherVM.CurrencyId,
+                    Amount = voucherVM.Amount,
+                    DownPaymentAmount = voucherVM.DownPaymentAmount,
+                    VoucherDate = voucherVM.VoucherDate,
+                    PostingDate = voucherVM.PostingDate,
+                    DocDate = voucherVM.DocDate,
+                    DocRefNo = voucherVM.DocRefNo,
+                    TransactionType = "Investment",
+                    Narration = voucherVM.Narration,
+                    SourceType = voucherVM.SourceType.ToString(),
+                    IsPark = voucherVM.IsPark,
+                    Id = "SI" + GetSubsequentInvestmentPK(),
+                    VoucherId = voucher.Id
+                };
+                AuditService.AddedLog(loanInterestPayable);
+                _loanInterestPayableRepository.Insert(loanInterestPayable);
                 // Set to Financing
                 financing.VoucherId = voucher.Id;
 
@@ -166,16 +203,13 @@ namespace Library.Service.Finances
                             throw new CustomException("Bank data not found!");
                         if (null == bankMaster.ActivityId)
                             throw new CustomException("Bank Activity not found!");
-                        investmentDetail.BankMasterId = bankMaster.Id;
-                        investmentDetail.GLGeneralInfoId = bankMaster.GLGeneralInfoId;
-                        investmentDetail.BudgetMasterId = bankMaster.BudgetMasterId;
-                        investmentDetail.ActivityId = bankMaster.ActivityId;
+                       
 
                         voucherDetailFrom.GLGeneralInfoId = bankMaster.GLGeneralInfoId;
                         voucherDetailFrom.BudgetMasterId = bankMaster.BudgetMasterId;
                         voucherDetailFrom.ActivityId = bankMaster.ActivityId;
 
-                        voucherDetailFrom.BankMasterId = investmentDetail.BankMasterId;
+                        voucherDetailFrom.BankMasterId = bankMaster.Id;
                         voucherDetailFrom.TrnNature = TransactionNature.Bank.ToString();
 
                     }
@@ -205,7 +239,7 @@ namespace Library.Service.Finances
                         throw new CustomException("Payment Source not found!");
                     // Set amount in Voucher detail in Credit side.
                     voucherDetailFrom.CrAmount = investmentDetail.Amount;
-                    voucherDetailFrom.FinancingDetailId = investmentDetail.Id;
+                    //voucherDetailFrom.FinancingDetailId = investmentDetail.Id;
 
                     #endregion From
 
@@ -220,6 +254,9 @@ namespace Library.Service.Finances
                     voucherDetailTo.BudgetMasterId = gl.AssetBudgetMasterId;
                     voucherDetailTo.ActivityId = gl.AssetActivityId;
                     voucherDetailTo.FinancingDetailId = investmentDetail.Id;
+                    investmentDetail.GLGeneralInfoId = gl.AssetGLId;
+                    investmentDetail.BudgetMasterId = gl.AssetBudgetMasterId;
+                    investmentDetail.ActivityId = gl.AssetActivityId;
 
                     if (voucherVM.PartyType == PartyType.Vendor.ToString() || voucherVM.PartyType == PartyType.Customer.ToString() || voucherVM.PartyType == PartyType.Director.ToString())
                     {
