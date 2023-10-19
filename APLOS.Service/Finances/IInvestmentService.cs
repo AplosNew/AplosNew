@@ -10,7 +10,7 @@ namespace Library.Service.Finances
         GridModel Query(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType);
 
         string InsertInvestment(VoucherViewModel voucherVM);
-
+        string InsertInvestmentSetOff(VoucherViewModel voucherVM);
         Dictionary<string, object> GetById(string id);
     }
 }

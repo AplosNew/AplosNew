@@ -113,7 +113,7 @@ namespace Library.Accounting.Accounts
             {
                 var sql = @"SELECT Id, AccountTitle, AccountNumber, CurrencyId, EntityId FROM [MST].[BankMaster]
                             WHERE Archive=0 AND Active=1 AND CompanyGroupId='" + companyGroupId + "' AND CompanyId='" + companyId + "' AND (PlantId='" + plantId + @"' OR PlantId IS NULL)
-                            AND AccountType in ('HouseBank','Investment') AND (EntityId='" + entityId + "' OR EntityId IS NULL) ORDER BY 2 ASC";
+                            AND AccountType in ('Investment') AND (EntityId='" + entityId + "' OR EntityId IS NULL) ORDER BY 2 ASC";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
