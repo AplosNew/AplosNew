@@ -304,8 +304,18 @@ PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + 
         }
 
         [Authorize, HttpPost]
-        public ActionResult GetMasterOrderItem(string entityid, string workCenterMasterId, string productionLevel, string processId, string ProductionOrderId)
+        public ActionResult GetMasterOrderItem(string entityid, string workCenterMasterId, string productionLevel, string processId, string ProductionOrderId, bool ToCloseAllowed)
         {
+
+            string wcpr;
+            if (ToCloseAllowed)
+            {
+                wcpr = @"PS.UserName IN ('Running','To Close')";
+            }
+            else
+            {
+                wcpr = @"PS.UserName = 'Running'";
+            }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"SELECT DISTINCT mo.MasterOrderNo,so.MasterOrderItemId
 	                                ,ISNULL(so.Id,'') SOId
@@ -361,8 +371,8 @@ PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + 
                                 LEFT JOIN [SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id AND WC.WorkCenterMasterId = '" + workCenterMasterId + @"'
                                 LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
                                 WHERE 
---PO.EntityId = '" + entityid + @"'	AND 
-PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + ProductionOrderId + "'";
+--PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'
+ " + wcpr + "	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + ProductionOrderId + "'";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }

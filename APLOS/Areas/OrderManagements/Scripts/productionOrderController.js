@@ -173,7 +173,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     //}
 
 
-      $scope.rowDataBound = function rowDataBound(e) {
+    $scope.rowDataBound = function rowDataBound(e) {
 
         if ($scope.MaterialID != e.data.ProductionGrouping + e.data.MaterialMasterId) {
             $scope.isAlternative = $scope.isAlternative * -1;
@@ -388,6 +388,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         , DaysToGetTheTarget: null
         , Remarks: null
         , color: '#ffffff'
+        , IsPreDefineLotApplicable:false
     };
     $scope.model = Object.assign({}, $scope.model);
 
@@ -412,6 +413,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
         $scope.DisableActionButtons = true;
         $scope.operationList = [];
+        $scope.lotControlList = [];
         $scope.model = Row.data;
         //$scope.model = Object.assign({}, $scope.model);
         $scope.model = Object.assign({}, Row.data);
@@ -769,6 +771,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         $scope.NonMCtotalMP = 0;
         $scope.PicFileName = virtualPath.ProductionBulletinImage + '';
         $scope.productionFPWorkCenterList = [];
+        $scope.lotControlList = [];
     }
     $scope.Clear();
 
@@ -1738,6 +1741,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             url: 'OrderManagements/ProductionOrder/GetSavedWorkCenterListByEntityandFirstProcess?productionOrderId=' + $scope.model.Id
         }).then(function successCallback(res) {
             $scope.productionFPWorkCenterList = res.data;
+            $scope.GetPOLotControlData();
         });
     }
 
@@ -4235,4 +4239,53 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     };
 
     //#endregion
+
+    $scope.lotControlList = [];
+    $scope.GetPOLotControlData = function () {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/ProductionOrder/GetPOLotControlData?poId=' + $scope.model.Id + '&entityId=' + $scope.model.EntityId
+        }).then(function (response) {
+            $scope.lotControlList = response.data;
+            for (var i = 0; i < $scope.lotControlList.length; i++) {
+                $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo + '-' + $scope.lotControlList[i].Rank;
+                $scope.lotControlList[i].UserLotNo = $scope.lotControlList[i].UserLotNo + '-' + $scope.lotControlList[i].Rank;
+
+            }
+        });
+    }
+
+    $scope.SaveLotControl = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/ProductionOrder/CreateLotControl',
+                data: {
+                    'data': $scope.lotControlList
+                    , 'poId': $scope.model.Id
+                },
+                dataType: 'JSON'
+                , contentType: "application/json charset=utf-8"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetPOLotControlData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+
+
+
+
+
+
 }
