@@ -194,6 +194,22 @@ namespace Library.Accounting.Accounts
                                     AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "'";
             return _sqlRepository.GetGridData(parameters);
         }
+
+        public GridModel GetInvestmentSetoffList(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
+        {
+            parameters.CmdText = @"SELECT AW.FinancingNo,AW.FinancingId,F.DocRefNo LoanNo, V.Id VoucherId, V.VoucherNo, AW.Id, P.Code AS PartyCode, P.UserName AS PartyName, V.PostingDate, V.DocDate, V.DocRefNo, C.Code AS CurrencyCode, VD.Amount
+                                    , AW.PartyPlantId, PP.UserName AS PartyPlantName, V.IsPark, AW.LoanSetOffGroupNo
+                                    FROM [TRN].[Voucher] AS V
+                                    LEFT JOIN [TRN].[FinancingWriteOff] AS AW ON V.Id=AW.VoucherId
+                                    left join trn.Financing F on F.Id=AW.FinancingId
+									--LEFT JOIN (SELECT Id,FinancingWriteOffId,SUM(Amount) Amount FROM [TRN].[FinancingDetailWriteOff] Group BY Id,FinancingWriteOffId ) AS IWD ON IWD.FinancingWriteOffId=AW.Id
+									LEFT JOIN(SELECT VoucherId,SUM(DrAmount) Amount FROM [TRN].[VoucherDetail] group by VoucherId) AS VD ON VD.VoucherId=V.Id
+                                    LEFT JOIN [HKP].[Party] AS P ON P.Id=AW.PartyId
+                                    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AW.PartyPlantId
+                                    LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
+                                WHERE  V.Archive=0 AND V.CompanyGroupId='" + companyGroupId + "'AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + "' AND V.SourceType='InvestmentSetOff' ";
+            return _sqlRepository.GetGridData(parameters);
+        }
         public DataTable GetAllLoanRegisterReportData(string companyGroupId, string companyId, string plantId, TransactionType transactionType)
         {
             // var sql = "";

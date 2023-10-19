@@ -421,11 +421,11 @@ function InvestmentSettelmentController(accountService, bankService, cboService,
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
-                    url: "Accounts/Loan/InsertLoanPayment",
+                    url: "Accounts/Investment/InsertInvestmentSetoff",
                     data: {
-                        "voucherVM": $scope.voucher,
-                        "loanAdditionVM": $scope.loanAddition,
-                        "loanRepaymentSchedulelist": $scope.loanRepaymentSchedulelist
+                        "voucherVM": $scope.voucher
+                        //"loanAdditionVM": $scope.loanAddition,
+                        //"loanRepaymentSchedulelist": $scope.loanRepaymentSchedulelist
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
