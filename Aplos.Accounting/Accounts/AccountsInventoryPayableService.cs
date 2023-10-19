@@ -1656,7 +1656,7 @@ UNION
             try
             {
                 var sql = @"SELECT IR.Id, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode,isnull(IR.PartyType,'Vendor')PartyType
-								, P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDateNew
+								, P.UserName AS PartyName,P.TINNO GSTINNo,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDateNew
 			                    , CP.UserName AS PartyAccountGroupName
 			                    , IR.EmployeeId, EI.EmployeeCode, EI.EmployeeName
                                 , Particular=CASE WHEN IR.EmployeeId<>'' THEN EI.EmployeeName WHEN IR.PartyId<>'' THEN P.UserName  ELSE P.UserName END
