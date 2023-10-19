@@ -117,7 +117,7 @@ function InvestmentSettelmentController(accountService, bankService, cboService,
         }
     ];
 
-    baseService.init("accounts/Loan/GetLoanPaymentList", null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
+    baseService.init("accounts/Investment/GetInvestmentSetoffList", null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
     $scope.getData = function (pageno) {
         baseService.pagination(pageno)
             .then(function (result) {

@@ -143,7 +143,7 @@ namespace Aplos.Areas.Accounts.Controllers
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
             voucherVM.IsPark = true;
-            voucherVM.SourceType = "InvestmentSetOff";//SourceType.LoanPayment.ToString();
+            voucherVM.SourceType = SourceType.InvestmentSetOff.ToString();
             if (voucherVM.CurrencyId == null)
                 throw new CustomException("Please Select Currency !");
             if (voucherVM.Amount < 0 || voucherVM.Amount == 0)
@@ -181,7 +181,25 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             AccountsLoanService _accountsLoanService = new AccountsLoanService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_accountsLoanService.GetInvestmentSetoffList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.LoanPayment), JsonRequestBehavior.AllowGet);
+            return Json(_accountsLoanService.GetInvestmentSetoffList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.InvestmentSetOff), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult InvestmentSetoffReport(ReportFormat reportFormat, string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _investmentReportService.GetInvestmentWriteOffReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, SourceType.InvestmentSetOff.ToString());
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
         }
     }
 }
