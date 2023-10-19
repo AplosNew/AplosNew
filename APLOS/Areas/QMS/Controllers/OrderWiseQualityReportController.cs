@@ -425,14 +425,14 @@ where OWC.MOLineItemNo ='" + MOId + "' and OWC.PONo='" + POId + "' and OWC.LotNo
         }
 
         [HttpGet]
-        public ActionResult GetOrderWiseParameterJobCardReport(string fromDate, string toDate, string IssueId, string ProductionOrderId, string LotNumber, string EntityId)
+        public ActionResult GetOrderWiseParameterJobCardReport(string fromDate, string toDate, string IssueId, string ProductionOrderId, string LotNumber, string EntityId, string QualityStatus, string Date)
         {
             try
             {
                 NewJobCardReportService app = new NewJobCardReportService();
                 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                IWorkbook workbook = app.GetOrderWiseParameterJobCardReport(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, IssueId, ProductionOrderId, LotNumber, EntityId);
+                IWorkbook workbook = app.GetOrderWiseParameterJobCardReport(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, IssueId, ProductionOrderId, LotNumber, EntityId, QualityStatus, Date);
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + "Job Card Report";
                 return RenderReportAsExcel(workbook, reportFileName);
                 
