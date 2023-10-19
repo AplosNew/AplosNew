@@ -117,7 +117,7 @@ function InvestmentSettelmentController(accountService, bankService, cboService,
         }
     ];
 
-    baseService.init("accounts/Loan/GetLoanPaymentList", null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
+    baseService.init("accounts/Investment/GetInvestmentSetoffList", null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
     $scope.getData = function (pageno) {
         baseService.pagination(pageno)
             .then(function (result) {
@@ -421,11 +421,11 @@ function InvestmentSettelmentController(accountService, bankService, cboService,
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
-                    url: "Accounts/Loan/InsertLoanPayment",
+                    url: "Accounts/Investment/InsertInvestmentSetoff",
                     data: {
-                        "voucherVM": $scope.voucher,
-                        "loanAdditionVM": $scope.loanAddition,
-                        "loanRepaymentSchedulelist": $scope.loanRepaymentSchedulelist
+                        "voucherVM": $scope.voucher
+                        //"loanAdditionVM": $scope.loanAddition,
+                        //"loanRepaymentSchedulelist": $scope.loanRepaymentSchedulelist
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {

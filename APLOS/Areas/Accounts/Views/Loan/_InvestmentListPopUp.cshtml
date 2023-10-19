@@ -1,0 +1,43 @@
+﻿
+<style>
+    .modellgModify {
+        width: 1500px;
+    }
+</style>
+<div class="modal fade site-modal in" id="loanPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Investment List <button type="button" class="close" ng-click="closeloanPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+                        <div style="color:black;" id="LoanGrid" ej-grid e-datasource="loanDataList" e-recorddoubleclick="closeloanPopUpSelected"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="80" e-filter="false"></div>
+                                <div e-column e-field="FinancingId" e-headertext="Financing No" e-width="80"></div>
+                                <div e-column e-field="BankName" e-headertext="Bank Name" e-width="130"></div>
+                                <div e-column e-field="Particulars" e-headertext="Particulars" e-width="130"></div>
+                                <div e-column e-field="PartyPlantName" e-headertext="PartyPlantName" e-width="60"></div>
+                                <div e-column e-field="PartyType" e-headertext="PartyType" e-width="60"></div>
+                                <div e-column e-field="PostingDateNew" e-headertext="Posting Date" e-width="80" e-format="{0:dd-MMM-yyyy}" type="date"></div>
+                                <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="130"></div>
+                                <div e-column e-field="DocDate" e-headertext="Doc Date" e-width="80" e-format="{0:dd-MMM-yyyy}" type="date"></div>
+
+                                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                                <div e-column e-field="InvestmentAmount" e-headertext="Amount" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="InterestAmount" e-headertext="Interest+Tax Amount" e-width="80" e-type='string'></div>
+                                <div e-column e-field="InvestmentSetOff" e-headertext="SetOff" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="Balance" e-headertext="Balance" e-width="80" textAlign='Right'></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeloanPopUpSelected();" class="btn"> Close</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
