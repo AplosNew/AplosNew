@@ -458,6 +458,10 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/Investment/Investment",
             controller: "investmentController"
         })
+        .when("/investment-settelment", {
+            templateUrl: "Accounts/Investment/InvestmentSettelment",
+            controller: "InvestmentSettelmentController"
+        })
         .when("/inter-investment-given-opening-balance", {
             templateUrl: "Accounts/OpeningBalance/interInvestmentGiven",
             controller: "interInvestmentGivenOpeningBalanceController"

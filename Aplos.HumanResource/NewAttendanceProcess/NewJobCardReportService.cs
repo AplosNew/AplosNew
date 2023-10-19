@@ -1023,6 +1023,530 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         }
 
+
+        //order wise report function
+
+        public IWorkbook GetOrderWiseParameterJobCardReport(string username, string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string IssueId, string ProductionOrderId, string LotNumber, string EntityId)
+        {
+
+            clsReport objRpt = null;
+            ReportUtility oru = new ReportUtility();
+            DataSet dsBioDvAC = null;
+            DataTable dtBioDvAC = null;
+            DataView dvBioDvAC = null;
+            DataSet dsCmp = null;
+            DataSet dsFactory = null;
+            
+            StringCollection sEmpCodeColl = null;
+
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            var workbook = oru.GetWorkbook(ref excelEngine, 1);
+            workbook.Version = ExcelVersion.Excel2013;
+            IWorksheet sheet1 = null;
+
+            int xlsRow = 1, xlsCol = 1;
+            int endXlsCol = 1;
+            string FactoryName = "";
+            string CmpName = ""; 
+            string freezeRow = "";
+            try
+            {
+                #region DataSet
+                objRpt = new clsReport();
+                GetOrderWiseParameterJobCardReport(fromDate, toDate, IssueId, ProductionOrderId, LotNumber, EntityId, plantId, out dsBioDvAC);
+                dtBioDvAC = dsBioDvAC.Tables[0];
+
+                objRpt.SelectedPlantWiseCompany(plantId, out dsCmp);
+                objRpt.SelectedPlant(plantId, out dsFactory);
+                #endregion DataSet
+
+                if (dsBioDvAC.Tables[0].Rows.Count > 0)
+                {
+                    sEmpCodeColl = new StringCollection();
+                    for (int i = 0; i <= dsBioDvAC.Tables[0].Rows.Count - 1; i++)
+                    {
+                        if (sEmpCodeColl.Contains(dsBioDvAC.Tables[0].Rows[i]["IssueName"].ToString().Trim()) == false)
+                        {
+                            sEmpCodeColl.Add(dsBioDvAC.Tables[0].Rows[i]["IssueName"].ToString().Trim());
+                           
+                        }
+                    }
+                    excelEngine = new ExcelEngine();
+                    application = excelEngine.Excel;
+                    workbook = application.Workbooks.Create(sEmpCodeColl.Count);
+                    for (int Ec = 0; Ec < sEmpCodeColl.Count; Ec++)
+                    {
+                        dvBioDvAC = new DataView();
+                        dvBioDvAC.Table = dtBioDvAC;
+                        dvBioDvAC.RowFilter = "IssueName = '" + sEmpCodeColl[Ec].ToString().Trim() + "'";
+                     
+                        if (dvBioDvAC.Count > 0)
+                        {
+                            sheet1 = workbook.Worksheets[Ec];
+                            sheet1.IsGridLinesVisible = true;
+                            xlsRow = 6;
+                            string strEmpCode = "";
+                            int QPIssueName = 0;
+                            int QPProcess = 0;
+                            int QPPSNo = 0;
+                            int QPPName = 0;
+                            int QPUOM = 0;
+                            int QPValue = 0;
+                            int QPMinMaxReq = 0;
+                            int QPMinMaxStd = 0;
+                            int QPGradeName = 0;
+                            int QPActionTeBeTaken = 0;
+                            int QPResponsiblePerson = 0;
+                            int QPActionTaken = 0;
+                            int QPActionBy = 0;
+                            int QPParameterRemarks = 0;
+                            int QPDate = 0;
+                            int QPTime = 0;
+                            int QPConfirmRemarks = 0;
+                            int QPQAURemarks = 0;
+                            int QPReason = 0;
+                            
+                            for (int i = 0; i < dvBioDvAC.Count; i++)
+                            {
+                                if ((string.Compare(strEmpCode.ToUpper(), dvBioDvAC[i]["IssueName"].ToString().Trim().ToUpper())) != 0)
+                                {
+                                    #region ------------------Column Header------------------
+                                    
+                                    xlsCol = 1;
+                                    xlsRow = 5;
+                                    sheet1.Range[xlsRow, xlsCol].Text = "Quality Status";
+                                    sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[i]["QualityStatus"].ToString().Trim();
+                                    sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                    sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
+
+                                    xlsCol = 1;
+                                    xlsRow += 1;
+                                    sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Text = "Date";
+                                    sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[i]["Date"].ToString().Trim();
+                                    sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                    sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
+
+                                    xlsCol = 1;
+                                    xlsRow += 1;
+                                    sheet1.Range[xlsRow, xlsCol].Text = "MO Line ItemNo";
+                                    sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[i]["MOLineItemNo"].ToString().Trim();
+                                    sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                    sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
+
+                                    xlsCol = 1;
+                                    xlsRow += 1;
+                                    sheet1.Range[xlsRow, xlsCol].Text = "PO Status";
+                                    sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[i]["POStatus"].ToString().Trim();
+                                    sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                    sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
+
+                                    xlsCol = 1;
+                                    xlsRow += 1;
+                                    sheet1.Range[xlsRow, xlsCol].Text = "Lot No";
+                                    sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[i]["LotNo"].ToString().Trim();
+                                    sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                    sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
+
+                                    xlsCol = 1;
+                                    xlsRow += 1;
+                                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
+                                    xlsRow += 1;
+                                    xlsCol = 5;
+                                    xlsRow = 5;
+
+                                    sheet1.Range[xlsRow, xlsCol].Text = "Customer";
+                                    sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[i]["Customer"].ToString().Trim();
+                                    sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                    sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
+                                    xlsRow += 1;
+
+                                    sheet1.Range[xlsRow, xlsCol].Text = "PO No";
+                                    sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[i]["PONo"].ToString().Trim();
+                                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
+                                    xlsRow += 1;
+                                    sheet1.Range[xlsRow, xlsCol].Text = "Article";
+                                    sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[i]["Article"].ToString().Trim();
+                                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
+                                    xlsRow += 1;
+                                    sheet1.Range[xlsRow, xlsCol].Text = "Grade";
+                                    sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[i]["Grade"].ToString().Trim();
+                                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
+                                    xlsRow += 1;
+                                    sheet1.Range[xlsRow, xlsCol].Text = "Comment";
+                                    sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[i]["CommentDetails"].ToString().Trim();
+                                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 3].Merge();
+                                    xlsRow += 1;
+                                    xlsRow = 5;
+                                    xlsCol = 9;
+
+                                    xlsRow = 11;
+                                    xlsCol = 1;
+                                    QPIssueName = xlsCol;
+                                    xlsRow += 1;
+                                    sheet1.Range[xlsRow, QPIssueName].Text = "IssueName";
+                                    sheet1.Range[xlsRow, QPIssueName].ColumnWidth = 11;
+                                    sheet1.Range[xlsRow, QPIssueName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, QPIssueName].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    xlsCol += 1;
+                                    QPProcess = xlsCol;
+                                    sheet1.Range[xlsRow, QPProcess].Text = "Process";
+                                    sheet1.Range[xlsRow, QPProcess].ColumnWidth = 7;
+                                    sheet1.Range[xlsRow, QPProcess].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, QPProcess].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+                                    xlsCol += 1;
+                                    QPPSNo = xlsCol;
+                                    sheet1.Range[xlsRow, QPPSNo].Text = "PSNo";
+                                    sheet1.Range[xlsRow, QPPSNo].ColumnWidth = 20;
+                                    sheet1.Range[xlsRow, QPPSNo].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, QPPSNo].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    xlsCol += 1;
+                                    QPUOM = xlsCol;
+                                    sheet1.Range[xlsRow, QPUOM].Text = "UOM";
+                                    sheet1.Range[xlsRow, QPUOM].ColumnWidth = 8;
+                                    sheet1.Range[xlsRow, QPUOM].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, QPUOM].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    xlsCol += 1;
+                                    QPValue = xlsCol;
+                                    sheet1.Range[xlsRow, QPValue].Text = "Value";
+                                    sheet1.Range[xlsRow, QPValue].ColumnWidth = 9;
+                                    sheet1.Range[xlsRow, QPValue].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, QPValue].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    xlsCol += 1;
+                                    QPMinMaxReq = xlsCol;
+                                    sheet1.Range[xlsRow, QPMinMaxReq].Text = "MinMaxReq";
+                                    sheet1.Range[xlsRow, QPMinMaxReq].ColumnWidth = 8;
+                                    sheet1.Range[xlsRow, QPMinMaxReq].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, QPMinMaxReq].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    xlsCol += 1;
+                                    QPMinMaxStd = xlsCol;
+                                    sheet1.Range[xlsRow, QPMinMaxStd].Text = "MinMaxStd";
+                                    sheet1.Range[xlsRow, QPMinMaxStd].ColumnWidth = 8;
+                                    sheet1.Range[xlsRow, QPMinMaxStd].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, QPMinMaxStd].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    xlsCol += 1;
+                                    QPGradeName = xlsCol;
+                                    sheet1.Range[xlsRow, QPGradeName].Text = "GradeName";
+                                    sheet1.Range[xlsRow, QPGradeName].ColumnWidth = 6.5;
+                                    sheet1.Range[xlsRow, QPGradeName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, QPGradeName].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    xlsCol += 1;
+                                    QPActionTeBeTaken = xlsCol;
+                                    sheet1.Range[xlsRow, QPActionTeBeTaken].Text = "ActionTeBeTaken";
+                                    sheet1.Range[xlsRow, QPActionTeBeTaken].ColumnWidth = 9.5;
+                                    sheet1.Range[xlsRow, QPActionTeBeTaken].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, QPActionTeBeTaken].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+                                    xlsCol += 1;
+                                    QPResponsiblePerson = xlsCol;
+                                    sheet1.Range[xlsRow, QPResponsiblePerson].Text = "ResponsiblePerson";
+                                    sheet1.Range[xlsRow, QPResponsiblePerson].ColumnWidth = 9;
+                                    sheet1.Range[xlsRow, QPResponsiblePerson].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, QPResponsiblePerson].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    xlsCol += 1;
+                                    QPActionTaken = xlsCol;
+                                    sheet1.Range[xlsRow, QPActionTaken].Text = "ActionTaken";
+                                    sheet1.Range[xlsRow, QPActionTaken].ColumnWidth = 9;
+                                    sheet1.Range[xlsRow, QPActionTaken].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, QPActionTaken].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    xlsCol += 1;
+                                    QPActionBy = xlsCol;
+                                    sheet1.Range[xlsRow, QPActionBy].Text = "ActionBy";
+                                    sheet1.Range[xlsRow, QPActionBy].ColumnWidth = 9;
+                                    sheet1.Range[xlsRow, QPActionBy].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, QPActionBy].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    xlsCol += 1;
+                                    QPParameterRemarks = xlsCol;
+                                    sheet1.Range[xlsRow, QPParameterRemarks].Text = "ParameterRemarks";
+                                    sheet1.Range[xlsRow, QPParameterRemarks].ColumnWidth = 9;
+                                    sheet1.Range[xlsRow, QPParameterRemarks].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, QPParameterRemarks].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    xlsCol += 1;
+                                    QPDate = xlsCol;
+                                    sheet1.Range[xlsRow, QPDate].Text = "Date";
+                                    sheet1.Range[xlsRow, QPDate].ColumnWidth = 9;
+                                    sheet1.Range[xlsRow, QPDate].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, QPDate].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    xlsCol += 1;
+                                    QPTime = xlsCol;
+                                    sheet1.Range[xlsRow, QPTime].Text = "Time";
+                                    sheet1.Range[xlsRow, QPTime].ColumnWidth = 9;
+                                    sheet1.Range[xlsRow, QPTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, QPTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    xlsCol += 1;
+                                    QPConfirmRemarks = xlsCol;
+                                    sheet1.Range[xlsRow, QPConfirmRemarks].Text = "ConfirmRemarks";
+                                    sheet1.Range[xlsRow, QPConfirmRemarks].ColumnWidth = 9;
+                                    sheet1.Range[xlsRow, QPConfirmRemarks].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, QPConfirmRemarks].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    xlsCol += 1;
+                                    QPQAURemarks = xlsCol;
+                                    sheet1.Range[xlsRow, QPQAURemarks].Text = "QAURemarks";
+                                    sheet1.Range[xlsRow, QPQAURemarks].ColumnWidth = 9;
+                                    sheet1.Range[xlsRow, QPQAURemarks].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, QPQAURemarks].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    xlsCol += 1;
+                                    QPReason = xlsCol;
+                                    sheet1.Range[xlsRow, QPReason].Text = "Reason";
+                                    sheet1.Range[xlsRow, QPReason].ColumnWidth = 9;
+                                    sheet1.Range[xlsRow, QPReason].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, QPReason].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
+                                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                                    endXlsCol = xlsCol;
+
+                                    freezeRow = xlsRow.ToString();
+                                    #endregion ------------------Column Header------------------
+                                }
+                                strEmpCode = dvBioDvAC[i]["EmployeeCode"].ToString().Trim();
+
+                                #region ----------------------Data-----------------------
+
+                                //xlsRow += 1;
+                                //sheet1.Range[xlsRow, iDate].Text = dvBioDvAC[i]["PDate"].ToString();
+                                //sheet1.Range[xlsRow, iDate].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                //sheet1.Range[xlsRow, iDate].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                //sheet1.Range[xlsRow, iShiftName].Text = dvBioDvAC[i]["ShiftName"].ToString();
+                                //sheet1.Range[xlsRow, iShiftName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                //sheet1.Range[xlsRow, iShiftName].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                //sheet1.Range[xlsRow, iShiftIntime].Text = dvBioDvAC[i]["ShiftInTimeShow"].ToString();
+                                //sheet1.Range[xlsRow, iShiftIntime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                //sheet1.Range[xlsRow, iShiftIntime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                //sheet1.Range[xlsRow, iShiftOuttime].Text = dvBioDvAC[i]["ShiftOutTime"].ToString();
+                                //sheet1.Range[xlsRow, iShiftOuttime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                //sheet1.Range[xlsRow, iShiftOuttime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+                                //sheet1.Range[xlsRow, iDay].Text = dvBioDvAC[i]["PDay"].ToString().Substring(0, 3);
+                                //sheet1.Range[xlsRow, iDay].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                //sheet1.Range[xlsRow, iDay].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                //sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
+                                //sheet1.Range[xlsRow, iDayStatus].RowHeight = 13;
+                                //sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                //sheet1.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                #endregion ----------------------Data-----------------------
+
+                                #region Line Setup
+
+                                sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
+                                sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                                sheet1.Range[xlsRow, 1, xlsRow, xlsCol].WrapText = true;
+
+                                #endregion Line Setup
+                            }
+
+                            xlsRow += 3;
+
+                            xlsRow += 5;
+                            //sheet1.Range[xlsRow, iDate].Text = employeeName;
+                            //sheet1.Range[xlsRow, iDate, xlsRow, iShiftName].Merge();// = "Signature";
+                            //sheet1.Range[xlsRow, iDate, xlsRow, iShiftName].CellStyle.Font.Bold = true;
+                            //sheet1.Range[xlsRow, iDate, xlsRow, iShiftName].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thick;
+
+                            //sheet1.Range[xlsRow, iDate, xlsRow, endXlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            //sheet1.Range[xlsRow, iDate, xlsRow, endXlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            sheet1.IsDisplayZeros = false;
+
+                            #region ******************Report Header******************
+                            try
+                            {
+                                string strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), companyId + ".jpg");  // IDCardEng.xlsx
+                                Image companyLogo = Image.FromFile(strPath);
+                                if (companyLogo != null)
+                                {
+                                    double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(2);
+                                    int totalWidthPixel = (int)(totalWidth * 7.5);
+                                    int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2) + sheet1.GetRowHeight(3) + sheet1.GetRowHeight(3)) * 1.50);
+
+                                    companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                                    IPictureShape pic = null;
+
+                                    pic = sheet1.Pictures.AddPicture(1, 1, companyLogo);
+
+
+                                }
+
+
+                            }
+                            catch (Exception)
+                            {
+
+
+                            }
+                            xlsRow = 1;
+                            xlsCol = 1;
+
+
+                            FactoryName = string.Empty;
+
+                            string FactoryAddress = string.Empty;
+
+                            if (dsCmp.Tables[0].Rows.Count > 0)
+                            {
+                                CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                            }
+                            else
+                            {
+                                CmpName = "";
+                            }
+                            sheet1.Range[xlsRow, 3].Text = CmpName;
+                            //sheet1.Range[xlsRow, 3, xlsRow, iLateBy].Merge();
+                            //sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                            //sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 17;
+                            //sheet1.Range[xlsRow, 3, xlsRow, iLateBy].RowHeight = 20;
+                            //sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            //sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            //sheet1.Range[xlsRow, 3, xlsRow, iLateBy].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                            xlsRow += 1;
+                            if (dsFactory.Tables[0].Rows.Count > 0)
+                            {
+                                FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
+                            }
+                            else
+                            {
+                                FactoryName = "";
+                            }
+                            sheet1.Range[xlsRow, 3].Text = FactoryName;
+                            //sheet1.Range[xlsRow, 3, xlsRow, iLateBy].Merge();
+                            //sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 14;
+                            //sheet1.Range[xlsRow, 3, xlsRow, iLateBy].RowHeight = 25;
+                            //sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            //sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            //sheet1.Range[xlsRow, 3, xlsRow, iLateBy].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                            xlsRow += 1;
+                            if (dsFactory.Tables[0].Rows.Count > 0)
+                            {
+                                FactoryAddress = dsFactory.Tables[0].Rows[0]["Address1"].ToString();
+                            }
+                            else
+                            {
+                                FactoryAddress = "";
+                            }
+                            //sheet1.Range[xlsRow, 3].Text = FactoryAddress;
+                            //sheet1.Range[xlsRow, 3, xlsRow, iLateBy].Merge();
+                            //sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 12;
+                            //sheet1.Range[xlsRow, 3, xlsRow, iLateBy].RowHeight = 15;
+                            //sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            //sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            //sheet1.Range[xlsRow, 3, xlsRow, iLateBy].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                            //xlsRow += 1;
+                            //sheet1.Range[xlsRow, 3].Text = "Order Wise Parameter Job Card Information From Date: " + fromDate + " To Date: " + toDate;
+                            //sheet1.Range[xlsRow, 3, xlsRow, iLateBy].Merge();
+                            //sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 12;
+                            //sheet1.Range[xlsRow, 3, xlsRow, iLateBy].RowHeight = 20;
+                            //sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                            //sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            //sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            //sheet1.Range[xlsRow, 3, xlsRow, iLateBy].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                            #endregion ******************Report Header******************
+
+                            #region UsedRange Alignment
+
+                            sheet1.UsedRange.WrapText = true;
+                            sheet1.UsedRange.CellStyle.Font.Size = 8;
+                            sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                            sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                            sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+                            #endregion UsedRange Alignment
+
+                            #region Page Setup
+                            sheet1.PageSetup.TopMargin = 0.5;
+                            sheet1.PageSetup.BottomMargin = 0.7;
+                            sheet1.PageSetup.PrintTitleRows = "$1:$11";
+                            sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                            sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + username + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                            sheet1.PageSetup.LeftMargin = 0.5;
+                            sheet1.PageSetup.RightMargin = 0.2;
+                            sheet1.PageSetup.Orientation = ExcelPageOrientation.Portrait;
+                            sheet1.PageSetup.FitToPagesTall = 0;
+                            sheet1.PageSetup.FitToPagesWide = 1;
+                            sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                            sheet1.IsDisplayZeros = false;
+
+                            sheet1.Name = sEmpCodeColl[Ec].ToString().Trim();
+
+                            #endregion Page Setup
+
+                        }
+
+                    }
+
+                    return workbook;
+                }
+                else
+                {
+                    Exception ex = new Exception("No data found...");
+                    throw (ex);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objRpt = null;
+                dsBioDvAC = null;
+                dvBioDvAC = null;
+                excelEngine = null;
+                application = null;
+                workbook = null;
+                sheet1 = null;
+            }
+
+
+        }
+
+
+
+
         public void GetEmpJobCardMonthlySummary(string EmpIdLoop, string FromDate, string ToDate, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -1267,6 +1791,93 @@ namespace Library.HumanResource.NewAttendanceProcess
                             ORDER BY A.EmployeeCode
                             	,A.PDate
                                 ";
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
+        public void GetOrderWiseParameterJobCardReport(string FromDate, string ToDate, string IssueId, string ProductionOrderId, string LotNumber, string EntityId, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"select distinct QCData.QCDate,M.MOLineItemNo,M.POStatus,M.ProductionOrderId PONo,M.LotNumber,M.Article,M.Customer, 
+M.IssueId,M.IssueName,M.ParameterSequence,M.ParameterId,M.ParameterName,M.UOM,QCData.Value,QCData.GradeName,QCData.ParameterRemark,QCData.ParameterStatus,QCData.ActionToBeTakenName,QCData.ResponsiblePerson,QCData.PassValue,QCData.FailValue,QCData.RejectValue,
+QCData.ToClose,QCData.ToConfirm,QCData.HeaderId,QCData.ChildId,QCData.QCDDate,QCData.QCDTime,(Case When (QCData.Value is null or QCData.Value = '0') then 1 else 0 end) EntryMissing,M.Process,M.Entity,M.EntityId,
+Reverse(stuff(Reverse((select OWC.Grade +', ' from MST.OrderWiseQualityComment OWC																			
+where OWC.MOLineItemNo=M.MOLineItemNo and OWC.PONo=M.ProductionOrderId and OWC.LotNo=M.LotNumber for xml PATH(''))),1,2,'')) Grade,
+Reverse(stuff(Reverse((select format(OWC.AddedDate,'dd-MMM-yyyy') + '-' + OWC.Comment +', ' from MST.OrderWiseQualityComment OWC																			
+where OWC.MOLineItemNo=M.MOLineItemNo and OWC.PONo=M.ProductionOrderId and OWC.LotNo=M.LotNumber for xml PATH(''))),1,2,'')) CommentDetails,
+Reverse(stuff(Reverse((select isnull(RD.MinRequirement,'') + '/' + isnull(RD.MaxRequirement,'') +', ' from TRN.UCPRequirementDetails RD																			
+where RD.ParameterId=QCData.ChildId for xml PATH(''))),1,2,'')) MinMaxRequirement,
+Reverse(stuff(Reverse((select isnull(SD.MinStandard,'') + '/' + isnull(SD.MaxStandard,'') +', ' from TRN.UCPMaxMinStandardDetails SD																			
+where SD.ParameterId=QCData.ChildId for xml PATH(''))),1,2,'')) MinMaxStandard,
+QCData.ActionTaken,QCData.ActionBy,QCData.ConfirmRemarks,QCData.QAURemarks,QCData.ReasonName
+from (Select  P.*,CP.IssueName,CP.IssueId,CP.ParameterId,CP.ParameterName,CP.UOM,CP.ParameterSequence,CP.Process from (select Distinct PS.ProductionOrderId,PS.LotNumber,E.UserName Entity,
+MOLineItemNo= STUFF((select distinct ','+ XMOI.Id from trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+where PS.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),  
+Article=STUFF((select distinct ','+MA.StandardName from
+											MST.MaterialMasterArticle MA
+											left join TRN.MasterOrderItem moi on moi.ArticleId=MA.Id
+											left join trn.SalesOrder AS xp on xp.MasterOrderItemId=moi.Id
+											JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=xp.Id
+											where PS.ProductionOrderId=Xpod.ProductionOrderId for xml path('') ), 1, 1, '')
+,Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+where PS.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+1 PlanSet,PST.UserName POStatus,PS.ProcessId,PS.EntityId
+from TRN.ProductionSummary PS
+left join trn.ProductionOrder PO on PO.Id=PS.ProductionOrderId
+left join hkp.ProductionStatus PST on PST.Id=PO.ProductionStatusId
+left join org.Entity E on E.Id=PS.EntityId
+where PS.AddedDate between '" + FromDate + "' and '" + ToDate + @"') P
+inner Join (select QMM.UserName IssueName,QMP.QMID IssueId,QMP.Id ParameterId,PM.UserName ParameterName,QMP.SNO ParameterSequence,UOM.UserName UOM,1 as PlanSet,PR.UserName Process,QMP.ProcessId
+ from MST.QualityManagementParameterItem QMP
+ left join MST.QualityManagementMaster QMM on QMM.Id=QMP.QMID
+ left join Hkp.ParameterMaster PM on PM.Id=QMP.ParameterId
+ left join SCS.UnitOfMeasurement UOM on UOM.Id=QMP.UOMId
+ left join hkp.Process PR on  PR.Id=QMP.ProcessId
+ where CustomerParameter = 1) CP on CP.PlanSet=P.PlanSet and CP.ProcessId=P.ProcessId) M
+ left join (select distinct QC.IssueId,QMM.UserName IssueName,QCD.ItemId ParameterId,PM.UserName ParameterName,QC.LotNumber,QC.ProductionOrderId,
+ QCD.Value,QGD.GradeName,QCD.Remarks ParameterRemark,QAT.ActionToBeTakenName,EI.EmployeeName ResponsiblePerson,
+ format(QC.AddedDate,'dd-MMM-yyyy') QCDate,format(QCD.AddedDate,'dd-MMM-yyyy') QCDDate,format(QCD.AddedDate,'hh:mm tt') QCDTime,QC.Id HeaderId,QCD.Id ChildId,QGD.IsPassValue PassValue,QGD.IsFailValue FailValue,QGD.IsRejectValue RejectValue,
+ QAU.ActionTaken,QAE.EmployeeName ActionBy,QAU.Remarks QAURemarks,isnull(QAU.ReasonName,(select UserName from [HKP].[QualityManagementReasonMaster] where Id=(select ReasonId from [MST].[QualityManagementParameterReason] where Id=QAU.ReasonId))) ReasonName,QAU.ConfirmRemarks,
+ (case when (QGD.IsFailValue <> 0 and QCD.Status not in ('Close','Complete')) then 1 else 0 end) ToClose,
+ (case when (QGD.IsFailValue <> 0 and QCD.Status not in ('Complete')) then 1 else 0 end) ToConfirm,
+ QCD.Status ParameterStatus
+ from TRN.QualityControlDetails QCD
+ left join TRN.QualityControl QC on QC.Id=QCD.QCId
+ left join MST.QualityManagementMaster QMM on QMM.Id=QC.IssueId
+ left join MST.QualityManagementParameterItem QMP on QMP.Id=QCD.ItemId
+ left join Hkp.ParameterMaster PM on PM.Id=QMP.ParameterId
+ left join MST.QualityGradeDetails QGD on QGD.Id=QCD.GradeId
+ left join MST.QualityActionToBeTakenDetails QAT on QAT.Id=QCD.ActionToBeTaken
+ left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
+ left join TRN.QualityActionTakenUpdate QAU on QAU.ParameterId=QCD.Id
+ left join EmployeeInformation QAE on QAE.SystemId=QAU.ActionById
+ where QCD.ItemId in (select Id from MST.QualityManagementParameterItem where CustomerParameter = 1)) QCData on QCData.IssueId=M.IssueId and QCData.ParameterId=M.ParameterId
+ and QCData.ProductionOrderId=M.ProductionOrderId and QCData.LotNumber=M.LotNumber
+where M.IssueId='" + IssueId + "' and M.ProductionOrderId='" + ProductionOrderId + "' and M.LotNumber='" + LotNumber + "' and M.EntityId='" + EntityId + "' order by M.ParameterSequence,QCData.QCDDate,QCData.QCDTime";
 
 
                 objCon = new ConnectionManager.DAL.ConManager("1");

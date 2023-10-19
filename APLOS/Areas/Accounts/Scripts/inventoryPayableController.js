@@ -102,6 +102,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         , AddtionalTax: null
         , IsInvoice: false
         , EntityId: null
+        , GSTINNo: null
     };
     $scope.modelNew = Object.assign({}, $scope.model);
 
