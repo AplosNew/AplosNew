@@ -111,6 +111,7 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
 
     $scope.SaveAdjustmentJournal = function () {
         try {
+            $scope.saveBtnDisable = true;
              $http({
                     method: "POST",
                     url: $scope.path + "SaveAdjustmentJournalBankReconciliationMap",
@@ -121,16 +122,19 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
                     dataType: "JSON"
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
+                        $scope.saveBtnDisable = false;
                         ShowResult(response.data.Message, "failure");
                     }
                     else {
                         $scope.getBnkReconList();
+                        $scope.saveBtnDisable = false;
                         ShowResult(response.data.Message, "success");
                     }
                 });
             
 
         } catch (e) {
+            $scope.saveBtnDisable = false;
             ShowResult(e, "failure");
         }
     };
