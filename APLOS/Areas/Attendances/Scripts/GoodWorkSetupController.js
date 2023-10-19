@@ -1,5 +1,5 @@
 ﻿'use strict';
-GoodWorkSetupController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$window'];
+GoodWorkSetupController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
 function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'GoodWorkSetup';
     $scope.Action = 'Save';
@@ -10,7 +10,7 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'UserCode', name: "UserCode" },  { value: 'UserName', name: "User Name" }, { value: 'Remarks', name: "Remarks" }];
+    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'UserCode', name: "UserCode" }, { value: 'UserName', name: "User Name" }, { value: 'Remarks', name: "Remarks" }];
 
     //for tab
     $scope.tab = 1;
@@ -27,7 +27,7 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
             url: $scope.path + "GetList",
             data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
-        }).then(function successCallback(response) {          
+        }).then(function successCallback(response) {
             $scope.ModelList = response.data;
         });
     }
@@ -53,16 +53,16 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         }
     };
 
-    $scope.popUpDataList = [];
+    $scope.popUpEmpDataList = [];
     $scope.showEmployeeListPopUp = function () {
         try {
-            $scope.popUpDataList = [];
+            $scope.popUpEmpDataList = [];
             $http({
                 method: 'GET',
                 url: 'OrderManagements/SalesOrderApproval/GetAllActiveEmpData'
 
             }).then(function successCallback(response) {
-                $scope.popUpDataList = response.data;
+                $scope.popUpEmpDataList = response.data;
             });
 
             angular.element(document.querySelector('#popUp')).modal('show');
@@ -90,7 +90,7 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         angular.element(document.querySelector('#popUp')).modal('hide');
     }
 
- 
+
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
@@ -299,4 +299,139 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
     }
+
+    //#region BudgetCode
+
+    $scope.name = null;
+    $scope.popUpTitle = "Manpower Budget Information";
+    $scope.popUpList = [];
+    $scope.valueData = '';
+    $scope.budgetpopUpParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'Code',
+        searchBy: "Code",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.popUpBudgetCode = function () {
+
+        $scope.popUpDataList = [];
+        $scope.popUpList = [];
+        $scope.budgetpopUpParameters.sort = 'Code';
+        $scope.budgetpopUpParameters.searchBy = 'Code';
+        $scope.popUpUrl = 'employees/recruitment/getbudgetcodelist';
+        baseService.setCurrentPage('dataList');
+        $scope.getPopUpData = function (pageno) {
+            baseService.paginationBase($scope.popUpUrl, pageno, $scope.budgetpopUpParameters)
+                .then(function (result) {
+                    $scope.popUpDataList = result.Rows;
+                    $scope.budgetpopUpParameters.total_count = result.Total;
+                    if (baseService.arrayLength($scope.popUpList) === 0) {
+                        baseService.getDDLSearchColumn(result.Rows, $scope.popUpList);
+                    }
+                    //$scope.popUpParameters.sort = 'Code';
+                    //$scope.popUpParameters.searchBy = 'Code';
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure', 'popUpId');
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector('#popUpId')).modal('show');
+        $scope.getPopUpData();
+    };
+
+    $scope.BudgetCodeList = [];
+    $scope.selectDoubleClick = function (data) {
+        try {
+            var ob = {};
+
+            ob.Entity = data.EntityName;
+            ob.Division = data.Division;
+            ob.Department = data.Department;
+            ob.Section = data.Section;
+            ob.SubSection = data.SubSection;
+            ob.EmployeeType = data.EmployeeType;
+            ob.Designation = data.Designation;
+            ob.Activity = data.Activity;
+            ob.UserGroup = data.UserGroup;
+            ob.Process = data.Process;
+            ob.BudgetCode = data.Code; 
+            $scope.BudgetCodeList.push(ob);
+            ob = {};
+
+            angular.element(document.querySelector('#popUpId')).modal('hide');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.clearCode = function () {
+        $scope.employeeNew.BudgetCode = null;
+        $scope.employeeNew.Code = null;
+        $scope.employeeNew.EntityName = null;
+        $scope.employeeNew.Designation = null;
+        $scope.employeeNew.PositionName = null;
+
+        $scope.employeeNew.DesignationId = null;
+        $scope.employeeNew.UnitId = null;
+        $scope.employeeNew.DivisionId = null;
+        $scope.employeeNew.DepartmentId = null;
+        $scope.employeeNew.SectionId = null;
+        $scope.employeeNew.SubSectionId = null;
+        $scope.employeeNew.SubdivisionID = null;
+        $scope.employeeNew.LineId = null;
+        $scope.employeeNew.EmployeeCodeTypeId = null;
+        $scope.employeeNew.EmploymentType = null;
+        $scope.employeeNew.PositionID = null;
+        $scope.employeeNew.IsDirect = false;
+    };
+
+    $scope.GetOnRollByBudget = function (budgetId) {
+        try {
+            $http.get('employees/EmployeeInformation/GetOnRollByBudget?budgetId=' + budgetId)
+                .then(function (response) {
+                    if (response.data[0].TotalNumber < response.data[0].OnRollManPwr || response.data[0].TotalNumber == response.data[0].OnRollManPwr) {
+                        ShowResult("On Roll Manpower is exceeding Budgeted Manpower.", 'failure', 'popUpId');;
+                    }
+                    else {
+                        angular.element(document.querySelector('#popUpId')).modal('hide');
+                    }
+                });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+    $scope.closePopUp = function () {
+        $scope.valueData = '';
+        angular.element(document.querySelector('#popUpId')).modal('hide');
+        angular.element(document.querySelector('#LDPopUp')).modal('hide');
+    };
+
+    //$scope.OK = function () {
+    //    try {
+    //        for (var i = 0; i < $scope.popUpDataList.length; i++) { 
+    //                if (checkDoubleBudgetCode($scope.BudgetCodeList, $scope.popUpDataList[i].Id) === false) {
+    //                    $scope.BudgetCodeList.push($scope.popUpDataList[i]);
+    //                } 
+    //        } 
+    //        angular.element(document.querySelector('#popUpId')).modal('hide');
+    //    } catch (e) {
+    //        ShowResult(e, "failure");
+    //    }
+    //};
+
+    //function checkDoubleBudgetCode(list, Id) {
+    //    for (var i = 0; i < list.length; i++) {
+    //        if (list[i].Id === Id) {
+    //            return true;
+    //        }
+    //    }
+    //    return false;
+    //}
+
+    //#endregion BudgetCode
 }
