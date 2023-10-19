@@ -388,7 +388,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         , DaysToGetTheTarget: null
         , Remarks: null
         , color: '#ffffff'
-        , IsPreDefineLotApplicable:false
+        , IsPreDefineLotApplicable: false
     };
     $scope.model = Object.assign({}, $scope.model);
 
@@ -4242,15 +4242,32 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
     $scope.lotControlList = [];
     $scope.GetPOLotControlData = function () {
+        var inc = 0;
+        var incvalue = 0;
         $http({
             method: 'GET',
             url: 'OrderManagements/ProductionOrder/GetPOLotControlData?poId=' + $scope.model.Id + '&entityId=' + $scope.model.EntityId
         }).then(function (response) {
             $scope.lotControlList = response.data;
             for (var i = 0; i < $scope.lotControlList.length; i++) {
-                $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo + '-' + $scope.lotControlList[i].Rank;
-                $scope.lotControlList[i].UserLotNo = $scope.lotControlList[i].UserLotNo + '-' + $scope.lotControlList[i].Rank;
-
+                inc++;
+                incvalue= inc;
+                if (baseService.arrayLength($scope.lotControlList)>1) {
+                    $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo + '-' + incvalue;
+                    if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
+                        $scope.lotControlList[i].UserLotNo = $scope.lotControlList[i].UserLotNo + '-' + incvalue;
+                    } else {
+                        $scope.lotControlList[i].UserLotNo = $scope.model.UserDefineLotNo + '-' + incvalue;
+                    }
+                }
+                else {
+                    $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo;
+                    if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
+                        $scope.lotControlList[i].UserLotNo = $scope.lotControlList[i].UserLotNo;
+                    } else {
+                        $scope.lotControlList[i].UserLotNo = $scope.model.UserDefineLotNo;
+                    }
+                }
             }
         });
     }

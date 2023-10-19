@@ -40,14 +40,14 @@
                 <input type="text" name="UserCode" ng-model="ModelNew.UserCode" class="form-control" required tabindex="2" maxlength="10">
             </div>
         </div>
-        
+
         <div class="form-group">
             <label class="col-sm-4 control-label">Remarks</label>
             <div class="col-sm-8">
                 <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
             </div>
         </div>
-        
+
     </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
@@ -73,7 +73,7 @@
                     <div class="col-sm-12 col-sm-12 col-md-12">
                         <div class="common-btn">
                             <ul class="list-inline text-left">
-                                <li><button ng-click="entityPopUp();" ng-disabled="ModelNew.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                <li><button ng-click="entityPopUp();" @*ng-disabled="ModelNew.Id==null"*@ class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
                             </ul>
                         </div>
                     </div>
@@ -108,39 +108,84 @@
 
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                 <div class="row">
-                    @*Department body*@
-
                     <div class="col-sm-12 col-sm-12 col-md-12">
                         <div class="common-btn">
                             <ul class="list-inline text-left">
-                                <li><button ng-click="showDepartmentPopUp();" ng-disabled="sopDocumentNew.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                <li><button ng-click="popUpBudgetCode();" @*ng-disabled="ModelNew.Id==null"*@ class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
                             </ul>
                         </div>
                     </div>
-                    <!--<div class="col-xs-12">
-        <div style="color:black;" id="GridSelectedDepartment" ej-grid e-datasource="SelectedDepartmentList"
-             e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-             e-allowselection="false" e-filtersettings-filterType="excel">
-            <div e-columns>
-                <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="80"></div>
-                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="80"></div>
-                <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
-                <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
-                <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="140"></div>-->
-                    @*delete*@
-                    <!--<div e-column e-template="#DeleteDocumentDepartment" e-width="40"></div>
-            </div>
-        </div>
+                    <div class="col-xs-12">
+                        <div style="color:black;" id="GridBC" ej-grid e-datasource="BudgetCodeList"
+                             e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-allowselection="false" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Division" e-headertext="Division" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="140"></div>
+                                <div e-column e-type="string" e-field="SubSection" e-headertext="SubSection" e-width="140"></div>
+                                <div e-column e-type="string" e-field="EmployeeType" e-headertext="Employee Type" e-width="140"></div>
+                                <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="140"></div>
+                                <div e-column e-type="string" e-field="Activity" e-headertext="Activity" e-width="140"></div>
+                                <div e-column e-type="string" e-field="UserGroup" e-headertext="User Group" e-width="140"></div>
+                                <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="140"></div>
+                                <div e-column e-type="string" e-field="BudgetCode" e-headertext="Budget Code" e-width="140"></div>
+                                <div e-column e-headertext="OT Applicable" e-headertemplateid="#headerTemplate" e-template="#OTcheckboxTemplate" e-textalign="center" e-width="130"></div>
+                                <div e-column e-headertext="Good Work Applicable" e-headertemplateid="#headerTemplate" e-template="#GWcheckboxTemplate" e-textalign="center" e-width="130"></div>
+                                <div e-column e-headertext="Compensatory Applicable" e-headertemplateid="#headerTemplate" e-template="#CAcheckboxTemplate" e-textalign="center" e-width="130"></div>
+                                <div e-column e-headertext="Employee Applicable" e-headertemplateid="#headerTemplate" e-template="#EAcheckboxTemplate" e-textalign="center" e-width="130"></div>
+                                <div e-column e-headertext="Good Work Category" e-headertemplateid="#headerTemplate" e-template="#GWCcheckboxTemplate" e-textalign="center" e-width="130"></div>
+                                <div e-column e-headertext="Remark" e-headertemplateid="#headerTemplate" e-template="#REcheckboxTemplate" e-textalign="center" e-width="130"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="OTcheckboxTemplate">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-model="OTApplicable">
+                                    <span class="cr" tabindex="1008"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </script>
+                        <script type="text/template" id="GWcheckboxTemplate">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-model="GoodWorkApplicable">
+                                    <span class="cr" tabindex="1008"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </script>
+                        <script type="text/template" id="CAcheckboxTemplate">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-model="CompensatoryApplicable">
+                                    <span class="cr" tabindex="1008"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </script>
+                        <script type="text/template" id="EAcheckboxTemplate">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-model="EmployeeApplicable ">
+                                    <span class="cr" tabindex="1008"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </script>
+                         
+                        <script type="text/template" id="GWCcheckboxTemplate">
+                            <div class="select-style">
+                                <select id="ECID" class="form-control" ng-model="GoodWorkCategory" name="GoodWorkCategory" required tabindex="1">
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                </select>
+                            </div>
+                        </script>
+                        <script type="text/template" id="REcheckboxTemplate">
+                            <input type="text" name="Remark" ng-model="Remark" class="form-control" tabindex="6" maxlength="50">
+                        </script>
+                    </div>
 
-        <script type="text/template" id="DeleteDocumentDepartment">
-            <div class="common-btn">
-                <ul class="list-inline text-left">
-                    <li><button ng-click="$parent.ConfirmDeleteDepartment(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
-                </ul>
-            </div>
-        </script>
-
-    </div>-->
                 </div>
             </div>
 
@@ -164,8 +209,8 @@
                                 <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
                                 <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
                                 <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="140"></div>-->
-                                @*delete*@
-                                <!--<div e-column e-template="#DeleteDocumentDocumentSource" e-width="40"></div>
+                    @*delete*@
+                    <!--<div e-column e-template="#DeleteDocumentDocumentSource" e-width="40"></div>
                             </div>
                         </div>
 
@@ -212,8 +257,8 @@
                                 <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="80"></div>
                                 <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
                                 <div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>-->
-                                @*delete*@
-                                <!--<div e-column e-template="#DeleteDocumentDocumentPreparedBy" e-width="40"></div>
+                    @*delete*@
+                    <!--<div e-column e-template="#DeleteDocumentDocumentPreparedBy" e-width="40"></div>
                             </div>
                         </div>
 
@@ -250,8 +295,8 @@
                                 <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
                                 <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
                                 <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="140"></div>-->
-                                @*delete*@
-                                <!--<div e-column e-template="#DeleteDocumentLocation" e-width="40"></div>
+                        @*delete*@
+                        <!--<div e-column e-template="#DeleteDocumentLocation" e-width="40"></div>
                             </div>
                         </div>
 
@@ -312,7 +357,7 @@
             </div>
             <div class="modal-body">
                 <disv class="content-container-fluid" style="color:black;">
-                    <div style="color:black;" id="GridPopUp" ej-grid e-datasource="popUpDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                    <div style="color:black;" id="GridPopUp" ej-grid e-datasource="popUpEmpDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                          e-recorddoubleclick="SelectEmployee" e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-field="SystemId" e-headertext="SystemId" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
@@ -392,7 +437,7 @@
                                 @*<td ng-repeat="y in entitySearchList">{{x[y.Value]}}</td>*@
                                 <td class="text-right table-td">
                                     <div class="checkbox-site">
-                                        <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag"  @*ng-click="selectChValueId($event,x)"*@>
+                                        <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag" @*ng-click="selectChValueId($event,x)"*@>
                                     </div>
                                 </td>
                                 <td>{{x.Code}}</td>
@@ -423,5 +468,20 @@
         </div>
     </div>
 </div>
+
+<modal-table modalid="popUpId"
+             data-title={{popUpTitle}}
+             data-search-parameters="budgetpopUpParameters"
+             data-exclued-column-list="Code"
+             data-field-list="popUpList"
+             data-data-list="popUpDataList"
+             data-search-function="getPopUpData"
+             data-single-click="selectSingleClick(data)"
+             data-double-click="selectDoubleClick(data)"
+             data-right-button="true"
+             data-left-button="true"
+             data-ng-click-left-button="selectByButton()"
+             data-ng-click-cancel="closePopUp()">
+</modal-table>
 
 <confirm-modal></confirm-modal>
