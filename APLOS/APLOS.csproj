@@ -1816,6 +1816,7 @@
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
     <Content Include="Areas\Accounts\Scripts\balanceSheetSchedulingController.js" />
     <Content Include="Areas\Accounts\Scripts\fiscalYearClosePostController.js" />
+    <Content Include="Areas\Accounts\Scripts\InvestmentSettelmentController.js" />
     <Content Include="Areas\Accounts\Scripts\PaymentAdviseReportController.js" />
     <Content Include="Areas\Accounts\Scripts\ChartAccountSetupController.js" />
     <Content Include="Areas\Accounts\Scripts\GLControlController.js" />
@@ -2012,6 +2013,7 @@
     <Content Include="Areas\Attendances\Scripts\shiftTimeChangeController.js" />
     <Content Include="Areas\Attendances\Scripts\SandwichProcessController.js" />
     <Content Include="Areas\Banks\Scripts\bankReconciliationClosingController.js" />
+    <Content Include="Areas\Banks\Scripts\bankSettelmentReconciliationController.js" />
     <Content Include="Areas\Banks\Scripts\bankReconciliationDataUploadReconciledController.js" />
     <Content Include="Areas\Banks\Scripts\BankReconciliationDataUploadController.js" />
     <Content Include="Areas\Banks\Scripts\CurrentFundPositionController.js" />
@@ -2111,7 +2113,6 @@
     <Content Include="Areas\HumanResource\Scripts\HRReportMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\PlantInOutControllReport.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportComController.js" />
-    <Content Include="Areas\HumanResource\Scripts\VehicleReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleInOutController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleMovementController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleMovementRequisitionController.js" />
@@ -4826,7 +4827,9 @@
     <Content Include="Areas\Accounts\Views\FiscalYearClosePost.cshtml" />
     <Content Include="Areas\Banks\Views\BankReconciliationClosing.cshtml" />
     <Content Include="Areas\Attendances\Views\GoodWorkSetup\Aplos.cshtml" />
-    <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\Vehiclereport.cshtml" />
+    <Content Include="Areas\Banks\Views\BankSettelmentReconciliation.cshtml" />
+    <Content Include="Areas\Accounts\Views\InvestmentSettelment.cshtml" />
+    <Content Include="Areas\Accounts\Views\Loan\_InvestmentListPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

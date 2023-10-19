@@ -207,11 +207,14 @@ function investmentController(accountService, bankService, cboService, commonMes
     bankService.getCashMasterCboList(function (result) {
         $scope.cashMasterList = result;
     });
-
+    $scope.bankMasterList = [];
+    $scope.investmentbankMasterList = [];
     bankService.getInvestmentBankMasterCbo(function (result) {
+        $scope.investmentbankMasterList = result;
+    });
+    bankService.getBankMasterHouseBankCboList(function (result) {
         $scope.bankMasterList = result;
     });
-
     $scope.getCustomerGL = function () {
         $scope.glUrl = "Parties/party/GetCompanyPartyDataList?partyType=" + $scope.voucher.PartyType;
         $scope.getCustomerData = function (pageno) {
