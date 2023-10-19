@@ -1,9 +1,5 @@
-﻿<link href="~/Scripts/BootstrapTimePicker/css/bootstrap-timepicker.css" rel="stylesheet" />
-<script src="~/Scripts/BootstrapTimePicker/Scripts/bootstrap.js"></script>
-<script src="~/Scripts/BootstrapTimePicker/js/bootstrap-timepicker.js"></script>
-<div class="tab-design">
-
-    <div class="common-btn">
+﻿<h3 class="site-heading">Vehicle Report</h3>    
+<div class="common-btn">
         <ul class="list-inline text-left">
             <li> <button ng-click="XlsVehicleReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Download</button></li>
 
@@ -22,7 +18,7 @@
                 <div e-column e-field="InTime" e-headertext="In Time" e-width="100"></div>
                 <div e-column e-field="ApprovedRejectBy" e-headertext="Used By" e-width="110"></div>
                 <div e-column e-field="Purpose" e-headertext="Purpose" e-width="140"></div>
-                <div e-column e-field="DriverName" e-headertext="DR. Name" e-width="100"></div>
+                <div e-column e-field="DriverName" e-headertext="Driver Name" e-width="100"></div>
                 <div e-column e-field="FromLocation" e-headertext="From Location" e-width="120"></div>
                 <div e-column e-field="ToLocation" e-headertext="To Location" e-width="120"></div>
                 <div e-column e-field="Total_Trip_Time" e-headertext="Total Time" e-width="100"></div>
@@ -31,27 +27,5 @@
             </div>
         </div>
     </div>
-</div>
+ 
 
-<script type="text/javascript">
-    $('[id*=FromTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
-        var hours = e.time.hours, //Returns a string
-            min = e.time.minutes
-        //merdian = e.time.meridian;
-
-        if (hours.length == 1) {
-            $('[id*=FromTime]').timepicker('setTime', '0' + hours + ':' + min);
-
-        }
-    });
-    $('[id*=ToTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
-        var hours = e.time.hours, //Returns a string
-            min = e.time.minutes
-        //merdian = e.time.meridian;
-
-        if (hours.length == 1) {
-            $('[id*=ToTime]').timepicker('setTime', '0' + hours + ':' + min);
-
-        }
-    });
-</script>

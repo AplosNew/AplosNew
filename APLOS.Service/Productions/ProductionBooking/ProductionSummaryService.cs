@@ -1340,7 +1340,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
             {
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
                 conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryLotNumberValidation, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  MasterOrderItemId='" + ps.MasterOrderItemId + "'", out DataSet dsProductionSummaryArticleValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  MasterOrderItemId='" + ps.MasterOrderItemId + "' and ProductionOrderId='" + ps.ProductionOrderId + "'", out DataSet dsProductionSummaryArticleValidation, false, "1");
                 conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryPOLotNumberValidation, false, "1");
                 conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "' and MasterOrderItemId='"+ps.MasterOrderItemId+"'", out DataSet dsProductionSummaryPOArticleValidation, false, "1");
                 if (!string.IsNullOrEmpty(ps.LotNumber))

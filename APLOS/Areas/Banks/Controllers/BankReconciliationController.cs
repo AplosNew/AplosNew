@@ -533,5 +533,12 @@ namespace Aplos.Areas.Banks.Controllers
 
         }
         #endregion
+
+        #region Bank Settelment
+        public ActionResult BankSettelmentReconciliation()
+        {
+            return View("~/Areas/Banks/Views/BankSettelmentReconciliation.cshtml");
+        }
+        #endregion
     }
 }

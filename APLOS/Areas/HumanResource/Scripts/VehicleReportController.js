@@ -1,13 +1,8 @@
 ﻿'use strict';
 VehicleReportController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter", "$window"];
 function VehicleReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
-    $rootScope.title = "Vehicle In & Out"
-    $scope.path = 'HumanResource/VehicleMovementMaster/';
-    $scope.saveVehicleReqUrl = $scope.path + 'UpdateVehicleAllocation';
-    $scope.saveVehicleMovementReqUrl = $scope.path + 'UpdateVehicleMovement';
-    $scope.ActionIn = "Save";
-    $scope.ActionOut = "Save";
-    $scope.Action = 'Update'; 
+    $rootScope.title = "Vehicle Report"
+    $scope.path = 'HumanResource/VehicleMovementMaster/'; 
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
    
     $scope.ReportDataList = [];

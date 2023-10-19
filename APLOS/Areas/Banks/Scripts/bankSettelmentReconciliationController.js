@@ -1,7 +1,7 @@
 ﻿"use strict";
-bankReconciliationDataUploadReconciledController.$inject = ["commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$window",  "$controller"];
-function bankReconciliationDataUploadReconciledController(commonMessage, $scope, $rootScope, baseService, $http, $filter, $window, $controller) {
-    $rootScope.title = "Bank Reconciliation Uploaded Data";
+bankSettelmentReconciliationController.$inject = ["commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$window",  "$controller"];
+function bankSettelmentReconciliationController(commonMessage, $scope, $rootScope, baseService, $http, $filter, $window, $controller) {
+    $rootScope.title = "Bank Settelment Reconciliation";
     $scope.Action = "Save";
     $scope.index = -1;
     $scope.path = "banks/bankreconciliation/";
@@ -99,10 +99,8 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
         try {
             $scope.getBankDrReconList();
             $scope.getBankReconciliationUploadedDrData();
-            $scope.getBankDrReconciledList();
             $scope.getBankCrReconList();
             $scope.getBankReconciliationUploadedCrData();
-            $scope.getBankCrReconciledList();
             $scope.clear();
         } catch (e) {
             ShowResult(e, "failure");
@@ -135,7 +133,6 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
         }
     };
 
-    $scope.saveBtnDisable = false;
     $scope.Save = function () {
         try {
                 checkTotalAmount();
@@ -158,7 +155,6 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
                 angular.element(document.querySelector("#confirmSavePopUp")).modal("show");
             }
             else {
-                $scope.saveBtnDisable = true;
                 $http({
                     method: "POST",
                     url: $scope.path + "SaveBankReconciliationMap",
@@ -169,19 +165,16 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
                     dataType: "JSON"
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
-                        $scope.saveBtnDisable = false;
                         ShowResult(response.data.Message, "failure");
                     }
                     else {
                         $scope.getBnkReconList();
-                        $scope.saveBtnDisable = false;
                         ShowResult(response.data.Message, "success");
                     }
                 });
             }
                 
         } catch (e) {
-            $scope.saveBtnDisable = false;
             ShowResult(e, "failure");
         }
     };
@@ -403,7 +396,6 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
         $scope.bankCrTempList = [];
         $scope.bankCrUploadedDataTempList = [];
         $scope.TempList = [];
-        $scope.saveBtnDisable = false;
     }
     $scope.invalidDocDate = false;
     $scope.checkDocDate = function () {
@@ -446,30 +438,7 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
 
         }
     }
-    $scope.bankDrReconciledDataList = [];
-    $scope.getBankDrReconciledList = function () {
-        try {
-            $http({
-                method: 'POST',
-                url: $scope.path + "GetBankDrReconciledList",
-                data: {
-                    bankMasterId: $scope.bankReconciliationNew.BankMasterId,
-                    fromDate: $scope.bankReconciliationNew.FromDate,
-                    toDate: $scope.bankReconciliationNew.ToDate
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.bankDrReconciledDataList = response.data.DATA;
-            }),
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-        }
-
-        catch (e) {
-
-        }
-    }
+    
     $scope.CRREconcileReport = function () {
         try {
 
@@ -615,30 +584,7 @@ function bankReconciliationDataUploadReconciledController(commonMessage, $scope,
 
         }
     }
-    $scope.bankCrReconciledDataList = [];
-    $scope.getBankCrReconciledList = function () {
-        try {
-            $http({
-                method: 'POST',
-                url: $scope.path + "GetBankCrReconciledList",
-                data: {
-                    bankMasterId: $scope.bankReconciliationNew.BankMasterId,
-                    fromDate: $scope.bankReconciliationNew.FromDate,
-                    toDate: $scope.bankReconciliationNew.ToDate
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.bankCrReconciledDataList = response.data.DATA;
-            }),
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-        }
-
-        catch (e) {
-
-        }
-    }
+   
     $scope.onClickDeletePopUp = function (x) {
         var data = x;
         $scope.voucherDetailId = data.VoucherDetailId;
