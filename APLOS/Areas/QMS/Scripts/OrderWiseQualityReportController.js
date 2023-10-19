@@ -40,7 +40,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
         $scope.EI = $scope.NewObject.EntityId;
 
         try {
-            $http.get('QMS/OrderWiseQualityReport/getCommentEntryData?MOLineItemNo=' + $scope.NewObject.MOLineItemNo + '&PONo=' + $scope.NewObject.PONo + '&LotNo=' + $scope.NewObject.LotNumber  +'&EntityId=' + $scope.NewObject.EntityId)
+            $http.get('QMS/OrderWiseQualityReport/getCommentEntryData?MOLineItemNo=' + $scope.NewObject.MOLineItemNo + '&PONo=' + $scope.NewObject.PONo + '&LotNo=' + $scope.NewObject.LotNumber + '&EntityId=' + $scope.NewObject.EntityId)
                 .then(
                     function successCallback(response) {
                         $scope.CommentEntryLists = response.data;
@@ -57,7 +57,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
 
     $scope.getComment = function () {
         try {
-            $http.get('QMS/OrderWiseQualityReport/getCommentData?MOId=' + $scope.MOId + '&POId=' + $scope.POId + '&LotNo=' + $scope.Lot )
+            $http.get('QMS/OrderWiseQualityReport/getCommentData?MOId=' + $scope.MOId + '&POId=' + $scope.POId + '&LotNo=' + $scope.Lot)
                 .then(
                     function successCallback(response) {
                         $scope.CommentEntryLists = response.data;
@@ -233,7 +233,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
         $scope.ParameterNew.PONo = $scope.NewObject.PONo;
         $scope.ParameterNew.LotNo = $scope.NewObject.LotNumber;
         $scope.ParameterNew.Grade = $scope.NewObject.Grade;
-        $scope.ParameterNew.Comment = $scope.NewObject.Comment;
+        $scope.ParameterNew.Comment = $scope.NewObject.CommentDetails;
         try {
             $http.get('QMS/OrderWiseQualityReport/getOrderWiseParameterData?IssueId=' + $scope.NewObject.IssueId + '&ProductionOrderId=' + $scope.NewObject.PONo + '&LotNumber=' + $scope.NewObject.LotNumber + '&FromDate=' + $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate + '&EntityId=' + $scope.NewObject.EntityId)
                 .then(
@@ -252,7 +252,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
 
     $scope.status = {
         Id: null,
-        FromDate: $filter('dateFiltering')(todate, 'dd-MM-yyyy'), 
+        FromDate: $filter('dateFiltering')(todate, 'dd-MM-yyyy'),
         ToDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy'),
         PartyNature: null,
         EntityId: null,
@@ -314,5 +314,29 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
             ShowResult(response.data.Message, 'failure');
         });
     }
+
+    $scope.jobcardreportFunc = function () {
+        try {
+            var gridObj = $("#GridParameter").ejGrid("instance");
+            var filtereddata = gridObj.getFilteredRecords();
+            if (filtereddata.length == 0) {
+                filtereddata = $scope.ParameterLists;
+            }
+            $scope.ParameterListsNew = [];
+            for (var i = 0; i < filtereddata.length; i++) {
+                    $scope.ParameterListsNew.push(filtereddata[i]);
+            }
+
+            if ($scope.ParameterListsNew.length > 50) {
+                throw "Maximum 50 'Job card' can be downloded at a time";
+            }
+            else {
+                var url = $scope.path + '/GetOrderWiseParameterJobCardReport?fromDate=' + $scope.statusNew.FromDate + '&toDate=' + $scope.statusNew.ToDate + '&IssueId=' + $scope.NewObject.IssueId + '&ProductionOrderId=' + $scope.NewObject.PONo + '&LotNumber=' + $scope.NewObject.LotNumber +'&EntityId=' + $scope.NewObject.EntityId;
+                $rootScope.report(url);
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
 }
 

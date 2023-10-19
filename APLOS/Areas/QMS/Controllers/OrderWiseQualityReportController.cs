@@ -3,10 +3,12 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
+using Library.HumanResource.NewAttendanceProcess;
 using Library.Model.Materials;
 using Library.Security.Core;
 using Library.Service.Helpers;
 using Library.Service.Materials;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -422,6 +424,31 @@ where OWC.MOLineItemNo ='" + MOId + "' and OWC.PONo='" + POId + "' and OWC.LotNo
             }
         }
 
+        [HttpGet]
+        public ActionResult GetOrderWiseParameterJobCardReport(string fromDate, string toDate, string IssueId, string ProductionOrderId, string LotNumber, string EntityId)
+        {
+            try
+            {
+                NewJobCardReportService app = new NewJobCardReportService();
+                
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                IWorkbook workbook = app.GetOrderWiseParameterJobCardReport(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, IssueId, ProductionOrderId, LotNumber, EntityId);
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + "Job Card Report";
+                return RenderReportAsExcel(workbook, reportFileName);
+                
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+                //throw new Exception(ex.Message);
+            }
+        }
+
+        private ActionResult RenderReportAsExcel(IWorkbook workbook, string fileName)
+        {
+            workbook.SaveAs(fileName + ".xls", HttpContext.ApplicationInstance.Response, ExcelDownloadType.PromptDialog);
+            return null;
+        }
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
