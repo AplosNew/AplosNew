@@ -19,6 +19,31 @@
 </style>
 <div class="form-horizontal form-elements">
     <div class="row">
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">From Date</label>
+                <div class="col-sm-8">
+                    <input type="text" required e-dateformat="dd-MMM-yyyy" ng-model="statusNew.FromDate" datepicker class="form-control">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">To Date</label>
+                <div class="col-sm-8">
+                    <input type="text" required e-dateformat="dd-MMM-yyyy" ng-model="statusNew.ToDate" datepicker class="form-control" ng-change="">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div id="filters">
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="View();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
+                </ul>
+            </div>
+        </div>
         <div class="col-xs-12">
             <div id="GridParameterSettingControl" ej-grid e-datasource="ParameterSettingControlList" e-recorddoubleclick="GetDetails"
                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-rowdatabound="rowDataBound"
