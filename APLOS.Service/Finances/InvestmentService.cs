@@ -175,6 +175,7 @@ namespace Library.Service.Finances
                 var investmentDetail = new FinancingDetail
                 {
                     Amount = financing.Amount,
+                    BankMasterId = voucherVM.OtherBankMasterId,
                 };
 
                 // Investment from side Voucher detail row.
@@ -648,8 +649,41 @@ namespace Library.Service.Finances
                         voucherDetailFrom.BankMasterId = financingDetail.BankMasterId;
                     }
                     voucherDetailFrom.CrAmount = voucherVM.Amount;
+                    voucherDetailFrom.BankMasterId = voucherVM.OtherBankMasterId;
                     _financingService.InsertFinancingWriteOffDetail(financinWriteOff, financingDetailWriteOff, 1);
                     voucherDetailFrom.FinancingDetailWriteOffId = financingDetailWriteOff.Id;
+
+                    var financingSubsequentTransaction = new FinancingSubsequentTransaction
+                    {
+                        CompanyGroupId = voucherVM.CompanyGroupId,
+                        CompanyId = voucherVM.CompanyId,
+                        PlantId = voucherVM.PlantId,
+                        EntityId = voucherVM.EntityId,
+                        VoucherTypeId = voucherVM.VoucherTypeId,
+                        FinancingId = voucherVM.FinancingId,
+                        SetOffFinancingId = voucherVM.FinancingId,
+                        PartyId = voucherVM.PartyId,
+                        PartyPlantId = voucherVM.PartyPlantId,
+                        PartyType = voucherVM.PartyType,
+                        CurrencyId = voucherVM.CurrencyId,
+                        Amount = voucherVM.Amount,
+                        VoucherDate = voucherVM.VoucherDate,
+                        PostingDate = voucherVM.PostingDate,
+                        DocDate = voucherVM.DocDate,
+                        DocRefNo = voucherVM.DocRefNo,
+                        TransactionType = voucherVM.TransactionType,
+                        Narration = voucherVM.Narration,
+                        SourceType = voucherVM.SourceType.ToString(),
+                        IsPark = voucherVM.IsPark,
+                        Id = "SI" + GetSubsequentInvestmentPK()
+
+                    };
+                    AuditService.AddedLog(financingSubsequentTransaction);
+                    _loanInterestPayableRepository.Insert(financingSubsequentTransaction);
+
+                    financingSubsequentTransaction.VoucherDetailId = voucherDetailFrom.Id;
+                    financingSubsequentTransaction.VoucherId = voucher.Id;
+
 
                     #endregion From
 

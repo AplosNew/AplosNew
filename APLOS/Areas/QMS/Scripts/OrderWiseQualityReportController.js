@@ -331,7 +331,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
                 throw "Maximum 50 'Job card' can be downloded at a time";
             }
             else {
-                var url = $scope.path + '/GetOrderWiseParameterJobCardReport?fromDate=' + $scope.statusNew.FromDate + '&toDate=' + $scope.statusNew.ToDate + '&IssueId=' + $scope.NewObject.IssueId + '&ProductionOrderId=' + $scope.NewObject.PONo + '&LotNumber=' + $scope.NewObject.LotNumber +'&EntityId=' + $scope.NewObject.EntityId;
+                var url = $scope.path + '/GetOrderWiseParameterJobCardReport?fromDate=' + $scope.statusNew.FromDate + '&toDate=' + $scope.statusNew.ToDate + '&IssueId=' + $scope.NewObject.IssueId + '&ProductionOrderId=' + $scope.NewObject.PONo + '&LotNumber=' + $scope.NewObject.LotNumber + '&EntityId=' + $scope.NewObject.EntityId + '&QualityStatus=' + $scope.ParameterNew.QualityStatus + '&Date=' + $scope.ParameterNew.Date;
                 $rootScope.report(url);
             }
         } catch (e) {

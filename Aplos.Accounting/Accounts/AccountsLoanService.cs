@@ -1463,7 +1463,7 @@ namespace Library.Accounting.Accounts
 											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('LoanTax') 
 											group by LP.FinancingId) LTP ON LTP.FinancingId=I.Id
 											LEFT JOIN(SELECT LP.SetOffFinancingId,SUM(LP.Amount) LoanPayment
-											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('LoanPayment') and LP.SourceType='Loan' group by LP.SetOffFinancingId) LPY ON LPY.SetOffFinancingId=I.Id
+											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InvestmentGiven') and LP.SourceType='InvestmentSetOff' group by LP.SetOffFinancingId) LPY ON LPY.SetOffFinancingId=I.Id
 											LEFT JOIN(SELECT LP.SetOffFinancingId,SUM(LP.Amount) LoanPayment
 											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('LoanPayment') and LP.SourceType='LoanPayment' group by LP.SetOffFinancingId) SLPY ON SLPY.SetOffFinancingId=I.Id
 											
@@ -1483,7 +1483,7 @@ namespace Library.Accounting.Accounts
 										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
 										FROM [TRN].[VoucherDetailCurrency] AS VDC
 										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='"+ companyId + @"'
+										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
 									) AS CC ON CC.VoucherDetailId=VD.Id
                                     WHERE I.Archive=0 AND I.IsPark=0  AND I.OpeningBalanceId IS NULL AND I.TransactionType='"+ transactionType + @"'
                                     AND I.CompanyId='" + companyId + @"' AND I.IsWrittenOff=0

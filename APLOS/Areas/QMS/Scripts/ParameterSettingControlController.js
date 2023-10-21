@@ -11,8 +11,8 @@ function ParameterSettingControlController(cboService, commonMessage, $scope, $r
     $scope.saveUrlCustomerUpdatePara = $scope.path + 'createCustomerUpdatePara';
     $scope.saveUrlUCPDValue = $scope.path + 'createUCPRequirement';
     $scope.ParameterStatusLists = [];
-    var date = new Date(), y = date.getFullYear(), m = date.getMonth();
-    date.setDate(date.getDate() - 3);
+    var todate = new Date(), y = todate.getFullYear(), m = todate.getMonth();
+    todate.setDate(todate.getDate() - 7);
 
 
 
@@ -68,6 +68,9 @@ function ParameterSettingControlController(cboService, commonMessage, $scope, $r
     $scope.status = {
         Id: null,
         ParameterStatus: null,
+        FromDate: $filter('dateFiltering')(todate, 'dd-MM-yyyy'),
+        ToDate: $filter('dateFiltering')(new Date(), 'dd-MM-yyyy'),
+
     };
     $scope.statusNew = Object.assign({}, $scope.status);
 
@@ -135,7 +138,7 @@ function ParameterSettingControlController(cboService, commonMessage, $scope, $r
     $scope.View = function () {
         try {
             $scope.ParameterSettingControlList = [];
-            $http.get('QMS/ParameterSettingControl/LoadParameterSettingControl')
+            $http.get('QMS/ParameterSettingControl/LoadParameterSettingControl?FromDate=' + $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate)
                 .then(function (response) {
                     $scope.ParameterSettingControlList = response.data;
                 });
@@ -143,7 +146,7 @@ function ParameterSettingControlController(cboService, commonMessage, $scope, $r
             ShowResult(e, 'failure');
         }
     }
-    $scope.View();
+    //$scope.View();
 
     $scope.GetDetails = function ($event) {
         $scope.CustomerUpdateParaNew.LineItemNo = $event.data.LineItemNo;

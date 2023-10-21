@@ -893,7 +893,7 @@
                         <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
                         <div e-column e-field="ProductionOrderId" e-headertext="PONo" e-width="3"></div>
                         <div e-column e-field="Process" e-headertext="Process" e-width="5"></div>
-                        <div e-column e-field="ProductionBookingLevel" e-headertext="Production Booking Level" e-width="3"></div>
+                        <div e-column e-field="ProductionBookingLevel" e-headertext="PrO Book Level" e-width="4"></div>
                         <div e-column e-field="MasterOrderItemId" e-headertext="LineItemNo" e-width="2"></div>
                         <div e-column e-field="SalesOrderId" e-headertext="SONo" e-width="2"></div>
                         <div e-column e-field="LotNo" e-headertext="LotNo" e-width="3"></div>
@@ -2547,79 +2547,6 @@
 </div>
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterPopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
-
-<div class="modal site-modal in" id="SOItemPopup" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                Sales Order Item<button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body text-center">
-                <div class="row">
-                    <div style="color:black;" id="SOGrid" ej-grid e-datasource="SOItemList" e-allowscrolling="true"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="selectSOItem"
-                         e-allowselection="false" e-filtersettings-filterType="excel">
-                        <div e-columns>
-                            <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material Master" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
-                            <div e-column e-type="string" e-field="PONumber" e-headertext="PO Number" e-width="80"></div>
-                            <div e-column e-type="string" e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
-                            <div e-column e-type="string" e-field="BuyerOrder" e-headertext="Buyer Ord#" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="PlannedQty" e-headertext="SO Qty" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="TotalProductionQty" e-headertext="Booked Qty" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="RemainingQty" e-headertext="Remaining Qty" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="string" e-field="MasterOrderNo" e-headertext="MasterOrderNo" e-width="75"></div>
-                            <div e-column e-type="string" e-field="SOId" e-headertext="Sales OrderNo" e-width="80"></div>
-                            <div e-column e-type="string" e-field="POId" e-headertext="PrO" e-width="80"></div>
-                            <div e-column e-type="string" e-field="OwnOrder" e-headertext="Own Ord#" e-width="80"></div>
-                            <div e-column e-type="string" e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
-                            <div e-column e-type="string" e-field="ProductMasterName" e-headertext="Product" e-width="80"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal site-modal in" id="MasterOrderItemPopup" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">Master Order Item<button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body text-center">
-                <div class="row">
-                    <div style="color:black;" id="MasterOrderItemGrid" ej-grid e-datasource="SOItemList" e-allowscrolling="true"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="selectSOItem"
-                         e-allowselection="false" e-filtersettings-filterType="excel">
-                        <div e-columns>
-                            <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material Master" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
-                            <div e-column e-type="string" e-field="PONumber" e-headertext="PO Number" e-width="80"></div>
-                            <div e-column e-type="string" e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
-                            <div e-column e-type="string" e-field="BuyerOrder" e-headertext="Buyer Ord#" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="PlannedQty" e-headertext="SO Qty" e-width="80" e-textalign="right"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="TotalProductionQty" e-headertext="Booked Qty" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="RemainingQty" e-headertext="Remaining Qty" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="string" e-field="MasterOrderNo" e-headertext="MasterOrderNo" e-width="75"></div>
-                            <div e-column e-type="string" e-field="MasterOrderItemId" e-headertext="MasterOrderItemId" e-width="80"></div>
-                            <div e-column e-type="string" e-field="POId" e-headertext="PrO" e-width="80"></div>
-                            <div e-column e-type="string" e-field="OwnOrder" e-headertext="Own Ord#" e-width="80"></div>
-                            <div e-column e-type="string" e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
-                            <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
-                            <div e-column e-type="string" e-field="ProductMasterName" e-headertext="Product" e-width="80"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 
 @*<confirm-archive-generic modalid="confirmBulletinSavePopUp" title="Confirmation" message={{message_BulletinSave}} data-ng-click-right-button="SaveBulletin();"></confirm-archive-generic>*@
 <confirm-archive-generic modalid="confirmPBProcessPopUp" title="Confirmation" message={{message_PBconfirmation}} data-ng-click-right-button="DeleteProductionBulletin();"></confirm-archive-generic>

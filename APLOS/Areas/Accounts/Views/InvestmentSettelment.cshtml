@@ -405,8 +405,8 @@
                     <ul class="list-inline action-list">
                         <li ng-show="x.IsPark"><a ng-click="confirmPost(x.VoucherId);" href="" class="btn btn-action tooltip-here">Post</a></li>
                         <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
-                        <li><a class="btn btn-action" href="Accounts/Loan/LoanPaymentReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank" title="Pdf"><i class="fa fa-file-pdf-o"></i></a></li>
-                        <li><a class="btn btn-action" href="Accounts/Loan/LoanPaymentReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank" title="Excel"><i class="fa fa-file-excel-o"></i></a></li>
+                        <li><a class="btn btn-action" href="Accounts/Investment/InvestmentSetoffReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank" title="Pdf"><i class="fa fa-file-pdf-o"></i></a></li>
+                        <li><a class="btn btn-action" href="Accounts/Investment/InvestmentSetoffReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank" title="Excel"><i class="fa fa-file-excel-o"></i></a></li>
                         <li><a class="btn btn-action" href="Accounts/Loan/MultiloanPaymentReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&loanWriteOffGroupNo={{x.LoanSetOffGroupNo}}" target="_blank" ng-show="x.LoanSetOffGroupNo" title="GroupExcel"><i class="fa fa-file-excel-o"></i></a></li>
 
                     </ul>
@@ -417,7 +417,7 @@
     <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
 </div>
 @Html.Partial("~/Areas/Parties/Views/Party/_PartyPopUp.cshtml")
-@Html.Partial("~/Areas/Accounts/Views/Loan/_LoanListPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/Loan/_InvestmentListPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/Loan/_MultiLoanListPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
 @Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
