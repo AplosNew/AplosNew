@@ -132,7 +132,30 @@ function bankSettelmentReconciliationController(commonMessage, $scope, $rootScop
             ShowResult(e, "failure");
         }
     };
+    $scope.banksettlementCAdvance = function (data) {
+        try {
+            $http({
+                method: "POST",
+                url: $scope.path + "BankSettelmentCustomerAdvance",
+                data: {
+                    "id": data.data.Id
+                },
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    $scope.getBnkReconList();
+                    ShowResult(response.data.Message, "success");
+                }
+            });
 
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    }
     $scope.Save = function () {
         try {
                 checkTotalAmount();

@@ -197,7 +197,7 @@ namespace Library.Accounting.Accounts
 
         public GridModel GetInvestmentSetoffList(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
-            parameters.CmdText = @"SELECT AW.FinancingNo,AW.FinancingId,F.DocRefNo LoanNo, V.Id VoucherId, V.VoucherNo, AW.Id, P.Code AS PartyCode, P.UserName AS PartyName, V.PostingDate, V.DocDate, V.DocRefNo, C.Code AS CurrencyCode, VD.Amount
+            parameters.CmdText = @"SELECT AW.FinancingNo,AW.FinancingId,F.DocRefNo InvestmentNo, V.Id VoucherId, V.VoucherNo, AW.Id, P.Code AS PartyCode, P.UserName AS PartyName, V.PostingDate, V.DocDate, V.DocRefNo, C.Code AS CurrencyCode, VD.Amount
                                     , AW.PartyPlantId, PP.UserName AS PartyPlantName, V.IsPark, AW.LoanSetOffGroupNo
                                     FROM [TRN].[Voucher] AS V
                                     LEFT JOIN [TRN].[FinancingWriteOff] AS AW ON V.Id=AW.VoucherId
