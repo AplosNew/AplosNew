@@ -317,6 +317,13 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetCboVoucherTypeInvestmentSetOffList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_voucherTypeMatrixService.GetCboVoucherTypeList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.InvestmentSetOff), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetCboVoucherTypeAutoLoanList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
