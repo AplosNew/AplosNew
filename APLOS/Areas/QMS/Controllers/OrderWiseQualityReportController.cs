@@ -102,7 +102,7 @@ Reverse(stuff(Reverse((select OWC.Grade +', ' from MST.OrderWiseQualityComment O
 where OWC.MOLineItemNo=Z.MOLineItemNo and OWC.PONo=Z.PONo and OWC.LotNo=Z.LotNumber and OWC.EntityId=Z.EntityId for xml PATH(''))),1,2,'')) Grade,
 Reverse(stuff(Reverse((select format(OWC.AddedDate,'dd-MMM-yyyy') + '-' + OWC.Comment +', ' from MST.OrderWiseQualityComment OWC																			
 where OWC.MOLineItemNo=Z.MOLineItemNo and OWC.PONo=Z.PONo and OWC.LotNo=Z.LotNumber  and OWC.EntityId=Z.EntityId for xml PATH(''))),1,2,'')) CommentDetails
-from (select distinct QCData.QCDate,M.MOLineItemNo,M.POStatus,M.ProductionOrderId PONo,M.LotNumber,M.Article,M.Customer,M.PartyNature, 
+from (select distinct QCData.QCDate,M.MOLineItemNo,M.POStatus,M.ProductionOrderId PONo,isnull(QCData.LotNumber,M.LotNumber) LotNumber,M.Article,M.Customer,M.PartyNature, 
 M.IssueId,M.IssueName,M.ParameterSequence,M.ParameterId,M.ParameterName,M.UOM,QCData.Value,QCData.GradeName,QCData.ParameterRemark,QCData.ActionToBeTakenName,QCData.ResponsiblePerson,QCData.PassValue,QCData.FailValue,QCData.RejectValue,QCData.ToClose,QCData.ToConfirm,
 QCData.HeaderId,QCData.ChildId,QCData.QCDDate,(Case When (QCData.Value is null or QCData.Value = '0') then 1 else 0 end) EntryMissing,M.Process,M.Entity,M.EntityId from (Select  P.*,CP.IssueName,CP.IssueId,CP.ParameterId,CP.ParameterName,CP.UOM,CP.ParameterSequence,CP.Process from (select Distinct PS.ProductionOrderId,PS.LotNumber,E.UserName Entity,PS.EntityId,
 MOLineItemNo= STUFF((select distinct ','+ XMOI.Id from trn.SalesOrder XSO 
@@ -154,7 +154,9 @@ inner Join (select QMM.UserName IssueName,QMP.QMID IssueId,QMP.Id ParameterId,PM
  left join MST.QualityActionToBeTakenDetails QAT on QAT.Id=QCD.ActionToBeTaken
  left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
  where QCD.ItemId in (select Id from MST.QualityManagementParameterItem where CustomerParameter = 1)) QCData on QCData.IssueId=M.IssueId and QCData.ParameterId=M.ParameterId
- and QCData.ProductionOrderId=M.ProductionOrderId and QCData.LotNumber=M.LotNumber)Z 
+ and QCData.ProductionOrderId=M.ProductionOrderId
+--and QCData.LotNumber=M.LotNumber
+)Z 
  where 1=1 " + FilterPartyNature + @" " + FilterEntity + @"
  Group By Z.PONo,Z.LotNumber,Z.IssueId,Z.Entity,Z.EntityId,Z.EntryMissing,Z.MOLineItemNo,Z.PartyNature
  order by  (Case when sum(Convert(Int,Z.RejectValue)) > 0  then 'A'
@@ -169,7 +171,7 @@ else 'D' end) ";
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string
-                sql = @"select distinct QCData.QCDate,M.MOLineItemNo,M.POStatus,M.ProductionOrderId PONo,M.LotNumber,M.Article,M.Customer, 
+                sql = @"select * from (select distinct QCData.QCDate,M.MOLineItemNo,M.POStatus,M.ProductionOrderId PONo,isnull(QCData.LotNumber,M.LotNumber) LotNumber,M.Article,M.Customer, 
 M.IssueId,M.IssueName,M.ParameterSequence,M.ParameterId,M.ParameterName,M.UOM,QCData.Value,QCData.GradeName,QCData.ParameterRemark,QCData.ParameterStatus,QCData.ActionToBeTakenName,QCData.ResponsiblePerson,QCData.PassValue,QCData.FailValue,QCData.RejectValue,
 QCData.ToClose,QCData.ToConfirm,QCData.HeaderId,QCData.ChildId,QCData.QCDDate,QCData.QCDTime,(Case When (QCData.Value is null or QCData.Value = '0') then 1 else 0 end) EntryMissing,M.Process,M.Entity,M.EntityId,
 Reverse(stuff(Reverse((select OWC.Grade +', ' from MST.OrderWiseQualityComment OWC																			
@@ -229,8 +231,9 @@ inner Join (select QMM.UserName IssueName,QMP.QMID IssueId,QMP.Id ParameterId,PM
  left join TRN.QualityActionTakenUpdate QAU on QAU.ParameterId=QCD.Id
  left join EmployeeInformation QAE on QAE.SystemId=QAU.ActionById
  where QCD.ItemId in (select Id from MST.QualityManagementParameterItem where CustomerParameter = 1)) QCData on QCData.IssueId=M.IssueId and QCData.ParameterId=M.ParameterId
- and QCData.ProductionOrderId=M.ProductionOrderId and QCData.LotNumber=M.LotNumber
-where M.IssueId='" + IssueId+"' and M.ProductionOrderId='"+ProductionOrderId+"' and M.LotNumber='"+LotNumber+"' and M.EntityId='"+ EntityId + "' order by M.ParameterSequence,QCData.QCDDate,QCData.QCDTime";
+ and QCData.ProductionOrderId=M.ProductionOrderId)Z 
+--and QCData.LotNumber=M.LotNumber
+where Z.IssueId='" + IssueId+ "' and Z.PONo='" + ProductionOrderId+"' and Z.LotNumber='"+LotNumber+"' and Z.EntityId='"+ EntityId + "' order by Z.ParameterSequence,Z.QCDDate,Z.QCDTime";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
  
@@ -425,14 +428,14 @@ where OWC.MOLineItemNo ='" + MOId + "' and OWC.PONo='" + POId + "' and OWC.LotNo
         }
 
         [HttpGet]
-        public ActionResult GetOrderWiseParameterJobCardReport(string fromDate, string toDate, string IssueId, string ProductionOrderId, string LotNumber, string EntityId)
+        public ActionResult GetOrderWiseParameterJobCardReport(string fromDate, string toDate, string IssueId, string ProductionOrderId, string LotNumber, string EntityId, string QualityStatus, string Date)
         {
             try
             {
                 NewJobCardReportService app = new NewJobCardReportService();
                 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                IWorkbook workbook = app.GetOrderWiseParameterJobCardReport(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, IssueId, ProductionOrderId, LotNumber, EntityId);
+                IWorkbook workbook = app.GetOrderWiseParameterJobCardReport(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, IssueId, ProductionOrderId, LotNumber, EntityId, QualityStatus, Date);
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + "Job Card Report";
                 return RenderReportAsExcel(workbook, reportFileName);
                 
