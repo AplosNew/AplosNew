@@ -537,12 +537,19 @@ namespace Aplos.Areas.Banks.Controllers
         #region Bank Settlement
         public ActionResult BankSettlementReconciliation()
         {
-            return View("~/Areas/Banks/Views/BankSettelmentReco/BankSettlementReconciliation.cshtml");
+            return View("~/Areas/Banks/Views/BankSettlementReco/BankSettlementReconciliation.cshtml");
         }
         [Authorize]
         public ActionResult BankSettlementCustomerAdvance()
         {
             return View("~/Areas/Banks/Views/BankSettlementReco/BankSettlementCustomerAdvance.cshtml"); 
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetBankUploadInfoById(string id)
+        {
+            AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+            return Json(accountsBankReconcilliationService.GetBankUploadInfoById(id), JsonRequestBehavior.AllowGet);
         }
         #endregion
     }

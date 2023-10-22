@@ -1,6 +1,6 @@
 ﻿"use strict";
-bankSettelmentReconciliationController.$inject = ["commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$window",  "$controller"];
-function bankSettelmentReconciliationController(commonMessage, $scope, $rootScope, baseService, $http, $filter, $window, $controller) {
+bankSettlementReconciliationController.$inject = ["commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$window",  "$controller"];
+function bankSettlementReconciliationController(commonMessage, $scope, $rootScope, baseService, $http, $filter, $window, $controller) {
     $rootScope.title = "Bank Settelment Reconciliation";
     $scope.Action = "Save";
     $scope.index = -1;
@@ -265,18 +265,18 @@ function bankSettelmentReconciliationController(commonMessage, $scope, $rootScop
             ShowResult(e, "failure");
         }
     };
-    $scope.bankDrReconUploadedDataAmount = 0;
-    $scope.isReconciledBankDrReconUploadedDataAmount = function (event, data, i, variable) {
-        try {
-            if (event.currentTarget.checked)
-                $scope.bankDrReconUploadedDataAmount = Math.round(($scope.bankDrReconUploadedDataAmount + parseFloat(data.DrAmount)) * 100 + Number.EPSILON) / 100;
-            else
-                $scope.bankDrReconUploadedDataAmount = Math.round(($scope.bankDrReconUploadedDataAmount - parseFloat(data.DrAmount)) * 100 + Number.EPSILON) / 100;
+    //$scope.bankDrReconUploadedDataAmount = 0;
+    //$scope.isReconciledBankDrReconUploadedDataAmount = function (event, data, i, variable) {
+    //    try {
+    //        if (event.currentTarget.checked)
+    //            $scope.bankDrReconUploadedDataAmount = Math.round(($scope.bankDrReconUploadedDataAmount + parseFloat(data.DrAmount)) * 100 + Number.EPSILON) / 100;
+    //        else
+    //            $scope.bankDrReconUploadedDataAmount = Math.round(($scope.bankDrReconUploadedDataAmount - parseFloat(data.DrAmount)) * 100 + Number.EPSILON) / 100;
 
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
+    //    } catch (e) {
+    //        ShowResult(e, "failure");
+    //    }
+    //};
 
 
     $scope.listMergebankDrTempList= function (event, data) {
@@ -302,30 +302,43 @@ function bankSettelmentReconciliationController(commonMessage, $scope, $rootScop
             ShowResult(e, "failure");
         }
     }
-    $scope.bankDrUploadedDataTempList = [];
-    $scope.listMergebankDrUploadedDataTempList = function (event, data) {
-        try {
-            if (event.currentTarget.checked) {
-                $scope.bankDrUploadedDataTempList.push({
-                    BankReconciliationUploadedDataId: data.Id
-                    , VoucherDetailId: ""
-                    , GLTransactionDetailId: ""
-                })
-            }
-            else {
-                var i = $scope.bankDrUploadedDataTempList.length;
-                while (i--) {
-                    if ($scope.bankDrUploadedDataTempList[i]["BankReconciliationUploadedDataId"] === data.Id) {
-                        $scope.bankDrUploadedDataTempList.splice(i, 1);
-                    }
-                }
-            }
-
-
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
+    $scope.showDRUploadPopUp = function () {
+        angular.element(document.querySelector('#drUploadPopUp')).modal('show');
     }
+
+    $scope.selectedDrUploadDataList = [];
+    $scope.selectDRUploadData = function (x) {
+        $scope.selectedDrUploadDataList.push(x.data);
+        $scope.selectedId = $scope.selectedDrUploadDataList[0].Id;
+        $scope.hideDRUploadPopUp();
+    };
+    $scope.hideDRUploadPopUp = function () {
+        angular.element(document.querySelector('#drUploadPopUp')).modal('hide');
+    }
+    //$scope.bankDrUploadedDataTempList = [];
+    //$scope.listMergebankDrUploadedDataTempList = function (event, data) {
+    //    try {
+    //        if (event.currentTarget.checked) {
+    //            $scope.bankDrUploadedDataTempList.push({
+    //                BankReconciliationUploadedDataId: data.Id
+    //                , VoucherDetailId: ""
+    //                , GLTransactionDetailId: ""
+    //            })
+    //        }
+    //        else {
+    //            var i = $scope.bankDrUploadedDataTempList.length;
+    //            while (i--) {
+    //                if ($scope.bankDrUploadedDataTempList[i]["BankReconciliationUploadedDataId"] === data.Id) {
+    //                    $scope.bankDrUploadedDataTempList.splice(i, 1);
+    //                }
+    //            }
+    //        }
+
+
+    //    } catch (e) {
+    //        ShowResult(e, "failure");
+    //    }
+    //}
     $scope.TempList = [];
     $scope.listMergeTempList = function () {
         try {
