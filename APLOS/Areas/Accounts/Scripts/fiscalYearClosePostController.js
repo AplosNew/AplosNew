@@ -152,8 +152,8 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
         $scope.GetCurrencyExchangeRateList();
     });
 
-    $scope.getCboVoucherTypeFixedAssetCapitalizeJournalList = function () {
-        cboService.getCboVoucherTypeFixedAssetCapitalizeJournalList(function (result) {
+    $scope.getCboVoucherTypeFiscalYearCloseJournalList = function () {
+        cboService.getCboVoucherTypeFiscalYearCloseJournalList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
@@ -163,7 +163,7 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
             }
         });
     };
-    $scope.getCboVoucherTypeFixedAssetCapitalizeJournalList();
+    $scope.getCboVoucherTypeFiscalYearCloseJournalList();
     $scope.GetCurrencyExchangeRateList = function () {
         if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
             $http({
