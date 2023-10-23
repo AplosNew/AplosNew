@@ -643,6 +643,7 @@
     <Compile Include="Areas\Productions\Controllers\QualityActionConfirmationController.cs" />
     <Compile Include="Areas\Productions\Controllers\QualityActionUpdateReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\QualityActionUpdateController.cs" />
+    <Compile Include="Areas\Productions\Controllers\LotControlController.cs" />
     <Compile Include="Areas\Productions\Controllers\WorkCenterQualityControlMasterController.cs" />
     <Compile Include="Areas\Productions\Controllers\QualityControlController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProcessQualityControlController.cs" />
@@ -2298,6 +2299,7 @@
     <Content Include="Areas\Productions\Scripts\QualityActionConfirmationController.js" />
     <Content Include="Areas\Productions\Scripts\QualityActionUpdateReportController.js" />
     <Content Include="Areas\Productions\Scripts\QualityActionUpdateController.js" />
+    <Content Include="Areas\Productions\Scripts\LotControlController.js" />
     <Content Include="Areas\Productions\Scripts\WorkCenterQualityControlMasterController.js" />
     <Content Include="Areas\Productions\Scripts\QualityControlController.js" />
     <Content Include="Areas\Productions\Scripts\ProcessQualityControlController.js" />
@@ -4830,6 +4832,7 @@
     <Content Include="Areas\Banks\Views\BankSettelmentReconciliation.cshtml" />
     <Content Include="Areas\Accounts\Views\InvestmentSettelment.cshtml" />
     <Content Include="Areas\Accounts\Views\Loan\_InvestmentListPopUp.cshtml" />
+    <Content Include="Areas\Productions\Views\LotControl\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
