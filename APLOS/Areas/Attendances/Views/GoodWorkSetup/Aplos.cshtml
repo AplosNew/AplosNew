@@ -73,7 +73,7 @@
                     <div class="col-sm-12 col-sm-12 col-md-12">
                         <div class="common-btn">
                             <ul class="list-inline text-left">
-                                <li><button ng-click="entityPopUp();" @*ng-disabled="ModelNew.Id==null"*@ class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                <li><button ng-click="entityPopUp();" ng-disabled="ModelNew.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
                             </ul>
                         </div>
                     </div>
@@ -111,7 +111,7 @@
                     <div class="col-sm-12 col-sm-12 col-md-12">
                         <div class="common-btn">
                             <ul class="list-inline text-left">
-                                <li><button ng-click="popUpBudgetCode();" @*ng-disabled="ModelNew.Id==null"*@ class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
+                                <li><button ng-click="popUpBudgetCode();" ng-disabled="ModelNew.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
                             </ul>
                         </div>
                     </div>
@@ -131,7 +131,7 @@
                                 <div e-column e-type="string" e-field="UserGroup" e-headertext="User Group" e-width="140"></div>
                                 <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="140"></div>
                                 <div e-column e-type="string" e-field="BudgetCode" e-headertext="Budget Code" e-width="140"></div>
-                                <div e-column e-headertext="OT Applicable" e-headertemplateid="#headerTemplate" e-template="#OTcheckboxTemplate" e-textalign="center" e-width="130"></div>
+                                <div e-column e-type="string" e-field="IsOTEntitled" e-headertext="OT Applicable" e-width="140"></div>
                                 <div e-column e-headertext="Good Work Applicable" e-headertemplateid="#headerTemplate" e-template="#GWcheckboxTemplate" e-textalign="center" e-width="130"></div>
                                 <div e-column e-headertext="Compensatory Applicable" e-headertemplateid="#headerTemplate" e-template="#CAcheckboxTemplate" e-textalign="center" e-width="130"></div>
                                 <div e-column e-headertext="Employee Applicable" e-headertemplateid="#headerTemplate" e-template="#EAcheckboxTemplate" e-textalign="center" e-width="130"></div>
@@ -150,7 +150,7 @@
                         <script type="text/template" id="GWcheckboxTemplate">
                             <div class="checkbox-site">
                                 <label>
-                                    <input type="checkbox" ng-model="GoodWorkApplicable">
+                                    <input type="checkbox" ng-model="BCNewModel.GoodWorkApplicable">
                                     <span class="cr" tabindex="1008"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                 </label>
                             </div>
@@ -158,7 +158,7 @@
                         <script type="text/template" id="CAcheckboxTemplate">
                             <div class="checkbox-site">
                                 <label>
-                                    <input type="checkbox" ng-model="CompensatoryApplicable">
+                                    <input type="checkbox" ng-model="BCNewModel.CompensatoryApplicable">
                                     <span class="cr" tabindex="1008"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                 </label>
                             </div>
@@ -166,15 +166,15 @@
                         <script type="text/template" id="EAcheckboxTemplate">
                             <div class="checkbox-site">
                                 <label>
-                                    <input type="checkbox" ng-model="EmployeeApplicable ">
+                                    <input type="checkbox" ng-model="BCNewModel.EmployeeApplicable ">
                                     <span class="cr" tabindex="1008"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                 </label>
                             </div>
                         </script>
-                         
+
                         <script type="text/template" id="GWCcheckboxTemplate">
                             <div class="select-style">
-                                <select id="ECID" class="form-control" ng-model="GoodWorkCategory" name="GoodWorkCategory" required tabindex="1">
+                                <select id="ECID" class="form-control" ng-model="BCNewModel.GoodWorkCategory" name="GoodWorkCategory" required tabindex="1">
                                     <option value="A">A</option>
                                     <option value="B">B</option>
                                     <option value="C">C</option>
@@ -185,7 +185,13 @@
                             <input type="text" name="Remark" ng-model="Remark" class="form-control" tabindex="6" maxlength="50">
                         </script>
                     </div>
-
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="BCSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{BCAction}}</button></li>
+                            @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+                            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
@@ -476,7 +482,7 @@
              data-field-list="popUpList"
              data-data-list="popUpDataList"
              data-search-function="getPopUpData"
-             data-single-click="selectSingleClick(data)"
+             @*data-single-click="selectSingleClick(data)"*@
              data-double-click="selectDoubleClick(data)"
              data-right-button="true"
              data-left-button="true"

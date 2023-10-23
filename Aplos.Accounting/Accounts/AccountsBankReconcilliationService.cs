@@ -758,5 +758,25 @@ namespace Library.Accounting.Accounts
             dr.EndEdit();
         }
         #endregion
+
+        public IEnumerable<object> GetBankUploadInfoById(string id)
+        {
+            try
+            {
+                var sql = @"SELECT BRU.BankMasterId,BM.AccountTitle,BRUD.CrAmount,BRUD.CrAmount BankAmount,BRUD.BankRefNo,BRUD.BankRefNo DocRefNo,BRUD.BankStatementDate
+                            ,BRUD.BankStatementDate PostingDate,BRUD.BankStatementDate DocDate ,BM.GLGeneralInfoId,BM.BudgetMasterId,BM.ActivityId
+                            FROM  [TRN].[BankReconciliationUploadedData] BRUD 
+                            JOIN [TRN].[BankReconciliationUpload] BRU ON BRU.Id=BRUD.BankReconciliationUploadId
+                            LEFT JOIN MST.BankMaster BM ON BM.Id=BRU.BankMasterId
+                            WHERE BRUD.Id='" + id + "'  ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
     }
 }

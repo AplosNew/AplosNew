@@ -3,6 +3,7 @@ GoodWorkSetupController.$inject = ['cboService', 'commonMessage', '$scope', '$ro
 function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'GoodWorkSetup';
     $scope.Action = 'Save';
+    $scope.BCAction = 'Save';
     $scope.ModelList = [];
     $scope.path = 'Attendances/GoodWorkSetup/';
     $scope.getListUrl = $scope.path + 'getlist';
@@ -348,26 +349,40 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
     $scope.selectDoubleClick = function (data) {
         try {
             var ob = {};
-
-            ob.Entity = data.EntityName;
-            ob.Division = data.Division;
-            ob.Department = data.Department;
-            ob.Section = data.Section;
-            ob.SubSection = data.SubSection;
-            ob.EmployeeType = data.EmployeeType;
-            ob.Designation = data.Designation;
-            ob.Activity = data.Activity;
-            ob.UserGroup = data.UserGroup;
-            ob.Process = data.Process;
-            ob.BudgetCode = data.Code; 
-            $scope.BudgetCodeList.push(ob);
-            ob = {};
-
+            if (checkDoubleBudgetCode($scope.BudgetCodeList, data.Id) === false) {
+                ob.BudgetId = data.Id;
+                ob.Entity = data.EntityName;
+                ob.Division = data.Division;
+                ob.Department = data.Department;
+                ob.Section = data.Section;
+                ob.SubSection = data.SubSection;
+                ob.EmployeeType = data.EmployeeType;
+                ob.Designation = data.Designation;
+                ob.Activity = data.Activity;
+                ob.UserGroup = data.UserGroup;
+                ob.Process = data.Process;
+                ob.BudgetCode = data.Code;
+                //ob.IsOTEntitled = data.IsOTEntitled;
+                if (data.IsOTEntitled == 0) {
+                    ob.IsOTEntitled = 'No';
+                } else
+                    ob.IsOTEntitled = 'Yes'
+                $scope.BudgetCodeList.push(ob);
+                ob = {};
+            }
             angular.element(document.querySelector('#popUpId')).modal('hide');
         } catch (e) {
             ShowResult(e, 'failure');
         }
     };
+    function checkDoubleBudgetCode(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].BudgetId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     $scope.clearCode = function () {
         $scope.employeeNew.BudgetCode = null;
@@ -411,27 +426,51 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         angular.element(document.querySelector('#LDPopUp')).modal('hide');
     };
 
-    //$scope.OK = function () {
-    //    try {
-    //        for (var i = 0; i < $scope.popUpDataList.length; i++) { 
-    //                if (checkDoubleBudgetCode($scope.BudgetCodeList, $scope.popUpDataList[i].Id) === false) {
-    //                    $scope.BudgetCodeList.push($scope.popUpDataList[i]);
-    //                } 
-    //        } 
-    //        angular.element(document.querySelector('#popUpId')).modal('hide');
-    //    } catch (e) {
-    //        ShowResult(e, "failure");
-    //    }
-    //};
+    $scope.BCModel = { 
+        IsGoodWorkApplicable: false,
+        IsCompensatoryApplicable: false,
+        IsEmployeeApplicable: false,
+        GoodWorkCategory: null,
+        Remarks: null,
+    };
+    $scope.c = Object.assign({}, $scope.BCModel);
 
-    //function checkDoubleBudgetCode(list, Id) {
-    //    for (var i = 0; i < list.length; i++) {
-    //        if (list[i].Id === Id) {
-    //            return true;
-    //        }
-    //    }
-    //    return false;
+    $scope.BCSave = function () { 
+            $http({
+                method: 'POST',
+                url: $scope.path + "CreateBudgetCode",
+                data: {
+                    'data': $scope.BudgetCodeList
+                    , 'ExtData': $scope.BCNewModel
+                    , 'goodWorkSetupId': $scope.ModelNew.Id
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    //$scope.GetGoodWorkBudgetCodeData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');             
+        }
+    };
+
+
+    //$scope.GetGoodWorkBudgetCodeData = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: "Attendances/GoodWorkSetup/GetGoodWorkEntitySetupData?goodWorkSetupId=" + $scope.ModelNew.Id
+    //    }).then(function (response) {
+    //        $scope.selectedEntityList = response.data;
+    //    });
     //}
 
+
     //#endregion BudgetCode
+
+
+
 }
