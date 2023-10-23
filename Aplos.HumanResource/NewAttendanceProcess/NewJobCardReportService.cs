@@ -1087,7 +1087,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet1.IsGridLinesVisible = true;
                             xlsRow = 3;
                             string strEmpCode = "";
-                            //int QPIssueName = 0;
+                            int QPIssueName = 0;
                             int QPProcess = 0;
                             //int QPPSNo = 0;
                             int QPPName = 0;
@@ -1166,28 +1166,28 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[i]["Customer"].ToString().Trim();
                                     sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                                     sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                                    sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 4].Merge();
+                                    sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 5].Merge();
                                     xlsRow += 1;
 
                                     sheet1.Range[xlsRow, xlsCol].Text = "PO No";
                                     sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[i]["PONo"].ToString().Trim();
                                     sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                                     sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                                    sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 4].Merge();
+                                    sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 5].Merge();
                                     xlsRow += 1;
 
                                     sheet1.Range[xlsRow, xlsCol].Text = "Article";
                                     sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[i]["Article"].ToString().Trim();
                                     sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                                     sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                                    sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 4].Merge();
+                                    sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 5].Merge();
                                     xlsRow += 1;
 
                                     sheet1.Range[xlsRow, xlsCol].Text = "Grade - Added By";
                                     sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[i]["Grade"].ToString().Trim();
                                     sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                                     sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                                    sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 4].Merge();
+                                    sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 5].Merge();
                                     xlsRow += 1;
 
                                     sheet1.Range[xlsRow, xlsCol].Text = "Comment";
@@ -1201,14 +1201,14 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                     xlsRow = 8;
                                     xlsCol = 1;
-                                    //QPIssueName = xlsCol;
-                                    //xlsRow += 1;
-                                    //sheet1.Range[xlsRow, QPIssueName].Text = "IssueName";
-                                    //sheet1.Range[xlsRow, QPIssueName].ColumnWidth = 15;
-                                    //sheet1.Range[xlsRow, QPIssueName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                    //sheet1.Range[xlsRow, QPIssueName].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    QPIssueName = xlsCol;
+                                    xlsRow += 1;
+                                    sheet1.Range[xlsRow, QPIssueName].Text = "IssueName";
+                                    sheet1.Range[xlsRow, QPIssueName].ColumnWidth = 15;
+                                    sheet1.Range[xlsRow, QPIssueName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, QPIssueName].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    //xlsCol += 1;
+                                    xlsCol += 1;
                                     QPProcess = xlsCol;
                                     xlsRow += 1;
                                     sheet1.Range[xlsRow, QPProcess].Text = "Process";
@@ -1349,9 +1349,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 #region ----------------------Data-----------------------
 
                                 xlsRow += 1;
-                                //sheet1.Range[xlsRow, QPIssueName].Text = dvBioDvAC[i]["IssueName"].ToString();
-                                //sheet1.Range[xlsRow, QPIssueName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                //sheet1.Range[xlsRow, QPIssueName].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                sheet1.Range[xlsRow, QPIssueName].Text = dvBioDvAC[i]["IssueName"].ToString();
+                                sheet1.Range[xlsRow, QPIssueName].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, QPIssueName].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                 sheet1.Range[xlsRow, QPProcess].Text = dvBioDvAC[i]["Process"].ToString();
                                 sheet1.Range[xlsRow, QPProcess].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -1936,9 +1936,9 @@ inner Join (select QMM.UserName IssueName,QMP.QMID IssueId,QMP.Id ParameterId,PM
  left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
  left join TRN.QualityActionTakenUpdate QAU on QAU.ParameterId=QCD.Id
  left join EmployeeInformation QAE on QAE.SystemId=QAU.ActionById
- where QCD.ItemId in (select Id from MST.QualityManagementParameterItem where CustomerParameter = 1)) QCData on QCData.IssueId=M.IssueId and QCData.ParameterId=M.ParameterId
+ where QCD.ItemId in (select Id from MST.QualityManagementParameterItem where CustomerParameter = 1)) QCData on QCData.ParameterId=M.ParameterId
  and QCData.ProductionOrderId=M.ProductionOrderId and QCData.LotNumber=M.LotNumber
-where M.IssueId='" + IssueId + "' and M.ProductionOrderId='" + ProductionOrderId + "' and M.LotNumber='" + LotNumber + "' and M.EntityId='" + EntityId + "' order by M.ParameterSequence,QCData.QCDDate,QCData.QCDTime";
+where M.ProductionOrderId='" + ProductionOrderId + "' and M.LotNumber='" + LotNumber + "' and M.EntityId='" + EntityId + "' order by M.ParameterSequence,QCData.QCDDate,QCData.QCDTime";
 
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
