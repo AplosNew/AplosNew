@@ -75,10 +75,10 @@ left join ORG.Entity E on E.Id=EntityId)EI order by EI.Text";
             string
                 sql = @"select (case when sum(Convert(Int,Z.RejectValue)) > 0  then 'Reject'
 when sum(Convert(Int,Z.FailValue)) > 0  then 'Fail'
-when Z.EntryMissing > 0  then 'Pending'
+when sum(Z.EntryMissing) > 0  then 'Pending'
 else 'Pass' end) QualityStatus,
-Date=(select top 1 Format(AddedDate,'dd-MMM-yyyy') from TRN.QualityControl where IssueId=Z.IssueId),
-MOLineItemNo= STUFF((select distinct ','+ XMOI.Id from trn.SalesOrder XSO 
+Date=(select format(Min(AddedDate),'dd-MMM-yyyy')  from TRN.ProductionSummary where ProductionOrderId=Z.PONo and LotNumber=Z.LotNumber and AddedDate between '"+ FromDate + "' and '"+ ToDate + @"' ),
+MOLineItemNo = STUFF((select distinct ','+ XMOI.Id from trn.SalesOrder XSO 
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
 where Z.PONo=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
@@ -97,7 +97,7 @@ left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
 where Z.PONo=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 Z.PartyNature,Z.EntityId,
 Z.Entity,sum(Convert(Int,Z.PassValue)) Pass,sum(Convert(Int,Z.FailValue)) Fail,sum(Convert(Int,Z.RejectValue)) Reject,
-Sum(Z.EntryMissing) MissingEntry,sum(Z.ToClose) ToClose,sum(Z.ToConfirm) ToConfirm,Z.IssueId,
+Sum(Z.EntryMissing) MissingEntry,sum(Z.ToClose) ToClose,sum(Z.ToConfirm) ToConfirm,
 Reverse(stuff(Reverse((select OWC.Grade +', ' from MST.OrderWiseQualityComment OWC																			
 where OWC.MOLineItemNo=Z.MOLineItemNo and OWC.PONo=Z.PONo and OWC.LotNo=Z.LotNumber and OWC.EntityId=Z.EntityId for xml PATH(''))),1,2,'')) Grade,
 Reverse(stuff(Reverse((select format(OWC.AddedDate,'dd-MMM-yyyy') + '-' + OWC.Comment +', ' from MST.OrderWiseQualityComment OWC																			
@@ -153,15 +153,17 @@ inner Join (select QMM.UserName IssueName,QMP.QMID IssueId,QMP.Id ParameterId,PM
  left join MST.QualityGradeDetails QGD on QGD.Id=QCD.GradeId
  left join MST.QualityActionToBeTakenDetails QAT on QAT.Id=QCD.ActionToBeTaken
  left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
- where QCD.ItemId in (select Id from MST.QualityManagementParameterItem where CustomerParameter = 1)) QCData on QCData.IssueId=M.IssueId and QCData.ParameterId=M.ParameterId
+ where QCD.ItemId in (select Id from MST.QualityManagementParameterItem where CustomerParameter = 1)) QCData on 
+--QCData.IssueId=M.IssueId and 
+QCData.ParameterId=M.ParameterId
  and QCData.ProductionOrderId=M.ProductionOrderId
---and QCData.LotNumber=M.LotNumber
+and QCData.LotNumber=M.LotNumber
 )Z 
  where 1=1 " + FilterPartyNature + @" " + FilterEntity + @"
- Group By Z.PONo,Z.LotNumber,Z.IssueId,Z.Entity,Z.EntityId,Z.EntryMissing,Z.MOLineItemNo,Z.PartyNature
+ Group By Z.PONo,Z.LotNumber,Z.Entity,Z.EntityId,Z.MOLineItemNo,Z.PartyNature
  order by  (Case when sum(Convert(Int,Z.RejectValue)) > 0  then 'A'
 when sum(Convert(Int,Z.FailValue)) > 0  then 'B'
-when Z.EntryMissing > 0  then 'C'
+when sum(Z.EntryMissing) > 0  then 'C'
 else 'D' end) ";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -230,10 +232,9 @@ inner Join (select QMM.UserName IssueName,QMP.QMID IssueId,QMP.Id ParameterId,PM
  left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
  left join TRN.QualityActionTakenUpdate QAU on QAU.ParameterId=QCD.Id
  left join EmployeeInformation QAE on QAE.SystemId=QAU.ActionById
- where QCD.ItemId in (select Id from MST.QualityManagementParameterItem where CustomerParameter = 1)) QCData on QCData.IssueId=M.IssueId and QCData.ParameterId=M.ParameterId
- and QCData.ProductionOrderId=M.ProductionOrderId)Z 
---and QCData.LotNumber=M.LotNumber
-where Z.IssueId='" + IssueId+ "' and Z.PONo='" + ProductionOrderId+"' and Z.LotNumber='"+LotNumber+"' and Z.EntityId='"+ EntityId + "' order by Z.ParameterSequence,Z.QCDDate,Z.QCDTime";
+ where QCD.ItemId in (select Id from MST.QualityManagementParameterItem where CustomerParameter = 1)) QCData on QCData.ParameterId=M.ParameterId
+ and QCData.ProductionOrderId=M.ProductionOrderId)Z  
+where Z.PONo='" + ProductionOrderId+"' and Z.LotNumber='"+LotNumber+"' and Z.EntityId='"+ EntityId + "' order by Z.ParameterSequence,Z.QCDDate,Z.QCDTime";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
  

@@ -20,6 +20,7 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
     $scope.url = "Commercial/AutoLoan";
     $scope.postUrl = "Accounts/Loan/PostLoan";
     $scope.deleteUrl = "Accounts/Loan/DeleteAutoloanPost";
+    $(".searchableDDL1").select2();
 
     $scope.voucher = {
         Id: null,
@@ -82,8 +83,8 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
     var invoiceAmount = 0;
     $scope.selectAutoLoan = function (x) {
         var autoLoandata = x.data;
-        $scope.voucher.BankMasterId = autoLoandata.BankMasterId;
-        $scope.voucher.AccountTitle = autoLoandata.AccountTitle;
+        //$scope.voucher.BankMasterId = autoLoandata.BankMasterId;
+        //$scope.voucher.AccountTitle = autoLoandata.AccountTitle;
         $scope.voucher.Amount = autoLoandata.Amount;
         $scope.voucher.CurrencyId = autoLoandata.CurrencyId;
         $scope.voucher.BankCurrencyId = autoLoandata.CurrencyId;
@@ -492,7 +493,28 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
     $scope.report = function (voucherId) {
         location.href = "accounts/Loan/LoanReport?voucherId=" + voucherId;
     };
-
+    $scope.bankSearchByList = [
+        {
+            "name": "Bank",
+            "value": "BankName"
+        },
+        {
+            "name": "Bank Branch",
+            "value": "BankBranchName"
+        },
+        {
+            "name": "Account Title",
+            "value": "AccountTitle"
+        },
+        {
+            "name": "Account Number",
+            "value": "AccountNumber"
+        },
+        {
+            "name": "Currency",
+            "value": "CurrencyCode"
+        }
+    ];
     $scope.bankParameters = {
         limit: 10,
         offset: 0,

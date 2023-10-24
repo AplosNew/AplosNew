@@ -171,9 +171,13 @@ function bankConfig($routeProvider, $locationProvider) {
             templateUrl: "Banks/BankJournal/CurrentFundPosition",
             controller: "CurrentFundPositionController"
         })
-        .when("/bank-settelment-reco", {
-            templateUrl: "Banks/bankreconciliation/BankSettelmentReconciliation",
-            controller: "bankSettelmentReconciliationController"
+        .when("/bank-settlement-reco", {
+            templateUrl: "Banks/bankreconciliation/BankSettlementReconciliation",
+            controller: "bankSettlementReconciliationController"
+        })
+        .when("/bank-settle-customerAdvance/:id", {
+            templateUrl: "Banks/bankreconciliation/BankSettlementCustomerAdvance",
+            controller: "BankSettlementCustomerAdvanceController"
         })
         ;
 }

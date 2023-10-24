@@ -3,6 +3,8 @@ GoodWorkSetupController.$inject = ['cboService', 'commonMessage', '$scope', '$ro
 function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'GoodWorkSetup';
     $scope.Action = 'Save';
+    $scope.BCAction = 'Save';
+    $scope.AuthorityAction = 'Save';
     $scope.ModelList = [];
     $scope.path = 'Attendances/GoodWorkSetup/';
     $scope.getListUrl = $scope.path + 'getlist';
@@ -47,6 +49,9 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.GetGoodWorkEntitySetupData();
+        $scope.GetGoodWorkBudgetCodeData();
+        $scope.GetGoodWorkAuthorityData();
+        $scope.GetCheckByData();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -298,6 +303,10 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
+        $scope.selectedEntityList = [];
+        $scope.BudgetCodeList = [];
+        $scope.authorizationList = [];
+        $scope.CheckByList = [];
     }
 
     //#region BudgetCode
@@ -348,26 +357,45 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
     $scope.selectDoubleClick = function (data) {
         try {
             var ob = {};
-
-            ob.Entity = data.EntityName;
-            ob.Division = data.Division;
-            ob.Department = data.Department;
-            ob.Section = data.Section;
-            ob.SubSection = data.SubSection;
-            ob.EmployeeType = data.EmployeeType;
-            ob.Designation = data.Designation;
-            ob.Activity = data.Activity;
-            ob.UserGroup = data.UserGroup;
-            ob.Process = data.Process;
-            ob.BudgetCode = data.Code; 
-            $scope.BudgetCodeList.push(ob);
-            ob = {};
-
+            if (checkDoubleBudgetCode($scope.BudgetCodeList, data.Id) === false) {
+                ob.BudgetId = data.Id;
+                ob.Entity = data.EntityName;
+                ob.Division = data.Division;
+                ob.Department = data.Department;
+                ob.Section = data.Section;
+                ob.SubSection = data.SubSection;
+                ob.EmployeeType = data.EmployeeType;
+                ob.Designation = data.Designation;
+                ob.Activity = data.Activity;
+                ob.UserGroup = data.UserGroup;
+                ob.Process = data.Process;
+                ob.BudgetCode = data.Code;
+                //ob.IsOTEntitled = data.IsOTEntitled;
+                if (data.IsOTEntitled == 0) {
+                    ob.IsOTEntitled = 'No';
+                } else
+                    ob.IsOTEntitled = 'Yes'
+                ob.IsGoodWorkApplicable = false,
+                    ob.IsCompensatoryApplicable = false,
+                    ob.IsEmployeeApplicable = false,
+                    ob.GoodWorkCategory = null,
+                    ob.Remarks = null,
+                    $scope.BudgetCodeList.push(ob);
+                ob = {};
+            }
             angular.element(document.querySelector('#popUpId')).modal('hide');
         } catch (e) {
             ShowResult(e, 'failure');
         }
     };
+    function checkDoubleBudgetCode(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].BudgetId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     $scope.clearCode = function () {
         $scope.employeeNew.BudgetCode = null;
@@ -411,27 +439,191 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         angular.element(document.querySelector('#LDPopUp')).modal('hide');
     };
 
-    //$scope.OK = function () {
-    //    try {
-    //        for (var i = 0; i < $scope.popUpDataList.length; i++) { 
-    //                if (checkDoubleBudgetCode($scope.BudgetCodeList, $scope.popUpDataList[i].Id) === false) {
-    //                    $scope.BudgetCodeList.push($scope.popUpDataList[i]);
-    //                } 
-    //        } 
-    //        angular.element(document.querySelector('#popUpId')).modal('hide');
-    //    } catch (e) {
-    //        ShowResult(e, "failure");
-    //    }
-    //};
 
-    //function checkDoubleBudgetCode(list, Id) {
-    //    for (var i = 0; i < list.length; i++) {
-    //        if (list[i].Id === Id) {
-    //            return true;
-    //        }
-    //    }
-    //    return false;
-    //}
+    $scope.BCSave = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "CreateBudgetCode",
+            data: {
+                'data': $scope.BudgetCodeList
+                , 'goodWorkSetupId': $scope.ModelNew.Id
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetGoodWorkBudgetCodeData();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
 
+
+    $scope.GetGoodWorkBudgetCodeData = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetGoodWorkBudgetCodeSetupData?goodWorkSetupId=" + $scope.ModelNew.Id
+        }).then(function (response) {
+            $scope.BudgetCodeList = response.data;
+        });
+    }
     //#endregion BudgetCode
+
+    //#region
+    // #region  Dynamic PopUp
+
+    $scope.popUpList = [];
+    $scope.employeeInformation = {
+        PlantId: $window.plantId
+        , EmployeeCode: null
+        , EmployeeName: null
+        , SystemId: null
+
+    };
+    $scope.popUpDataList = [];
+    $scope.popUpEmployee = function (obj) {
+        try {
+            $scope.tabName = obj;
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'employees/authorizationconfig/getallemployeedata'
+
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+            });
+            angular.element(document.querySelector('#popUpEmp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.CheckByList = [];
+    $scope.authorizationList = [];
+    $scope.selectdblClick = function (data) {
+        try {
+            var data = data.data;
+            var ob = {};
+            if ($scope.tabName == 'Authority') {
+                if (checkDoubleAuthorityCode($scope.authorizationList, data.EmployeeCode) === false) {
+                    ob.AuthorityId = data.SystemId;
+                    ob.EmployeeName = data.EmployeeName;
+                    ob.EmployeeCode = data.EmployeeCode;
+                    ob.CompanyId = data.CompanyId;
+                    ob.Company = data.Company;
+                    ob.Plant = data.Plant;
+                    ob.Designation = data.LegalDesignation;
+                    ob.Department = data.Department;
+                    ob.Section = data.Section;
+                    ob.SubSection = data.SubSection;
+                    ob.Line = data.Line;
+
+                    $scope.authorizationList.push(ob);
+                    $scope.AuthoritySave();
+                    ob = {};
+                }
+                angular.element(document.querySelector('#popUpEmp')).modal('hide');
+            }
+            else {
+                if (checkDoubleAuthorityCode($scope.CheckByList, data.EmployeeCode) === false) {
+                    ob.CheckById = data.SystemId;
+                    ob.EmployeeName = data.EmployeeName;
+                    ob.EmployeeCode = data.EmployeeCode;
+                    ob.CompanyId = data.CompanyId;
+                    ob.Company = data.Company;
+                    ob.Plant = data.Plant;
+                    ob.Designation = data.LegalDesignation;
+                    ob.Department = data.Department;
+                    ob.Section = data.Section;
+                    ob.SubSection = data.SubSection;
+                    ob.Line = data.Line;
+
+                    $scope.CheckByList.push(ob);
+                    $scope.CheckBySave();
+                    ob = {};
+                }
+                angular.element(document.querySelector('#popUpEmp')).modal('hide');
+
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+    function checkDoubleAuthorityCode(list, EmployeeCode) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].EmployeeCode === EmployeeCode) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#popUpEmp')).modal('hide');
+    };
+    // #endregion
+
+    $scope.AuthoritySave = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "CreateAuthority",
+            data: {
+                'data': $scope.authorizationList
+                , 'goodWorkSetupId': $scope.ModelNew.Id
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                //$scope.GetGoodWorkAuthorityData();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    $scope.GetGoodWorkAuthorityData = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetGoodWorkAuthorityData?goodWorkSetupId=" + $scope.ModelNew.Id
+        }).then(function (response) {
+            $scope.authorizationList = response.data;
+        });
+    }
+
+    $scope.CheckBySave = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "CreateCheckBy",
+            data: { 'data': $scope.CheckByList, 'goodWorkSetupId': $scope.ModelNew.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    $scope.GetCheckByData = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetCheckByData?goodWorkSetupId=" + $scope.ModelNew.Id
+        }).then(function (response) {
+            $scope.CheckByList = response.data;
+        });
+    }
+    //#endregion
+
 }

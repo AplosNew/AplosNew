@@ -55,7 +55,7 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
         MatureDate: null
     };
 
-    $scope.capitalizationMaster = {
+    $scope.fiscalYearClose = {
         Id: null,
         FixedAssetItemId: null,
         Qty: null,
@@ -81,9 +81,9 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
     }
 
     $scope.selectedmaterialMasterList = [];
-    $scope.GetCapitalizationMasterDetail = function () {
+    $scope.GetFiscalYearCloseMasterDetail = function () {
         $scope.selectedmaterialMasterList = [];
-        $http.get("fixedassets/fixedassetregister/GetCapitalizationMasterDetail?masterId=" + $scope.voucher.CapitalizationMasterId)
+        $http.get("fixedassets/fixedassetregister/GetFiscalYearCloseMasterDetail?masterId=" + $scope.voucher.FiscalYearCloseMasterId)
             .then(
                 function successCallback(response) {
                     $scope.selectedmaterialMasterList = response.data;
@@ -95,20 +95,16 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
 
     $scope.SelectMaster = function (x) {
         var data = x.data;
-        $scope.voucher.CapitalizationMasterId = data.Id;
-        $scope.voucher.Amount = data.TotalAmount;
-        $scope.voucher.FixedAssetItem = data.FixedAssetItem;
-        $scope.voucher.Qty = data.Qty;
-        $scope.voucher.CapitalizationDate = $filter("dateFiltering")(data.CapitalizationDate);
+        $scope.voucher.FiscalYearCloseId = data.Id;
+        $scope.voucher.Amount = data.Amount;
+        $scope.voucher.FiscalYearName = data.FiscalYearName;
+        $scope.voucher.CompanyName = data.CompanyName;
+        $scope.voucher.PlantName = data.PlantName;
 
-        $scope.capitalizationMaster.Id = data.Id;
-        $scope.capitalizationMaster.FixedAssetItemId = data.FixedAssetItemId;
-        $scope.capitalizationMaster.Qty = data.Qty;
-        $scope.capitalizationMaster.TotalAmount = data.TotalAmount;
-
+        $scope.fiscalYearClose.Id = data.Id;
+        $scope.fiscalYearClose.Amount = data.Amount;
         
-        $scope.GetCapitalizationMasterDetail();
-        $scope.getCapitalizationJV(data.Id);
+        //$scope.getFiscalYearCloseJV(data.Id);
 
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -116,16 +112,16 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
 
         angular.element(document.querySelector('#FiscalYearClosepopUp')).modal('hide');
     };
-    $scope.capitalizationJVList = [];
-    $scope.getCapitalizationJV = function (Id) {
-        $scope.capitalizationJVList = [];
-        $scope.jvurl = 'FixedAssets/FixedAssetRegister/GetCapitalizationSingleJVListFromAssetRegister?capitalizationMasterId=' + Id
+    $scope.fiscalYearCloseJVList = [];
+    $scope.getFiscalYearCloseJV = function (Id) {
+        $scope.fiscalYearCloseJVList = [];
+        $scope.jvurl = 'FixedAssets/FixedAssetRegister/GetFiscalYearCloseSingleJVListFromAssetRegister?fiscalYearCloseId=' + Id
         $http({
             method: 'Post'
             , url: $scope.jvurl
             , dataType: 'JSON'
         }).then(function (response) {
-            $scope.capitalizationJVList = response.data;
+            $scope.fiscalYearCloseJVList = response.data;
         }), function (response) {
             ShowResult(response.data.Message, 'failure');
         };
@@ -156,8 +152,8 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
         $scope.GetCurrencyExchangeRateList();
     });
 
-    $scope.getCboVoucherTypeFixedAssetCapitalizeJournalList = function () {
-        cboService.getCboVoucherTypeFixedAssetCapitalizeJournalList(function (result) {
+    $scope.getCboVoucherTypeFiscalYearCloseJournalList = function () {
+        cboService.getCboVoucherTypeFiscalYearCloseJournalList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
@@ -167,7 +163,7 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
             }
         });
     };
-    $scope.getCboVoucherTypeFixedAssetCapitalizeJournalList();
+    $scope.getCboVoucherTypeFiscalYearCloseJournalList();
     $scope.GetCurrencyExchangeRateList = function () {
         if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
             $http({
@@ -223,18 +219,16 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
         $scope.voucher.DocRefNo = null;
         $scope.voucher.Narration = null;
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
-        $scope.voucher.CapitalizationMasterId = null;
+        $scope.voucher.FiscalYearCloseId = null;
         $scope.voucher.Amount = null;
         $scope.voucher.FixedAssetItem = null;
         $scope.voucher.Qty = null;
-        $scope.voucher.CapitalizationDate = null;
+        $scope.voucher.FiscalYearCloseDate = null;
         $scope.selectedmaterialMasterList = [];
-        $scope.capitalizationJVList = [];
+        $scope.fiscalYearCloseJVList = [];
 
-        $scope.capitalizationMaster.Id = null;
-        $scope.capitalizationMaster.FixedAssetItemId = null;
-        $scope.capitalizationMaster.Qty = null;
-        $scope.capitalizationMaster.TotalAmount = null;
+        $scope.fiscalYearClose.Id = null;
+        $scope.fiscalYearClose.Amount = null;
 
     };
 
@@ -247,8 +241,8 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
                     url: $scope.SaveUrl,
                     data: {
                         "voucherVM": $scope.voucher,
-                        "voucherDetailVMList": $scope.capitalizationJVList,
-                        "capitalizationMasterdata": $scope.capitalizationMaster
+                        "voucherDetailVMList": $scope.fiscalYearCloseJVList,
+                        "fiscalYearClosedata": $scope.fiscalYearClose
                     },
                     dataType: "JSON"
                     , contentType: "application/json charset=utf-8"

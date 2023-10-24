@@ -136,8 +136,8 @@ function InvestmentSettelmentController(accountService, bankService, cboService,
             });
     });
 
-    $scope.getCboVoucherTypeLoanList = function () {
-        accountService.getCboVoucherTypeLoanPaymentList(function (result) {
+    $scope.getCboVoucherTypeInvestmentSetOffList = function () {
+        accountService.getCboVoucherTypeInvestmentSetOffList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
@@ -146,7 +146,7 @@ function InvestmentSettelmentController(accountService, bankService, cboService,
             }
         });
     }
-    $scope.getCboVoucherTypeLoanList();
+    $scope.getCboVoucherTypeInvestmentSetOffList();
 
     $scope.changeVoucherType = function (voucherTypeId) {
         var data = $.grep($scope.voucherTypeList, function (item) {
