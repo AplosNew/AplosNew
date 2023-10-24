@@ -309,7 +309,6 @@ function bankSettlementReconciliationController(commonMessage, $scope, $rootScop
     $scope.selectedDrUploadDataList = [];
     $scope.selectDRUploadData = function (x) {
         $scope.selectedDrUploadDataList.push(x.data);
-        $scope.selectedId = $scope.selectedDrUploadDataList[0].Id;
         $scope.hideDRUploadPopUp();
     };
     $scope.hideDRUploadPopUp = function () {
