@@ -724,7 +724,24 @@ Where PS.ProductionOrderId='" + poId + "'";
             }
         }
 
+        public IEnumerable<object> GetPOLotControlSettingData(string entityId,string PoId)
+        {
+            try
+            {
 
+                var sql = @"Select LC.Id,T.ProcessId,P.UserName Process,T.ProductionBookingLevel,LotNo=FORMAT(GETDATE(), 'yy')+''+FORMAT(GETDATE(), 'MM')
+from HKP.EntityProcessTag T
+LEFT JOIN HKP.Process P ON P.Id=T.ProcessId
+LEFT JOIN dbo.LotControl LC ON LC.EntityId=T.EntityId AND LC.ProductionOrderId='"+ PoId + @"'
+Where T.EntityId='" + entityId+@"'
+Order By T.ProductionBookingLevel";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
     }
 }
