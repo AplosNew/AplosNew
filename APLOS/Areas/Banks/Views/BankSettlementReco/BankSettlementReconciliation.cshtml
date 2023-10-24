@@ -94,42 +94,40 @@
                         </div>
                     </div>
                     <div class="clearfix"></div>
-                    <div class="col-xs-12 col-sm-8 col-md-8" ng-show="bankDrReconUploadedDataList.length">
-                        <div class="content-container-fluid" style="color:black;">
-                            <div style="color:black;" id="GridselectedDrReconUploadedDataList"
-                                 ej-grid e-datasource="selectedDrUploadDataList"
-                                 e-allowfiltering="true"
-                                 e-allowpaging="true"
-                                 e-gridlines="vertical" 
-                                 e-filtersettings-filterType="excel"
-                                 e-enabletouch="false"
-                                 e-allowresizing="true"
-                                 e-allowselection="false"
-                                 e-allowsorting="true">
-                                <div e-columns>
-                                    <div e-column e-field="Id" e-headertext="Id" e-width="30" e-textalign="center"></div>
-                                    <div e-column e-field="BankStatementDate" e-headertext="Date" e-width="30" e-textalign="center"></div>
-                                    <div e-column e-field="BankRefNo" e-headertext="Bank RefNo" e-width="50" e-textalign="center"></div>
-                                    <div e-column e-field="BankParticulars" e-headertext="Bank Particulars" e-width="50" e-textalign="center"></div>
-                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="DrAmount" e-headertext="Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
-                                </div>
-                            </div>
-                           
-                        </div>
-                    </div>
-                    <div class="col-xs-12 col-sm-4 col-md-4" ng-show="bankDrReconUploadedDataList.length">
-                        <div class="common-btn">
-                            <ul class="list-inline text-right">
-                                <li><a href="{{bootPoint}}bank-settle-customerAdvance/{{selectedId}}" class="btn btn-action">Settel By Advance & Reco</a></li>
-
-                            </ul>
+                    <div class="col-xs-12 col-sm-12 col-md-12" ng-show="bankDrReconUploadedDataList.length">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-responsive table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>BankStatementDate</th>
+                                        <th>BankRefNo</th>
+                                        <th>BankParticulars</th>
+                                        <th>Amount</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in selectedDrUploadDataList">
+                                        <td>{{x.Id}}</td>
+                                        <td>{{x.BankStatementDate |dateFiltering}}</td>
+                                        <td>{{x.BankRefNo}}</td>
+                                        <td>{{x.BankParticulars}}</td>
+                                        <td class="text-right">{{x.DrAmount | number:2}}</td>
+                                        <td class="text-right">
+                                            <ul class="list-inline text-right">
+                                                <li><a href="{{bootPoint}}bank-settle-customerAdvance/{{x.Id}}" class="btn btn-action">Settle By Advance</a></li>
+                                                <li><a href="{{bootPoint}}bank-settle-customerAdvance/{{x.Id}}" class="btn btn-action">Settle By Invoice</a></li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
                             <li> <button ng-click="DRREconcileReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download </button></li>
-                            <li><a href="{{bootPoint}}bank-settle-customerAdvance/20237963" class="btn btn-action">Settel & Reco</a></li>
-
                         </ul>
                     </div>
                 </div>

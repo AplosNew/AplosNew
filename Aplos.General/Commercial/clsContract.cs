@@ -1085,11 +1085,11 @@ LEFT JOIN HKP.TermsAndConditions TC ON TC.Id=CT.TermsAndConditionsId
             {
 
                 var sql = @"SELECT ES.*,E.Code,E.UserName,P.UserName Plant,D.UserName Division,SD.UserName SubDivision,U.UserName Unit,FORMAT(E.EffectiveDate,'dd-MMM-yyyy')EffectiveDate FROM dbo.GoodWorkEntitySetup ES
-LEFT JOIN ORG.Entity E  ON E.Id=ES.EntityId
-LEFT JOIN ORG.Division D ON D.Id=E.DivisionId
-LEFT JOIN ORG.SubDivision SD ON SD.Id=E.SubDivisionId
-LEFT JOIN ORG.Unit U ON U.Id=E.UnitId
-LEFT JOIN ORG.Plant P ON P.Id=E.PlantId where  GoodWorkSetupId='" + goodWorkSetupId + "'";
+                    LEFT JOIN ORG.Entity E  ON E.Id=ES.EntityId
+                    LEFT JOIN ORG.Division D ON D.Id=E.DivisionId
+                    LEFT JOIN ORG.SubDivision SD ON SD.Id=E.SubDivisionId
+                    LEFT JOIN ORG.Unit U ON U.Id=E.UnitId
+                    LEFT JOIN ORG.Plant P ON P.Id=E.PlantId where  GoodWorkSetupId='" + goodWorkSetupId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1098,8 +1098,88 @@ LEFT JOIN ORG.Plant P ON P.Id=E.PlantId where  GoodWorkSetupId='" + goodWorkSetu
             }
         }
 
+        public IEnumerable<object> GetGoodWorkBudgetCodeSetupData(string goodWorkSetupId)
+        {
+            try
+            {
 
+                var sql = @"SELECT GWB.*,E.Id EntityId,E.UserName Entity,MB.IsOTEntitled,D.Id DivisionId,D.UserName Division,DP.Id DepartmentId
+					,DP.UserName Department,S.Id SectionId,S.UserName Section,SS.Id SubSectionId,SS.UserName SubSection
+					,DE.Id DesignationId,DE.UserName Designation,P.Activity,P.UserReportGroup UserGroup,PR.Id ProcessId
+					,PR.UserName Process,EC.UserName EmployeeType
+					FROM dbo.GoodWorkSetup GWS
+					left join dbo.GoodWorkBudgetSetup GWB on GWB.GoodWorkSetUpId=GWS.Id
+					left join mst.ManpowerBudget MB on MB.Id=GWB.BudgetId
+                    LEFT JOIN ORG.Position P ON P.Id=MB.PositionId
+					LEFT JOIN ORG.Entity E  ON E.Id=MB.EntityId
+                    LEFT JOIN ORG.Division D ON D.Id=P.DivisionId
+                    LEFT JOIN ORG.Department DP ON DP.Id=P.DepartmentId
+                    LEFT JOIN ORG.Section S ON S.Id=P.SectionId                    
+                    LEFT JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId                    
+					LEFT JOIN hkp.Designation DE ON DE.Id=P.DesignationId					
+					LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=DE.Id					
+					LEFT JOIN hkp.EmployeeCategory EC ON EC.Id=DM.EmployeeCategoryId				
+					LEFT JOIN hkp.Process PR ON PR.Id=P.ProcessId 
+                    where  GoodWorkSetupId='" + goodWorkSetupId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
+        public IEnumerable<object> GetGoodWorkAuthorityData(string goodWorkSetupId)
+        {
+            try
+            {
+                var sql = @"SELECT GWA.*,ei.SystemId EmployeeId,ei.EmployeeCode,ei.EmployeeName,C.Id CompanyId,C.UserName Company
+                    ,P.Id PlantId,P.UserName Plant,LDEG.Id DesignationId,LDEG.UserName Designation,DP.Id DepartmentId
+                    ,DP.UserName Department,S.Id SectionId,S.UserName Section,SS.Id SubSectionId,SS.UserName SubSection
+                    ,L.Id LineId,L.UserName Line
+                    FROM dbo.GoodWorkAuthoritySetUp GWA
+                    left join EmployeeInformation ei on ei.SystemId=GWA.AuthorityId
+                    left join org.Company C on C.Id=ei.CompanyId
+                    left join org.Plant P on P.Id=ei.PlantId
+                    LEFT JOIN HKP.LegalDesignation LDEG ON ei.LegalDesignationId=LDEG.Id
+                    LEFT JOIN ORG.Department DP ON DP.Id=ei.DepartmentId
+                    LEFT JOIN ORG.Section S ON S.Id=ei.SectionId                    
+                    LEFT JOIN ORG.SubSection SS ON SS.Id=ei.SubSectionId 
+                    LEFT JOIN ORG.Line L on L.Id=ei.LineId
+                    where  GoodWorkSetupId='" + goodWorkSetupId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetGoodWorkCheckByData(string goodWorkSetupId)
+        {
+            try
+            {
+                var sql = @"SELECT GWC.*,ei.SystemId EmployeeId,ei.EmployeeCode,ei.EmployeeName,C.Id CompanyId,C.UserName Company
+                    ,P.Id PlantId,P.UserName Plant,LDEG.Id DesignationId,LDEG.UserName Designation,DP.Id DepartmentId
+                    ,DP.UserName Department,S.Id SectionId,S.UserName Section,SS.Id SubSectionId,SS.UserName SubSection
+                    ,L.Id LineId,L.UserName Line
+                    FROM dbo.GoodWorkCheckBySetUp GWC
+                    left join EmployeeInformation ei on ei.SystemId=GWC.CheckById
+                    left join org.Company C on C.Id=ei.CompanyId
+                    left join org.Plant P on P.Id=ei.PlantId
+                    LEFT JOIN HKP.LegalDesignation LDEG ON ei.LegalDesignationId=LDEG.Id
+                    LEFT JOIN ORG.Department DP ON DP.Id=ei.DepartmentId
+                    LEFT JOIN ORG.Section S ON S.Id=ei.SectionId                    
+                    LEFT JOIN ORG.SubSection SS ON SS.Id=ei.SubSectionId 
+                    LEFT JOIN ORG.Line L on L.Id=ei.LineId
+                    where  GoodWorkSetupId='" + goodWorkSetupId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
     }
 }
