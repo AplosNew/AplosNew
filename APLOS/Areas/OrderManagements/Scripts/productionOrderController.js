@@ -389,7 +389,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         , Remarks: null
         , color: '#ffffff'
         , IsPreDefineLotApplicable: false
-        , UserDefineLotNo:null
+        , UserDefineLotNo: null
     };
     $scope.model = Object.assign({}, $scope.model);
 
@@ -4245,7 +4245,8 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     $scope.GetPOLotControlData = function () {
         var inc = 0;
         var incvalue = 0;
-
+        var moid = null;
+        var soid = null;
         var moinc = 0;
         var moincvalue = 0;
         var soinc = 0;
@@ -4282,7 +4283,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
 
                 if ($scope.lotControlList[i].ProductionBookingLevel == 'MasterOrderItem') {
-                    if (i == 0) {
+                    if (moid != $scope.lotControlList[i].MasterOrderItemId) {
                         moinc++;
                         moincvalue = moinc;
                         $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo + '-' + moincvalue;
@@ -4297,8 +4298,26 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
 
                     } else {
-                        $scope.lotControlList[i].LotNo = gr;
-                        $scope.lotControlList[i].UserLotNo = ugr;
+                        //$scope.lotControlList[i].LotNo = gr;
+                        //$scope.lotControlList[i].UserLotNo = ugr;
+
+                        if (moinc == 0) {
+                            moinc++;
+                            moincvalue = moinc;
+                            $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo + '-' + moincvalue;
+                            gr = $scope.lotControlList[i].LotNo;
+                            ugr = $scope.lotControlList[i].LotNo;
+                            if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
+                                $scope.lotControlList[i].UserLotNo = gr;
+                            } else {
+                                $scope.lotControlList[i].UserLotNo = $scope.model.UserDefineLotNo + '-' + moincvalue;
+                                ugr = $scope.lotControlList[i].UserLotNo;
+                            }
+                        }
+                        else {
+                            $scope.lotControlList[i].LotNo = gr;
+                            $scope.lotControlList[i].UserLotNo = ugr;
+                        }
                     }
 
                 }
@@ -4307,18 +4326,28 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                     soinc++;
                     soincvalue = soinc;
                     $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo + '-S' + soincvalue;
-
+                    if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
+                        $scope.lotControlList[i].UserLotNo = $scope.lotControlList[i].LotNo;
+                    }
+                    else {
+                        $scope.lotControlList[i].UserLotNo = $scope.model.UserDefineLotNo;
+                    }
                 }
 
                 if ($scope.lotControlList[i].ProductionBookingLevel == 'ProductionOrder') {
-                    $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo
+                    if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
+                        $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo;
+                        $scope.lotControlList[i].UserLotNo = $scope.lotControlList[i].LotNo;
+                    } else {
+                        $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo;
+                        $scope.lotControlList[i].UserLotNo = $scope.model.UserDefineLotNo;
+                    }
                 }
 
 
-
-
-
-
+                if (!baseService.isUndefinedOrNull($scope.lotControlList[i].MasterOrderItemId)) {
+                    moid = $scope.lotControlList[i].MasterOrderItemId;
+                }
 
 
             }
