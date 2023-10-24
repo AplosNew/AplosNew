@@ -51,6 +51,8 @@ upanelApp.controller("bankReconciliationDataUploadController", bankReconciliatio
 upanelApp.controller("bankReconciliationDataUploadReconciledController", bankReconciliationDataUploadReconciledController);
 upanelApp.controller("bankSettlementReconciliationController", bankSettlementReconciliationController);
 upanelApp.controller("BankSettlementCustomerAdvanceController", BankSettlementCustomerAdvanceController);
+upanelApp.controller("bankSettlementCustomerReceiptController", bankSettlementCustomerReceiptController);
+upanelApp.controller("bankSettlementJournalController", bankSettlementJournalController);
 upanelApp.controller("baseAttributeAndCharacteristicsValueController", baseAttributeAndCharacteristicsValueController);
 upanelApp.controller("baseInvoiceController", baseInvoiceController);
 upanelApp.controller("incentiveController", incentiveController);

@@ -2012,6 +2012,7 @@
     <Content Include="Areas\Attendances\Scripts\attendanceBonusPolicyController.js" />
     <Content Include="Areas\Attendances\Scripts\shiftTimeChangeController.js" />
     <Content Include="Areas\Attendances\Scripts\SandwichProcessController.js" />
+    <Content Include="Areas\Banks\Scripts\bankSettlementJournalController.js" />
     <Content Include="Areas\Banks\Scripts\bankReconciliationClosingController.js" />
     <Content Include="Areas\Banks\Scripts\bankSettlementReconciliationController.js" />
     <Content Include="Areas\Banks\Scripts\bankReconciliationDataUploadReconciledController.js" />
@@ -2022,6 +2023,7 @@
     <Content Include="Areas\Attendances\Scripts\OTManagementController.js" />
     <Content Include="Areas\Banks\Scripts\cashReceiptPaymentReportController.js" />
     <Content Include="Areas\Banks\Scripts\BankSettlementCustomerAdvanceController.js" />
+    <Content Include="Areas\Banks\Scripts\bankSettlementCustomerReceiptController.js" />
     <Content Include="Areas\Banks\Scripts\postDateChequeController.js" />
     <Content Include="Areas\Banks\Scripts\checkManagementReportController.js" />
     <Content Include="Areas\Banks\Scripts\checkVoidController.js" />
@@ -4832,6 +4834,8 @@
     <Content Include="Areas\Accounts\Views\InvestmentSettelment.cshtml" />
     <Content Include="Areas\Accounts\Views\Loan\_InvestmentListPopUp.cshtml" />
     <Content Include="Areas\Banks\Views\BankSettlementReco\BankSettlementCustomerAdvance.cshtml" />
+    <Content Include="Areas\Banks\Views\BankSettlementReco\BankSettlementCustomerReceipt.cshtml" />
+    <Content Include="Areas\Banks\Views\BankSettlementReco\BankSettlementJournal.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
