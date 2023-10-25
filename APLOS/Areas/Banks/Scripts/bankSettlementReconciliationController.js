@@ -314,30 +314,20 @@ function bankSettlementReconciliationController(commonMessage, $scope, $rootScop
     $scope.hideDRUploadPopUp = function () {
         angular.element(document.querySelector('#drUploadPopUp')).modal('hide');
     }
-    //$scope.bankDrUploadedDataTempList = [];
-    //$scope.listMergebankDrUploadedDataTempList = function (event, data) {
-    //    try {
-    //        if (event.currentTarget.checked) {
-    //            $scope.bankDrUploadedDataTempList.push({
-    //                BankReconciliationUploadedDataId: data.Id
-    //                , VoucherDetailId: ""
-    //                , GLTransactionDetailId: ""
-    //            })
-    //        }
-    //        else {
-    //            var i = $scope.bankDrUploadedDataTempList.length;
-    //            while (i--) {
-    //                if ($scope.bankDrUploadedDataTempList[i]["BankReconciliationUploadedDataId"] === data.Id) {
-    //                    $scope.bankDrUploadedDataTempList.splice(i, 1);
-    //                }
-    //            }
-    //        }
 
+    $scope.showCRUploadPopUp = function () {
+        angular.element(document.querySelector('#crUploadPopUp')).modal('show');
+    }
 
-    //    } catch (e) {
-    //        ShowResult(e, "failure");
-    //    }
-    //}
+    $scope.selectedCrUploadDataList = [];
+    $scope.selectCRUploadData = function (x) {
+        $scope.selectedCrUploadDataList.push(x.data);
+        $scope.hideCRUploadPopUp();
+    };
+    $scope.hideCRUploadPopUp = function () {
+        angular.element(document.querySelector('#crUploadPopUp')).modal('hide');
+    }
+
     $scope.TempList = [];
     $scope.listMergeTempList = function () {
         try {

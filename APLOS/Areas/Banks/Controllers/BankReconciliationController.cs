@@ -544,12 +544,28 @@ namespace Aplos.Areas.Banks.Controllers
         {
             return View("~/Areas/Banks/Views/BankSettlementReco/BankSettlementCustomerAdvance.cshtml"); 
         }
-
+        [Authorize]
+        public ActionResult BankSettlementCustomerReceipt()
+        {
+            return View("~/Areas/Banks/Views/BankSettlementReco/BankSettlementCustomerReceipt.cshtml");
+        }
+        [Authorize]
+        public ActionResult BankSettlementJournal()
+        {
+            return View("~/Areas/Banks/Views/BankSettlementReco/BankSettlementJournal.cshtml");
+        }
         [Authorize, HttpPost]
         public ActionResult GetBankUploadInfoById(string id)
         {
             AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
             return Json(accountsBankReconcilliationService.GetBankUploadInfoById(id), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetBankDrUploadInfoById(string id)
+        {
+            AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+            return Json(accountsBankReconcilliationService.GetBankDrUploadInfoById(id), JsonRequestBehavior.AllowGet);
         }
         #endregion
     }
