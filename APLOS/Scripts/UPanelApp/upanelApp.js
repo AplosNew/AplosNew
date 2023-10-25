@@ -1228,6 +1228,7 @@ upanelApp.controller("GoodWorkSetupController", GoodWorkSetupController)
 upanelApp.controller("ServiceAcknowledgementController", ServiceAcknowledgementController)
 upanelApp.controller("InvestmentSettelmentController", InvestmentSettelmentController)
 upanelApp.controller("LotControlController", LotControlController)
+upanelApp.controller("VehicleReportController", VehicleReportController)
 
 
 

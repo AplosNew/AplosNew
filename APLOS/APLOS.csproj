@@ -2120,6 +2120,7 @@
     <Content Include="Areas\HumanResource\Scripts\VehicleInOutController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleMovementController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleMovementRequisitionController.js" />
+    <Content Include="Areas\HumanResource\Scripts\VehicleReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleReqForApproveController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleTripController.js" />
     <Content Include="Areas\IE\Scripts\WorkcenterWiseDetentionController.js" />
@@ -4839,6 +4840,7 @@
     <Content Include="Areas\Banks\Views\BankSettlementReco\BankSettlementCustomerAdvance.cshtml" />
     <Content Include="Areas\Banks\Views\BankSettlementReco\BankSettlementCustomerReceipt.cshtml" />
     <Content Include="Areas\Banks\Views\BankSettlementReco\BankSettlementJournal.cshtml" />
+    <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\Vehiclereport.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
