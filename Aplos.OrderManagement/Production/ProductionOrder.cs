@@ -607,5 +607,141 @@ from trn.ProductionOrderDetail AS pod JOIN  trn.SalesOrder SO ON pod.SalesOrderI
                 throw ex;
             }
         }
+
+        public IEnumerable<object> GetPOLotControlData(string poId, string entityId)
+        {
+            try
+            {
+
+                var sql = @"SELECT DISTINCT ISNULL(LP.Id,P.Id) ProcessId,LC.Id,ISNULL(LP.UserName,P.UserName) Process
+,EP.ProductionBookingLevel,PS.ProductionOrderId
+,MasterOrderItemId=CASE WHEN (EP.ProductionBookingLevel='MasterOrderItem' OR EP.ProductionBookingLevel='SalesOrder') THEN ISNULL(LC.MasterOrderItemId,MOI.Id) ELSE NULL END
+,SalesOrderId=CASE WHEN (EP.ProductionBookingLevel='MasterOrderItem' OR EP.ProductionBookingLevel='ProductionOrder'  OR EP.ProductionBookingLevel IS NULL) THEN NULL ELSE ISNULL(LC.SalesOrderId,SO.Id) END
+,LotNo=FORMAT(GETDATE(), 'yy')+''+FORMAT(GETDATE(), 'MM')+''+PO.Id
+,UserLotNo=FORMAT(GETDATE(), 'yy')+''+FORMAT(GETDATE(), 'MM')+''+PO.Id
+
+,LotQty=CASE WHEN EP.ProductionBookingLevel='MasterOrderItem' THEN MOI.TotalQty 
+		 WHEN EP.ProductionBookingLevel='SalesOrder' THEN SO.Qty 
+		ELSE PO.Qty END
+
+,OrderQty=CASE WHEN EP.ProductionBookingLevel='MasterOrderItem' THEN 
+					(Select SUM(TotalQty)Qty From TRN.MasterOrderItem A
+					LEFT JOIN TRN.SalesOrder B ON B.MasterOrderItemId=A.Id
+					LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+					Where C.ProductionOrderId=PO.Id
+					Group By C.ProductionOrderId)
+
+		 WHEN EP.ProductionBookingLevel='SalesOrder' THEN 
+				(Select SUM(Qty)Qty From TRN.SalesOrder B 
+				LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+				Where C.ProductionOrderId=PO.Id
+				Group By C.ProductionOrderId)
+
+				ELSE (Select SUM(Qty)Qty From TRN.SalesOrder B 
+				LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+				Where C.ProductionOrderId=PO.Id
+				Group By C.ProductionOrderId) END
+
+,PlanQty=(Select SUM((isnull(B.qty, 0) * (1 + (isnull(A.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(A.OrderWastagePercentage, 0)))) From TRN.MasterOrderItem A
+					LEFT JOIN TRN.SalesOrder B ON B.MasterOrderItemId=A.Id
+					LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+					Where C.ProductionOrderId=PO.Id
+					Group By C.ProductionOrderId)
+
+		
+,SchedulePercentage=CONVERT(decimal(18,2), PO.Qty/(
+CASE WHEN EP.ProductionBookingLevel='MasterOrderItem' THEN 
+					(Select SUM(TotalQty)Qty From TRN.MasterOrderItem A
+					LEFT JOIN TRN.SalesOrder B ON B.MasterOrderItemId=A.Id
+					LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+					Where C.ProductionOrderId=PO.Id
+					Group By C.ProductionOrderId)
+
+		 WHEN EP.ProductionBookingLevel='SalesOrder' THEN 
+				(Select SUM(Qty)Qty From TRN.SalesOrder B 
+				LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+				Where C.ProductionOrderId=PO.Id
+				Group By C.ProductionOrderId)
+
+				ELSE (Select SUM(Qty)Qty From TRN.SalesOrder B 
+				LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+				Where C.ProductionOrderId=PO.Id
+				Group By C.ProductionOrderId) END
+))
+
+,ProcessPlanQty=CONVERT(decimal(18,2),((CASE WHEN EP.ProductionBookingLevel='MasterOrderItem' THEN 
+					(Select SUM(TotalQty)Qty From TRN.MasterOrderItem A
+					LEFT JOIN TRN.SalesOrder B ON B.MasterOrderItemId=A.Id
+					LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+					Where C.ProductionOrderId=PO.Id
+					Group By C.ProductionOrderId)
+
+		 WHEN EP.ProductionBookingLevel='SalesOrder' THEN 
+				(Select SUM(Qty)Qty From TRN.SalesOrder B 
+				LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+				Where C.ProductionOrderId=PO.Id
+				Group By C.ProductionOrderId)
+
+				ELSE (Select SUM(Qty)Qty From TRN.SalesOrder B 
+				LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+				Where C.ProductionOrderId=PO.Id
+				Group By C.ProductionOrderId) END)*(CONVERT(decimal(18,2), PO.Qty/(
+CASE WHEN EP.ProductionBookingLevel='MasterOrderItem' THEN 
+					(Select SUM(TotalQty)Qty From TRN.MasterOrderItem A
+					LEFT JOIN TRN.SalesOrder B ON B.MasterOrderItemId=A.Id
+					LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+					Where C.ProductionOrderId=PO.Id
+					Group By C.ProductionOrderId)
+
+		 WHEN EP.ProductionBookingLevel='SalesOrder' THEN 
+				(Select SUM(Qty)Qty From TRN.SalesOrder B 
+				LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+				Where C.ProductionOrderId=PO.Id
+				Group By C.ProductionOrderId)
+
+				ELSE (Select SUM(Qty)Qty From TRN.SalesOrder B 
+				LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+				Where C.ProductionOrderId=PO.Id
+				Group By C.ProductionOrderId) END
+)))/(100-(PS.Qty-100))*100))
+
+,LC.Remark,RANK() OVER(PARTITION BY moi.Id ORDER BY moi.Id DESC) Rank
+FROM TRN.ProductionOrderProcessSet PS
+LEFT JOIN [dbo].[ProductionOrderLotControl] LC ON LC.ProductionOrderId=PS.ProductionOrderId AND PS.ProcessId=LC.ProcessId
+LEFT JOIN HKP.Process P ON P.Id=PS.ProcessId
+LEFT JOIN HKP.Process LP ON LP.Id=LC.ProcessId
+LEFT JOIN [HKP].[EntityProcessTag] EP ON EP.ProcessId=PS.ProcessId AND EP.EntityId='" + entityId + @"'
+LEFT JOIN TRN.ProductionOrder PO ON PO.Id=PS.ProductionOrderId
+LEFT JOIN TRN.ProductionOrderDetail POD ON POD.ProductionOrderId=PO.Id
+LEFT JOIN TRN.SalesOrder SO ON SO.Id=POD.SalesOrderId
+LEFT JOIN TRN.[MasterOrderItem] MOI ON SO.MasterOrderItemId=moi.Id
+Where PS.ProductionOrderId='" + poId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetPOLotControlSettingData(string entityId,string PoId)
+        {
+            try
+            {
+
+                var sql = @"Select LC.Id,T.ProcessId,P.UserName Process,T.ProductionBookingLevel,LotNo=FORMAT(GETDATE(), 'yy')+''+FORMAT(GETDATE(), 'MM')
+from HKP.EntityProcessTag T
+LEFT JOIN HKP.Process P ON P.Id=T.ProcessId
+LEFT JOIN dbo.LotControl LC ON LC.EntityId=T.EntityId AND LC.ProductionOrderId='"+ PoId + @"'
+Where T.EntityId='" + entityId+@"'
+Order By T.ProductionBookingLevel";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }

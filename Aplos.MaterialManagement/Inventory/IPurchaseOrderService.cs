@@ -190,6 +190,7 @@ namespace Library.MaterialManagement.Inventory
 		#region servive ack
 
 		void InsertServiceAck(ServiceAcknowledgementMaster entity, IEnumerable<ServiceAcknowledgementViewModel> DetailList,IEnumerable<ServicePOAckTax> ServicePOAndAckTax);
+		void InsertIndependentServiceAck(ServiceAcknowledgementMaster entity);
 		void ServiceAcknowledgementReport(string CompanyGroupId, string plantId, string SurviceAckId);
 
 		//void ServiceAcknowledgementReport(string CompanyGroupId, string plantId, string purchaseOrderId);

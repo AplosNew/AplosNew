@@ -402,7 +402,8 @@ namespace Library.Accounting.Accounts
                         DocRefNo = voucher.DocRefNo,
                         Narration = voucher.Narration,
                         PartyType = PartyType.Bank.ToString(),
-                        BankJournalDetailId= bankJournalDetail.Id
+                        BankMasterId = QryVoucherDetail.Rows[0]["BankMasterId"].ToString(),
+                        BankJournalDetailId = bankJournalDetail.Id
                     };
                     currentVoucherDetaiRecord++;
                     _accountsCommonService.InsertVoucherDetail(voucher, voucherDr, currentVoucherDetaiRecord, ref _drvDetailData);
@@ -502,6 +503,7 @@ namespace Library.Accounting.Accounts
                         DocRefNo = voucher.DocRefNo,
                         Narration = voucher.Narration,
                         PartyType = PartyType.Bank.ToString(),
+                        BankMasterId = QryVoucherDetail.Rows[0]["BankMasterId"].ToString(),
                         BankJournalDetailId = bankJournalDetail.Id
                     };
                     currentVoucherDetaiRecord++;

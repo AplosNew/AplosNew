@@ -35,6 +35,8 @@ namespace Library.Model.OrderManagements
         //public decimal ProductionPriority { get; set; } = 0;
         public string Remarks { get; set; }
         public string RequiredTimeUnit { get; set; }
+        public string UserDefineLotNo { get; set; }
+        public bool IsPreDefineLotApplicable { get; set; }
         //public string ProductionStage { get; set; }
         //public string color { get; set; } = "#ffffff";
         #endregion Scalar Properties

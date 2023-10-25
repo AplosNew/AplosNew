@@ -45,7 +45,7 @@ namespace Aplos.Areas.QMS.Controllers
         #region -- Operations
 
         [HttpGet, Authorize]
-        public ActionResult LoadParameterSettingControl()
+        public ActionResult LoadParameterSettingControl(string FromDate, string ToDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string
@@ -66,7 +66,8 @@ left join [HKP].[Party] Xp on XP.Id=MO.PartyId
 left join hkp.CompanyParty CP on CP.PartyId=XP.Id and CP.PartyType='Customer'
 left join hkp.PartyAccountGroup PAG on PAG.Id=CP.PartyAccountGroupId
 left join TRN.CustomerUpdateParameter CUP on CUP.Id=MOI.CustomerParameterId
-where SO.OrderStatusId in ('Active','Toship','ToClose') and MOI.ParameterSettingId is null";
+where SO.OrderStatusId in ('Active','Toship','ToClose') and MOI.ParameterSettingId is null
+and format(MOI.AddedDate,'dd-MMM-yyyy') between '"+ FromDate +"' and '"+ ToDate +"'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 

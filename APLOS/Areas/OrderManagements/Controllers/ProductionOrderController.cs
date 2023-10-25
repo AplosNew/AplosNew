@@ -2440,6 +2440,79 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
 
         //tarek 
 
+        [HttpGet, Authorize]
+        public JsonResult GetPOLotControlData(string poId, string entityId)
+        {
+            try
+            {
+                Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+                return Json(order.GetPOLotControlData(poId, entityId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateLotControl(List<Dictionary<string, object>> data, string poId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            bplib.clsGenID genid = new bplib.clsGenID();
+            DataSet dsEntity;
+            string _Id = string.Empty;
+            int c = 0;
+            try
+            {
+                if (string.IsNullOrEmpty(poId))
+                {
+                    throw new CustomException("Select Production Order.");
+                }
+                #region Entity 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionOrderLotControl where  ProductionOrderId='" + poId + "'", out dsEntity, false, "1");
+                if (data != null)
+                {
+                    genid.GenID("ProductionOrderLotControl", out _Id);
+                    foreach (var item in data)
+                    {
+                        c++;
+                        DataView dv = new DataView(dsEntity.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = poId + "-" + _Id + "-" + c;
+                            item["ProductionOrderId"] = poId;
+
+                            AddNewRow(dsEntity.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsEntity);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+
     }
 
     public class MultiCode

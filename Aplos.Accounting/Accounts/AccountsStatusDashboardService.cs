@@ -52,7 +52,7 @@ namespace Library.Accounting.Accounts
                 searchDateODue = "AND ( convert(Date,I.PostingDate) <= '" + toDate + @"' )";
             }
 
-            var sql = @"SELECT count(X.NoOfInvoice) NoOfInvoice,convert(bit,0) AS isSelected,x.PartyNature,x.PartyGroup,X.PartyId,X.PartyName,x.CurrencyCode
+            var sql = @"SELECT count(X.NoOfInvoice) NoOfInvoice,convert(bit,0) AS isSelected,x.PartyNature,x.PartyGroup,x.PartyCategory,x.PartySubCategory,x.ResponsiblePerson,X.PartyId,X.PartyName,x.CurrencyCode
                 , ISNULL((SELECT sum(VDCA.DrAmount) -sum(ISNULL(AW.AdvanceWriteOffBooksAmount,0)) FROM TRN.Advance A
 					INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
 					INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
@@ -87,7 +87,7 @@ namespace Library.Accounting.Accounts
 				, SUM(X.Gross) Gross 
 				,SUM(X.SetOff) SetOff
 				,SUM(X.Balance) Balance
-                ,ABS(SUM(X.ActualBalance) -ISNULL((SELECT sum(VDCA.DrAmount) -sum(ISNULL(AW.AdvanceWriteOffBooksAmount,0)) FROM TRN.Advance A
+                ,SUM(X.ActualBalance) -ISNULL((SELECT sum(VDCA.DrAmount) -sum(ISNULL(AW.AdvanceWriteOffBooksAmount,0)) FROM TRN.Advance A
 					INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
 					INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
 				    INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCA ON VDCA.VoucherDetailId=VDA.Id
@@ -106,8 +106,8 @@ namespace Library.Accounting.Accounts
 										 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
 										where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
 										GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=AD.AdjustmentNoteId
-					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and A.SourceType in('DebitNote','InventoryReturnPayable') AND A.IsPark=0  group by A.PartyId ),0))ActualBalance
-				,ABS(SUM(X.Balance)-ISNULL((SELECT sum(VDCA.DrAmount) -sum(ISNULL(AW.AdvanceWriteOffBooksAmount,0)) FROM TRN.Advance A
+					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and A.SourceType in('DebitNote','InventoryReturnPayable') AND A.IsPark=0  group by A.PartyId ),0)ActualBalance
+				,SUM(X.Balance)-ISNULL((SELECT sum(VDCA.DrAmount) -sum(ISNULL(AW.AdvanceWriteOffBooksAmount,0)) FROM TRN.Advance A
 					INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
 					INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
 				    INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCA ON VDCA.VoucherDetailId=VDA.Id
@@ -126,8 +126,8 @@ namespace Library.Accounting.Accounts
 										 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
 										where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
 										GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=AD.AdjustmentNoteId
-					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and A.SourceType in('DebitNote','InventoryReturnPayable') AND A.IsPark=0  group by A.PartyId ),0)) NetBalance
-                ,ISNULL((SELECT  ABS(SUM(ISNULL(CC.CompanyCurrencyDrAmount, 0)) - SUM(ISNULL(CC.CompanyCurrencyCrAmount, 0))) AS LedgerBalanceAmount
+					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and A.SourceType in('DebitNote','InventoryReturnPayable') AND A.IsPark=0  group by A.PartyId ),0) NetBalance
+                ,ISNULL((SELECT  round(SUM(ISNULL(CC.CompanyCurrencyCrAmount, 0)) - SUM(ISNULL(CC.CompanyCurrencyDrAmount, 0)),2) AS LedgerBalanceAmount
                     FROM [TRN].[VoucherDetail] AS VD
                     LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                     LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
@@ -159,7 +159,7 @@ namespace Library.Accounting.Accounts
                 ,SUM(x.TaxAmount)TaxAmount
                 ,CASE WHEN (SELECT COUNT(Id) FROM HKP.CompanyParty WHERE PartyId=X.PartyId AND PartyType='Customer')>0 THEN 'Yes' ELSE 'No' END IsCustomer
                 FROM (
-                SELECT IV.PartyId NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,IV.PartyId,P.Code PartyCode,P.UserName PartyName,c.Code CurrencyCode
+                SELECT IV.PartyId NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,IV.PartyId,P.Code PartyCode,P.UserName PartyName,c.Code CurrencyCode
                  , ISNULL(IVD.InvoiceBooksAmount,0) AS Gross
 				, ISNULL(IVD.SetOffBooksAmount ,0) AS SetOff
 				, ISNULL(IVD.InvoiceBooksAmount-IVD.SetOffBooksAmount,0) AS Balance
@@ -211,6 +211,9 @@ namespace Library.Accounting.Accounts
                         ) DIWD ON DIWD.InvoiceId=IV.Id
                 LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
@@ -262,7 +265,7 @@ namespace Library.Accounting.Accounts
                AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
                 AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
                 UNION ALL
-                SELECT  IV.PartyId NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,IV.PartyId,P.Code PartyCode,P.UserName PartyName,c.Code CurrencyCode
+                SELECT  IV.PartyId NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,IV.PartyId,P.Code PartyCode,P.UserName PartyName,c.Code CurrencyCode
 				, ISNULL(IVD.InvoiceBooksAmount,0) AS Gross,
                   ISNULL(IVD.SetOffBooksAmount ,0) AS SetOff
 				 , ISNULL(IVD.InvoiceBooksAmount-IVD.SetOffBooksAmount,0) AS Balance
@@ -315,6 +318,9 @@ namespace Library.Accounting.Accounts
                         ) DIWD ON DIWD.InvoiceId=IV.Id
                 LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
@@ -360,7 +366,7 @@ namespace Library.Accounting.Accounts
                  and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
 
                 union all
-				 SELECT IV.PartyId NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,IV.PartyId,P.Code PartyCode,P.UserName PartyName,c.Code CurrencyCode
+				 SELECT IV.PartyId NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,IV.PartyId,P.Code PartyCode,P.UserName PartyName,c.Code CurrencyCode
                  ,ISNULL(IVD.Amount,0) AS Gross
 				, ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)  AS SetOff
 				, ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)  AS Balance
@@ -382,6 +388,9 @@ namespace Library.Accounting.Accounts
                 LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
                 LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
                 LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=IVD.Id
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
@@ -451,7 +460,7 @@ namespace Library.Accounting.Accounts
 				)
                 X
 				--where x.PartyCode='2020100'
-                GROUP BY PartyNature,PartyGroup,PartyId,PartyName,CurrencyCode
+                GROUP BY PartyNature,PartyGroup,PartyCategory,PartySubCategory,ResponsiblePerson,PartyId,PartyName,CurrencyCode
                 order by x.PartyNature,x.PartyGroup,x.PartyName";
             return _sqlRepository.GetDataCollection(sql);
 
@@ -479,6 +488,21 @@ namespace Library.Accounting.Accounts
 
                 worksheet[ROW, COL].Text = "Party Group";
                 int colPartyGroup = COL;
+                worksheet[ROW, COL].ColumnWidth = 12;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Party Category";
+                int colPartyCategory = COL;
+                worksheet[ROW, COL].ColumnWidth = 12;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Party Sub Category";
+                int colPartySubCategory = COL;
+                worksheet[ROW, COL].ColumnWidth = 12;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Responsible Person";
+                int colResponsiblePerson = COL;
                 worksheet[ROW, COL].ColumnWidth = 12;
                 COL++;
 
@@ -672,6 +696,9 @@ namespace Library.Accounting.Accounts
                     worksheet[ROW, colNoOfInvoice].Number = clsStaticInfo.dbl(dt.Rows[i]["NoOfInvoice"].ToString());
                     worksheet[ROW, colPartyNature].Text = dt.Rows[i]["PartyNature"].ToString();
                     worksheet[ROW, colPartyGroup].Text = dt.Rows[i]["PartyGroup"].ToString();
+                    worksheet[ROW, colPartyCategory].Text = dt.Rows[i]["PartyCategory"].ToString();
+                    worksheet[ROW, colPartySubCategory].Text = dt.Rows[i]["PartySubCategory"].ToString();
+                    worksheet[ROW, colResponsiblePerson].Text = dt.Rows[i]["ResponsiblePerson"].ToString();
                     worksheet[ROW, colPartyCode].Text = dt.Rows[i]["PartyId"].ToString();
                     worksheet[ROW, colPartyName].Text = dt.Rows[i]["PartyName"].ToString();
                     worksheet[ROW, colAdvance].Number = clsStaticInfo.dbl(dt.Rows[i]["Advance"].ToString());
@@ -828,6 +855,9 @@ namespace Library.Accounting.Accounts
                 int startRow2 = ROW2;
                 sheet2[ROW2, COL2].Text = "Party Nature"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartyNature2 = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "Party Group"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartyGroup2 = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Party Category"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartyCategory2 = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Party Sub Category"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartySubCategory2 = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Responsible Person"; sheet2[ROW2, COL2].ColumnWidth = 10; int colResponsiblePerson2 = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "Party Id"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartyId2 = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "Party Name"; sheet2[ROW2, COL2].ColumnWidth = 25; int colPartyName2 = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "Voucher Type"; sheet2[ROW2, COL2].ColumnWidth = 14; int colVoucherType = COL2; COL2++;
@@ -853,6 +883,9 @@ namespace Library.Accounting.Accounts
                 {
                     sheet2[ROW2, colPartyNature2].Text = dtPending.Rows[i]["PartyNature"].ToString();
                     sheet2[ROW2, colPartyGroup2].Text = dtPending.Rows[i]["PartyGroup"].ToString();
+                    sheet2[ROW2, colPartyCategory2].Text = dtPending.Rows[i]["PartyCategory"].ToString();
+                    sheet2[ROW2, colPartySubCategory2].Text = dtPending.Rows[i]["PartySubCategory"].ToString();
+                    sheet2[ROW2, colResponsiblePerson2].Text = dtPending.Rows[i]["ResponsiblePerson"].ToString();
                     sheet2[ROW2, colPartyId2].Text = dtPending.Rows[i]["PartyId"].ToString();
                     sheet2[ROW2, colPartyName2].Text = dtPending.Rows[i]["PartyName"].ToString();
                     sheet2[ROW2, colVoucherType].Text = dtPending.Rows[i]["VoucherType"].ToString();
@@ -900,7 +933,7 @@ namespace Library.Accounting.Accounts
 
         public DataTable GetWriteOffPendingPostingData(string companyGroupId, string companyId, string plantId, string partyType, string fromDate, string toDate)
         {
-            var cmdText = @"SELECT P.PartyNature,PG.UserName PartyGroup,P.Id PartyId,ISNULL( P.Code,'') PartyCode,ISNULL( P.UserName,'') PartyName
+            var cmdText = @"SELECT P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,P.Id PartyId,ISNULL( P.Code,'') PartyCode,ISNULL( P.UserName,'') PartyName
                         ,VoucherType=v.SourceType , V.VoucherNo,Replace(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') PostingDate
                         ,Replace(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') DocDate ,V.DocRefNo
 		                ,CASE WHEN SUM(VDC.CrAmount)=0 THEN SUM(VDC.DrAmount) ELSE SUM(VDC.CrAmount) END Amount
@@ -909,9 +942,12 @@ namespace Library.Accounting.Accounts
 		                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
 		                LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
                         LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                        LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                        LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                        LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
                         WHERE V.IsPark=1 AND VD.PartyType='" + partyType + "' and V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId ='" + companyId + "' AND V.PlantId='" + plantId + "' AND CONVERT(DATE, V.PostingDate) <= '" + toDate + @"'
                         AND V.SourceType in ('CreditNoteSetOff','CustomerAdvanceWriteOff','CustomerBanksReceipt','CustomerReceipt','DebitNoteSetOff','ReceiptByBank','VendorAdvanceWriteOff','VendorPayment','VendorInvoiceCharge','InvoiceCharge')
-                        GROUP BY P.PartyNature,PG.UserName,P.Id,ISNULL( P.Code,'') ,ISNULL( P.UserName,'') ,v.SourceType , V.VoucherNo
+                        GROUP BY P.PartyNature,PG.UserName,PC.UserName,PSC.UserName,E.EmployeeName,P.Id,ISNULL( P.Code,'') ,ISNULL( P.UserName,'') ,v.SourceType , V.VoucherNo
 		                ,Replace(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') ,Replace(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-')  ,V.DocRefNo
 		                ORDER BY P.PartyNature,PG.UserName,ISNULL( P.UserName,'')  ASC";
             return _sqlRepository.GetDataTable(cmdText);
@@ -997,6 +1033,21 @@ namespace Library.Accounting.Accounts
 
                 sheet1[xlsRow, xlsCol].Text = "Party Group";
                 int colPartyGroup = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 12;
+                xlsCol++;
+
+                sheet1[xlsRow, xlsCol].Text = "Party Category";
+                int colPartyCategory = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 12;
+                xlsCol++;
+
+                sheet1[xlsRow, xlsCol].Text = "Party Sub Category";
+                int colPartySubCategory = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 12;
+                xlsCol++;
+
+                sheet1[xlsRow, xlsCol].Text = "Responsible Person";
+                int colResponsiblePerson = xlsCol;
                 sheet1[xlsRow, xlsCol].ColumnWidth = 12;
                 xlsCol++;
 
@@ -1149,9 +1200,11 @@ namespace Library.Accounting.Accounts
                         sheet1.Range[xlsRow, iBaseNoOfDays].Number = System.Math.Abs(clsStaticInfo.dbl(dtRCMPayable.Rows[i]["Days"].ToString()));
                         // System.Math.Abs(-30);
                         sheet1.Range[xlsRow, colVoucherNo].Text = dtRCMPayable.Rows[i]["VoucherNo"].ToString();
-
                         sheet1.Range[xlsRow, colPartyNature].Text = dtRCMPayable.Rows[i]["PartyNature"].ToString();
                         sheet1.Range[xlsRow, colPartyGroup].Text = dtRCMPayable.Rows[i]["PartyGroup"].ToString();
+                        sheet1.Range[xlsRow, colPartyCategory].Text = dtRCMPayable.Rows[i]["PartyCategory"].ToString();
+                        sheet1.Range[xlsRow, colPartySubCategory].Text = dtRCMPayable.Rows[i]["PartySubCategory"].ToString();
+                        sheet1.Range[xlsRow, colResponsiblePerson].Text = dtRCMPayable.Rows[i]["ResponsiblePerson"].ToString();
                         sheet1.Range[xlsRow, colPartyId].Text = dtRCMPayable.Rows[i]["PartyId"].ToString();
                         sheet1.Range[xlsRow, iPartyName].Text = dtRCMPayable.Rows[i]["PartyName"].ToString();
                         
@@ -1467,7 +1520,7 @@ namespace Library.Accounting.Accounts
             string strSql = "";
             strSql = @"select x.* from (
 
-                        SELECT   P.PartyNature,PG.UserName PartyGroup,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+                        SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
 										,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
 										, replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate,iv.DocDate  SortDocDate
 										, C.Code CurrencyCode
@@ -1508,6 +1561,9 @@ namespace Library.Accounting.Accounts
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
 									    LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                                         LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                                        LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                                        LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                                        LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
 									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
                                         LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
                                         LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
@@ -1551,7 +1607,7 @@ namespace Library.Accounting.Accounts
 										--GROUP BY IV.PartyId, PP.UserName,P.UserName
 
 								   UNION ALL
-                                    SELECT   P.PartyNature,PG.UserName PartyGroup,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+                                    SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
 										,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
 										,replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate ,iv.DocDate  SortDocDate
 										,C.Code CurrencyCode
@@ -1591,6 +1647,9 @@ namespace Library.Accounting.Accounts
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
 										LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                                         LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                                        LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                                        LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                                        LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
 									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
                                         LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
                                         LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
@@ -1631,7 +1690,7 @@ namespace Library.Accounting.Accounts
                                         AND ISNULL(ISNULL(VDC.CrAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0)>0
 
                                         UNION ALL
-				                        SELECT   P.PartyNature,PG.UserName PartyGroup,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+				                        SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
 										                        ,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
 										                        ,replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate ,iv.DocDate  SortDocDate
 										                        ,C.Code CurrencyCode,0 BaseNoOfDays, REPLACE(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') AS ActualDueDate
@@ -1665,6 +1724,9 @@ namespace Library.Accounting.Accounts
                                         LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
                                         LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                                         LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                                        LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                                        LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                                        LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
                                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
                                         LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=IVD.Id
 										LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
@@ -3403,7 +3465,7 @@ namespace Library.Accounting.Accounts
                 searchDateODue = "AND ( convert(Date,I.PostingDate) <= '" + toDate + @"' )";
             }
             var sql = @"SELECT ISNULL( count(X.NoOfInvoice),0 )NoOfInvoice, convert(bit,0) AS isSelected
-                    ,x.PartyNature,x.PartyGroup,ISNULL( X.PartyId,'')PartyId,ISNULL( X.PartyCode,'')PartyCode
+                    ,x.PartyNature,x.PartyGroup,x.PartyCategory,x.PartySubCategory,x.ResponsiblePerson,ISNULL( X.PartyId,'')PartyId,ISNULL( X.PartyCode,'')PartyCode
                     ,ISNULL( X.PartyName,'')PartyName,ISNULL( x.CurrencyCode,'')CurrencyCode
 
 				 ,ISNULL(SUM(X.GrossSales),0 )GrossSales 
@@ -3440,7 +3502,7 @@ namespace Library.Accounting.Accounts
 										GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=AD.AdjustmentNoteId
 					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Customer' and A.SourceType='CreditNote'  AND A.IsPark=0  group by A.PartyId ),0) CreditNote 
                 ,ISNULL( SUM(X.Balance),0) Balance
-                ,ABS(ISNULL( SUM(X.Balance),0) 
+                ,ISNULL( SUM(X.Balance),0) 
                 -ISNULL((SELECT sum(VDCA.CrAmount) -sum(ISNULL(AW.AdvanceWriteOffBooksAmount,0)) FROM TRN.Advance A
 					INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
 					INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
@@ -3460,8 +3522,8 @@ namespace Library.Accounting.Accounts
 										 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
 										where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
 										GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=AD.AdjustmentNoteId
-					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Customer' and A.SourceType='CreditNote'  AND A.IsPark=0  group by A.PartyId ),0)) NetBalance
-				 ,ABS(ISNULL( SUM(X.ActualBalance),0) -ISNULL((SELECT sum(VDCA.CrAmount) -sum(ISNULL(AW.AdvanceWriteOffBooksAmount,0)) FROM TRN.Advance A
+					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Customer' and A.SourceType='CreditNote'  AND A.IsPark=0  group by A.PartyId ),0) NetBalance
+				 ,ISNULL( SUM(X.ActualBalance),0) -ISNULL((SELECT sum(VDCA.CrAmount) -sum(ISNULL(AW.AdvanceWriteOffBooksAmount,0)) FROM TRN.Advance A
 					INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
 					INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
 				    INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCA ON VDCA.VoucherDetailId=VDA.Id
@@ -3480,8 +3542,8 @@ namespace Library.Accounting.Accounts
 										 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
 										where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
 										GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=AD.AdjustmentNoteId
-					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Customer' and A.SourceType='CreditNote'  AND A.IsPark=0  group by A.PartyId ),0)) ActualBalance
-                 ,ISNULL((SELECT  ABS(SUM(ISNULL(CC.CompanyCurrencyDrAmount, 0)) - SUM(ISNULL(CC.CompanyCurrencyCrAmount, 0))) AS LedgerBalanceAmount
+					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Customer' and A.SourceType='CreditNote'  AND A.IsPark=0  group by A.PartyId ),0) ActualBalance
+                 ,ISNULL((SELECT  round(SUM(ISNULL(CC.CompanyCurrencyDrAmount, 0)) - SUM(ISNULL(CC.CompanyCurrencyCrAmount, 0)),2) AS LedgerBalanceAmount
                     FROM [TRN].[VoucherDetail] AS VD
                     LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                     LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
@@ -3513,7 +3575,7 @@ namespace Library.Accounting.Accounts
 				,CASE WHEN (SELECT COUNT(Id) FROM HKP.CompanyParty WHERE PartyId=X.PartyId AND  PartyType='Vendor')>0 THEN 'Yes' ELSE 'No' END IsVendor
 				
                 FROM (
-                SELECT ISNULL( IV.PartyId,'') NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,ISNULL( IV.PartyId,'')PartyId
+                SELECT ISNULL( IV.PartyId,'') NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,ISNULL( IV.PartyId,'')PartyId
 				,ISNULL( P.Code,'') PartyCode,ISNULL( P.UserName,'') PartyName ,ISNULL( c.Code,'') CurrencyCode
                 , ISNULL(IVD.InvoiceBooksAmount,0) AS GrossSales
 				, ISNULL(IVD.SetOffBooksAmount,0) AS Receipts
@@ -3554,6 +3616,9 @@ namespace Library.Accounting.Accounts
                  
                 LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
@@ -3606,7 +3671,7 @@ namespace Library.Accounting.Accounts
                 and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
                 
                 union all
-				 SELECT ISNULL( IV.PartyId,'') NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,ISNULL( IV.PartyId,'')PartyId
+				 SELECT ISNULL( IV.PartyId,'') NoOfInvoice,P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,ISNULL( IV.PartyId,'')PartyId
 				,ISNULL( P.Code,'') PartyCode,ISNULL( P.UserName,'') PartyName,ISNULL( c.Code,'') CurrencyCode
                 ,ISNULL(IVD.Amount,0) AS GrossSales
 				,ISNULL(IVD.WrittenOffAmount ,0) AS Receipts
@@ -3629,6 +3694,9 @@ namespace Library.Accounting.Accounts
                 LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
                 LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
                 LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=IVD.Id
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
@@ -3694,7 +3762,7 @@ namespace Library.Accounting.Accounts
                  and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
 				)
 				X 
-                GROUP BY x.PartyNature,x.PartyGroup,PartyId,PartyName,PartyCode,CurrencyCode
+                GROUP BY x.PartyNature,x.PartyGroup,x.PartyCategory,x.PartySubCategory,x.ResponsiblePerson,PartyId,PartyName,PartyCode,CurrencyCode
                 order by x.PartyNature,x.PartyGroup,x.PartyName";
             return _sqlRepository.GetDataCollection(sql);
 
@@ -4039,6 +4107,21 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, COL].ColumnWidth = 12;
                 COL++;
 
+                worksheet[ROW, COL].Text = "Party Category";
+                int colPartyCategory = COL;
+                worksheet[ROW, COL].ColumnWidth = 12;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Party Sub Category";
+                int colPartySubCategory = COL;
+                worksheet[ROW, COL].ColumnWidth = 12;
+                COL++;
+
+                worksheet[ROW, COL].Text = "ResponsiblePerson";
+                int colResponsiblePerson = COL;
+                worksheet[ROW, COL].ColumnWidth = 12;
+                COL++;
+
                 worksheet[ROW, COL].Text = "Party Id";
                 int colPartyId = COL;
                 worksheet[ROW, COL].ColumnWidth = 12;
@@ -4216,6 +4299,9 @@ namespace Library.Accounting.Accounts
                     worksheet[ROW, colNoOfInvoice].Number = clsStaticInfo.dbl(dsData.Rows[i]["NoOfInvoice"].ToString());
                     worksheet[ROW, colPartyNature].Text = dsData.Rows[i]["PartyNature"].ToString();
                     worksheet[ROW, colPartyGroup].Text = dsData.Rows[i]["PartyGroup"].ToString();
+                    worksheet[ROW, colPartyCategory].Text = dsData.Rows[i]["PartyCategory"].ToString();
+                    worksheet[ROW, colPartySubCategory].Text = dsData.Rows[i]["PartySubCategory"].ToString();
+                    worksheet[ROW, colResponsiblePerson].Text = dsData.Rows[i]["ResponsiblePerson"].ToString();
                     worksheet[ROW, colPartyId].Text = dsData.Rows[i]["PartyId"].ToString();
                     worksheet[ROW, colPartyName].Text = dsData.Rows[i]["PartyName"].ToString();
                     
@@ -4351,6 +4437,9 @@ namespace Library.Accounting.Accounts
                 int startRow2 = ROW2;
                 sheet2[ROW2, COL2].Text = "Party Nature"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartyNature2 = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "Party Group"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartyGroup2 = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Party Category"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartyCategory2 = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Party Sub Category"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartySubCategory2 = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Responsible Person"; sheet2[ROW2, COL2].ColumnWidth = 10; int colResponsiblePerson2 = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "Party Id"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartyId2 = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "Party Name"; sheet2[ROW2, COL2].ColumnWidth = 25; int colPartyName2 = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "Voucher Type"; sheet2[ROW2, COL2].ColumnWidth = 14; int colVoucherType = COL2; COL2++;
@@ -4376,6 +4465,9 @@ namespace Library.Accounting.Accounts
                 {
                     sheet2[ROW2, colPartyNature2].Text = dtPending.Rows[i]["PartyNature"].ToString();
                     sheet2[ROW2, colPartyGroup2].Text = dtPending.Rows[i]["PartyGroup"].ToString();
+                    sheet2[ROW2, colPartyCategory2].Text = dtPending.Rows[i]["PartyCategory"].ToString();
+                    sheet2[ROW2, colPartySubCategory2].Text = dtPending.Rows[i]["PartySubCategory"].ToString();
+                    sheet2[ROW2, colResponsiblePerson2].Text = dtPending.Rows[i]["ResponsiblePerson"].ToString();
                     sheet2[ROW2, colPartyId2].Text = dtPending.Rows[i]["PartyId"].ToString();
                     sheet2[ROW2, colPartyName2].Text = dtPending.Rows[i]["PartyName"].ToString();
                     sheet2[ROW2, colVoucherType].Text = dtPending.Rows[i]["VoucherType"].ToString();
@@ -4464,7 +4556,7 @@ namespace Library.Accounting.Accounts
             string strSql = "";
             strSql = @"select x.* from (
 
-                    SELECT   P.PartyNature,PG.UserName PartyGroup,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+                    SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
 										,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
 										, replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate,iv.DocDate  SortDocDate, C.Code CurrencyCode,IV.BaseNoOfDays
 										, REPLACE(CONVERT(VARCHAR(11), IV.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate
@@ -4519,6 +4611,9 @@ namespace Library.Accounting.Accounts
 										) AS IVD ON IVD.InvoiceId=IV.Id AND IVD.PartyId=IV.PartyId
 									    LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                                         LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                                        LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                                        LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                                        LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
 									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
                                         LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
                                         LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
@@ -4529,7 +4624,7 @@ namespace Library.Accounting.Accounts
                                         AND IV.PartyId in(" + masterCustomerReceiptAgingList + @")
 
 								    UNION ALL
-                                    SELECT   P.PartyNature,PG.UserName PartyGroup,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+                                    SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
 										,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
 										,replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate ,iv.DocDate  SortDocDate,C.Code CurrencyCode
 										,'' BaseNoOfDays, '' BaseOnDueDate, REPLACE(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') AS ActualDueDate
@@ -4567,6 +4662,9 @@ namespace Library.Accounting.Accounts
 										LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
 										LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                                         LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                                        LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                                        LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                                        LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
 										LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
 										LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=IVD.Id
 										LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
@@ -4667,6 +4765,21 @@ namespace Library.Accounting.Accounts
 
                 sheet1[xlsRow, xlsCol].Text = "Party Group";
                 int colPartyGroup = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 12;
+                xlsCol++;
+
+                sheet1[xlsRow, xlsCol].Text = "Party Category";
+                int colPartyCategory = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 12;
+                xlsCol++;
+
+                sheet1[xlsRow, xlsCol].Text = "Party Sub Category";
+                int colPartySubCategory = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 12;
+                xlsCol++;
+
+                sheet1[xlsRow, xlsCol].Text = "Responsible Person";
+                int colResponsiblePerson = xlsCol;
                 sheet1[xlsRow, xlsCol].ColumnWidth = 12;
                 xlsCol++;
 
@@ -4811,9 +4924,11 @@ namespace Library.Accounting.Accounts
                         sheet1.Range[xlsRow, iBaseNoOfDays].Number = System.Math.Abs(clsStaticInfo.dbl(dtRCMPayable.Rows[i]["Days"].ToString()));
                         // System.Math.Abs(-30);
                         sheet1.Range[xlsRow, colVoucherNo].Text = dtRCMPayable.Rows[i]["VoucherNo"].ToString();
-
                         sheet1.Range[xlsRow, colPartyNature].Text = dtRCMPayable.Rows[i]["PartyNature"].ToString();
                         sheet1.Range[xlsRow, colPartyGroup].Text = dtRCMPayable.Rows[i]["PartyGroup"].ToString();
+                        sheet1.Range[xlsRow, colPartyCategory].Text = dtRCMPayable.Rows[i]["PartyCategory"].ToString();
+                        sheet1.Range[xlsRow, colPartySubCategory].Text = dtRCMPayable.Rows[i]["PartySubCategory"].ToString();
+                        sheet1.Range[xlsRow, colResponsiblePerson].Text = dtRCMPayable.Rows[i]["ResponsiblePerson"].ToString();
                         sheet1.Range[xlsRow, colPartyId].Text = dtRCMPayable.Rows[i]["PartyId"].ToString();
                         sheet1.Range[xlsRow, iPartyName].Text = dtRCMPayable.Rows[i]["PartyName"].ToString();
                         
@@ -22230,7 +22345,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 var sql = @"SELECT y.* ,CASE WHEN y.ToBePayment>0 OR ToBeReceived>0 THEN 'Yes' ELSE 'No' END PaymentApplicable
             ,CASE WHEN (SELECT COUNT(Id) FROM HKP.CompanyParty WHERE PartyId=y.PartyId AND  PartyType='Vendor')>0 THEN 'Yes' ELSE 'No' END IsVendor
             ,CASE WHEN (SELECT COUNT(Id) FROM HKP.CompanyParty WHERE PartyId=y.PartyId AND PartyType='Customer')>0 THEN 'Yes' ELSE 'No' END IsCustomer
-            FROM(Select x.PartyNature,x.PartyGroup,x.PartyCategory,x.PartySubCategory,x.PartyId,x.PartyName,round(sum(x.VendorAdvance),2) VendorAdvance,round(sum(x.VendorDebitNote),2) VendorDebitNote,round(sum(x.Payable),2) Payable
+            FROM(Select x.PartyNature,x.PartyGroup,x.PartyCategory,x.PartySubCategory,x.ResponsiblePerson,x.PartyId,x.PartyName,round(sum(x.VendorAdvance),2) VendorAdvance,round(sum(x.VendorDebitNote),2) VendorDebitNote,round(sum(x.Payable),2) Payable
                 ,round(sum(x.CustomerAdvance),2) CustomerAdvance,round(sum(x.CustomerCreditNote),2) CustomerCreditNote,round(sum(x.Receivable),2) Receivable
                 ,ToBePayment=Case when round((sum(x.Payable)-sum(x.VendorAdvance)-sum(x.VendorDebitNote)-sum(x.Receivable)+sum(x.CustomerAdvance)+sum(x.CustomerCreditNote)),2)>0 then round((sum(x.Payable)-sum(x.VendorAdvance)-sum(x.VendorDebitNote)-sum(x.Receivable)+sum(x.CustomerAdvance)+sum(x.CustomerCreditNote)),2) else 0 end
                 ,ToBeReceived=Case when round((sum(x.Receivable)-sum(x.Payable)+sum(x.VendorAdvance)+sum(x.VendorDebitNote)-sum(x.CustomerAdvance)-sum(x.CustomerCreditNote)),2)>0 then round((sum(x.Receivable)-sum(x.Payable)+sum(x.VendorAdvance)+sum(x.VendorDebitNote)-sum(x.CustomerAdvance)-sum(x.CustomerCreditNote)),2) else 0 end
@@ -22250,7 +22365,7 @@ group by Id) O60 ON O60.Id=IV.Id
 					GROUP BY VD.PartyId),0) CustomerLedgerBalanceAmount
                 ,round(sum(x.RemainingPOPayable),2) RemainingPOAmount
         from (
-        SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,P.PartyNature,P.UserName PartyName
+        SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,P.PartyNature,P.UserName PartyName
                 , 0 VendorAdvance, 0 VendorDebitNote
 				, ISNULL(IVD.InvoiceBooksAmount-IVD.SetOffBooksAmount,0) AS Payable
 				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS ActualPayable
@@ -22278,13 +22393,14 @@ group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
                 LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
                 LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
 				 WHERE IV.Archive=0 AND  V.IsPark=0  AND IV.SourceType in ('VendorInvoice','InventoryPayable','PurchaseDocAcceptance','SuspensePayable','ServicePayable','EmployeePayable')
                AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + @"' AND IV.PlantId='" + plantId + @"' AND ( convert(Date,IV.PostingDate) <= '" + toDate + @"' )
                 and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
 
                 UNION ALL
-				SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,P.PartyNature,P.UserName PartyName
+				SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,P.PartyNature,P.UserName PartyName
                 , 0 VendorAdvance, 0 VendorDebitNote
 				, ISNULL(VDC.CrAmount-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0),0) AS Payable
 				, 0 ActualPayable,0 CustomerAdvance,0 CustomerCreditNote,0 Receivable,0 ActualReceivable ,0 RemainingPOPayable
@@ -22294,6 +22410,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
                 LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
                 LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
                 LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=IVD.Id
                 LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
@@ -22309,7 +22426,7 @@ group by Id) O60 ON O60.Id=IV.Id
 
 
                 UNION ALL
-				 SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,P.PartyNature,P.UserName PartyName
+				 SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,P.PartyNature,P.UserName PartyName
                 , ISNULL(VDCA.DrAmount,0)- ISNULL(AW.AdvanceWriteOffBooksAmount,0) VendorAdvance
 				, 0 VendorDebitNote, 0 Payable, 0 ActualPayable
 				,0 CustomerAdvance,0 CustomerCreditNote,0 Receivable,0 ActualReceivable ,0 RemainingPOPayable
@@ -22318,6 +22435,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
                 LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
                 LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
 				INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
 				INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
 				INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCA ON VDCA.VoucherDetailId=VDA.Id
@@ -22331,7 +22449,7 @@ group by Id) O60 ON O60.Id=IV.Id
 				AND ( convert(Date,A.PostingDate) <= '" + toDate + @"' ) and ISNULL(VDCA.DrAmount,0)- ISNULL(AW.AdvanceWriteOffBooksAmount,0)>0
                 
                 UNION ALL
-				 SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,P.PartyNature,P.UserName PartyName
+				 SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,P.PartyNature,P.UserName PartyName
 				 ,0 VendorAdvance
                 , ( ISNULL(VDC.DrAmount,0)- ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)) VendorDebitNote
 				, 0 Payable, 0 ActualPayable,0 CustomerAdvance,0 CustomerCreditNote,0 Receivable,0 ActualReceivable ,0 RemainingPOPayable
@@ -22340,6 +22458,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
                 LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
                 LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
 				INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
                 INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
                 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VDA.Id
@@ -22353,7 +22472,7 @@ group by Id) O60 ON O60.Id=IV.Id
 				AND ( convert(Date,A.PostingDate) <= '" + toDate + @"' ) AND ( ISNULL(VDC.DrAmount,0)- ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0))>0
 
 				UNION ALL
-				SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,P.PartyNature,P.UserName PartyName
+				SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,P.PartyNature,P.UserName PartyName
                 ,0 VendorAdvance,0 DebitNote,0 Payable,0 ActualPayable,0 CustomerAdvance,0 CustomerCreditNote
 				,ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0) AS Receivable
 				,ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS  ActualReceivable
@@ -22380,13 +22499,14 @@ group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
                 LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
                 LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
 				WHERE IV.Archive=0 AND  V.IsPark=0  AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice','InventorySales') 
                AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + @"' AND IV.PlantId='" + plantId + @"' AND ( convert(Date,IV.PostingDate) <= '" + toDate + @"' )
                 and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
 				
                 UNION ALL
-				SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,P.PartyNature,P.UserName PartyName
+				SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,P.PartyNature,P.UserName PartyName
 				,0 VendorAdvance ,0 VendorDebitNote,0 Payable,0 ActualPayable,0 CustomerAdvance,0 CustomerCreditNote
 				,( ISNULL(VDC.DrAmount,0)- ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)) Receivable
 				,0 ActualReceivable ,0 RemainingPOPayable
@@ -22395,6 +22515,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
                 LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
                 LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
 				INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
                 INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
                 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VDA.Id
@@ -22408,7 +22529,7 @@ group by Id) O60 ON O60.Id=IV.Id
 				AND ( convert(Date,A.PostingDate) <= '" + toDate + @"' ) AND ( ISNULL(VDC.DrAmount,0)- ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0))>0
 
                 UNION ALL
-				 SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,P.PartyNature,P.UserName PartyName
+				 SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,P.PartyNature,P.UserName PartyName
                 ,0 VendorAdvance,0 DebitNote,0 Payable,0 ActualPayable
 				,ISNULL(VDCA.CrAmount,0)- ISNULL(AW.AdvanceWriteOffBooksAmount,0) CustomerAdvance
                 ,0 CustomerCreditNote,0 Receivable,0 ActualReceivable ,0 RemainingPOPayable
@@ -22417,6 +22538,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
                 LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
                 LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
 				INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
 				INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
 				INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCA ON VDCA.VoucherDetailId=VDA.Id
@@ -22430,7 +22552,7 @@ group by Id) O60 ON O60.Id=IV.Id
 				and (ISNULL(VDCA.CrAmount,0)- ISNULL(AW.AdvanceWriteOffBooksAmount,0))>0
 
                 UNION ALL
-				SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,P.PartyNature,P.UserName PartyName
+				SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,P.PartyNature,P.UserName PartyName
 				,0 VendorAdvance ,0 VendorDebitNote,0 Payable,0 ActualPayable,0 CustomerAdvance
                 ,( ISNULL(VDC.CrAmount,0)- ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)) CustomerCreditNote
                 ,0 Receivable,0 ActualReceivable ,0 RemainingPOPayable
@@ -22439,6 +22561,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
                 LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
                 LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
 				INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
                 INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
                 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VDA.Id
@@ -22452,7 +22575,7 @@ group by Id) O60 ON O60.Id=IV.Id
 				AND ( convert(Date,A.PostingDate) <= '" + toDate + @"' ) AND ( ISNULL(VDC.CrAmount,0)- ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0))>0
                 
                 UNION ALL
-                SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,P.PartyNature,P.UserName PartyName
+                SELECT P.Id PartyId,P.Code PartyCode,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,P.PartyNature,P.UserName PartyName
                 ,0 VendorAdvance,0 VendorDebitNote,0 Payable,0 ActualPayable,0 CustomerAdvance,0 CustomerCreditNote,0 Receivable,0 ActualReceivable 
                 ,ISNULL(pod.BaseAmount,0)-ISNULL(IRD.GRNAmount,0) RemainingPOPayable
                 from trn.PurchaseOrderdetail pod 
@@ -22465,10 +22588,11 @@ group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
                 LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
                 LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
+                LEFT JOIN dbo.EmployeeInformation AS E ON E.SystemID=P.ResponsiblePersonId
                  where (ISNULL(pod.BaseAmount,0)-ISNULL(IRD.GRNAmount,0))>0 AND ISNULL(po.IsClosed,0)=0
                 
                 ) x
-				group by x.PartyNature,x.PartyGroup,x.PartyCategory,x.PartySubCategory,x.PartyId,x.PartyName )y
+				group by x.PartyNature,x.PartyGroup,x.PartyCategory,x.PartySubCategory,x.ResponsiblePerson,x.PartyId,x.PartyName )y
 				order by y.PartyNature,y.PartyGroup,y.PartyName";
                 return _sqlRepository.GetDataCollection(sql);
 

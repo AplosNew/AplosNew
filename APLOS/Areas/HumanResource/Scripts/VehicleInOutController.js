@@ -447,8 +447,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
         $scope.VehicleOutModel = Object.assign({}, $scope.VehicleOutTemp);
     }
     //  #endregion VehicleOut
-
-    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+     
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
     $scope.summaryfileName = "PlantInOut.xlsx";
     $scope.ReportDataList = [];
@@ -463,6 +462,9 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
         });
     }
     $scope.GetReportData();
+
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
 
     $scope.XlsDailyAttendanceReport = function () {
         var dataList = [];
@@ -487,7 +489,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                   
+
                     $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
 
                 }

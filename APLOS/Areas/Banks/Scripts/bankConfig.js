@@ -170,5 +170,22 @@ function bankConfig($routeProvider, $locationProvider) {
         .when("/current-fund-position-report", {
             templateUrl: "Banks/BankJournal/CurrentFundPosition",
             controller: "CurrentFundPositionController"
-        });
+        })
+        .when("/bank-settlement-reco", {
+            templateUrl: "Banks/bankreconciliation/BankSettlementReconciliation",
+            controller: "bankSettlementReconciliationController"
+        })
+        .when("/bank-settle-customerAdvance/:id", {
+            templateUrl: "Banks/bankreconciliation/BankSettlementCustomerAdvance",
+            controller: "BankSettlementCustomerAdvanceController"
+        })
+        .when("/bank-settle-customerReceipt/:id", {
+            templateUrl: "Banks/bankreconciliation/BankSettlementCustomerReceipt",
+            controller: "bankSettlementCustomerReceiptController"
+        })
+        .when("/bank-settle-journal/:id", {
+            templateUrl: "Banks/bankreconciliation/BankSettlementJournal",
+            controller: "bankSettlementJournalController"
+        })
+        ;
 }

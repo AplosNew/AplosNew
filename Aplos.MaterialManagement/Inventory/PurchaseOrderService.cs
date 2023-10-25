@@ -10852,10 +10852,6 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
-
-
-
-
         public void DeleteServicePOReq(string id)
         {
             try
@@ -10885,11 +10881,6 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
-
-
-
-
-
 
         public IEnumerable<object> GetListForServicePOBYReq(string plantId, string POTypeStatus, string POType)
         {
@@ -13473,6 +13464,49 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
                             }
                         }
                     }
+                }
+
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+        public void InsertIndependentServiceAck(ServiceAcknowledgementMaster entity)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var plantId = _ServicePOMaster.SqlQuery<string>($"SELECT FilePrefix from org.plant WHERE Id ='{identity.PlantId}'").FirstOrDefault();
+                if (plantId == null)
+                {
+                    throw new CustomException("No Prefix Available for this Plant");
+                }
+
+               
+                if (string.IsNullOrEmpty(entity.Id))
+                {
+                    var year1 = DateTime.Now.Year.ToString();
+                    var id = GetPKServiveAck();
+                    entity.Id = plantId + id;
+                    entity.ServiceType = "IndependentService";
+                    AuditService.AddedLog(entity);
+                    entity.ModelState = ModelState.Added;
+                    _ServiceAcknowledgementMaster.Insert(entity);
+                    
+                }
+                else//Update
+                {
+                    AuditService.UpdatedLog(entity);
+                    _ServiceAcknowledgementMaster.Update(entity);
                 }
 
                 _unitOfWork.SaveChanges();

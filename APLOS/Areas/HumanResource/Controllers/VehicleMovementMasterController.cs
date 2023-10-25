@@ -1,4 +1,5 @@
 ﻿using Aplos.Controllers;
+using Aplos.MaterialManagement;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
@@ -7,6 +8,7 @@ using Library.Data.Sql;
 using Library.Security.Core;
 using Library.Service.Enums;
 using Library.Service.Logs;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -57,6 +59,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return View();
         }
+        public ActionResult Vehiclereport()
+        {
+            return View();
+        }
+
         #endregion Views
 
 
@@ -1825,17 +1832,17 @@ where VMR.AppliedId = 1";
 
         public ActionResult CompleteVehicleMovementCycle()
         {
-            string sql = @"select distinct BHW.EmployeeCode ByWhomEmpCode, BHW.EmployeeName ByWhom, AB.EmployeeCode ForWhomeEmpCode , AB.EmployeeName ForWhom
+            string sql = @"select distinct Row_Number() OVER(Order by VMR.Id) SrNo,BHW.EmployeeCode ByWhomEmpCode, BHW.EmployeeName ByWhom, AB.EmployeeCode ForWhomeEmpCode , AB.EmployeeName ForWhom
 ,FORMAT(VMR.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VMR.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VMR.FromTime, 'hh:mm:ss tt')FromTime
 , FORMAT(VMR.ToTime, 'hh:mm:ss tt')ToTime ,FromLocation = stuff((select ',  ' + LM.UserName from TRN.VehicleMovementRequisitionChild VMC							
 left join HKP.LocationMaster LM on LM.Id = VMC.FromLocationId
 where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''),ToLocation =  stuff((select ',  ' + TM.UserName 
 from TRN.VehicleMovementRequisitionChild VMC
 left join HKP.LocationMaster TM on TM.Id = VMC.ToLocationId
-where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''), VMR.PersonalOfficial [Personal/Official], GuestName = case when VMR.[Name] is null then '-' else VMR.[Name] end
-, PM.UserName Purpose, VMR.NumberOfPassengers, VMR.Remarks ReqRemark 
+where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''), VMR.PersonalOfficial, GuestName = case when VMR.[Name] is null then '-' else VMR.[Name] end
+, PM.UserName Purpose, VMR.NumberOfPassengers,isnull(VMR.Remarks,'') ReqRemark 
 ,RequisitionStatus = case when VMR.AppliedId is not null then 'Approved' when VMR.IsReject = 1 then 'Reject'end
-,[Approved/Reject By] = case when VMR.AppliedId is not null then VT.AddedBy  when VMR.IsReject = 1 then VMR.UpdatedBy end
+,ApprovedRejectBy = case when VMR.AppliedId is not null then VT.AddedBy  when VMR.IsReject = 1 then VMR.UpdatedBy end
 ,EDM.EmployeeCode DriverEmpCode, EDM.EmployeeName DriverName , FORMAT(DM.ExpiryDate, 'dd-MMM-yyyy')[License Exp Date], VM.VehicleName, VM.VehicleNumber
 ,format(VIO.OutDate, 'dd-MMM-yyyy')OutDate ,format(VIO.OutTime, 'hh:mm:ss tt')OutTime , VIO.OutReading,format(VIO.InDate, 'dd-MMM-yyyy')InDate 
 ,format(VIO.InTime, 'hh:mm:ss tt')InTime, VIO.InReading, isnull((VIO.InReading - Vio.OutReading),0)TotalTripReading ,DATEDIFF(MINUTE, VIO.OutDate, VIO.InDate)Total_Trip_Time
@@ -1997,6 +2004,23 @@ where VMR.AppliedId is not null and VA.DriverMasterId is not null and VIO.InDate
         //}
         #endregion Trip Schedule
 
-
+        #region vehicle inout report
+        [HttpPost, Authorize]
+        public ActionResult GetVehicleReport(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                string fileName = "";
+                InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+                fileName = obj.GetVehicleReport(data, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+ 
+        #endregion vehicle inout report
     }
 }

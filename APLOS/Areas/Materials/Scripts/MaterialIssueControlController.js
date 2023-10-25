@@ -688,7 +688,10 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
                 throw "Input Plan Percentage";
             }
             var totaPlanlAmount = 0;
-            obj.data.PlanConsumption = (obj.data.TotalConsumption + obj.data.AdditionReduction) * $scope.ModelNew.PlanPercentage / 100;
+           // obj.data.PlanConsumption = (obj.data.TotalConsumption + obj.data.AdditionReduction) * $scope.ModelNew.PlanPercentage / 100;
+
+            obj.data.PlanConsumption = (obj.data.TotalConsumption + obj.data.AdditionReduction) / (100 - ($scope.ModelNew.PlanPercentage - 100)) * 100;
+
             obj.data.TotaPlanlAmount = obj.data.PlanConsumption * obj.data.Rate;
             obj.data.ActualIssueAmount = obj.data.PlanConsumption * obj.data.StockRate;
 
@@ -726,7 +729,10 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
                 throw "Input Plan Percentage";
             }
             var totaPlanlAmount = 0;
-            obj.data.PlanConsumption = (obj.data.TotalConsumption + obj.data.AdditionReduction) * $scope.ModelNew.PlanPercentage / 100;
+           // obj.data.PlanConsumption = (obj.data.TotalConsumption + obj.data.AdditionReduction) * $scope.ModelNew.PlanPercentage / 100;
+
+            obj.data.PlanConsumption = (obj.data.TotalConsumption + obj.data.AdditionReduction)/(100-($scope.ModelNew.PlanPercentage-100))* 100;
+
             obj.data.TotaPlanlAmount = obj.data.PlanConsumption * obj.data.Rate;
             obj.data.ActualIssueAmount = obj.data.PlanConsumption * obj.data.StockRate;
 
@@ -765,7 +771,9 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
             }
             var totaPlanlAmount = 0;
             for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
-                $scope.QBOQCostingList[i].PlanConsumption = ($scope.QBOQCostingList[i].TotalConsumption + $scope.QBOQCostingList[i].AdditionReduction) * $scope.ModelNew.PlanPercentage / 100;
+                //$scope.QBOQCostingList[i].PlanConsumption = ($scope.QBOQCostingList[i].TotalConsumption + $scope.QBOQCostingList[i].AdditionReduction) * $scope.ModelNew.PlanPercentage / 100;
+                                                           
+                $scope.QBOQCostingList[i].PlanConsumption = ($scope.QBOQCostingList[i].TotalConsumption + $scope.QBOQCostingList[i].AdditionReduction)/(100-($scope.ModelNew.PlanPercentage-100))* 100;
                 $scope.QBOQCostingList[i].TotaPlanlAmount = $scope.QBOQCostingList[i].PlanConsumption * $scope.QBOQCostingList[i].Rate;
                 $scope.QBOQCostingList[i].ActualIssueAmount = $scope.QBOQCostingList[i].PlanConsumption * $scope.QBOQCostingList[i].StockRate;
             }

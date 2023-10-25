@@ -119,14 +119,14 @@
                 <label class="col-sm-3 control-label">GRN No :</label>
                 <label class="col-sm-9 control-label">{{modelNew.Id}}</label>
             </div>
+            <div class="form-group" style="margin-bottom: 0px;">
+                <label class="col-sm-3 control-label">GSTIN No :</label>
+                <label class="col-sm-9 control-label">{{modelNew.GSTINNo}}</label>
+            </div>
             @*<div class="form-group" style="margin-bottom: 0px;">
-            <label class="col-sm-3 control-label">Payment Term :</label>
-            <label class="col-sm-9 control-label">{{modelNew.PaymentTermName}}</label>
-        </div>*@
-            @*<div class="form-group" style="margin-bottom: 0px;">
-            <label class="col-sm-3 control-label">Base on due date :</label>
-            <label class="col-sm-9 control-label">{{modelNew.BaseOnDueDate}}</label>
-        </div>*@
+                    <label class="col-sm-3 control-label">Base on due date :</label>
+                    <label class="col-sm-9 control-label">{{modelNew.BaseOnDueDate}}</label>
+                </div>*@
             <div class="form-group" style="margin-bottom: 0px;">
                 <label class="col-sm-3 control-label">Acceptance No :</label>
                 <label class="col-sm-9 control-label">{{AcceptanceId}}</label>
@@ -284,7 +284,7 @@
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Material Info</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Service" role="tab" data-toggle="tab">Service Info</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="Transaction" role="tab" data-toggle="tab">Journal</a></li>
-                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="address" role="tab" data-toggle="tab" ng-show="OtherVendorChargesPayableList.length" >Other Vendor Charges</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="address" role="tab" data-toggle="tab" ng-show="OtherVendorChargesPayableList.length">Other Vendor Charges</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -405,9 +405,9 @@
 
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }" ng-form="tabForm3" ng-keypress="materialConfigMassege()">
                 @*<div class="form-group" style="margin-bottom: 0px;color:red">
-                <label class="col-sm-9 control-label">{{MaterialAssetBudgetMessage}}</label>
+                        <label class="col-sm-9 control-label">{{MaterialAssetBudgetMessage}}</label>
 
-            </div>*@
+                    </div>*@
                 <div class="col-xs-12 col-sm-4 col-md-4">
                     <div class="common-btn">
                         <ul class="common-btn list-inline text-left">
@@ -513,7 +513,7 @@
 
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }" ng-form="tabForm4" ng-show="OtherVendorChargesPayableList.length">
-               
+
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>
@@ -544,37 +544,37 @@
                 <div class="clearfix"></div>
             </div>
             @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }" ng-form="tabForm4" ng-hide="(modelNew.CurrencyId==null||modelNew.CurrencyId=='') ||(currencyExchangeRate.length==1 && companyCurrencyId==modelNew.CurrencyId)">
-            <div class="clearfix"></div>
-            <div class="row">
-                <div class="col-xs-12 col-sm-6 col-md-6">
-                    <fieldset ng-hide="(modelNew.CurrencyId==null||modelNew.CurrencyId=='') ||(currencyExchangeRate.length==1 && companyCurrencyId==modelNew.CurrencyId)" class="scheduler-border">
-                        <legend class="scheduler-border">Currency Exchange Rate</legend>
-                        <div class="table-responsive modal-table">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Unit</th>
-                                        <th>From</th>
-                                        <th>To</th>
-                                        <th>Rate</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="x in currencyExchangeRate" ng-hide="x.ParallelCurrencyId==modelNew.CurrencyId">
-                                        <td>{{x.FromCurrencyUnit}}</td>
-                                        <td>{{x.FromCurrencyCode}}</td>
-                                        <td>{{x.CompanyCurrencyRate}}</td>
-                                        <td>
-                                            <input n-decimals="4" ng-maxlength="3" type="text" class="form-control text-right" ng-model="x.ToCurrencyRate" ng-keyup="changeCurrencyExchangeRate();" />
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    <div class="clearfix"></div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <fieldset ng-hide="(modelNew.CurrencyId==null||modelNew.CurrencyId=='') ||(currencyExchangeRate.length==1 && companyCurrencyId==modelNew.CurrencyId)" class="scheduler-border">
+                                <legend class="scheduler-border">Currency Exchange Rate</legend>
+                                <div class="table-responsive modal-table">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Unit</th>
+                                                <th>From</th>
+                                                <th>To</th>
+                                                <th>Rate</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="x in currencyExchangeRate" ng-hide="x.ParallelCurrencyId==modelNew.CurrencyId">
+                                                <td>{{x.FromCurrencyUnit}}</td>
+                                                <td>{{x.FromCurrencyCode}}</td>
+                                                <td>{{x.CompanyCurrencyRate}}</td>
+                                                <td>
+                                                    <input n-decimals="4" ng-maxlength="3" type="text" class="form-control text-right" ng-model="x.ToCurrencyRate" ng-keyup="changeCurrencyExchangeRate();" />
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </fieldset>
                         </div>
-                    </fieldset>
-                </div>
-            </div>
-        </div>*@
+                    </div>
+                </div>*@
         </div>
     </div>
     <div class="clearfix"></div>

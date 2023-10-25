@@ -177,7 +177,7 @@ namespace Aplos.Areas.Employees.Controllers
                                 DELETE FROM EmployeeWeekOffByDay WHERE EffectiveDate<'" + NewDOJ + @"'  AND EmpSystemID='" + EmpId + @"'  
 
                                 DELETE FROM EmpDateWiseShiftAssign WHERE WorkDate<'" + NewDOJ + @"'  AND EmpSystemID='" + EmpId + @"' 
-                                DELETE FROM dbo.ManualEntryRemarks where RowId IN(Select RowId FROM AttdnProcessData WHERE WorkDate<'" + NewDOJ + @"'  AND EmpSystemID='" + EmpId + @")' 
+                                DELETE FROM dbo.ManualEntryRemarks where RowId IN(Select RowId FROM AttdnProcessData WHERE WorkDate<'" + NewDOJ + @"'  AND EmpSystemID='" + EmpId + @"') 
                                 DELETE FROM AttdnProcessData WHERE WorkDate<'" + NewDOJ + @"'  AND EmpSystemID='" + EmpId + @"' 
 ";
                 objCon = new ConnectionManager.DAL.ConManager("1");

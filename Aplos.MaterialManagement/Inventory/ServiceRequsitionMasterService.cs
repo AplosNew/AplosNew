@@ -4543,6 +4543,451 @@ WHERE IM.MaterialReqqusitionMasterId=inventoryReceiveId ";
 
         #endregion Notification Seting code for Service Requisitione
 
+        public IEnumerable<object> GetListIndependentServiceAcknowledgementData(string tabType)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var sql = "";
 
+
+                if (tabType == "ForChecking")
+                {
+                    sql = @"
+                            
+                            Select * from (SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
+                                    , REPLACE(CONVERT(CHAR(11), IR.AcknowledgementDate, 106),' ','-') AS AcknowledgementDate
+                                    , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+			                        , CP.UserName AS PartyAccountGroupName,IR.GateEntryNo,REPLACE(CONVERT(CHAR(11), IR.GateEntryDate, 106),' ','-') GateEntryDate
+									, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+	                                --, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.PODepended
+	                                , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IR.ToCurrencyRate
+                                    , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold
+									,IR.CheckedByStatus
+									, IR.NoteForAccounts,IRD.Amount,CheckedBy,IR.ApprovedByStatus,EI2.EmployeeName ApprovedBy,IR.ApprovedBy ApprovedById,IR.CheckedBy CheckedById
+                        FROM [TRN].ServiceAcknowledgementMaster AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+                        LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+                        LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+                        LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation EI1 ON EI1.SystemId=IR.PreparedBy
+                        LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
+                        LEFT JOIN (SELECT A.ServiceAcknowledgementMasterId, sum(A.Amount) Amount
+						 FROM [TRN].ServiceAcknowledgementDetail AS A
+		                            JOIN [TRN].ServiceAcknowledgementMaster AS B ON A.ServiceAcknowledgementMasterId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId) AS IRD ON IRD.ServiceAcknowledgementMasterId=IR.Id
+                        LEFT JOIN (SELECT A.ServiceAcknowledgementMasterId FROM [TRN].ServiceAcknowledgementDetail AS A JOIN [TRN].ServiceAcknowledgementMaster AS B ON A.ServiceAcknowledgementMasterId=B.Id
+		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId  HAVING COUNT(A.ServiceAcknowledgementMasterId)> 
+									COUNT(A.ServiceMasterId)) 
+									AS TU ON TU.ServiceAcknowledgementMasterId=IR.Id
+                        WHERE IR.CheckedByStatus='For Checking' AND IR.ApprovedByStatus IS NULL AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.ServiceType='IndependentService'
+                   UNION ALL
+
+                   SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
+                                    , REPLACE(CONVERT(CHAR(11), IR.AcknowledgementDate, 106),' ','-') AS AcknowledgementDate
+                                    , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+			                        , CP.UserName AS PartyAccountGroupName,IR.GateEntryNo,REPLACE(CONVERT(CHAR(11), IR.GateEntryDate, 106),' ','-') GateEntryDate
+									, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.PODepended
+	                                , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IR.ToCurrencyRate
+                                    , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold
+									,IR.CheckedByStatus
+									, IR.NoteForAccounts,IRD.Amount,CheckedBy,IR.ApprovedByStatus,EI2.EmployeeName ApprovedBy,IR.ApprovedBy ApprovedById,IR.CheckedBy CheckedById
+                        FROM [TRN].ServiceAcknowledgementMaster AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+                        LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+                        LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+                        LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation EI1 ON EI1.SystemId=IR.PreparedBy
+                        LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
+                        LEFT JOIN (SELECT A.ServiceAcknowledgementMasterId, sum(A.Amount) Amount
+						 FROM [TRN].ServiceAcknowledgementDetail AS A
+		                            JOIN [TRN].ServiceAcknowledgementMaster AS B ON A.ServiceAcknowledgementMasterId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId) AS IRD ON IRD.ServiceAcknowledgementMasterId=IR.Id
+                        LEFT JOIN (SELECT A.ServiceAcknowledgementMasterId FROM [TRN].ServiceAcknowledgementDetail AS A JOIN [TRN].ServiceAcknowledgementMaster AS B ON A.ServiceAcknowledgementMasterId=B.Id
+		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId  HAVING COUNT(A.ServiceAcknowledgementMasterId)> 
+									COUNT(A.ServiceMasterId)) 
+									AS TU ON TU.ServiceAcknowledgementMasterId=IR.Id
+                        WHERE IR.CheckedByStatus IS NULL AND IR.ApprovedByStatus ='For Approval'  AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' AND IR.ServiceType='IndependentService'
+
+
+                UNION ALL
+                SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id  
+                                    , REPLACE(CONVERT(CHAR(11), IR.AcknowledgementDate, 106),' ','-') AS AcknowledgementDate
+                                    -- ,IR.GRNDate
+                                    , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+			                        , CP.UserName AS PartyAccountGroupName,IR.GateEntryNo,REPLACE(CONVERT(CHAR(11), IR.GateEntryDate, 106),' ','-') GateEntryDate
+	                               -- , IR.AcknowledgementDate
+									, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+	                                --, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.PODepended
+	                                , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IR.ToCurrencyRate
+                                    , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold
+									,IR.CheckedByStatus
+									, IR.NoteForAccounts,IRD.Amount,CheckedBy,IR.ApprovedByStatus,EI2.EmployeeName ApprovedBy,IR.ApprovedBy ApprovedById,IR.CheckedBy CheckedById
+                        FROM [TRN].ServiceAcknowledgementMaster AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+                        LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+                        LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+                        LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation EI1 ON EI1.SystemId=IR.PreparedBy
+LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
+                        LEFT JOIN (SELECT A.ServiceAcknowledgementMasterId, sum(A.Amount) Amount
+						 FROM [TRN].ServiceAcknowledgementDetail AS A
+		                            JOIN [TRN].ServiceAcknowledgementMaster AS B ON A.ServiceAcknowledgementMasterId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId) AS IRD ON IRD.ServiceAcknowledgementMasterId=IR.Id
+                        LEFT JOIN (SELECT A.ServiceAcknowledgementMasterId FROM [TRN].ServiceAcknowledgementDetail AS A JOIN [TRN].ServiceAcknowledgementMaster AS B ON A.ServiceAcknowledgementMasterId=B.Id
+		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId  HAVING COUNT(A.ServiceAcknowledgementMasterId)> 
+									COUNT(A.ServiceMasterId)) 
+									AS TU ON TU.ServiceAcknowledgementMasterId=IR.Id
+                        WHERE IR.CheckedByStatus IS NULL AND IR.ApprovedByStatus IS NULL AND IR.ServiceType='IndependentService' AND IR.Id not in( Select ServicePOMasterId from trn.ServicePODetail where ServicePOMasterId IS NOT NULL) AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting') X";
+                }
+                else if (tabType == "CheckedHoldReject")
+                {
+                    sql = @"
+                        
+                            SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
+                                    , REPLACE(CONVERT(CHAR(11), IR.AcknowledgementDate, 106),' ','-') AS AcknowledgementDate
+                                    -- ,IR.GRNDate
+                                    , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+			                        , CP.UserName AS PartyAccountGroupName,IR.GateEntryNo,REPLACE(CONVERT(CHAR(11), IR.GateEntryDate, 106),' ','-') GateEntryDate
+	                                , IR.AcknowledgementDate
+									, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+	                                --, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.PODepended
+	                                , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IR.ToCurrencyRate
+                                    , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold
+									,IR.CheckedByStatus
+									, IR.NoteForAccounts,IRD.Amount,CheckedBy,IR.ApprovedByStatus,EI2.EmployeeName ApprovedBy,IR.ApprovedBy ApprovedById,IR.CheckedBy CheckedById
+                        FROM [TRN].ServiceAcknowledgementMaster AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+                        LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+                        LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+                        LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation EI1 ON EI1.SystemId=IR.PreparedBy
+LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
+                        LEFT JOIN (SELECT A.ServiceAcknowledgementMasterId, sum(A.Amount) Amount
+						 FROM [TRN].ServiceAcknowledgementDetail AS A
+		                            JOIN [TRN].ServiceAcknowledgementMaster AS B ON A.ServiceAcknowledgementMasterId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId) AS IRD ON IRD.ServiceAcknowledgementMasterId=IR.Id
+                        LEFT JOIN (SELECT A.ServiceAcknowledgementMasterId FROM [TRN].ServiceAcknowledgementDetail AS A JOIN [TRN].ServiceAcknowledgementMaster AS B ON A.ServiceAcknowledgementMasterId=B.Id
+		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId  HAVING COUNT(A.ServiceAcknowledgementMasterId)> 
+									COUNT(A.ServiceMasterId)) 
+									AS TU ON TU.ServiceAcknowledgementMasterId=IR.Id
+                      WHERE IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' AND IR.ServiceType='IndependentService' AND IR.ApprovedByStatus Is Null AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' ";
+
+
+                }
+                else if (tabType == "Checked")
+                {
+                    sql = @"
+                        
+                            SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
+                                    , REPLACE(CONVERT(CHAR(11), IR.AcknowledgementDate, 106),' ','-') AS AcknowledgementDate
+                                    -- ,IR.GRNDate
+                                    , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+			                        , CP.UserName AS PartyAccountGroupName,IR.GateEntryNo,REPLACE(CONVERT(CHAR(11), IR.GateEntryDate, 106),' ','-') GateEntryDate
+	                                , IR.AcknowledgementDate
+									, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+	                                --, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.PODepended
+	                                , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IR.ToCurrencyRate
+                                    , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold
+									,IR.CheckedByStatus
+									, IR.NoteForAccounts,IRD.Amount,CheckedBy,IR.ApprovedByStatus,EI2.EmployeeName ApprovedBy,IR.ApprovedBy ApprovedById,IR.CheckedBy CheckedById
+                        FROM [TRN].ServiceAcknowledgementMaster AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+                        LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+                        LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+                        LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation EI1 ON EI1.SystemId=IR.PreparedBy
+LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
+                        LEFT JOIN (SELECT A.ServiceAcknowledgementMasterId, sum(A.Amount) Amount
+						 FROM [TRN].ServiceAcknowledgementDetail AS A
+		                            JOIN [TRN].ServiceAcknowledgementMaster AS B ON A.ServiceAcknowledgementMasterId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId) AS IRD ON IRD.ServiceAcknowledgementMasterId=IR.Id
+                        LEFT JOIN (SELECT A.ServiceAcknowledgementMasterId FROM [TRN].ServiceAcknowledgementDetail AS A JOIN [TRN].ServiceAcknowledgementMaster AS B ON A.ServiceAcknowledgementMasterId=B.Id
+		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId  HAVING COUNT(A.ServiceAcknowledgementMasterId)> 
+									COUNT(A.ServiceMasterId)) 
+									AS TU ON TU.ServiceAcknowledgementMasterId=IR.Id
+                       WHERE  IR.CheckedByStatus='Checked' AND IR.ApprovedByStatus= 'For Approval' AND IR.ServiceType='IndependentService' AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' ";
+                }
+                else if (tabType == "ApprovedHoldReject")
+                {
+                    sql = @"
+                       
+                            SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
+                                    , REPLACE(CONVERT(CHAR(11), IR.AcknowledgementDate, 106),' ','-') AS AcknowledgementDate
+                                    -- ,IR.GRNDate
+                                    , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+			                        , CP.UserName AS PartyAccountGroupName,IR.GateEntryNo,REPLACE(CONVERT(CHAR(11), IR.GateEntryDate, 106),' ','-') GateEntryDate
+	                                , IR.AcknowledgementDate
+									, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+	                                --, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.PODepended
+	                                , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IR.ToCurrencyRate
+                                    , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold
+									,IR.CheckedByStatus
+									, IR.NoteForAccounts,IRD.Amount,CheckedBy,IR.ApprovedByStatus,EI2.EmployeeName ApprovedBy,IR.ApprovedBy ApprovedById,IR.CheckedBy CheckedById
+                        FROM [TRN].ServiceAcknowledgementMaster AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+                        LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+                        LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+                        LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation EI1 ON EI1.SystemId=IR.PreparedBy
+LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
+                        LEFT JOIN (SELECT A.ServiceAcknowledgementMasterId, sum(A.Amount) Amount
+						 FROM [TRN].ServiceAcknowledgementDetail AS A
+		                            JOIN [TRN].ServiceAcknowledgementMaster AS B ON A.ServiceAcknowledgementMasterId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId) AS IRD ON IRD.ServiceAcknowledgementMasterId=IR.Id
+                        LEFT JOIN (SELECT A.ServiceAcknowledgementMasterId FROM [TRN].ServiceAcknowledgementDetail AS A JOIN [TRN].ServiceAcknowledgementMaster AS B ON A.ServiceAcknowledgementMasterId=B.Id
+		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId  HAVING COUNT(A.ServiceAcknowledgementMasterId)> 
+									COUNT(A.ServiceMasterId)) 
+									AS TU ON TU.ServiceAcknowledgementMasterId=IR.Id
+                      WHERE IR.ApprovedByStatus='Hold' OR IR.ApprovedByStatus='Reject' AND IR.CheckedByStatus='Checked'  AND IR.ServiceType='IndependentService' AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' ";
+
+                }
+                else if (tabType == "Approved")
+                {
+                    sql = @"
+                        
+                        SELECT * from (   SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
+                                    , REPLACE(CONVERT(CHAR(11), IR.AcknowledgementDate, 106),' ','-') AS AcknowledgementDate
+                                    -- ,IR.GRNDate
+                                    , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+			                        , CP.UserName AS PartyAccountGroupName,IR.GateEntryNo,REPLACE(CONVERT(CHAR(11), IR.GateEntryDate, 106),' ','-') GateEntryDate
+	                                --, IR.AcknowledgementDate
+									, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+	                                --, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.PODepended
+	                                , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IR.ToCurrencyRate
+                                    , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold
+									,IR.CheckedByStatus
+									, IR.NoteForAccounts,IRD.Amount,CheckedBy,IR.ApprovedByStatus,EI2.EmployeeName ApprovedBy,IR.ApprovedBy ApprovedById,IR.CheckedBy CheckedById
+                        FROM [TRN].ServiceAcknowledgementMaster AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+                        LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+                        LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+                        LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation EI1 ON EI1.SystemId=IR.PreparedBy
+LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
+                        LEFT JOIN (SELECT A.ServiceAcknowledgementMasterId, sum(A.Amount) Amount
+						 FROM [TRN].ServiceAcknowledgementDetail AS A
+		                            JOIN [TRN].ServiceAcknowledgementMaster AS B ON A.ServiceAcknowledgementMasterId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId) AS IRD ON IRD.ServiceAcknowledgementMasterId=IR.Id
+                        LEFT JOIN (SELECT A.ServiceAcknowledgementMasterId FROM [TRN].ServiceAcknowledgementDetail AS A JOIN [TRN].ServiceAcknowledgementMaster AS B ON A.ServiceAcknowledgementMasterId=B.Id
+		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId  HAVING COUNT(A.ServiceAcknowledgementMasterId)> 
+									COUNT(A.ServiceMasterId)) 
+									AS TU ON TU.ServiceAcknowledgementMasterId=IR.Id
+                      WHERE IR.ApprovedByStatus='Approved'  AND IR.CheckedByStatus ='Checked' AND IR.ServiceType='IndependentService' AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' 
+                      UNION ALL
+
+    SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
+                                    , REPLACE(CONVERT(CHAR(11), IR.AcknowledgementDate, 106),' ','-') AS AcknowledgementDate
+                                    -- ,IR.GRNDate
+                                    , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+			                        , CP.UserName AS PartyAccountGroupName,IR.GateEntryNo,REPLACE(CONVERT(CHAR(11), IR.GateEntryDate, 106),' ','-') GateEntryDate
+	                                --, IR.AcknowledgementDate
+									, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+	                                --, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.PODepended
+	                                , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IR.ToCurrencyRate
+                                    , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold
+									,IR.CheckedByStatus
+									, IR.NoteForAccounts,IRD.Amount,CheckedBy,IR.ApprovedByStatus,EI2.EmployeeName ApprovedBy,IR.ApprovedBy ApprovedById,IR.CheckedBy CheckedById
+                        FROM [TRN].ServiceAcknowledgementMaster AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+                        LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+                        LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+                        LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation EI1 ON EI1.SystemId=IR.PreparedBy
+                        LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
+                        LEFT JOIN (SELECT A.ServiceAcknowledgementMasterId, sum(A.Amount) Amount
+						 FROM [TRN].ServiceAcknowledgementDetail AS A
+		                            JOIN [TRN].ServiceAcknowledgementMaster AS B ON A.ServiceAcknowledgementMasterId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId) AS IRD ON IRD.ServiceAcknowledgementMasterId=IR.Id
+                        LEFT JOIN (SELECT A.ServiceAcknowledgementMasterId FROM [TRN].ServiceAcknowledgementDetail AS A JOIN [TRN].ServiceAcknowledgementMaster AS B ON A.ServiceAcknowledgementMasterId=B.Id
+		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId  HAVING COUNT(A.ServiceAcknowledgementMasterId)> 
+									COUNT(A.ServiceMasterId)) 
+									AS TU ON TU.ServiceAcknowledgementMasterId=IR.Id
+                      WHERE IR.ApprovedByStatus='Approved' AND IR.CheckedByStatus IS NULL  AND IR.ServiceType='IndependentService' AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' 
+                        UNION ALL
+
+                     SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id 
+                                    , REPLACE(CONVERT(CHAR(11), IR.AcknowledgementDate, 106),' ','-') AS AcknowledgementDate
+                                    -- ,IR.GRNDate
+                                    , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+			                        , CP.UserName AS PartyAccountGroupName,IR.GateEntryNo,REPLACE(CONVERT(CHAR(11), IR.GateEntryDate, 106),' ','-') GateEntryDate
+	                                --, IR.AcknowledgementDate
+									, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+	                                --, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.PODepended
+	                                , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IR.ToCurrencyRate
+                                    , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold
+									,IR.CheckedByStatus
+									, IR.NoteForAccounts,IRD.Amount,CheckedBy,IR.ApprovedByStatus,EI2.EmployeeName ApprovedBy,IR.ApprovedBy ApprovedById,IR.CheckedBy CheckedById
+                        FROM [TRN].ServiceAcknowledgementMaster AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+                        LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+                        LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+                        LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation EI1 ON EI1.SystemId=IR.PreparedBy
+LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
+                        LEFT JOIN (SELECT A.ServiceAcknowledgementMasterId, sum(A.Amount) Amount
+						 FROM [TRN].ServiceAcknowledgementDetail AS A
+		                            JOIN [TRN].ServiceAcknowledgementMaster AS B ON A.ServiceAcknowledgementMasterId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId) AS IRD ON IRD.ServiceAcknowledgementMasterId=IR.Id
+                        LEFT JOIN (SELECT A.ServiceAcknowledgementMasterId FROM [TRN].ServiceAcknowledgementDetail AS A JOIN [TRN].ServiceAcknowledgementMaster AS B ON A.ServiceAcknowledgementMasterId=B.Id
+		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId  HAVING COUNT(A.ServiceAcknowledgementMasterId)> 
+									COUNT(A.ServiceMasterId)) 
+									AS TU ON TU.ServiceAcknowledgementMasterId=IR.Id
+                      WHERE IR.ApprovedByStatus IS NULL  AND IR.CheckedByStatus IS NULL    AND IR.ServiceType='IndependentService' AND IR.Id  in( Select ServicePOMasterId from trn.ServicePODetail where ServicePOMasterId IS NOT NULL) AND IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.[Status],'')<>'Posting' 
+                  )X ";
+                }
+                else if (tabType == "Posted")
+                {
+                    sql = @"
+                            SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
+                                    , REPLACE(CONVERT(CHAR(11), IR.AcknowledgementDate, 106),' ','-') AS AcknowledgementDate
+                                    -- ,IR.GRNDate
+                                    , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+			                        , CP.UserName AS PartyAccountGroupName,IR.GateEntryNo,REPLACE(CONVERT(CHAR(11), IR.GateEntryDate, 106),' ','-') GateEntryDate
+	                                , IR.AcknowledgementDate
+									, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+	                                --, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
+									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
+	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
+									, IR.PODepended
+	                                , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
+									, IR.ToCurrencyRate
+                                    , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
+									, IR.IsApproved, IR.IsPaymentHold
+									,IR.CheckedByStatus
+									, IR.NoteForAccounts,IRD.Amount,CheckedBy,IR.ApprovedByStatus,EI2.EmployeeName ApprovedBy,IR.ApprovedBy ApprovedById,IR.CheckedBy CheckedById
+                        FROM [TRN].ServiceAcknowledgementMaster AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
+                        LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
+			                        ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
+                        LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+                        LEFT JOIN [MST].[PaymentTerm] AS PT ON IR.PaymentTermId=PT.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM ON IPP.AddressMasterId=AM.Id
+                        LEFT JOIN [SCS].[State] AS S1 ON AM.StateId=S1.Id
+                        LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
+                        LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
+                        LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+                        LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IR.CheckedBy
+						LEFT JOIN dbo.EmployeeInformation EI1 ON EI1.SystemId=IR.PreparedBy
+                        LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
+                        LEFT JOIN (SELECT A.ServiceAcknowledgementMasterId, sum(A.Amount) Amount
+						 FROM [TRN].ServiceAcknowledgementDetail AS A
+		                            JOIN [TRN].ServiceAcknowledgementMaster AS B ON A.ServiceAcknowledgementMasterId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId) AS IRD ON IRD.ServiceAcknowledgementMasterId=IR.Id
+                        LEFT JOIN (SELECT A.ServiceAcknowledgementMasterId FROM [TRN].ServiceAcknowledgementDetail AS A JOIN [TRN].ServiceAcknowledgementMaster AS B ON A.ServiceAcknowledgementMasterId=B.Id
+		                            WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.ServiceAcknowledgementMasterId  HAVING COUNT(A.ServiceAcknowledgementMasterId)> 
+									COUNT(A.ServiceMasterId)) 
+									AS TU ON TU.ServiceAcknowledgementMasterId=IR.Id
+                      WHERE IR.ApprovedByStatus='Approved' AND IR.PlantId='" + identity.PlantId + @"' AND IR.ServiceType='IndependentService' AND ISNULL(IR.[Status],'')='Posting'";
+                }
+
+                return  _sqlRepository.GetDataCollection(sql);
+
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
     }
 }

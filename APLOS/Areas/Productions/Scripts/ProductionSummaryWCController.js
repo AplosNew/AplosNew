@@ -1791,6 +1791,12 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     $scope.SaveMasterWC = function (data) {
         $scope.NewObject = data.data;
+        //if ($scope.NewObject.BookingLevel === 'MasterOrderItem') {
+        //    if (baseService.isUndefinedOrNull($scope.NewObject.MasterOrderItemId)) {
+        //        throw "Select MO Item please.";
+        //    }
+        //    $scope.getMasterOrderValidateView($scope.NewObject.WorkCenterMasterId, $scope.NewObject.BookingLevel, $scope.NewObject.ProductionOrderId);
+        //}
         var processid = $scope.productionSummaryNew.ProcessId;
         var entityid = $scope.productionSummaryNew.EntityId;
         var productiondate = $scope.productionSummaryNew.ProductionDate;
@@ -2920,7 +2926,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.getMasterOrderItem = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'GetMasterOrderItem?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.NewobjectMOI.WorkCenterMasterId + '&productionLevel=' + $scope.NewobjectMOI.BookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + $scope.NewobjectMOI.ProductionOrderId,
+            url: $scope.path + 'GetMasterOrderItem?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.NewobjectMOI.WorkCenterMasterId + '&productionLevel=' + $scope.NewobjectMOI.BookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + $scope.NewobjectMOI.ProductionOrderId + '&ToCloseAllowed=' + $scope.ToCloseAllowed,
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.MasterOrderItemList = resp.data;
@@ -2931,7 +2937,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.getMasterOrderItemView = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'GetMasterOrderItem?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.NewobjectMOI.WorkCenterMasterId + '&productionLevel=' + $scope.NewobjectMOI.BookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + $scope.NewobjectMOI.ProductionOrderId,
+            url: $scope.path + 'GetMasterOrderItem?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.NewobjectMOI.WorkCenterMasterId + '&productionLevel=' + $scope.NewobjectMOI.BookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + $scope.NewobjectMOI.ProductionOrderId + '&ToCloseAllowed=' + $scope.ToCloseAllowed,
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.MasterOrderItemViewList = resp.data;
@@ -2942,7 +2948,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.getMasterOrderValidateView = function (wcid, bl, poid) {
         $http({
             method: 'POST',
-            url: $scope.path + 'GetMasterOrderItem?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + wcid + '&productionLevel=' + bl + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + poid,
+            url: $scope.path + 'GetMasterOrderItem?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + wcid + '&productionLevel=' + bl + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + poid + '&ToCloseAllowed=' + $scope.ToCloseAllowed,
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.MasterOrderItemValidateList = resp.data;

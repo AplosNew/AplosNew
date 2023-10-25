@@ -221,6 +221,7 @@ function cboService($http, $window, $rootScope, baseService) {
         , getCboVoucherTypeIssueJournalList: getCboVoucherTypeIssueJournalList
         , getCboVoucherTypeIssueReturnJournalList: getCboVoucherTypeIssueReturnJournalList
         , getCboVoucherTypeFixedAssetCapitalizeJournalList: getCboVoucherTypeFixedAssetCapitalizeJournalList
+        , getCboVoucherTypeFiscalYearCloseJournalList: getCboVoucherTypeFiscalYearCloseJournalList
         , getCboVoucherTypeFixedAssetDepreciationJournalList: getCboVoucherTypeFixedAssetDepreciationJournalList
         , getCboVoucherTypeFixedAssetDisposeJournalList: getCboVoucherTypeFixedAssetDisposeJournalList
         , getCboVoucherTypePaymentList: getCboVoucherTypePaymentList
@@ -1510,6 +1511,9 @@ function cboService($http, $window, $rootScope, baseService) {
     }
     function getCboVoucherTypePaymentList(callback) {
         base('accounts/VoucherTypeMatrix/GetCboVoucherTypePaymentList', callback);
+    }
+    function getCboVoucherTypeFiscalYearCloseJournalList(callback) {
+        base('accounts/VoucherTypeMatrix/GetCboVoucherTypeFiscalYearCloseJournalList', callback);
     }
 
     function getCboVoucherTypePartyReconcilliationList(callback) {

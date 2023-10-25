@@ -386,5 +386,9 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/ProductionOrderEntitySetup/Aplos',
             controller: 'ProductionOrderEntitySetupController'
         })
+        .when('/lot-control', {
+            templateUrl: 'Productions/LotControl/Aplos',
+            controller: 'LotControlController'
+        })
         ;
 }

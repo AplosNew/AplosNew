@@ -45,6 +45,7 @@ namespace Library.Model.Inventory
         public string CheckedHoldRejectReason { get; set; }
         public string NoteForAccounts { get; set; }
         public string GateEntryNo { get; set; }
+        public string ServiceType { get; set; }
         public DateTime? GateEntryDate { get; set; }
 
 

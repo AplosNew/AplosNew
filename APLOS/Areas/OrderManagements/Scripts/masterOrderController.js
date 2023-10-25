@@ -50,9 +50,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         { 'name': 'Bill To', 'value': 'InvoicingPartyPlant' },
         { 'name': 'Ship To', 'value': 'DeliveryPartyPlant' },
         { 'name': 'Buyer Ref. No-Item', 'value': 'BuyerReferenceNoItem' },
-        { 'name': 'OwnItem', 'value': 'Own Item#' },
-        { 'name': 'BuyerReferenceNo', 'value': 'Buyer Ord#' },
-        { 'name': 'OwnReferenceNo', 'value': 'Own Order#' }
+        { 'name': 'Own Item', 'value': 'OwnItem' },
+        { 'name': 'Buyer Orde/Ref No', 'value': 'BuyerReferenceNo' },
+        { 'name': 'Own Order/Ref No', 'value': 'OwnReferenceNo' }
     ];
     $scope.files = [];
     $scope.getData = function () {

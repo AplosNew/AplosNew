@@ -47,6 +47,7 @@ namespace Library.MaterialManagement.Inventory
         void PoApprovedAuth(string PoId, string PoValue, string CheckedStataus, string AuthorizedBy);
 
         IEnumerable<object> GetCheckedByAndApprovedBYServiceRequisitionCreation(string CheckedBy, string ApprovedBy);
+        IEnumerable<object> GetListIndependentServiceAcknowledgementData(string tabType);
 
     }
 }
