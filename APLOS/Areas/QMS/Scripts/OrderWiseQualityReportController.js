@@ -338,5 +338,24 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
             ShowResult(e, 'failure');
         }
     };
+
+    $scope.rowDataBound = function rowDataBound(e) {
+
+        if (e.data.QualityStatus == 'Pending') {
+            e.row.css("background-color", '#FFFDD0');
+        }
+        else if (e.data.QualityStatus == 'Pass') {
+
+            e.row.css("background-color", '#90EE90');
+        }
+        else if (e.data.QualityStatus == 'Fail') {
+
+            e.row.css("background-color", '#ffb38a');
+        }
+        else {
+            e.row.css("background-color", '#F62817');
+
+        }
+    }
 }
 
