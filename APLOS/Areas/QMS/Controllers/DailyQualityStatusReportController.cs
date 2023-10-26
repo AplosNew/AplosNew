@@ -20,7 +20,7 @@ using System.Web.Script.Serialization;
 
 namespace Aplos.Areas.QMS.Controllers
 {
-    public class OrderWiseQualityReportController : Controller
+    public class DailyQualityStatusReportController : Controller
     {
         #region Constructor
 
@@ -28,7 +28,7 @@ namespace Aplos.Areas.QMS.Controllers
 
         private readonly ISqlRepository _sqlRepository;
 
-        public OrderWiseQualityReportController(ISqlRepository R)
+        public DailyQualityStatusReportController(ISqlRepository R)
         {
             _sqlRepository = R;
         }
@@ -58,7 +58,7 @@ left join ORG.Entity E on E.Id=EntityId)EI order by EI.Text";
         }
 
         [HttpGet, Authorize]
-        public ActionResult LoadOrderWiseQualityReport(string FromDate, string ToDate, string PartyNature, string EntityId)
+        public ActionResult LoadDailyQualityStatusReport(string FromDate, string ToDate, string PartyNature, string EntityId)
         {
             string FilterPartyNature = string.Empty;
             string FilterEntity = string.Empty;

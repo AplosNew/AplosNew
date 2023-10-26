@@ -128,10 +128,10 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
             {
                 #region Entity 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.GoodWorkBudgetSetUp where  GoodWorkSetUpId='" + goodWorkSetupId + "'", out dsBC, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.GoodWorkEntitySetup where  GoodWorkSetUpId='" + goodWorkSetupId + "'", out dsBC, false, "1");
                 if (data != null)
                 {
-                    genid.GenID("GoodWorkBudgetSetUp", out _Id);
+                    genid.GenID("GoodWorkEntitySetup", out _Id);
                     foreach (var item in data)
                     {
                         c++;
@@ -160,6 +160,29 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
             catch (Exception ex)
             {
                 return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        [Authorize, HttpPost]
+        public ActionResult EntityDelete(string Id)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string sqlr = @"select * from GoodWorkEntitySetup where Id = '" + Id + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlr, out dsMaster, false, "1");
+
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from GoodWorkEntitySetup where Id ='" + Id + "'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 
@@ -217,7 +240,7 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
                     foreach (var item in data)
                     {                        
                         DataView dv = new DataView(dsBC.Tables[0]);
-                        dv.RowFilter = "Id='" + item["BudgetId"] + "'";
+                        dv.RowFilter = "BudgetId='" + item["BudgetId"] + "'";
 
                         if (dv.Count == 0)
                         {
@@ -250,6 +273,29 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
             try
             {
                 return Json(clsCon.GetGoodWorkBudgetCodeSetupData(goodWorkSetupId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        [Authorize, HttpPost]
+        public ActionResult BudgetCodeDelete(string Id)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string sqlr = @"select * from GoodWorkBudgetSetUp where Id = '" + Id + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlr, out dsMaster, false, "1");
+
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from GoodWorkBudgetSetUp where Id ='" + Id + "'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -330,6 +376,29 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
                 throw ex;
             }
         }
+        [Authorize, HttpPost]
+        public ActionResult AuthorityDelete(string Id)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string sqlr = @"select * from GoodWorkAuthoritySetUp where Id = '" + Id + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlr, out dsMaster, false, "1");
+
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from GoodWorkAuthoritySetUp where Id ='" + Id + "'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         [HttpPost, Authorize]
         public JsonResult CreateCheckBy(List<Dictionary<string, object>> data, string goodWorkSetupId)
@@ -389,6 +458,30 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
                 throw ex;
             }
         }
+        [Authorize, HttpPost]
+        public ActionResult CheckByDelete(string Id)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string sqlr = @"select * from GoodWorkCheckBySetUp where Id = '" + Id + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlr, out dsMaster, false, "1");
+
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from GoodWorkCheckBySetUp where Id ='" + Id + "'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

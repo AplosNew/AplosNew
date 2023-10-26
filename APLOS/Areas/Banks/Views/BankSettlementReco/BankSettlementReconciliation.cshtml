@@ -73,7 +73,8 @@
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="address" role="tab" data-toggle="tab">Bank Received</a></li>
-                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="address" role="tab" data-toggle="tab">Bank Payment</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="address" role="tab" data-toggle="tab">Bank Payment</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="address" role="tab" data-toggle="tab">Expneses</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -117,7 +118,7 @@
                                         <td class="text-right">
                                             <ul class="list-inline text-right">
                                                 <li><a href="{{bootPoint}}bank-settle-customerAdvance/{{x.Id}}" class="btn btn-action">Settle By Advance</a></li>
-                                                <li><a href="{{bootPoint}}bank-settle-customerAdvance/{{x.Id}}" class="btn btn-action">Settle By Invoice</a></li>
+                                                <li><a href="{{bootPoint}}bank-settle-customerReceipt/{{x.Id}}" class="btn btn-action">Settle By Invoice</a></li>
                                             </ul>
                                         </td>
                                     </tr>
@@ -133,7 +134,7 @@
                 </div>
             </div>
 
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                 <div class="row">
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <fieldset class="scheduler-border">
@@ -212,7 +213,60 @@
                     </div>
                 </div>
             </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <div class="row">
 
+                    <div class="col-xs-12 col-sm-4 col-md-4">
+                        <div class="form-group" ng-show="bankCrReconUploadedDataList.length">
+                            <label class="col-sm-4 control-label">Select Cr Upload Data<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+                                    <input type="text" name="PartyName" ng-model="voucher.PartyName" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="showCRUploadPopUp();" ng-disabled="voucher.IsSplit==true" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-xs-12 col-sm-12 col-md-12" ng-show="bankCrReconUploadedDataList.length">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-responsive table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>BankStatementDate</th>
+                                        <th>BankRefNo</th>
+                                        <th>BankParticulars</th>
+                                        <th>Amount</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in selectedCrUploadDataList">
+                                        <td>{{x.Id}}</td>
+                                        <td>{{x.BankStatementDate |dateFiltering}}</td>
+                                        <td>{{x.BankRefNo}}</td>
+                                        <td>{{x.BankParticulars}}</td>
+                                        <td class="text-right">{{x.CrAmount | number:2}}</td>
+                                        <td class="text-right">
+                                            <ul class="list-inline text-right">
+                                                <li><a href="{{bootPoint}}bank-settle-journal/{{x.Id}}" class="btn btn-action">Settle By Expenses</a></li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="DRREconcileReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download </button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -251,6 +305,41 @@
                 </div>
                 <ul class="common-btn list-inline text-right">
                     <li><button ng-click="hideDRUploadPopUp();" class="btn"> Close</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="crUploadPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header"> Cr Upload List <button type="button" class="close" ng-click="hideCRUploadPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+                        <div style="color:black;" id="GridbankCrReconUploadedDataList"
+                             ej-grid e-datasource="bankCrReconUploadedDataList"
+                             e-allowfiltering="true" e-recorddoubleclick="selectCRUploadData"
+                             e-allowpaging="true"
+                             e-gridlines="vertical" e-allowscrolling="true"
+                             e-filtersettings-filterType="excel"
+                             e-enabletouch="false"
+                             e-allowresizing="true"
+                             e-allowselection="false"
+                             e-allowsorting="true">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="30" e-textalign="center"></div>
+                                <div e-column e-field="BankStatementDate" e-headertext="Date" e-width="30" e-textalign="center"></div>
+                                <div e-column e-field="BankRefNo" e-headertext="Bank RefNo" e-width="50" e-textalign="center"></div>
+                                <div e-column e-field="BankParticulars" e-headertext="Bank Particulars" e-width="50" e-textalign="center"></div>
+                                <div e-column e-type="numeric" e-format="{0:0.00}" e-field="CrAmount" e-headertext="Amount" e-width="40" e-textalign="right" style="height: 20px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="hideCRUploadPopUp();" class="btn"> Close</button></li>
                 </ul>
             </div>
         </div>

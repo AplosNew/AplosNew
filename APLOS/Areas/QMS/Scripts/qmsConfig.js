@@ -175,6 +175,10 @@
             templateUrl: 'QMS/OrderWiseQualityReport/aplos',
             controller: 'OrderWiseQualityReportController'
         })
+        .when('/daily-quality-status-report', {
+            templateUrl: 'QMS/DailyQualityStatusReport/aplos',
+            controller: 'DailyQualityStatusReportController'
+        })
 
         
 }

@@ -657,6 +657,7 @@
     <Compile Include="Areas\QMS\Controllers\CustomerCompletedParameterController.cs" />
     <Compile Include="Areas\QMS\Controllers\CustomerQualityAndTechnicalSupportController.cs" />
     <Compile Include="Areas\QMS\Controllers\CustomerConfirmationParameterController.cs" />
+    <Compile Include="Areas\QMS\Controllers\DailyQualityStatusReportController.cs" />
     <Compile Include="Areas\QMS\Controllers\OrderWiseQualityReportController.cs" />
     <Compile Include="Areas\QMS\Controllers\ParameterSettingControlController.cs" />
     <Compile Include="Areas\QMS\Controllers\DefineProcessParameterController.cs" />
@@ -2013,6 +2014,7 @@
     <Content Include="Areas\Attendances\Scripts\attendanceBonusPolicyController.js" />
     <Content Include="Areas\Attendances\Scripts\shiftTimeChangeController.js" />
     <Content Include="Areas\Attendances\Scripts\SandwichProcessController.js" />
+    <Content Include="Areas\Banks\Scripts\bankSettlementJournalController.js" />
     <Content Include="Areas\Banks\Scripts\bankReconciliationClosingController.js" />
     <Content Include="Areas\Banks\Scripts\bankSettlementReconciliationController.js" />
     <Content Include="Areas\Banks\Scripts\bankReconciliationDataUploadReconciledController.js" />
@@ -2023,6 +2025,7 @@
     <Content Include="Areas\Attendances\Scripts\OTManagementController.js" />
     <Content Include="Areas\Banks\Scripts\cashReceiptPaymentReportController.js" />
     <Content Include="Areas\Banks\Scripts\BankSettlementCustomerAdvanceController.js" />
+    <Content Include="Areas\Banks\Scripts\bankSettlementCustomerReceiptController.js" />
     <Content Include="Areas\Banks\Scripts\postDateChequeController.js" />
     <Content Include="Areas\Banks\Scripts\checkManagementReportController.js" />
     <Content Include="Areas\Banks\Scripts\checkVoidController.js" />
@@ -2118,6 +2121,7 @@
     <Content Include="Areas\HumanResource\Scripts\VehicleInOutController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleMovementController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleMovementRequisitionController.js" />
+    <Content Include="Areas\HumanResource\Scripts\VehicleReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleReqForApproveController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleTripController.js" />
     <Content Include="Areas\IE\Scripts\WorkcenterWiseDetentionController.js" />
@@ -2319,6 +2323,7 @@
     <Content Include="Areas\QMS\Scripts\CustomerCompletedParameterController.js" />
     <Content Include="Areas\QMS\Scripts\CustomerQualityAndTechnicalSupportController.js" />
     <Content Include="Areas\QMS\Scripts\CustomerConfirmationParameterController.js" />
+    <Content Include="Areas\QMS\Scripts\DailyQualityStatusReportController.js" />
     <Content Include="Areas\QMS\Scripts\OrderWiseQualityReportController.js" />
     <Content Include="Areas\QMS\Scripts\ParameterSettingControlController.js" />
     <Content Include="Areas\QMS\Scripts\DocumentSetupController.js" />
@@ -4835,6 +4840,9 @@
     <Content Include="Areas\Accounts\Views\Loan\_InvestmentListPopUp.cshtml" />
     <Content Include="Areas\Productions\Views\LotControl\Aplos.cshtml" />
     <Content Include="Areas\Banks\Views\BankSettlementReco\BankSettlementCustomerAdvance.cshtml" />
+    <Content Include="Areas\Banks\Views\BankSettlementReco\BankSettlementCustomerReceipt.cshtml" />
+    <Content Include="Areas\Banks\Views\BankSettlementReco\BankSettlementJournal.cshtml" />
+    <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\Vehiclereport.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -4994,6 +5002,7 @@
     <Content Include="Areas\QMS\Views\ParameterSettingControl\Aplos.cshtml" />
     <Content Include="Areas\QMS\Views\OrderWiseQualityReport\Aplos.cshtml" />
     <Content Include="Areas\Products\Views\PurchaseOrder\ServiceAcknowledgement.cshtml" />
+    <Content Include="Areas\QMS\Views\DailyQualityStatusReport\Aplos.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />
