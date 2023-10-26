@@ -85,19 +85,24 @@ where SO.OrderStatusId in ('Active','Toship','ToClose') and MOI.CustomerParamete
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string
-                sql = @"select RD.Id,SD.Id SId,QCD.Id ParameterId,QC.Id TransactionHeaderId,QMM.UserName Issue,QC.IssueId, QCD.ItemId,
-PM.UserName ParameterName,QPM.UOMId,UOM.UserName UOM,'" + MasterId + @"' UCPId,RD.MinRequirement,RD.MaxRequirement,SD.MinStandard,SD.MaxStandard MaxStandard,EI.EmployeeName ResponsiblePerson,RD.Remarks,RD.CriticalLevel,
-(select ArticleId from TRN.MasterOrderItem where CustomerParameterId='" + MasterId + @"' and Id='" + LineItemNo + @"') as ArticleId
-from TRN.QualityControlDetails QCD
-left join TRN.QualityControl QC on QC.Id=QCD.QCId
-left join MST.QualityManagementMaster QMM on QMM.Id= QC.IssueId
-left join MST.QualityManagementParameterItem QPM on QPM.Id=QCD.ItemId
-left join hkp.ParameterMaster PM on PM.Id=QPM.ParameterId
-left join SCS.UnitOfMeasurement UOM on UOM.Id=QPM.UOMId
-left join TRN.UCPRequirementDetails RD on RD.UCPId='" + MasterId + @"' and RD.ParameterId=QCD.Id
-left join TRN.UCPMaxMinStandardDetails SD on SD.ArticleId=(select ArticleId from TRN.MasterOrderItem where CustomerParameterId='" + MasterId + @"' and Id='"+ LineItemNo + @"') and SD.ParameterId=QCD.Id
+                sql = @"select * from (select  MOI.Id LineItemNo,1 PlanSet from  TRN.SalesOrder SO
+left join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
+left join MST.MaterialMaster MM on MM.Id=MOI.MaterialMasterId 
+left join [MST].[MaterialMasterArticle] MA ON MA.Id=MOI.ArticleId
+where SO.OrderStatusId in ('Active','Toship','ToClose'))P
+inner join (select QMM.UserName Issue,QMP.QMID IssueId,QMP.Id ParameterId,PM.UserName ParameterName,QMP.SNO ParameterSequence,
+QMP.UOMId,UOM.UserName UOM,PR.UserName Process,1 Planset,'" + MasterId + @"' UCPId,RD.MinRequirement,RD.MaxRequirement,SD.MinStandard,SD.MaxStandard,
+EI.EmployeeName ResponsiblePerson,RD.Remarks,RD.CriticalLevel,RD.Id,SD.Id SId,(select ArticleId from TRN.MasterOrderItem where CustomerParameterId='" + MasterId + @"' and Id='" + LineItemNo + @"') as ArticleId
+from MST.QualityManagementParameterItem QMP
+left join MST.QualityManagementMaster QMM on QMM.Id=QMP.QMID
+left join Hkp.ParameterMaster PM on PM.Id=QMP.ParameterId
+left join SCS.UnitOfMeasurement UOM on UOM.Id=QMP.UOMId
+left join hkp.Process PR on  PR.Id=QMP.ProcessId
+left join TRN.UCPRequirementDetails RD on RD.UCPId='" + MasterId + @"' and RD.ParameterId=QMP.Id
+left join TRN.UCPMaxMinStandardDetails SD on SD.ArticleId=(select ArticleId from TRN.MasterOrderItem where CustomerParameterId='" + MasterId + @"' and Id='" + LineItemNo + @"') and SD.ParameterId=QMP.Id
 left join EmployeeInformation EI on EI.SystemId=RD.ResponsiblePersonId
-where ItemId in (select Id from MST.QualityManagementParameterItem where CustomerParameter = 1)";
+where CustomerParameter = 1)CP on CP.Planset=P.PlanSet
+where P.LineItemNo='" + LineItemNo + @"'";
              return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 

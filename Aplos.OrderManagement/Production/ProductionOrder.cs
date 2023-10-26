@@ -724,17 +724,14 @@ Where PS.ProductionOrderId='" + poId + "'";
             }
         }
 
-        public IEnumerable<object> GetPOLotControlSettingData(string entityId,string PoId)
+        public IEnumerable<object> GetPOLotControlSettingData(string entityId, string PoId)
         {
             try
             {
 
-                var sql = @"Select LC.Id,T.ProcessId,P.UserName Process,T.ProductionBookingLevel,LotNo=FORMAT(GETDATE(), 'yy')+''+FORMAT(GETDATE(), 'MM')
-from HKP.EntityProcessTag T
-LEFT JOIN HKP.Process P ON P.Id=T.ProcessId
-LEFT JOIN dbo.LotControl LC ON LC.EntityId=T.EntityId AND LC.ProductionOrderId='"+ PoId + @"'
-Where T.EntityId='" + entityId+@"'
-Order By T.ProductionBookingLevel";
+                var sql = @"SELECT L.*,P.UserName Process  FROM [dbo].[ProductionOrderLotControl] L
+LEFT JOIN HKP.Process P ON P.Id=L.ProcessId
+Where L.ProductionOrderId='" + PoId + "' AND L.EntityId='"+entityId+"'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -743,5 +740,135 @@ Order By T.ProductionBookingLevel";
             }
         }
 
+        public DataTable GetPOLotControlSettingsData(string entityId, string PoId, string userLotNo)
+        {
+            try
+            {
+
+                var sql = @"Select LCS.Id,P.UserName Process,P.Id ProcessId,EntityId='" + entityId + @"',B.* ,LotQty=B.Qty
+,OrderQty=CASE WHEN B.ProductionBookingLevel='MasterOrderItem' THEN 
+					(Select SUM(TotalQty)Qty From TRN.MasterOrderItem A
+					LEFT JOIN TRN.SalesOrder B ON B.MasterOrderItemId=A.Id
+					LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+					Where C.ProductionOrderId=" + PoId + @"
+					Group By C.ProductionOrderId)
+
+		 WHEN B.ProductionBookingLevel='SalesOrder' THEN 
+				(Select SUM(Qty)Qty From TRN.SalesOrder B 
+				LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+				Where C.ProductionOrderId=" + PoId + @"
+				Group By C.ProductionOrderId)
+
+				ELSE (Select SUM(Qty)Qty From TRN.SalesOrder B 
+				LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+				Where C.ProductionOrderId=" + PoId + @"
+				Group By C.ProductionOrderId) END
+
+,PlanQty=(Select SUM((isnull(B.qty, 0) * (1 + (isnull(A.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(A.OrderWastagePercentage, 0)))) From TRN.MasterOrderItem A
+					LEFT JOIN TRN.SalesOrder B ON B.MasterOrderItemId=A.Id
+					LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+					Where C.ProductionOrderId=" + PoId + @"
+					Group By C.ProductionOrderId)
+
+		
+,SchedulePercentage=CONVERT(decimal(18,2), B.Qty/(
+CASE WHEN B.ProductionBookingLevel='MasterOrderItem' THEN 
+					(Select SUM(TotalQty)Qty From TRN.MasterOrderItem A
+					LEFT JOIN TRN.SalesOrder B ON B.MasterOrderItemId=A.Id
+					LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+					Where C.ProductionOrderId=" + PoId + @"
+					Group By C.ProductionOrderId)
+
+		 WHEN B.ProductionBookingLevel='SalesOrder' THEN 
+				(Select SUM(Qty)Qty From TRN.SalesOrder B 
+				LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+				Where C.ProductionOrderId=" + PoId + @"
+				Group By C.ProductionOrderId)
+
+				ELSE (Select SUM(Qty)Qty From TRN.SalesOrder B 
+				LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+				Where C.ProductionOrderId=" + PoId + @"
+				Group By C.ProductionOrderId) END
+))
+
+,ProcessPlanQty=CONVERT(decimal(18,2),((CASE WHEN B.ProductionBookingLevel='MasterOrderItem' THEN 
+					(Select SUM(TotalQty)Qty From TRN.MasterOrderItem A
+					LEFT JOIN TRN.SalesOrder B ON B.MasterOrderItemId=A.Id
+					LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+					Where C.ProductionOrderId=" + PoId + @"
+					Group By C.ProductionOrderId)
+
+		 WHEN B.ProductionBookingLevel='SalesOrder' THEN 
+				(Select SUM(Qty)Qty From TRN.SalesOrder B 
+				LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+				Where C.ProductionOrderId=" + PoId + @"
+				Group By C.ProductionOrderId)
+
+				ELSE (Select SUM(Qty)Qty From TRN.SalesOrder B 
+				LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+				Where C.ProductionOrderId=" + PoId + @"
+				Group By C.ProductionOrderId) END)*(CONVERT(decimal(18,2), B.Qty/(
+CASE WHEN B.ProductionBookingLevel='MasterOrderItem' THEN 
+					(Select SUM(TotalQty)Qty From TRN.MasterOrderItem A
+					LEFT JOIN TRN.SalesOrder B ON B.MasterOrderItemId=A.Id
+					LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+					Where C.ProductionOrderId=" + PoId + @"
+					Group By C.ProductionOrderId)
+
+		 WHEN B.ProductionBookingLevel='SalesOrder' THEN 
+				(Select SUM(Qty)Qty From TRN.SalesOrder B 
+				LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+				Where C.ProductionOrderId=" + PoId + @"
+				Group By C.ProductionOrderId)
+
+				ELSE (Select SUM(Qty)Qty From TRN.SalesOrder B 
+				LEFT JOIN TRN.ProductionOrderDetail C ON C.SalesOrderId=B.Id
+				Where C.ProductionOrderId=" + PoId + @"
+				Group By C.ProductionOrderId) END
+)))/(100-(PS.Qty-100))*100))
+,UserLotNo=CASE WHEN B.ProductionBookingLevel='ProductionOrder' THEN CAST('" + userLotNo + @"' AS varchar(50))
+				WHEN B.ProductionBookingLevel='MasterOrderItem' THEN CAST('" + userLotNo + @"' AS varchar(50))+'-'+CAST(B.SeqNo AS varchar(10))
+				WHEN B.ProductionBookingLevel='SalesOrder' THEN CAST('" + userLotNo + @"' AS varchar(50))+'-S'+CAST(B.SeqNo AS varchar(10)) ELSE NULL END, NULL Sufix
+From(
+Select A.*,ProductionBookingLevel=CASE WHEN (A.MasterOrderItemId IS NULL AND A.SalesOrderId IS NULL) THEN 'ProductionOrder'   
+					WHEN (A.MasterOrderItemId IS NOT NULL AND A.SalesOrderId IS NULL) THEN 'MasterOrderItem'   
+					WHEN (A.MasterOrderItemId IS NULL AND A.SalesOrderId IS  NOT NULL) THEN 'SalesOrder' ELSE NULL END
+
+,LotNo=CASE WHEN (A.MasterOrderItemId IS NULL AND A.SalesOrderId IS NULL) THEN CAST(A.ProductionOrderId AS varchar(50))
+					WHEN (A.MasterOrderItemId IS NOT NULL AND A.SalesOrderId IS NULL) THEN CAST(A.ProductionOrderId AS varchar(50))+'-'+CAST(A.SeqNo AS varchar(10))
+					WHEN (A.MasterOrderItemId IS NULL AND A.SalesOrderId IS  NOT NULL) THEN CAST(A.SalesOrderId AS varchar(50)) ELSE NULL END 
+
+from (
+Select Id ProductionOrderId,NULL MasterOrderItemId,NULL SalesOrderId,Qty
+,SeqNo=ROW_NUMBER() OVER(ORDER BY Id DESC) from TRN.ProductionOrder Where Id=" + PoId + @"
+UNION
+select POD.ProductionOrderId,SO.MasterOrderItemId,NULL SalesOrderId,MOI.TotalQty Qty
+,SeqNo=ROW_NUMBER() OVER (ORDER BY POD.ProductionOrderId,SO.MasterOrderItemId)
+from TRN.ProductionOrderDetail POD
+LEFT JOIN TRN.SalesOrder SO ON SO.Id=POD.SalesOrderId
+LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
+Where  POD.ProductionOrderId=" + PoId + @"
+UNION
+SELECT POD.ProductionOrderId,NULL MasterOrderItemId,SO.Id SalesOrderId,SO.Qty
+,SeqNo=ROW_NUMBER() OVER (ORDER BY POD.ProductionOrderId)
+from TRN.ProductionOrderDetail POD
+LEFT JOIN TRN.SalesOrder SO ON SO.Id=POD.SalesOrderId
+Where  POD.ProductionOrderId=" + PoId + @")A
+)B
+LEFT JOIN TRN.ProductionOrderProcessSet PS on PS.ProductionOrderId=" + PoId + @" and B.ProductionBookingLevel=PS.ProductionBookingLevel
+LEFT JOIN HKP.Process P ON P.Id=PS.ProcessId
+LEFT JOIN HKP.EntityProcessTag T ON T.EntityId=" + entityId + @" AND P.Id=T.ProcessId
+LEFT JOIN dbo.LotControlSetting LCS ON LCS.EntityId='" + entityId + @"' AND LCS.ProcessId=P.Id AND LCS.ProductionOrderId=" + PoId + @" 
+AND LCS.MasterOrderItemId=B.MasterOrderItemId AND LCS.SalesOrderId=B.SalesOrderId AND LCS.ProductionBookingLevel=B.ProductionBookingLevel";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
+
+
 }
