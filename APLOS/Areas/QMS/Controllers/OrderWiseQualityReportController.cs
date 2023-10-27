@@ -77,7 +77,7 @@ left join ORG.Entity E on E.Id=EntityId)EI order by EI.Text";
 when sum(Convert(Int,Z.FailValue)) > 0  then 'Fail'
 when sum(Z.EntryMissing) > 0  then 'Pending'
 else 'Pass' end) QualityStatus,
-Date=(select format(Min(AddedDate),'dd-MMM-yyyy')  from TRN.ProductionSummary where ProductionOrderId=Z.PONo and LotNumber=Z.LotNumber and AddedDate between '16-Oct-2023' and '23-Oct-2023' ),
+Date=(select format(Min(AddedDate),'dd-MMM-yyyy')  from TRN.ProductionSummary where ProductionOrderId=Z.PONo and LotNumber=Z.LotNumber and AddedDate between '" + FromDate + "' and '" + ToDate + @"' ),
 MOLineItemNo = STUFF((select distinct ','+ XMOI.Id from trn.SalesOrder XSO 
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
@@ -174,7 +174,10 @@ else 'D' end)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string
-                sql = @"select * from (select distinct QCData.QCDate,M.MOLineItemNo,M.POStatus,M.ProductionOrderId PONo,isnull(QCData.LotNumber,M.LotNumber) LotNumber,M.Article,M.Customer,M.PartyNature, 
+                sql = @"select Z.*,(case when Z.RejectValue > 0  then 'Reject'
+when Z.FailValue > 0  then 'Fail'
+when Z.EntryMissing > 0  then 'Pending'
+else 'Pass' end) ParameterGradeStatus from (select distinct QCData.QCDate,M.MOLineItemNo,M.POStatus,M.ProductionOrderId PONo,isnull(QCData.LotNumber,M.LotNumber) LotNumber,M.Article,M.Customer,M.PartyNature, 
 M.IssueId,M.IssueName,M.ParameterSequence,M.ParameterId,M.ParameterName,M.UOM,QCData.Value,QCData.GradeName,QCData.ParameterRemark,QCData.ActionToBeTakenName,QCData.ResponsiblePerson,QCData.PassValue,QCData.FailValue,QCData.RejectValue,QCData.ToClose,QCData.ToConfirm,
 QCData.HeaderId,QCData.ChildId,QCData.QCDDate,QCData.QCDTime,(Case When (QCData.Value is null or QCData.Value = '0') then 1 else 0 end) EntryMissing,M.Process,M.Entity,M.EntityId,Reverse(stuff(Reverse((select OWC.Grade +', ' from MST.OrderWiseQualityComment OWC																			
 where OWC.MOLineItemNo=M.MOLineItemNo and OWC.PONo=M.ProductionOrderId and OWC.LotNo=M.LotNumber for xml PATH(''))),1,2,'')) Grade,
