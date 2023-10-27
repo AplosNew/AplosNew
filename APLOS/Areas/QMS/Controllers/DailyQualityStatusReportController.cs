@@ -100,6 +100,8 @@ Sum(Y.EntryMissing) MissingEntry,sum(Y.ToClose) ToClose,sum(Y.ToConfirm) ToConfi
 Y.PartyNature,
 Y.EntityId,
 Y.Entity,
+Reverse(stuff(Reverse((select QR.Grade +', ' from MST.QualityRemark QR																			
+where QR.PONo=Y.PONo and QR.LotNo=Y.LotNumber and QR.EntityId=Y.EntityId for xml PATH(''))),1,2,'')) Grade,
 Reverse(stuff(Reverse((select format(QR.AddedDate,'dd-MMM-yyyy') + '-' + QR.Comment +', ' from MST.QualityRemark QR																			
 where QR.PONo=Y.PONo and QR.LotNo=Y.LotNumber  and QR.EntityId=Y.EntityId for xml PATH(''))),1,2,'')) CommentDetails
 from (select distinct QCData.QCDate,PELP.PONo,isnull(QCData.LotNumber,PELP.LotNumber) LotNumber,PELP.Entity,PELP.EntityId,PELP.PartyNature, 

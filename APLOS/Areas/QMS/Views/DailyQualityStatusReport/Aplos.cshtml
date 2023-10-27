@@ -64,7 +64,7 @@
             </div>
             <div class="common-btn">
                 <ul class="list-inline text-right">
-                    <li><button ng-click="OWQReport();" ng-show="DailyQualityStatusReportList.length>0" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                    <li><button ng-click="DQSReport();" ng-show="DailyQualityStatusReportList.length>0" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
                     <li> <button ng-click="View();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
                 </ul>
             </div>
@@ -89,7 +89,8 @@
                     <div e-column e-type="string" e-field="MissingEntry" e-headertext="MissingEntry" e-width="50"></div>
                     <div e-column e-type="string" e-field="ToClose" e-headertext="ToClose" e-width="50"></div>
                     <div e-column e-type="string" e-field="ToConfirm" e-headertext="ToConfirm" e-width="50"></div>
-                    <div e-column e-type="string" e-template="#Comment" e-headertext="Comment" e-width="200"></div>
+                    <div e-column e-type="string" e-template="#Comment" e-headertext="QI.Comment" e-width="200"></div>
+                    <div e-column e-type="string" e-field="Grade" e-headertext="QI.Grade" e-width="50"></div>
                     <div e-column e-template="#ParameterDetails" e-headertext="Parameter Details" e-width="100"></div>
                 </div>
             </div>
@@ -123,6 +124,7 @@
                         <div class="form-group" style="margin-bottom: 0px;">
                             <label class="col-sm-3 control-label">Comment<sup>*</sup></label>
                             <label class="col-sm-3 control-label">By Whom</label>
+                            <label class="col-sm-3 control-label">Grade</label>
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal" style="padding-left:0px;">
@@ -136,6 +138,13 @@
                                 </div>
                                 <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
                                     <button ng-click="selectByWhom();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="CommentsNew.Grade" name="CommentsNew"
+                                            ng-options="item.Value as item.Text for item in GradeLists">
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -159,6 +168,7 @@
                         <div e-column e-field="LotNo" e-headertext="Lot No." e-width="100"></div>
                         <div e-column e-field="Comment" e-headertext="Comment" e-width="100"></div>
                         <div e-column e-field="ByWhom" e-headertext="ByWhom" e-width="100"></div>
+                        <div e-column e-field="Grade" e-headertext="Grade" e-width="100"></div>
                     </div>
                 </div>
             </div>
@@ -190,6 +200,12 @@
                             <label class="col-sm-4 control-label">PO No</label>
                             <div class="col-sm-8">
                                 <input type="text" ng-disabled="true" ng-model="ParameterNew.PONo" class="form-control" maxlength="200">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">QI.Grade</label>
+                            <div class="col-sm-8">
+                                <input type="text" ng-disabled="true" ng-model="ParameterNew.Grade" class="form-control" maxlength="200">
                             </div>
                         </div>
                     </div>
@@ -227,7 +243,7 @@
                             </div>
                         </div>
                          <div class="form-group">
-                            <label class="col-sm-4 control-label">Comment</label>
+                             <label class="col-sm-4 control-label">QI.Comment</label>
                             <div class="col-sm-8">
                                 <input type="text" ng-disabled="true" ng-model="ParameterNew.Comment" class="form-control" maxlength="200">
                             </div>

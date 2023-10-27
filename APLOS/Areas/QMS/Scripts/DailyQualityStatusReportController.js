@@ -91,6 +91,25 @@ function DailyQualityStatusReportController(cboService, commonMessage, $scope, $
     }
     $scope.CommentsNew = Object.assign({}, $scope.Comments);
 
+    $scope.GradeLists = [
+        {
+            'Value': 'Good',
+            'Text': 'Good'
+        },
+        {
+            'Value': 'Pass',
+            'Text': 'Pass'
+        },
+        {
+            'Value': 'Fail',
+            'Text': 'Fail'
+        },
+        {
+            'Value': 'Reject',
+            'Text': 'Reject'
+        }
+    ];
+
     $scope.PartyNatureLists = [
         {
             'Value': 'Domestic',
@@ -227,6 +246,7 @@ function DailyQualityStatusReportController(cboService, commonMessage, $scope, $
         $scope.ParameterNew.Customer = $scope.NewObject.Customer;
         $scope.ParameterNew.PONo = $scope.NewObject.PONo;
         $scope.ParameterNew.LotNo = $scope.NewObject.LotNumber;
+        $scope.ParameterNew.Grade = $scope.NewObject.Grade;
         $scope.ParameterNew.Comment = $scope.NewObject.CommentDetails;
         try {
             $http.get('QMS/DailyQualityStatusReport/getDailyQualityStatusParameterData?ProductionOrderId=' + $scope.NewObject.PONo + '&LotNumber=' + $scope.NewObject.LotNumber + '&FromDate=' + $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate + '&EntityId=' + $scope.NewObject.EntityId)
@@ -253,7 +273,7 @@ function DailyQualityStatusReportController(cboService, commonMessage, $scope, $
     };
     $scope.statusNew = Object.assign({}, $scope.status);
 
-    $scope.OWQReport = function () {
+    $scope.DQSReport = function () {
         var dataList = [];
         var g = $("#GridDailyQualityStatusReport").data("ejGrid");
         dataList = g.getFilteredRecords();
@@ -262,7 +282,7 @@ function DailyQualityStatusReportController(cboService, commonMessage, $scope, $
             dataList = $scope.DailyQualityStatusReportList;
         }
 
-        $scope.fileName = "Order Wise Quality Report";
+        $scope.fileName = "Daily Quality Status Report";
 
         $http({
             method: 'POST',
