@@ -2178,6 +2178,26 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         location.href = "SalesManagements/Sales/CommercialInvoice?salesId=" + data.Id;
     };
 
+    $scope.SendMailToParty = function (args) {
+        $http({
+            method: 'POST',
+            url: 'SalesManagements/Sales/SendMailInvoiceReport',
+            params: {
+                'Id': args.data.Id
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+            }
+        }), function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+    };
+
     //#endregion
 
 
