@@ -102,6 +102,8 @@ Y.EntityId,
 Y.Entity,
 Reverse(stuff(Reverse((select QR.Grade +', ' from MST.QualityRemark QR																			
 where QR.PONo=Y.PONo and QR.LotNo=Y.LotNumber and QR.EntityId=Y.EntityId for xml PATH(''))),1,2,'')) Grade,
+Reverse(stuff(Reverse((select (select EmployeeName from EmployeeInformation where SystemId=QR.ByWhomId) +', ' from MST.QualityRemark QR																			
+where QR.PONo=Y.PONo and QR.LotNo=Y.LotNumber and QR.EntityId=Y.EntityId for xml PATH(''))),1,2,'')) ByWhom,
 Reverse(stuff(Reverse((select format(QR.AddedDate,'dd-MMM-yyyy') + '-' + QR.Comment +', ' from MST.QualityRemark QR																			
 where QR.PONo=Y.PONo and QR.LotNo=Y.LotNumber  and QR.EntityId=Y.EntityId for xml PATH(''))),1,2,'')) CommentDetails
 from (select distinct QCData.QCDate,PELP.PONo,isnull(QCData.LotNumber,PELP.LotNumber) LotNumber,PELP.Entity,PELP.EntityId,PELP.PartyNature, 
@@ -341,14 +343,14 @@ where QR.PONo='" + POId + "' and QR.LotNo='" + LotNo + "'";
 
 
         [HttpGet]
-        public ActionResult GetOrderWiseParameterJobCardReport(string fromDate, string toDate, string IssueId, string ProductionOrderId, string LotNumber, string EntityId, string QualityStatus, string Date)
+        public ActionResult GetDailyQualityStatusParameterJobCardReport(string fromDate, string toDate, string IssueId, string ProductionOrderId, string LotNumber, string EntityId, string QualityStatus, string Date)
         {
             try
             {
                 NewJobCardReportService app = new NewJobCardReportService();
                 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                IWorkbook workbook = app.GetOrderWiseParameterJobCardReport(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, IssueId, ProductionOrderId, LotNumber, EntityId, QualityStatus, Date);
+                IWorkbook workbook = app.GetDailyQualityStatusParameterJobCardReport(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, IssueId, ProductionOrderId, LotNumber, EntityId, QualityStatus, Date);
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + "Job Card Report";
                 return RenderReportAsExcel(workbook, reportFileName);
                 
