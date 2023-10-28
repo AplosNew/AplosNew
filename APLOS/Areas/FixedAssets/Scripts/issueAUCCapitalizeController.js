@@ -604,7 +604,7 @@ function issueAUCCapitalizeController(cboService, commonMessage, $scope, $rootSc
         var data = gridObj.getSelectedRecords()[0];
 
         angular.forEach($scope.popUpDataList, function (item) {
-            if (item.IssueNo === data.IssueNo && item.GRNNo === data.GRNNo) {
+            if (item.IssueNo === data.IssueNo && item.IssueDate === data.IssueDate) {//&& item.GRNNo === data.GRNNo
                 var ob = {
                     Id: null,
                     IssueNo: item.IssueNo,

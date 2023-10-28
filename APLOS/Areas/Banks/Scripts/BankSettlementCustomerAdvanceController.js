@@ -147,7 +147,8 @@ function BankSettlementCustomerAdvanceController(cboService, baseService, factor
         ActivityName: null,
         Amount: 0,
         TaxAmount: 0,
-        NetAmount: 0
+        NetAmount: 0,
+        BankReconciliationUploadedDataId: null
     };
 
     $scope.advanceDetailList = [];
@@ -181,6 +182,7 @@ function BankSettlementCustomerAdvanceController(cboService, baseService, factor
             $scope.advance.ActivityId = $scope.bankUploadInfoList[0].ActivityId;
             $scope.advance.BankReferenceNo = $scope.bankUploadInfoList[0].BankRefNo;
             $scope.advance.BankMasterId = $scope.bankUploadInfoList[0].BankMasterId;
+            $scope.advance.BankReconciliationUploadedDataId = $scope.bankUploadInfoList[0].BankReconciliationUploadedDataId;
             $scope.advance.PostingDate = $filter("dateFiltering")($scope.bankUploadInfoList[0].PostingDate);
             $scope.advance.DocDate = $filter("dateFiltering")($scope.bankUploadInfoList[0].DocDate);
             if (!$rootScope.isCollapsed) {

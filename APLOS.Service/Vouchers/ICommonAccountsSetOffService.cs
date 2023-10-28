@@ -11,5 +11,6 @@ namespace Library.Service.Vouchers
     {
         string InsertDebitNoteAdvanceSetOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
            , IEnumerable<VoucherDetailViewModel> voucherDetailInvoiceList);
+        string InsertExpenseToBankReconcil(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
     }
 }

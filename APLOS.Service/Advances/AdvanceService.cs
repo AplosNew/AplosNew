@@ -3,6 +3,7 @@ using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
+using Library.Model.Accounts;
 using Library.Model.Advances;
 using Library.Model.Banks;
 using Library.Model.Employees;
@@ -83,6 +84,7 @@ namespace Library.Service.Advances
         private readonly IRepositoryAsync<EmployeeTransactionTypeGL> _employeeTransactionTypeGLRepository;
         private readonly IRepositoryAsync<EmployeeSalaryAdvance> _employeeSalaryAdvanceRepository;
         private readonly IRepositoryAsync<AdvanceReqSchedule> _advanceReqScheduleRepository;
+        private readonly IRepositoryAsync<BankReconciliationMap> _bankReconciliationMapRepository;
         private readonly IEmployeePayableWriteOffService _employeePayableWriteOffService;
 
 
@@ -133,6 +135,7 @@ namespace Library.Service.Advances
             , IRepositoryAsync<AdvanceReqSchedule> advanceReqScheduleRepository
             , IRepositoryAsync<EmployeeSalaryAdvance> employeeSalaryAdvanceRepository
             , IRepositoryAsync<EmployeeSubsequentTransaction> employeeSubsequentTransactionRepository
+            , IRepositoryAsync<BankReconciliationMap> bankReconciliationMapRepository
             ) : base(advanceRepository, unitOfWork, pkGeneratorService)
         {
             _employeeTransactionTypeGLService = employeeTransactionTypeGLService;
@@ -179,6 +182,7 @@ namespace Library.Service.Advances
             _advanceReqScheduleRepository = advanceReqScheduleRepository;
             _employeeSalaryAdvanceRepository = employeeSalaryAdvanceRepository;
             _employeeSubsequentTransactionRepository = employeeSubsequentTransactionRepository;
+            _bankReconciliationMapRepository = bankReconciliationMapRepository;
         }
 
         #endregion Constructor
@@ -236,7 +240,7 @@ namespace Library.Service.Advances
                 RequisitionId = voucherVM.RequisitionId,
                 CompanyCurrencyRate = voucherVM.CompanyCurrencyRate,
                 POId = voucherVM.POId,
-                ContractId= voucherVM.ContractId,
+                ContractId = voucherVM.ContractId,
                 MasterOrderId = voucherVM.MasterOrderId
             });
         }
@@ -1815,6 +1819,17 @@ namespace Library.Service.Advances
                     DrAmount = totalCurrencyAmountCr
                 });
 
+                if (voucherVM.BankReconciliationUploadedDataId != null)
+                {
+                    var bankReconciliationMap = new BankReconciliationMap
+                    {
+                        Id = GetAutoNumber(nameof(BankReconciliationMap), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                        BankReconciliationUploadedDataId = voucherVM.BankReconciliationUploadedDataId,
+                        VoucherDetailId = bankVoucherDetail.Id,
+                        GLTransactionDetailId = bankVoucherDetail.Id,
+                    };
+                    _bankReconciliationMapRepository.Insert(bankReconciliationMap);
+                }
 
                 if (totalAmountDr != totalAmountCr)
                     throw new CustomException("Dr and Cr amount is not equal.");
@@ -2863,8 +2878,8 @@ namespace Library.Service.Advances
                 if (null != DetailsList && DetailsList.Count() > 0)
                 {
                     foreach (var item in DetailsList)
-                    {  
-                        if(item.Id!=null)
+                    {
+                        if (item.Id != null)
                         {
                             item.YearNo = item.InstallmentDate.Year;
                             item.MonthNo = item.InstallmentDate.Month;
@@ -2877,7 +2892,7 @@ namespace Library.Service.Advances
                             item.MonthNo = item.InstallmentDate.Month;
                             InsertAdvanceReqSchedule(employeeSalaryAdvance, item, DetailsList.FirstOrDefault().RequisitionId);
                         }
-                        
+
                     }
                 }
 
@@ -3214,7 +3229,7 @@ namespace Library.Service.Advances
                     }
                 }
                 _sqlRepository.GetDataCollection("update  [TRN].[EmployeeAdvanceRequisition] set IsPost=1  where SystemId='" + voucherVM.RequisitionId + "'");
-                 _unitOfWork.SaveChanges();
+                _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
                 if (voucherVM.JournalType == AdvanceType.Salary.ToString() && advanceSalarySchedulelist == null)
