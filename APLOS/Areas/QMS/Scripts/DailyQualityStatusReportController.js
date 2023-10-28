@@ -247,6 +247,7 @@ function DailyQualityStatusReportController(cboService, commonMessage, $scope, $
         $scope.ParameterNew.PONo = $scope.NewObject.PONo;
         $scope.ParameterNew.LotNo = $scope.NewObject.LotNumber;
         $scope.ParameterNew.Grade = $scope.NewObject.Grade;
+        $scope.ParameterNew.ByWhom = $scope.NewObject.ByWhom;
         $scope.ParameterNew.Comment = $scope.NewObject.CommentDetails;
         try {
             $http.get('QMS/DailyQualityStatusReport/getDailyQualityStatusParameterData?ProductionOrderId=' + $scope.NewObject.PONo + '&LotNumber=' + $scope.NewObject.LotNumber + '&FromDate=' + $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate + '&EntityId=' + $scope.NewObject.EntityId)
@@ -329,7 +330,7 @@ function DailyQualityStatusReportController(cboService, commonMessage, $scope, $
         });
     }
 
-    $scope.jobcardreportFunc = function () {
+    $scope.DQSjobcardreportFunc = function () {
         try {
             var gridObj = $("#GridParameter").ejGrid("instance");
             var filtereddata = gridObj.getFilteredRecords();
@@ -345,7 +346,7 @@ function DailyQualityStatusReportController(cboService, commonMessage, $scope, $
                 throw "Maximum 50 'Job card' can be downloded at a time";
             }
             else {
-                var url = $scope.path + '/GetOrderWiseParameterJobCardReport?fromDate=' + $scope.statusNew.FromDate + '&toDate=' + $scope.statusNew.ToDate + '&IssueId=' + $scope.NewObject.IssueId + '&ProductionOrderId=' + $scope.NewObject.PONo + '&LotNumber=' + $scope.NewObject.LotNumber + '&EntityId=' + $scope.NewObject.EntityId + '&QualityStatus=' + $scope.ParameterNew.QualityStatus + '&Date=' + $scope.ParameterNew.Date;
+                var url = $scope.path + '/GetDailyQualityStatusParameterJobCardReport?fromDate=' + $scope.statusNew.FromDate + '&toDate=' + $scope.statusNew.ToDate + '&IssueId=' + $scope.NewObject.IssueId + '&ProductionOrderId=' + $scope.NewObject.PONo + '&LotNumber=' + $scope.NewObject.LotNumber + '&EntityId=' + $scope.NewObject.EntityId + '&QualityStatus=' + $scope.ParameterNew.QualityStatus + '&Date=' + $scope.ParameterNew.Date;
                 $rootScope.report(url);
             }
         } catch (e) {
