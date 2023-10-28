@@ -65,7 +65,8 @@
     </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
-            <li><button ng-click="Save();" class="btn" tabindex="10"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button ng-click="DRREconcileReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i>DrUpload Download </button></li>
+            <li> <button ng-click="CRREconcileReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i>CrUpload Download </button></li>
         </ul>
     </div>
     <!-- #region Tab -->
@@ -126,11 +127,7 @@
                             </table>
                         </div>
                     </div>
-                    <div class="common-btn">
-                        <ul class="list-inline text-right">
-                            <li> <button ng-click="DRREconcileReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download </button></li>
-                        </ul>
-                    </div>
+                    
                 </div>
             </div>
 
@@ -206,11 +203,6 @@
                             </fieldset>
                         </fieldset>
                     </div>
-                    <div class="common-btn">
-                        <ul class="list-inline text-right">
-                            <li> <button ng-click="CRREconcileReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download </button></li>
-                        </ul>
-                    </div>
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
@@ -259,11 +251,6 @@
                                 </tbody>
                             </table>
                         </div>
-                    </div>
-                    <div class="common-btn">
-                        <ul class="list-inline text-right">
-                            <li> <button ng-click="DRREconcileReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download </button></li>
-                        </ul>
                     </div>
                 </div>
             </div>

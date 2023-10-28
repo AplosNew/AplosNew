@@ -40,7 +40,8 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
 
     $scope.model2 = {
         Increment: false,
-        Promotion: false
+        Promotion: false,
+        Adjustment: false
 
     };
 

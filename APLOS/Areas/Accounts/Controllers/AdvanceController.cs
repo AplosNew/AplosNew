@@ -119,6 +119,24 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceService.InsertCustomerAdvance(advanceVM, advanceDetailVMList)) });
         }
 
+        [HttpPost,Authorize]
+        public JsonResult ParkCustomerAdvanceBankReconcile(VoucherViewModel advanceVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            advanceVM.CompanyGroupId = identity.CompanyGroupId;
+            advanceVM.CompanyId = identity.CompanyId;
+            advanceVM.PlantId = identity.PlantId;
+            advanceVM.IsPosted = false;
+            advanceVM.IsPark = true;
+            if (advanceVM.CurrencyId == null)
+                throw new CustomException("Please Select Currency !");
+            if (advanceVM.Amount < 0 || advanceVM.Amount == 0)
+                throw new CustomException("Please Input Amount !");
+            advanceVM.SourceType = SourceType.CustomerAdvance.ToString();
+            advanceVM.PartyType = PartyType.Customer.ToString();
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceService.InsertCustomerAdvance(advanceVM, advanceDetailVMList)) });
+        }
+
         [HttpPost]
         public JsonResult UpdateCustomerAdvance(VoucherViewModel advanceVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList, IEnumerable<VoucherDetailCurrencyViewModel> currencyList)
         {
