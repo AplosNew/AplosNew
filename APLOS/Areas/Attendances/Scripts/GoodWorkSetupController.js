@@ -324,20 +324,15 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
     //#endregion
 
     $scope.Clear = function () {
-        ClearFields($scope.GetSequence());
-        return true;
-    };
-
-    function ClearFields(seq) {
         $scope.Action = 'Save';
-        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-        $scope.ModelNew.Sequence = seq;
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp); 
         $scope.selectedEntityList = [];
         $scope.BudgetCodeList = [];
         $scope.authorizationList = [];
         $scope.CheckByList = [];
-    }
-
+        return true;
+    };
+ 
     //#region BudgetCode
 
     $scope.name = null;
@@ -664,6 +659,35 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
             $scope.authorizationList = response.data;
         });
     }
+    $scope.removeAuthority = function (tempId) {
+        try {
+            $scope.tempId = tempId.data.Id;
+            $scope.message_confirmation = "Are you sure want to permanent delete ?";
+            angular.element(document.querySelector('#confirmAuthorityRemovePopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+    $scope.removeAuthorityRow = function () {
+        $http({
+            method: 'POST',
+            url: 'Attendances/GoodWorkSetup/AuthorityDelete',
+            data: { 'Id': $scope.tempId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetGoodWorkAuthorityData();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
 
     $scope.CheckBySave = function () {
         $http({
@@ -691,6 +715,36 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
             $scope.CheckByList = response.data;
         });
     }
+    $scope.removeCheckBy = function (tempId) {
+        try {
+            $scope.tempId = tempId.data.Id;
+            $scope.message_confirmation = "Are you sure want to permanent delete ?";
+            angular.element(document.querySelector('#confirmCheckByRemovePopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+    $scope.removeCheckByRow = function () {
+        $http({
+            method: 'POST',
+            url: 'Attendances/GoodWorkSetup/CheckByDelete',
+            data: { 'Id': $scope.tempId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetCheckByData();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
     //#endregion
 
 }

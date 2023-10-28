@@ -1742,7 +1742,9 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             url: 'OrderManagements/ProductionOrder/GetSavedWorkCenterListByEntityandFirstProcess?productionOrderId=' + $scope.model.Id
         }).then(function successCallback(res) {
             $scope.productionFPWorkCenterList = res.data;
-            $scope.GetPOLotControlData();
+            if ($scope.model.IsPreDefineLotApplicable) {
+                $scope.GetPOLotControlSettingsData();
+            }
         });
     }
 
@@ -2728,7 +2730,6 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                     ShowResult(response, 'failure');
                 });
     };
-
 
     $scope.onrowdatabound = function (e) {
         if (e.data.HasProcess === 0)
@@ -4242,116 +4243,50 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     //#endregion
 
     $scope.lotControlList = [];
+    $scope.GetPOLotControlSettingsData = function () {
+        try {
+            $http({
+                method: 'GET',
+                url: 'OrderManagements/ProductionOrder/GetPOLotContSettingsData?poId=' + $scope.model.Id + '&entityId=' + $scope.model.EntityId
+            }).then(function (response) {
+                $scope.lotControlList = response.data;
+
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
     $scope.GetPOLotControlData = function () {
-        var inc = 0;
-        var incvalue = 0;
-        var moid = null;
-        var soid = null;
-        var moinc = 0;
-        var moincvalue = 0;
-        var soinc = 0;
-        var soincvalue = 0;
-        var mlot = 0;
-        var gr = 0;
-        var ugr = 0;
-        var sgr = 0;
 
-        $http({
-            method: 'GET',
-            url: 'OrderManagements/ProductionOrder/GetPOLotControlData?poId=' + $scope.model.Id + '&entityId=' + $scope.model.EntityId
-        }).then(function (response) {
-            $scope.lotControlList = response.data;
-            for (var i = 0; i < $scope.lotControlList.length; i++) {
-                inc++;
-                incvalue = inc;
-                //if (baseService.arrayLength($scope.lotControlList)>1) {
-                //    $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo + '-' + incvalue;
-                //    if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
-                //        $scope.lotControlList[i].UserLotNo = $scope.lotControlList[i].UserLotNo + '-' + incvalue;
-                //    } else {
-                //        $scope.lotControlList[i].UserLotNo = $scope.model.UserDefineLotNo + '-' + incvalue;
-                //    }
-                //}
-                //else {
-                //    $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo;
-                //    if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
-                //        $scope.lotControlList[i].UserLotNo = $scope.lotControlList[i].UserLotNo;
-                //    } else {
-                //        $scope.lotControlList[i].UserLotNo = $scope.model.UserDefineLotNo;
-                //    }
-                //}
-
-
-                if ($scope.lotControlList[i].ProductionBookingLevel == 'MasterOrderItem') {
-                    if (moid != $scope.lotControlList[i].MasterOrderItemId) {
-                        moinc++;
-                        moincvalue = moinc;
-                        $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo + '-' + moincvalue;
-                        gr = $scope.lotControlList[i].LotNo;
-                        ugr = $scope.lotControlList[i].LotNo;
-                        if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
-                            $scope.lotControlList[i].UserLotNo = gr;
-                        } else {
-                            $scope.lotControlList[i].UserLotNo = $scope.model.UserDefineLotNo + '-' + moincvalue;
-                            ugr = $scope.lotControlList[i].UserLotNo;
-                        }
-
-
-                    } else {
-                        //$scope.lotControlList[i].LotNo = gr;
-                        //$scope.lotControlList[i].UserLotNo = ugr;
-
-                        if (moinc == 0) {
-                            moinc++;
-                            moincvalue = moinc;
-                            $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo + '-' + moincvalue;
-                            gr = $scope.lotControlList[i].LotNo;
-                            ugr = $scope.lotControlList[i].LotNo;
-                            if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
-                                $scope.lotControlList[i].UserLotNo = gr;
-                            } else {
-                                $scope.lotControlList[i].UserLotNo = $scope.model.UserDefineLotNo + '-' + moincvalue;
-                                ugr = $scope.lotControlList[i].UserLotNo;
-                            }
-                        }
-                        else {
-                            $scope.lotControlList[i].LotNo = gr;
-                            $scope.lotControlList[i].UserLotNo = ugr;
-                        }
-                    }
-
-                }
-                if ($scope.lotControlList[i].ProductionBookingLevel == 'SalesOrder') {
-
-                    soinc++;
-                    soincvalue = soinc;
-                    $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo + '-S' + soincvalue;
-                    if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
-                        $scope.lotControlList[i].UserLotNo = $scope.lotControlList[i].LotNo;
-                    }
-                    else {
-                        $scope.lotControlList[i].UserLotNo = $scope.model.UserDefineLotNo;
-                    }
-                }
-
-                if ($scope.lotControlList[i].ProductionBookingLevel == 'ProductionOrder') {
-                    if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
-                        $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo;
-                        $scope.lotControlList[i].UserLotNo = $scope.lotControlList[i].LotNo;
-                    } else {
-                        $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo;
-                        $scope.lotControlList[i].UserLotNo = $scope.model.UserDefineLotNo;
-                    }
-                }
-
-
-                if (!baseService.isUndefinedOrNull($scope.lotControlList[i].MasterOrderItemId)) {
-                    moid = $scope.lotControlList[i].MasterOrderItemId;
-                }
-
-
+        try {
+            if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
+                throw "User Define LotNo is required.";
             }
-        });
+            $http({
+                method: 'GET',
+                url: 'OrderManagements/ProductionOrder/GetPOLotControlSettingsData?poId=' + $scope.model.Id + '&entityId=' + $scope.model.EntityId + '&userLotNo=' + $scope.model.UserDefineLotNo
+            }).then(function (response) {
+                $scope.lotControlList = response.data;
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.tempModel = {};
+    $scope.SetSufix = function (args) {
+        $scope.tempModel = args.data;
+        var str = $scope.tempModel.UserLotNo;
+        var extention = str.substr(str.indexOf('/')+1);
+
+        if (!baseService.isUndefinedOrNull($scope.tempModel.Sufix)) {
+            if ($scope.tempModel.Sufix != extention) {
+                $scope.tempModel.UserLotNo = $scope.tempModel.UserLotNo + '/' + $scope.tempModel.Sufix;
+            }
+        }
+        var gridObj = $("#GridLC").data("ejGrid");
+        gridObj.refreshContent();
+        gridObj.refreshTemplate();
     }
 
     $scope.SaveLotControl = function () {
@@ -4371,7 +4306,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.GetPOLotControlData();
+                     $scope.GetPOLotControlSettingsData();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

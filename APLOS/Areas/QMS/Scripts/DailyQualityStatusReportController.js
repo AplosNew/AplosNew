@@ -1,24 +1,24 @@
 ﻿'use strict';
-OrderWiseQualityReportController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter", "$window"];
-function OrderWiseQualityReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
-    $rootScope.title = "OrderWiseQualityReport";
+DailyQualityStatusReportController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter", "$window"];
+function DailyQualityStatusReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
+    $rootScope.title = "DailyQualityStatusReport";
     $scope.Action = 'Save';
     $scope.GradeLists = [];
     $scope.PartyNatureLists = [];
-    $scope.path = 'QMS/OrderWiseQualityReport/';
+    $scope.path = 'QMS/DailyQualityStatusReport/';
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
     $scope.saveUrlComments = $scope.path + 'createComments';
     var todate = new Date(), y = todate.getFullYear(), m = todate.getMonth();
     todate.setDate(todate.getDate() - 7);
 
-    $scope.OrderWiseQualityReportList = [];
+    $scope.DailyQualityStatusReportList = [];
     $scope.View = function () {
         try {
-            $scope.OrderWiseQualityReportList = [];
-            $http.get('QMS/OrderWiseQualityReport/LoadOrderWiseQualityReport?FromDate=' + $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate + '&PartyNature=' + $scope.statusNew.PartyNature + '&EntityId=' + $scope.statusNew.EntityId)
+            $scope.DailyQualityStatusReportList = [];
+            $http.get('QMS/DailyQualityStatusReport/LoadDailyQualityStatusReport?FromDate=' + $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate + '&PartyNature=' + $scope.statusNew.PartyNature + '&EntityId=' + $scope.statusNew.EntityId)
                 .then(function (response) {
-                    $scope.OrderWiseQualityReportList = response.data;
+                    $scope.DailyQualityStatusReportList = response.data;
                 });
         } catch (e) {
             ShowResult(e, 'failure');
@@ -27,20 +27,18 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
     //$scope.View();
 
     $scope.CommentEntryLists = [];
-    $scope.MOId = null;
     $scope.POId = null;
     $scope.Lot = null;
     $scope.EI = null;
     $scope.CommentEntry = function (data) {
         $scope.CommentEntryLists = [];
         $scope.NewObject = data.data;
-        $scope.MOId = $scope.NewObject.MOLineItemNo;
         $scope.POId = $scope.NewObject.PONo;
         $scope.Lot = $scope.NewObject.LotNumber;
         $scope.EI = $scope.NewObject.EntityId;
 
         try {
-            $http.get('QMS/OrderWiseQualityReport/getCommentEntryData?MOLineItemNo=' + $scope.NewObject.MOLineItemNo + '&PONo=' + $scope.NewObject.PONo + '&LotNo=' + $scope.NewObject.LotNumber + '&EntityId=' + $scope.NewObject.EntityId)
+            $http.get('QMS/DailyQualityStatusReport/getCommentEntryData?PONo=' + $scope.NewObject.PONo + '&LotNo=' + $scope.NewObject.LotNumber + '&EntityId=' + $scope.NewObject.EntityId)
                 .then(
                     function successCallback(response) {
                         $scope.CommentEntryLists = response.data;
@@ -57,7 +55,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
 
     $scope.getComment = function () {
         try {
-            $http.get('QMS/OrderWiseQualityReport/getCommentData?MOId=' + $scope.MOId + '&POId=' + $scope.POId + '&LotNo=' + $scope.Lot)
+            $http.get('QMS/DailyQualityStatusReport/getCommentData?POId=' + $scope.POId + '&LotNo=' + $scope.Lot)
                 .then(
                     function successCallback(response) {
                         $scope.CommentEntryLists = response.data;
@@ -74,7 +72,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
     $scope.GetCommentEntryDetails = function (args) {
         $http({
             method: 'Get',
-            url: 'QMS/OrderWiseQualityReport/LoadCommentEntryEditData?CommentId=' + args.data.Id
+            url: 'QMS/DailyQualityStatusReport/LoadCommentEntryEditData?CommentId=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.CommentsNew = response.data.comment[0];
         }
@@ -83,11 +81,11 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
 
     $scope.Comments = {
         Id: null
-        , MOLineItemNo: null
         , PONo: null
         , LotNo: null
         , Comment: null
         , ByWhomId: null
+        , ByWhom: null
         , Grade: null
         , EntityId: null
     }
@@ -131,23 +129,39 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
     $scope.GetEntityLists = function () {
         $http({
             method: 'GET',
-            url: 'QMS/OrderWiseQualityReport/GetEntityLists'
+            url: 'QMS/DailyQualityStatusReport/GetEntityLists'
         }).then(function successCallback(response) {
             $scope.EntityLists = response.data;
         });
     }
     $scope.GetEntityLists();
 
-    $scope.ByWhomLists = [];
-    $scope.GetByWhomLists = function () {
+    $scope.selectByWhom = function () {
+        $scope.getByWhom();
+        angular.element(document.querySelector('#ByWhomPopup')).modal('show');
+    }
+
+    $scope.ByWhomList = [];
+    $scope.getByWhom = function () {
         $http({
-            method: 'GET',
-            url: 'QMS/OrderWiseQualityReport/GetByWhomLists'
-        }).then(function successCallback(response) {
-            $scope.ByWhomLists = response.data;
+            method: 'POST',
+            url: $scope.path + 'GetEmployee',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.ByWhomList = resp.data;
         });
     }
-    $scope.GetByWhomLists();
+
+    $scope.doubleByWhom = function (e) {
+        $scope.CommentsNew.ByWhomId = e.data.SystemId;
+        $scope.CommentsNew.ByWhom = e.data.EmployeeName;
+        angular.element(document.querySelector('#ByWhomPopup')).modal('hide');
+    }
+
+    $scope.closeByWhomPopup = function () {
+        angular.element(document.querySelector('#ByWhomPopup')).modal('hide');
+    }
+
 
     $scope.SaveCommentsData = function () {
         $http({
@@ -189,7 +203,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
     $scope.CommentsDelete = function () {
         $http({
             method: 'POST',
-            url: 'QMS/OrderWiseQualityReport/CommentsDelete?id=' + $scope.CommentsNew.Id,
+            url: 'QMS/DailyQualityStatusReport/CommentsDelete?id=' + $scope.CommentsNew.Id,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -235,7 +249,7 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
         $scope.ParameterNew.Grade = $scope.NewObject.Grade;
         $scope.ParameterNew.Comment = $scope.NewObject.CommentDetails;
         try {
-            $http.get('QMS/OrderWiseQualityReport/getOrderWiseParameterData?IssueId=' + $scope.NewObject.IssueId + '&ProductionOrderId=' + $scope.NewObject.PONo + '&LotNumber=' + $scope.NewObject.LotNumber + '&FromDate=' + $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate + '&EntityId=' + $scope.NewObject.EntityId)
+            $http.get('QMS/DailyQualityStatusReport/getDailyQualityStatusParameterData?ProductionOrderId=' + $scope.NewObject.PONo + '&LotNumber=' + $scope.NewObject.LotNumber + '&FromDate=' + $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate + '&EntityId=' + $scope.NewObject.EntityId)
                 .then(
                     function successCallback(response) {
                         $scope.ParameterLists = response.data;
@@ -259,16 +273,16 @@ function OrderWiseQualityReportController(cboService, commonMessage, $scope, $ro
     };
     $scope.statusNew = Object.assign({}, $scope.status);
 
-    $scope.OWQReport = function () {
+    $scope.DQSReport = function () {
         var dataList = [];
-        var g = $("#GridOrderWiseQualityReport").data("ejGrid");
+        var g = $("#GridDailyQualityStatusReport").data("ejGrid");
         dataList = g.getFilteredRecords();
 
         if (dataList.length == 0) {
-            dataList = $scope.OrderWiseQualityReportList;
+            dataList = $scope.DailyQualityStatusReportList;
         }
 
-        $scope.fileName = "Order Wise Quality Report";
+        $scope.fileName = "Daily Quality Status Report";
 
         $http({
             method: 'POST',
