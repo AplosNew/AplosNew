@@ -119,6 +119,7 @@
     <Compile Include="Configurations\Attendances\AttdnRawDataFromAppConfiguration.cs" />
     <Compile Include="Configurations\Attendances\AttdnRawDataConfiguration.cs" />
     <Compile Include="Configurations\Attendances\BiometricDeviceAsShortLeaveConfiguration.cs" />
+    <Compile Include="Configurations\Banks\BankReconciliationMapConfiguration.cs" />
     <Compile Include="Configurations\Biometrics\AttendanceDeviceZoneConfiguration.cs" />
     <Compile Include="Configurations\Biometrics\EmployeeFPInformationConfiguration.cs" />
     <Compile Include="Configurations\Attendances\EmpDateWiseShiftAssignConfiguration.cs" />

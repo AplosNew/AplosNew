@@ -64,7 +64,7 @@
             </div>
             <div class="common-btn">
                 <ul class="list-inline text-right">
-                    <li><button ng-click="OWQReport();" ng-show="DailyQualityStatusReportList.length>0" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                    <li><button ng-click="DQSReport();" ng-show="DailyQualityStatusReportList.length>0" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
                     <li> <button ng-click="View();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
                 </ul>
             </div>
@@ -89,16 +89,11 @@
                     <div e-column e-type="string" e-field="MissingEntry" e-headertext="MissingEntry" e-width="50"></div>
                     <div e-column e-type="string" e-field="ToClose" e-headertext="ToClose" e-width="50"></div>
                     <div e-column e-type="string" e-field="ToConfirm" e-headertext="ToConfirm" e-width="50"></div>
-                    <div e-column e-type="string" e-field="Grade" e-headertext="Grade" e-width="50"></div>
-                    <div e-column e-type="string" e-template="#Comment" e-headertext="Comment" e-width="200"></div>
+                    <div e-column e-type="string" e-template="#Comment" e-headertext="QI.Comment" e-width="200"></div>
+                    <div e-column e-type="string" e-field="Grade" e-headertext="QI.Grade" e-width="50"></div>
                     <div e-column e-template="#ParameterDetails" e-headertext="Parameter Details" e-width="100"></div>
                 </div>
             </div>
-            @*<script type="text/template" id="Grade">
-                <div class="col-sm-10" style="padding:0px;">
-                    <input type="text" ng-disabled="true" name="Grade" ng-model="data.Grade" class="form-control" maxlength="200">
-                </div>
-            </script>*@
             <script type="text/template" id="Comment">
                 <div class="col-sm-10" style="padding:0px;">
                     <input type="text" name="Comment" ng-model="data.CommentDetails" ng-click="$parent.CommentEntry(this);" class="form-control" maxlength="200">
@@ -138,10 +133,11 @@
                                 <input type="text" ng-model="CommentsNew.Comment" class="form-control" maxlength="200">
                             </div>
                             <div class="col-sm-3">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="CommentsNew.ByWhomId" name="CommentsNew"
-                                            ng-options="item.Value as item.Text for item in ByWhomLists">
-                                    </select>
+                                <div class="col-sm-10" style="padding:0px;">
+                                    <input type="text" name="By Whom" ng-disabled="true" ng-model="CommentsNew.ByWhom" class="form-control" maxlength="100" required autocomplete="off">
+                                </div>
+                                <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                                    <button ng-click="selectByWhom();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                 </div>
                             </div>
                             <div class="col-sm-3">
@@ -168,7 +164,6 @@
                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                     <div e-columns>
                         <div e-column e-field="Id" e-headertext="Item Id" e-visible="false" e-width="100"></div>
-                        <div e-column e-field="MOLineItemNo" e-headertext="MO LineItem No." e-width="100"></div>
                         <div e-column e-field="PONo" e-headertext="PO No." e-width="100"></div>
                         <div e-column e-field="LotNo" e-headertext="Lot No." e-width="100"></div>
                         <div e-column e-field="Comment" e-headertext="Comment" e-width="100"></div>
@@ -208,9 +203,9 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Comment</label>
+                            <label class="col-sm-4 control-label">QI.Grade</label>
                             <div class="col-sm-8">
-                                <input type="text" ng-disabled="true" ng-model="ParameterNew.Comment" class="form-control" maxlength="200">
+                                <input type="text" ng-disabled="true" ng-model="ParameterNew.Grade" class="form-control" maxlength="200">
                             </div>
                         </div>
                     </div>
@@ -247,10 +242,10 @@
                                 <input type="text" ng-disabled="true" ng-model="ParameterNew.Customer" class="form-control" maxlength="200">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Grade</label>
+                         <div class="form-group">
+                             <label class="col-sm-4 control-label">QI.Comment</label>
                             <div class="col-sm-8">
-                                <input type="text" ng-disabled="true" ng-model="ParameterNew.Grade" class="form-control" maxlength="200">
+                                <input type="text" ng-disabled="true" ng-model="ParameterNew.Comment" class="form-control" maxlength="200">
                             </div>
                         </div>
                     </div>
@@ -265,13 +260,12 @@
                         </div>
                     </div>
                     <div class="col-xs-12">
-                        <div id="GridParameter" ej-grid e-datasource="ParameterLists" e-recorddoubleclick=""
+                        <div id="GridParameter" ej-grid e-datasource="ParameterLists" e-recorddoubleclick="" e-rowdatabound="PDrowDataBound"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                             <div e-columns>
                                 <div e-column e-type="string" e-field="IssueName" e-headertext="Issue Name" e-width="150"></div>
                                 <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="100"></div>
-                                <div e-column e-type="string" e-field="ParameterSequence" e-headertext="PSNo" e-width="50"></div>
                                 <div e-column e-type="string" e-field="ParameterName" e-headertext="P.Name" e-width="100"></div>
                                 <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="80"></div>
                                 <div e-column e-type="string" e-field="Value" e-headertext="Value" e-width="50"></div>
@@ -292,6 +286,41 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="ByWhomPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Employee List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Employee</p>
+                        <div style="color:black;" id="GridByWhomPopup" ej-grid e-datasource="ByWhomList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleByWhom">
+                            <div e-columns>
+                                <div e-column e-field="SystemId" e-headertext="Id" e-visible="false" e-width="120"></div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="120"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="50"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="120"></div>
+                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="120"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="120"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeByWhomPopup();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>

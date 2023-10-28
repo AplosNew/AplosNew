@@ -2881,7 +2881,7 @@ GROUP BY FAR.FABudgetMasterId
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 parameters.CmdText = @"SELECT Flag=CAST(0 AS bit),VD.VoucherId,VD.Id VoucherDetailNo,v.VoucherNo,IIH.Id InventoryIssueHistoryId,Round((IIH.TotalAmount),4) Amount
-                    ,Round((IIH.TotalMaterialBooksCurrencyAmount),4) FABaseAmount,LC.LCANo,PO.PurchaseLCId,IR.CurrencyId,II.CurrencyId BaseCurrencyId
+                    ,Round((IIH.TotalMaterialBooksCurrencyAmount),4) FABaseAmount,LC.LCANo,LC.LCRef,PO.PurchaseLCId,IR.CurrencyId,II.CurrencyId BaseCurrencyId
                     ,FAM.Id FixedAssetMasterId, BM.GLGeneralInfoId, AGL.UserName AS AssetGLName, BM.GLGeneralInfoId AS AssetGLId, FAMT.BudgetMasterId
                                     ,IIH.Qty,IR.Id GRNNo,IR.GateEntryNo,IR.DocRefNo InvoiceNo
 									,REPLACE(Convert(VARCHAR(11), IR.DocDate, 106), ' ', '-') AS InvoiceDate
@@ -2900,7 +2900,7 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN  TRN.InventoryIssue II ON II.Id=IID.InventoryIssueId
 									LEFT JOIN  TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
 									LEFT JOIN  TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
-                                    LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=IR.POId
+                                    LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=IRD.POId
 									LEFT JOIN dbo.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
                                     LEFT JOIN  TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
 									LEFT JOIN  TRN.GateEntry GE ON GE.Id=IR.GateEntryNo

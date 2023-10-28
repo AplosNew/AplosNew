@@ -7,7 +7,7 @@ function bankSettlementJournalController(bankService, accountService, cboService
     $scope.index = -1;
     $scope.url = "Banks/BankJournal";
     $scope.listUrl = $scope.url + "/GetBankJournalList";
-    $scope.parkUrl = $scope.url + "/InsertBankJournal";
+    $scope.parkUrl = $scope.url + "/InsertExpenseToBankReconcil";
     $scope.updateUrl = $scope.url + "/UpdateBankJournal";
     $scope.postUrl = $scope.url + "/PostBankJournal";
     $scope.deleteUrl = $scope.url + "/DeleteBankJournal";
@@ -86,7 +86,8 @@ function bankSettlementJournalController(bankService, accountService, cboService
         BankJournalType: "BankToGL",
         BankJournalId: null,
         IsReverse: false,
-        CompanyCurrencyRate: 1
+        CompanyCurrencyRate: 1,
+        BankReconciliationUploadedDataId: null
     };
 
     $scope.advanceDetailList = [];
@@ -123,6 +124,7 @@ function bankSettlementJournalController(bankService, accountService, cboService
             $scope.voucher.CurrencyId = $scope.bankUploadInfoList[0].CurrencyId;
             $scope.voucher.BankReferenceNo = $scope.bankUploadInfoList[0].BankRefNo;
             $scope.voucher.BankMasterId = $scope.bankUploadInfoList[0].BankMasterId;
+            $scope.voucher.BankReconciliationUploadedDataId = $scope.bankUploadInfoList[0].BankReconciliationUploadedDataId;
             $scope.voucher.PostingDate = $filter("dateFiltering")($scope.bankUploadInfoList[0].PostingDate);
             $scope.voucher.DocDate = $filter("dateFiltering")($scope.bankUploadInfoList[0].DocDate);
             $scope.GetCurrencyExchangeRateList();
@@ -394,7 +396,6 @@ function bankSettlementJournalController(bankService, accountService, cboService
                     url: $scope.parkUrl,
                     data: {
                         "voucherVM": $scope.voucher,
-                        "bankChargeDetailVMList": $scope.advanceChargesList,
                         "voucherDetailVMList": $scope.voucherDetailList
                     },
                     dataType: "JSON"

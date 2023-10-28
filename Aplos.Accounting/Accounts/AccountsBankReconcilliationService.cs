@@ -764,7 +764,7 @@ namespace Library.Accounting.Accounts
             try
             {
                 var sql = @"SELECT BRU.BankMasterId,BM.AccountTitle,BRUD.CrAmount,BRUD.CrAmount BankAmount,BRUD.BankRefNo,BRUD.BankRefNo DocRefNo,BRUD.BankStatementDate
-                            ,BRUD.BankStatementDate PostingDate,BRUD.BankStatementDate DocDate ,BM.GLGeneralInfoId,BM.BudgetMasterId,BM.ActivityId,BM.CurrencyId
+                            ,BRUD.BankStatementDate PostingDate,BRUD.BankStatementDate DocDate ,BM.GLGeneralInfoId,BM.BudgetMasterId,BM.ActivityId,BM.CurrencyId,BRUD.Id BankReconciliationUploadedDataId
                             FROM  [TRN].[BankReconciliationUploadedData] BRUD 
                             JOIN [TRN].[BankReconciliationUpload] BRU ON BRU.Id=BRUD.BankReconciliationUploadId
                             LEFT JOIN MST.BankMaster BM ON BM.Id=BRU.BankMasterId
@@ -784,7 +784,7 @@ namespace Library.Accounting.Accounts
             try
             {
                 var sql = @"SELECT BRU.BankMasterId,BM.AccountTitle,BRUD.DrAmount,BRUD.DrAmount BankAmount,BRUD.BankRefNo,BRUD.BankRefNo DocRefNo,BRUD.BankStatementDate
-                            ,BRUD.BankStatementDate PostingDate,BRUD.BankStatementDate DocDate ,BM.GLGeneralInfoId,BM.BudgetMasterId,BM.ActivityId,BM.CurrencyId
+                            ,BRUD.BankStatementDate PostingDate,BRUD.BankStatementDate DocDate ,BM.GLGeneralInfoId,BM.BudgetMasterId,BM.ActivityId,BM.CurrencyId,BRUD.Id BankReconciliationUploadedDataId
                             FROM  [TRN].[BankReconciliationUploadedData] BRUD 
                             JOIN [TRN].[BankReconciliationUpload] BRU ON BRU.Id=BRUD.BankReconciliationUploadId
                             LEFT JOIN MST.BankMaster BM ON BM.Id=BRU.BankMasterId

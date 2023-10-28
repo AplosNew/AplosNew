@@ -27,20 +27,18 @@ function DailyQualityStatusReportController(cboService, commonMessage, $scope, $
     //$scope.View();
 
     $scope.CommentEntryLists = [];
-    $scope.MOId = null;
     $scope.POId = null;
     $scope.Lot = null;
     $scope.EI = null;
     $scope.CommentEntry = function (data) {
         $scope.CommentEntryLists = [];
         $scope.NewObject = data.data;
-        $scope.MOId = $scope.NewObject.MOLineItemNo;
         $scope.POId = $scope.NewObject.PONo;
         $scope.Lot = $scope.NewObject.LotNumber;
         $scope.EI = $scope.NewObject.EntityId;
 
         try {
-            $http.get('QMS/DailyQualityStatusReport/getCommentEntryData?MOLineItemNo=' + $scope.NewObject.MOLineItemNo + '&PONo=' + $scope.NewObject.PONo + '&LotNo=' + $scope.NewObject.LotNumber + '&EntityId=' + $scope.NewObject.EntityId)
+            $http.get('QMS/DailyQualityStatusReport/getCommentEntryData?PONo=' + $scope.NewObject.PONo + '&LotNo=' + $scope.NewObject.LotNumber + '&EntityId=' + $scope.NewObject.EntityId)
                 .then(
                     function successCallback(response) {
                         $scope.CommentEntryLists = response.data;
@@ -57,7 +55,7 @@ function DailyQualityStatusReportController(cboService, commonMessage, $scope, $
 
     $scope.getComment = function () {
         try {
-            $http.get('QMS/DailyQualityStatusReport/getCommentData?MOId=' + $scope.MOId + '&POId=' + $scope.POId + '&LotNo=' + $scope.Lot)
+            $http.get('QMS/DailyQualityStatusReport/getCommentData?POId=' + $scope.POId + '&LotNo=' + $scope.Lot)
                 .then(
                     function successCallback(response) {
                         $scope.CommentEntryLists = response.data;
@@ -83,11 +81,11 @@ function DailyQualityStatusReportController(cboService, commonMessage, $scope, $
 
     $scope.Comments = {
         Id: null
-        , MOLineItemNo: null
         , PONo: null
         , LotNo: null
         , Comment: null
         , ByWhomId: null
+        , ByWhom: null
         , Grade: null
         , EntityId: null
     }
@@ -138,16 +136,32 @@ function DailyQualityStatusReportController(cboService, commonMessage, $scope, $
     }
     $scope.GetEntityLists();
 
-    $scope.ByWhomLists = [];
-    $scope.GetByWhomLists = function () {
+    $scope.selectByWhom = function () {
+        $scope.getByWhom();
+        angular.element(document.querySelector('#ByWhomPopup')).modal('show');
+    }
+
+    $scope.ByWhomList = [];
+    $scope.getByWhom = function () {
         $http({
-            method: 'GET',
-            url: 'QMS/DailyQualityStatusReport/GetByWhomLists'
-        }).then(function successCallback(response) {
-            $scope.ByWhomLists = response.data;
+            method: 'POST',
+            url: $scope.path + 'GetEmployee',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.ByWhomList = resp.data;
         });
     }
-    $scope.GetByWhomLists();
+
+    $scope.doubleByWhom = function (e) {
+        $scope.CommentsNew.ByWhomId = e.data.SystemId;
+        $scope.CommentsNew.ByWhom = e.data.EmployeeName;
+        angular.element(document.querySelector('#ByWhomPopup')).modal('hide');
+    }
+
+    $scope.closeByWhomPopup = function () {
+        angular.element(document.querySelector('#ByWhomPopup')).modal('hide');
+    }
+
 
     $scope.SaveCommentsData = function () {
         $http({
@@ -235,7 +249,7 @@ function DailyQualityStatusReportController(cboService, commonMessage, $scope, $
         $scope.ParameterNew.Grade = $scope.NewObject.Grade;
         $scope.ParameterNew.Comment = $scope.NewObject.CommentDetails;
         try {
-            $http.get('QMS/DailyQualityStatusReport/getOrderWiseParameterData?IssueId=' + $scope.NewObject.IssueId + '&ProductionOrderId=' + $scope.NewObject.PONo + '&LotNumber=' + $scope.NewObject.LotNumber + '&FromDate=' + $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate + '&EntityId=' + $scope.NewObject.EntityId)
+            $http.get('QMS/DailyQualityStatusReport/getDailyQualityStatusParameterData?ProductionOrderId=' + $scope.NewObject.PONo + '&LotNumber=' + $scope.NewObject.LotNumber + '&FromDate=' + $scope.statusNew.FromDate + '&ToDate=' + $scope.statusNew.ToDate + '&EntityId=' + $scope.NewObject.EntityId)
                 .then(
                     function successCallback(response) {
                         $scope.ParameterLists = response.data;
@@ -259,7 +273,7 @@ function DailyQualityStatusReportController(cboService, commonMessage, $scope, $
     };
     $scope.statusNew = Object.assign({}, $scope.status);
 
-    $scope.OWQReport = function () {
+    $scope.DQSReport = function () {
         var dataList = [];
         var g = $("#GridDailyQualityStatusReport").data("ejGrid");
         dataList = g.getFilteredRecords();
@@ -268,7 +282,7 @@ function DailyQualityStatusReportController(cboService, commonMessage, $scope, $
             dataList = $scope.DailyQualityStatusReportList;
         }
 
-        $scope.fileName = "Order Wise Quality Report";
+        $scope.fileName = "Daily Quality Status Report";
 
         $http({
             method: 'POST',
@@ -338,5 +352,41 @@ function DailyQualityStatusReportController(cboService, commonMessage, $scope, $
             ShowResult(e, 'failure');
         }
     };
+
+    $scope.rowDataBound = function rowDataBound(e) {
+
+        if (e.data.QualityStatus == 'Pending') {
+            e.row.css("background-color", '#FFFDD0');
+        }
+        else if (e.data.QualityStatus == 'Pass') {
+
+            e.row.css("background-color", '#90EE90');
+        }
+        else if (e.data.QualityStatus == 'Fail') {
+
+            e.row.css("background-color", '#ffb38a');
+        }
+        else {
+            e.row.css("background-color", '#F62817');
+
+        }
+    }
+
+    $scope.PDrowDataBound = function PDrowDataBound(e) {
+
+        if (e.data.ParameterGradeStatus == 'Pending') {
+            e.row.css("background-color", '#FFFDD0');
+        }
+        if (e.data.ParameterGradeStatus == 'Reject') {
+            e.row.css("background-color", '#F62817');
+        }
+        if (e.data.ParameterGradeStatus == 'Fail') {
+            e.row.css("background-color", '#ffb38a');
+        }
+        //else {
+        //    e.row.css("background-color", '#90EE90');
+
+        //}
+    }
 }
 
