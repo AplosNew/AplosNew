@@ -307,7 +307,15 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="col-xs-12">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="SaveMasterLCAddInfo();" ng-disabled="masterLC.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionAdd}}</button></li>
+                                <li> <button ng-click="ClearAddInfo();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
                         <div style="color:black;" id="GridAddInfo" ej-grid e-datasource="masterLCAddInfoList" e-gridlines="vertical" e-allowfiltering="true"
                              e-recorddoubleclick="GetAddInfo" e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
                             <div e-columns>
@@ -315,18 +323,13 @@
                                 <div e-column e-field="Description" e-headertext="Description" e-width="150"></div>
                                 <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
                                 @*<div e-column e-headertext="Actions" e-width="20">
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.deleteModal($event);" style="margin: -6px;"></i></button>
-                                    </div>*@
+                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.deleteModal($event);" style="margin: -6px;"></i></button>
+                    </div>*@
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="SaveMasterLCAddInfo();" ng-disabled="masterLC.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionAdd}}</button></li>
-                        <li> <button ng-click="ClearAddInfo();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                    </ul>
-                </div>
+                
             </div>
         </div>
     </div>
