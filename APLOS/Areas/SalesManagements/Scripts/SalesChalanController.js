@@ -8,10 +8,8 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
-    baseService.init($scope.getListUrl);
-    $scope.searchBy = "UserName"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
-
+    $scope.searchBy = "UserRef"; $scope.search = "";
+    $scope.searchByList = [{ value: 'UserRef', name: "UserRef" }, { value: 'VechileNo', name: "VechileNo" }, { value: 'ByWhom', name: "ByWhom" }, { value: 'MobileNo', name: "MobileNo" }];
 
     $scope.getData = function () {
         $http({
@@ -27,36 +25,46 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
 
     $scope.ModelTemp = {
         Id: null,
-        Sequence: 0,
-        Code: null,
-        ShortName: null,
-        StandardName: null,
-        UserName: null,
-        Description: null,
-        Remarks: null,
-        Active: true
+        VechileNo: null,
+        ByWhomId: null,
+        MobileNo: null,
+        SecurityInChargeId: null,
+        ResponsiblePersonId: null,
+        CheckById: null,
+        ApproveById: null,
+        UserRef: null,
+        Destination: null,
+        FromDate: null,
+        ToDate: null,
+        Remark: null,
+        AddedBy: null,
+        AddedDate: null,
+        AddedFromIP: null,
+        UpdatedBy: null,
+        UpdatedDate: null,
+        UpdatedFromIP: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
-    $scope.CategoryList = [
-        { Value: 'GRN', Text: 'GRN' },
-        { Value: 'SalesOrder', Text: 'Sales Order' },
-        { Value: 'SalesInvoice', Text: 'Sales Invoice' }
-    ];
-    $scope.charecterTypeList = [
-        { Value: 'Text', Text: "Text" },
-        { Value: 'DateTime', Text: "DateTime" },
-        { Value: 'Decimal', Text: "Decimal" }
-    ];
-
-
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.ModelNew.FromDate = $filter("dateFiltering")($scope.ModelNew.FromDate);
+        $scope.ModelNew.ToDate = $filter("dateFiltering")($scope.ModelNew.ToDate);
+        $scope.GetInvoiceDataByChalan();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
     };
+
+    $scope.GetInvoiceDataByChalan = function () {
+        $http({
+            method: 'GET',
+            url: 'SalesManagements/SalesChalan/GetInvoiceDataByChalan?masterId=' + $scope.ModelNew.Id
+        }).then(function successCallback(response) {
+            $scope.InvoiceNoList = response.data;
+        });
+    }
 
 
     $scope.popUpDataList = [];
@@ -86,6 +94,13 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
         } else if ($scope.name == 'SecurityInCharge') {
             $scope.ModelNew.SecurityInChargeId = ob.SystemId;
             $scope.ModelNew.SecurityInCharge = ob.EmployeeName;
+        } else if ($scope.name == 'CheckBy') {
+            $scope.ModelNew.CheckById = ob.SystemId;
+            $scope.ModelNew.CheckBy = ob.EmployeeName;
+        }
+        else if ($scope.name == 'ApproveBy') {
+            $scope.ModelNew.ApproveById = ob.SystemId;
+            $scope.ModelNew.ApproveBy = ob.EmployeeName;
         }
         else {
             $scope.ModelNew.ResponsiblePersonId = ob.SystemId;
@@ -120,13 +135,101 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
         angular.element(document.querySelector('#popUp')).modal('hide');
     };
 
+    $scope.searchdata = [];
+    $scope.GetInvoiceData = function () {
+        $scope.searchdata = [];
+        $http({
+            method: 'GET',
+            url: 'SalesManagements/SalesChalan/GetInvoiceData?fromDate=' + $scope.ModelNew.FromDate + '&toDate=' + $scope.ModelNew.ToDate
+        }).then(function successCallback(response) {
+            $scope.searchdata = response.data;
+            $scope.ShowResultCustom();
+        });
+    }
+  
+
+    $scope.ShowResultCustom = function (message, type) {
+        $("#InvoicePoUp").ejDialog("setTitle", "Invoice Info");
+        var eDialog = $("#InvoicePoUp").data("ejDialog");
+        eDialog.open();
+        var gridObj = $("#GridInvoice").data("ejGrid");
+        gridObj.clearFiltering();  // clears all the filtering
+    };
+
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
+
+    function CheckBoxSelectAllEmolyeeWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridInvoice").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.searchdata.length; i++) {
+                $scope.searchdata[i].Checked = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Checked = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridInvoice").data("ejGrid");
+        gridObj.refreshContent();
+
+    };
+    $scope.InvoiceNoList = [];
+    function MakeData() {
+        for (var i = 0; i < $scope.searchdata.length; i++) {
+            if ($scope.searchdata[i].Checked == true) {
+                if (checkExists($scope.InvoiceNoList, $scope.searchdata[i].InvoiceId) === false) {
+                    var ob = {};
+                    ob.Id = null;
+                    ob.InvoiceId = $scope.searchdata[i].InvoiceId;
+                    ob.Customer = $scope.searchdata[i].Customer;
+                    ob.Date = $scope.searchdata[i].Date;
+                    ob.NoOfPackage = $scope.searchdata[i].NoOfPackage;
+                    ob.NetWeight = $scope.searchdata[i].NetWeight;
+                    ob.GrossWeight = $scope.searchdata[i].GrossWeight;
+                    ob.Destination = $scope.searchdata[i].Destination;
+                    ob.Remark = $scope.searchdata[i].Remark;
+
+                    $scope.InvoiceNoList.push(ob);
+                }
+            }
+        }
+
+    }
+
+    function checkExists(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].InvoiceId === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.CloseInvoice = function () {
+        try {
+            MakeData();
+            var eDialog = $("#InvoicePoUp").data("ejDialog");
+            eDialog.close();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew },
+                data: { 'data': $scope.ModelNew, 'details': $scope.InvoiceNoList },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -175,5 +278,6 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
     function ClearFields() {
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+        $scope.InvoiceNoList = [];
     }
 }
