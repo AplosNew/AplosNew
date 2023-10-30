@@ -53,39 +53,83 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey + "";
+            string sql = @"select * from (Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
+from [dbo].[SalesChalan] SC
+LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
+LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
+LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
+LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
+LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById) AS TEMP WHERE " + strkey + "";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-
-        [HttpPost]
-        public JsonResult Create(Dictionary<string, object> data)
+        [HttpGet, Authorize]
+        public ActionResult GetInvoiceData(string fromDate,string toDate)
         {
             try
             {
-                DataSet dsMaster;
+                string sql = @"SELECT Checked=CAST(0 AS bit),FORMAT(S.EntryDate,'dd-MMM-yyyy')Date, S.Id InvoiceId,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight
+FROM TRN.Sales S
+LEFT JOIN HKP.Party P ON P.Id=S.PartyId
+LEFT JOIN (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage , isc.SalesId 
+                from itemscanchild isc
+                left join trn.POLotReference PLR on PLR.Id = isc.PackingId
+                left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
+				group by  isc.salesId) BKD on BKD.salesId = s.Id 
+Where FORMAT(S.AddedDate,'dd-MMM-yyyy') between '" + fromDate + @"' AND '"+ toDate + @"' AND RowState='Posted' AND ISNULL(BKD.NoOfPackage,0)<>0
+AND S.Id NOT IN(Select  InvoiceId from dbo.SalesChalanDetail)
+ORDER BY S.Id";
+                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet,Authorize]
+        public ActionResult GetInvoiceDataByChalan(string masterId)
+        {
+            try
+            {
+                string sql = @"Select SCD.*,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight  
+from dbo.SalesChalanDetail SCD
+LEFT JOIN TRN.Sales S ON S.Id=SCD.InvoiceId
+LEFT JOIN HKP.Party P ON P.Id=S.PartyId
+left join (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage , isc.SalesId 
+                from itemscanchild isc
+                left join trn.POLotReference PLR on PLR.Id = isc.PackingId
+                left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
+				group by  isc.salesId) BKD on BKD.salesId = s.Id
+Where SCD.SalesChalanId='"+ masterId + "'";
+                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost]
+        public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> details)
+        {
+            try
+            {
+                DataSet dsMaster, dsChild;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Code already exists!!!");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same User Name already exists!!!");
-
-
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
-
+                string _cId = "";
+                bplib.clsGenID genid = new bplib.clsGenID();
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
+                   
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "AI" + _Id;
+                    data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -95,15 +139,46 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 }
                 #endregion data update
 
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+                #region SalesChalanDetail 
+
+                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.SalesChalanDetail WHERE  SalesChalanId='" + data["Id"] + "'", out dsChild, false, "1");
+                
+                if (details != null)
+                {
+                    genid.GenID("SalesChalanDetail", out _cId);
+                    int c = 0;
+                    foreach (var item in details)
+                    {
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+
+                        if (dv.Count == 0)
+                        {
+                            c++;
+                            item["Id"] = _cId + " - " + c;
+                            item["SalesChalanId"] = data["Id"];
+
+                            AddNewRow(dsChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsChild);
 
                 return Json(new { Error = false, Data= data, Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
             {
-
                 return Json(new { Error = true, Message = ex.Message });
 
             }
