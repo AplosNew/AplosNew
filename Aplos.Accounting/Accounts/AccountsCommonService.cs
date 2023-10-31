@@ -553,7 +553,29 @@ namespace Library.Accounting.Accounts
             }
             AddNewRow<BankJournalDetail>(dsData.Tables[0], bankJournalDetail);
         }
+       
+        public Dictionary<string, object> GetBankMaster(string bankMasterId)
+        {
 
+            var sql = @"SELECT TOP(1) * FROM [MST].[BankMaster]  
+                        WHERE Id='" + bankMasterId + "'";
+            var bankTemp = _sqlRepository.GetData(sql);
+            if (null == bankTemp || bankTemp.Count == 0)
+                throw new CustomException("Bank Master  not Found!");
+
+            return bankTemp;
+        }
+        public Dictionary<string, object> GetCashMaster(string cashMasterId)
+        {
+
+            var sql = @"SELECT TOP(1) * FROM [MST].[CashMaster]  
+                        WHERE Id='" + cashMasterId + "'";
+            var cashTemp = _sqlRepository.GetData(sql);
+            if (null == cashTemp || cashTemp.Count == 0)
+                throw new CustomException("Cash Master  not Found!");
+
+            return cashTemp;
+        }
         #region Invoice
         public Invoice InsertInvoice(Invoice invoice, out DataSet dsData)
         {
