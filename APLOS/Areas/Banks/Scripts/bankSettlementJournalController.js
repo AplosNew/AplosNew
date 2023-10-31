@@ -1,13 +1,13 @@
 ﻿"use strict";
-bankSettlementJournalController.$inject = ["bankService", "accountService", "cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller", "$routeParams"];
-function bankSettlementJournalController(bankService, accountService, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, $routeParams) {
+bankSettlementJournalController.$inject = ["bankService", "accountService", "cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller", "$routeParams","$window"];
+function bankSettlementJournalController(bankService, accountService, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, $routeParams, $window) {
     $rootScope.title = "Bank Settlement Journal";
     $scope.Action = "Save";
     $scope.voucherList = [];
     $scope.index = -1;
     $scope.url = "Banks/BankJournal";
     $scope.listUrl = $scope.url + "/GetBankJournalList";
-    $scope.parkUrl = $scope.url + "/InsertExpenseToBankReconcil";
+    $scope.parkUrl = "Banks/BankReconciliation/InsertExpenseToBankReconcil";
     $scope.updateUrl = $scope.url + "/UpdateBankJournal";
     $scope.postUrl = $scope.url + "/PostBankJournal";
     $scope.deleteUrl = $scope.url + "/DeleteBankJournal";
@@ -147,15 +147,6 @@ function bankSettlementJournalController(bankService, accountService, cboService
         $scope.entityList = result;
     });
 
-    //$scope.changeEntityForBankCash = function (entityId) {
-    //    bankService.getBankMasterHouseBankCboListByEntity(entityId, function (result) {
-    //        $scope.bankMasterList = result;
-    //    });
-
-    //    bankService.getCashMasterCboListByEntity(entityId, function (result) {
-    //        $scope.cashMasterList = result;
-    //    });
-    //};
 
     $scope.getBankChargesList = function (id) {
         $http({

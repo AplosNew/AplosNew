@@ -36,11 +36,6 @@
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetGRNLPOist(1), active: isSetGRNLPOist(1) }">
             <div ng-form="tabForm1">
-
-                @*<fieldset class="scheduler-border">
-                    <legend class="scheduler-border">Select Search Option</legend>*@
-
-
                 <div class="row">
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group" show-errors>
@@ -67,6 +62,7 @@
                                 </ul>
                             </div>
                         </div>
+                        
                     </div>
                     <div class="clearfix"></div>
                     <div class="col-xs-12 col-sm-12">
@@ -968,7 +964,7 @@
                             <tr ng-show="inventoryMaterialListPO.length">
                                 <th>
                                 </th>
-                                <th class="col-sm-1" >Action</th>
+                                <th class="col-sm-1">Action</th>
                                 <th>QualityStatus</th>
                                 <th ng-show="x.POID !='null' && x.POID!='null'">PO Id</th>
                                 <th ng-show="x.InventoryReceiveDetailId !='null' && x.InventoryReceiveDetailId!='null'">PORowId</th> @*ng-show="x.InventoryReceiveDetailId !='null' && x.PurchaseDocAcceptanceDetailId==='null'"*@
@@ -1660,7 +1656,7 @@
                                     <div e-column e-field="Shortageqty" e-headertext="Shortage Qty" textAlign='Right' e-width="150"></div>
                                     <div e-column e-field="RejectionQty" e-headertext="Rejection Qty" textAlign='Right' e-width="150"></div>
                                     @*<div e-column e-field="NetQty" e-headertext="Net Qty" textAlign='Right' e-width="150"></div>
-                    <div e-column e-field="GRNQTY" e-headertext="GRN QTY" textAlign='Right' e-width="150"></div>*@
+                                        <div e-column e-field="GRNQTY" e-headertext="GRN QTY" textAlign='Right' e-width="150"></div>*@
                                     <div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
                                     <div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
                                     <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="150"></div>
@@ -1697,7 +1693,7 @@
 
 
                                     @*<div e-column e-headertext="ExportTOExcel" e-commands="commandExcel" e-isunbound=true e-textalign="left" e-width="50"></div>
-                    <div e-column e-headertext="ExportTOPdf" e-commands="commandPdf" e-isunbound=true e-textalign="left" e-width="50"></div>*@
+                                        <div e-column e-headertext="ExportTOPdf" e-commands="commandPdf" e-isunbound=true e-textalign="left" e-width="50"></div>*@
                                     @*  <div e-column e-headertext="ExportTOWord" e-commands="commandWord" e-isunbound=true e-textalign="left" e-width="50"></div>*@
 
 
@@ -1707,7 +1703,7 @@
                         <script type="text/template" id="ShowActionButtons">
                             <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataMasterONE');" style="margin: -6px;"></i></button>
                             <button ng-click="$parent.XlsDownloadBinWiseGRNReport(this)" style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-download-alt" title="Convert in Excel" style="margin: -6px;"></i></button>
-                           
+
                         </script>
                         <script id="tabGridContents" type="text/x-jsrender">
                             <div class="tabcontrol" id="Test">

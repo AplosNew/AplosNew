@@ -507,6 +507,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         }
 
     }
+    $scope.GetCheckedByAndApprovedBy1();
     $scope.HSNCode = null;
     $scope.HSNCodeId = null;
 

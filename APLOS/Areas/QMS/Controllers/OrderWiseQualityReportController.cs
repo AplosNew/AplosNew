@@ -101,7 +101,11 @@ Sum(Z.EntryMissing) MissingEntry,sum(Z.ToClose) ToClose,sum(Z.ToConfirm) ToConfi
 Reverse(stuff(Reverse((select OWC.Grade +', ' from MST.OrderWiseQualityComment OWC																			
 where OWC.MOLineItemNo=Z.MOLineItemNo and OWC.PONo=Z.PONo and OWC.LotNo=Z.LotNumber and OWC.EntityId=Z.EntityId for xml PATH(''))),1,2,'')) Grade,
 Reverse(stuff(Reverse((select format(OWC.AddedDate,'dd-MMM-yyyy') + '-' + OWC.Comment +', ' from MST.OrderWiseQualityComment OWC																			
-where OWC.MOLineItemNo=Z.MOLineItemNo and OWC.PONo=Z.PONo and OWC.LotNo=Z.LotNumber  and OWC.EntityId=Z.EntityId for xml PATH(''))),1,2,'')) CommentDetails
+where OWC.MOLineItemNo=Z.MOLineItemNo and OWC.PONo=Z.PONo and OWC.LotNo=Z.LotNumber  and OWC.EntityId=Z.EntityId for xml PATH(''))),1,2,'')) CommentDetails,
+Reverse(stuff(Reverse((select (select EmployeeName from EmployeeInformation where SystemId=QR.ByWhomId) +', ' from MST.QualityRemark QR																			
+where QR.PONo=Z.PONo and QR.LotNo=Z.LotNumber and QR.EntityId=Z.EntityId for xml PATH(''))),1,2,'')) QIByWhom,
+Reverse(stuff(Reverse((select format(QR.AddedDate,'dd-MMM-yyyy') + '-' + QR.Comment +', ' from MST.QualityRemark QR																			
+where QR.PONo=Z.PONo and QR.LotNo=Z.LotNumber and QR.EntityId=Z.EntityId for xml PATH(''))),1,2,'')) QIComment
 from (select distinct QCData.QCDate,M.MOLineItemNo,M.POStatus,M.ProductionOrderId PONo,isnull(QCData.LotNumber,M.LotNumber) LotNumber,M.Article,M.Customer,M.PartyNature, 
 M.IssueId,M.IssueName,M.ParameterSequence,M.ParameterId,M.ParameterName,M.UOM,QCData.Value,QCData.GradeName,QCData.ParameterRemark,QCData.ActionToBeTakenName,QCData.ResponsiblePerson,QCData.PassValue,QCData.FailValue,QCData.RejectValue,QCData.FailGrade,QCData.ToClose,QCData.ToConfirm,
 QCData.HeaderId,QCData.ChildId,QCData.QCDDate,(Case When (QCData.Value is null or QCData.Value = '0') then 1 else 0 end) EntryMissing,M.Entity,M.EntityId from (Select  P.*,CP.IssueName,CP.IssueId,CP.ParameterId,CP.ParameterName,CP.UOM,CP.ParameterSequence from (select Distinct PS.ProductionOrderId,PS.LotNumber,E.UserName Entity,PS.EntityId,

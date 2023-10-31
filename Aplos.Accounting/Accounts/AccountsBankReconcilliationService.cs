@@ -3,15 +3,20 @@ using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
+using Library.Model.Accounts;
 using Library.Model.Banks;
+using Library.Model.Enums;
+using Library.Model.Vouchers;
 using Library.Service.Enums;
 using Library.Service.Helpers;
 using Library.Service.Logs;
+using Library.ViewModel.Vouchers;
 using OTSBD;
 using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 
@@ -790,6 +795,213 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN MST.BankMaster BM ON BM.Id=BRU.BankMasterId
                             WHERE BRUD.Id='" + id + "'  ";
                 return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+        public string InsertExpenseToBankReconcil(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            try
+            {
+                AccountsCommonService _accountsCommonService = new AccountsCommonService(_sqlRepository);
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                if (string.IsNullOrEmpty(voucherVM.BankMasterId))
+                    throw new CustomException("Bank Id not found!");
+                if (voucherVM.BankMasterId == voucherVM.OtherBankMasterId)
+                    throw new CustomException("Same to same bank transfer is not allowed!");
+                if (voucherVM.Amount <= 0)
+                    throw new CustomException("Amount is 0.");
+                DataSet _bankJournalData = null;
+                DataSet _bankJournalDetailData = null;
+                DataSet _bankReconciliationMapData = null;
+                DataSet _glTransactionDetailData = null;
+                DataSet _drvDetailData = null;
+                DataSet _drvDetailCurrencyData = null;
+                DataSet _crvDetailData = null;
+                DataSet _crvDetailCurrencyData = null;
+                var voucherDrId = "";
+                voucherVM.SourceType = SourceType.BankJournal.ToString();
+
+                var voucher = new Voucher
+                {
+                    CompanyGroupId = voucherVM.CompanyGroupId,
+                    CompanyId = voucherVM.CompanyId,
+                    PlantId = voucherVM.PlantId,
+                    CurrencyId = companyCurrencyId,
+                    FiscalYearId = voucherVM.FiscalYearId,
+                    FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+                    TaxYearId = voucherVM.TaxYearId,
+                    TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+                    VoucherDate = DateTime.Now,
+                    DocDate = voucherVM.DocDate,
+                    DocRefNo = voucherVM.DocRefNo,
+                    Narration = voucherVM.Narration,
+                    PostingDate = voucherVM.PostingDate,
+                    SourceType = SourceType.BankJournal.ToString(),
+                    VoucherTypeId = voucherVM.VoucherTypeId
+                };
+                _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
+                var bankJournal = new BankJournal
+                {
+                    CompanyGroupId = voucherVM.CompanyGroupId,
+                    CompanyId = voucherVM.CompanyId,
+                    PlantId = voucherVM.PlantId,
+                    EntityId = voucherVM.EntityId,
+                    CurrencyId = voucherVM.CurrencyId,
+                    PostingDate = voucherVM.PostingDate,
+                    DocDate = voucherVM.DocDate,
+                    DocRefNo = voucherVM.DocRefNo,
+                    Narration = voucherVM.Narration,
+                    BankMasterId = voucherVM.BankMasterId,
+                    IsPark = voucherVM.IsPark,
+                    SourceType = voucherVM.SourceType,
+                    PaymentSource = voucherVM.PaymentSource,
+                    BankJournalType = BankJournalType.BankToGL.ToString(),
+                    Amount = voucherVM.Amount,
+                    IsReverse = true,
+                    VoucherId = voucher.Id,
+                    Archive = false
+                };
+                _accountsCommonService.InsertBankJournal(bankJournal, ref _bankJournalData);
+                // INSERT INTO BankJournalDetail
+                var bankJournalDetail = new BankJournalDetail
+                {
+                    Amount = bankJournal.Amount,
+                    BankJournalId = bankJournal.Id,
+                    BankMasterId = voucherVM.BankMasterId
+                };
+                _accountsCommonService.InsertBankJournalDetail(bankJournal, bankJournalDetail, 1, ref _bankJournalDetailData);
+                var currentVoucherDetailId = 1;
+                var currentBankJournalDetailId = 0;
+                var bankMaster = _accountsCommonService.GetBankMaster(bankJournal.BankMasterId);
+                var currentVoucherDetaiRecord = 0;
+                var voucherDetail =  new VoucherDetail
+                {
+                    GLGeneralInfoId = bankMaster["GLGeneralInfoId"].ToString(),
+                    BudgetMasterId = bankMaster["BudgetMasterId"].ToString(),
+                    ActivityId = bankMaster["ActivityId"].ToString(),
+                    BankMasterId = bankJournal.BankMasterId,
+                    CrAmount =  bankJournal.Amount,
+                    PaymentSource = bankJournal.PaymentSource,
+                    PartyType = bankJournal.PaymentSource,
+                    TrnNature = TransactionNature.Bank.ToString()
+                };
+                currentVoucherDetaiRecord++;
+                _accountsCommonService.InsertVoucherDetail(voucher, voucherDetail, currentVoucherDetaiRecord, ref _crvDetailData);
+                var totalAmountDr = voucherDetail.DrAmount;
+                var totalAmountCr = voucherDetail.CrAmount;
+                if (bankJournal.BankJournalType == BankJournalType.BankToGL.ToString())
+                {
+                    voucherDetail.DrAmount = 0;
+                    voucherDetail.CrAmount = bankJournal.Amount;
+                }
+
+                var glTransactionDetailCr = new GLTransactionDetail
+                {
+                    SourceType = voucherDetail.PaymentSource,
+                    BankMasterId = voucherDetail.BankMasterId,
+                };
+
+                if (bankMaster["CurrencyId"].ToString() == voucher.CurrencyId)
+                {
+                    glTransactionDetailCr.CrAmount = voucherDetail.CrAmount;
+                }
+                else
+                {
+                    glTransactionDetailCr.CrAmount = Math.Round(voucherDetail.CrAmount * voucherVM.CompanyCurrencyRate, 2);
+                }
+                _accountsCommonService.InsertGLTransactionDetail(voucherDetail,glTransactionDetailCr, out _glTransactionDetailData);
+
+                _accountsCommonService.InsertVoucherDetailCompanyCurrency(voucherDetail, new VoucherDetailCurrency
+                {
+                    ParallelCurrencyId = companyCurrencyId,
+                    FromCurrencyId = companyCurrencyId,
+                    ToCurrencyId = companyCurrencyId,
+                    ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                    ToCurrencyConversion = 1,
+                    CrAmount = voucherDetail.CrAmount
+                }, ref _crvDetailCurrencyData);
+                voucherDrId = voucherDetail.Id;
+
+
+                if (bankJournal.BankJournalType == BankJournalType.BankToGL.ToString())
+                {
+                    if (null == voucherDetailVMList && voucherDetailVMList.Count() < 0)
+                        throw new CustomException("Expense GL list not found!");
+
+                    foreach (var voucherDetailVM in voucherDetailVMList)
+                    {
+                        if (voucherDetailVM.Amount < 0)
+                            throw new CustomException("Please ensure all line item have amount.");
+
+                        // INSERT INTO BankJournalDetail
+                        //currentBankJournalDetailId++;
+                        //var bankJournalDetail = InsertBankJournalDetail(bankJournal, new BankJournalDetail
+                        //{
+                        //    GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                        //    BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                        //    ActivityId = voucherDetailVM.ActivityId,
+                        //    Amount = voucherDetailVM.Amount
+                        //}, currentBankJournalDetailId);
+
+                        var voucherDetailDr =  new VoucherDetail
+                        {
+                            BankJournalDetailId = bankJournalDetail.Id,
+                            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                            BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                            ActivityId = voucherDetailVM.ActivityId,
+                            CurrencyId = voucher.CurrencyId,
+                            DrAmount = bankJournalDetail.Amount,
+                            PaymentSource = bankJournal.PaymentSource,
+                            PartyType = bankJournal.PaymentSource,
+                            Narration = voucherVM.Narration,
+                            TrnNature = TransactionNature.ToExpense.ToString()
+                        };
+                        currentVoucherDetaiRecord++;
+                        _accountsCommonService.InsertVoucherDetail(voucher, voucherDetailDr, currentVoucherDetaiRecord, ref _drvDetailData);
+
+                        // INSERT INTO VoucherDetailCurrency
+                        _accountsCommonService.InsertVoucherDetailCompanyCurrency(voucherDetailDr, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = voucherDetailDr.CurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = 1,
+                            DrAmount = Math.Round(voucherVM.CompanyCurrencyRate * voucherDetailDr.DrAmount, 2)
+                        }, ref _drvDetailCurrencyData);
+
+                        totalAmountDr += voucherDetailDr.DrAmount;
+                    }
+                }
+
+                if (voucherVM.BankReconciliationUploadedDataId != null)
+                {
+                    var bankReconciliationMap = new BankReconciliationMap
+                    {
+                        BankReconciliationUploadedDataId = voucherVM.BankReconciliationUploadedDataId,
+                        VoucherDetailId = voucherDetail.Id,
+                        GLTransactionDetailId = voucherDetail.Id,
+                        AddedBy = voucher.AddedBy,
+                        AddedDate = voucher.AddedDate,
+                        AddedFromIP = voucher.AddedFromIP
+                    };
+                    _accountsCommonService.InsertBankReconciliationMap(bankReconciliationMap, ref _bankReconciliationMapData); 
+                }
+
+                if (totalAmountDr != totalAmountCr)
+                    throw new CustomException("Dr and Cr amount is not equal.");
+                clsStaticInfo objApp = new clsStaticInfo();
+                objApp.SaveDataSets(_vdataset, _bankJournalData,_bankJournalDetailData, _crvDetailData, _glTransactionDetailData, _crvDetailCurrencyData, _drvDetailData, _drvDetailCurrencyData, _bankReconciliationMapData);
+
+                return voucher.VoucherNo;
             }
             catch (Exception ex)
             {
