@@ -328,7 +328,7 @@
     <Folder Include="POPResources\EmployeeProfiles\ResignationLetter\" />
     <Folder Include="POPResources\EmployeeProfiles\TrainingDoc\" />
     <Folder Include="POPResources\Expenses\" />
-    <Folder Include="POPResources\GRN\" />
+    <Folder Include="POPResources\GRNDocument\" />
     <Folder Include="POPResources\JobDescriptions\" />
     <Folder Include="POPResources\JobWorkPurchaseOrder\" />
     <Folder Include="POPResources\JWPurchaseOrder\" />
@@ -1251,6 +1251,7 @@
     <Compile Include="Areas\DailyAttendance\Controllers\PreDashBoardController.cs" />
     <Compile Include="Areas\DailyAttendance\Controllers\DailyAttendanceInAndOut.cs" />
     <Compile Include="Areas\DailyAttendance\DailyAttdAreaRegistration.cs" />
+    <Compile Include="Areas\SalesManagements\Controllers\SalesChalanController.cs" />
     <Compile Include="Areas\SalesManagements\Controllers\AdditionalInfoController.cs" />
     <Compile Include="Areas\SalesManagements\Controllers\SalesInvoiceController.cs" />
     <Compile Include="Areas\SalesManagements\Controllers\SalesController.cs" />
@@ -2923,6 +2924,7 @@
     <Content Include="Areas\DailyAttendance\Scripts\dailyAttdInOutController.js" />
     <Content Include="Areas\DailyAttendance\Scripts\dailyAttendanceInOutLoginController.js" />
     <Content Include="Areas\DailyAttendance\Scripts\dailyattendanceApp.js" />
+    <Content Include="Areas\SalesManagements\Scripts\SalesChalanController.js" />
     <Content Include="Areas\SalesManagements\Scripts\AdditionalInfoController.js" />
     <Content Include="Areas\SalesManagements\Scripts\EInvoiceController.js" />
     <Content Include="Areas\SalesManagements\Scripts\salesIncentiveController.js" />
@@ -5003,6 +5005,7 @@
     <Content Include="Areas\QMS\Views\OrderWiseQualityReport\Aplos.cshtml" />
     <Content Include="Areas\Products\Views\PurchaseOrder\ServiceAcknowledgement.cshtml" />
     <Content Include="Areas\QMS\Views\DailyQualityStatusReport\Aplos.cshtml" />
+    <Content Include="Areas\SalesManagements\Views\SalesChalan\Aplos.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

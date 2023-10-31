@@ -107,7 +107,6 @@ function approvalConfigurationController(fileReader, cboService, commonMessage, 
         baseService.pagination(pageno)
             .then(function (result) {
                 $scope.approvalconfigurations = result.Rows;
-                console.log($scope.approvalconfigurations);
                 if ($scope.approvalconfigurations.length > 0) {
                     $scope.approvalConfigurationNew.Id = $scope.approvalconfigurations[0].Id;
                     $scope.approvalConfigurationNew.OrgDocRP = $scope.approvalconfigurations[0].OrgDocRP;

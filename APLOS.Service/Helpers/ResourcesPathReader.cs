@@ -103,6 +103,17 @@ namespace Library.Service.Helpers
 				throw new CustomException(ServiceResources.FilePathNotFound);
 			}
 		}
+		public static string GetGRNImagePath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "GRNDocument/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
 		public static string GetBlackListImagePath()
 		{
 			try

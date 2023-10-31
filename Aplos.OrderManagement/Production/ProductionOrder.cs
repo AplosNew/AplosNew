@@ -859,7 +859,8 @@ LEFT JOIN TRN.ProductionOrderProcessSet PS on PS.ProductionOrderId=" + PoId + @"
 LEFT JOIN HKP.Process P ON P.Id=PS.ProcessId
 LEFT JOIN HKP.EntityProcessTag T ON T.EntityId=" + entityId + @" AND P.Id=T.ProcessId
 LEFT JOIN dbo.LotControlSetting LCS ON LCS.EntityId='" + entityId + @"' AND LCS.ProcessId=P.Id AND LCS.ProductionOrderId=" + PoId + @" 
-AND LCS.MasterOrderItemId=B.MasterOrderItemId AND LCS.SalesOrderId=B.SalesOrderId AND LCS.ProductionBookingLevel=B.ProductionBookingLevel";
+AND LCS.MasterOrderItemId=B.MasterOrderItemId AND LCS.SalesOrderId=B.SalesOrderId AND LCS.ProductionBookingLevel=B.ProductionBookingLevel
+Where P.Id IS NOT NULL";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)

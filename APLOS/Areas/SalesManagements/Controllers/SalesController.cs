@@ -339,6 +339,14 @@ namespace Aplos.Areas.SalesManagements.Controllers
             return View();
         }
 
+        [HttpPost, Authorize]
+        public JsonResult SendMailInvoiceReport(string salesId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _salesReportService.GetLotWiseTaxInvoiceServiceReporttoMail(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, salesId);
+            return Json(new { Message = AplosMessage.Success });
+        }
 
         [Authorize, HttpGet]
         public ActionResult LocalTaxInvoice(string salesId)
