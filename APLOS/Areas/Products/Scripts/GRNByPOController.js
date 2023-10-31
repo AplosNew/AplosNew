@@ -4577,29 +4577,4 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
     };
 
-    //#region File Upload
-    $scope.onBeginUpload = function (args) {
-        try {
-            if (angular.isUndefinedOrNull($scope.productNew.Id))
-                throw 'Please select/save the GRN first'
-
-            args.data = $scope.productNew.Id;
-        } catch (e) {
-
-            args.cancel = true;
-            ShowResult(e, 'Error');
-        }
-
-    }
-    $scope.fileselect = function (e) {
-
-    }
-    $scope.uploadUrl = "Products/GoodsReceiveNote/SaveDefault";
-    $scope.errorPicUpload = function (e) {
-        if (angular.isUndefinedOrNull($scope.productNew.Id))
-            ShowResult('Please select/save the production order first', 'Error');
-        else
-        ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.files.size / (1024 * 1024)) + "MB", 'failure');
-    }
-    //#endregion File Upload
 }

@@ -328,7 +328,6 @@
     <Folder Include="POPResources\EmployeeProfiles\ResignationLetter\" />
     <Folder Include="POPResources\EmployeeProfiles\TrainingDoc\" />
     <Folder Include="POPResources\Expenses\" />
-    <Folder Include="POPResources\GRNDocument\" />
     <Folder Include="POPResources\JobDescriptions\" />
     <Folder Include="POPResources\JobWorkPurchaseOrder\" />
     <Folder Include="POPResources\JWPurchaseOrder\" />
