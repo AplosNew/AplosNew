@@ -86,6 +86,7 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
         $scope.ShowEmpDiv = false;
         $scope.model2.Increment = false;
         $scope.model2.Promotion = false;
+        $scope.model2.Adjustment = false;
         $scope.ShowEmpHeader = null;
     };
 
@@ -224,7 +225,7 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
                 $scope.LoadEmployeeDataForGrid($scope.getApprovedEmpListUrl);
                 $scope.EmpSalaryInfo.IsFreshEntry = false;
                 $scope.ShowEmpHeader = null;
-                $scope.ShowEmpHeader = 'Increment/Promotion';
+                $scope.ShowEmpHeader = 'Increment/Promotion/Adjustment';
 
             }
             else {
@@ -1832,6 +1833,19 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
         $scope.givenDesignationList = result;
     });
 
+    $scope.SetCheckforAdjustment = function () {
+        if ($scope.model2.Adjustment === true) {
+            $scope.model2.Promotion = false;
+            $scope.model2.Increment = false;
+        }
+        if ($scope.model2.Promotion === true) {
+            $scope.model2.Adjustment === false;
+        }
+        if ($scope.model2.Increment === true) {
+            $scope.model2.Adjustment === false;
+        }
+    }
+
     // #region Update
     $scope.saveData = function () {
         try {
@@ -1850,13 +1864,20 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
             }
 
             // #endregion
-            if ($scope.model2.Promotion === true && $scope.model2.Increment === false) {
-                $scope.IncrementHistory.IsPromotion = true;
-
+            if ($scope.model2.Adjustment === false) {
+                if ($scope.model2.Promotion === true && $scope.model2.Increment === false) {
+                    $scope.IncrementHistory.IsPromotion = true;
+                }
             }
+
 
             //with Confirmation
             if ($scope.qempid !== null && $scope.qstatus === 'Confirmation') {
+                if ($scope.model2.Adjustment === true) {
+                    $scope.IncrementHistory.IncrementType = "Confirmation with Adjustment";
+                    $scope.IncrementHistory.IsConfirmation = true;
+                    $scope.Update();
+                }
                 if ($scope.model2.Promotion === true) {
                     $scope.IncrementHistory.IncrementType = "Confirmation with Promotion";
                     $scope.IncrementHistory.IsConfirmation = true;
@@ -1889,6 +1910,11 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
             }//only Increment or Promotion
             else {
                 if ($scope.budgetCodeChangeNew.IsPending === 1) {
+                    if ($scope.model2.Adjustment === true) {
+                        $scope.IncrementHistory.IncrementType = "Confirmation with Adjustment";
+                        $scope.IncrementHistory.IsConfirmation = true;
+                        $scope.Update();
+                    }
                     if ($scope.model2.Promotion === true) {
                         $scope.IncrementHistory.IncrementType = "Confirmation with Promotion";
                         $scope.IncrementHistory.IsConfirmation = true;
@@ -1919,6 +1945,10 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
 
                     }
                 } else {
+                    if ($scope.model2.Adjustment === true) {
+                        $scope.IncrementHistory.IncrementType = "Adjustment";
+                        $scope.Update();
+                    }
                     if ($scope.model2.Promotion === true) {
                         $scope.IncrementHistory.IncrementType = "Promotion";
                         $scope.Update();
@@ -2161,7 +2191,7 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
             if (baseService.arrayLength($scope.EmpSalaryOpenHeadCurrent) > 0) {
                 for (var i = 0; i < $scope.EmpSalaryOpenHeadCurrent.length; i++) {
                     if ($scope.EmpSalaryOpenHeadCurrent[i].Amount === null || baseService.isUndefinedOrNull($scope.EmpSalaryOpenHeadCurrent[i].Amount)) {
-                        throw "Amount is required for " + $scope.EmpSalaryOpenHeadCurrent[i].SalaryHead+".";
+                        throw "Amount is required for " + $scope.EmpSalaryOpenHeadCurrent[i].SalaryHead + ".";
                     }
                 }
             }
