@@ -53,13 +53,14 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select * from (Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
+            string sql = @"select * from (Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy,D.UserName Destination
 from [dbo].[SalesChalan] SC
 LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
 LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
 LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
 LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
-LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById) AS TEMP WHERE " + strkey + "";
+LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById
+LEFT JOIN MST.Destination D ON D.Id=SC.DestinationId) AS TEMP WHERE " + strkey + "";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -69,7 +70,7 @@ LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById) AS TEMP WHER
         {
             try
             {
-                string sql = @"SELECT Checked=CAST(0 AS bit),FORMAT(S.EntryDate,'dd-MMM-yyyy')Date, S.Id InvoiceId,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight
+                string sql = @"SELECT Checked=CAST(0 AS bit),FORMAT(S.EntryDate,'dd-MMM-yyyy')Date, S.Id InvoiceId,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight,null destinationLists
 FROM TRN.Sales S
 LEFT JOIN HKP.Party P ON P.Id=S.PartyId
 LEFT JOIN (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage , isc.SalesId 
@@ -93,7 +94,7 @@ ORDER BY S.Id";
         {
             try
             {
-                string sql = @"Select SCD.*,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight  
+                string sql = @"Select SCD.*,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight,D.UserName Destination  
 from dbo.SalesChalanDetail SCD
 LEFT JOIN TRN.Sales S ON S.Id=SCD.InvoiceId
 LEFT JOIN HKP.Party P ON P.Id=S.PartyId
@@ -102,7 +103,8 @@ left join (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , 
                 left join trn.POLotReference PLR on PLR.Id = isc.PackingId
                 left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
 				group by  isc.salesId) BKD on BKD.salesId = s.Id
-Where SCD.SalesChalanId='"+ masterId + "'";
+LEFT JOIN MST.Destination D ON D.Id=InvoiceDestinationId
+Where SCD.SalesChalanId='" + masterId + "'";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

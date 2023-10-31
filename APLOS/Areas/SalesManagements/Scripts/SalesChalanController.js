@@ -33,7 +33,7 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
         CheckById: null,
         ApproveById: null,
         UserRef: null,
-        Destination: null,
+        DestinationId: null,
         FromDate: null,
         ToDate: null,
         Remark: null,
@@ -65,7 +65,20 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
             $scope.InvoiceNoList = response.data;
         });
     }
+    
 
+    $scope.destinationList = [];
+    $scope.destinationLists = [];
+    $scope.GetDestinationCbo = function () {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/Destination/GetCbo'
+        }).then(function successCallback(response) {
+            $scope.destinationList = response.data;
+            $scope.destinationLists = response.data;
+        });
+    }
+    $scope.GetDestinationCbo();
 
     $scope.popUpDataList = [];
     $scope.name = null;
@@ -143,6 +156,9 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
             url: 'SalesManagements/SalesChalan/GetInvoiceData?fromDate=' + $scope.ModelNew.FromDate + '&toDate=' + $scope.ModelNew.ToDate
         }).then(function successCallback(response) {
             $scope.searchdata = response.data;
+            for (var i = 0; i < $scope.searchdata.length; i++) {
+                $scope.searchdata[i].destinationLists = $scope.destinationLists;
+            }
             $scope.ShowResultCustom();
         });
     }
@@ -194,9 +210,15 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
                     ob.NoOfPackage = $scope.searchdata[i].NoOfPackage;
                     ob.NetWeight = $scope.searchdata[i].NetWeight;
                     ob.GrossWeight = $scope.searchdata[i].GrossWeight;
-                    ob.Destination = $scope.searchdata[i].Destination;
+                    ob.InvoiceDestinationId = $scope.searchdata[i].InvoiceDestinationId;
+                    
                     ob.Remark = $scope.searchdata[i].Remark;
-
+                    for (var j  = 0; j < $scope.searchdata[i].destinationLists.length; j++) {
+                        if ($scope.searchdata[i].destinationLists[j].Value == ob.InvoiceDestinationId) {
+                            ob.Destination = $scope.searchdata[i].destinationLists[j].Text;
+                            break;
+                        }
+                    }
                     $scope.InvoiceNoList.push(ob);
                 }
             }
