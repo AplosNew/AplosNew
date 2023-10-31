@@ -39,13 +39,13 @@ namespace Aplos.Areas.SalesManagements.Controllers
         #endregion Constructor
 
 
-        [Authorize]
+    
         public ActionResult Aplos()
         {
             return View();
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {
             string strkey = "1=1";
