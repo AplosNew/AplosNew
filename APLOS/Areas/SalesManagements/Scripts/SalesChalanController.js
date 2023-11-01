@@ -67,18 +67,16 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
     }
     
 
-    $scope.destinationList = [];
-    $scope.destinationLists = [];
-    $scope.GetDestinationCbo = function () {
+    $scope.vehicleNoList = [];
+    $scope.GetVehicleNoCbo = function () {
         $http({
             method: 'GET',
-            url: 'OrderManagements/Destination/GetCbo'
+            url: 'SalesManagements/SalesChalan/GetVehicleNoCbo'
         }).then(function successCallback(response) {
-            $scope.destinationList = response.data;
-            $scope.destinationLists = response.data;
+            $scope.vehicleNoList = response.data;
         });
     }
-    $scope.GetDestinationCbo();
+    $scope.GetVehicleNoCbo();
 
     $scope.popUpDataList = [];
     $scope.name = null;
@@ -153,12 +151,9 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.searchdata = [];
         $http({
             method: 'GET',
-            url: 'SalesManagements/SalesChalan/GetInvoiceData?fromDate=' + $scope.ModelNew.FromDate + '&toDate=' + $scope.ModelNew.ToDate
+            url: 'SalesManagements/SalesChalan/GetInvoiceData?fromDate=' + $scope.ModelNew.FromDate + '&toDate=' + $scope.ModelNew.ToDate + '&vehicleno=' + $scope.ModelNew.VechileNo
         }).then(function successCallback(response) {
             $scope.searchdata = response.data;
-            for (var i = 0; i < $scope.searchdata.length; i++) {
-                $scope.searchdata[i].destinationLists = $scope.destinationLists;
-            }
             $scope.ShowResultCustom();
         });
     }
@@ -206,19 +201,13 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
                     ob.Id = null;
                     ob.InvoiceId = $scope.searchdata[i].InvoiceId;
                     ob.Customer = $scope.searchdata[i].Customer;
-                    ob.Date = $scope.searchdata[i].Date;
+                    ob.InvoiceDate = $scope.searchdata[i].InvoiceDate;
                     ob.NoOfPackage = $scope.searchdata[i].NoOfPackage;
                     ob.NetWeight = $scope.searchdata[i].NetWeight;
                     ob.GrossWeight = $scope.searchdata[i].GrossWeight;
-                    ob.InvoiceDestinationId = $scope.searchdata[i].InvoiceDestinationId;
-                    
+                    ob.Destination = $scope.searchdata[i].Destination;                    
                     ob.Remark = $scope.searchdata[i].Remark;
-                    for (var j  = 0; j < $scope.searchdata[i].destinationLists.length; j++) {
-                        if ($scope.searchdata[i].destinationLists[j].Value == ob.InvoiceDestinationId) {
-                            ob.Destination = $scope.searchdata[i].destinationLists[j].Text;
-                            break;
-                        }
-                    }
+                   
                     $scope.InvoiceNoList.push(ob);
                 }
             }
@@ -244,10 +233,11 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
             ShowResult(e, 'failure');
         }
     }
-
+    $scope.btndisable = false;
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
+            $scope.btndisable = true;
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -255,10 +245,12 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
+                    $scope.btndisable = false;
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.btndisable = false;
                     ClearFields();
                     $scope.getData();
 

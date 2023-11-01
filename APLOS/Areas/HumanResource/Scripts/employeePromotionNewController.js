@@ -1873,11 +1873,7 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
 
             //with Confirmation
             if ($scope.qempid !== null && $scope.qstatus === 'Confirmation') {
-                if ($scope.model2.Adjustment === true) {
-                    $scope.IncrementHistory.IncrementType = "Confirmation with Adjustment";
-                    $scope.IncrementHistory.IsConfirmation = true;
-                    $scope.Update();
-                }
+
                 if ($scope.model2.Promotion === true) {
                     $scope.IncrementHistory.IncrementType = "Confirmation with Promotion";
                     $scope.IncrementHistory.IsConfirmation = true;
@@ -1907,14 +1903,24 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
                     }
 
                 }
+
+                if ($scope.model2.Adjustment === true) {
+                    $scope.IncrementHistory.IncrementType = "Confirmation with Adjustment";
+                    $scope.IncrementHistory.IsConfirmation = true;
+
+                    if (baseService.isUndefinedOrNull($scope.EmpSalaryInfo.SalaryRuleMasterSystemID)) {
+                        throw "Enter valid Salary Rule Master.";
+                    }
+                    if ($scope.Calculated === false) {
+                        throw "Calculate Salary.";
+                    } else {
+                        $scope.UpdateSalaryStracture();
+                    }
+                }
             }//only Increment or Promotion
             else {
                 if ($scope.budgetCodeChangeNew.IsPending === 1) {
-                    if ($scope.model2.Adjustment === true) {
-                        $scope.IncrementHistory.IncrementType = "Confirmation with Adjustment";
-                        $scope.IncrementHistory.IsConfirmation = true;
-                        $scope.Update();
-                    }
+                    
                     if ($scope.model2.Promotion === true) {
                         $scope.IncrementHistory.IncrementType = "Confirmation with Promotion";
                         $scope.IncrementHistory.IsConfirmation = true;
@@ -1944,11 +1950,23 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
                         }
 
                     }
-                } else {
+
                     if ($scope.model2.Adjustment === true) {
-                        $scope.IncrementHistory.IncrementType = "Adjustment";
-                        $scope.Update();
+                        $scope.IncrementHistory.IncrementType = "Confirmation with Adjustment";
+                        $scope.IncrementHistory.IsConfirmation = true;
+
+                        if (baseService.isUndefinedOrNull($scope.EmpSalaryInfo.SalaryRuleMasterSystemID)) {
+                            throw "Enter valid Salary Rule Master.";
+                        }
+                        if ($scope.Calculated === false) {
+                            throw "Calculate Salary.";
+                        } else {
+                            $scope.UpdateSalaryStracture();
+                        }
                     }
+
+                } else {
+                    
                     if ($scope.model2.Promotion === true) {
                         $scope.IncrementHistory.IncrementType = "Promotion";
                         $scope.Update();
@@ -1974,6 +1992,20 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
 
                         }
 
+                    }
+
+                    if ($scope.model2.Adjustment === true) {
+                        $scope.IncrementHistory.IncrementType = "Confirmation with Adjustment";
+                        $scope.IncrementHistory.IsConfirmation = true;
+
+                        if (baseService.isUndefinedOrNull($scope.EmpSalaryInfo.SalaryRuleMasterSystemID)) {
+                            throw "Enter valid Salary Rule Master.";
+                        }
+                        if ($scope.Calculated === false) {
+                            throw "Calculate Salary.";
+                        } else {
+                            $scope.UpdateSalaryStracture();
+                        }
                     }
                 }
 
