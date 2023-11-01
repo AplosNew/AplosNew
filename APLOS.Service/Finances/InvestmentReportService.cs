@@ -286,6 +286,7 @@ namespace Library.Service.Finances
 					,[ParticularName]=CASE
 								WHEN VI.TransactionType='InvestmentGiven'  THEN FT.AssetUserName
 								WHEN VI.TransactionType='InvestmentTaken' THEN FT.LiabilityUserName
+								WHEN VD.BankMasterId<>'' THEN  BNK.AccountTitle
 								WHEN P.UserName<>'' THEN P.UserName 
 								ELSE ''	END
                     FROM TRN.VoucherDetailCurrency AS VDC
@@ -310,6 +311,7 @@ namespace Library.Service.Finances
                     LEFT JOIN [ORG].[Entity] AS ENT ON ENT.Id = VD.EntityId
                     LEFT JOIN [SCS].[FiscalYear] AS BFY ON BFY.Id=VD.FiscalYearId
                     LEFT JOIN [SCS].[FiscalYearPeriod] AS BFYP ON BFYP.Id=VD.FiscalYearPeriodId
+                    LEFT JOIN MST.BankMaster BNK ON BNK.Id=VD.BankMasterId
                     WHERE V.Archive=0 AND V.SourceType='" + sourceType + "' AND V.Id = '" + voucherId + "' AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + @"'
                     ORDER BY VD.DrAmount DESC";
             return _sqlRepository.GetDataTable(sql);

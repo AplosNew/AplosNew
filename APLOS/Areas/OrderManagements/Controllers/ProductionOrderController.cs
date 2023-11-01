@@ -322,7 +322,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                         if (dtTempStatus.Rows[0]["StandardName"].ToString().ToUpper() == productionOrderSchedulingParametersType1Controller.PlanningStatus.RUNNING.ToString())
                         {
 
-                            if (workcenterlist==null)
+                            if (workcenterlist == null)
                             {
                                 dtTempStatus = _sqlRepository.GetDataTable("SELECT * FROM trn.RunningOrderWorkCenter WHERE ProductionOrderId='" + master.Id + "'");
                                 if (dtTempStatus.Rows.Count == 0)
@@ -337,7 +337,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                                             throw new Exception("Please provide running order line preference as the production order has been marked as 'Running' and no plan data/line preference found to generate 'running line preference' for this order");
 
                                     }
-                                } 
+                                }
                             }
 
                         }
@@ -514,7 +514,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
         {
             try
             {
-               DataSet dsMaster = null;
+                DataSet dsMaster = null;
                 if (data != null)
                 {
                     var count = _fpworkCenterRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM dbo.ProductionOrderFirstProcessWorkCenter WHERE ProductionOrderId='{productionOrderId}'").First();
@@ -556,7 +556,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
             }
         }
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public ActionResult DeleteFPWCDetail(string id)
         {
             DeleteFPWCDetailData(id);
@@ -650,94 +650,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
 
         #endregion
 
-        #region upload product picture
-        [HttpPost, Authorize]
-        public ActionResult SaveDefault(IEnumerable<HttpPostedFileBase> UploadDefault, string UploadDefault_data)
-        {
-            try
-            {
-                UploadDefault_data = UploadDefault_data.Replace("\"", "");
-                if (string.IsNullOrEmpty(UploadDefault_data))
-                    throw new Exception("Save the production order first");
-
-
-
-
-                foreach (var file in UploadDefault)
-                {
-
-                    var fileName = Path.GetFileName(UploadDefault_data + new FileInfo(file.FileName).Extension);
-                    var destinationPath = Path.Combine(ResourcesPathReader.GetProductImagePath(), fileName);
-
-                    if (System.IO.Directory.Exists(ResourcesPathReader.GetProductImagePath()) == false)
-                    {
-                        try
-                        {
-                            System.IO.Directory.CreateDirectory(ResourcesPathReader.GetProductImagePath());
-                        }
-                        catch (Exception)
-                        {
-
-                        }
-                    }
-
-
-                    ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
-                    string sql = "select* from trn.productionorder where id='" + UploadDefault_data + "'";
-                    DataSet dsLocal = null;
-                    connection.BeginTransaction();
-                    connection.getDataSet(sql, out dsLocal);
-                    connection.CommitTransaction();
-
-                    if (dsLocal.Tables[0].Rows.Count > 0)
-                    {
-                        dsLocal.Tables[0].Rows[0].BeginEdit();
-
-                        dsLocal.Tables[0].Rows[0]["PicFileName"] = fileName;
-
-                        dsLocal.Tables[0].Rows[0].EndEdit();
-
-                        file.SaveAs(destinationPath);
-                        clsStaticInfo info = new clsStaticInfo();
-                        info.SaveDataSets(dsLocal);
-
-
-
-                    }
-                }
-                return Content("");
-            }
-            catch (Exception ex)
-            {
-                HttpResponse Response = System.Web.HttpContext.Current.Response;
-                Response.Clear();
-                Response.ContentType = "application/json; charset=utf-8";
-                Response.StatusCode = 204;
-                Response.Status = "204 No Content";
-                Response.StatusDescription = ex.Message;
-                Response.End();
-
-                return Content("");
-            }
-
-        }
-        [Authorize]
-        public ActionResult RemoveDefault(string[] fileNames)
-        {
-            foreach (var fullName in fileNames)
-            {
-                var fileName = Path.GetFileName(fullName);
-                var physicalPath = Path.Combine(Server.MapPath("~/App_Data"), fileName);
-                if (System.IO.File.Exists(physicalPath))
-                {
-                    System.IO.File.Delete(physicalPath);
-                }
-            }
-            return Content("");
-        }
-
-        #endregion upload product picture
-
+ 
         #region Production Bulletin
 
         [HttpPost, Authorize]
@@ -2454,6 +2367,121 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
             }
         }
 
+        [HttpGet, Authorize]
+        public JsonResult GetPOLotContSettingsData(string poId,string entityId)
+        {
+            List<Dictionary<string, object>> data = null;
+            try
+            {
+                Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+                return Json(order.GetPOLotControlSettingData(entityId, poId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        [HttpGet, Authorize]
+        public JsonResult GetPOLotControlSettingsData(string entityId, string poId, string userLotNo)
+        {
+            List<Dictionary<string, object>> data = null;
+            try
+            {
+                Library.OrderManagement.Production.ProductionOrder order = new Library.OrderManagement.Production.ProductionOrder();
+                DataTable dtData = order.GetPOLotControlSettingsData(entityId, poId, userLotNo);
+
+                data = new List<Dictionary<string, object>>();
+                foreach (DataRow row in dtData.Rows)
+                {
+                    Dictionary<string, object> dictionary = Enumerable.Range(0, dtData.Columns.Count).ToDictionary(i => dtData.Columns[i].ColumnName, i => row.ItemArray[i]);
+                    data.Add(dictionary);
+                }
+
+                SaveLotSettingData(data, poId, userLotNo);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        private void SaveLotSettingData(List<Dictionary<string, object>> data, string poId, string userLotNo)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster, dsChild;
+            try
+            {
+                string sql = "SELECT * FROM TRN.ProductionOrder WHERE Id='" + poId + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    //edit
+                    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                    dr.BeginEdit();
+
+                    dr["UserDefineLotNo"] = userLotNo;
+                    dr["IsPreDefineLotApplicable"] = true;
+
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+
+                    dr.EndEdit();
+                }
+
+                #region LotControlSetting 
+                
+               // objCon.executeQuery("DELETE FROM dbo.LotControlSetting WHERE ProductionOrderId='" + poId + "'");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.LotControlSetting where  ProductionOrderId='" + poId + "'", out dsChild, false, "1");
+                for (int i = 0; i < dsChild.Tables[0].Rows.Count; i++)
+                {
+                    dsChild.Tables[0].Rows[i].Delete();
+                }
+
+                if (data != null)
+                {
+                    int c = 0;
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"].ToString() + "'";
+                        
+
+                        if (dv.Count == 0)
+                        {
+                            c++;
+                            item["Id"] = poId + " - " + c;
+                            item["ProductionOrderId"] = poId;
+
+                            AddNewRow(dsChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsChild);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
         [HttpPost, Authorize]
         public JsonResult CreateLotControl(List<Dictionary<string, object>> data, string poId)
         {
@@ -2512,7 +2540,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
             }
         }
 
-
+ 
     }
 
     public class MultiCode

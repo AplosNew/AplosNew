@@ -13,6 +13,7 @@ using Library.Model.Vouchers;
 using Library.Service.Banks;
 using Library.Service.Helpers;
 using Library.ViewModel.Accounts;
+using Library.ViewModel.Vouchers;
 using Newtonsoft.Json;
 using Syncfusion.XlsIO;
 using System;
@@ -544,12 +545,47 @@ namespace Aplos.Areas.Banks.Controllers
         {
             return View("~/Areas/Banks/Views/BankSettlementReco/BankSettlementCustomerAdvance.cshtml"); 
         }
-
+        [Authorize]
+        public ActionResult BankSettlementCustomerReceipt()
+        {
+            return View("~/Areas/Banks/Views/BankSettlementReco/BankSettlementCustomerReceipt.cshtml");
+        }
+        [Authorize]
+        public ActionResult BankSettlementJournal()
+        {
+            return View("~/Areas/Banks/Views/BankSettlementReco/BankSettlementJournal.cshtml");
+        }
         [Authorize, HttpPost]
         public ActionResult GetBankUploadInfoById(string id)
         {
             AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
             return Json(accountsBankReconcilliationService.GetBankUploadInfoById(id), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetBankDrUploadInfoById(string id)
+        {
+            AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+            return Json(accountsBankReconcilliationService.GetBankDrUploadInfoById(id), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult InsertExpenseToBankReconcil(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.SourceType = SourceType.BankJournal.ToString();
+            voucherVM.IsPark = true;
+            if (voucherVM.BankJournalType == BankJournalType.BankToGL.ToString() && voucherDetailVMList == null)
+                throw new CustomException("Please select GL!");
+
+            if (voucherVM.BankJournalType == BankJournalType.ProfitEarn.ToString() && voucherVM.FinancingTypeId == null)
+                throw new CustomException("Please select Investment Type!");
+
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, accountsBankReconcilliationService.InsertExpenseToBankReconcil(voucherVM, voucherDetailVMList)) });
         }
         #endregion
     }

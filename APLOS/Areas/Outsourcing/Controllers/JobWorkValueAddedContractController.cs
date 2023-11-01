@@ -1109,12 +1109,13 @@ namespace Aplos.Areas.Outsourcing.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string sql = @"select mm.Id, mm.Code, mm.UserName as MaterialName,mc.UserName as MaterialCategory, mgm.UserName as MaterialGroupMaster,mm.BaseUOMId, buom.UserName as BaseUOM
+            string sql = @"select mm.Id, mm.Code,mt.UserName MaterialType, mm.UserName as MaterialName,mc.UserName as MaterialCategory, mgm.UserName as MaterialGroupMaster,mm.BaseUOMId, buom.UserName as BaseUOM
                                       ,WithSKU=case when mm.WithSKU=0 then 'No' else 'Yes' END
 									  ,IsAsset=case when mm.IsAsset=0 then 'No' else 'Yes' END
                                       from MST.MaterialMaster mm left join MST.MaterialGroupMaster mgm on mm.MaterialGroupMasterId=mgm.Id
 									  left join SCS.UnitOfMeasurement buom on buom.Id=mm.BaseUOMId
 									  left join HKP.MaterialCategory mc on mc.Id=mm.MaterialCategoryId
+									  left join HKP.MaterialType mt on mt.Id=mgm.MaterialTypeId
                                       WHERE mm.CompanyGroupId='" + identity.CompanyGroupId + @"' order by mm.Code";
 
             var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);

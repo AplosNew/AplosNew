@@ -4155,4 +4155,6 @@ function inventoryReceiveController(accountService, addressService, $window, fac
                 $scope.otherserviceList = response.data;
             });
     }
+
+
 }

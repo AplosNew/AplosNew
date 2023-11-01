@@ -728,6 +728,7 @@ function capitalizedFixedAssetRegisterController(addressService, commonMessage, 
             $scope.register.CountryOfOriginId = data.CountryId;
             $scope.register.VoucherNo = data.VoucherNo;
             $scope.register.VoucherDate = data.VoucherDate;
+            $scope.register.LCNumber = data.LCRef;
 
             $scope.register.BaseUOMName = data.TransactionUoM;
             $scope.register.CapitalizationDate = data.CapitalizeDate;

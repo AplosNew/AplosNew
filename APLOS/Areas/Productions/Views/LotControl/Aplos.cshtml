@@ -1,0 +1,123 @@
+﻿@*<togglable name="{{title}}"></togglable>*@
+<h3 class="site-heading" style="cursor:unset;"><span class="glyphicon glyphicon-info-sign"></span> {{title}}</h3>
+<div class="form-horizontal form-elements" ng-form name="ModelNewForm">
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.EntityId" name="Entity" ng-options="item.Id as item.UserName for item in entityList" @*ng-change="GetPOLotControlSettingData();"*@ required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Production Order<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" name="ProductionOrder" ng-model="ModelNew.ProductionOrderId" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button ng-click="getProductionOrderPopUp();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            @*<button ng-click="getSalesOrderByProdOrderList(productionSummaryNew.ProductionOrderId);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>*@
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12" ng-show="lotControlList.length>0">
+
+            <div id="GridLC" ej-grid e-datasource="lotControlList"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                <div e-columns>
+                    <div e-column e-headertext="Actions" e-template="#ShowActionButtons" e-width="3"></div>
+                    <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                    <div e-column e-field="ProductionOrderId" e-headertext="PONo" e-width="3"></div>
+                    <div e-column e-field="Process" e-headertext="Process" e-width="5"></div>
+                    <div e-column e-field="ProductionBookingLevel" e-headertext="PrO Book Level" e-width="4"></div>
+                    <div e-column e-field="MasterOrderItemId" e-headertext="LineItemNo" e-width="2"></div>
+                    <div e-column e-field="SalesOrderId" e-headertext="SONo" e-width="2"></div>
+                    <div e-column e-field="LotNo" e-headertext="LotNo" e-width="3"></div>
+                    <div e-column e-field="Sufix" e-headertext="Sufix" e-width="2"></div>
+                    <div e-column e-template="#UserLotNo" e-headertext="User LotNo" e-width="4"></div>
+                    <div e-column e-field="LotQty" e-headertext="LotQty" e-width="2"></div>
+                    <div e-column e-field="OrderQty" e-headertext="OrderQty" e-width="2"></div>
+                    <div e-column e-field="PlanQty" e-headertext="PlanQty" e-width="2"></div>
+                    <div e-column e-field="SchedulePercentage" e-headertext="SchedulePercentage" e-width="2"></div>
+                    <div e-column e-field="ProcessPlanQty" e-headertext="ProcessPlanQty" e-width="2"></div>
+                    <div e-column e-field="Remark" e-headertext="Remark" e-width="4"></div>
+                </div>
+                <script type="text/template" id="ShowActionButtons">
+                    <button style="color: #f3f3ec;background-color: #1c1f32;" title="Copy" class="btn"><i class="glyphicon glyphicon-copy" ng-click="$parent.copyDetail(this);" style="margin: -6px;"></i></button>
+                    <button style="color: #f3f3ec;background-color: #1c1f32;" title="Edit" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.SaveRowData(this);" style="margin: -6px;"></i></button>
+                </script>
+                <script type="text/template" id="UserLotNo">
+                    <div class="col-sm-12" style="padding:0px;">
+                        <input type="text" name="UserLotNo" ng-model="data.UserLotNo" class="form-control" maxlength="50">
+                    </div>
+                </script>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<div class="modal site-modal in" id="POItemPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Production Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <div style="color:black;" id="GridPO" ej-grid e-datasource="ProductionOrderList" e-allowscrolling="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="SetPrOData"
+                         e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="Id" e-headertext="Prd.Order ID" e-width="50"></div>
+                            <div e-column e-type="string" e-field="ProductionStatus" e-headertext="Production Status" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SONo" e-headertext="SO Nos" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="180"></div>
+                            <div e-column e-type="string" e-field="BuyerRefNo" e-headertext="Cust. Order#" e-width="100"></div>
+                            <div e-column e-type="string" e-field="SODesc" e-headertext="SO Desc" e-width="100"></div>
+                            <div e-column e-type="string" e-field="SOQty" e-headertext="SO Qty" e-width="80"></div>
+                            <div e-column e-type="string" e-field="POQuantity" e-headertext="PO Qty" e-width="80"></div>
+
+                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="ExFactoryDate" e-headertext="ExFactory Date" e-width="80"></div>
+                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DeliveryDate" e-headertext="Delivery Date" e-width="80"></div>
+                            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="CommitmentDate" e-headertext="Commitment Date" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ProductCategory" e-headertext="Product Category" e-width="180"></div>
+                            <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="180"></div>
+                            <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="180"></div>
+                            <div e-column e-type="string" e-field="article" e-headertext="Article" e-width="180"></div>
+
+                            <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order#" e-width="80"></div>
+                            <div e-column e-type="string" e-field="OwnRefNo" e-headertext="Own Order#" e-width="100"></div>
+                            <div e-column e-type="string" e-field="StyleNo" e-headertext="Customer Item#" e-width="100"></div>
+                            <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Item#" e-width="100"></div>
+
+                        </div>
+                    </div>
+                    <script type="text/template" id="showSOList">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right small">
+
+                                <li>
+                                    <button ng-click="$parent.getSalesOrderOfProdOrderList(this);" class="btn small" style="height: 20px;width: 20px;padding: 0px;margin: 0px;">
+                                        <i class="glyphicon glyphicon-th-list"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmCopyDetailPopUp" title="Confirmation" message={{copymessage_detailconfirmation}} data-ng-click-right-button="CopyDetailData();"></confirm-archive-generic>

@@ -197,5 +197,32 @@ function CustomerConfirmationParameterController(cboService, commonMessage, $sco
 
         }
     };
+
+    $scope.selectGridResponsible = function (data) {
+        $scope.Newobject = data.data;
+        $scope.getEmployee();
+        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('show');
+    }
+
+    $scope.EmployeeList = [];
+    $scope.getEmployee = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetEmployee',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.EmployeeList = resp.data;
+        });
+    }
+
+    $scope.doubleEmployee = function (e) {
+        $scope.Newobject.ResponsiblePersonId = e.data.SystemId;
+        $scope.Newobject.ResponsiblePerson = e.data.EmployeeName;
+        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
+    }
+
+    $scope.closeResponsiblePersonPopUp = function () {
+        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
+    }
 }
 

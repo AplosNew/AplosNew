@@ -89,6 +89,8 @@
                     <div e-column e-type="string" e-field="MissingEntry" e-headertext="MissingEntry" e-width="50"></div>
                     <div e-column e-type="string" e-field="ToClose" e-headertext="ToClose" e-width="50"></div>
                     <div e-column e-type="string" e-field="ToConfirm" e-headertext="ToConfirm" e-width="50"></div>
+                    <div e-column e-type="string" e-field="QIByWhom" e-headertext="QI.ByWhom" e-width="100"></div>
+                    <div e-column e-type="string" e-field="QIComment" e-headertext="QI.Comment" e-width="200"></div>
                     <div e-column e-type="string" e-field="Grade" e-headertext="Grade" e-width="50"></div>
                     <div e-column e-type="string" e-template="#Comment" e-headertext="Comment" e-width="200"></div>
                     <div e-column e-template="#ParameterDetails" e-headertext="Parameter Details" e-width="100"></div>
@@ -265,7 +267,7 @@
                         </div>
                     </div>
                     <div class="col-xs-12">
-                        <div id="GridParameter" ej-grid e-datasource="ParameterLists" e-recorddoubleclick=""
+                        <div id="GridParameter" ej-grid e-datasource="ParameterLists" e-recorddoubleclick="" e-rowdatabound="PDrowDataBound"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                             <div e-columns>

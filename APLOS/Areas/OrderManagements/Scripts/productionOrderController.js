@@ -57,29 +57,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         }
 
     }
-    $scope.onBeginUpload = function (args) {
-        try {
-            if (angular.isUndefinedOrNull($scope.model.Id))
-                throw 'Please select/save the production order first'
-
-            args.data = $scope.model.Id;
-        } catch (e) {
-
-            args.cancel = true;
-            ShowResult(e, 'Error');
-        }
-
-    }
-    $scope.uploadUrl = "OrderManagements/ProductionOrder/SaveDefault";
-    $scope.fileselect = function (e) {
-
-    }
-    $scope.errorPicUpload = function (e) {
-        if (angular.isUndefinedOrNull($scope.model.Id))
-            ShowResult('Please select/save the production order first', 'Error');
-        else
-            ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
-    }
+ 
     $scope.modelFilterByList = [
         {
             value: 'Id'
@@ -389,6 +367,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         , Remarks: null
         , color: '#ffffff'
         , IsPreDefineLotApplicable: false
+        , UserDefineLotNo: null
     };
     $scope.model = Object.assign({}, $scope.model);
 
@@ -1741,7 +1720,9 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             url: 'OrderManagements/ProductionOrder/GetSavedWorkCenterListByEntityandFirstProcess?productionOrderId=' + $scope.model.Id
         }).then(function successCallback(res) {
             $scope.productionFPWorkCenterList = res.data;
-            $scope.GetPOLotControlData();
+            if ($scope.model.IsPreDefineLotApplicable) {
+                $scope.GetPOLotControlSettingsData();
+            }
         });
     }
 
@@ -2727,7 +2708,6 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                     ShowResult(response, 'failure');
                 });
     };
-
 
     $scope.onrowdatabound = function (e) {
         if (e.data.HasProcess === 0)
@@ -4241,35 +4221,50 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     //#endregion
 
     $scope.lotControlList = [];
+    $scope.GetPOLotControlSettingsData = function () {
+        try {
+            $http({
+                method: 'GET',
+                url: 'OrderManagements/ProductionOrder/GetPOLotContSettingsData?poId=' + $scope.model.Id + '&entityId=' + $scope.model.EntityId
+            }).then(function (response) {
+                $scope.lotControlList = response.data;
+
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
     $scope.GetPOLotControlData = function () {
-        var inc = 0;
-        var incvalue = 0;
-        $http({
-            method: 'GET',
-            url: 'OrderManagements/ProductionOrder/GetPOLotControlData?poId=' + $scope.model.Id + '&entityId=' + $scope.model.EntityId
-        }).then(function (response) {
-            $scope.lotControlList = response.data;
-            for (var i = 0; i < $scope.lotControlList.length; i++) {
-                inc++;
-                incvalue= inc;
-                if (baseService.arrayLength($scope.lotControlList)>1) {
-                    $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo + '-' + incvalue;
-                    if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
-                        $scope.lotControlList[i].UserLotNo = $scope.lotControlList[i].UserLotNo + '-' + incvalue;
-                    } else {
-                        $scope.lotControlList[i].UserLotNo = $scope.model.UserDefineLotNo + '-' + incvalue;
-                    }
-                }
-                else {
-                    $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo;
-                    if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
-                        $scope.lotControlList[i].UserLotNo = $scope.lotControlList[i].UserLotNo;
-                    } else {
-                        $scope.lotControlList[i].UserLotNo = $scope.model.UserDefineLotNo;
-                    }
-                }
+
+        try {
+            if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
+                throw "User Define LotNo is required.";
             }
-        });
+            $http({
+                method: 'GET',
+                url: 'OrderManagements/ProductionOrder/GetPOLotControlSettingsData?poId=' + $scope.model.Id + '&entityId=' + $scope.model.EntityId + '&userLotNo=' + $scope.model.UserDefineLotNo
+            }).then(function (response) {
+                $scope.lotControlList = response.data;
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.tempModel = {};
+    $scope.SetSufix = function (args) {
+        $scope.tempModel = args.data;
+        var str = $scope.tempModel.UserLotNo;
+        var extention = str.substr(str.indexOf('/')+1);
+
+        if (!baseService.isUndefinedOrNull($scope.tempModel.Sufix)) {
+            if ($scope.tempModel.Sufix != extention) {
+                $scope.tempModel.UserLotNo = $scope.tempModel.UserLotNo + '/' + $scope.tempModel.Sufix;
+            }
+        }
+        var gridObj = $("#GridLC").data("ejGrid");
+        gridObj.refreshContent();
+        gridObj.refreshTemplate();
     }
 
     $scope.SaveLotControl = function () {
@@ -4289,7 +4284,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.GetPOLotControlData();
+                     $scope.GetPOLotControlSettingsData();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

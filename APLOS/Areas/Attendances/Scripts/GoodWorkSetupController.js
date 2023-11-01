@@ -4,6 +4,7 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
     $rootScope.title = 'GoodWorkSetup';
     $scope.Action = 'Save';
     $scope.BCAction = 'Save';
+    $scope.AuthorityAction = 'Save';
     $scope.ModelList = [];
     $scope.path = 'Attendances/GoodWorkSetup/';
     $scope.getListUrl = $scope.path + 'getlist';
@@ -48,6 +49,9 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.GetGoodWorkEntitySetupData();
+        $scope.GetGoodWorkBudgetCodeData();
+        $scope.GetGoodWorkAuthorityData();
+        $scope.GetCheckByData();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -254,6 +258,35 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
             $scope.selectedEntityList = response.data;
         });
     }
+    $scope.removeEntity = function (tempId) {
+        try {
+            $scope.tempId = tempId.data.Id;
+            $scope.message_confirmation = "Are you sure want to permanent delete ?";
+            angular.element(document.querySelector('#confirmEntityRemovePopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+    $scope.removeEntityRow = function () {
+        $http({
+            method: 'POST',
+            url: 'Attendances/GoodWorkSetup/EntityDelete',
+            data: { 'Id': $scope.tempId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetGoodWorkEntitySetupData();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
 
 
     $scope.tempList = [];
@@ -291,16 +324,15 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
     //#endregion
 
     $scope.Clear = function () {
-        ClearFields($scope.GetSequence());
+        $scope.Action = 'Save';
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp); 
+        $scope.selectedEntityList = [];
+        $scope.BudgetCodeList = [];
+        $scope.authorizationList = [];
+        $scope.CheckByList = [];
         return true;
     };
-
-    function ClearFields(seq) {
-        $scope.Action = 'Save';
-        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-        $scope.ModelNew.Sequence = seq;
-    }
-
+ 
     //#region BudgetCode
 
     $scope.name = null;
@@ -367,7 +399,12 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
                     ob.IsOTEntitled = 'No';
                 } else
                     ob.IsOTEntitled = 'Yes'
-                $scope.BudgetCodeList.push(ob);
+                ob.IsGoodWorkApplicable = false,
+                    ob.IsCompensatoryApplicable = false,
+                    ob.IsEmployeeApplicable = false,
+                    ob.GoodWorkCategory = null,
+                    ob.Remarks = null,
+                    $scope.BudgetCodeList.push(ob);
                 ob = {};
             }
             angular.element(document.querySelector('#popUpId')).modal('hide');
@@ -426,51 +463,288 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         angular.element(document.querySelector('#LDPopUp')).modal('hide');
     };
 
-    $scope.BCModel = { 
-        IsGoodWorkApplicable: false,
-        IsCompensatoryApplicable: false,
-        IsEmployeeApplicable: false,
-        GoodWorkCategory: null,
-        Remarks: null,
-    };
-    $scope.c = Object.assign({}, $scope.BCModel);
 
-    $scope.BCSave = function () { 
-            $http({
-                method: 'POST',
-                url: $scope.path + "CreateBudgetCode",
-                data: {
-                    'data': $scope.BudgetCodeList
-                    , 'ExtData': $scope.BCNewModel
-                    , 'goodWorkSetupId': $scope.ModelNew.Id
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    //$scope.GetGoodWorkBudgetCodeData();
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');             
+    $scope.BCSave = function () {
+
+        for (var i = 0; i < $scope.BudgetCodeList.length; i++) {
+            if (baseService.isUndefinedOrNull($scope.BudgetCodeList[i].GoodWorkCategory) || $scope.BudgetCodeList[i].GoodWorkCategory === 0) {
+                ShowResult('Good Work Category can not be blank...');
+                return false;
+            }
+        }
+        $http({
+            method: 'POST',
+            url: $scope.path + "CreateBudgetCode",
+            data: {
+                'data': $scope.BudgetCodeList
+                , 'goodWorkSetupId': $scope.ModelNew.Id
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetGoodWorkBudgetCodeData();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
         }
     };
 
 
-    //$scope.GetGoodWorkBudgetCodeData = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: "Attendances/GoodWorkSetup/GetGoodWorkEntitySetupData?goodWorkSetupId=" + $scope.ModelNew.Id
-    //    }).then(function (response) {
-    //        $scope.selectedEntityList = response.data;
-    //    });
-    //}
+    $scope.GetGoodWorkBudgetCodeData = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetGoodWorkBudgetCodeSetupData?goodWorkSetupId=" + $scope.ModelNew.Id
+        }).then(function (response) {
+            $scope.BudgetCodeList = response.data;
+        });
+    }
 
+    $scope.removeBudgetCode = function (tempId) {
+        try {
+            $scope.tempId = tempId.data.Id;
+            $scope.message_confirmation = "Are you sure want to permanent delete ?";
+            angular.element(document.querySelector('#confirmBudgetCodeRemovePopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+    $scope.removeBudgetCodeRow = function () {
+        $http({
+            method: 'POST',
+            url: 'Attendances/GoodWorkSetup/BudgetCodeDelete',
+            data: { 'Id': $scope.tempId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetGoodWorkBudgetCodeData();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
 
     //#endregion BudgetCode
 
+    //#region
+    // #region  Dynamic PopUp
 
+    $scope.popUpList = [];
+    $scope.employeeInformation = {
+        PlantId: $window.plantId
+        , EmployeeCode: null
+        , EmployeeName: null
+        , SystemId: null
+
+    };
+    $scope.popUpDataList = [];
+    $scope.popUpEmployee = function (obj) {
+        try {
+            $scope.tabName = obj;
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'employees/authorizationconfig/getallemployeedata'
+
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+            });
+            angular.element(document.querySelector('#popUpEmp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.CheckByList = [];
+    $scope.authorizationList = [];
+    $scope.selectdblClick = function (data) {
+        try {
+            var data = data.data;
+            var ob = {};
+            if ($scope.tabName == 'Authority') {
+                if (checkDoubleAuthorityCode($scope.authorizationList, data.EmployeeCode) === false) {
+                    ob.AuthorityId = data.SystemId;
+                    ob.EmployeeName = data.EmployeeName;
+                    ob.EmployeeCode = data.EmployeeCode;
+                    ob.CompanyId = data.CompanyId;
+                    ob.Company = data.Company;
+                    ob.Plant = data.Plant;
+                    ob.Designation = data.LegalDesignation;
+                    ob.Department = data.Department;
+                    ob.Section = data.Section;
+                    ob.SubSection = data.SubSection;
+                    ob.Line = data.Line;
+
+                    $scope.authorizationList.push(ob);
+                    $scope.AuthoritySave();
+                    ob = {};
+                }
+                angular.element(document.querySelector('#popUpEmp')).modal('hide');
+            }
+            else {
+                if (checkDoubleAuthorityCode($scope.CheckByList, data.EmployeeCode) === false) {
+                    ob.CheckById = data.SystemId;
+                    ob.EmployeeName = data.EmployeeName;
+                    ob.EmployeeCode = data.EmployeeCode;
+                    ob.CompanyId = data.CompanyId;
+                    ob.Company = data.Company;
+                    ob.Plant = data.Plant;
+                    ob.Designation = data.LegalDesignation;
+                    ob.Department = data.Department;
+                    ob.Section = data.Section;
+                    ob.SubSection = data.SubSection;
+                    ob.Line = data.Line;
+
+                    $scope.CheckByList.push(ob);
+                    $scope.CheckBySave();
+                    ob = {};
+                }
+                angular.element(document.querySelector('#popUpEmp')).modal('hide');
+
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+    function checkDoubleAuthorityCode(list, EmployeeCode) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].EmployeeCode === EmployeeCode) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#popUpEmp')).modal('hide');
+    };
+    // #endregion
+
+    $scope.AuthoritySave = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "CreateAuthority",
+            data: {
+                'data': $scope.authorizationList
+                , 'goodWorkSetupId': $scope.ModelNew.Id
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                //$scope.GetGoodWorkAuthorityData();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    $scope.GetGoodWorkAuthorityData = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetGoodWorkAuthorityData?goodWorkSetupId=" + $scope.ModelNew.Id
+        }).then(function (response) {
+            $scope.authorizationList = response.data;
+        });
+    }
+    $scope.removeAuthority = function (tempId) {
+        try {
+            $scope.tempId = tempId.data.Id;
+            $scope.message_confirmation = "Are you sure want to permanent delete ?";
+            angular.element(document.querySelector('#confirmAuthorityRemovePopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+    $scope.removeAuthorityRow = function () {
+        $http({
+            method: 'POST',
+            url: 'Attendances/GoodWorkSetup/AuthorityDelete',
+            data: { 'Id': $scope.tempId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetGoodWorkAuthorityData();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
+    $scope.CheckBySave = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "CreateCheckBy",
+            data: { 'data': $scope.CheckByList, 'goodWorkSetupId': $scope.ModelNew.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    $scope.GetCheckByData = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetCheckByData?goodWorkSetupId=" + $scope.ModelNew.Id
+        }).then(function (response) {
+            $scope.CheckByList = response.data;
+        });
+    }
+    $scope.removeCheckBy = function (tempId) {
+        try {
+            $scope.tempId = tempId.data.Id;
+            $scope.message_confirmation = "Are you sure want to permanent delete ?";
+            angular.element(document.querySelector('#confirmCheckByRemovePopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+    $scope.removeCheckByRow = function () {
+        $http({
+            method: 'POST',
+            url: 'Attendances/GoodWorkSetup/CheckByDelete',
+            data: { 'Id': $scope.tempId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetCheckByData();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
+    //#endregion
 
 }

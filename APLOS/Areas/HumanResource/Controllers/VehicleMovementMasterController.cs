@@ -1830,36 +1830,36 @@ where VMR.AppliedId = 1";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult CompleteVehicleMovementCycle()
+        public ActionResult CompleteVehicleMovementCycle(string fromDate, string toDate)
         {
             string sql = @"select distinct Row_Number() OVER(Order by VMR.Id) SrNo,BHW.EmployeeCode ByWhomEmpCode, BHW.EmployeeName ByWhom, AB.EmployeeCode ForWhomeEmpCode , AB.EmployeeName ForWhom
-,FORMAT(VMR.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VMR.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VMR.FromTime, 'hh:mm:ss tt')FromTime
-, FORMAT(VMR.ToTime, 'hh:mm:ss tt')ToTime ,FromLocation = stuff((select ',  ' + LM.UserName from TRN.VehicleMovementRequisitionChild VMC							
-left join HKP.LocationMaster LM on LM.Id = VMC.FromLocationId
-where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''),ToLocation =  stuff((select ',  ' + TM.UserName 
-from TRN.VehicleMovementRequisitionChild VMC
-left join HKP.LocationMaster TM on TM.Id = VMC.ToLocationId
-where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''), VMR.PersonalOfficial, GuestName = case when VMR.[Name] is null then '-' else VMR.[Name] end
-, PM.UserName Purpose, VMR.NumberOfPassengers,isnull(VMR.Remarks,'') ReqRemark 
-,RequisitionStatus = case when VMR.AppliedId is not null then 'Approved' when VMR.IsReject = 1 then 'Reject'end
-,ApprovedRejectBy = case when VMR.AppliedId is not null then VT.AddedBy  when VMR.IsReject = 1 then VMR.UpdatedBy end
-,EDM.EmployeeCode DriverEmpCode, EDM.EmployeeName DriverName , FORMAT(DM.ExpiryDate, 'dd-MMM-yyyy')[License Exp Date], VM.VehicleName, VM.VehicleNumber
-,format(VIO.OutDate, 'dd-MMM-yyyy')OutDate ,format(VIO.OutTime, 'hh:mm:ss tt')OutTime , VIO.OutReading,format(VIO.InDate, 'dd-MMM-yyyy')InDate 
-,format(VIO.InTime, 'hh:mm:ss tt')InTime, VIO.InReading, isnull((VIO.InReading - Vio.OutReading),0)TotalTripReading ,DATEDIFF(MINUTE, VIO.OutDate, VIO.InDate)Total_Trip_Time
+                            ,FORMAT(VMR.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VMR.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VMR.FromTime, 'hh:mm:ss tt')FromTime
+                            , FORMAT(VMR.ToTime, 'hh:mm:ss tt')ToTime ,FromLocation = stuff((select ',  ' + LM.UserName from TRN.VehicleMovementRequisitionChild VMC							
+                            left join HKP.LocationMaster LM on LM.Id = VMC.FromLocationId
+                            where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''),ToLocation =  stuff((select ',  ' + TM.UserName 
+                            from TRN.VehicleMovementRequisitionChild VMC
+                            left join HKP.LocationMaster TM on TM.Id = VMC.ToLocationId
+                            where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''), VMR.PersonalOfficial, GuestName = case when VMR.[Name] is null then '-' else VMR.[Name] end
+                            , PM.UserName Purpose, VMR.NumberOfPassengers,isnull(VMR.Remarks,'') ReqRemark 
+                            ,RequisitionStatus = case when VMR.AppliedId is not null then 'Approved' when VMR.IsReject = 1 then 'Reject'end
+                            ,ApprovedRejectBy = case when VMR.AppliedId is not null then VT.AddedBy  when VMR.IsReject = 1 then VMR.UpdatedBy end
+                            ,EDM.EmployeeCode DriverEmpCode, EDM.EmployeeName DriverName , FORMAT(DM.ExpiryDate, 'dd-MMM-yyyy')[License Exp Date], VM.VehicleName, VM.VehicleNumber
+                            ,format(VIO.OutDate, 'dd-MMM-yyyy')OutDate ,format(VIO.OutTime, 'hh:mm:ss tt')OutTime , VIO.OutReading,format(VIO.InDate, 'dd-MMM-yyyy')InDate 
+                            ,format(VIO.InTime, 'hh:mm:ss tt')InTime, VIO.InReading, isnull((VIO.InReading - Vio.OutReading),0)TotalTripReading ,DATEDIFF(MINUTE, VIO.OutDate, VIO.InDate)Total_Trip_Time
 
-from TRN.VehicleMovementRequisition VMR 
-left join DBO.EmployeeInformation BHW on BHW.SystemId = VMR.EmpSystemId
-left join DBO.EmployeeInformation AB on AB.SystemId = VMR.AddedBy
-left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
-left join TRN.VehicleMovementRequisitionChild VMC on VMC.VehicleMovementRequisitionId = VMR.Id
-left join TRN.VehicleTrip VT on VT.Id = VMR.AppliedId
-left join  TRN.VehicleAllocation VA on VA.TripId = VT.Id
-left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
-left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
-left join EmployeeInformation EDM on EDM.SystemId = DM.DriverId
-left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
-where VMR.AppliedId is not null and VA.DriverMasterId is not null and VIO.InDate is not null
-";
+                            from TRN.VehicleMovementRequisition VMR 
+                            left join DBO.EmployeeInformation BHW on BHW.SystemId = VMR.EmpSystemId
+                            left join DBO.EmployeeInformation AB on AB.SystemId = VMR.AddedBy
+                            left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
+                            left join TRN.VehicleMovementRequisitionChild VMC on VMC.VehicleMovementRequisitionId = VMR.Id
+                            left join TRN.VehicleTrip VT on VT.Id = VMR.AppliedId
+                            left join  TRN.VehicleAllocation VA on VA.TripId = VT.Id
+                            left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
+                            left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
+                            left join EmployeeInformation EDM on EDM.SystemId = DM.DriverId
+                            left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
+                            where VMR.AppliedId is not null and VA.DriverMasterId is not null and VIO.InDate is not null
+                            and VMR.FromDate between '" + fromDate + @"' AND '" + toDate + @"' AND VMR.ToDate between '" + fromDate + @"' AND '" + toDate + @"'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 
         }

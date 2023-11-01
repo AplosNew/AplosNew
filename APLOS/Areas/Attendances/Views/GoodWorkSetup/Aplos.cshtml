@@ -63,7 +63,6 @@
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">BudgetCode</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Authority</a></li>
                 <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">CheckBy</a></li>
-                @*<li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" data-toggle="tab">Document Location</a></li>*@
             </ul>
         </div>
 
@@ -82,6 +81,7 @@
                              e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                              e-allowselection="false" e-filtersettings-filterType="excel">
                             <div e-columns>
+                                <div e-column e-headertext="Remove" e-headertemplateid="" e-template="#DeleteEntity" e-textalign="center" e-width="50"></div>
                                 <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="80" e-visible="false"></div>
                                 <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="80"></div>
                                 <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
@@ -90,18 +90,17 @@
                                 <div e-column e-type="string" e-field="SubDivision" e-headertext="SubDivision" e-width="140"></div>
                                 <div e-column e-type="string" e-field="Unit" e-headertext="Unit" e-width="140"></div>
                                 <div e-column e-type="string" e-field="EffectiveDate" e-headertext="EffectiveDate" e-width="140"></div>
-                                @*<div e-column e-template="#DeleteDocumentProcess" e-width="40"></div>*@
                             </div>
                         </div>
-
-                        <script type="text/template" id="DeleteDocumentProcess">
+                        <script type="text/template" id="DeleteEntity">
                             <div class="common-btn">
-                                <ul class="list-inline text-left">
-                                    <li><button ng-click="$parent.ConfirmDeleteProcess(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                <ul class="list-inline action-list">
+                                    <li>
+                                        <button ng-click="$parent.removeEntity(this);" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-trash" tabindex="119"></i></button>
+                                    </li>
                                 </ul>
                             </div>
                         </script>
-
                     </div>
                 </div>
             </div>
@@ -120,6 +119,7 @@
                              e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                              e-allowselection="false" e-filtersettings-filterType="excel">
                             <div e-columns>
+                                <div e-column e-headertext="Remove" e-headertemplateid="#headerTemplate" e-template="#DeleteBudgetCode" e-textalign="center" e-width="60"></div>
                                 <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="80"></div>
                                 <div e-column e-type="string" e-field="Division" e-headertext="Division" e-width="80"></div>
                                 <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="80"></div>
@@ -150,7 +150,7 @@
                         <script type="text/template" id="GWcheckboxTemplate">
                             <div class="checkbox-site">
                                 <label>
-                                    <input type="checkbox" ng-model="BCNewModel.GoodWorkApplicable">
+                                    <input type="checkbox" ng-model="data.IsGoodWorkApplicable">
                                     <span class="cr" tabindex="1008"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                 </label>
                             </div>
@@ -158,7 +158,7 @@
                         <script type="text/template" id="CAcheckboxTemplate">
                             <div class="checkbox-site">
                                 <label>
-                                    <input type="checkbox" ng-model="BCNewModel.CompensatoryApplicable">
+                                    <input type="checkbox" ng-model="data.IsCompensatoryApplicable">
                                     <span class="cr" tabindex="1008"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                 </label>
                             </div>
@@ -166,7 +166,7 @@
                         <script type="text/template" id="EAcheckboxTemplate">
                             <div class="checkbox-site">
                                 <label>
-                                    <input type="checkbox" ng-model="BCNewModel.EmployeeApplicable ">
+                                    <input type="checkbox" ng-model="data.IsEmployeeApplicable ">
                                     <span class="cr" tabindex="1008"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                 </label>
                             </div>
@@ -174,7 +174,7 @@
 
                         <script type="text/template" id="GWCcheckboxTemplate">
                             <div class="select-style">
-                                <select id="ECID" class="form-control" ng-model="BCNewModel.GoodWorkCategory" name="GoodWorkCategory" required tabindex="1">
+                                <select id="ECID" class="form-control" ng-model="data.GoodWorkCategory" name="GoodWorkCategory" required tabindex="1">
                                     <option value="A">A</option>
                                     <option value="B">B</option>
                                     <option value="C">C</option>
@@ -182,14 +182,21 @@
                             </div>
                         </script>
                         <script type="text/template" id="REcheckboxTemplate">
-                            <input type="text" name="Remark" ng-model="Remark" class="form-control" tabindex="6" maxlength="50">
+                            <input type="text" name="Remarks" ng-model="data.Remarks" class="form-control" tabindex="6" maxlength="50">
+                        </script>
+                        <script type="text/template" id="DeleteBudgetCode">
+                            <div class="common-btn">
+                                <ul class="list-inline action-list">
+                                    <li>
+                                        <button ng-click="$parent.removeBudgetCode(this);" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-trash" tabindex="119"></i></button>
+                                    </li>
+                                </ul>
+                            </div>
                         </script>
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
                             <li> <button ng-click="BCSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{BCAction}}</button></li>
-                            @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
-                            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                         </ul>
                     </div>
                 </div>
@@ -197,126 +204,85 @@
 
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
                 <div class="row">
-                    @*DocumentSource body*@
-                    <!--<div class="col-sm-12 col-sm-12 col-md-12">
-                        <div class="common-btn">
-                            <ul class="list-inline text-left">
-                                <li><button ng-click="showDocumentSourcePopUp();" ng-disabled="sopDocumentNew.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
-                            </ul>
+                    <div class="col-lg-12">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li> <button ng-click="popUpEmployee('Authority');" ng-disabled="ModelNew.Id==null" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Add Employees</button></li>
+                        </ul>
+                    </div>
+                        <div class="content-container-fluid" style="color:black;">
+                            <div style="color:black;" id="Grid" ej-grid e-datasource="authorizationList" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-rowdatabound="onrowdatabound" e-allowselection="true" e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-headertext="Remove" e-headertemplateid="" e-template="#DeleteAuthority" e-textalign="center" e-width="40"></div>
+                                    <div e-column e-field="Id" e-headertext="Id" e-width="70" e-visible="false"></div>
+                                    <div e-column e-field="EmployeeId" e-headertext="Employee Id" e-width="40" e-visible="false"></div>
+                                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="40"></div>
+                                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                    <div e-column e-field="Company" e-headertext="Company" e-width="80"></div>
+                                    <div e-column e-field="Plant" e-headertext="Plant" e-width="80"></div>
+                                    <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                                    <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                                    <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                                    <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                                    <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                                </div>
+                            </div>
+                            <script type="text/template" id="DeleteAuthority">
+                                <div class="common-btn">
+                                    <ul class="list-inline action-list">
+                                        <li>
+                                            <button ng-click="$parent.removeAuthority(this);" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-trash" tabindex="119"></i></button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </script>
                         </div>
                     </div>
-                    <div class="col-xs-12">
-                        <div style="color:black;" id="GridSelectedDocumentSource" ej-grid e-datasource="SelectedDocumentSourceList"
-                             e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                             e-allowselection="false" e-filtersettings-filterType="excel">
-                            <div e-columns>
-                                <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="80"></div>
-                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="80"></div>
-                                <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
-                                <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
-                                <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="140"></div>-->
-                    @*delete*@
-                    <!--<div e-column e-template="#DeleteDocumentDocumentSource" e-width="40"></div>
-                            </div>
-                        </div>
-
-                        <script type="text/template" id="DeleteDocumentDocumentSource">
-                            <div class="common-btn">
-                                <ul class="list-inline text-left">
-                                    <li><button ng-click="$parent.ConfirmDeleteDocumentSource(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
-                                </ul>
-                            </div>
-                        </script>
-
-                    </div>-->
                 </div>
+
             </div>
 
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
                 <div class="row">
-                    @*DocumentPreparedBy body*@
-                    <!--<div class="col-sm-12 col-sm-12 col-md-12">
-                        <div class="common-btn">
-                            <ul class="list-inline text-left">
-                                <li><button ng-click="showDocumentPreparedByPopUp();" ng-disabled="sopDocumentNew.Id==null" class="btn"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <input type="radio" ng-model="EntryType" value="Employee">
-                            <span>Employee</span>
-                            <input type="radio" ng-model="EntryType" value="Position">
-                            <span>Position</span>
-
-                        </div>
+                    <div class="col-lg-12">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li> <button ng-click="popUpEmployee('CheckBy');" ng-disabled="ModelNew.Id==null" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Add Employees</button></li>
+                        </ul>
                     </div>
-
-                    <div class="col-xs-12">
-                        <div style="color:black;" id="GridSelectedDocumentPreparedBy" ej-grid e-datasource="SelectedDocumentPreparedByList"
-                             e-gridlines="vertical" e-allowfiltering="true" e-rowdatabound="preparedByrowcolor" e-allowpaging="true" e-allowsorting="true"
-                             e-allowselection="false" e-filtersettings-filterType="excel">
-                            <div e-columns>
-                                <div e-column e-type="string" e-field="EntryTypeName" e-headertext="Entry Type" e-width="80"></div>
-                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
-                                <div e-column e-type="string" e-field="EmployeeName" e-headertext="EmployeeName" e-width="140"></div>
-                                <div e-column e-type="string" e-field="PositionName" e-headertext="Position" e-width="80"></div>
-                                <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="80"></div>
-                                <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="80"></div>
-                                <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
-                                <div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>-->
-                    @*delete*@
-                    <!--<div e-column e-template="#DeleteDocumentDocumentPreparedBy" e-width="40"></div>
+                        <div class="content-container-fluid" style="color:black;">
+                            <div style="color:black;" id="Grid" ej-grid e-datasource="CheckByList" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-rowdatabound="onrowdatabound" e-allowselection="true" e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-headertext="Remove" e-headertemplateid="" e-template="#DeleteCheckBy" e-textalign="center" e-width="40"></div>
+                                    <div e-column e-field="Id" e-headertext="Id" e-width="70" e-visible="false"></div>
+                                    <div e-column e-field="EmployeeId" e-headertext="Employee Id" e-width="40" e-visible="false"></div>
+                                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="40"></div>
+                                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                    <div e-column e-field="Company" e-headertext="Company" e-width="80"></div>
+                                    <div e-column e-field="Plant" e-headertext="Plant" e-width="80"></div>
+                                    <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                                    <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                                    <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                                    <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                                    <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                                </div>
                             </div>
                         </div>
-
-                        <script type="text/template" id="DeleteDocumentDocumentPreparedBy">
+                        <script type="text/template" id="DeleteCheckBy">
                             <div class="common-btn">
-                                <ul class="list-inline text-left">
-                                    <li><button ng-click="$parent.ConfirmDeleteDocumentPreparedBy(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
+                                <ul class="list-inline action-list">
+                                    <li>
+                                        <button ng-click="$parent.removeCheckBy(this);" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-trash" tabindex="119"></i></button>
+                                    </li>
                                 </ul>
                             </div>
                         </script>
-
-                    </div>-->
-                </div>
-            </div>
-
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
-                <div class="row">
-
-                    @*Location body*@
-                    <div class="col-sm-12 col-sm-12 col-md-12">
-                        <div class="common-btn">
-                            <ul class="list-inline text-left">
-                                <li><button ng-click="showLocationPopUp();" ng-disabled="sopDocumentNew.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-xs-12">
-                        <!--<div style="color:black;" id="GridSelectedLocation" ej-grid e-datasource="SelectedLocationList"
-                             e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                             e-allowselection="false" e-filtersettings-filterType="excel">
-                            <div e-columns>
-                                <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="80"></div>
-                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="80"></div>
-                                <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
-                                <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="140"></div>
-                                <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="140"></div>-->
-                        @*delete*@
-                        <!--<div e-column e-template="#DeleteDocumentLocation" e-width="40"></div>
-                            </div>
-                        </div>
-
-                        <script type="text/template" id="DeleteDocumentLocation">
-                            <div class="common-btn">
-                                <ul class="list-inline text-left">
-                                    <li><button ng-click="$parent.ConfirmDeleteLocation(data.Id);" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash" style="top: 1px;"></i></button></li>
-                                </ul>
-                            </div>
-                        </script>-->
-
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
@@ -372,7 +338,7 @@
                             <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
                             <div e-column e-field="Company" e-headertext="Company" e-width="80"></div>
                             <div e-column e-field="Plant" e-headertext="Plant" e-width="80"></div>
-                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
                             <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
                             <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
                             <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
@@ -489,5 +455,41 @@
              data-ng-click-left-button="selectByButton()"
              data-ng-click-cancel="closePopUp()">
 </modal-table>
+
+<div class="modal fade site-modal in" id="popUpEmp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridPopUp" ej-grid e-datasource="popUpDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="selectdblClick" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-headertext="" e-template="#empimage" e-textalign="center" e-width="40"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="Company" e-headertext="Company" e-width="80"></div>
+                            <div e-column e-field="Plant" e-headertext="Plant" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<confirm-archive-generic modalid="confirmEntityRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeEntityRow();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmBudgetCodeRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeBudgetCodeRow();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmAuthorityRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeAuthorityRow();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmCheckByRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeCheckByRow();"></confirm-archive-generic>
 
 <confirm-modal></confirm-modal>

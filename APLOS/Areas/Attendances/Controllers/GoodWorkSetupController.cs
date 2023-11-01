@@ -10,8 +10,10 @@ using Library.Data;
 using Library.Data.Sql;
 using Library.General.Commercial;
 using Library.HumanResource.Payroll.Allowance;
+using Library.Model.Productions;
 using Library.Model.Setups;
 using Library.OrderManagement.Sales;
+using Library.Service.Employees;
 using Library.Service.Enums;
 using Library.Service.Logs;
 using Library.Service.Setups;
@@ -32,10 +34,12 @@ namespace Aplos.Areas.Attendances.Controllers
     public class GoodWorkSetupController : BaseController
     {
         #region Constructor
+        private readonly IAuthorizationConfigService _authorizationConfigService;
         private readonly ISqlRepository _sqlRepository;
         clsContract clsCon = new clsContract();
-        public GoodWorkSetupController(ISqlRepository R)
+        public GoodWorkSetupController(IAuthorizationConfigService authorizationConfigService,ISqlRepository R)
         {
+            _authorizationConfigService = authorizationConfigService;
             _sqlRepository = R;
         }
 
@@ -124,10 +128,10 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
             {
                 #region Entity 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.GoodWorkBudgetSetUp where  GoodWorkSetUpId='" + goodWorkSetupId + "'", out dsBC, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.GoodWorkEntitySetup where  GoodWorkSetUpId='" + goodWorkSetupId + "'", out dsBC, false, "1");
                 if (data != null)
                 {
-                    genid.GenID("GoodWorkBudgetSetUp", out _Id);
+                    genid.GenID("GoodWorkEntitySetup", out _Id);
                     foreach (var item in data)
                     {
                         c++;
@@ -156,6 +160,29 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
             catch (Exception ex)
             {
                 return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        [Authorize, HttpPost]
+        public ActionResult EntityDelete(string Id)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string sqlr = @"select * from GoodWorkEntitySetup where Id = '" + Id + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlr, out dsMaster, false, "1");
+
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from GoodWorkEntitySetup where Id ='" + Id + "'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 
@@ -195,38 +222,32 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
         }        
 
         [HttpPost, Authorize]
-        public JsonResult CreateBudgetCode(List<Dictionary<string, object>> data, Dictionary<string, object> ExtData, string goodWorkSetupId)
+        public JsonResult CreateBudgetCode(List<Dictionary<string, object>> data, string goodWorkSetupId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
             bplib.clsGenID genid = new bplib.clsGenID();
-            DataSet dsEntity;
-            string _Id = string.Empty;
-            int c = 0;
+            DataSet dsBC;
+            string _Id = string.Empty;            
             try
             {
                 #region Entity 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.GoodWorkEntitySetup where  GoodWorkSetupId='" + goodWorkSetupId + "'", out dsEntity, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.GoodWorkBudgetSetup where  GoodWorkSetupId='" + goodWorkSetupId + "'", out dsBC, false, "1");
                 if (data != null)
                 {
-                    genid.GenID("GoodWorkEntitySetup", out _Id);
+                    genid.GenID("GoodWorkBudgetSetup", out _Id);
                     foreach (var item in data)
-                    {
-                        c++;
-                        DataView dv = new DataView(dsEntity.Tables[0]);
-                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                    {                        
+                        DataView dv = new DataView(dsBC.Tables[0]);
+                        dv.RowFilter = "BudgetId='" + item["BudgetId"] + "'";
 
                         if (dv.Count == 0)
                         {
-                            item["Id"] = goodWorkSetupId + "-" + _Id + "-" + c;
-                            item["GoodWorkSetupId"] = goodWorkSetupId;
-                            item["IsCompensatoryApplicable"] = ExtData["IsCompensatoryApplicable"];
-                            item["IsEmployeeApplicable"] = ExtData["IsEmployeeApplicable"];
-                            item["GoodWorkCategory"] = ExtData["GoodWorkCategory"];
-                            item["Remarks"] = ExtData["Remarks"];
+                            item["Id"] = goodWorkSetupId + "-" + _Id;
+                            item["GoodWorkSetupId"] = goodWorkSetupId; 
 
-                            AddNewRow(dsEntity.Tables[0], item);
+                            AddNewRow(dsBC.Tables[0], item);
                         }
                         else
                         {
@@ -235,23 +256,231 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
                         }
                    }
                 }
-
                 #endregion
-
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsEntity);
-
+                obj.SaveDataSets(dsBC);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
-
             }
             catch (Exception ex)
             {
-
                 return Json(new { Error = true, Message = ex.Message });
-
             }
         }
 
+        [HttpGet, Authorize]
+        public JsonResult GetGoodWorkBudgetCodeSetupData(string goodWorkSetupId)
+        {
+            try
+            {
+                return Json(clsCon.GetGoodWorkBudgetCodeSetupData(goodWorkSetupId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        [Authorize, HttpPost]
+        public ActionResult BudgetCodeDelete(string Id)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string sqlr = @"select * from GoodWorkBudgetSetUp where Id = '" + Id + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlr, out dsMaster, false, "1");
+
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from GoodWorkBudgetSetUp where Id ='" + Id + "'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetAllEmployeeData()
+        {
+            JsonResult json = Json(_authorizationConfigService.GetAllEmployeeData(), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetList(string actionStatus)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_authorizationConfigService.Query(identity.CompanyId, identity.PlantId, actionStatus), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateAuthority(List<Dictionary<string, object>> data, string goodWorkSetupId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            bplib.clsGenID genid = new bplib.clsGenID();
+            DataSet dsAuthority;
+            string _Id = string.Empty;
+            try
+            {
+                #region Entity 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.GoodWorkAuthoritySetup where  GoodWorkSetupId='" + goodWorkSetupId + "'", out dsAuthority, false, "1");
+                if (data != null)
+                {
+                    genid.GenID("GoodWorkAuthoritySetup", out _Id);
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsAuthority.Tables[0]);
+                        dv.RowFilter = "AuthorityId='" + item["AuthorityId"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = goodWorkSetupId + "-" + _Id;
+                            item["GoodWorkSetupId"] = goodWorkSetupId;
+
+                            AddNewRow(dsAuthority.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+                #endregion
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsAuthority);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetGoodWorkAuthorityData(string goodWorkSetupId)
+        {
+            try
+            {
+                return Json(clsCon.GetGoodWorkAuthorityData(goodWorkSetupId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        [Authorize, HttpPost]
+        public ActionResult AuthorityDelete(string Id)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string sqlr = @"select * from GoodWorkAuthoritySetUp where Id = '" + Id + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlr, out dsMaster, false, "1");
+
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from GoodWorkAuthoritySetUp where Id ='" + Id + "'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateCheckBy(List<Dictionary<string, object>> data, string goodWorkSetupId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            bplib.clsGenID genid = new bplib.clsGenID();
+            DataSet dsCheckBy;
+            string _Id = string.Empty;
+            try
+            {
+                #region Entity 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.GoodWorkCheckBySetUp where  GoodWorkSetupId='" + goodWorkSetupId + "'", out dsCheckBy, false, "1");
+                if (data != null)
+                {
+                    genid.GenID("GoodWorkCheckBySetUp", out _Id);
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsCheckBy.Tables[0]);
+                        dv.RowFilter = "CheckById='" + item["CheckById"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = goodWorkSetupId + "-" + _Id;
+                            item["GoodWorkSetupId"] = goodWorkSetupId;
+
+                            AddNewRow(dsCheckBy.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+                #endregion
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsCheckBy);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetCheckByData(string goodWorkSetupId)
+        {
+            try
+            {
+                return Json(clsCon.GetGoodWorkCheckByData(goodWorkSetupId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        [Authorize, HttpPost]
+        public ActionResult CheckByDelete(string Id)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string sqlr = @"select * from GoodWorkCheckBySetUp where Id = '" + Id + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlr, out dsMaster, false, "1");
+
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from GoodWorkCheckBySetUp where Id ='" + Id + "'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
