@@ -947,7 +947,13 @@ function inventoryReceiveController(accountService, addressService, $window, fac
         $scope.chargesList = [];
         $scope.grossTotal = 0;
         baseService.removeErrorClasses();
-        //$scope.getToCurrencyRate();
+        $scope.productDocMap = { 
+              UserFilename: null 
+            , Description: null
+            , Remarks: null
+        };
+
+        $scope.Imagedata = [];
     }
     $scope.changeAllInvoice = function () {
         $scope.productNew.InvoiceNo = null;
@@ -1391,7 +1397,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
             if ($scope.binMasterList.length) {
                 $scope.selectedBinAllocationList = [];
                 for (var b = 0; b < $scope.binMasterList.length; b++) {
-                    if ($scope.binMasterList[b].Qty>0) {
+                    if ($scope.binMasterList[b].Qty > 0) {
                         $scope.selectedBinAllocationList.push($scope.binMasterList[b]);
                     }
                 }
@@ -3104,48 +3110,48 @@ function inventoryReceiveController(accountService, addressService, $window, fac
                 return false;
             }
         }
-
-        try {
-
-            var formData = new FormData();
-
-            $http({
-                method: "POST",
-                url: 'Products/InventoryReceive/GRNDocCreate',
-                headers: { 'Content-Type': undefined },
-                transformRequest: function (data) {
-                    formData.append("GRNDocumentMap", angular.toJson($scope.productDocMap));
-                    if (baseService.isUndefinedOrNull($scope.filedata) === false) {
-                        formData.append('file', data.file);
+        if (angular.isUndefinedOrNull($scope.productNew.Id))
+            ShowResult('Please select/save the GRN first', 'Error');
+        else {
+            try {
+                var formData = new FormData();
+                $http({
+                    method: "POST",
+                    url: 'Products/InventoryReceive/GRNDocCreate',
+                    headers: { 'Content-Type': undefined },
+                    transformRequest: function (data) {
+                        formData.append("GRNDocumentMap", angular.toJson($scope.productDocMap));
+                        if (baseService.isUndefinedOrNull($scope.filedata) === false) {
+                            formData.append('file', data.file);
+                        }
+                        return formData;
+                    },
+                    data: {
+                        "GRNDocumentMap": $scope.productDocMap,
+                        "file": $scope.filedata,
+                        "POId": $scope.productNew.Id,
+                    },
+                    dataType: "JSON"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
                     }
-                    return formData;
-                },
-                data: {
-                    "GRNDocumentMap": $scope.productDocMap,
-                    "file": $scope.filedata,
-                    "POId": $scope.productNew.Id,
-                },
-                dataType: "JSON"
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, "failure");
-                }
-                else {
-                    ShowResult(response.data.Message, "success");
-                    $scope.ImagedataLoad();
-                    $scope.productDocMap.UserFilename = "";
-                    $scope.productDocMap.Description = "";
-                    $scope.productDocMap.Remarks = "";
-                }
-            }, function errorCallback(response) {
-                ShowResult(response.status.Message, "failure");
-            });
-            return true;
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        $scope.ImagedataLoad();
+                        $scope.productDocMap.UserFilename = "";
+                        $scope.productDocMap.Description = "";
+                        $scope.productDocMap.Remarks = "";
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, "failure");
+                });
+                return true;
 
-        } catch (e) {
-            throw ShowResult(e, "failure");
+            } catch (e) {
+                throw ShowResult(e, "failure");
+            }
         }
-
         return true;
     };
     $scope.Imagedata = [];
