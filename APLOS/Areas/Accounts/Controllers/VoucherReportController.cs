@@ -23,6 +23,7 @@ using System.Web.Script.Serialization;
 using Library.Accounting.FixedAssets;
 using Syncfusion.ExcelToPdfConverter;
 using Syncfusion.Pdf;
+using Library.Data;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -100,6 +101,10 @@ namespace Aplos.Areas.Accounts.Controllers
         public ActionResult ExpenseRegisterReport()
         {
             return View("~/Areas/Accounts/Views/ExpenseRegisterReport.cshtml");
+        }
+        public ActionResult EDReport()
+        {
+            return View("~/Areas/Accounts/Views/EDReport.cshtml");
         }
         [Authorize]
         public ActionResult GetDayBookReport(ReportFormat reportFormat, DateTime fromdate, DateTime todate, string entityId, string dateType)
@@ -550,7 +555,31 @@ namespace Aplos.Areas.Accounts.Controllers
             }
 
         }
-       
+
+        [HttpPost, Authorize]
+        public JsonResult GetExpenseDistribution(string fromDate, string toDate)
+        {
+            try
+            {
+                if (fromDate == null || fromDate == "")
+                {
+                    throw new CustomException("Select From Date");
+                }
+                else if (toDate == null || toDate == "")
+                {
+                    throw new CustomException("Select To Date");
+                }
+                AccountsInvoiceReportService _accountsInvoiceReportService = new AccountsInvoiceReportService(_sqlRepository); 
+                var jsondata = Json(_accountsInvoiceReportService.GetExpenseDistributionSql(fromDate, toDate), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 
 

@@ -222,7 +222,7 @@ namespace Aplos.Controllers
         }
         private string GridToExcelReportUpd(DataTable data, string ReportHeader, string reportFileName)
         {
-            string fileName = reportFileName + " "+"Report.xlsx";
+            string fileName = reportFileName +".xlsx";
             string FactoryName = "";
             DataSet dsCmp = null;
             DataSet dsFactory = null;
