@@ -671,6 +671,12 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
         $scope.chargesListPO = [];
         $scope.productId = "";
         $scope.GriddataSelected = [];
+        $scope.productDocMap = {
+            UserFilename: null
+            , Description: null
+            , Remarks: null
+        };
+
         $scope.Imagedata = [];
         $scope.inventoryMaterialListPOnew = [];
 
