@@ -1,6 +1,6 @@
 ﻿'use strict';
-SalesChalanController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function SalesChalanController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+SalesChalanController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$window'];
+function SalesChalanController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Sales Chalan';
     $scope.Action = 'Save';
     $scope.ModelList = [];
@@ -26,7 +26,8 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.ModelTemp = {
         Id: null,
         VechileNo: null,
-        ByWhomId: null,
+        ByWhom: $window.employeeName,
+        ByWhomId: $window.employeeId,
         MobileNo: null,
         SecurityInChargeId: null,
         ResponsiblePersonId: null,
@@ -45,6 +46,7 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
         UpdatedFromIP: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+    console.log($scope.ModelNew);
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
@@ -69,14 +71,15 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
 
     $scope.vehicleNoList = [];
     $scope.GetVehicleNoCbo = function () {
-        $http({
-            method: 'GET',
-            url: 'SalesManagements/SalesChalan/GetVehicleNoCbo'
-        }).then(function successCallback(response) {
-            $scope.vehicleNoList = response.data;
-        });
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.FromDate) && !baseService.isUndefinedOrNull($scope.ModelNew.ToDate)) {
+            $http({
+                method: 'GET',
+                url: 'SalesManagements/SalesChalan/GetVehicleNoCbo?fromDate=' + $scope.ModelNew.FromDate + '&toDate=' + $scope.ModelNew.ToDate
+            }).then(function successCallback(response) {
+                $scope.vehicleNoList = response.data;
+            });
+        }
     }
-    $scope.GetVehicleNoCbo();
 
     $scope.popUpDataList = [];
     $scope.name = null;

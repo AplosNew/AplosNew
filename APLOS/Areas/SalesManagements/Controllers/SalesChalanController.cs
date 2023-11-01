@@ -46,11 +46,14 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [HttpGet,Authorize]
-        public ActionResult GetVehicleNoCbo()
+        public ActionResult GetVehicleNoCbo(string fromDate, string toDate)
         {
             try
             {
-                string sql = @"SELECT DISTINCT TransportVehicleNo AS Value,TransportVehicleNo AS Text FROM [dbo].[PostSalesInvoice] Where TransportVehicleNo IS NOT NULL";
+                string sql = @"SELECT DISTINCT TransportVehicleNo AS Value,TransportVehicleNo AS Text 
+FROM [dbo].[PostSalesInvoice] PO
+LEFT JOIN TRN.Sales S ON S.Id=PO.SalesId
+Where TransportVehicleNo IS NOT NULL AND FORMAT(S.AddedDate,'dd-MMM-yyyy') between '"+ fromDate + @"' AND '"+ toDate + "'";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -74,7 +77,7 @@ LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
 LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
 LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
 LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
-LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById) AS TEMP WHERE " + strkey + "";
+LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById) AS TEMP WHERE " + strkey + " Order By TEMP.AddedDate DESC";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
