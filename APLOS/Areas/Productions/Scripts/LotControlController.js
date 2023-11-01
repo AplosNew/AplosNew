@@ -8,6 +8,19 @@ function LotControlController(commonMessage, $scope, $rootScope, baseService, $r
     $scope.saveUrl = $scope.path + 'create';
 
 
+    $scope.ModelTemp = {
+        Id: null,
+        Sequence: 0,
+        Code: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        Description: null,
+        Remarks: null,
+        Active: true
+    };
+    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
     $scope.entityList = [];
     $scope.getAllEntities = function () {
         $http({
@@ -47,114 +60,71 @@ function LotControlController(commonMessage, $scope, $rootScope, baseService, $r
 
     $scope.lotControlList = [];
     $scope.GetPOLotControlSettingData = function () {
-        $scope.lotControlList = [];
-        var proId = null;
-        var moinc = 0;
-        var moincvalue = 0;
-        var soinc = 0;
-        var soincvalue = 0;
-        var mlot = 0;
-        var gr = 0;
-        var sgr = 0;
-        $http({
-            method: 'GET',
-            url: 'Productions/LotControl/GetPOLotControlSettingData?entityId=' + $scope.ModelNew.EntityId + '&PoId=' + $scope.ModelNew.ProductionOrderId
-        }).then(function successCallback(response) {
-            $scope.lotControlList = response.data;
-            for (var i = 0; i < $scope.lotControlList.length; i++) {
-                $scope.lotControlList[i].LotNo = $scope.ModelNew.ProductionOrderId;
-                $scope.lotControlList[i].ProductionOrderId = $scope.ModelNew.ProductionOrderId;
-                $scope.lotControlList[i].EntityId = $scope.ModelNew.EntityId;
+        try {
+            $http({
+                method: 'GET',
+                url: 'OrderManagements/ProductionOrder/GetPOLotContSettingsData?poId=' + $scope.ModelNew.ProductionOrderId + '&entityId=' + $scope.ModelNew.EntityId
+            }).then(function (response) {
+                $scope.lotControlList = response.data;
 
-
-                if ($scope.lotControlList[i].ProductionBookingLevel == 'MasterOrderItem') {
-                    if (i == 0) {
-                        moinc++;
-                        moincvalue = moinc;
-                        $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo + '-' + moincvalue;
-                        gr = $scope.lotControlList[i].LotNo;
-                    } else {
-                        $scope.lotControlList[i].LotNo = gr;
-                    }
-
-                }
-                if ($scope.lotControlList[i].ProductionBookingLevel == 'SalesOrder') {
-
-                    soinc++;
-                    soincvalue = soinc;
-                    $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo + '-S' + soincvalue;
-
-                }
-
-                if ($scope.lotControlList[i].ProductionBookingLevel == 'ProductionOrder') {
-                    $scope.lotControlList[i].LotNo = $scope.lotControlList[i].LotNo
-                }
-                proId = $scope.lotControlList[i].ProcessId;
-
-            }
-
-
-        });
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
 
-    $scope.ModelTemp = {
-        Id: null,
-        Sequence: 0,
-        Code: null,
-        ShortName: null,
-        StandardName: null,
-        UserName: null,
-        Description: null,
-        Remarks: null,
-        Active: true
+    $scope.copymessage_detailconfirmation = null;
+    $scope.copyDetail = function (obj) {
+        $scope.DetailNew = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.DetailNew.Id))
+            $scope.copymessage_detailconfirmation = 'Are you sure want to copy Lot No:' + $scope.DetailNew.UserLotNo+' ?';
+        angular.element(document.querySelector('#confirmCopyDetailPopUp')).modal('show');
+    }
+
+    $scope.CopyDetailData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'CopyData?ProductionOrderId=' + $scope.DetailNew.ProductionOrderId + '&Id=' + $scope.DetailNew.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetPOLotControlSettingData();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
     };
-    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
-
-    $scope.Save = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.ModelNewForm.$valid) {
+    $scope.SaveRowData = function (obj) {
+        try {
+           
             $http({
                 method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'data': $scope.lotControlList },
+                url: 'Productions/LotControl/SaveTNCRowData',
+                data: { 'data': obj.data },
                 dataType: 'JSON'
+                , contentType: "application/json charset=utf-8"
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-
+                    $scope.GetPOLotControlSettingData();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
-            }
-
+            };
+        } catch (e) {
+            ShowResult(e, "failure");
         }
     };
 
-   
-
-    $scope.Clear = function () {
-        ClearFields();
-        return true;
-    };
-
-    function ClearFields() {
-        $scope.Action = 'Save';
-        $scope.ModelNew = {
-            Id: null,
-            Sequence: 0,
-            Code: null,
-            ShortName: null,
-            StandardName: null,
-            UserName: null,
-            Description: null,
-            Remarks: null,
-            Active: true
-        };
-    }
 
 
 }

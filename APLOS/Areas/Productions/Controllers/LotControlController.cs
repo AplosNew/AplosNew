@@ -55,85 +55,85 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        [HttpGet, Authorize]
-        public JsonResult GetAutoSequence()
+
+        [HttpPost, Authorize]
+        public JsonResult CopyData(string ProductionOrderId, string Id)
         {
-            return Json(GetSequence(), JsonRequestBehavior.AllowGet);
+            try
+            {
+                Library.OrderManagement.BOM.TemplateAttchment _attachment = new Library.OrderManagement.BOM.TemplateAttchment();
+                CopyDetail(ProductionOrderId, Id);
+
+                return Json(new { Error = false, Message = "BOM copied successfully" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
         }
-
-
-
-        [HttpPost]
-        public JsonResult Create(List<Dictionary<string, object>> data)
+        private void CopyRow(DataRow drSource, ref DataRow drDestination)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ConnectionManager.DAL.ConManager objCon;
-            bplib.clsGenID genid = new bplib.clsGenID();
-            DataSet dsEntity;
-            string _Id = string.Empty;
-            int c = 0;
-            try
+            for (int COL = 0; COL < drSource.Table.Columns.Count; COL++)
             {
-                
-                #region Entity 
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.LotControl where  1=1", out dsEntity, false, "1");
-                if (data != null)
+                try
                 {
-                    genid.GenID("LotControl", out _Id);
-                    foreach (var item in data)
-                    {
-                        c++;
-                        DataView dv = new DataView(dsEntity.Tables[0]);
-                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                    drDestination[drSource.Table.Columns[COL].ColumnName] = drSource[drSource.Table.Columns[COL].ColumnName];
 
-                        if (dv.Count == 0)
-                        {
-                            item["Id"] = _Id + "-" + c;
-
-                            AddNewRow(dsEntity.Tables[0], item);
-                        }
-                        else
-                        {
-                            DataRow drmo = dv[0].Row;
-                            EditRow(drmo, item);
-                        }
-                    }
                 }
+                catch (Exception ex)
+                {
+                }
+                try
+                {
+                    drDestination["AddedBy"] = identity.Name;
+                    drDestination["AddedDate"] = DateTime.Now;
+                    drDestination["AddedFromIP"] = identity.IPAddress;
+                    drDestination["UpdatedBy"] = identity.Name;
+                    drDestination["UpdatedFromIP"] = identity.IPAddress;
+                    drDestination["UpdatedDate"] = DateTime.Now;
 
-                #endregion
-
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsEntity);
-
-                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
-
+                }
+                catch (Exception ex)
+                {
+                }
             }
-            catch (Exception ex)
-            {
 
-                return Json(new { Error = true, Message = ex.Message });
-
-            }
         }
 
-        public ActionResult Delete(string id)
+        public void CopyDetail(string ProductionOrderId, string Id)
         {
+            DataSet dsDetail, dsId;
+            string NewId = ""; 
             try
             {
-                if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
-                con.CommitTransaction();
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from dbo.ProductionOrderLotControl where 1=2", out dsDetail, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT CId=Count(Id)+1 from dbo.ProductionOrderLotControl Where ProductionOrderId='"+ ProductionOrderId + "'", out dsId, false, "1");
+
+                DataTable dtDetail = _sqlRepository.GetDataTable("select * from dbo.ProductionOrderLotControl WHERE Id='" + Id + "'");
+
+                NewId = ProductionOrderId + "-" + dsId.Tables[0].Rows[0]["CId"].ToString();
+
+                DataRow drDestination = dsDetail.Tables[0].NewRow();
+                CopyRow(dtDetail.Rows[0], ref drDestination);
+                drDestination["Id"] = NewId;
+                drDestination["ProductionOrderId"] = ProductionOrderId;
+                dsDetail.Tables[0].Rows.Add(drDestination);
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsDetail);
             }
             catch (Exception ex)
             {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+                throw ex;
             }
+
+
         }
+
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -180,6 +180,39 @@ namespace Aplos.Areas.Productions.Controllers
             return 1;
         }
 
+        [HttpPost, Authorize]
+        public JsonResult SaveTNCRowData(Dictionary<string, object> data)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsChild;
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionOrderLotControl where  Id='" + data["Id"] + "'", out dsChild, false, "1");
+
+                if (data != null)
+                {
+                    DataView dv = new DataView(dsChild.Tables[0]);
+                    dv.RowFilter = "Id='" + data["Id"] + "'";
+
+                    if (dv.Count > 0)
+                    {
+                        DataRow drmo = dv[0].Row;
+                        EditRow(drmo, data);
+                    }
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsChild);
+                }
+
+
+                return Json(new { Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+        }
 
     }
 }

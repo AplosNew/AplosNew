@@ -174,7 +174,7 @@
                                 <div class="col-sm-8">
                                     <div class="checkbox-site">
                                         <label>
-                                            <input type="checkbox" ng-model="model2.Increment" tabindex="8">
+                                            <input type="checkbox" ng-model="model2.Increment" tabindex="8"ng-checked="SetCheckforAdjustment()">
                                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                         </label>
                                     </div>
@@ -183,20 +183,20 @@
                                 <div class="col-sm-8">
                                     <div class="checkbox-site">
                                         <label>
-                                            <input type="checkbox" ng-model="model2.Promotion" tabindex="8">
+                                            <input type="checkbox" ng-model="model2.Promotion" tabindex="8"ng-checked="SetCheckforAdjustment()">
                                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                         </label>
                                     </div>
                                 </div>
-                                @*<label class="col-sm-4 control-label">Adjustment</label>
+                                <label class="col-sm-4 control-label">Adjustment</label>
                                 <div class="col-sm-8">
                                     <div class="checkbox-site">
                                         <label>
-                                            <input type="checkbox" ng-model="model2.Adjustment" tabindex="8">
+                                            <input type="checkbox" ng-model="model2.Adjustment" tabindex="8" ng-checked="SetCheckforAdjustment()">
                                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                         </label>
                                     </div>
-                                </div>*@
+                                </div>
 
                                 <div class="col-sm-4">
                                 </div>
@@ -539,7 +539,7 @@
             </div>
 
         </div>
-        <div ng-show="model2.Increment">
+        <div ng-show="model2.Increment||model2.Adjustment">
             <div class="row form-horizontal form-elements">
                 <div class="col-xs-12 col-sm-12 col-md-6">
                     <div class="form-group">
