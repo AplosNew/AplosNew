@@ -65,7 +65,7 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
             $scope.InvoiceNoList = response.data;
         });
     }
-    
+
 
     $scope.vehicleNoList = [];
     $scope.GetVehicleNoCbo = function () {
@@ -148,16 +148,36 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
 
     $scope.searchdata = [];
     $scope.GetInvoiceData = function () {
-        $scope.searchdata = [];
-        $http({
-            method: 'GET',
-            url: 'SalesManagements/SalesChalan/GetInvoiceData?fromDate=' + $scope.ModelNew.FromDate + '&toDate=' + $scope.ModelNew.ToDate + '&vehicleno=' + $scope.ModelNew.VechileNo
-        }).then(function successCallback(response) {
-            $scope.searchdata = response.data;
-            $scope.ShowResultCustom();
-        });
+        try {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.FromDate)) {
+                throw "From Date is required.";
+            }
+            if (baseService.isUndefinedOrNull($scope.ModelNew.ToDate)) {
+                throw "To Date is required.";
+            }
+            if (new Date($scope.ModelNew.FromDate) > new Date($scope.ModelNew.ToDate)) {
+                throw "From date must be below or equal to To Date";
+            }
+            if (new Date($scope.ModelNew.ToDate) < new Date($scope.ModelNew.FromDate)) {
+                throw "To date must be above or equal to From Date.";
+            }
+
+            if (baseService.isUndefinedOrNull($scope.ModelNew.VechileNo)) {
+                throw "VechileNo is required.";
+            }
+            $scope.searchdata = [];
+            $http({
+                method: 'GET',
+                url: 'SalesManagements/SalesChalan/GetInvoiceData?fromDate=' + $scope.ModelNew.FromDate + '&toDate=' + $scope.ModelNew.ToDate + '&vehicleno=' + $scope.ModelNew.VechileNo
+            }).then(function successCallback(response) {
+                $scope.searchdata = response.data;
+                $scope.ShowResultCustom();
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
-  
+
 
     $scope.ShowResultCustom = function (message, type) {
         $("#InvoicePoUp").ejDialog("setTitle", "Invoice Info");
@@ -205,9 +225,9 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
                     ob.NoOfPackage = $scope.searchdata[i].NoOfPackage;
                     ob.NetWeight = $scope.searchdata[i].NetWeight;
                     ob.GrossWeight = $scope.searchdata[i].GrossWeight;
-                    ob.Destination = $scope.searchdata[i].Destination;                    
+                    ob.Destination = $scope.searchdata[i].Destination;
                     ob.Remark = $scope.searchdata[i].Remark;
-                   
+
                     $scope.InvoiceNoList.push(ob);
                 }
             }
