@@ -1119,7 +1119,8 @@ namespace Library.OrderManagement.Production
                                                                  LEFT JOIN MST.MaterialMasterArticle AS mma on mma.Id=MOI.ArticleId
                                                                  WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
                                    --PRS.LotNumber
-                                   PLC.UserLotNo LotNumber,PO.IsPreDefineLotApplicable,(Case when PO.IsPreDefineLotApplicable = 1 then 'Yes' else 'No' end) LotPrefefined
+                                   PLC.UserLotNo LotNumber,PO.IsPreDefineLotApplicable,(Case when PO.IsPreDefineLotApplicable = 1 then 'Yes' else 'No' end) LotPrefefined,
+                                   isnull(CEILING(PLC.ProcessPlanQty),0) LotProcessPlanQty
                                    --,PRS.ResponsiblePerson
 								   FROM TRN.ProductionOrder PO 
                                    LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + processId + @"'

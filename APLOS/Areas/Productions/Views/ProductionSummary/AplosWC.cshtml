@@ -219,6 +219,7 @@
                     @*<div e-column e-field="POProcessSequence" e-headertext="POProcess Sequence" e-width="100"></div>*@
                     <div e-column e-template="#POProcessSequence" e-headertext="POProcess Sequence" e-width="100"></div>
                     <div e-column e-template="#POFirstProcessProductionQty" e-headertext="POFirstProcess ProductionQty" e-width="100"></div>
+                    <div e-column e-template="#LotProcessPlanQty" e-headertext="Lot Process PlanQty" e-width="100"></div>
                     <div e-column e-template="#Delete" e-headertext="Delete" e-width="80"></div>
                 </div>
             </div>
@@ -244,8 +245,8 @@
                         <input type="text" ng-click="$parent.getMasterOrderItemPopUp(this);" name="Master Order Item" ng-show="data.BookingLevel=='MasterOrderItem'" placeholder="Select MO Item" ng-model="data.MOIArticle" class="form-control">
                         <input type="text" ng-click="$parent.getProductCodePopUp(this);" name="Product Code" ng-show="data.BookingLevel=='ProductCode'" ng-model="data.ProductCodeArticle" placeholder="Select Product Code" class="form-control">
                         @*<input type="text" ng-disabled="true" name="Sales Order" ng-show="data.BookingLevel=='SalesOrder'" placeholder="Select SO Item" ng-model="data.SOArticle" class="form-control">
-                        <input type="text" ng-disabled="true" name="Master Order Item" ng-show="data.BookingLevel=='MasterOrderItem'" placeholder="Select MO Item" ng-model="data.MOIArticle" class="form-control">
-                        <input type="text" ng-disabled="true" name="Product Code" ng-show="data.BookingLevel=='ProductCode'" ng-model="data.ProductCodeArticle" placeholder="Select Product Code" class="form-control">*@
+                    <input type="text" ng-disabled="true" name="Master Order Item" ng-show="data.BookingLevel=='MasterOrderItem'" placeholder="Select MO Item" ng-model="data.MOIArticle" class="form-control">
+                    <input type="text" ng-disabled="true" name="Product Code" ng-show="data.BookingLevel=='ProductCode'" ng-model="data.ProductCodeArticle" placeholder="Select Product Code" class="form-control">*@
                     </div>
                     <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
                         <button ng-click="$parent.getSalesOrderPopUp(this);" ng-show="data.BookingLevel=='SalesOrder'" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
@@ -267,16 +268,16 @@
                     <input type="text" ng-click="$parent.selectGridResponsible(this);" name="Responsible Person" ng-model="data.ResponsiblePerson" ng-disabled="false" class="form-control" readonly>
                 </div>
                 @*<div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                        <button ng-click="$parent.selectGridResponsible(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                    </div>*@
+                <button ng-click="$parent.selectGridResponsible(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+            </div>*@
             </script>
             <script type="text/template" id="InCharge">
                 <div class="col-sm-12" style="padding:0px;">
                     <input type="text" ng-click="$parent.selectGridIncharge(this);" name="InCharge" ng-model="data.InCharge" ng-disabled="false" class="form-control" readonly>
                 </div>
                 @*<div class="col-sm-4 text-left" style="padding:0px;padding-left:2px">
-                        <button ng-click="$parent.selectGridIncharge(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                    </div>*@
+                <button ng-click="$parent.selectGridIncharge(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+            </div>*@
             </script>
             <script type="text/template" id="CheckedBy">
                 <div class="col-sm-10" style="padding:0px;">
@@ -385,6 +386,11 @@
             <script type="text/template" id="POFirstProcessProductionQty">
                 <div class="col-sm-10" style="padding:0px;">
                     <input type="text" name="POFirstProcess ProductionQty" ng-disabled="true" ng-model="data.POFirstProcessProductionQty" ng-click="" class="form-control" maxlength="200">
+                </div>
+            </script>
+            <script type="text/template" id="LotProcessPlanQty">
+                <div class="col-sm-10" style="padding:0px;">
+                    <input type="text" name="LotProcessPlanQty" ng-disabled="true" ng-model="data.LotProcessPlanQty" ng-click="" class="form-control" maxlength="200">
                 </div>
             </script>
             <script type="text/template" id="POProcessSequence">
