@@ -66,13 +66,13 @@
             </div>
 
             <div class="col-xs-12 col-sm-3 col-md-3">
-                <div class="form-group" style="margin-right:4px" show-errors>
-                    <label class="control-label">Shift<sup>*</sup></label>
+                <div class="form-group" show-errors>
+                    <label class="control-label">Process<sup>*</sup></label>
                     <div class="show-message">
                         <div class="input-group">
-                            <input type="text" name="Entity" ng-model="ModelNew.Shift" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required readonly>
+                            <input type="text" name="Process" ng-model="ModelNew.Process" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required readonly>
                             <span class="input-group-btn">
-                                <button ng-click="selectShift()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                <button ng-click="selectProcess()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                             </span>
                         </div>
                     </div>
@@ -80,8 +80,8 @@
                 <div class="mb-3 form-group" style="margin-right:4px" show-errors>
                     <label class="control-label">From Time<sup>*</sup></label>
                     @*<div class="show-message">
-                            <input id="timepicker1" e-value="ModelNew.FromTime" width="328" ej-timepicker e-change="getMinute()" name="Time" tabindex="4" required />
-                        </div>*@
+                <input id="timepicker1" e-value="ModelNew.FromTime" width="328" ej-timepicker e-change="getMinute()" name="Time" tabindex="4" required />
+            </div>*@
                     <div class="input-group bootstrap-timepicker timepicker">
                         <input id="FromTime" type="text" class="form-control" ng-model="ModelNew.FromTime" ng-change="getMinute();" e-width="100" tabindex="7">
                         <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
@@ -91,13 +91,13 @@
             </div>
 
             <div class="col-xs-12 col-sm-3 col-md-3">
-                <div class="form-group" show-errors>
-                    <label class="control-label">Process<sup>*</sup></label>
+                <div class="form-group" style="margin-right:4px" show-errors>
+                    <label class="control-label">Shift<sup>*</sup></label>
                     <div class="show-message">
                         <div class="input-group">
-                            <input type="text" name="Process" ng-model="ModelNew.Process" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required readonly>
+                            <input type="text" name="Entity" ng-model="ModelNew.Shift" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required readonly>
                             <span class="input-group-btn">
-                                <button ng-click="selectProcess()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                <button ng-click="selectShift()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                             </span>
                         </div>
                     </div>

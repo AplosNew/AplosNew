@@ -30,14 +30,14 @@ namespace Aplos.Areas.IE.Controllers
             return View();
         }
         [Authorize, HttpPost]
-        public ActionResult GetShift()
+        public ActionResult GetShift(string processId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select SD.SystemID ShiftId,P.Id PlantId,P.UserName Plant,SD.ShiftDefinationDescription
-						,SD.UserName ShiftDefination,SD.InTime,SD.OutTime
-						
-						from ShiftDefination SD
-						left join ORG.Plant P on P.Id=SD.PlantID";
+            string str = @"select Distinct SD.SystemID ShiftId,P.Id PlantId,P.UserName Plant,SD.ShiftDefinationDescription
+						,SD.UserName ShiftDefination,SD.InTime,SD.OutTime from [dbo].[WorkCenterWiseShift] WCS
+LEFT JOIN dbo.ShiftDefination AS SD ON SD.SystemID = WCS.ShiftDefinationID
+LEFT JOIN ORG.Plant P on P.Id=SD.PlantID
+WHERE WorkCenterMasterId IN(SELECT Id FROM SCS.WorkCenterMaster AS wcm WHERE wcm.ProcessId='" + processId + @"')";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }

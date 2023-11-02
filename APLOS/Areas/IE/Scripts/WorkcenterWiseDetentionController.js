@@ -97,6 +97,9 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
         $http({
             method: 'POST',
             url: $scope.path + 'getShift',
+            data: {
+                'processid': $scope.ModelNew.ProcessId
+            },
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.ShiftList = resp.data;
