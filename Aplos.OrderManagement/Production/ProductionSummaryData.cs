@@ -1118,15 +1118,18 @@ namespace Library.OrderManagement.Production
 																 --LEFT JOIN MST.MaterialMasterArticle AS mma on mma.MaterialMasterId=MM.Id
                                                                  LEFT JOIN MST.MaterialMasterArticle AS mma on mma.Id=MOI.ArticleId
                                                                  WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-                                   PRS.LotNumber
+                                   --PRS.LotNumber
+                                   PLC.UserLotNo LotNumber,PO.IsPreDefineLotApplicable,(Case when PO.IsPreDefineLotApplicable = 1 then 'Yes' else 'No' end) LotPrefefined
                                    --,PRS.ResponsiblePerson
 								   FROM TRN.ProductionOrder PO 
                                    LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + processId + @"'
+                                   LEFT JOIN ProductionOrderLotControl PLC ON PLC.ProductionOrderID = PO.Id AND PLC.ProcessId = '" + processId + @"'
 								   LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
 								   LEFT JOIN ORG.Entity E ON E.Id=PO.EntityId
 								  LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID=PO.Id
 								  LEFT JOIN 
-								  (    SELECT SUM(PS.Quantity) TotalProductionQty,PS.ProductionOrderId,PS.LotNumber
+								  (    SELECT SUM(PS.Quantity) TotalProductionQty,PS.ProductionOrderId
+                                      --,PS.LotNumber
                                        --,(select EmployeeName from EmployeeInformation where SystemId=PS.ResponsiblePersonId) as ResponsiblePerson
                                        FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"' GROUP BY PS.ProductionOrderId,PS.LotNumber
                                        --,PS.ResponsiblePersonId
@@ -4225,7 +4228,7 @@ from MST.QualityIssueDetails  QID
 left join TRN.QualityIssueControl as QC on QC.DefineIssueId=QID.Id and QC.Id = (select top 1 Id from TRN.QualityIssueControl where DefineIssueId=QID.Id order by AddedDate desc) 
 left join MST.QualityManagementMaster QMM on QMM.Id=QID.IssueNameId
 left join org.Entity E on E.Id=QID.EntityId
-left join hkp.Process P on P.Id=QID.ProcessId) GI
+left join hkp.Process P on P.Id=QID.ProcessId where QID.IsMandatory=1) GI
 " + ResponsiblePerson + @"
 order by Convert(Date,GI.QualityIssueDate)
 --order by (select top 1 AddedDate + QID.CheckingInterval from TRN.QualityControl where IssueId=QID.IssueNameId and EntityId=QID.EntityId order by AddedDate asc) asc";
