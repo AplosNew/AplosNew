@@ -905,7 +905,7 @@
                             <div e-column e-field="SalesOrderId" e-headertext="SONo" e-width="2"></div>
                             <div e-column e-field="LotNo" e-headertext="LotNo" e-width="3"></div>
                             <div e-column e-template="#Sufix" e-headertext="Sufix" e-width="2"></div>
-                            <div e-column e-template="#UserLotNo" e-headertext="User LotNo" e-width="4"></div>
+                            <div e-column e-field="UserLotNo" e-headertext="User LotNo" e-width="4"></div>
                             <div e-column e-field="LotQty" e-headertext="LotQty" e-width="2"></div>
                             <div e-column e-field="OrderQty" e-headertext="OrderQty" e-width="2"></div>
                             <div e-column e-field="PlanQty" e-headertext="PlanQty" e-width="2"></div>
@@ -920,11 +920,11 @@
                                 <input type="text" name="Sufix" ng-model="data.Sufix" class="form-control" maxlength="3" ng-blur="$parent.SetSufix(this)">
                             </div>
                         </script>
-                        <script type="text/template" id="UserLotNo">
+                        @*<script type="text/template" id="UserLotNo">
                             <div class="col-sm-12" style="padding:0px;">
                                 <input type="text" name="UserLotNo" ng-model="data.UserLotNo" class="form-control" maxlength="50">
                             </div>
-                        </script>
+                        </script>*@
                         <script type="text/template" id="LCRemark">
                             <div class="col-sm-12" style="padding:0px;">
                                 <input type="text" name="Remark" ng-model="data.Remark" class="form-control" maxlength="250">

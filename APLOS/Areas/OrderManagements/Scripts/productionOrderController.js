@@ -396,7 +396,9 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         $scope.model = Row.data;
         //$scope.model = Object.assign({}, $scope.model);
         $scope.model = Object.assign({}, Row.data);
-
+        if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
+            $scope.model.UserDefineLotNo = $scope.model.Id;
+        }
         getProductionRecipeMaterialList();
 
         //$scope.GetBulletinTamplate2ndIndexReport(Row.data.Id);
