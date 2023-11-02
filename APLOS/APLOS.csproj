@@ -5007,6 +5007,7 @@
     <Content Include="Areas\Products\Views\PurchaseOrder\ServiceAcknowledgement.cshtml" />
     <Content Include="Areas\QMS\Views\DailyQualityStatusReport\Aplos.cshtml" />
     <Content Include="Areas\SalesManagements\Views\SalesChalan\Aplos.cshtml" />
+    <Content Include="Areas\SalesManagements\Views\SalesChalan\Approve.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />
