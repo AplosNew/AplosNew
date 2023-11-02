@@ -1022,6 +1022,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         $scope.NewObject.ResponsiblePerson = $scope.productionSummaryNew.HeaderResponsiblePerson;
         $scope.NewObject.Article = $event.data.Article;
         $scope.NewObject.IsPreDefineLotApplicable = $event.data.IsPreDefineLotApplicable;
+        $scope.NewObject.LotProcessPlanQty = $event.data.LotProcessPlanQty;
         //$scope.NewObject.RemainingQty = $event.data.RemainingQty;
         $scope.GetTotalProductionBookingQty();
         //$scope.getArticle($scope.NewObject.ProductionOrderId);
