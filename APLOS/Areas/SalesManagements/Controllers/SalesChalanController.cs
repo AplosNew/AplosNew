@@ -39,13 +39,31 @@ namespace Aplos.Areas.SalesManagements.Controllers
         #endregion Constructor
 
 
-        [Authorize]
+    
         public ActionResult Aplos()
         {
             return View();
         }
 
-        [HttpPost]
+        [HttpGet,Authorize]
+        public ActionResult GetVehicleNoCbo(string fromDate, string toDate)
+        {
+            try
+            {
+                string sql = @"SELECT DISTINCT TransportVehicleNo AS Value,TransportVehicleNo AS Text 
+FROM [dbo].[PostSalesInvoice] PO
+LEFT JOIN TRN.Sales S ON S.Id=PO.SalesId
+Where TransportVehicleNo IS NOT NULL AND FORMAT(S.AddedDate,'dd-MMM-yyyy') between '"+ fromDate + @"' AND '"+ toDate + "'";
+                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {
             string strkey = "1=1";
@@ -59,25 +77,28 @@ LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
 LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
 LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
 LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
-LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById) AS TEMP WHERE " + strkey + "";
+LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById) AS TEMP WHERE " + strkey + " Order By TEMP.AddedDate DESC";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetInvoiceData(string fromDate,string toDate)
+        public ActionResult GetInvoiceData(string fromDate,string toDate,string vehicleno)
         {
             try
             {
-                string sql = @"SELECT Checked=CAST(0 AS bit),FORMAT(S.EntryDate,'dd-MMM-yyyy')Date, S.Id InvoiceId,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight
+                string sql = @"SELECT Checked=CAST(0 AS bit),FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate, S.Id InvoiceId,P.UserName Customer,DT.UserName Destination,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight
 FROM TRN.Sales S
 LEFT JOIN HKP.Party P ON P.Id=S.PartyId
 LEFT JOIN (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage , isc.SalesId 
                 from itemscanchild isc
                 left join trn.POLotReference PLR on PLR.Id = isc.PackingId
                 left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
-				group by  isc.salesId) BKD on BKD.salesId = s.Id 
-Where FORMAT(S.AddedDate,'dd-MMM-yyyy') between '" + fromDate + @"' AND '"+ toDate + @"' AND RowState='Posted' AND ISNULL(BKD.NoOfPackage,0)<>0
+				group by  isc.salesId) BKD on BKD.salesId = s.Id
+left join PostSalesInvoice PSI on PSI.SalesId = BKD.SalesId
+left join MST.Addressmaster AM on Am.Id = P.AddressmasterId
+left join scs.District Dt on DT.Id = AM.DistrictId
+Where FORMAT(S.AddedDate,'dd-MMM-yyyy') between '" + fromDate + @"' AND '"+ toDate + @"' AND PSI.Transportvehicleno='"+ vehicleno + @"'
 AND S.Id NOT IN(Select  InvoiceId from dbo.SalesChalanDetail)
 ORDER BY S.Id";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -93,16 +114,19 @@ ORDER BY S.Id";
         {
             try
             {
-                string sql = @"Select SCD.*,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight  
+                string sql = @"Select SCD.*,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight,DT.UserName Destination,FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate 
 from dbo.SalesChalanDetail SCD
 LEFT JOIN TRN.Sales S ON S.Id=SCD.InvoiceId
 LEFT JOIN HKP.Party P ON P.Id=S.PartyId
-left join (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage , isc.SalesId 
+left join (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage,isc.SalesId 
                 from itemscanchild isc
                 left join trn.POLotReference PLR on PLR.Id = isc.PackingId
                 left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
 				group by  isc.salesId) BKD on BKD.salesId = s.Id
-Where SCD.SalesChalanId='"+ masterId + "'";
+left join PostSalesInvoice PSI on PSI.SalesId = BKD.SalesId
+left join MST.Addressmaster AM on Am.Id = P.AddressmasterId
+left join scs.District DT on DT.Id = AM.DistrictId
+Where SCD.SalesChalanId='" + masterId + "'";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

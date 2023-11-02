@@ -2174,9 +2174,9 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         location.href = "SalesManagements/Sales/CommercialInvoice?salesId=" + data.Id;
     };
 
-    $scope.SendMailToParty = function (data) {
-        location.href = "SalesManagements/Sales/CommercialInvoice?salesId=" + data.Id;
-    };
+    //$scope.SendMailToParty = function (data) {
+    //    location.href = "SalesManagements/Sales/CommercialInvoice?salesId=" + data.Id;
+    //};
 
     $scope.SendMailToParty = function (args) {
         $http({

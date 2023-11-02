@@ -328,7 +328,6 @@
     <Folder Include="POPResources\EmployeeProfiles\ResignationLetter\" />
     <Folder Include="POPResources\EmployeeProfiles\TrainingDoc\" />
     <Folder Include="POPResources\Expenses\" />
-    <Folder Include="POPResources\GRNDocument\" />
     <Folder Include="POPResources\JobDescriptions\" />
     <Folder Include="POPResources\JobWorkPurchaseOrder\" />
     <Folder Include="POPResources\JWPurchaseOrder\" />
@@ -1817,6 +1816,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
+    <Content Include="Areas\Accounts\Scripts\ExpenseDistributionReportController.js" />
     <Content Include="Areas\Accounts\Scripts\balanceSheetSchedulingController.js" />
     <Content Include="Areas\Accounts\Scripts\fiscalYearClosePostController.js" />
     <Content Include="Areas\Accounts\Scripts\InvestmentSettelmentController.js" />
@@ -4845,6 +4845,7 @@
     <Content Include="Areas\Banks\Views\BankSettlementReco\BankSettlementCustomerReceipt.cshtml" />
     <Content Include="Areas\Banks\Views\BankSettlementReco\BankSettlementJournal.cshtml" />
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\Vehiclereport.cshtml" />
+    <Content Include="Areas\Accounts\Views\EDReport.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

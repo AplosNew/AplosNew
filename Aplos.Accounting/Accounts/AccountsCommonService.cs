@@ -9,10 +9,12 @@ using Library.Model.Banks;
 using Library.Model.Currencies;
 using Library.Model.Employees;
 using Library.Model.Enums;
+using Library.Model.Finances;
 using Library.Model.FixedAssets;
 using Library.Model.Invoices;
 using Library.Model.Organizations;
 using Library.Model.Parties;
+using Library.Model.Payments;
 using Library.Model.Systems;
 using Library.Model.Vouchers;
 using Library.Service.Core;
@@ -347,7 +349,7 @@ namespace Library.Accounting.Accounts
             }
             if (voucher.PostingDate != null)
             {
-                DataTable QryFiscalYearClose = _sqlRepository.GetDataTable("select * from [SCS].[FiscalYearClose] where  CompanyId='" + voucher.CompanyId + "' AND PlantId='" + voucher.PlantId + "' AND FiscalYearId in(select Id from [SCS].[FiscalYear] where '" + voucher.PostingDate.Date + "' between StartDate and EndDate) ");
+                DataTable QryFiscalYearClose = _sqlRepository.GetDataTable("select * from [SCS].[FiscalYearClose] where  VoucherId is not null AND CompanyId='" + voucher.CompanyId + "' AND PlantId='" + voucher.PlantId + "' AND FiscalYearId in(select Id from [SCS].[FiscalYear] where '" + voucher.PostingDate.Date + "' between StartDate and EndDate) ");
                 if (QryFiscalYearClose.Rows.Count > 0)
                     throw new Exception("Fiscal Year already closed!!!");
 
@@ -553,7 +555,29 @@ namespace Library.Accounting.Accounts
             }
             AddNewRow<BankJournalDetail>(dsData.Tables[0], bankJournalDetail);
         }
+       
+        public Dictionary<string, object> GetBankMaster(string bankMasterId)
+        {
 
+            var sql = @"SELECT TOP(1) * FROM [MST].[BankMaster]  
+                        WHERE Id='" + bankMasterId + "'";
+            var bankTemp = _sqlRepository.GetData(sql);
+            if (null == bankTemp || bankTemp.Count == 0)
+                throw new CustomException("Bank Master  not Found!");
+
+            return bankTemp;
+        }
+        public Dictionary<string, object> GetCashMaster(string cashMasterId)
+        {
+
+            var sql = @"SELECT TOP(1) * FROM [MST].[CashMaster]  
+                        WHERE Id='" + cashMasterId + "'";
+            var cashTemp = _sqlRepository.GetData(sql);
+            if (null == cashTemp || cashTemp.Count == 0)
+                throw new CustomException("Cash Master  not Found!");
+
+            return cashTemp;
+        }
         #region Invoice
         public Invoice InsertInvoice(Invoice invoice, out DataSet dsData)
         {
@@ -574,6 +598,84 @@ namespace Library.Accounting.Accounts
 
             return invoice;
         }
+
+        public void UpdateInvoice(Invoice voucherVM, ref DataSet _invoice)
+        {
+
+            if (_invoice == null || _invoice.Tables.Count == 0)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from TRN.Invoice where Id='" + voucherVM.Id + "'", out _invoice);
+
+            }
+
+            EditRow<Invoice>(_invoice.Tables[0].Rows[0], voucherVM);
+        }
+        public void UpdateInvoiceDetail(InvoiceDetail invoiceDetail, ref DataSet _invoiceDetail)
+        {
+            if (_invoiceDetail == null || _invoiceDetail.Tables.Count == 0)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from TRN.InvoiceDetail where Id='" + invoiceDetail.Id + "'", out _invoiceDetail);
+            }
+            EditRow<InvoiceDetail>(_invoiceDetail.Tables[0].Rows[0], invoiceDetail);
+        }
+
+        public InvoiceWriteOff InsertInvoiceWriteOff(InvoiceWriteOff invoiceWriteOff, out DataSet dsData)
+        {
+            if (invoiceWriteOff.PaymentSource == PaymentSource.Bank.ToString())
+                if (string.IsNullOrEmpty(invoiceWriteOff.BankMasterId))
+                    throw new CustomException("Bank Id not found!");
+                else
+                    invoiceWriteOff.CashMasterId = null;
+            else if (invoiceWriteOff.PaymentSource == PaymentSource.Cash.ToString())
+                if (string.IsNullOrEmpty(invoiceWriteOff.CashMasterId))
+                    throw new CustomException("Cash Id not found!");
+                else
+                    invoiceWriteOff.BankMasterId = null;
+
+           
+            //if (voucherVM.SourceType != "CustomerBanksReceipt")
+            //{
+            //    Check(invoiceWriteOff);
+            //}
+            return InsertInvoiceWriteOff(invoiceWriteOff,true, out dsData);
+        }
+        public InvoiceWriteOff InsertInvoiceWriteOff(InvoiceWriteOff invoiceWriteOff,bool flag  ,out DataSet dsData)
+        {
+            invoiceWriteOff.Id = GetAutoNumber(nameof(InvoiceWriteOff), PKGeneratorEnum.Yearly, null, DateTime.Now);
+            invoiceWriteOff.Narration = invoiceWriteOff.Narration?.ToUpper();
+            if (string.IsNullOrEmpty(invoiceWriteOff.AddedBy))
+                AuditService.AddedLog(invoiceWriteOff);
+
+            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+            con.getDataSet("Select * from TRN.InvoiceWriteOff where 1=2", out dsData);
+
+            AddNewRow<InvoiceWriteOff>(dsData.Tables[0], invoiceWriteOff);
+            return invoiceWriteOff;
+        }
+
+        public InvoiceWriteOffDetail InsertInvoiceWriteOffDetail(InvoiceWriteOffDetail invoiceWriteOffDetail,int currentId, out DataSet dsData)
+        {
+            return InsertInvoiceWriteOffDetail(invoiceWriteOffDetail, currentId, true, out dsData);
+        }
+        public InvoiceWriteOffDetail InsertInvoiceWriteOffDetail(InvoiceWriteOffDetail invoiceWriteOffDetail, int currentId, bool flag, out DataSet dsData)
+        {
+            invoiceWriteOffDetail.Id = MakePK(invoiceWriteOffDetail.Id, currentId, 2);
+            invoiceWriteOffDetail.Narration = invoiceWriteOffDetail.Narration?.ToUpper();
+            if (string.IsNullOrEmpty(invoiceWriteOffDetail.AddedBy))
+                AuditService.AddedLog(invoiceWriteOffDetail);
+
+            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+            con.getDataSet("Select * from TRN.InvoiceWriteOffDetail where 1=2", out dsData);
+
+            AddNewRow<InvoiceWriteOffDetail>(dsData.Tables[0], invoiceWriteOffDetail);
+            return invoiceWriteOffDetail;
+        }
+        //private void CheckInvoiceWriteOff(InvoiceWriteOff entity)
+        //{
+        //    CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.Id != entity.Id && r.PartyId == entity.PartyId && r.DocRefNo == entity.DocRefNo);
+        //}
         public InvoiceDetail InsertInvoiceDetail(Invoice invoice, InvoiceDetail invoiceDetail, int currentId, ref DataSet vDetailData)
         {
             invoiceDetail.Id = "IND" + MakePK(invoice.Id, currentId, 1);
@@ -592,6 +694,63 @@ namespace Library.Accounting.Accounts
             AddNewRow<InvoiceDetail>(vDetailData.Tables[0], invoiceDetail);
             return invoiceDetail;
         }
+        public Dictionary<string, object> GetInvoiceDetail(string invoiceDetailId)
+        {
+            var sql = @"SELECT TOP(1) * FROM TRN.InvoiceDetail  WHERE  Id='" + invoiceDetailId + "'";
+            var gainTemp = _sqlRepository.GetData(sql);
+
+            if (null == sql || gainTemp.Count == 0)
+                throw new CustomException("Invoice Detail not found!.");
+            return gainTemp;
+        }
+        public Dictionary<string, object> GetInvoice(string invoiceId)
+        {
+            var sql = @"SELECT TOP(1) * FROM TRN.Invoice  WHERE  Id='" + invoiceId + "'";
+            var gainTemp = _sqlRepository.GetData(sql);
+
+            if (null == sql || gainTemp.Count == 0)
+                throw new CustomException("Invoice  not found!.");
+            return gainTemp;
+        }
+
+        public Dictionary<string, object> GetRoundingGL(string companyId)
+        {
+            var sql = @"SELECT TOP(1) FTGL.* FROM [HKP].[FinancingTypeGL] AS FTGL
+                        INNER JOIN [ORG].[Company] AS C ON C.COAId=FTGL.COAId
+                        LEFT JOIN [HKP].[FinancingType] AS FT ON FT.Id=FTGL.FinancingTypeId
+                        WHERE C.Id='" + companyId + "' AND FT.SourceType='" + FinancingTypeEnum.Rounding + "'";
+            var gainTemp = _sqlRepository.GetData(sql);
+
+            if (null == gainTemp)
+                throw new CustomException("This Transaction Type GL not Found!");
+          
+            return gainTemp;
+        }
+
+        public Dictionary<string, object> GetExchangeGainGL(FinancingTypeEnum sourceType)
+        {
+            var st = sourceType.ToString();
+            var sql = @"SELECT TOP(1) * FROM SCS.ExchangeGainLossGL 
+                        WHERE  SourceType='" + st + "' and ExchangeStatus='ExchangeGain'";
+            var gainTemp = _sqlRepository.GetData(sql);
+
+            if (null == sql || gainTemp.Count == 0)
+                throw new CustomException("Exchange Gain GL not found!.");
+            return gainTemp;
+        }
+
+        public Dictionary<string, object> GetExchangeLossGL(FinancingTypeEnum sourceType)
+        {
+            var st = sourceType.ToString();
+            var sql = @"SELECT TOP(1) * FROM SCS.ExchangeGainLossGL 
+                        WHERE  SourceType='" + st + "' and ExchangeStatus='ExchangeLoss'";
+            var gainTemp = _sqlRepository.GetData(sql);
+
+            if (null == sql || gainTemp.Count == 0)
+                throw new CustomException("Exchange Loss GL not found!.");
+            return gainTemp;
+        }
+
         public void InsertAdvanceReqSchedule(AdvanceReqSchedule financingSchedule, string requisitionId, ref DataSet dsData)
         {
             financingSchedule.Id = MakePK(requisitionId, financingSchedule.InstallmentNo, 3);

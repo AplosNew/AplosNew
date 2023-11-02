@@ -659,6 +659,7 @@ namespace Library.Service.Vouchers
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
+                string tempVoucherDetailId=null;
                 voucherVM.SourceType = SourceType.BankJournal.ToString();
 
                 var bankJournal = InsertBankJournal(new BankJournal
@@ -726,7 +727,7 @@ namespace Library.Service.Vouchers
                     PartyType = bankJournal.PaymentSource,
                     TrnNature = TransactionNature.Bank.ToString()
                 }, currentVoucherDetailId);
-
+                tempVoucherDetailId = voucherDetail.Id;
                 if (bankJournal.BankJournalType == BankJournalType.BankToGL.ToString())
                 {
                     voucherDetail.DrAmount = 0;
@@ -827,11 +828,11 @@ namespace Library.Service.Vouchers
                     {
                         Id = GetAutoNumber(nameof(BankReconciliationMap), PKGeneratorEnum.Yearly, null, DateTime.Now),
                         BankReconciliationUploadedDataId = voucherVM.BankReconciliationUploadedDataId,
-                        VoucherDetailId = voucherDetail.Id,
-                        GLTransactionDetailId = voucherDetail.Id,
-                        AddedBy= voucherDetail.AddedBy,
-                        AddedDate= voucherDetail.AddedDate,
-                        AddedFromIP=voucherDetail.AddedFromIP
+                        VoucherDetailId = tempVoucherDetailId,
+                        GLTransactionDetailId = tempVoucherDetailId,
+                        AddedBy= voucher.AddedBy,
+                        AddedDate= voucher.AddedDate,
+                        AddedFromIP=voucher.AddedFromIP
                     };
                     _bankReconciliationMapRepository.Insert(bankReconciliationMap);
                 }

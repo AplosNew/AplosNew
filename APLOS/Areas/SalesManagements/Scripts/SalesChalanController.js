@@ -1,6 +1,6 @@
 ﻿'use strict';
-SalesChalanController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function SalesChalanController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+SalesChalanController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$window'];
+function SalesChalanController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Sales Chalan';
     $scope.Action = 'Save';
     $scope.ModelList = [];
@@ -26,14 +26,15 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.ModelTemp = {
         Id: null,
         VechileNo: null,
-        ByWhomId: null,
+        ByWhom: $window.employeeName,
+        ByWhomId: $window.employeeId,
         MobileNo: null,
         SecurityInChargeId: null,
         ResponsiblePersonId: null,
         CheckById: null,
         ApproveById: null,
         UserRef: null,
-        Destination: null,
+        DestinationId: null,
         FromDate: null,
         ToDate: null,
         Remark: null,
@@ -45,6 +46,7 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
         UpdatedFromIP: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+    console.log($scope.ModelNew);
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
@@ -66,6 +68,18 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
         });
     }
 
+
+    $scope.vehicleNoList = [];
+    $scope.GetVehicleNoCbo = function () {
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.FromDate) && !baseService.isUndefinedOrNull($scope.ModelNew.ToDate)) {
+            $http({
+                method: 'GET',
+                url: 'SalesManagements/SalesChalan/GetVehicleNoCbo?fromDate=' + $scope.ModelNew.FromDate + '&toDate=' + $scope.ModelNew.ToDate
+            }).then(function successCallback(response) {
+                $scope.vehicleNoList = response.data;
+            });
+        }
+    }
 
     $scope.popUpDataList = [];
     $scope.name = null;
@@ -137,16 +151,36 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
 
     $scope.searchdata = [];
     $scope.GetInvoiceData = function () {
-        $scope.searchdata = [];
-        $http({
-            method: 'GET',
-            url: 'SalesManagements/SalesChalan/GetInvoiceData?fromDate=' + $scope.ModelNew.FromDate + '&toDate=' + $scope.ModelNew.ToDate
-        }).then(function successCallback(response) {
-            $scope.searchdata = response.data;
-            $scope.ShowResultCustom();
-        });
+        try {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.FromDate)) {
+                throw "From Date is required.";
+            }
+            if (baseService.isUndefinedOrNull($scope.ModelNew.ToDate)) {
+                throw "To Date is required.";
+            }
+            if (new Date($scope.ModelNew.FromDate) > new Date($scope.ModelNew.ToDate)) {
+                throw "From date must be below or equal to To Date";
+            }
+            if (new Date($scope.ModelNew.ToDate) < new Date($scope.ModelNew.FromDate)) {
+                throw "To date must be above or equal to From Date.";
+            }
+
+            if (baseService.isUndefinedOrNull($scope.ModelNew.VechileNo)) {
+                throw "VechileNo is required.";
+            }
+            $scope.searchdata = [];
+            $http({
+                method: 'GET',
+                url: 'SalesManagements/SalesChalan/GetInvoiceData?fromDate=' + $scope.ModelNew.FromDate + '&toDate=' + $scope.ModelNew.ToDate + '&vehicleno=' + $scope.ModelNew.VechileNo
+            }).then(function successCallback(response) {
+                $scope.searchdata = response.data;
+                $scope.ShowResultCustom();
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
-  
+
 
     $scope.ShowResultCustom = function (message, type) {
         $("#InvoicePoUp").ejDialog("setTitle", "Invoice Info");
@@ -190,7 +224,7 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
                     ob.Id = null;
                     ob.InvoiceId = $scope.searchdata[i].InvoiceId;
                     ob.Customer = $scope.searchdata[i].Customer;
-                    ob.Date = $scope.searchdata[i].Date;
+                    ob.InvoiceDate = $scope.searchdata[i].InvoiceDate;
                     ob.NoOfPackage = $scope.searchdata[i].NoOfPackage;
                     ob.NetWeight = $scope.searchdata[i].NetWeight;
                     ob.GrossWeight = $scope.searchdata[i].GrossWeight;
@@ -222,10 +256,11 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
             ShowResult(e, 'failure');
         }
     }
-
+    $scope.btndisable = false;
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
+            $scope.btndisable = true;
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -233,10 +268,12 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
+                    $scope.btndisable = false;
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.btndisable = false;
                     ClearFields();
                     $scope.getData();
 

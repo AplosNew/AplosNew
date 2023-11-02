@@ -802,7 +802,13 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         $scope.chargesList = [];
         $scope.grossTotal = 0;
         baseService.removeErrorClasses();
+        $scope.productDocMap = {
+            UserFilename: null
+            , Description: null
+            , Remarks: null
+        };
 
+        $scope.Imagedata = [];
     }
     $scope.changeAllInvoice = function () {
         $scope.productNew.InvoiceNo = null;
@@ -4254,48 +4260,50 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 return false;
             }
         }
+        if (angular.isUndefinedOrNull($scope.productNew.Id))
+            ShowResult('Please select/save PO first', 'Error');
+        else {
+            try {
 
-        try {
+                var formData = new FormData();
 
-            var formData = new FormData();
-
-            $http({
-                method: "POST",
-                url: 'Products/InventoryReceive/GRNDocCreate',
-                headers: { 'Content-Type': undefined },
-                transformRequest: function (data) {
-                    formData.append("GRNDocumentMap", angular.toJson($scope.productDocMap));
-                    if (baseService.isUndefinedOrNull($scope.filedata) === false) {
-                        formData.append('file', data.file);
+                $http({
+                    method: "POST",
+                    url: 'Products/InventoryReceive/GRNDocCreate',
+                    headers: { 'Content-Type': undefined },
+                    transformRequest: function (data) {
+                        formData.append("GRNDocumentMap", angular.toJson($scope.productDocMap));
+                        if (baseService.isUndefinedOrNull($scope.filedata) === false) {
+                            formData.append('file', data.file);
+                        }
+                        return formData;
+                    },
+                    data: {
+                        "GRNDocumentMap": $scope.productDocMap,
+                        "file": $scope.filedata,
+                        "POId": $scope.productNew.Id,
+                    },
+                    dataType: "JSON"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
                     }
-                    return formData;
-                },
-                data: {
-                    "GRNDocumentMap": $scope.productDocMap,
-                    "file": $scope.filedata,
-                    "POId": $scope.productNew.Id,
-                },
-                dataType: "JSON"
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, "failure");
-                }
-                else {
-                    ShowResult(response.data.Message, "success");
-                    $scope.ImagedataLoad();
-                    $scope.productDocMap.UserFilename = "";
-                    $scope.productDocMap.Description = "";
-                    $scope.productDocMap.Remarks = "";
-                }
-            }, function errorCallback(response) {
-                ShowResult(response.status.Message, "failure");
-            });
-            return true;
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        $scope.ImagedataLoad();
+                        $scope.productDocMap.UserFilename = "";
+                        $scope.productDocMap.Description = "";
+                        $scope.productDocMap.Remarks = "";
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, "failure");
+                });
+                return true;
 
-        } catch (e) {
-            throw ShowResult(e, "failure");
+            } catch (e) {
+                throw ShowResult(e, "failure");
+            }
         }
-
         return true;
     };
     $scope.Imagedata = [];
@@ -4577,29 +4585,4 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
     };
 
-    //#region File Upload
-    $scope.onBeginUpload = function (args) {
-        try {
-            if (angular.isUndefinedOrNull($scope.productNew.Id))
-                throw 'Please select/save the GRN first'
-
-            args.data = $scope.productNew.Id;
-        } catch (e) {
-
-            args.cancel = true;
-            ShowResult(e, 'Error');
-        }
-
-    }
-    $scope.fileselect = function (e) {
-
-    }
-    $scope.uploadUrl = "Products/GoodsReceiveNote/SaveDefault";
-    $scope.errorPicUpload = function (e) {
-        if (angular.isUndefinedOrNull($scope.productNew.Id))
-            ShowResult('Please select/save the production order first', 'Error');
-        else
-        ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.files.size / (1024 * 1024)) + "MB", 'failure');
-    }
-    //#endregion File Upload
 }

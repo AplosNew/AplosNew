@@ -98,6 +98,7 @@ function bankSettlementCustomerReceiptController(bankService, cboService, common
             $scope.voucher.GLGeneralInfoId = $scope.bankUploadInfoList[0].GLGeneralInfoId;
             $scope.voucher.BudgetMasterId = $scope.bankUploadInfoList[0].BudgetMasterId;
             $scope.voucher.ActivityId = $scope.bankUploadInfoList[0].ActivityId;
+            $scope.voucher.CurrencyId = $scope.bankUploadInfoList[0].CurrencyId;
             $scope.voucher.BankReferenceNo = $scope.bankUploadInfoList[0].BankRefNo;
             $scope.voucher.BankMasterId = $scope.bankUploadInfoList[0].BankMasterId;
             $scope.voucher.PostingDate = $filter("dateFiltering")($scope.bankUploadInfoList[0].PostingDate);
@@ -552,7 +553,7 @@ function bankSettlementCustomerReceiptController(bankService, cboService, common
                 var getRow = null;
                 getRow = $filter("filter")($scope.voucherDetailList, { "TrnType": "Dr", "DocRefNo": data.DocRefNo, "InvoiceDetailId": data.InvoiceDetailId });
                 if (getRow.length === 0) {
-                    data.Amount = data.Balance;
+                    data.Amount = $scope.voucher.Amount;
                     $scope.voucherDetailList.push(data);
                     if ($scope.voucher.CompanyCurrencyRate > 0) {
 

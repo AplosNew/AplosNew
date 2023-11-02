@@ -6,7 +6,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="From Date" ng-model="ModelNew.FromDate" datepicker class="form-control" required tabindex="1">
+                <input type="text" name="From Date" ng-model="ModelNew.FromDate" datepicker class="form-control" required tabindex="1" ng-change="GetVehicleNoCbo();">
             </div>
         </div>
         <div class="form-group" show-errors>
@@ -22,17 +22,17 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-4 control-label" title="By Whom">By Whom<sup>*</sup> </label>
+            <label class="col-sm-4 control-label" title="By Whom">By Whom</label>
             <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
                 <input type="text" ng-model="ModelNew.ByWhom" class="form-control" readonly>
-                <span class="input-group-btn">
+                @*<span class="input-group-btn">
                     <button ng-click="popUp('ByWhom')" tabindex="20" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                     <button ng-click="clearEmpPop('ByWhom')" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                </span>
+                </span>*@
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-4 control-label" title="SecurityInCharge">Security InCharge<sup>*</sup> </label>
+            <label class="col-sm-4 control-label" title="SecurityInCharge">Security InCharge</label>
             <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
                 <input type="text" ng-model="ModelNew.SecurityInCharge" class="form-control" readonly>
                 <span class="input-group-btn">
@@ -54,25 +54,25 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="To Date" ng-model="ModelNew.ToDate" datepicker class="form-control" required tabindex="1">
+                <input type="text" name="To Date" ng-model="ModelNew.ToDate" datepicker class="form-control" required tabindex="1" ng-change="GetVehicleNoCbo();">
             </div>
         </div>
 
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">VechileNo<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Vechile No<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="VechileNo" ng-model="ModelNew.VechileNo" class="form-control" required tabindex="2" maxlength="10">
+                @*<div class="select-style">
+            <select name="VechileNo" class="form-control" ng-model="ModelNew.VechileNo" ng-options="item.Value as item.Text for item in vehicleNoList" tabindex="13" required>
+                <option value=""></option>
+            </select>
+        </div>*@
+                <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="vehicleNoList" e-value="ModelNew.VechileNo" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
             </div>
         </div>
 
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Destination<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Destination" ng-model="ModelNew.Destination" class="form-control" maxlength="50" tabindex="2" required>
-            </div>
-        </div>
+        
         <div class="form-group">
-            <label class="col-sm-4 control-label" title="ResponsiblePerson">Responsible Person<sup>*</sup> </label>
+            <label class="col-sm-4 control-label" title="ResponsiblePerson">Responsible Person</label>
             <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
                 <input type="text" ng-model="ModelNew.ResponsiblePerson" class="form-control" readonly>
                 <span class="input-group-btn">
@@ -82,7 +82,7 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-4 control-label" title="CheckBy">CheckBy<sup>*</sup> </label>
+            <label class="col-sm-4 control-label" title="CheckBy">CheckBy</label>
             <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
                 <input type="text" ng-model="ModelNew.CheckBy" class="form-control" readonly>
                 <span class="input-group-btn">
@@ -92,7 +92,7 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-4 control-label" title="ApproveBy">ApproveBy<sup>*</sup> </label>
+            <label class="col-sm-4 control-label" title="ApproveBy">ApproveBy</label>
             <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
                 <input type="text" ng-model="ModelNew.ApproveBy" class="form-control" readonly>
                 <span class="input-group-btn">
@@ -112,10 +112,11 @@
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12" ng-show="InvoiceNoList.length>0">
         <div id="GridInvoiceNo" ej-grid e-datasource="InvoiceNoList"
-             e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="false"
+             e-gridlines="vertical" e-allowpaging="true" e-allowsorting="false"
              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-allowResizing="true">
             <div e-columns>
                 <div e-column e-field="InvoiceId" e-headertext="InvoiceNo" e-width="40"></div>
+                <div e-column e-field="InvoiceDate" e-headertext="InvoiceDate" e-width="60"></div>
                 <div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
                 <div e-column e-field="NoOfPackage" e-headertext="NoOfPackage" e-width="80"></div>
                 <div e-column e-field="NetWeight" e-headertext="NetWeight" e-width="80"></div>
@@ -129,8 +130,8 @@
 
     <div class="common-btn">
         <ul class="list-inline text-right">
-            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="Save();"ng-disabled="btndisable" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
             <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
@@ -162,9 +163,9 @@
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+            <div e-column e-field="UserRef" e-headertext="UserRef" e-width="5"></div>
             <div e-column e-field="VechileNo" e-headertext="VechileNo" e-width="2"></div>
             <div e-column e-field="MobileNo" e-headertext="MobileNo" e-width="3"></div>
-            <div e-column e-field="UserRef" e-headertext="UserRef" e-width="5"></div>
             <div e-column e-field="ByWhom" e-headertext="ByWhom" e-width="5"></div>
             <div e-column e-field="SecurityInCharge" e-headertext="SecurityInCharge" e-width="5"></div>
             <div e-column e-field="ResponsiblePerson" e-headertext="ResponsiblePerson" e-width="5"></div>
@@ -216,16 +217,15 @@
                 <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
 
                 <div e-column e-field="InvoiceId" e-headertext="InvoiceNo" e-width="80"></div>
+                <div e-column e-field="InvoiceDate" e-headertext="InvoiceDate" e-width="60"></div>
                 <div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
                 <div e-column e-field="NoOfPackage" e-headertext="NoOfPackage" e-width="80"></div>
                 <div e-column e-field="NetWeight" e-headertext="NetWeight" e-width="80"></div>
                 <div e-column e-field="GrossWeight" e-headertext="GrossWeight" e-width="80"></div>
-                <div e-column e-template="#Destination" e-headertext="Destination" e-width="100"></div>
+                <div e-column e-field="Destination" e-headertext="Destination" e-width="100"></div>
                 <div e-column e-template="#Remarks" e-headertext="Remark" e-width="140"></div>
             </div>
-            <script type="text/template" id="Destination">
-                <input type="text" name="Destination" ng-model="data.Destination" class="form-control" tabindex="2" maxlength="10">
-            </script>
+            
             <script type="text/template" id="Remarks">
                 <textarea class="form-control" rows="1" ng-model="data.Remark" tabindex="2" maxlength="250"></textarea>
             </script>

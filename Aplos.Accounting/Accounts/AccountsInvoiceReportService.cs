@@ -1379,7 +1379,7 @@ namespace Library.Accounting.Accounts
                 sheet.Range[row, 1].ColumnWidth = 15;
                 reportUtility.SetText(ref sheet, row, 2, header.Rows[h]["VoucherNo"].ToString());
                 sheet.Range[row, 2].ColumnWidth = 30;
-                reportUtility.SetMasterHeaderText(ref sheet, row, 3, "Voucher Date");                
+                reportUtility.SetMasterHeaderText(ref sheet, row, 3, "Voucher Date");
                 reportUtility.SetText(ref sheet, row, 4, header.Rows[h]["VoucherDate"].ToString());
                 row++;
 
@@ -1408,7 +1408,7 @@ namespace Library.Accounting.Accounts
                 reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Narration");
                 reportUtility.SetText(ref sheet, row, 2, header.Rows[h]["Narration"].ToString());
                 sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
-                row ++;
+                row++;
 
                 if (companyCurrencyId == transcationCurrency)
                 {
@@ -1554,7 +1554,7 @@ namespace Library.Accounting.Accounts
                     sheet.Range[13, 1, row - 1, colLast].BorderInside(ExcelLineStyle.Hair);
                     sheet.Range[13, 1, row - 1, colLast].BorderAround(ExcelLineStyle.Hair);
 
-                    row ++;
+                    row++;
                     reportUtility.SetText(ref sheet, row, 1, "In Word:", true);
 
                     if (companyCurrencyId != transcationCurrency && GetPlantIsShowFCInWord(plantId))
@@ -1589,8 +1589,8 @@ namespace Library.Accounting.Accounts
                     #region ReportHeader 
                     sheet.UsedRange.WrapText = true;
                     sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                    sheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;  
-                     
+                    sheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
                     sheet.PageSetup.TopMargin = 0.2;
                     sheet.PageSetup.BottomMargin = 0.8;
                     sheet.PageSetup.LeftMargin = 0.2;
@@ -1606,19 +1606,19 @@ namespace Library.Accounting.Accounts
                     reportUtility.PageSetup(ref sheet, 5, ExcelPageOrientation.Portrait);
                 }
             }
-                reportUtility.SetSignatureText(ref sheet, row - 1, 1, header.Rows[0]["AddedBy"].ToString());
-                sheet.Range[row, 1].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                reportUtility.SetTextMiddle(ref sheet, row, 1, "Prepared By", true);
+            reportUtility.SetSignatureText(ref sheet, row - 1, 1, header.Rows[0]["AddedBy"].ToString());
+            sheet.Range[row, 1].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+            reportUtility.SetTextMiddle(ref sheet, row, 1, "Prepared By", true);
 
-                reportUtility.SetSignatureText(ref sheet, row - 1, 2, header.Rows[0]["PostedBy"].ToString());
-                sheet.Range[row, 2].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                reportUtility.SetTextMiddle(ref sheet, row, 2, "Checked By", true);
+            reportUtility.SetSignatureText(ref sheet, row - 1, 2, header.Rows[0]["PostedBy"].ToString());
+            sheet.Range[row, 2].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+            reportUtility.SetTextMiddle(ref sheet, row, 2, "Checked By", true);
 
-                sheet.Range[row, 4].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                reportUtility.SetTextMiddle(ref sheet, row, 4, "Authorized By", true);
+            sheet.Range[row, 4].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+            reportUtility.SetTextMiddle(ref sheet, row, 4, "Authorized By", true);
 
-                reportUtility.CompanyPlantHeader(ref sheet, colLast, header.Rows[0]["VoucherTypeName"].ToString(), companyId, plantId, plantName, null);
-                reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
+            reportUtility.CompanyPlantHeader(ref sheet, colLast, header.Rows[0]["VoucherTypeName"].ToString(), companyId, plantId, plantName, null);
+            reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
 
 
             return workbook;
@@ -2037,6 +2037,65 @@ namespace Library.Accounting.Accounts
             }
 
             return workbook;
+        }
+
+        public IEnumerable<object> GetExpenseDistributionSql(string fromDate, string toDate)
+        {
+            try
+            {
+                var _sql = @"select   InvoceNo,InvoiceDate,Customer,CustomerPlant 
+                            ,Activity ,ISNULL(DistributedAmount,0) DistributedAmount,ISNULL(DistributedAmount,0) GrossTotal --,CompanyCurrencyDrAmount,DrAmount
+                        into #tempOT from
+                        (
+                            SELECT GL.Id AS AccountCodeId, VD.DrAmount AS DrAmount, VD.CrAmount AS CrAmount, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+                            , VD.GLGeneralInfoId, GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode, P.UserName AS Customer, PP.UserName AS CustomerPlant
+							,PV.UserName Vendor,PPV.UserName VendorPlant,  BUD.UserName AS Budget
+                            ,Activity=ISNULL(ACT.UserName,'')
+                            ,ID.InvoiceType,ISNULL(ID.DistributedAmount,0) DistributedAmount,IV.Id AS InvoiceId,IV.DocRefNo InvoceNo,ID.Amount,V.VoucherNo,V.DocRefNo,V.DocDate InvoiceDate,V.PostingDate,vd.VoucherId
+                             FROM TRN.InvoiceDetailCharges ID
+                            JOIN [TRN].[VoucherDetail] AS VD ON VD.Id=ID.VoucherDetailId
+							JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=ID.VoucherDetailId
+                            JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                             JOIN [TRN].[Invoice] AS IV ON IV.Id=ID.InvoiceId
+                            LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+                            LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+							LEFT JOIN [TRN].[Invoice] AS VIV ON VIV.VoucherId=V.Id
+							LEFT JOIN [HKP].[Party] AS PV ON PV.Id=VIV.PartyId
+                            LEFT JOIN [HKP].[PartyPlant] AS PPV ON PPV.Id=VIV.PartyPlantId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON GL.Id=VD.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] BUM ON VD.BudgetMasterId=BUM.Id
+                            LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id=BUM.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS ACT ON ACT.Id=VD.ActivityId
+                            LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId
+                            LEFT JOIN [MST].[BankMaster] AS BNM ON BNM.Id=VD.BankMasterId
+                            WHERE V.Archive=0  AND ID.InvoiceType='OutboundInvoice' --and id.VoucherDetailId='2022299640001'
+							AND convert(Date,V.PostingDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
+							--AND V.Id='202319446'
+							--ORDER BY VD.DrAmount DESC
+							)B
+							DECLARE @sql nvarchar(max), @col nvarchar(max)
+                            SELECT @col = (
+                                SELECT DISTINCT ','+QUOTENAME(REPLACE(CONVERT(VARCHAR(40), Activity, 113), '-', '-'))
+                                FROM #tempOT 
+                                FOR XML PATH ('')
+                            ) 
+							SELECT @sql = N'
+                            (SELECT *
+                            FROM #tempOT
+                            PIVOT (
+                                MAX([DistributedAmount]) FOR [Activity] IN ('+STUFF(@col,1,1,'')+')
+                            ) as pvt)' 
+                            EXEC sp_executesql @sql
+                            drop table #tempOT";
+
+                return _sqlRepository.GetDataCollection(_sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
         }
 
         #endregion vendor charge set-off

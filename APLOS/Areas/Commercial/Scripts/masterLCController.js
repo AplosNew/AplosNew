@@ -547,7 +547,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
 
     $scope.SaveRowData = function (obj) {
         try {
-            if (obj.data.OriginUserName !== obj.data.UserName) {
+            if (obj.data.OriginUserName !== obj.data.UserName && baseService.isUndefinedOrNull(obj.data.Remarks)) {
                 throw "Remarks is mandatory.";
             }
             $http({
