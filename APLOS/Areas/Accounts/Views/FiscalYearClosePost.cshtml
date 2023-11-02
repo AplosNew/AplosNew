@@ -172,7 +172,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="x in capitalizationJVList| orderBy:'Dr'">
+                            <tr ng-repeat="x in fiscalYearCloseJVList| orderBy:'Dr'">
                                 <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
                                 <td>{{x.BudgetName}}</td>
                                 <td>{{x.ActivityName}}</td>
@@ -181,8 +181,8 @@
                             </tr>
                             <tr>
                                 <td colspan="3"></td>
-                                <td class="text-right"><strong>{{capitalizationJVList | sumByKey : 'Dr' | number| setDecimal:2}}</strong></td>
-                                <td class="text-right"><strong>{{capitalizationJVList | sumByKey : 'Cr' | number| setDecimal:2}}</strong></td>
+                                <td class="text-right"><strong>{{fiscalYearCloseJVList | sumByKey : 'Dr' | number| setDecimal:2}}</strong></td>
+                                <td class="text-right"><strong>{{fiscalYearCloseJVList | sumByKey : 'Cr' | number| setDecimal:2}}</strong></td>
                             </tr>
                         </tbody>
                     </table>
@@ -270,7 +270,7 @@
                             <div e-column e-field="FiscalYearName" e-headertext="Fiscal Year" e-width="80"></div>
                             <div e-column e-field="CompanyName" e-headertext="Company" e-width="80"></div>
                             <div e-column e-field="PlantName" e-headertext="Plant" e-width="80"></div>
-                            <div e-column e-field="Amount" e-headertext="Amount" e-width="60" e-type="numeric" e-format="{0:0.00}" e-textalign="right"></div>
+                            @*<div e-column e-field="Amount" e-headertext="Amount" e-width="60" e-type="numeric" e-format="{0:0.00}" e-textalign="right"></div>*@
                         </div>
                     </div>
                 </div>

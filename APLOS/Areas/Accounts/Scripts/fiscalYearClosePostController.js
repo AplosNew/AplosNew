@@ -57,9 +57,7 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
 
     $scope.fiscalYearClose = {
         Id: null,
-        FixedAssetItemId: null,
-        Qty: null,
-        TotalAmount: null
+        Amount: null
     };
 
     $scope.masterList = [];
@@ -80,19 +78,6 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
         angular.element(document.querySelector('#FiscalYearClosepopUp')).modal('hide');
     }
 
-    $scope.selectedmaterialMasterList = [];
-    $scope.GetFiscalYearCloseMasterDetail = function () {
-        $scope.selectedmaterialMasterList = [];
-        $http.get("fixedassets/fixedassetregister/GetFiscalYearCloseMasterDetail?masterId=" + $scope.voucher.FiscalYearCloseMasterId)
-            .then(
-                function successCallback(response) {
-                    $scope.selectedmaterialMasterList = response.data;
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
-    };
-
     $scope.SelectMaster = function (x) {
         var data = x.data;
         $scope.voucher.FiscalYearCloseId = data.Id;
@@ -104,7 +89,7 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
         $scope.fiscalYearClose.Id = data.Id;
         $scope.fiscalYearClose.Amount = data.Amount;
         
-        //$scope.getFiscalYearCloseJV(data.Id);
+        $scope.getFiscalYearCloseJV(data.Id);
 
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -115,7 +100,7 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
     $scope.fiscalYearCloseJVList = [];
     $scope.getFiscalYearCloseJV = function (Id) {
         $scope.fiscalYearCloseJVList = [];
-        $scope.jvurl = 'FixedAssets/FixedAssetRegister/GetFiscalYearCloseSingleJVListFromAssetRegister?fiscalYearCloseId=' + Id
+        $scope.jvurl = 'accounts/FiscalYearClose/GetFiscalYearCloseSingleJVList?fiscalYearCloseId=' + Id
         $http({
             method: 'Post'
             , url: $scope.jvurl
@@ -221,10 +206,9 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucher.FiscalYearCloseId = null;
         $scope.voucher.Amount = null;
-        $scope.voucher.FixedAssetItem = null;
-        $scope.voucher.Qty = null;
-        $scope.voucher.FiscalYearCloseDate = null;
-        $scope.selectedmaterialMasterList = [];
+        $scope.voucher.FiscalYearName = null;
+        $scope.voucher.CompanyName = null;
+        $scope.voucher.PlantName = null;
         $scope.fiscalYearCloseJVList = [];
 
         $scope.fiscalYearClose.Id = null;
@@ -234,7 +218,7 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
 
     $scope.Post = function () {
         if ($scope.form0.$valid) {
-            $scope.SaveUrl = "accounts/FiscalYearClose/CreatetCapitalizeAssetRegisterPost"
+            $scope.SaveUrl = "accounts/FiscalYearClose/CreatetFiscalYearClosePost"
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
@@ -266,7 +250,7 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
     $scope.onClickReportDownloadExcel = function (args) {
         var reportFormat = "Excel";
         try {
-            var file_src = $scope.path + 'CapitalizeAssetRegisterPostReport?reportFormat=' + reportFormat + '&voucherId=' + args.Id
+            var file_src = $scope.path + 'FiscalYearClosePostVoucherReport?reportFormat=' + reportFormat + '&voucherId=' + args.Id
             $rootScope.report(file_src);
         } catch (e) {
 
@@ -277,7 +261,7 @@ function fiscalYearClosePostController(addressService, commonMessage, $scope, $r
         var reportFormat = "Pdf";
         if (baseService.isUndefinedOrNull(args.Id)) return ShowResult('No Id found', 'failure');
         try {
-            var file_src = $scope.path + 'CapitalizeAssetRegisterPostReport?reportFormat=' + reportFormat + '&voucherId=' + args.Id
+            var file_src = $scope.path + 'FiscalYearClosePostVoucherReport?reportFormat=' + reportFormat + '&voucherId=' + args.Id
             $rootScope.report(file_src);
         } catch (e) {
 

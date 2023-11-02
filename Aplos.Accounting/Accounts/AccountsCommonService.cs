@@ -349,7 +349,7 @@ namespace Library.Accounting.Accounts
             }
             if (voucher.PostingDate != null)
             {
-                DataTable QryFiscalYearClose = _sqlRepository.GetDataTable("select * from [SCS].[FiscalYearClose] where  CompanyId='" + voucher.CompanyId + "' AND PlantId='" + voucher.PlantId + "' AND FiscalYearId in(select Id from [SCS].[FiscalYear] where '" + voucher.PostingDate.Date + "' between StartDate and EndDate) ");
+                DataTable QryFiscalYearClose = _sqlRepository.GetDataTable("select * from [SCS].[FiscalYearClose] where  VoucherId is not null AND CompanyId='" + voucher.CompanyId + "' AND PlantId='" + voucher.PlantId + "' AND FiscalYearId in(select Id from [SCS].[FiscalYear] where '" + voucher.PostingDate.Date + "' between StartDate and EndDate) ");
                 if (QryFiscalYearClose.Rows.Count > 0)
                     throw new Exception("Fiscal Year already closed!!!");
 

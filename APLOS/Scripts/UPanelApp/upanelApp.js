@@ -1231,6 +1231,7 @@ upanelApp.controller("LotControlController", LotControlController)
 upanelApp.controller("VehicleReportController", VehicleReportController)
 upanelApp.controller("DailyQualityStatusReportController", DailyQualityStatusReportController)
 upanelApp.controller("SalesChalanController", SalesChalanController)
+upanelApp.controller("ExpenseDistributionReportController", ExpenseDistributionReportController)
 
 
 
