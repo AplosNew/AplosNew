@@ -2044,7 +2044,7 @@ namespace Library.Accounting.Accounts
             try
             {
                 var _sql = @"select   InvoceNo,InvoiceDate,Customer,CustomerPlant 
-                            ,Activity ,ISNULL(DistributedAmount,0) DistributedAmount --,CompanyCurrencyDrAmount,DrAmount
+                            ,Activity ,ISNULL(DistributedAmount,0) DistributedAmount,ISNULL(DistributedAmount,0) GrossTotal --,CompanyCurrencyDrAmount,DrAmount
                         into #tempOT from
                         (
                             SELECT GL.Id AS AccountCodeId, VD.DrAmount AS DrAmount, VD.CrAmount AS CrAmount, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
