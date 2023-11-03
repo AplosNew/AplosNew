@@ -1119,7 +1119,8 @@ namespace Library.OrderManagement.Production
                                                                  LEFT JOIN MST.MaterialMasterArticle AS mma on mma.Id=MOI.ArticleId
                                                                  WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
                                    --PRS.LotNumber
-                                   PLC.UserLotNo LotNumber,PO.IsPreDefineLotApplicable,(Case when PO.IsPreDefineLotApplicable = 1 then 'Yes' else 'No' end) LotPrefefined,
+                                   (Case when PO.IsPreDefineLotApplicable = 1 then PLC.UserLotNo else PRS.LotNumber end)  LotNumber,
+                                   PO.IsPreDefineLotApplicable,(Case when PO.IsPreDefineLotApplicable = 1 then 'Yes' else 'No' end) LotPrefefined,
                                    isnull(CEILING(PLC.ProcessPlanQty),0) LotProcessPlanQty
                                    --,PRS.ResponsiblePerson
 								   FROM TRN.ProductionOrder PO 
@@ -1130,7 +1131,7 @@ namespace Library.OrderManagement.Production
 								  LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID=PO.Id
 								  LEFT JOIN 
 								  (    SELECT SUM(PS.Quantity) TotalProductionQty,PS.ProductionOrderId
-                                      --,PS.LotNumber
+                                      ,PS.LotNumber
                                        --,(select EmployeeName from EmployeeInformation where SystemId=PS.ResponsiblePersonId) as ResponsiblePerson
                                        FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"' GROUP BY PS.ProductionOrderId,PS.LotNumber
                                        --,PS.ResponsiblePersonId
