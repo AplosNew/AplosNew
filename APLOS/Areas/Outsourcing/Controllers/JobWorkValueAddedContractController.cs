@@ -2143,25 +2143,19 @@ namespace Aplos.Areas.Outsourcing.Controllers
         }
 
         private IWorkbook GetContractReportWorkSheet(string PrintTabId)
-        {
-
+        { 
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
-            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            var workbook = report.GetWorkbook(ref excelEngine, 1);
             workbook.Version = ExcelVersion.Excel2016;
 
-            var sheet = workbook.Worksheets[0];
-            //var sheet1 = workbook.Worksheets[1];
-            //var sheet2 = workbook.Worksheets[2];
-
+            var sheet = workbook.Worksheets[0]; 
             sheet.Name = "ValueAddedContract";
-
-
+             
             int ROW = 6;
             int endCol = 1;
             int COL = 1;
-
-
+             
             DataTable data = GetContractReportDataById(PrintTabId);
             DataTable MaterialPlanningChilddata = GetMaterialPlanningChildReportDataById(PrintTabId);
             if (data.Rows.Count > 0)
@@ -2178,9 +2172,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 int ColPartyNameEnd;
                 int ColPartyNameName;
                 int ColVAProcessStartDateHeader = 1;
-                int ColVAProcessStartDateEnd;
-
-
+                int ColVAProcessStartDateEnd; 
                 SetHeaderTextTop(ref sheet, ROW, ColValueAddedDateHeader, "Date", 12, ExcelHAlign.HAlignLeft);
                 ColValueAddedDateHeader++;
                 ColValueAddedDateEnd = ColValueAddedDateHeader + 1;
@@ -2189,19 +2181,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 sheet.Range[ROW, ColValueAddedDateHeader, ROW, ColValueAddedDateEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColValueAddedDateHeader, ROW, ColValueAddedDateEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 ColValueAddedDateEnd++;
-
-                //ColVACTimeHeader = ColValueAddedDateEnd;
-                //SetHeaderTextTop(ref sheet, ROW, ColVACTimeHeader, "Time", 20, ExcelHAlign.HAlignLeft);
-                //ColVACTimeHeader++;
-                //ColVACTimeEnd = ColVACTimeHeader + 1;
-                //ColVACTimeName = ColVACTimeHeader;
-                //sheet.Range[ROW, ColVACTimeName, ROW, ColVACTimeEnd].Text = data.Rows[0]["TCTime"].ToString();
-                //sheet.Range[ROW, ColVACTimeName, ROW, ColVACTimeEnd].Merge();
-                //sheet.Range[ROW, ColVACTimeName, ROW, ColVACTimeEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                //sheet.Range[ROW, ColVACTimeName, ROW, ColVACTimeEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                ////            ROW++;
-                //ColVACTimeEnd++;
-
+                 
                 ColEntityHeader = ColValueAddedDateEnd;
                 SetHeaderTextTop(ref sheet, ROW, ColEntityHeader, "Entity", 20, ExcelHAlign.HAlignLeft);
                 ColEntityHeader++;
@@ -2210,8 +2190,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 sheet.Range[ROW, ColEntityName, ROW, ColEntityEnd].Text = data.Rows[0]["Entity"].ToString();
                 sheet.Range[ROW, ColEntityName, ROW, ColEntityEnd].Merge();
                 sheet.Range[ROW, ColEntityName, ROW, ColEntityEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet.Range[ROW, ColEntityName, ROW, ColEntityEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                //           ROW++;
+                sheet.Range[ROW, ColEntityName, ROW, ColEntityEnd].VerticalAlignment = ExcelVAlign.VAlignCenter; 
                 ColEntityEnd++;
 
                 ColPartyNameHeader = ColEntityEnd;
@@ -2223,10 +2202,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 sheet.Range[ROW, ColPartyNameName, ROW, ColPartyNameEnd].Merge();
                 sheet.Range[ROW, ColPartyNameName, ROW, ColPartyNameEnd].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[ROW, ColPartyNameName, ROW, ColPartyNameEnd].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                ROW++;
-                //          ColPartyNameEnd++;
-
-
+                ROW++; 
                 SetHeaderTextTop(ref sheet, ROW, ColVAProcessStartDateHeader, "Process Start Date", 12, ExcelHAlign.HAlignLeft);
                 ColVAProcessStartDateHeader++;
                 ColVAProcessStartDateEnd = ColVAProcessStartDateHeader + 1;
@@ -2478,14 +2454,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
             ROW++;
             endCol = COL;
             #endregion Headers
-
-
-            //DataView dvOperationGrup = new DataView(data);
-
-            //Dictionary<string, double> dist = new Dictionary<string, double>();
-
-            //DataTable dtOperationGroup = dvOperationGrup.ToTable(true, "OperationGroup");
-
+             
             string JobWorkItems = "";
             var startRow = 0;
             var endRow = 0;
@@ -2506,35 +2475,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
                     }
                     RowIndex = ROW;
                 }
-
-                //sheet[ROW, ColMaterialType].Text = data.Rows[i]["MaterialType"].ToString();
-                //sheet[ROW, ColJobWorkItem].Text = data.Rows[i]["JobWorkItem"].ToString();
-                //sheet[ROW, ColMaterialLocation].Text = data.Rows[i]["MaterialLocation"].ToString();
-                //sheet[ROW, ColFinalOutputCategory].Text = data.Rows[i]["FinalOutputCategory"].ToString();
-                //sheet[ROW, ColMaterialSpecification].Text = data.Rows[i]["MaterialSpecification"].ToString();
-                //sheet[ROW, ColMaterialReference].Text = data.Rows[i]["MaterialReference"].ToString();
-
-                //sheet[ROW, ColUOM].Text = data.Rows[i]["UOM"].ToString();
-                //sheet[ROW, ColQuantity].Text = data.Rows[i]["Quantity"].ToString();
-
-                ////sheet[ROW, ColMaterial].Text = data.Rows[i]["Material"].ToString();
-                ////sheet[ROW, ColArticleCode].Text = data.Rows[i]["Article"].ToString();
-
-                //sheet[ROW, ColOutputMaterial].Text = data.Rows[i]["OutputMaterial"].ToString();
-                //sheet[ROW, ColArticleCode].Text = data.Rows[i]["ArticleCode"].ToString();
-
-                //sheet[ROW, ColOrderSpecific].Text = data.Rows[i]["OrderSpecific"].ToString();
-                //sheet[ROW, ColRequiredCapacity].Number = clsStaticInfo.dbl(data.Rows[i]["ReqCapacity"].ToString());
-                //sheet[ROW, ColRateApplicable].Text = data.Rows[i]["RateApplicable"].ToString();
-                //sheet[ROW, ColCurrency].Text = data.Rows[i]["Currency"].ToString();
-
-                //sheet[ROW, ColRatePerUnit].Number = clsStaticInfo.dbl(data.Rows[i]["RatePerUnit"].ToString());
-                //sheet[ROW, ColRejection].Number = clsStaticInfo.dbl(data.Rows[i]["VccRejection"].ToString());
-                //sheet[ROW, ColValueLoss].Number = clsStaticInfo.dbl(data.Rows[i]["ValueLoss"].ToString());
-                //sheet[ROW, ColEmployeeCode].Text = data.Rows[i]["EmployeeCode"].ToString();
-                //sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
-                //sheet[ROW, ColVCCRemarks].Text = data.Rows[i]["VCCRemarks"].ToString();
-
+                 
                 sheet[ROW, ColLineItemId].Text = data.Rows[i]["LineItemId"].ToString();
                 sheet[ROW, ColMaterialType].Text = data.Rows[i]["MaterialType"].ToString();
                 sheet[ROW, ColJobWorkItem].Text = data.Rows[i]["JobWorkItem"].ToString();
@@ -2544,23 +2485,17 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 sheet[ROW, ColMaterialReference].Text = data.Rows[i]["MaterialReference"].ToString();
 
                 sheet[ROW, ColUOM].Text = data.Rows[i]["UOM"].ToString();
-                sheet[ROW, ColQuantity].Text = data.Rows[i]["Quantity"].ToString();
-                //sheet[ROW, ColTotalGrossInputQuantity].Number = clsStaticInfo.dbl(data.Rows[i]["TotalGrossInputQuantity"].ToString());
-             //   sheet[ROW, ColTotalGrossInputQuantity].Number = clsStaticInfo.dbl(data.Rows[i]["TotalGrossConsumptionPerUnit"].ToString());
-
+                sheet[ROW, ColQuantity].Text = data.Rows[i]["Quantity"].ToString(); 
                 sheet[ROW, ColOutputMaterial].Text = data.Rows[i]["OutputMaterial"].ToString();
 
                 sheet[ROW, ColArticleCode].Text = data.Rows[i]["ArticleCode"].ToString();
 
                 sheet[ROW, ColOrderSpecific].Text = data.Rows[i]["OrderSpecific"].ToString();
-                sheet[ROW, ColRequiredCapacity].Number = clsStaticInfo.dbl(data.Rows[i]["RequiredCapacity"].ToString());
-          //      sheet[ROW, ColByProductApplicable].Text = data.Rows[i]["ByProductApplicable"].ToString();
+                sheet[ROW, ColRequiredCapacity].Number = clsStaticInfo.dbl(data.Rows[i]["RequiredCapacity"].ToString()); 
                 sheet[ROW, ColRateApplicable].Text = data.Rows[i]["RateApplyId"].ToString();
                 sheet[ROW, ColCurrency].Text = data.Rows[i]["Currency"].ToString();
-
-              //  sheet[ROW, ColRatePerUnit].Number = clsStaticInfo.dbl(data.Rows[i]["RatePerUnit"].ToString());
-                sheet[ROW, ColRatePerUnit].Text = data.Rows[i]["RatePerUnit"].ToString();
-                //sheet[ROW, ColAmount].Text = data.Rows[i]["Amount"].ToString();
+                 
+                sheet[ROW, ColRatePerUnit].Text = data.Rows[i]["RatePerUnit"].ToString(); 
                 sheet[ROW, ColAmount].Number = Math.Round(clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString()),2);
                 sheet[ROW, ColRejection].Number = clsStaticInfo.dbl(data.Rows[i]["Rejection"].ToString());
                 sheet[ROW, ColValueLoss].Number = clsStaticInfo.dbl(data.Rows[i]["ValueLoss"].ToString());
@@ -2579,13 +2514,11 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 JobWorkItems = data.Rows[i]["JobWorkItem"].ToString();
 
                 ROW++;
-            }
-
+            } 
             endRow = ROW - 1;
 
             if (RowIndex < ROW - 1)
-            {
-                //sheet.Range[RowIndex, ColJobWorkItem, ROW - 1, ColJobWorkItem].Merge();
+            { 
                 sheet.Range[RowIndex, ColJobWorkItem, ROW - 1, ColJobWorkItem].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[RowIndex, ColJobWorkItem, ROW - 1, ColJobWorkItem].HorizontalAlignment = ExcelHAlign.HAlignLeft;
             }
@@ -2669,13 +2602,10 @@ namespace Aplos.Areas.Outsourcing.Controllers
 
             for (int i = 0; i < MaterialPlanningChilddata.Rows.Count; i++)
             {
-
                 if (OrderTpe != MaterialPlanningChilddata.Rows[i]["OrderType"].ToString())
                 {
-
                     if (RowIndexNo < MPChildROW)
                     {
-                        //sheet.Range[RowIndexNo, ColOrderType, MPChildROW - 1, ColOrderType].Merge();
                         sheet.Range[RowIndexNo, ColOrderType, MPChildROW - 1, ColOrderType].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         sheet.Range[RowIndexNo, ColOrderType, MPChildROW - 1, ColOrderType].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     }
@@ -2712,9 +2642,6 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 sheet.Range[RowIndexNo, ColOrderType, MPChildROW - 1, ColOrderType].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[RowIndexNo, ColOrderType, MPChildROW - 1, ColOrderType].HorizontalAlignment = ExcelHAlign.HAlignLeft;
             }
-
-            //GetWorkSheetBulletinTamplateCalculation(ref sheet1, ref report, data, "Bulletin Tamplate Calculation");
-            //GetWorkSheetTamplateFormula(ref sheet2, ref report, data, "Bulletin Tamplate Calculation Formula");
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sheet.UsedRange.NumberFormat = "#,##0.000";
@@ -2832,21 +2759,15 @@ namespace Aplos.Areas.Outsourcing.Controllers
 
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
-            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            var workbook = report.GetWorkbook(ref excelEngine, 1);
             workbook.Version = ExcelVersion.Excel2016;
 
-            var sheet = workbook.Worksheets[0];
-            //var sheet1 = workbook.Worksheets[1];
-            //var sheet2 = workbook.Worksheets[2];
-
-            sheet.Name = "TransformationContract";
-
+            var sheet = workbook.Worksheets[0];  
+            sheet.Name = "TransformationContract"; 
 
             int ROW = 6;
             int endCol = 1;
-            int COL = 1;
-
-
+            int COL = 1;  
             DataTable data = GetTransformationContractDataById(PrintTabId);
             DataTable MaterialPlanningChilddata = GetMatPlanningChildDataById(PrintTabId);
             DataTable MaterialInputChilddata = GetMaterialInputChildDataById(PrintTabId);
@@ -3087,14 +3008,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
             ROW++;
             endCol = COL;
             #endregion Headers
-
-
-            //DataView dvOperationGrup = new DataView(data);
-
-            //Dictionary<string, double> dist = new Dictionary<string, double>();
-
-            //DataTable dtOperationGroup = dvOperationGrup.ToTable(true, "OperationGroup");
-
+             
             string JobWorkItems = "";
             var startRow = 0;
             var endRow = 0;
@@ -3102,11 +3016,9 @@ namespace Aplos.Areas.Outsourcing.Controllers
             startRow = ROW;
 
             for (int i = 0; i < data.Rows.Count; i++)
-            {
-
+            { 
                 if (JobWorkItems != data.Rows[i]["JobWorkItem"].ToString())
-                {
-
+                { 
                     if (RowIndex < ROW)
                     {
                         //sheet.Range[RowIndex, ColJobWorkItem, ROW - 1, ColJobWorkItem].Merge();
@@ -3249,11 +3161,9 @@ namespace Aplos.Areas.Outsourcing.Controllers
             StartRows = MPChildROW;
 
             for (int i = 0; i < MaterialPlanningChilddata.Rows.Count; i++)
-            {
-
+            { 
                 if (OrderTpe != MaterialPlanningChilddata.Rows[i]["OrderType"].ToString())
-                {
-
+                { 
                     if (RowIndexNo < MPChildROW)
                     {
                         //sheet.Range[RowIndexNo, ColOrderType, MPChildROW - 1, ColOrderType].Merge();
@@ -3272,12 +3182,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 sheet[MPChildROW, ColPlanQuantity].Number = clsStaticInfo.dbl(MaterialPlanningChilddata.Rows[i]["OWPlanQuantity"].ToString());
                 sheet[MPChildROW, ColCustomer].Text = MaterialPlanningChilddata.Rows[i]["Customer"].ToString();
                 sheet[MPChildROW, ColMPCRemarks].Text = MaterialPlanningChilddata.Rows[i]["OWRemarks"].ToString();
-                //sheet[MPChildROW, ColBuyers].Text = MaterialPlanningChilddata.Rows[i]["Buyer"].ToString();
-                //sheet[MPChildROW, ColBuyItem].Text = MaterialPlanningChilddata.Rows[i]["BuyerReferenceNo"].ToString();
-                //sheet[MPChildROW, ColOwnItem].Text = MaterialPlanningChilddata.Rows[i]["OwnReferenceNo"].ToString();
-                //sheet[MPChildROW, ColBuyerOrder].Text = MaterialPlanningChilddata.Rows[i]["BuyerOrderNo"].ToString();
-                //sheet[MPChildROW, ColOwnOrder].Text = MaterialPlanningChilddata.Rows[i]["OwnOrderNo"].ToString();
-
+                 
                 sheet[MPChildROW, ColBuyer].Text = MaterialPlanningChilddata.Rows[i]["Buyer"].ToString();
                 sheet[MPChildROW, ColSalesOrderId].Text = MaterialPlanningChilddata.Rows[i]["SalesOrderId"].ToString();
 
@@ -3286,8 +3191,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 OrderTpe = MaterialPlanningChilddata.Rows[i]["OrderType"].ToString();
 
                 MPChildROW++;
-            }
-
+            } 
             EndRows = MPChildROW - 1;
 
             if (RowIndexNo < MPChildROW - 1)
@@ -3296,9 +3200,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 sheet.Range[RowIndexNo, ColOrderType, MPChildROW - 1, ColOrderType].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[RowIndexNo, ColOrderType, MPChildROW - 1, ColOrderType].HorizontalAlignment = ExcelHAlign.HAlignLeft;
             }
-
-            // MATERIAL INPUT CHILD
-
+             
             int MIChildROW = MPChildROW + 1;
             int MIChildendCol = 1;
             int MIChildCOL = 1;
@@ -3522,11 +3424,9 @@ namespace Aplos.Areas.Outsourcing.Controllers
             BPStartRows = BPChildROW;
 
             for (int i = 0; i < ByProductChilddata.Rows.Count; i++)
-            {
-
+            { 
                 if (BPMaterial != ByProductChilddata.Rows[i]["JWInputItem"].ToString())
-                {
-
+                { 
                     if (BPRowIndexNo < BPChildROW)
                     {
                         //sheet.Range[BPRowIndexNo, ColBPMaterial, BPChildROW - 1, ColBPMaterial].Merge();
@@ -3565,10 +3465,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 sheet.Range[BPRowIndexNo, ColBPMaterial, BPChildROW - 1, ColBPMaterial].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[BPRowIndexNo, ColBPMaterial, BPChildROW - 1, ColBPMaterial].HorizontalAlignment = ExcelHAlign.HAlignLeft;
             }
-
-            //GetWorkSheetBulletinTamplateCalculation(ref sheet1, ref report, data, "Bulletin Tamplate Calculation");
-            //GetWorkSheetTamplateFormula(ref sheet2, ref report, data, "Bulletin Tamplate Calculation Formula");
-
+             
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sheet.UsedRange.NumberFormat = "#,##0.000";
             sheet.UsedRange.WrapText = true;
@@ -3701,12 +3598,12 @@ from dbo.OSTransformationPO tc left join ORG.Entity e on e.Id=tc.EntityId
                        LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
                        LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
                        LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
-                       LEFT JOIN dbo.[Contract] AS CN ON CN.Id=MOI.ContractId
+                       LEFT JOIN dbo.[Contract] AS CN ON CN.Id=SO.ContractId
                        LEFT JOIN dbo.MasterLC AS MLC ON MLC.Id=CN.MasterLCId
 					   left join SCS.UnitOfMeasurement Uom on Uom.Id=MO.TotalQtyUOMId
 					   left join dbo.OSTransformationPODetail mp on mp.Id=owr.OSTransformationPODetailId
 					  left join dbo.OSTransformationPO tc on tc.Id=mp.OSTransformationPOId
-				        where tc.Id='"+ PrintTabId + @"' ";
+				        where tc.Id='" + PrintTabId + @"' ";
 
             return _sqlRepository.GetDataTable(sql);
         }

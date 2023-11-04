@@ -1577,7 +1577,7 @@ namespace Library.MaterialManagement.Reports
 						LEFT JOIN dbo.SalesPacking SP ON pla.ProductLibraryId = SP.ProductLibraryId
 						WHERE SP.SalesId=IR.Id
 						for XML PATH('')
-						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy
+						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy,BKD.Cartons
                         FROM TRN.Sales IR
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -1622,6 +1622,11 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
                          LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
                          LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId
 ) LC on LC.SalesId = IR.Id
+left join (select Count(isc.RefNo) Cartons , isc.SalesId 
+                from itemscanchild isc
+                left join trn.POLotReference PLR on PLR.Id = isc.PackingId
+                left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
+				   group by isc.salesId ) BKD on BKD.salesId = IR.Id
                          WHERE IR.Id ='" + SalesId + "'";
 
                 return _sqlRepository.GetDataTable(strSQL);
@@ -3640,7 +3645,7 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
             //sales = loadLocalTaxMaterialMaster(salesId);
             //  materialTax = loadOrderMasterTax(salesId);
 
-            int LasColumnIndex = 9;
+            int LasColumnIndex = 7;
 
             WTable wTable = new WTable(document);
             int ROW = 0; int COL = 0;
@@ -3654,41 +3659,47 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
             WCharacterFormat FontBold = new WCharacterFormat(document);
             FontBold.Bold = true;
 
-            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials");
-            range.ApplyCharacterFormat(FontBold);
-            int colMaterialGroup = COL; COL++;
-            wTable.Rows[ROW].Cells[colMaterialGroup].Width = 80;
+            //IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colMaterialGroup = COL; COL++;
+            //wTable.Rows[ROW].Cells[colMaterialGroup].Width = 80;
 
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
+            IWTextRange  range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 90;
+            wTable.Rows[ROW].Cells[colArticle].Width = 150;
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Details");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colChar1 = COL; COL++;
+            //wTable.Rows[ROW].Cells[colChar1].Width = 40;
+
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Style No");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colStyle = COL; COL++;
+            //wTable.Rows[ROW].Cells[colStyle].Width = 40;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Details");
             range.ApplyCharacterFormat(FontBold);
             int colChar1 = COL; COL++;
-            wTable.Rows[ROW].Cells[colChar1].Width = 40;
-
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Style No");
-            range.ApplyCharacterFormat(FontBold);
-            int colStyle = COL; COL++;
-            wTable.Rows[ROW].Cells[colChar1].Width = 40;
-
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("PO Number");
-            range.ApplyCharacterFormat(FontBold);
-            int colCusPO = COL; COL++;
-            wTable.Rows[ROW].Cells[colChar1].Width = 40;
+            wTable.Rows[ROW].Cells[colChar1].Width = 60;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN");
             range.ApplyCharacterFormat(FontBold);
             int colHSN = COL; COL++;
-            wTable.Rows[ROW].Cells[colHSN].Width = 45;
+            wTable.Rows[ROW].Cells[colHSN].Width = 60;
+
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Cartons");
+            range.ApplyCharacterFormat(FontBold);
+            int colCartons = COL; COL++;
+            wTable.Rows[ROW].Cells[colCartons].Width = 50;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
             range.ApplyCharacterFormat(FontBold);
             int colQty = COL; COL++;
-            wTable.Rows[ROW].Cells[colQty].Width = 60;
+            wTable.Rows[ROW].Cells[colQty].Width = 80;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UoM");
             range.ApplyCharacterFormat(FontBold);
@@ -3700,10 +3711,10 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
             int colRate = COL; COL++;
             wTable.Rows[ROW].Cells[colRate].Width = 50;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Amount" + "(" + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + " " + ")" + " ");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Amount" + "(" + "" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + "" + ")" + "");
             range.ApplyCharacterFormat(FontBold);
             int colAmount = COL;
-            wTable.Rows[ROW].Cells[colAmount].Width = 75;
+            wTable.Rows[ROW].Cells[colAmount].Width = 90;
 
 
             #endregion column headers
@@ -3726,11 +3737,12 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
                     }
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
-                TROW.Cells[colMaterialGroup].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialMaster"].ToString());
+                //TROW.Cells[colMaterialGroup].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialMaster"].ToString());
                 TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
                 TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ProdDetails"].ToString());
-                TROW.Cells[colStyle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["BuyertemRef"].ToString());
-                TROW.Cells[colCusPO].AddParagraph().AppendText(dsOrderMaster.Rows[i]["PONumber"].ToString());
+                //TROW.Cells[colStyle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["BuyertemRef"].ToString());
+                //TROW.Cells[colCusPO].AddParagraph().AppendText(dsOrderMaster.Rows[i]["PONumber"].ToString());
+                TROW.Cells[colCartons].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Cartons"].ToString());
                 TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
                 TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString());
@@ -3755,7 +3767,7 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
                 //|| dicTaxes.ContainsValue(C)
-                if (C == colArticle || C == colHSN || C == colUoM || C == colRate || C == colChar1 || C == colStyle || C == colCusPO)
+                if (C == colArticle || C == colHSN || C == colUoM || C == colRate || C == colCartons || C == colChar1)
                     continue;
 
                 double value = 0;

@@ -31,9 +31,7 @@
         </div>
         <div class="col-xs-12" ng-show="lotControlList.length>0">
 
-            <div id="GridLC" ej-grid e-datasource="lotControlList"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div id="GridLC" ej-grid e-datasource="lotControlList" e-allowpaging="true"  e-enabletouch="false" e-responsive="true" e-allowselection="true"  e-allowtextwrap="true">
                 <div e-columns>
                     <div e-column e-headertext="Actions" e-template="#ShowActionButtons" e-width="3"></div>
                     <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
@@ -43,9 +41,10 @@
                     <div e-column e-field="MasterOrderItemId" e-headertext="LineItemNo" e-width="2"></div>
                     <div e-column e-field="SalesOrderId" e-headertext="SONo" e-width="2"></div>
                     <div e-column e-field="LotNo" e-headertext="LotNo" e-width="3"></div>
-                    <div e-column e-field="Sufix" e-headertext="Sufix" e-width="2"></div>
-                    <div e-column e-template="#UserLotNo" e-headertext="User LotNo" e-width="4"></div>
-                    <div e-column e-field="LotQty" e-headertext="LotQty" e-width="2"></div>
+                    <div e-column e-field="LotArticle" e-headertext="Article" e-width="5"></div>
+                    <div e-column e-template="#Sufix" e-headertext="Sufix" e-width="2"></div>
+                    <div e-column e-field="UserLotNo" e-headertext="User LotNo" e-width="4"></div>
+                    <div e-column e-template="#LotQty" e-headertext="LotQty" e-width="2"></div>
                     <div e-column e-field="OrderQty" e-headertext="OrderQty" e-width="2"></div>
                     <div e-column e-field="PlanQty" e-headertext="PlanQty" e-width="2"></div>
                     <div e-column e-field="SchedulePercentage" e-headertext="SchedulePercentage" e-width="2"></div>
@@ -56,12 +55,16 @@
                     <button style="color: #f3f3ec;background-color: #1c1f32;" title="Copy" class="btn"><i class="glyphicon glyphicon-copy" ng-click="$parent.copyDetail(this);" style="margin: -6px;"></i></button>
                     <button style="color: #f3f3ec;background-color: #1c1f32;" title="Edit" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.SaveRowData(this);" style="margin: -6px;"></i></button>
                 </script>
-                <script type="text/template" id="UserLotNo">
+                <script type="text/template" id="Sufix">
                     <div class="col-sm-12" style="padding:0px;">
-                        <input type="text" name="UserLotNo" ng-model="data.UserLotNo" class="form-control" maxlength="50">
+                        <input type="text" name="Sufix" ng-model="data.Sufix" class="form-control" maxlength="3" ng-blur="$parent.SetSufix(this)">
                     </div>
                 </script>
-
+                <script type="text/template" id="LotQty">
+                    <div class="col-sm-12" style="padding:0px;">
+                        <input type="text" name="LotQty" ng-model="data.LotQty" disabled class="form-control" only-numbers>
+                    </div>
+                </script>
             </div>
 
         </div>

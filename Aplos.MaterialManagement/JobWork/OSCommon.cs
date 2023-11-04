@@ -5747,7 +5747,11 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                     ,ROUND((POD.Quantity * POD.RatePerUnit), 2) AS TrnAmount
                     ,POD.BaseAmount
                    -- ,POD.TotalTaxAmount AS BaseTaxAmount
-				    ,POD.TaxAmount AS BaseTaxAmount
+				    ,BaseTaxAmount= (
+                    SELECT SUM(TaxAmount)
+                    FROM [TRN].[PurchaseOrderTax]
+                    WHERE InventoryReceiveDetailId = POD.Id
+                    )
                     ,REPLACE(Convert(VARCHAR(11), POD.DeliveryDate, 106), ' ', '-') AS DeliveryDate
                     ,TaxAmount = (
                     SELECT SUM(TaxAmount)

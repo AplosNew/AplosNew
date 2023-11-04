@@ -8,6 +8,7 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.searchBy = "UserRef"; $scope.search = "";
     $scope.searchByList = [{ value: 'UserRef', name: "UserRef" }, { value: 'VechileNo', name: "VechileNo" }, { value: 'ByWhom', name: "ByWhom" }, { value: 'MobileNo', name: "MobileNo" }];
 
@@ -46,7 +47,14 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
         UpdatedFromIP: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-    console.log($scope.ModelNew);
+
+    $scope.GetSequence = function () {
+        cboService.getSequence($scope.getSeqUrl, function (data) {
+            $scope.ModelTemp.UserRef = data;
+            $scope.ModelNew.UserRef = data;
+        });
+    };
+    $scope.GetSequence();
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
@@ -68,7 +76,6 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
         });
     }
 
-
     $scope.vehicleNoList = [];
     $scope.GetVehicleNoCbo = function () {
         if (!baseService.isUndefinedOrNull($scope.ModelNew.FromDate) && !baseService.isUndefinedOrNull($scope.ModelNew.ToDate)) {
@@ -78,6 +85,14 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
             }).then(function successCallback(response) {
                 $scope.vehicleNoList = response.data;
             });
+        }
+    }
+
+    $scope.SetMobileNo = function () {
+        for (var i = 0; i < $scope.vehicleNoList.length; i++) {
+            if ($scope.ModelNew.VechileNo == $scope.vehicleNoList[i].Value) {
+                $scope.ModelNew.MobileNo = $scope.vehicleNoList[i].TransportDriverNo;
+            }
         }
     }
 
@@ -181,7 +196,6 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
         }
     }
 
-
     $scope.ShowResultCustom = function (message, type) {
         $("#InvoicePoUp").ejDialog("setTitle", "Invoice Info");
         var eDialog = $("#InvoicePoUp").data("ejDialog");
@@ -276,7 +290,6 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
                     $scope.btndisable = false;
                     ClearFields();
                     $scope.getData();
-
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -316,5 +329,21 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.InvoiceNoList = [];
+        $scope.GetSequence();
     }
+
+    $scope.PrintData = function (data) {
+        try {
+            $scope.fileName = "SalesChalanReport.xls";
+
+
+            //$scope.ReportFormat = 'Excel';
+            $scope.ReportFormat = 'Pdf';
+            var url = 'SalesManagements/SalesChalan/GetSalesChalanReportPdf?reportFormat=' + $scope.ReportFormat + '&masterId=' + data.data.Id;
+            $rootScope.report(url);
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
 }

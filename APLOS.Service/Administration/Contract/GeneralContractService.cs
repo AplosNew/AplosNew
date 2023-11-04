@@ -871,36 +871,73 @@ where G.Id = '"+gcId+"'";
             var sql = "";
             try
             {
-                
-                if (entityid == null || entityid == "null") 
+                if (entityid == "null" || entityid == "undefined")
                 {
-                    sql = @"select FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, 
+                    if (contractid != "null" && contractid != "undefined")
+                    {
+                        sql = @"select GC.UserName ContractName , FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, 
 CIE.TransactionQuantity Quantity
-, CIE.Rate, CIE.Amount, EI.EmployeeName 'To Be Check', EMP.EmployeeName 'To Be Approved', GCE.ApprovedStatus, 
-GCE.CheckedByStatus
+, CIE.Rate, CIE.Amount, EI.EmployeeName 'CheckBy', EMP.EmployeeName 'ApproveBy', GCE.ApprovedStatus, 
+GCE.CheckedByStatus , CIE.Remarks , CIE.AddedBy , format(CIE.AddedDate, 'dd-MMM-yyyy') AddedDate ,CIE.AvgQty
 from TRN.GeneralContractEntry GCE
 LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
 LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
 left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
 left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
 left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
-                        where GCE.Date between '" + from + "' and '" + to + "' and GCE.GeneralContractId = '" + contractid + "' and ApprovedStatus = 'Approved'";
-                }
-                else
-                {
-                    sql = @"select FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, 
+left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
+                        where GCE.Date between '" + from + "' and '" + to + "' and GCE.GeneralContractId = '" + contractid + "'";
+                    }
+                    else
+                    {
+                        sql = @"select GC.UserName ContractName , FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, 
 CIE.TransactionQuantity Quantity
-, CIE.Rate, CIE.Amount, EI.EmployeeName 'To Be Check', EMP.EmployeeName 'To Be Approved', GCE.ApprovedStatus, 
-GCE.CheckedByStatus
+, CIE.Rate, CIE.Amount, EI.EmployeeName 'CheckBy', EMP.EmployeeName 'ApproveBy', GCE.ApprovedStatus, 
+GCE.CheckedByStatus , CIE.Remarks , CIE.AddedBy , format(CIE.AddedDate, 'dd-MMM-yyyy') AddedDate ,CIE.AvgQty
 from TRN.GeneralContractEntry GCE
 LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
 LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
 left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
 left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
 left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
-                        where GCE.Date between '" + from + "' and '" + to + "' and GCE.GeneralContractId = '" + contractid + "' and E.Id = '" + entityid + "' and ApprovedStatus = 'Approved'";
+left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
+                        where GCE.Date between '" + from + "' and '" + to + "' ";
+                    }
                 }
-                
+                if (entityid != "null" && entityid != "undefined")
+                {
+                    if (contractid == "null" || contractid == "undefined")
+                    {
+                        sql = @"select GC.UserName ContractName , FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, 
+CIE.TransactionQuantity Quantity
+, CIE.Rate, CIE.Amount, EI.EmployeeName 'CheckBy', EMP.EmployeeName 'ApproveBy', GCE.ApprovedStatus, 
+GCE.CheckedByStatus , CIE.Remarks , CIE.AddedBy , format(CIE.AddedDate, 'dd-MMM-yyyy') AddedDate ,CIE.AvgQty
+from TRN.GeneralContractEntry GCE
+LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
+LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
+left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
+left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
+left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
+left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
+                        where GCE.Date between '" + from + "' and '" + to + "'  and E.Id = '" + entityid + "'";
+                    }
+                    else
+                    {
+                        sql = @"select GC.UserName ContractName , FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, 
+CIE.TransactionQuantity Quantity
+, CIE.Rate, CIE.Amount, EI.EmployeeName 'CheckBy', EMP.EmployeeName 'ApproveBy', GCE.ApprovedStatus, 
+GCE.CheckedByStatus , CIE.Remarks , CIE.AddedBy , format(CIE.AddedDate, 'dd-MMM-yyyy') AddedDate ,CIE.AvgQty
+from TRN.GeneralContractEntry GCE
+LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
+LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
+left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
+left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
+left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
+left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
+                        where GCE.Date between '" + from + "' and '" + to + "' and GCE.GeneralContractId = '" + contractid + "' and E.Id = '" + entityid + "'";
+                    }
+                }
+
                 data = _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
@@ -982,6 +1019,55 @@ left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
             }
         }
         #endregion SAVE
+
+        public void GetMaterialIssueReportHeaderData(string ContractId, out DataTable dtOrder)
+        {
+            try
+            {
+                string strSql = string.Empty;
+                strSql = @"select  GCE.Id, FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, EI.EmployeeName, GC.UserName Contract,GCE.CheckedByStatus,GCE.AddedBy,EIM.EmployeeName ApprovedBy
+                                    from TRN.GeneralContractEntry GCE
+                                    LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
+                                    LEFT JOIN MST.GeneralContract GC ON GC.Id = GCE.GeneralContractId
+                                    left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
+                                    left join EmployeeInformation EIM on EIM.SystemId = GCE.ApprovedById
+                                    where GCE.CheckedByStatus is null
+                                    and GCE.Id='" + ContractId + "'";
+
+                dtOrder = _sqlRepository.GetDataTable(strSql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }//End Function
+        public void GetMaterialIssueReportDetailsData(string ContractId, out DataTable dtDetail)
+        {
+            try
+            {
+                string strSql = string.Empty;
+                strSql = @"select CIE.*, GCI.UserName Item
+                                    from TRN.ContractItemEntry CIE
+                                    left join TRN.GeneralContractEntry GCE on GCE.Id = CIE.GeneralContractEntryId
+                                    left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
+                                    where GCE.CheckedByStatus is null
+                                    and GCE.Id='" + ContractId + "'";
+
+                dtDetail = _sqlRepository.GetDataTable(strSql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }//End Function
 
     }
     #endregion GeneralContractCheckService
