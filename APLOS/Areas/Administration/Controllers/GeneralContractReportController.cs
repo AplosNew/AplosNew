@@ -36,11 +36,13 @@ namespace Aplos.Areas.Administration.Controllers
             var sql = "";
             try
             {
-                if (entityid == null || entityid == "null")
+                if (entityid == "null" || entityid == "undefined" )
                 {
-                    sql = @"select FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, 
+                    if (contractid != "null" && contractid != "undefined")
+                    {
+                        sql = @"select GC.UserName ContractName , FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, 
 CIE.TransactionQuantity Quantity
-, CIE.Rate, CIE.Amount, EI.EmployeeName 'CheckBy', EMP.EmployeeName 'To Be Approved', GCE.ApprovedStatus, 
+, CIE.Rate, CIE.Amount, EI.EmployeeName 'CheckBy', EMP.EmployeeName 'ApproveBy', GCE.ApprovedStatus, 
 GCE.CheckedByStatus
 from TRN.GeneralContractEntry GCE
 LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
@@ -48,13 +50,14 @@ LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
 left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
 left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
 left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
+left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
                         where GCE.Date between '" + from + "' and '" + to + "' and GCE.GeneralContractId = '" + contractid + "'";
-                }
-                else
-                {
-                    sql = @"select FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, 
+                    }
+                    else
+                    {
+                        sql = @"select GC.UserName ContractName , FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, 
 CIE.TransactionQuantity Quantity
-, CIE.Rate, CIE.Amount, EI.EmployeeName 'CheckBy', EMP.EmployeeName 'To Be Approved', GCE.ApprovedStatus, 
+, CIE.Rate, CIE.Amount, EI.EmployeeName 'CheckBy', EMP.EmployeeName 'ApproveBy', GCE.ApprovedStatus, 
 GCE.CheckedByStatus
 from TRN.GeneralContractEntry GCE
 LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
@@ -62,8 +65,44 @@ LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
 left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
 left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
 left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
-                        where GCE.Date between '" + from + "' and '" + to + "' and GCE.GeneralContractId = '" + contractid + "' and E.Id = '" + entityid + "'";
+left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
+                        where GCE.Date between '" + from + "' and '" + to + "' ";
+                    }
                 }
+                if (entityid != "null" && entityid != "undefined")
+                {
+                    if (contractid == "null" || contractid == "undefined")
+                    {
+                        sql = @"select GC.UserName ContractName , FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, 
+CIE.TransactionQuantity Quantity
+, CIE.Rate, CIE.Amount, EI.EmployeeName 'CheckBy', EMP.EmployeeName 'ApproveBy', GCE.ApprovedStatus, 
+GCE.CheckedByStatus
+from TRN.GeneralContractEntry GCE
+LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
+LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
+left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
+left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
+left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
+left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
+                        where GCE.Date between '" + from + "' and '" + to + "'  and E.Id = '" + entityid + "'";
+                    }
+                    else
+                    {
+                        sql = @"select GC.UserName ContractName , FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, 
+CIE.TransactionQuantity Quantity
+, CIE.Rate, CIE.Amount, EI.EmployeeName 'CheckBy', EMP.EmployeeName 'ApproveBy', GCE.ApprovedStatus, 
+GCE.CheckedByStatus
+from TRN.GeneralContractEntry GCE
+LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
+LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
+left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
+left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
+left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
+left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
+                        where GCE.Date between '" + from + "' and '" + to + "' and GCE.GeneralContractId = '" + contractid + "' and E.Id = '" + entityid + "'";
+                    }
+                }
+               
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
@@ -149,9 +188,9 @@ left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
                 int ROW = 6; int COL = 1;
 
                 #region Columns
-                sheet[ROW, COL].Text = "Date";
+                sheet[ROW, COL].Text = "ContractName";
                 sheet[ROW, COL].ColumnWidth = 16;
-                int ColDate = COL;
+                int ColContractName = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Entity";
@@ -159,9 +198,21 @@ left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
                 int ColEntity = COL;
                 COL++;
 
+
+                sheet[ROW, COL].Text = "ContactDate";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColDate = COL;
+                COL++;
+
+
                 sheet[ROW, COL].Text = "Item";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColItem = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "AvgQty";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColAvgQty = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Qty";
@@ -177,6 +228,21 @@ left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
                 sheet[ROW, COL].Text = "Amount";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Remarks";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColRemarks = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "AddedBy";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColAddedBy = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "AddedDate";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColAddedDate = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Check By";
@@ -217,14 +283,19 @@ left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
                 double[] arr = new double[3];
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
+                    sheet[ROW, ColContractName].Text = data.Rows[i]["ContractName"].ToString();
                     sheet[ROW, ColDate].Text = data.Rows[i]["Date"].ToString();
                     sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
                     sheet[ROW, ColItem].Text = data.Rows[i]["Item"].ToString();
+                    sheet[ROW, ColAvgQty].Number = clsStaticInfo.dbl(data.Rows[i]["AvgQty"].ToString());
                     sheet[ROW, ColQuantity].Number = clsStaticInfo.dbl(data.Rows[i]["Quantity"].ToString());
                     sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rate"].ToString());
                     sheet[ROW, ColAmount].Number = clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
-                    sheet[ROW, ColTBC].Text = data.Rows[i]["To Be Check"].ToString();
-                    sheet[ROW, ColTBA].Text = data.Rows[i]["To Be Approved"].ToString();
+                    sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
+                    sheet[ROW, ColAddedBy].Text = data.Rows[i]["AddedBy"].ToString();
+                    sheet[ROW, ColAddedDate].Text = data.Rows[i]["AddedDate"].ToString();
+                    sheet[ROW, ColTBC].Text = data.Rows[i]["CheckBy"].ToString();
+                    sheet[ROW, ColTBA].Text = data.Rows[i]["ApproveBy"].ToString();
                     sheet[ROW, ColCheckedSts].Text = data.Rows[i]["CheckedByStatus"].ToString();
                     sheet[ROW, ColApprovedSts].Text = data.Rows[i]["ApprovedStatus"].ToString();
 
