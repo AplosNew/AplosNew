@@ -3,8 +3,8 @@
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Contract Item Detail</a></li>
-            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Service" role="tab" data-toggle="tab">Summary</a></li>
-
+          @*  <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Service" role="tab" data-toggle="tab">Summary</a></li>
+*@
         </ul>
     </div>
     <div class="tab-content">
@@ -20,7 +20,7 @@
                             </div>
                         </div>
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Contract Name<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Contract Name</label>
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
                                     <select class="form-control"  ng-model="ModelNew.GeneralContractId" required name="Process"
@@ -73,6 +73,7 @@
                         <div e-columns>
                             @*<div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>*@
 
+                            <div e-column e-field="ContractName" e-headertext="ContractName" e-width="130"></div>
                             <div e-column e-field="Date" e-headertext="Date" e-width="130"></div>
                             <div e-column e-field="Entity" e-headertext="Entity" e-width="130"></div>
                             <div e-column e-field="Item" e-headertext="Item" e-width="130"></div>
@@ -81,8 +82,8 @@
                             <div e-column e-field="Amount" e-headertext="Amount" e-width="130"></div>
                             <div e-column e-field="CheckedByStatus" e-headertext="CheckedByStatus" e-width="130"></div>
                             <div e-column e-field="ApprovedStatus" e-headertext="ApprovedStatus" e-width="130"></div>
-                            <div e-column e-field="To Be Check" e-headertext="To Be Check" e-width="130"></div>
-                            <div e-column e-field="To Be Approved" e-headertext="To Be Approved" e-width="130"></div>
+                            <div e-column e-field="CheckBy" e-headertext="CheckBy" e-width="130"></div>
+                            <div e-column e-field="ApproveBy" e-headertext="ApproveBy" e-width="130"></div>
 
                         </div>
                     </div>
