@@ -3110,9 +3110,9 @@ namespace Aplos.Areas.Commercial.Controllers
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from dbo.MasterLCAddInfo where Description='" + data["Description"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Description already exists!!!");
+                //con.OpenDataSetThroughAdapter("select * from dbo.MasterLCAddInfo where Description='" + data["Description"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                //if (dsMaster.Tables[0].Rows.Count > 0)
+                //    throw new Exception("Description already exists!!!");
 
                 con.OpenDataSetThroughAdapter("select * from dbo.MasterLCAddInfo where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
