@@ -40,7 +40,7 @@ namespace Aplos.Areas.Administration.Controllers
                 {
                     sql = @"select FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, 
 CIE.TransactionQuantity Quantity
-, CIE.Rate, CIE.Amount, EI.EmployeeName 'To Be Check', EMP.EmployeeName 'To Be Approved', GCE.ApprovedStatus, 
+, CIE.Rate, CIE.Amount, EI.EmployeeName 'CheckBy', EMP.EmployeeName 'To Be Approved', GCE.ApprovedStatus, 
 GCE.CheckedByStatus
 from TRN.GeneralContractEntry GCE
 LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
@@ -54,7 +54,7 @@ left join EmployeeInformation EMP on EMP.SystemId = GCE.ApprovedById
                 {
                     sql = @"select FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, GCI.UserName Item, 
 CIE.TransactionQuantity Quantity
-, CIE.Rate, CIE.Amount, EI.EmployeeName 'To Be Check', EMP.EmployeeName 'To Be Approved', GCE.ApprovedStatus, 
+, CIE.Rate, CIE.Amount, EI.EmployeeName 'CheckBy', EMP.EmployeeName 'To Be Approved', GCE.ApprovedStatus, 
 GCE.CheckedByStatus
 from TRN.GeneralContractEntry GCE
 LEFT JOIN TRN.ContractItemEntry CIE on CIE.GeneralContractEntryId = GCE.Id
