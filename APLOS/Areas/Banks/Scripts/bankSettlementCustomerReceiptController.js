@@ -1,6 +1,6 @@
 ﻿"use strict";
-bankSettlementCustomerReceiptController.$inject = ["bankService", "cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller", "$routeParams"];
-function bankSettlementCustomerReceiptController(bankService, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, $routeParams) {
+bankSettlementCustomerReceiptController.$inject = ["bankService", "cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller", "$routeParams","$window"];
+function bankSettlementCustomerReceiptController(bankService, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, $routeParams, $window) {
     $rootScope.title = "Receipt";
     $scope.Action = "Save";
     $scope.index = -1;
@@ -101,6 +101,7 @@ function bankSettlementCustomerReceiptController(bankService, cboService, common
             $scope.voucher.CurrencyId = $scope.bankUploadInfoList[0].CurrencyId;
             $scope.voucher.BankReferenceNo = $scope.bankUploadInfoList[0].BankRefNo;
             $scope.voucher.BankMasterId = $scope.bankUploadInfoList[0].BankMasterId;
+            $scope.voucher.BankReconciliationUploadedDataId = $scope.bankUploadInfoList[0].BankReconciliationUploadedDataId;
             $scope.voucher.PostingDate = $filter("dateFiltering")($scope.bankUploadInfoList[0].PostingDate);
             $scope.voucher.DocDate = $filter("dateFiltering")($scope.bankUploadInfoList[0].DocDate);
             if (!$rootScope.isCollapsed) {
@@ -942,7 +943,7 @@ function bankSettlementCustomerReceiptController(bankService, cboService, common
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
-                    url: "accounts/Invoice/InsertCustomerInvoiceReceipt",
+                    url: "banks/BankReconciliation/InsertCustomerInvoiceReceipt",
                     data: {
                         "voucherVM": $scope.voucher,
                         "voucherDetailVMList": $scope.voucherDetailList,

@@ -1020,6 +1020,55 @@ left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
         }
         #endregion SAVE
 
+        public void GetMaterialIssueReportHeaderData(string ContractId, out DataTable dtOrder)
+        {
+            try
+            {
+                string strSql = string.Empty;
+                strSql = @"select  GCE.Id, FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, EI.EmployeeName, GC.UserName Contract,GCE.CheckedByStatus,GCE.AddedBy,EIM.EmployeeName ApprovedBy
+                                    from TRN.GeneralContractEntry GCE
+                                    LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
+                                    LEFT JOIN MST.GeneralContract GC ON GC.Id = GCE.GeneralContractId
+                                    left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
+                                    left join EmployeeInformation EIM on EIM.SystemId = GCE.ApprovedById
+                                    where GCE.CheckedByStatus is null
+                                    and GCE.Id='" + ContractId + "'";
+
+                dtOrder = _sqlRepository.GetDataTable(strSql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }//End Function
+        public void GetMaterialIssueReportDetailsData(string ContractId, out DataTable dtDetail)
+        {
+            try
+            {
+                string strSql = string.Empty;
+                strSql = @"select CIE.*, GCI.UserName Item
+                                    from TRN.ContractItemEntry CIE
+                                    left join TRN.GeneralContractEntry GCE on GCE.Id = CIE.GeneralContractEntryId
+                                    left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
+                                    where GCE.CheckedByStatus is null
+                                    and GCE.Id='" + ContractId + "'";
+
+                dtDetail = _sqlRepository.GetDataTable(strSql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }//End Function
+
     }
     #endregion GeneralContractCheckService
 }

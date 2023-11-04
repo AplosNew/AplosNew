@@ -616,7 +616,7 @@ namespace Library.Accounting.Accounts
             if (_invoiceDetail == null || _invoiceDetail.Tables.Count == 0)
             {
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.getDataSet("Select * from TRN.InvoiceDetail where Id='" + invoiceDetail.Id + "'", out _invoiceDetail);
+                con.getDataSet("Select * from TRN.InvoiceDetail where InvoiceId='" + invoiceDetail.InvoiceId + "'", out _invoiceDetail);
             }
             EditRow<InvoiceDetail>(_invoiceDetail.Tables[0].Rows[0], invoiceDetail);
         }
@@ -661,7 +661,7 @@ namespace Library.Accounting.Accounts
         }
         public InvoiceWriteOffDetail InsertInvoiceWriteOffDetail(InvoiceWriteOffDetail invoiceWriteOffDetail, int currentId, bool flag, out DataSet dsData)
         {
-            invoiceWriteOffDetail.Id = MakePK(invoiceWriteOffDetail.Id, currentId, 2);
+            invoiceWriteOffDetail.Id = MakePK(invoiceWriteOffDetail.InvoiceWriteOffId, currentId, 2);
             invoiceWriteOffDetail.Narration = invoiceWriteOffDetail.Narration?.ToUpper();
             if (string.IsNullOrEmpty(invoiceWriteOffDetail.AddedBy))
                 AuditService.AddedLog(invoiceWriteOffDetail);
