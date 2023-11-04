@@ -31,9 +31,7 @@
         </div>
         <div class="col-xs-12" ng-show="lotControlList.length>0">
 
-            <div id="GridLC" ej-grid e-datasource="lotControlList"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div id="GridLC" ej-grid e-datasource="lotControlList" e-allowpaging="true"  e-enabletouch="false" e-responsive="true" e-allowselection="true"  e-allowtextwrap="true">
                 <div e-columns>
                     <div e-column e-headertext="Actions" e-template="#ShowActionButtons" e-width="3"></div>
                     <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
@@ -43,6 +41,7 @@
                     <div e-column e-field="MasterOrderItemId" e-headertext="LineItemNo" e-width="2"></div>
                     <div e-column e-field="SalesOrderId" e-headertext="SONo" e-width="2"></div>
                     <div e-column e-field="LotNo" e-headertext="LotNo" e-width="3"></div>
+                    <div e-column e-field="LotArticle" e-headertext="Article" e-width="5"></div>
                     <div e-column e-template="#Sufix" e-headertext="Sufix" e-width="2"></div>
                     <div e-column e-field="UserLotNo" e-headertext="User LotNo" e-width="4"></div>
                     <div e-column e-template="#LotQty" e-headertext="LotQty" e-width="2"></div>
