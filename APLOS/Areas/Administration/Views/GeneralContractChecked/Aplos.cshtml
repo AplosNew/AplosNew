@@ -1,7 +1,5 @@
 ﻿<script>
-
-
-
+     
     function chkChange(Id, UserName) {
         debugger;
         $("#message").text(Id);
@@ -14,22 +12,19 @@
     }
     function getMasterId(Id) {
         debugger;
-        $("#masterId").text(Id);
-
+        $("#masterId").text(Id); 
     }
 </script>
 <style>
     .e-filterset:before {
         color: white;
-    }
-
+    } 
     .e-gridheader .e-headercell { /* grid header color and grid row select color*/
         background-color: #1c1f32;
         color: White;
         min-height: 100%;
         border-bottom-color: #8B4513;
-    }
-
+    } 
     element.style {
         height: 20px;
         width: 50px;
@@ -58,7 +53,7 @@
                             <div e-columns>
                                 <div e-column e-headertext="Actions" e-width="60">
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Un Checked" ng-click="$parent.onClickPOA('GridISUnchecked');" style="margin: -6px;"></i></button>
-                                    @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridISUnchecked');" style="margin: -6px;"></i></button>*@
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>
                                 </div>
                                 <div e-column e-template="#ToBeApprovedBy1" e-headertext="To Be Approved By" e-width="150"></div>
                                 <div e-column e-template="#RejectCheckedReason" e-headertext="Hold / Reject Reason" e-width="150" style="height: 20px;"></div>

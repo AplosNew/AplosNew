@@ -682,6 +682,13 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         $scope.AcceptanceId = null;
         $scope.PostButton = false;
         $scope.advanceTaxesList = [];
+        $scope.productDocMap = {
+            UserFilename: null
+            , Description: null
+            , Remarks: null
+        };
+
+        $scope.Imagedata = [];
     }
 
     $scope.PostButton = false;
@@ -2542,4 +2549,142 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             }
         });
     };
+
+    //#region Document Upload
+
+    $("#uploadBtn").change(function () {
+        $scope.filedata = this.files[0];
+    });
+    document.getElementById("uploadBtn").onchange = function () {
+        var filename = document.getElementById("uploadFile").value = this.value;
+        var res = filename.replace(/C:\\fakepath\\/i, '');
+        document.getElementById("uploadFile").value = res;
+    };
+
+    $scope.DocumentSave = function () { 
+        if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
+            throw $scope.filedata.name + ' File size must be below 2 mb';
+        var fileName = null;
+        if (!baseService.isUndefinedOrNull($scope.filedata))
+            fileName = $scope.filedata.name;
+        $scope.productDocMap.UserFilename = fileName;
+        $scope.productDocMap.POId = $scope.productNew.Id;
+        if (baseService.isUndefinedOrNull($scope.productDocMap.UserFilename)) {
+            ShowResult('Select Attachment file');
+            return false;
+        }
+        if (!baseService.isUndefinedOrNull($scope.productDocMap.UserFilename)) {
+            if ($scope.productDocMap.UserFilename.length > 50) {
+                throw "File Name must be less than 50 character.";
+            }
+        }
+        for (var i = 0; i < $scope.Imagedata.length; i++) {
+            var getRow = $filter("filter")($scope.Imagedata, { "UserFilename": $scope.productDocMap.UserFilename });
+            if (getRow.length === 1) {
+                ShowResult('File Already added');
+                return false;
+            }
+        }
+        if (angular.isUndefinedOrNull($scope.productNew.Id))
+            ShowResult('Please select/save PO first', 'Error');
+        else {
+            try {
+
+                var formData = new FormData();
+
+                $http({
+                    method: "POST",
+                    url: 'Products/PurchaseOrder/GRNPODocCreate',
+                    headers: { 'Content-Type': undefined },
+                    transformRequest: function (data) {
+                        formData.append("PODocumentMap", angular.toJson($scope.productDocMap));
+                        if (baseService.isUndefinedOrNull($scope.filedata) === false) {
+                            formData.append('file', data.file);
+                        }
+                        return formData;
+                    },
+                    data: {
+                        "PODocumentMap": $scope.productDocMap,
+                        "file": $scope.filedata,
+                        "POId": $scope.productNew.Id,
+                    },
+                    dataType: "JSON"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
+                    }
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        $scope.ImagedataLoad();
+                        $scope.productDocMap.UserFilename = "";
+                        $scope.productDocMap.Description = "";
+                        $scope.productDocMap.Remarks = "";
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, "failure");
+                });
+                return true;
+
+            } catch (e) {
+                throw ShowResult(e, "failure");
+            }
+        }
+        return true;
+    };
+    $scope.Imagedata = [];
+    $scope.ImagedataLoad = function () {
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            //url: $scope.getSearchListUrl,
+            url: 'Products/PurchaseOrder/GRNPODocumentMapData?POID=' + $scope.productNew.Id,
+        }).then(function successCallback(response) { //datagatefun
+            $scope.Imagedata = response.data;
+
+        });
+    };
+
+    $scope.removePopUpForDoc = function (Id) {
+        $scope.DocId = Id;
+        $scope.message = 'Are you sure want to permanently delete this?';
+        angular.element(document.querySelector('#removePopUpForDoc')).modal('show');
+    };
+    $scope.DeleteGRNPOgame = function (Id) {
+
+        if (!baseService.isUndefinedOrNull($scope.DocId)) {
+            $http({
+                method: 'POST',
+                url: 'Products/PurchaseOrder/GRNPOImageDelete?Id=' + $scope.DocId,
+                dataType: 'JSON'
+            }).then(function (response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ImagedataLoad();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+
+
+    };
+
+    $scope.PODocumentMapDataAll = function () {
+        $http({
+            method: 'GET',
+            //url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
+            url: 'Products/PurchaseOrder/GRNPODocumentMapDataAll'
+        }).then(function successCallback(response) {
+            $scope.lst = response.data;
+            //$scope.detailgrid($scope.lst);
+            window.Img = response.data;
+
+        });
+    }
+    $scope.PODocumentMapDataAll();
+    //#endregion 
+
 }
