@@ -1346,12 +1346,229 @@ namespace Library.MaterialManagement.Reports
 
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                
             }
 
             document.Close();
+        }
+
+        public DataTable TermsAndConditionSQL(string SalesId)
+        {
+            string strSQL;
+            try
+            {
+                strSQL = @"Select ROW_NUMBER() OVER(ORDER BY TC.Sequence) RoWNo,MA.UserName
+from [dbo].MasterLCTermsAndConditions MA
+LEFT JOIN dbo.[Contract] C ON C.MasterLcId=MA.MasterLcId
+LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+LEFT JOIN HKP.TermsAndConditions TC ON TC.Id=MA.TermsAndConditionsId
+                        where SM.SalesId='" + SalesId + "' Order By TC.Sequence ";
+
+                return _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }
+
+        public DataTable GetAddinfo(string SalesId)
+        {
+            string strSQL;
+            try
+            {
+                strSQL = @"Select MA.Description
+from [dbo].[MasterLCAddInfo] MA
+LEFT JOIN dbo.[Contract] C ON C.MasterLcId=MA.MasterLcId
+LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+Where  SM.SalesId='" + SalesId + "'";
+
+                return _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }
+
+        public double makeTermsAndCondition(string salesId, WordDocument document, DataTable dsTermsAndCondition)
+        {
+            string replaceString = "{TermsAndCondition}";
+
+
+            IWParagraphStyle rightAlign = document.AddParagraphStyle("rightAlign");
+            //Sets the formatting of the style
+            rightAlign.CharacterFormat.FontSize = 8f;
+            rightAlign.CharacterFormat.TextColor = Color.Black;
+            rightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+            int LasColumnIndex = 1;
+            WTable wTable = new WTable(document);
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex);
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            FontBold.Bold = true;
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Terms And Conditions");
+            range.ApplyCharacterFormat(FontBold);
+            int colTermsAndCondition = COL; COL++;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 290;
+
+            #endregion column headers
+            double totalValue = 0;
+            int sl = 0;
+            int startRow = 0;
+            for (int i = 0; i < dsTermsAndCondition.Rows.Count; i++)
+            {
+                ROW++;
+                sl++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsTermsAndCondition.Rows[i]["RoWNo"].ToString() + "." + dsTermsAndCondition.Rows[i]["UserName"].ToString());
+
+            }
+            ROW++;
+
+            #region Total
+            //int TotalRow = ROW;
+            //wTable.AddRow();
+            //WTableRow _TROW = wTable.LastRow;
+
+            //range.ApplyCharacterFormat(FontBold);
+            #endregion Total
+            ROW++;
+            #region paragrpath formats
+
+            IWParagraphStyle myStyle = document.AddParagraphStyle("ServiceStyle");
+            //Sets the formatting of the style
+            myStyle.CharacterFormat.FontSize = 8f;
+            myStyle.CharacterFormat.TextColor = Color.Black;
+            myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            #endregion paragrpath formats
+
+            #region merging section
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            ROW++;
+            #endregion merging section
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+
+            return 0;
+        }
+
+        public double makeaddInfo(string salesId, WordDocument document, DataTable dsaddInfo)
+        {
+            string replaceString = "{addInfo}";
+
+
+            IWParagraphStyle arightAlign = document.AddParagraphStyle("addrightAlign");
+            //Sets the formatting of the style
+            arightAlign.CharacterFormat.FontSize = 8f;
+            arightAlign.CharacterFormat.TextColor = Color.Black;
+            arightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+            int LasColumnIndex = 1;
+            WTable wTable = new WTable(document);
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex);
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            FontBold.Bold = true;
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Additional Info");
+            range.ApplyCharacterFormat(FontBold);
+            int colTermsAndCondition = COL; COL++;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 550;
+
+            #endregion column headers
+            double totalValue = 0;
+            int sl = 0;
+            int startRow = 0;
+            for (int i = 0; i < dsaddInfo.Rows.Count; i++)
+            {
+                ROW++;
+                sl++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsaddInfo.Rows[i]["Description"].ToString());
+
+            }
+            ROW++;
+
+            #region Total
+            //int TotalRow = ROW;
+            //wTable.AddRow();
+            //WTableRow _TROW = wTable.LastRow;
+
+            //range.ApplyCharacterFormat(FontBold);
+            #endregion Total
+            ROW++;
+            #region paragrpath formats
+
+            IWParagraphStyle myaddStyle = document.AddParagraphStyle("AddinfoStyle");
+            //Sets the formatting of the style
+            myaddStyle.CharacterFormat.FontSize = 8f;
+            myaddStyle.CharacterFormat.TextColor = Color.Black;
+            myaddStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            #endregion paragrpath formats
+
+            #region merging section
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            ROW++;
+            #endregion merging section
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+
+            return 0;
         }
 
         public void CommercialInvoiceService(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId)
@@ -1376,15 +1593,19 @@ namespace Library.MaterialManagement.Reports
             {
                 WSection section = document.Sections[0];
 
-                DataTable dsOrderMaster;
+                DataTable dsOrderMaster, dsConditions, dsaddInfo;
 
                 dsOrderMaster = GetloadCommercialLocalTaxMaterialMaster(salesId);
+                dsConditions = TermsAndConditionSQL(salesId);
+                dsaddInfo = GetAddinfo(salesId);
                 Dictionary<string, string> columns = new Dictionary<string, string>();
 
                 foreach (DataColumn item in dsOrderMaster.Columns)
                     columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
 
                 var MaterialTotal = makeCommercialInvoiceService(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {materialItems}
+                var addInfo = makeaddInfo(salesId, document, dsaddInfo);   // {makeaddInfo}
+                var TermsAndCondition = makeTermsAndCondition(salesId, document, dsConditions);   // {conditions}
 
                 document.Replace("{GrandTotal}", (MaterialTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
                 //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2"), true, true);
@@ -1572,12 +1793,12 @@ namespace Library.MaterialManagement.Reports
 								,IRD.BooksCurrencyTaxAmount
 								,IRD.BooksCurrencyBaseRate
                         ,(Select Stuff((
-						Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
+						Select ' / '  + pla.AttributeValue
 						from dbo.ProductLibraryAttribute pla
 						LEFT JOIN dbo.SalesPacking SP ON pla.ProductLibraryId = SP.ProductLibraryId
 						WHERE SP.SalesId=IR.Id
 						for XML PATH('')
-						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy,BKD.Cartons
+						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy,BKD.Cartons,BKD.LotNo
                         FROM TRN.Sales IR
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -1622,11 +1843,11 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
                          LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
                          LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId
 ) LC on LC.SalesId = IR.Id
-left join (select Count(isc.RefNo) Cartons , isc.SalesId 
+left join (select Count(isc.RefNo) Cartons,ISC.LotNo, isc.SalesId 
                 from itemscanchild isc
                 left join trn.POLotReference PLR on PLR.Id = isc.PackingId
                 left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
-				   group by isc.salesId ) BKD on BKD.salesId = IR.Id
+				   group by isc.salesId,ISC.LotNo) BKD on BKD.salesId = IR.Id
                          WHERE IR.Id ='" + SalesId + "'";
 
                 return _sqlRepository.GetDataTable(strSQL);
@@ -3645,7 +3866,7 @@ left join (select Count(isc.RefNo) Cartons , isc.SalesId
             //sales = loadLocalTaxMaterialMaster(salesId);
             //  materialTax = loadOrderMasterTax(salesId);
 
-            int LasColumnIndex = 7;
+            int LasColumnIndex = 8;
 
             WTable wTable = new WTable(document);
             int ROW = 0; int COL = 0;
@@ -3659,31 +3880,20 @@ left join (select Count(isc.RefNo) Cartons , isc.SalesId
             WCharacterFormat FontBold = new WCharacterFormat(document);
             FontBold.Bold = true;
 
-            //IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials");
-            //range.ApplyCharacterFormat(FontBold);
-            //int colMaterialGroup = COL; COL++;
-            //wTable.Rows[ROW].Cells[colMaterialGroup].Width = 80;
-
-
-            IWTextRange  range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 150;
-
-            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Details");
-            //range.ApplyCharacterFormat(FontBold);
-            //int colChar1 = COL; COL++;
-            //wTable.Rows[ROW].Cells[colChar1].Width = 40;
-
-            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Style No");
-            //range.ApplyCharacterFormat(FontBold);
-            //int colStyle = COL; COL++;
-            //wTable.Rows[ROW].Cells[colStyle].Width = 40;
+            wTable.Rows[ROW].Cells[colArticle].Width = 140;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Details");
             range.ApplyCharacterFormat(FontBold);
             int colChar1 = COL; COL++;
-            wTable.Rows[ROW].Cells[colChar1].Width = 60;
+            wTable.Rows[ROW].Cells[colChar1].Width = 55;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Lot No");
+            range.ApplyCharacterFormat(FontBold);
+            int colLot = COL; COL++;
+            wTable.Rows[ROW].Cells[colLot].Width = 60;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN");
             range.ApplyCharacterFormat(FontBold);
@@ -3699,7 +3909,7 @@ left join (select Count(isc.RefNo) Cartons , isc.SalesId
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
             range.ApplyCharacterFormat(FontBold);
             int colQty = COL; COL++;
-            wTable.Rows[ROW].Cells[colQty].Width = 80;
+            wTable.Rows[ROW].Cells[colQty].Width = 60;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UoM");
             range.ApplyCharacterFormat(FontBold);
@@ -3709,12 +3919,12 @@ left join (select Count(isc.RefNo) Cartons , isc.SalesId
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate");
             range.ApplyCharacterFormat(FontBold);
             int colRate = COL; COL++;
-            wTable.Rows[ROW].Cells[colRate].Width = 50;
+            wTable.Rows[ROW].Cells[colRate].Width = 45;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Amount" + "(" + "" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + "" + ")" + "");
             range.ApplyCharacterFormat(FontBold);
             int colAmount = COL;
-            wTable.Rows[ROW].Cells[colAmount].Width = 90;
+            wTable.Rows[ROW].Cells[colAmount].Width = 75;
 
 
             #endregion column headers
@@ -3741,7 +3951,7 @@ left join (select Count(isc.RefNo) Cartons , isc.SalesId
                 TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
                 TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ProdDetails"].ToString());
                 //TROW.Cells[colStyle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["BuyertemRef"].ToString());
-                //TROW.Cells[colCusPO].AddParagraph().AppendText(dsOrderMaster.Rows[i]["PONumber"].ToString());
+                TROW.Cells[colLot].AddParagraph().AppendText(dsOrderMaster.Rows[i]["LotNo"].ToString());
                 TROW.Cells[colCartons].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Cartons"].ToString());
                 TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
@@ -3749,10 +3959,7 @@ left join (select Count(isc.RefNo) Cartons , isc.SalesId
                 TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("#,##0.0000"));
                 TROW.Cells[colAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
 
-
                 //totalValue += clsStdLib.dbl(sales.Rows[i]["TrnAmount"].ToString());
-
-
             }
 
             ROW++;
@@ -3767,7 +3974,7 @@ left join (select Count(isc.RefNo) Cartons , isc.SalesId
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
                 //|| dicTaxes.ContainsValue(C)
-                if (C == colArticle || C == colHSN || C == colUoM || C == colRate || C == colCartons || C == colChar1)
+                if (C == colArticle || C == colHSN || C == colUoM || C == colRate || C == colCartons || C == colChar1 ||C== colLot)
                     continue;
 
                 double value = 0;
@@ -3790,15 +3997,12 @@ left join (select Count(isc.RefNo) Cartons , isc.SalesId
 
             #endregion Total
 
-
             ROW++;
             #region Total Payable
 
             #endregion Total Payable
 
-
             ROW++;
-
 
             #region paragrpath formats
             //Adds a new paragraph style named "MyStyle"
@@ -3811,7 +4015,6 @@ left join (select Count(isc.RefNo) Cartons , isc.SalesId
 
 
             #endregion paragrpath formats
-
 
             #region merging section
 
@@ -3831,8 +4034,16 @@ left join (select Count(isc.RefNo) Cartons , isc.SalesId
             textBodyPart.BodyItems.Add(wTable);
             document.Replace(replaceString, textBodyPart, true, true);
 
+            string replaceaddInfoString = "{addInfo}";
+            int addLasColumnIndex = 0;
+            WTable wTableadd = new WTable(document);
+            int ROWAdd = 0; int COLAdd = 0;
+            wTableadd.ResetCells(1, addLasColumnIndex + 1);
+
             return total;
         }
+
+
 
         public double makeOrderServiceTable(string companyGroupId, string companyId, string plantId, string salesId, WordDocument document, DataTable dsOrderMaster)
         {
@@ -3858,7 +4069,7 @@ left join (select Count(isc.RefNo) Cartons , isc.SalesId
                 return 0;
 
             }
-            document.Replace("{ServiceCaption}", "Serive Details", false, false);
+            document.Replace("{ServiceCaption}", "Service Details", false, false);
             serviceTax = loadGRNServiceMasterTex(salesId);
 
             int LasColumnIndex = 2;
