@@ -705,7 +705,7 @@ CASE WHEN EP.ProductionBookingLevel='MasterOrderItem' THEN
 				Group By C.ProductionOrderId) END
 )))/(100-(PS.Qty-100))*100))
 
-,LC.Remark,RANK() OVER(PARTITION BY moi.Id ORDER BY moi.Id DESC) Rank
+,LC.Remark,RANK() OVER(PARTITION BY moi.Id ORDER BY moi.Id DESC) Rank,A.StandardName LotArticle
 FROM TRN.ProductionOrderProcessSet PS
 LEFT JOIN [dbo].[ProductionOrderLotControl] LC ON LC.ProductionOrderId=PS.ProductionOrderId AND PS.ProcessId=LC.ProcessId
 LEFT JOIN HKP.Process P ON P.Id=PS.ProcessId
@@ -715,6 +715,7 @@ LEFT JOIN TRN.ProductionOrder PO ON PO.Id=PS.ProductionOrderId
 LEFT JOIN TRN.ProductionOrderDetail POD ON POD.ProductionOrderId=PO.Id
 LEFT JOIN TRN.SalesOrder SO ON SO.Id=POD.SalesOrderId
 LEFT JOIN TRN.[MasterOrderItem] MOI ON SO.MasterOrderItemId=moi.Id
+LEFT JOIN MST.MaterialMasterArticle A ON A.Id=MOI.ArticleId
 Where PS.ProductionOrderId='" + poId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -729,8 +730,13 @@ Where PS.ProductionOrderId='" + poId + "'";
             try
             {
 
-                var sql = @"SELECT L.*,P.UserName Process  FROM [dbo].[ProductionOrderLotControl] L
+                var sql = @"SELECT DISTINCT L.[Id], L.[SeqNo], L.[EntityId], L.[LotNo], L.[UserLotNo], L.[ProductionBookingLevel], L.[ProductionOrderId]
+, L.[MasterOrderItemId], L.[SalesOrderId], L.[ProcessId], L.[LotQty], L.[OrderQty], L.[PlanQty], L.[SchedulePercentage]
+, L.[ProcessPlanQty], L.[Sufix], L.[Remark],P.UserName Process,A.StandardName LotArticle  
+FROM [dbo].[ProductionOrderLotControl] L
 LEFT JOIN HKP.Process P ON P.Id=L.ProcessId
+JOIN TRN.[MasterOrderItem] MOI ON L.MasterOrderItemId=moi.Id
+JOIN MST.MaterialMasterArticle A ON A.Id=MOI.ArticleId
 Where L.ProductionOrderId='" + PoId + "' AND L.EntityId='"+entityId+"'";
                 return _sqlRepository.GetDataCollection(sql);
             }
