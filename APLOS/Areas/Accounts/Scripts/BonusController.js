@@ -1,6 +1,6 @@
 ﻿'use strict';
-BonusController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter'];
-function BonusController(commonMessage, $scope, $rootScope, baseService, $http, $filter) {
+BonusController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter','cboService'];
+function BonusController(commonMessage, $scope, $rootScope, baseService, $http, $filter, cboService) {
 
     $scope.path = 'Accounts/SalaryDisbursement/';
     $scope.exportgriddataUrl = 'GridReports/ExcelExport';
