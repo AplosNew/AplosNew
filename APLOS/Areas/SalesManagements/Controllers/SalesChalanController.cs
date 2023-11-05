@@ -5,10 +5,15 @@ using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
+using Library.Model.Enums;
 using Library.Model.Setups;
 using Library.Service.Enums;
+using Library.Service.Helpers;
 using Library.Service.Setups;
 using OTSBD;
+using Syncfusion.ExcelToPdfConverter;
+using Syncfusion.Pdf;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -39,21 +44,280 @@ namespace Aplos.Areas.SalesManagements.Controllers
         #endregion Constructor
 
 
-    
+
         public ActionResult Aplos()
         {
             return View();
         }
 
-        [HttpGet,Authorize]
+        public ActionResult Approve()
+        {
+            return View();
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetSalesChalanReportPdf(ReportFormat reportFormat, string masterId)
+        {
+            try
+            {
+                string fileName = "";
+
+                IWorkbook workbook = GetSalesChalanWorkbook("MaterialIssue", masterId);
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + "SalesChalanReport";
+                // return RenderReportAsPdf(workbook, reportFileName);
+                switch (reportFormat)
+                {
+                    case ReportFormat.Pdf:
+                        PdfDocument document = new PdfDocument();
+                        ExcelToPdfConverterSettings settings = new ExcelToPdfConverterSettings();
+                        settings.TemplateDocument = document;
+                        for (int i = 0; i < workbook.Worksheets.Count; i++)
+                        {
+                            ExcelToPdfConverter converter1 = new ExcelToPdfConverter(workbook.Worksheets[i]);
+                            document = converter1.Convert(settings);
+                        }
+                        document.Save(reportFileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Save);
+                        return null;
+
+                    case ReportFormat.PdfView:
+                        PdfDocument document1 = new PdfDocument();
+                        ExcelToPdfConverterSettings settings1 = new ExcelToPdfConverterSettings();
+                        settings1.TemplateDocument = document1;
+                        for (int i = 0; i < workbook.Worksheets.Count; i++)
+                        {
+                            ExcelToPdfConverter converter1 = new ExcelToPdfConverter(workbook.Worksheets[i]);
+                            document1 = converter1.Convert(settings1);
+                        }
+                        document1.Save(reportFileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Open);
+                        //return RenderReportAsPdf(document1, reportFileName);
+                        return RenderReportAsPdf(workbook, reportFileName);
+                    case ReportFormat.Excel:
+                        return RenderReportAsExcel(workbook, reportFileName);
+
+                    default:
+                        return RenderReportAsExcel(workbook, reportFileName);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public IWorkbook GetSalesChalanWorkbook(string SheetName, string masterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Data";
+                sheet = workbook.Worksheets[0];
+                DataTable dtOrder;
+                GetSalesChalanReportData(masterId, out dtOrder);
+
+                if (dtOrder.Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found.");
+                }
+
+                DataTable uniq_Cols = dtOrder.DefaultView.ToTable(true, "InvoiceId");
+                var NoOfInv = uniq_Cols.Rows.Count;
+
+                int ROW = 6; int COL = 1;
+                sheet.Range[ROW, COL].Text = "VechileNo.:";
+                sheet.Range[ROW, 2].Text = dtOrder.Rows[0]["VechileNo"].ToString();
+                sheet.Range[ROW, 3].Text = "GatePassDate: ";
+                sheet.Range[ROW,  4].Text = dtOrder.Rows[0]["GatePassDate"].ToString();
+
+                sheet.Range[ROW, 5].Text = "GatePassNo:";
+                sheet.Range[ROW, 6].Text = dtOrder.Rows[0]["UserRef"].ToString();
+
+             //   sheet.Range[6, 1, 6, 7].BorderAround(ExcelLineStyle.Thick);
+               
+
+                sheet.Range[ROW, 1, ROW + 1, 7].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW + 1, 7].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW + 1, 7].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+                ROW++;
+                #region ColumnsHeader
+
+                sheet[ROW, COL].Text = "InvoiceNo"; sheet[ROW, COL].ColumnWidth = 14; int colIN = COL; COL++;
+                sheet[ROW, COL].Text = "Customer Name"; sheet[ROW, COL].ColumnWidth = 16; int colCN = COL; COL++;
+                sheet[ROW, COL].Text = "No.of Bag"; sheet[ROW, COL].ColumnWidth = 15; int colPackage = COL; COL++;
+                sheet[ROW, COL].Text = "Net Weight"; sheet[ROW, COL].ColumnWidth = 15; int colNW = COL; COL++;
+                sheet[ROW, COL].Text = "Gross Weight"; sheet[ROW, COL].ColumnWidth = 15; int colGW = COL; COL++;
+                sheet[ROW, COL].Text = "Invoice Date"; sheet[ROW, COL].ColumnWidth = 14; int colID = COL; COL++;
+                sheet[ROW, COL].Text = "Destination"; sheet[ROW, COL].ColumnWidth = 19; int colDN = COL; 
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                #endregion columns
+
+                ROW++;
+                int startRow = ROW;
+
+                #region DataPlot
+                for (int i = 0; i < dtOrder.Rows.Count; i++)
+                {
+                    sheet[ROW, colIN].Text = dtOrder.Rows[i]["InvoiceId"].ToString();
+                    sheet[ROW, colCN].Text = dtOrder.Rows[i]["Customer"].ToString();
+                    sheet[ROW, colPackage].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["NoOfPackage"].ToString());
+                    sheet[ROW, colNW].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["NetWeight"].ToString());
+                    sheet[ROW, colGW].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["GrossWeight"].ToString());
+
+                    sheet[ROW, colID].Text = dtOrder.Rows[i]["InvoiceDate"].ToString();
+                    sheet[ROW, colDN].Text = dtOrder.Rows[i]["Destination"].ToString();
+                   
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+               
+
+                #endregion
+                int edCRow = ROW;
+                sheet.Range[edCRow, 2].Text = "No Of Invoice: "+ NoOfInv;
+                sheet.Range[edCRow, 2].CellStyle.Font.Bold = true;
+                sheet.Range[edCRow, 1, edCRow, 2].Merge();
+
+                sheet.Range[edCRow, 3].Number = OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(NoOfPackage)", null));
+                sheet.Range[edCRow, 3].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet.Range[edCRow, 3].CellStyle.Font.Bold = true;
+
+                sheet.Range[edCRow, 3].Number = OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(NoOfPackage)", null));
+                sheet.Range[edCRow, 3].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet.Range[edCRow, 3].CellStyle.Font.Bold = true;
+                sheet.Range[edCRow, 3, edCRow, 3].VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[edCRow, 3, edCRow, 3].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet.Range[edCRow, 4].Number = OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(NetWeight)", null));
+                sheet.Range[edCRow, 4].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet.Range[edCRow, 4].CellStyle.Font.Bold = true;
+                sheet.Range[edCRow, 4, edCRow, 4].VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[edCRow, 4, edCRow, 4].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet.Range[edCRow, 5].Number = OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(GrossWeight)", null));
+                sheet.Range[edCRow, 5].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet.Range[edCRow, 5].CellStyle.Font.Bold = true;
+                sheet.Range[edCRow, 5, edCRow, 5].VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[edCRow, 5, edCRow, 5].HorizontalAlignment = ExcelHAlign.HAlignRight;;
+
+                sheet.Range[edCRow, 1, edCRow, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[edCRow, 1, edCRow, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                edCRow++;
+                edCRow++;
+                edCRow++;
+                edCRow++;
+                edCRow++;
+                edCRow++;
+              
+                sheet.Range[edCRow, 7].Text = "Authorized Signatory";
+
+                #region ReportHeader
+            
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "GATE PASS", identity.PlantId);
+             
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+                sheet.IsGridLinesVisible = false;
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+                #endregion
+
+
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void GetSalesChalanReportData(string masterId, out DataTable dtOrder)
+        {
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"Select SCD.*,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight,DT.UserName Destination,FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
+,SC.VechileNo,SC.UserRef,FORMAT(SC.AddedDate,'dd-MMM-yyyy')GatePassDate
+from dbo.SalesChalanDetail SCD
+LEFT JOIN dbo.SalesChalan SC ON SC.Id=SCD.SalesChalanId
+LEFT JOIN TRN.Sales S ON S.Id=SCD.InvoiceId
+LEFT JOIN HKP.Party P ON P.Id=S.PartyId
+left join (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage,isc.SalesId 
+                from itemscanchild isc
+                left join trn.POLotReference PLR on PLR.Id = isc.PackingId
+                left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
+				group by  isc.salesId) BKD on BKD.salesId = s.Id
+left join PostSalesInvoice PSI on PSI.SalesId = BKD.SalesId
+left join MST.Addressmaster AM on Am.Id = P.AddressmasterId
+left join scs.District DT on DT.Id = AM.DistrictId
+Where SCD.SalesChalanId='" + masterId + "'";
+
+                dtOrder = _sqlRepository.GetDataTable(strSql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }//End Function
+
+        [HttpGet, Authorize]
         public ActionResult GetVehicleNoCbo(string fromDate, string toDate)
         {
             try
             {
-                string sql = @"SELECT DISTINCT TransportVehicleNo AS Value,TransportVehicleNo AS Text 
+                string sql = @"SELECT DISTINCT TransportVehicleNo AS Value,TransportVehicleNo AS Text,TransportDriverNo 
 FROM [dbo].[PostSalesInvoice] PO
 LEFT JOIN TRN.Sales S ON S.Id=PO.SalesId
-Where TransportVehicleNo IS NOT NULL AND FORMAT(S.AddedDate,'dd-MMM-yyyy') between '"+ fromDate + @"' AND '"+ toDate + "'";
+Where TransportVehicleNo IS NOT NULL AND FORMAT(S.AddedDate,'dd-MMM-yyyy') between '" + fromDate + @"' AND '" + toDate + "'";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -83,7 +347,7 @@ LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById) AS TEMP WHER
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetInvoiceData(string fromDate,string toDate,string vehicleno)
+        public ActionResult GetInvoiceData(string fromDate, string toDate, string vehicleno)
         {
             try
             {
@@ -98,7 +362,7 @@ LEFT JOIN (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , 
 left join PostSalesInvoice PSI on PSI.SalesId = BKD.SalesId
 left join MST.Addressmaster AM on Am.Id = P.AddressmasterId
 left join scs.District Dt on DT.Id = AM.DistrictId
-Where FORMAT(S.AddedDate,'dd-MMM-yyyy') between '" + fromDate + @"' AND '"+ toDate + @"' AND PSI.Transportvehicleno='"+ vehicleno + @"'
+Where FORMAT(S.AddedDate,'dd-MMM-yyyy') between '" + fromDate + @"' AND '" + toDate + @"' AND PSI.Transportvehicleno='" + vehicleno + @"'
 AND S.Id NOT IN(Select  InvoiceId from dbo.SalesChalanDetail)
 ORDER BY S.Id";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -109,7 +373,7 @@ ORDER BY S.Id";
             }
         }
 
-        [HttpGet,Authorize]
+        [HttpGet, Authorize]
         public ActionResult GetInvoiceDataByChalan(string masterId)
         {
             try
@@ -135,6 +399,21 @@ Where SCD.SalesChalanId='" + masterId + "'";
             }
         }
 
+        [HttpGet, Authorize]
+        public JsonResult GetAutoSequence()
+        {
+            return Json("GP-" + DateTime.Now.ToString("yy") + GetSequence(), JsonRequestBehavior.AllowGet);
+        }
+
+        private double GetSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT COUNT(Id)C from[dbo].[SalesChalan]");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["C"].ToString()) + 1;
+
+            return 1;
+        }
+
         [HttpPost]
         public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> details)
         {
@@ -143,14 +422,14 @@ Where SCD.SalesChalanId='" + masterId + "'";
                 DataSet dsMaster, dsChild;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
+               
                 string _Id = "";
                 string _cId = "";
                 bplib.clsGenID genid = new bplib.clsGenID();
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                   
+
                     genid.GenID(TableName, out _Id);
 
                     data["Id"] = _Id;
@@ -166,7 +445,7 @@ Where SCD.SalesChalanId='" + masterId + "'";
                 #region SalesChalanDetail 
 
                 con.OpenDataSetThroughAdapter("SELECT * FROM dbo.SalesChalanDetail WHERE  SalesChalanId='" + data["Id"] + "'", out dsChild, false, "1");
-                
+
                 if (details != null)
                 {
                     genid.GenID("SalesChalanDetail", out _cId);
@@ -198,7 +477,7 @@ Where SCD.SalesChalanId='" + masterId + "'";
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dsMaster, dsChild);
 
-                return Json(new { Error = false, Data= data, Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
@@ -210,7 +489,7 @@ Where SCD.SalesChalanId='" + masterId + "'";
 
         public ActionResult Delete(string id)
         {
-            string sql = @"select * from '"+TableName+"' where Id = '" + id + "'";
+            string sql = @"select * from '" + TableName + "' where Id = '" + id + "'";
 
             try
             {
@@ -281,6 +560,6 @@ Where SCD.SalesChalanId='" + masterId + "'";
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
-        
+
     }
 }

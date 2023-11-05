@@ -13,6 +13,8 @@ using Library.Model.Vouchers;
 using Library.Service.Banks;
 using Library.Service.Helpers;
 using Library.ViewModel.Accounts;
+using Library.ViewModel.Banks;
+using Library.ViewModel.Invoices;
 using Library.ViewModel.Vouchers;
 using Newtonsoft.Json;
 using Syncfusion.XlsIO;
@@ -587,6 +589,34 @@ namespace Aplos.Areas.Banks.Controllers
 
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, accountsBankReconcilliationService.InsertExpenseToBankReconcil(voucherVM, voucherDetailVMList)) });
         }
+
+        [HttpPost]
+        public JsonResult InsertCustomerInvoiceReceipt(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
+            , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList)
+        {
+            AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.SourceType = SourceType.CustomerReceipt.ToString();
+            voucherVM.IsPark = true;
+            if (voucherVM.CompanyCurrencyRate <= 0)
+                throw new CustomException("Please Input Rate.");
+            if ((voucherVM.PaymentSource == "Bank") && (voucherVM.BankMasterId == null))
+                throw new CustomException(Resources.SelectBank);
+            if ((voucherVM.PaymentSource == "Cash") && (voucherVM.CashMasterId == null))
+                throw new CustomException(Resources.SelectCash);
+            foreach (var advanceDetailVM in voucherDetailVMList)
+            {
+                if (advanceDetailVM.Amount == 0 || advanceDetailVM.Amount.ToString() == null)
+                    throw new CustomException("Amount should more than 0");
+                if (voucherVM.CurrencyId != advanceDetailVM.CurrencyId)
+                    throw new CustomException("Transaction currency and Payable currency should be same.!!!");
+            }
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, accountsBankReconcilliationService.InsertCustomerInvoiceReceipt(voucherVM, voucherDetailVMList, bankChargeDetailVMList, taxDetailVMList)) });
+        }
+
         #endregion
     }
 }

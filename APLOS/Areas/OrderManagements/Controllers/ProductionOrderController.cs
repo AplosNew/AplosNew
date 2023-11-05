@@ -78,19 +78,19 @@ namespace Aplos.Areas.OrderManagements.Controllers
             string sql = @"select top 100 * from (SELECT PO.*,isnull(po.Remarks,'') AS ProductionRemarks,isnull(s.UserName,'') AS ProductionStatus, isnull(EN.UserName,'') AS EntityName, 
             isnull(PS.UserName,'') AS ProductionStatusName,ISNULL(so.Qty,0) AS SOQuantity
            
-    FROM [TRN].[ProductionOrder] AS PO
-JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
-LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.EntityId = PS.Id
-LEFT OUTER  JOIN (SELECT pod.ProductionOrderId,SUM(so.Qty) AS Qty
-                    FROM trn.SalesOrder AS so
-INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id 
+                            FROM [TRN].[ProductionOrder] AS PO
+                        JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
+                        LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.EntityId = PS.Id
+                        LEFT OUTER  JOIN (SELECT pod.ProductionOrderId,SUM(so.Qty) AS Qty
+                                            FROM trn.SalesOrder AS so
+                        INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id 
                   
-                  GROUP BY pod.ProductionOrderId
+                                          GROUP BY pod.ProductionOrderId
 
-) AS SO ON so.ProductionOrderId=po.Id
-LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
+                        ) AS SO ON so.ProductionOrderId=po.Id
+                        LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
 
-                            WHERE PO.PlantId='" + identity.PlantId + "' OR EN.PlantId='" + identity.PlantId + "') AS TEMP WHERE " + strkey;
+                                                    WHERE PO.PlantId='" + identity.PlantId + "' OR EN.PlantId='" + identity.PlantId + "') AS TEMP WHERE " + strkey;
 
 
             sql = @"select top 100 * from ( " + new Library.OrderManagement.Production.ProductionOrder().ProductionOrderList() + @"

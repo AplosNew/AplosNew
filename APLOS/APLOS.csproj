@@ -350,6 +350,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Areas\Accounts\AccountsAreaRegistration.cs" />
+    <Compile Include="Areas\Accounts\Controllers\BonusController.cs" />
     <Compile Include="Areas\Accounts\Controllers\AccountStatusDashboardController.cs" />
     <Compile Include="Areas\Accounts\Controllers\ChartAccountSetupController.cs" />
     <Compile Include="Areas\Accounts\Controllers\BalanceSheetSchedulingController.cs" />
@@ -1815,6 +1816,7 @@
     <Compile Include="SqlServerTypes\Loader.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Areas\Accounts\Scripts\BonusController.js" />
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
     <Content Include="Areas\Accounts\Scripts\ExpenseDistributionReportController.js" />
     <Content Include="Areas\Accounts\Scripts\balanceSheetSchedulingController.js" />
@@ -4846,6 +4848,7 @@
     <Content Include="Areas\Banks\Views\BankSettlementReco\BankSettlementJournal.cshtml" />
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\Vehiclereport.cshtml" />
     <Content Include="Areas\Accounts\Views\EDReport.cshtml" />
+    <Content Include="Areas\Accounts\Views\Bonus\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -5007,6 +5010,7 @@
     <Content Include="Areas\Products\Views\PurchaseOrder\ServiceAcknowledgement.cshtml" />
     <Content Include="Areas\QMS\Views\DailyQualityStatusReport\Aplos.cshtml" />
     <Content Include="Areas\SalesManagements\Views\SalesChalan\Aplos.cshtml" />
+    <Content Include="Areas\SalesManagements\Views\SalesChalan\Approve.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />
