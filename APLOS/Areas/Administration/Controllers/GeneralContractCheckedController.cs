@@ -47,11 +47,11 @@ namespace Aplos.Areas.Administration.Controllers
             try
             {
                 var sql = @"select  GCE.Id, FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, EI.EmployeeName, GC.UserName Contract
-from TRN.GeneralContractEntry GCE
-LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
-LEFT JOIN MST.GeneralContract GC ON GC.Id = GCE.GeneralContractId
-left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
-where GCE.CheckedByStatus is null";
+                            from TRN.GeneralContractEntry GCE
+                            LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
+                            LEFT JOIN MST.GeneralContract GC ON GC.Id = GCE.GeneralContractId
+                            left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
+                            where GCE.CheckedByStatus is null";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -65,12 +65,12 @@ where GCE.CheckedByStatus is null";
             try
             {
                 var sql = @"select  GCE.Id, FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, EI.EmployeeName, GC.UserName Contract,
-GCE.CheckedByStatus, GCE.CheckedReason
-from TRN.GeneralContractEntry GCE
-LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
-LEFT JOIN MST.GeneralContract GC ON GC.Id = GCE.GeneralContractId
-left join EmployeeInformation EI on EI.SystemId = GCE.ApprovedById
-where GCE.CheckedByStatus = 'Checked'";
+                            GCE.CheckedByStatus, GCE.CheckedReason
+                            from TRN.GeneralContractEntry GCE
+                            LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
+                            LEFT JOIN MST.GeneralContract GC ON GC.Id = GCE.GeneralContractId
+                            left join EmployeeInformation EI on EI.SystemId = GCE.ApprovedById
+                            where GCE.CheckedByStatus = 'Checked'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -104,8 +104,8 @@ where GCE.CheckedByStatus = 'Checked'";
             try
             {
                 var sql = @"select CIE.*, GCI.UserName from TRN.ContractItemEntry CIE
-left join TRN.GeneralContractEntry GCE on GCE.Id = CIE.GeneralContractEntryId
-left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId";
+                left join TRN.GeneralContractEntry GCE on GCE.Id = CIE.GeneralContractEntryId
+                left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -196,8 +196,8 @@ left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId";
                 workbook.Worksheets[0].Name = "General Contract";
                 sheet = workbook.Worksheets[0];
                 DataTable dtOrder,dtDetail;
-                gc.GetMaterialIssueReportHeaderData(ContractId, out dtOrder);
-                gc.GetMaterialIssueReportDetailsData(ContractId, out dtDetail);
+                gc.GetGeneralContractCheckedHeaderData(ContractId, out dtOrder);
+                gc.GetGeneralContractCheckedDetailsData(ContractId, out dtDetail);
  
                 int ROW = 5; int COL = 1;
                 sheet.Range[ROW, COL].Text = "Contract Name";
@@ -230,9 +230,12 @@ left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId";
                 sheet[ROW, COL].ColumnWidth = 12;
                 sheet.Range[ROW, COL + 1].Text = dtOrder.Rows[0]["CheckedByStatus"].ToString();
 
-                sheet.Range[ROW, 1, ROW, COL + 1].CellStyle.Font.Bold = true;
-                sheet.Range[ROW, 1, ROW, COL + 1].BorderAround(ExcelLineStyle.Hair);
-                sheet.Range[ROW, 1, ROW, COL + 1].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, COL + 2].Text = "Approved By";
+                sheet.Range[ROW, COL + 3].Text = dtOrder.Rows[0]["ApprovedBy"].ToString();
+
+                sheet.Range[ROW, 1, ROW, COL + 3].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, COL + 3].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, COL + 3].BorderInside(ExcelLineStyle.Hair);
 
                 #region ColumnsHeader
 

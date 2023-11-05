@@ -1020,7 +1020,7 @@ left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
         }
         #endregion SAVE
 
-        public void GetMaterialIssueReportHeaderData(string ContractId, out DataTable dtOrder)
+        public void GetGeneralContractCheckedHeaderData(string ContractId, out DataTable dtOrder)
         {
             try
             {
@@ -1031,8 +1031,7 @@ left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
                                     LEFT JOIN MST.GeneralContract GC ON GC.Id = GCE.GeneralContractId
                                     left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
                                     left join EmployeeInformation EIM on EIM.SystemId = GCE.ApprovedById
-                                    where GCE.CheckedByStatus is null
-                                    and GCE.Id='" + ContractId + "'";
+                                    where GCE.Id='" + ContractId + "'";
 
                 dtOrder = _sqlRepository.GetDataTable(strSql);
             }
@@ -1045,7 +1044,7 @@ left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
 
             }
         }//End Function
-        public void GetMaterialIssueReportDetailsData(string ContractId, out DataTable dtDetail)
+        public void GetGeneralContractCheckedDetailsData(string ContractId, out DataTable dtDetail)
         {
             try
             {
@@ -1054,8 +1053,7 @@ left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
                                     from TRN.ContractItemEntry CIE
                                     left join TRN.GeneralContractEntry GCE on GCE.Id = CIE.GeneralContractEntryId
                                     left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
-                                    where GCE.CheckedByStatus is null
-                                    and GCE.Id='" + ContractId + "'";
+                                    where GCE.Id='" + ContractId + "'";
 
                 dtDetail = _sqlRepository.GetDataTable(strSql);
             }
@@ -1068,7 +1066,7 @@ left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
 
             }
         }//End Function
-
+ 
     }
     #endregion GeneralContractCheckService
 }

@@ -56,6 +56,11 @@ namespace Aplos.Areas.Accounts.Controllers
             return View("~/Areas/Accounts/Views/Loan/Loan.cshtml");
         }
 
+        public ActionResult SubsequentInvestment()
+        {
+            return View("~/Areas/Accounts/Views/Loan/SubsequentInvestment.cshtml");
+        }
+
         [Authorize, HttpGet]
         public JsonResult GetLoanList(GridParameter parameters)
         {
