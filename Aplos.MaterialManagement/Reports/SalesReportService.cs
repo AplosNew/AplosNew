@@ -1405,14 +1405,14 @@ Where  SM.SalesId='" + SalesId + "'";
 
         public double makeTermsAndCondition(string salesId, WordDocument document, DataTable dsTermsAndCondition)
         {
-            string replaceString = "{TermsAndCondition}";
+            string replaceString = "{conditions}";
 
 
-            IWParagraphStyle rightAlign = document.AddParagraphStyle("rightAlign");
+            IWParagraphStyle ConrightAlign = document.AddParagraphStyle("ConrightAlign");
             //Sets the formatting of the style
-            rightAlign.CharacterFormat.FontSize = 8f;
-            rightAlign.CharacterFormat.TextColor = Color.Black;
-            rightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+            ConrightAlign.CharacterFormat.FontSize = 8f;
+            ConrightAlign.CharacterFormat.TextColor = Color.Black;
+            ConrightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
 
             int LasColumnIndex = 1;
             WTable wTable = new WTable(document);
@@ -1429,7 +1429,7 @@ Where  SM.SalesId='" + SalesId + "'";
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Terms And Conditions");
             range.ApplyCharacterFormat(FontBold);
             int colTermsAndCondition = COL; COL++;
-            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 290;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 580;
 
             #endregion column headers
             double totalValue = 0;
@@ -1466,7 +1466,7 @@ Where  SM.SalesId='" + SalesId + "'";
             ROW++;
             #region paragrpath formats
 
-            IWParagraphStyle myStyle = document.AddParagraphStyle("ServiceStyle");
+            IWParagraphStyle myStyle = document.AddParagraphStyle("TermsAndConditionsStyle");
             //Sets the formatting of the style
             myStyle.CharacterFormat.FontSize = 8f;
             myStyle.CharacterFormat.TextColor = Color.Black;
@@ -1513,7 +1513,7 @@ Where  SM.SalesId='" + SalesId + "'";
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Additional Info");
             range.ApplyCharacterFormat(FontBold);
             int colTermsAndCondition = COL; COL++;
-            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 550;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 580;
 
             #endregion column headers
             double totalValue = 0;
