@@ -5476,6 +5476,105 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 
         }
         #endregion
+
+        #region GRN BOQ PO Documents Upload 
+        [HttpPost, Authorize]
+        public JsonResult GRNPODocCreate(FormCollection form, string POId)
+        {
+            var PODocumentMap = new JavaScriptSerializer().Deserialize<PODocumentMap>(form["PODocumentMap"]);
+
+            var directory = ResourcesPathReader.GetGRNPOPath();
+            var path = Path.Combine(directory);
+
+            if (PODocumentMap.UserFilename.IsNotNull())
+            {
+                ResourcesPathReader.IsValidFileExtention(Path.GetExtension(PODocumentMap.UserFilename));
+            }
+
+            var fileId = "";
+            var fileName = "";
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            PODocumentMap.CompanyGroupId = identity.CompanyGroupId;
+
+
+            _purchaseOrderService.InsertPODocMap(PODocumentMap, POId, out string Id);
+
+            var file = Request.Files["file"];
+
+            if (PODocumentMap.UserFilename.IsNotNull())
+            {
+
+                if (System.IO.File.Exists(path + PODocumentMap.POId))
+                    System.IO.File.Delete(path + Id + Path.GetExtension(PODocumentMap.UserFilename));
+                file.SaveAs(path + Id + Path.GetExtension(PODocumentMap.UserFilename));
+            }
+            return Json(new { PODocumentMap = PODocumentMap, Message = AplosMessage.Insert });
+        }
+        public JsonResult GRNPODocumentMapData(string POID)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
+                return Json(obj.PODocumentMapData(POID), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
+        [Authorize, HttpPost]
+        public ActionResult GRNPOImageDelete(string Id)
+        {
+            var fileId = "";
+            var fileName = "";
+            try
+            {
+                PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
+
+                var directory = ResourcesPathReader.GetGRNPOPath();
+                var path = Path.Combine(directory);
+                var data = GetFile(Id);
+                if (data.Count > 0)
+                {
+                    if (!string.IsNullOrEmpty(data["Id"].ToString()) &&
+                    !string.IsNullOrEmpty(data["UserFilename"].ToString()))
+                        fileId = data["Id"].ToString();
+                    fileName = data["UserFilename"].ToString();
+                    if (System.IO.File.Exists(path + fileId + Path.GetExtension(fileName)))
+                        System.IO.File.Delete(path + fileId + Path.GetExtension(fileName));
+                }
+                obj.GRNImageDelete(Id);
+                return Json(new { Error = false, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GRNPODocumentMapDataAll(string POID)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                PurchaseOrderQueryService obj = new PurchaseOrderQueryService();
+                return Json(obj.PODocumentMapDataAll(POID), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
     }
 }
 
