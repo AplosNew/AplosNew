@@ -1038,5 +1038,9 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/VoucherReport/EDReport",
             controller: "ExpenseDistributionReportController"
         })
+        .when("/subsequent-investment", {
+            templateUrl: "Accounts/Investment/SubsequentInvestment",
+            controller: "SubsequentInvestmentController"
+        })
         ;
 } 

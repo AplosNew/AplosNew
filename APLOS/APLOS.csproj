@@ -4849,7 +4849,7 @@
     <Content Include="Areas\Banks\Views\BankSettlementReco\BankSettlementJournal.cshtml" />
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\Vehiclereport.cshtml" />
     <Content Include="Areas\Accounts\Views\EDReport.cshtml" />
-    <Content Include="Areas\Accounts\Views\Loan\SubsequentInvestment.cshtml" />
+    <Content Include="Areas\Accounts\Views\SubsequentInvestment.cshtml" />
     <Content Include="Areas\Accounts\Views\Bonus\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
