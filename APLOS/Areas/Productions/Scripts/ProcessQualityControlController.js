@@ -393,7 +393,8 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         PositionCodeId: null,
         PositionCode: null,
         Remarks: null,
-        EntryLevel: null
+        EntryLevel: null,
+        IsActive: true
     };
     $scope.POQualityNew = Object.assign({}, $scope.POQuality);
 
