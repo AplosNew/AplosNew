@@ -171,6 +171,12 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
             }
         }
+        public List<Dictionary<string, object>> CheckYearClosedByDate(System.DateTime date)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select * from [SCS].[FiscalYearClose] where  VoucherId is not null AND CompanyId='" + identity.CompanyId + "' AND PlantId='" + identity.PlantId + "' AND FiscalYearId in(select Id from [SCS].[FiscalYear] where '" + date + "' between StartDate and EndDate) ";
+            return _sqlRepository.GetDataCollection(sql);
+        }
         #region
         public List<Dictionary<string, object>> GetFiscalYearClosePostedList(string column, string value, string companyId)
         {
@@ -178,7 +184,7 @@ namespace Library.Accounting.Accounts
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
             var sql = @"select top 100 * from (SELECT V.Id,V.VoucherNo,V.DocRefNo,FORMAT(V.PostingDate, 'dd-MMM-yyyy') PostingDate
-				,FY.FiscalYearName,C.UserName CompanyName,P.UserName PlantName,FYC.AdjustmentAmount Amount
+				,FYC.Id FiscalYearCloseId,FY.FiscalYearName,C.UserName CompanyName,P.UserName PlantName,FYC.AdjustmentAmount Amount
 				FROM TRN.Voucher V 
 				LEFT JOIN [SCS].[FiscalYearClose] FYC ON FYC.VoucherId=V.Id
 				LEFT JOIN [SCS].[FiscalYear] AS FY  ON FY.Id=FYC.FiscalYearId
@@ -212,6 +218,16 @@ namespace Library.Accounting.Accounts
                                 LEFT JOIN  [ORG].[Company] AS C  ON C.Id=FYC.CompanyId
                                 LEFT JOIN [ORG].[Plant] AS P  ON P.Id=FYC.PlantId
                                 Where FYC.VoucherId IS NULL";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        public List<Dictionary<string, object>> GetFiscalYearClosedListForReporting()
+        {
+            string sql = @"SELECT FYC.Id,FY.Id Sequence,FY.FiscalYearName,C.UserName CompanyName,P.UserName PlantName
+                                FROM [SCS].[FiscalYearClose] As FYC
+                                LEFT JOIN [SCS].[FiscalYear] AS FY  ON FY.Id=FYC.FiscalYearId
+                                LEFT JOIN  [ORG].[Company] AS C  ON C.Id=FYC.CompanyId
+                                LEFT JOIN [ORG].[Plant] AS P  ON P.Id=FYC.PlantId
+                                Where FYC.VoucherId IS NOT NULL";
             return _sqlRepository.GetDataCollection(sql);
         }
         public List<Dictionary<string, object>> GetFiscalYearCloseSingleJVList(string fiscalYearCloseId, string companyId, string plantId)

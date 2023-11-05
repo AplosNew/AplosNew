@@ -60,19 +60,12 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = AplosMessage.Insert });
         }
 
-
-
-        //[HttpPost]
-        //public ActionResult Delete(string id)
-        //{
-        //    if (string.IsNullOrEmpty(id)) throw new CustomException(Resources.IdNotFound);
-        //    if (_fiscalYearService.UsingCheck(id))
-        //        throw new CustomException("This Fiscal Year is already in used...");
-        //    _fiscalYearPeriodService.DeleteFiscalYearById(id);
-        //    _fiscalYearService.Delete(id);
-        //    return Json(new { Message = AplosMessage.Deleted });
-        //}
-
+        [HttpGet, Authorize]
+        public JsonResult CheckYearClosedByDate(System.DateTime date)
+        {
+            FiscalYearCloseService _fiscalYearCloseService = new FiscalYearCloseService(_sqlRepository);
+            return Json(_fiscalYearCloseService.CheckYearClosedByDate(date), JsonRequestBehavior.AllowGet);
+        }
         #endregion
 
         #region Fiscal Year Close Post
@@ -94,6 +87,12 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             FiscalYearCloseService _fiscalYearCloseService = new FiscalYearCloseService(_sqlRepository);
             return Json(_fiscalYearCloseService.GetFiscalYearCloseListForPosting(), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public JsonResult GetFiscalYearClosedListForReporting()
+        {
+            FiscalYearCloseService _fiscalYearCloseService = new FiscalYearCloseService(_sqlRepository);
+            return Json(_fiscalYearCloseService.GetFiscalYearClosedListForReporting(), JsonRequestBehavior.AllowGet);
         }
         [HttpPost, Authorize]
         public ActionResult GetFiscalYearCloseSingleJVList(string fiscalYearCloseId)

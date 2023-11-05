@@ -108,6 +108,22 @@ namespace Library.Service.Vouchers
                 throw;
             }
         }
+        public IWorkbook GetIncomeStatementYearClosedReport(string companyId, string plantId, string plantName, string fiscalYearCloseId, string fiscalYearName, bool isBudgetLevel, bool isActivityLevel)
+        {
+            try
+            {
+                var obj = new ReportGeneralVoucher();
+                using (ExcelEngine excelEngine = new ExcelEngine())
+                {
+                    var workbook = obj.IncomeStatement_YearClosed_Report(excelEngine, companyId, plantId, plantName, fiscalYearCloseId, fiscalYearName, isBudgetLevel, isActivityLevel);
+                    return workbook;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
         //Income statement datewise
         public IWorkbook GetIncomeStatementReportDateWise(string companyId, string PlantId, string plantName, string fromDate, string toDate,  string[] parallelCurrencies, bool isBudgetLevel, bool isActivityLevel)
