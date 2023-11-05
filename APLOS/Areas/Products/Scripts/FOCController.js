@@ -150,13 +150,13 @@ function FOCController(accountService, addressService, $window, cboService, comm
 
     //#region PO Index Grid Data Display Load Function
 
- 
+
     $scope.Griddata = [];
     $scope.getalldata = function () {
         //debugger;
         $http({
             method: 'GET',
-            url: 'Products/InventoryReceive/GetListFOCGRN?status=' +'For Approval'
+            url: 'Products/InventoryReceive/GetListFOCGRN?status=' + 'For Approval'
         }).then(function successCallback(response) {
             $scope.Griddata = response.data;
             for (var i = 0; i < $scope.Griddata.length; i++) {
@@ -312,7 +312,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
         , Tolerance: 0
         , TermsAndConditionsId: null
         , IsTradingPO: false
-        , IsFOC : true
+        , IsFOC: true
     };
     $scope.productNew = Object.assign({}, $scope.product);
 
@@ -756,6 +756,13 @@ function FOCController(accountService, addressService, $window, cboService, comm
     $scope.Clear = function () {
         $scope.TermsAndConditionGridList = [];
         $scope.POPupList = [];
+        $scope.productDocMap = {
+            UserFilename: null
+            , Description: null
+            , Remarks: null
+        };
+
+        $scope.Imagedata = [];
         ClearFields();
         $scope.NotificationSettingStatus();
         if (!$rootScope.isCollapsed) $rootScope.toggle();
@@ -1543,7 +1550,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
 
         try {
             $scope.validation();
-           
+
             $scope.detailModel.InventoryReceiveId = $scope.productNew.Id;
             $scope.detailModel.TransactionRate = 0;
             $scope.detailModel.TransactionAmount = 0;
@@ -2417,7 +2424,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
         $scope.Id = $scope.productNew.Id;
         $scope.productNew.PODate = x.data.PODate1;
         //getPartyPlantList();
-       // $scope.GetTerms($scope.productNew.Id);
+        // $scope.GetTerms($scope.productNew.Id);
         getPartyPlantEditList($scope.productNew.InvoicingPartyPlantId, $scope.productNew.InvoicingByAddress, $scope.productNew.DeliveryPartyPlantId, $scope.productNew.DeliveryByAddress, $scope.productNew.DeliveryState, $scope.productNew.DeliveryGSTIN);
         // getPartyPlantEditList();
         getInventoryMaterialList($scope.productNew.Id);
@@ -3913,7 +3920,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
                     }
 
                     if ($scope.GetListForMasterOrder[i].CheckedStatus === true && $scope.GetListForMasterOrder[i].RequiredQtyApproved === 'Yes' && $scope.GetListForMasterOrder[i].IncompleteMaterial === 'No') {
-                        
+
                         if ($scope.ActionPOBOQ === 'Save') {
                             if ((parseFloat($scope.GetListForMasterOrder[i].TransactionQty) + parseFloat($scope.GetListForMasterOrder[i].OtherPOQty)) > parseFloat($scope.GetListForMasterOrder[i].RequiredQtyPO)) {
                                 ShowResult('Trasaction qty can not grater than booking Qty', 'failure', 'ListOfPOMaterial');
@@ -3932,7 +3939,7 @@ function FOCController(accountService, addressService, $window, cboService, comm
                                 ShowResult('Enter the current Qty.Zero not allowed', 'failure', 'ListOfPOMaterial');
                                 return false;
                             }
-                            
+
                             if ($scope.GetListForMasterOrder[i].RequiredQtyApproved === 'No') {
                                 ShowResult('Required Qty not yet Approved.So you can not take this material', 'failure', 'ListOfPOMaterial');
                                 return false;
@@ -4059,8 +4066,8 @@ function FOCController(accountService, addressService, $window, cboService, comm
             //            newList.push($scope.GetListForMasterOrdernew[i]);
             //        }
             //    }
-                
-                
+
+
             //}
 
             if ($scope.ActionPOBOQ === 'Save') {
@@ -4313,9 +4320,6 @@ function FOCController(accountService, addressService, $window, cboService, comm
     };
 
     $scope.DocumentSave = function () {
-        ;
-        //$scope.$broadcast("show-errors-check-validity");
-
         if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
             throw $scope.filedata.name + ' File size must be below 2 mb';
         var fileName = null;
@@ -4339,48 +4343,50 @@ function FOCController(accountService, addressService, $window, cboService, comm
                 return false;
             }
         }
+        if (angular.isUndefinedOrNull($scope.productNew.Id))
+            ShowResult('Please select/save PO first', 'Error');
+        else {
+            try {
 
-        try {
+                var formData = new FormData();
 
-            var formData = new FormData();
-
-            $http({
-                method: "POST",
-                url: 'Products/PurchaseOrder/PODocCreate',
-                headers: { 'Content-Type': undefined },
-                transformRequest: function (data) {
-                    formData.append("PODocumentMap", angular.toJson($scope.productDocMap));
-                    if (baseService.isUndefinedOrNull($scope.filedata) === false) {
-                        formData.append('file', data.file);
+                $http({
+                    method: "POST",
+                    url: 'Products/PurchaseOrder/PODocCreate',
+                    headers: { 'Content-Type': undefined },
+                    transformRequest: function (data) {
+                        formData.append("PODocumentMap", angular.toJson($scope.productDocMap));
+                        if (baseService.isUndefinedOrNull($scope.filedata) === false) {
+                            formData.append('file', data.file);
+                        }
+                        return formData;
+                    },
+                    data: {
+                        "PODocumentMap": $scope.productDocMap,
+                        "file": $scope.filedata,
+                        "POId": $scope.productNew.Id,
+                    },
+                    dataType: "JSON"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
                     }
-                    return formData;
-                },
-                data: {
-                    "PODocumentMap": $scope.productDocMap,
-                    "file": $scope.filedata,
-                    "POId": $scope.productNew.Id,
-                },
-                dataType: "JSON"
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, "failure");
-                }
-                else {
-                    ShowResult(response.data.Message, "success");
-                    $scope.ImagedataLoad();
-                    $scope.productDocMap.UserFilename = "";
-                    $scope.productDocMap.Description = "";
-                    $scope.productDocMap.Remarks = "";
-                }
-            }, function errorCallback(response) {
-                ShowResult(response.status.Message, "failure");
-            });
-            return true;
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        $scope.ImagedataLoad();
+                        $scope.productDocMap.UserFilename = "";
+                        $scope.productDocMap.Description = "";
+                        $scope.productDocMap.Remarks = "";
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, "failure");
+                });
+                return true;
 
-        } catch (e) {
-            throw ShowResult(e, "failure");
+            } catch (e) {
+                throw ShowResult(e, "failure");
+            }
         }
-
         return true;
     };
     $scope.Imagedata = [];

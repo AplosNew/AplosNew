@@ -314,8 +314,19 @@ namespace Library.Service.Helpers
 				throw new CustomException(ServiceResources.FilePathNotFound);
 			}
 		}
+		public static string GetGRNPOPath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/PurchaseOrder/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
 
-        public static string GetJobWorkPurchaseOrderPath()
+		public static string GetJobWorkPurchaseOrderPath()
         {
             try
             {

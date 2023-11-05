@@ -1041,7 +1041,6 @@ namespace Library.Accounting.Accounts
                 DataSet _drvDetailCurrencyRoundingData = null;
                 DataSet _crvDetailRoundingData = null;
                 DataSet _crvDetailCurrencyRoundingData = null;
-
                 if (string.IsNullOrEmpty(voucherVM.BankMasterId) && voucherVM.PaymentSource == PaymentSource.Bank.ToString())
                     throw new CustomException("Bank Id not found!");
                 else if (string.IsNullOrEmpty(voucherVM.CashMasterId) && voucherVM.PaymentSource == PaymentSource.Cash.ToString())
@@ -1052,11 +1051,27 @@ namespace Library.Accounting.Accounts
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
 
-                _unitOfWork.BeginTransaction();
-                flag = true;
                 if (voucherVM.PaymentSource == PaymentSource.Discount.ToString())
                     voucherVM.Amount = voucherDetailVMList.Sum(r => r.Amount);
-                // INSERT INTO InvoiceWriteOff
+                var voucher = new Voucher
+                {
+                    CompanyGroupId = voucherVM.CompanyGroupId,
+                    CompanyId = voucherVM.CompanyId,
+                    PlantId = voucherVM.PlantId,
+                    CurrencyId = companyCurrencyId,
+                    FiscalYearId = voucherVM.FiscalYearId,
+                    FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+                    TaxYearId = voucherVM.TaxYearId,
+                    TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+                    VoucherDate = DateTime.Now,
+                    DocDate = voucherVM.DocDate,
+                    DocRefNo = voucherVM.DocRefNo,
+                    Narration = voucherVM.Narration,
+                    PostingDate = voucherVM.PostingDate,
+                    SourceType = SourceType.CustomerReceipt.ToString(),
+                    VoucherTypeId = voucherVM.VoucherTypeId
+                };
+                _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
                 var invoiceWriteOff = new InvoiceWriteOff
                 {
                     CompanyGroupId = voucherVM.CompanyGroupId,
@@ -1089,13 +1104,12 @@ namespace Library.Accounting.Accounts
                     PaymentSource = voucherVM.PaymentSource,
                     RoundingType = voucherVM.RoundingType,
                     RoundingAmount = voucherVM.RoundingAmount,
-                    InvoiceWriteOffGroupNo = voucherVM.InvoiceWriteOffGroupNo
+                    InvoiceWriteOffGroupNo = voucherVM.InvoiceWriteOffGroupNo,
+                    VoucherId=voucher.Id
                 };
                 _accountsCommonService.InsertInvoiceWriteOff(invoiceWriteOff, out _invoiceWriteOffData);
 
-                // INSERT INTO Voucher
-                var voucher = _accountsCommonService.InsertVoucher(voucherVM);
-
+                
                 // Set Voucher Id to Advance
                 invoiceWriteOff.VoucherId = voucher.Id;
 
@@ -1125,6 +1139,7 @@ namespace Library.Accounting.Accounts
 
                     var invoceDetailDb = new InvoiceDetail
                     {
+                        InvoiceId = invoiceDt["InvoiceId"].ToString(),
                         WrittenOffAmount = Convert.ToDecimal(invoiceDt["WrittenOffAmount"]) + voucherDetailVM.Amount,
                         UpdatedBy = invoiceWriteOff.AddedBy,
                         UpdatedDate = invoiceWriteOff.AddedDate,
@@ -1142,9 +1157,10 @@ namespace Library.Accounting.Accounts
                     {
                         WrittenOffAmount = Convert.ToDecimal(invoice["WrittenOffAmount"]) + voucherDetailVM.Amount,
                         UpdatedBy = invoiceWriteOff.AddedBy,
+                        Id = invoice["Id"].ToString(),
                         UpdatedDate = invoiceWriteOff.AddedDate,
                         UpdatedFromIP = invoiceWriteOff.AddedFromIP,
-                        IsWrittenOff = Convert.ToDecimal(invoice["NetAmount"]) == Convert.ToDecimal(invoice["WrittenOffAmount"])
+                        IsWrittenOff = Convert.ToDecimal(invoice["Amount"]) == Convert.ToDecimal(invoice["WrittenOffAmount"])
                     };
                     _accountsCommonService.UpdateInvoice(invoceDb, ref _invoiceData);
 
@@ -1386,9 +1402,23 @@ namespace Library.Accounting.Accounts
                             totalCurrencyAmountDr += totalCurrencyAmountCr - totalCurrencyCharges;
 
                         }
+                        if (voucherVM.BankReconciliationUploadedDataId != null)
+                        {
+                            var bankReconciliationMap = new BankReconciliationMap
+                            {
+                                BankReconciliationUploadedDataId = voucherVM.BankReconciliationUploadedDataId,
+                                VoucherDetailId = voucherDetailDr.Id,
+                                GLTransactionDetailId = voucherDetailDr.Id,
+                                AddedBy = voucher.AddedBy,
+                                AddedDate = voucher.AddedDate,
+                                AddedFromIP = voucher.AddedFromIP
+                            };
+                            _accountsCommonService.InsertBankReconciliationMap(bankReconciliationMap, ref _bankReconciliationMapData);
+                        }
                     }
                     else
                         throw new CustomException("Bank Id not found!");
+                   
                 }
 
                 if (!string.IsNullOrEmpty(invoiceWriteOff.RoundingType))
@@ -1455,6 +1485,7 @@ namespace Library.Accounting.Accounts
                         }
                     }
                 }
+               
                 //totalCurrencyAmountDr = totalCurrencyAmountCr;
                 totalAmountCr += taxDrAmount;
                 totalAmountDr += totalCharges;
@@ -1464,9 +1495,10 @@ namespace Library.Accounting.Accounts
                 if (totalCurrencyAmountCr != totalCurrencyAmountDr)
                     throw new CustomException("Dr and Cr amount is not equal.");
 
-                _unitOfWork.SaveChanges();
-                flag = false;
-                _unitOfWork.Commit();
+                clsStaticInfo objApp = new clsStaticInfo();
+                objApp.SaveDataSets(_vdataset, _invoiceWriteOffData, _invoiceWriteOffDetailData, _crvDetailData,  _crvDetailCurrencyData, _drvDetailData, _drvDetailCurrencyData
+                    , _glTransactionDetailData, _bankReconciliationMapData, _drvDetailExLoseData, _drvDetailExLoseCurrencyData, _crvDetailExGainData, _crvDetailCurrencyExGainData, _drvDetailRoundingData, _drvDetailCurrencyRoundingData, _crvDetailRoundingData, _crvDetailCurrencyRoundingData);
+
                 return voucher.VoucherNo;
             }
             catch (CustomException)
