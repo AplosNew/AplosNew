@@ -4124,7 +4124,7 @@ LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POProcessFirstProdBookD
 LEFT JOIN (Select SUM(Quantity)ProQty,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) LBPPD ON LBPPD.ProductionOrderId=PO.Id
 LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=PO.Id
 where PS.UserName in ('Running','To Close')) PO
-left join MST.POQualityPlanDetails PD on PD.EntryLevel=PO.EntryLevel and PO.ProcessId=PD.ProcessId
+left join MST.POQualityPlanDetails PD on PD.EntryLevel=PO.EntryLevel and PO.ProcessId=PD.ProcessId and PD.IsActive=1
 left Join MST.QualityManagementMaster QMM on QMM.Id=PD.IssueId
 left join [TRN].[QualityPlanControl] QPC on QPC.QPId=PD.Id and QPC.POId=PO.Id and QPC.LotNumber=PO.LotNumber and QPC.EntryLevel=PO.EntryLevel
 left join TRN.ProductionOrderDetail POD on POD.ProductionOrderId=PO.Id
@@ -4194,7 +4194,7 @@ LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POProcessFirstProdBookD
 LEFT JOIN (Select SUM(Quantity)ProQty,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) LBPPD ON LBPPD.ProductionOrderId=PO.Id
 LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=PO.Id
 where PS.UserName in ('Running','To Close')) PO
-left join MST.POQualityPlanDetails PD on PD.EntryLevel=PO.EntryLevel
+left join MST.POQualityPlanDetails PD on PD.EntryLevel=PO.EntryLevel and PD.IsActive=1
 left Join MST.QualityManagementMaster QMM on QMM.Id=PD.IssueId
 left join [TRN].[QualityPlanControl] QPC on QPC.QPId=PD.Id and QPC.POId=PO.Id and QPC.LotNumber=PO.LotNumber and QPC.EntryLevel=PO.EntryLevel
 left join TRN.ProductionOrderDetail POD on POD.ProductionOrderId=PO.Id
