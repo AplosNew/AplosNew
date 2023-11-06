@@ -296,6 +296,14 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
             try
             {
                 DataTable dtRunningOrderPreference = new DataTable();
+
+
+                DataTable dtUserDefineLotNo = _sqlRepository.GetDataTable("SELECT * FROM TRN.ProductionOrder where  Id <> '" + master.Id + "' AND UserDefineLotNo = '" + master.UserDefineLotNo+ "'");
+                if (dtUserDefineLotNo.Rows.Count > 0)
+                {
+                    throw new CustomException("This Lot No is already exists.");
+                }
+
                 DataTable dtTemp = _sqlRepository.GetDataTable("select top 1 * from Trn.ProductionOrder where ID='" + master.Id + "'");
                 if (dtTemp.Rows.Count > 0)
                 {
@@ -347,10 +355,6 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                     }
                 }
 
-
-
-
-
                 string s = "''";
                 foreach (ProductionOrderDetail item in detaillist)
                 {
@@ -359,7 +363,6 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
 
                 if (s == "''")
                     throw new Exception("No sales order data found, cannot save");
-
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 master.PlantId = identity.PlantId;
@@ -650,7 +653,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
 
         #endregion
 
- 
+
         #region Production Bulletin
 
         [HttpPost, Authorize]
@@ -2368,7 +2371,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetPOLotContSettingsData(string poId,string entityId)
+        public JsonResult GetPOLotContSettingsData(string poId, string entityId)
         {
             List<Dictionary<string, object>> data = null;
             try
@@ -2411,11 +2414,17 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMaster, dsChild;
+            DataSet dsMaster, dsChild, dsUserDefineLotNo;
             try
             {
                 string sql = "SELECT * FROM TRN.ProductionOrder WHERE Id='" + poId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM TRN.ProductionOrder where  Id<>'" + poId + "' AND UserDefineLotNo='"+userLotNo+"'", out dsUserDefineLotNo, false, "1");
+                if (dsUserDefineLotNo.Tables[0].Rows.Count>0)
+                {
+                    throw new CustomException("This Lot No is already exists.");
+                }
+
                 objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
 
                 if (dsMaster.Tables[0].Rows.Count > 0)
@@ -2436,8 +2445,8 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                 }
 
                 #region LotControlSetting 
-                
-               // objCon.executeQuery("DELETE FROM dbo.LotControlSetting WHERE ProductionOrderId='" + poId + "'");
+
+                // objCon.executeQuery("DELETE FROM dbo.LotControlSetting WHERE ProductionOrderId='" + poId + "'");
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.LotControlSetting where  ProductionOrderId='" + poId + "'", out dsChild, false, "1");
                 for (int i = 0; i < dsChild.Tables[0].Rows.Count; i++)
                 {
@@ -2451,7 +2460,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                     {
                         DataView dv = new DataView(dsChild.Tables[0]);
                         dv.RowFilter = "Id='" + item["Id"].ToString() + "'";
-                        
+
 
                         if (dv.Count == 0)
                         {
@@ -2502,7 +2511,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionOrderLotControl where  ProductionOrderId='" + poId + "'", out dsEntity, false, "1");
                 if (data != null)
                 {
-                    genid.GenID("ProductionOrderLotControl", out _Id);
+                    //genid.GenID("ProductionOrderLotControl", out _Id);
                     foreach (var item in data)
                     {
                         c++;
@@ -2511,7 +2520,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
 
                         if (dv.Count == 0)
                         {
-                            item["Id"] = poId + "-" + _Id + "-" + c;
+                            item["Id"] = poId + "-" + c;
                             item["ProductionOrderId"] = poId;
 
                             AddNewRow(dsEntity.Tables[0], item);
@@ -2540,7 +2549,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
             }
         }
 
- 
+
     }
 
     public class MultiCode
