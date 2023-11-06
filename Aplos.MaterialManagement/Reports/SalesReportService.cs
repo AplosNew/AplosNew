@@ -1744,9 +1744,9 @@ Where  SM.SalesId='" + SalesId + "'";
 	                          ,TCV.UserName AS ThirdCharacteristicsValue
 	                          ,SC.UserName SecondChar
                               , TC.UserName ThirdChar
-                               , ROUND(IRD.TransactionQty, 2) POTransactionQty
+                              ,POTransactionQty=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.NetWeight END)
 	                          ,ROUND(IRD.TransactionRate, 4) TransactionRate
-	                          ,ROUND((IRD.TransactionQty * IRD.TransactionRate), 2) AS TrnAmount
+	                          ,ROUND(((CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.NetWeight END)) * ROUND(IRD.TransactionRate, 4)), 2) AS TrnAmount
                               , IRD.BaseAmount
 	                          ,IRD.TaxAmount AS BaseTaxAmount
 	                          ,TaxAmount = (SELECT SUM(TaxAmount) FROM[TRN].[PurchaseOrderTax] WHERE InventoryReceiveDetailId = IRD.Id)
@@ -1798,7 +1798,7 @@ Where  SM.SalesId='" + SalesId + "'";
 						LEFT JOIN dbo.SalesPacking SP ON pla.ProductLibraryId = SP.ProductLibraryId
 						WHERE SP.SalesId=IR.Id
 						for XML PATH('')
-						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy,BKD.Cartons,BKD.LotNo
+						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy,SCN.Cartons,SCN.LotNo
                         FROM TRN.Sales IR
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -1843,11 +1843,8 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
                          LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
                          LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId
 ) LC on LC.SalesId = IR.Id
-left join (select Count(isc.RefNo) Cartons,ISC.LotNo, isc.SalesId 
-                from itemscanchild isc
-                left join trn.POLotReference PLR on PLR.Id = isc.PackingId
-                left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
-				   group by isc.salesId,ISC.LotNo) BKD on BKD.salesId = IR.Id
+LEFT JOIN (SELECT SalesId,SalesMaterialId, LotNo, COUNT(RefNo) Cartons, 
+            SUM(NetWeight)NetWeight,SUM(GWeight)GWeight FROM ItemScanChild group by SalesId ,SalesMaterialId, LotNo) SCN on SCN.SalesId = IR.Id AND SCN.SalesMaterialId=IRD.Id
                          WHERE IR.Id ='" + SalesId + "'";
 
                 return _sqlRepository.GetDataTable(strSQL);
@@ -5160,9 +5157,9 @@ left join (select Count(isc.RefNo) Cartons,ISC.LotNo, isc.SalesId
     ,CONVERT(NUMERIC(10,2),IRD.TransactionRate, 4) TransactionRate
 	,TrnAmount=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN ROUND((IRD.TransactionQty * IRD.TransactionRate), 2) ELSE ROUND((SCN.NetWeight * IRD.TransactionRate), 2) END)
 	 ,BaseAmount=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.BaseAmount ELSE ROUND((SCN.NetWeight * IRD.TransactionRate), 2) END)
-   ,BooksCurrencyTransactionAmount=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.BooksCurrencyTransactionAmount ELSE ROUND((SCN.NetWeight * CONVERT(NUMERIC(10,2),IRD.BooksCurrencyBaseRate)), 2) END)	
+   ,BooksCurrencyTransactionAmount=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.BooksCurrencyTransactionAmount ELSE ROUND((SCN.NetWeight * CONVERT(NUMERIC(10,4),IRD.BooksCurrencyBaseRate)), 4) END)	
     ,CONVERT(NUMERIC(10,2),IRD.BooksCurrencyTaxAmount)BooksCurrencyTaxAmount
-    ,CONVERT(NUMERIC(10,2),IRD.BooksCurrencyBaseRate)BooksCurrencyBaseRate
+    ,CONVERT(NUMERIC(10,4),IRD.BooksCurrencyBaseRate)BooksCurrencyBaseRate
     ,TUoM.UserName AS TransactionUoM
     ,PONumber = REPLACE(REPLACE(STUFF((
                     SELECT DISTINCT ', ' + CPO.PONumber
@@ -5910,8 +5907,8 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                 strSQL = @"Select CONVERT(NUMERIC(10,2),SUM(ISNULL(ST.BooksCurrencyTransactionAmount,0))) BooksCurrencyTransactionAmount
 ,ST.SalesId,ST.TaxCategoryId,TC.Code TaxCode,CONVERT(NUMERIC(10,2),ST.Percentage)Percentage
 --,CONVERT(NUMERIC(10,2),SUM(SM.BooksCurrencyTransactionAmount)) TaxON
-,TaxON=SUM(CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN SM.BooksCurrencyTransactionAmount ELSE ROUND((SCN.NetWeight * CONVERT(NUMERIC(10,2),SM.BooksCurrencyBaseRate)), 2) END))
-,TaxAmount=CONVERT(NUMERIC(10,2),((SUM(CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN SM.BooksCurrencyTransactionAmount ELSE ROUND((SCN.NetWeight * CONVERT(NUMERIC(10,2),SM.BooksCurrencyBaseRate)), 2) END)))*CONVERT(NUMERIC(10,2),ST.Percentage)/100))
+,TaxON=SUM(CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN SM.BooksCurrencyTransactionAmount ELSE ROUND((SCN.NetWeight * CONVERT(NUMERIC(10,4),SM.BooksCurrencyBaseRate)), 2) END))
+,TaxAmount=CONVERT(NUMERIC(10,2),((SUM(CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN SM.BooksCurrencyTransactionAmount ELSE ROUND((SCN.NetWeight * CONVERT(NUMERIC(10,4),SM.BooksCurrencyBaseRate)), 2) END)))*CONVERT(NUMERIC(10,2),ST.Percentage)/100))
 from TRN.SalesMaterial SM 
 left join TRN.SalesTax ST ON ST.SalesMaterialId=SM.Id
 left join TRN.Sales S ON S.Id=ST.SalesId
