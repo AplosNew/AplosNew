@@ -71,7 +71,9 @@ namespace Aplos.Areas.Commercial.Controllers
                         LEFT JOIN [MST].[Port] PR ON PR.Id=PLC.PortOfLandingId
                         LEFT JOIN SCS.Currency CN ON CN.Id=PLC.CurrencyId
                         Where PLC.PlantId='" + identity.PlantId + "'";
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [HttpGet, Authorize]

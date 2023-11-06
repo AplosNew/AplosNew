@@ -214,7 +214,7 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public JsonResult SaveLotSettingData(List<Dictionary<string, object>> data, string poId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
