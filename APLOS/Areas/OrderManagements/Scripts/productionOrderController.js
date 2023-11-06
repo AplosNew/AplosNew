@@ -4256,14 +4256,15 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     $scope.tempModel = {};
     $scope.SetSufix = function (args) {
         $scope.tempModel = args.data;
-        var str = $scope.tempModel.UserLotNo;
-        var extention = str.substr(str.indexOf('/')+1);
+        //var str = $scope.tempModel.UserLotNo;
+        //var extention = str.substr(str.indexOf('/')+1);
 
-        if (!baseService.isUndefinedOrNull($scope.tempModel.Sufix)) {
-            if ($scope.tempModel.Sufix != extention) {
-                $scope.tempModel.UserLotNo = $scope.tempModel.UserLotNo + '/' + $scope.tempModel.Sufix;
-            }
-        }
+        //if (!baseService.isUndefinedOrNull($scope.tempModel.Sufix)) {
+        //    if ($scope.tempModel.Sufix != extention) {
+        //        $scope.tempModel.UserLotNo = $scope.tempModel.UserLotNo + '/' + $scope.tempModel.Sufix;
+        //    }
+        //}
+        $scope.tempModel.UserLotNo = $scope.tempModel.LotNo + '/' + $scope.tempModel.Sufix;
         var gridObj = $("#GridLC").data("ejGrid");
         gridObj.refreshContent();
         gridObj.refreshTemplate();

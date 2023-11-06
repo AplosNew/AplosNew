@@ -1822,6 +1822,7 @@
     <Content Include="Areas\Accounts\Scripts\balanceSheetSchedulingController.js" />
     <Content Include="Areas\Accounts\Scripts\fiscalYearClosePostController.js" />
     <Content Include="Areas\Accounts\Scripts\InvestmentSettelmentController.js" />
+    <Content Include="Areas\Accounts\Scripts\SubsequentInvestmentController.js" />
     <Content Include="Areas\Accounts\Scripts\PaymentAdviseReportController.js" />
     <Content Include="Areas\Accounts\Scripts\ChartAccountSetupController.js" />
     <Content Include="Areas\Accounts\Scripts\GLControlController.js" />
@@ -4848,6 +4849,7 @@
     <Content Include="Areas\Banks\Views\BankSettlementReco\BankSettlementJournal.cshtml" />
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\Vehiclereport.cshtml" />
     <Content Include="Areas\Accounts\Views\EDReport.cshtml" />
+    <Content Include="Areas\Accounts\Views\SubsequentInvestment.cshtml" />
     <Content Include="Areas\Accounts\Views\Bonus\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

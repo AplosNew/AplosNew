@@ -146,5 +146,17 @@ function GeneralContractApprovedController(cboService, commonMessage, $scope, $r
         });
     }
 
-    
+    $scope.PrintData = function (data) {
+        try {
+            $scope.fileName = "General Contract Approved Report.xlsx";
+            //$scope.ReportFormat = 'Excel';
+            $scope.ReportFormat = 'Pdf';
+            var url = 'Administration/GeneralContractChecked/GetGeneralContractReport?reportFormat=' + $scope.ReportFormat + '&ContractId=' + data.data.Id;
+            $rootScope.report(url);
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
 }

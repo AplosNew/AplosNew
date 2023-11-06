@@ -14,6 +14,9 @@ using System.Threading;
 using Library.Crosscutting.Security;
 using System.IO;
 using System.Data;
+using Library.Model.Enums;
+using Syncfusion.Pdf;
+using Syncfusion.ExcelToPdfConverter;
 
 namespace Aplos.Areas.Administration.Controllers
 {
@@ -36,12 +39,12 @@ namespace Aplos.Areas.Administration.Controllers
             try
             {
                 var sql = @"select  GCE.Id, FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, EI.EmployeeName, GC.UserName Contract,
-GCE.CheckedByStatus, GCE.CheckedReason, GCE.ApprovedStatus, GCE.ApprovedReason
-from TRN.GeneralContractEntry GCE
-LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
-LEFT JOIN MST.GeneralContract GC ON GC.Id = GCE.GeneralContractId
-left join EmployeeInformation EI on EI.SystemId = GCE.ApprovedById
-where GCE.CheckedByStatus = 'Checked' and GCE.ApprovedStatus = 'Approved'";
+                GCE.CheckedByStatus, GCE.CheckedReason, GCE.ApprovedStatus, GCE.ApprovedReason
+                from TRN.GeneralContractEntry GCE
+                LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
+                LEFT JOIN MST.GeneralContract GC ON GC.Id = GCE.GeneralContractId
+                left join EmployeeInformation EI on EI.SystemId = GCE.ApprovedById
+                where GCE.CheckedByStatus = 'Checked' and GCE.ApprovedStatus = 'Approved'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -66,5 +69,7 @@ where GCE.CheckedByStatus = 'Checked' and GCE.ApprovedStatus = 'Approved'";
         }
 
         #endregion SAVE
+
+
     }
 }

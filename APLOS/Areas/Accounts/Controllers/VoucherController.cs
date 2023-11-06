@@ -2726,6 +2726,16 @@ namespace Aplos.Areas.Accounts.Controllers
             return null;
         }
 
+        [HttpGet, Authorize]
+        public ActionResult IncomeStatementYearClosedReport(string fiscalYearCloseId, string fiscalYearName, bool isBudgetLevel, bool isActivityLevel)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var fileName = "Year Closed Income Statement Report " + DateTime.Now.ToString("ddMMMyyyy") + ".xlsx";
+            var workbook = _voucharReportService.GetIncomeStatementYearClosedReport(identity.CompanyId, identity.PlantId, identity.PlantName, fiscalYearCloseId, fiscalYearName, isBudgetLevel, isActivityLevel);
+            workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.PromptDialog);
+            return null;
+        }
+
         //GetDateRangeWiseTrialBalanceReport(string companyId, string plantId, string plantName, string toDate, bool isBudgetLevel, bool isActivityLevel)
         [HttpGet, Authorize]
         public ActionResult incomestatementreportDateWise(string fromDate, string toDate, string parallelCurrency, bool isBudgetLevel, bool isActivityLevel)

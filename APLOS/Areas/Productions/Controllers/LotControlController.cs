@@ -214,5 +214,53 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public JsonResult SaveLotSettingData(List<Dictionary<string, object>> data, string poId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsChild, dsId;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                #region LotControlSetting 
+
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionOrderLotControl where  ProductionOrderId='" + poId + "'", out dsChild, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT CId=Count(Id)+1 from dbo.ProductionOrderLotControl Where ProductionOrderId='" + poId + "'", out dsId, false, "1");
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = poId + "-" + dsId.Tables[0].Rows[0]["CId"].ToString();
+                            item["ProductionOrderId"] = poId;
+
+                            AddNewRow(dsChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsChild);
+                return Json(new { Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
     }
 }
