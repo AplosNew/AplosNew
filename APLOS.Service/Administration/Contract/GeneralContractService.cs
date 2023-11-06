@@ -310,7 +310,7 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
         }
         #endregion Entity
 
-        public IEnumerable<object> GetVendorBasedEmployee(string vendorId)
+        public IEnumerable<object> GetVendorBasedEmployee()
         {
             try
             {
@@ -331,7 +331,7 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
                             left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
                             left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
                                      
-                            where ei.VendorId = '"+ vendorId + "' and ei.EmployeeStatus = 'Active'";
+                            where ei.EmployeeStatus = 'Active'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch(Exception ex)
@@ -628,11 +628,11 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
             try
             {
                 var sql = @"select CI.Id, CI.ContractMasterId, GCIM.UserName ContractMaster, CI.GeneralContractId, GC.UserName GeneralContract, 
-                            CI.MinQty, CI.MaxQty, CI.AvgQty, CI.Rate, CI.EffectiveDate
+                            CI.MinQty, CI.MaxQty, CI.AvgQty, CI.Rate,format(CI.EffectiveDate,'dd-MMM-yyyy') EffectiveDate
                             from MST.ContractItemDetail CI
                             left join MST.GeneralContract GC on GC.Id = CI.GeneralContractId
                             left join HKP.GeneralContractItemMaster GCIM on GCIM.Id = CI.ContractMasterId
-                            where GC.Id = '"+gcId+"'";
+                            where GC.Id = '" + gcId+"'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

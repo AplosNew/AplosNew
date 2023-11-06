@@ -157,11 +157,7 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
             }
             else {
                 ShowResult(response.data.Message, 'success');
-               
-
-                // ClearFields(response.data.Sequence);
-                //$scope.getData();
-
+                
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -338,7 +334,7 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
 
     $scope.VendorEmployeeList = [];
     $scope.GetVendorBasedEmployee = function () {
-        $http.get('Administration/GeneralContract/GetVendorBasedEmployee?vendorId=' + $scope.ModelNew.PartyId)
+        $http.get('Administration/GeneralContract/GetVendorBasedEmployee')
             .then(function successCallback(response) {
                 $scope.VendorEmployeeList = response.data;
             });
@@ -480,6 +476,7 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
                     ob = {};
                     a.chk = false;
                     angular.element(document.querySelector('#vendorEmployePopUp')).modal('hide');
+                    $scope.SaveVendorEmployee();
                 }
 
             });
@@ -502,8 +499,7 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                ClearFields(response.data.Sequence);
-                $scope.getData();
+                $scope.GetContractItemDetail();
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -599,6 +595,7 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
         $scope.SelectedCheckedByList = [];
         $scope.SelectedApprovedByList = [];
         $scope.SelectedEntityList = [];
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
     //  #endregion Clear
 }
