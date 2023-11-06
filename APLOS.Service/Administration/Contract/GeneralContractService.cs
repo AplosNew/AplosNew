@@ -529,7 +529,6 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
                 string _Id = "";
                 foreach (var item in vendoremployee)
                 {
-
                     DataView dv = new DataView(dsMaster.Tables[0]);
                     dv.RowFilter = "Id='" + item["Id"] + "'";
 
