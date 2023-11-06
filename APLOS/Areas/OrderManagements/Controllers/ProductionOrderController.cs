@@ -75,12 +75,14 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT PO.*,isnull(po.Remarks,'') AS ProductionRemarks,isnull(s.UserName,'') AS ProductionStatus, isnull(EN.UserName,'') AS EntityName, 
+            string sql = @"select top 100 * from (SELECT PO.*,UsedInPB=CAST(CASE WHEN m.productionorderid IS NOT NULL THEN 1 ELSE 0 END AS BIT),isnull(po.Remarks,'') AS ProductionRemarks,isnull(s.UserName,'') AS ProductionStatus, isnull(EN.UserName,'') AS EntityName, 
             isnull(PS.UserName,'') AS ProductionStatusName,ISNULL(so.Qty,0) AS SOQuantity
            
                             FROM [TRN].[ProductionOrder] AS PO
                         JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
                         LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.EntityId = PS.Id
+                        LEFT JOIN TRN.ProductionSummary M ON m.productionorderid=PO.Id
+                                AND m.Id=(SELECT TOP 1 ID FROM TRN.ProductionSummary EII WHERE EII.productionorderid=PO.Id ORDER BY EII.AddedDate DESC )
                         LEFT OUTER  JOIN (SELECT pod.ProductionOrderId,SUM(so.Qty) AS Qty
                                             FROM trn.SalesOrder AS so
                         INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id 
