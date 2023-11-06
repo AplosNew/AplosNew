@@ -1042,5 +1042,9 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/Investment/SubsequentInvestment",
             controller: "SubsequentInvestmentController"
         })
+        .when("/bonus-entry", {
+            templateUrl: "Accounts/Bonus/Aplos",
+            controller: "BonusController"
+        })
         ;
 } 
