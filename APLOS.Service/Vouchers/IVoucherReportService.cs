@@ -15,6 +15,7 @@ namespace Library.Service.Vouchers
 
 
         IWorkbook GetIncomeStatementReport(string companyId,  string plantId,string plantName, string date, string[] parallelCurrencies, bool isBudgetLevel, bool isActivityLevel);
+        IWorkbook GetIncomeStatementYearClosedReport(string companyId,  string plantId,string plantName, string fiscalYearCloseId, string fiscalYearName, bool isBudgetLevel, bool isActivityLevel);
 
         IWorkbook GetFiscalYearBudgetReport(string username, string companyGroupId, string companyId, string plantId, string plantName, string fiscalYearPeriodId);
 

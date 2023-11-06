@@ -180,8 +180,7 @@ function GeneralContractCheckedController(cboService, commonMessage, $scope, $ro
 
     $scope.PrintData = function (data) {
         try {
-            $scope.fileName = "General Contract Report.xls";
-
+            $scope.fileName = "General Contract Report.xlsx";
 
             //$scope.ReportFormat = 'Excel';
             $scope.ReportFormat = 'Pdf';
