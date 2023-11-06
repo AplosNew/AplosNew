@@ -95,7 +95,7 @@ function masterOrderSalesPostController(cboService, commonMessage, $window, $sco
         , EmployeeId: null
         , EmployeeCode: null
         , EmployeeName: null
-
+        , InvoicingGSTIN:null
         , PartyId: null
         , PartyPlantId: null
         , PartyName: null
@@ -339,6 +339,7 @@ function masterOrderSalesPostController(cboService, commonMessage, $window, $sco
         $scope.modelNew = x.data;
         $scope.modelNew.PostingDate = $scope.modelNew.InvoiceDate;
         $scope.modelNew.IsPaymentTermChangeable = x.data.IsPaymentTermChangeable;
+        $scope.modelNew.InvoicingGSTIN = x.data.InvoicingGSTIN;
 
         getmasterOrderDetailData($scope.modelNew.PartyAccountGroupId);
         getmasterOrderServiceDetailData($scope.modelNew.PartyAccountGroupId);

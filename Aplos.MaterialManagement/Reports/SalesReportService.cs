@@ -1844,7 +1844,6 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
                          LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
                          LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId
 ) LC on LC.SalesId = IR.Id
-
 LEFT JOIN (SELECT SalesId,SalesMaterialId, LotNo, COUNT(RefNo) Cartons, 
             SUM(NetWeight)NetWeight,SUM(GWeight)GWeight FROM ItemScanChild group by SalesId ,SalesMaterialId, LotNo) SCN on SCN.SalesId = IR.Id AND SCN.SalesMaterialId=IRD.Id
                          WHERE IR.Id ='" + SalesId + "'";
@@ -5910,7 +5909,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
 ,ST.SalesId,ST.TaxCategoryId,TC.Code TaxCode,CONVERT(NUMERIC(10,2),ST.Percentage)Percentage
 --,CONVERT(NUMERIC(10,2),SUM(SM.BooksCurrencyTransactionAmount)) TaxON
 ,TaxON=SUM(CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN SM.BooksCurrencyTransactionAmount ELSE ROUND((SCN.NetWeight * CONVERT(NUMERIC(10,4),SM.BooksCurrencyBaseRate)), 2) END))
-,TaxAmount=CONVERT(NUMERIC(10,2),((SUM(CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN SM.BooksCurrencyTransactionAmount ELSE ROUND((SCN.NetWeight * CONVERT(NUMERIC(10,2),SM.BooksCurrencyBaseRate)), 4) END)))*CONVERT(NUMERIC(10,2),ST.Percentage)/100))
+,TaxAmount=CONVERT(NUMERIC(10,2),((SUM(CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN SM.BooksCurrencyTransactionAmount ELSE ROUND((SCN.NetWeight * CONVERT(NUMERIC(10,4),SM.BooksCurrencyBaseRate)), 2) END)))*CONVERT(NUMERIC(10,2),ST.Percentage)/100))
 from TRN.SalesMaterial SM 
 left join TRN.SalesTax ST ON ST.SalesMaterialId=SM.Id
 left join TRN.Sales S ON S.Id=ST.SalesId

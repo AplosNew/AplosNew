@@ -1367,7 +1367,9 @@ namespace Aplos.Areas.Commercial.Controllers
         [HttpGet, Authorize]
         public ActionResult GetMasterLCDataList()
         {
-            return Json(clsCon.GetMasterLCDataList(), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(clsCon.GetMasterLCDataList(), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [HttpGet, Authorize]
