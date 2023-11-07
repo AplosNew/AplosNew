@@ -521,7 +521,6 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
             try
             {
                 string TableName = "MST.GeneralContractVendorEmployee";
-
                 DataSet dsMaster;
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
