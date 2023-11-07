@@ -97,6 +97,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         { 'name': 'Buyer', 'value': 'buyer' },
         { 'name': 'Customer', 'value': 'Customer' },
     ];
+   
     $scope.getData = function () {
         $scope.modelList = [];
         $http({
@@ -1145,6 +1146,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             , UOMId: null
             , RelaySequence: data.RelaySequence
             , ProductionBookingLevel: data.ProductionBookingLevel
+            , IsInventory: data.IsInventory
         });
         UomCboByFGMaterialMaster(data.MaterialMasterId);
     };
@@ -1165,6 +1167,15 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             }
         }
     };
+
+    $scope.setIsInventory = function (event, index) {
+        for (var i = 0; i <= $scope.prdProcessSetList.length - 1; i++) {
+             if (i === index) {
+                 $scope.prdProcessSetList[i].IsInventory = true;
+            }
+        }
+    };
+
 
     $scope.clearEntityOrVendor = function (list, index) {
         list[index].EntityIdWithinCompany = null;
