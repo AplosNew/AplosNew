@@ -30,12 +30,14 @@ namespace Library.OrderManagement.Production
 case when PO.PlantId='" + identity.PlantId + @"' AND PO.PlantId=EN.PlantId then 'OWN' else 
 case when PO.PlantId='" + identity.PlantId + @"' and EN.PlantId<>PO.PlantId then 'OUT' ELSE
 case when PO.PlantId<>'" + identity.PlantId + @"' AND EN.PlantId='" + identity.PlantId + @"' THEN 'IN' ELSE '' END END END AS Owner,
-PO.*,isnull(po.Remarks,'') AS ProductionRemarks,isnull(s.UserName,'') AS ProductionStatus, isnull(EN.UserName,'') AS EntityName, 
+PO.*,UsedInPB=CAST(CASE WHEN m.productionorderid IS NOT NULL THEN 1 ELSE 0 END AS BIT),isnull(po.Remarks,'') AS ProductionRemarks,isnull(s.UserName,'') AS ProductionStatus, isnull(EN.UserName,'') AS EntityName, 
 FORMAT(PO.AddedDate,'dd-MMM-yyyy') CreationDate,
                                         isnull(PS.UserName,'') AS ProductionStatusName,PB.Id BulletinTemplateId,SO.*
                                 FROM [TRN].[ProductionOrder] AS PO
                             JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
                             LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.EntityId = PS.Id
+LEFT JOIN TRN.ProductionSummary M ON m.productionorderid=PO.Id
+                                AND m.Id=(SELECT TOP 1 ID FROM TRN.ProductionSummary EII WHERE EII.productionorderid=PO.Id ORDER BY EII.AddedDate DESC )
                             LEFT OUTER  JOIN (select
                                                     pod.ProductionOrderId, sum(so.Qty) AS SOQuantity, Format(Min(so.DeliveryDate),'dd-MMM-yyyy') DeliveryDate,
                                                     MasterOrderId=STUFF((select distinct ','+XMOI.MasterOrderId from 

@@ -873,7 +873,7 @@
             </div>
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
-            <div class="row" ng-form="tablcFrom">
+            <div class="row" ng-form="tablcFrom" ng-show="model.IsPreDefineLotApplicable==true" >
                 <div class="col-xs-6 col-sm-6 col-md-6">
                     <div class="form-group">
                         <label class="col-sm-4 control-label">User LotNo</label>
@@ -933,7 +933,7 @@
                 </div>
                 <div class="modal-footer common-btn">
                     <ul class="list-inline text-right">
-                        <li><button type="button" class="btn btn-default" ng-click="SaveLotControl();">Save</button></li>
+                        <li><button type="button" class="btn btn-default"  ng-disabled="model.UsedInPB==true"  ng-click="SaveLotControl();">Save</button></li>
                     </ul>
                 </div>
             </div>
