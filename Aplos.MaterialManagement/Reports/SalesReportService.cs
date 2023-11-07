@@ -1348,7 +1348,7 @@ namespace Library.MaterialManagement.Reports
             }
             catch (Exception)
             {
-                
+
             }
 
             document.Close();
@@ -1799,7 +1799,7 @@ Where  SM.SalesId='" + SalesId + "'";
 						LEFT JOIN dbo.SalesPacking SP ON pla.ProductLibraryId = SP.ProductLibraryId
 						WHERE SP.SalesId=IR.Id
 						for XML PATH('')
-						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy,SCN.Cartons,SCN.LotNo
+						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy,BKD.Cartons,BKD.LotNo
                         FROM TRN.Sales IR
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -2321,7 +2321,7 @@ LEFT JOIN (SELECT SalesId,SalesMaterialId, LotNo, COUNT(RefNo) Cartons,
             int LasColumnIndex = 8;
             int TaxLasColumnIndex = 3;
             Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
-           
+
 
             WTable wTable = new WTable(document);
             int ROW = 0; int COL = 0;
@@ -2475,7 +2475,7 @@ LEFT JOIN (SELECT SalesId,SalesMaterialId, LotNo, COUNT(RefNo) Cartons,
 
             ROW++;
             #region Sub Total
-            
+
             double total = clsStdLib.dbl(dsOrderMaster.Compute("SUM(BooksCurrencyTransactionAmount)", "").ToString())
                     //- clsStdLib.dbl(dsOrderItems.Tables[0].Compute("SUM(Discount)", "").ToString())
                     + clsStdLib.dbl(materialTax.Compute("SUM(TaxAmount)", "").ToString());
@@ -2500,7 +2500,7 @@ LEFT JOIN (SELECT SalesId,SalesMaterialId, LotNo, COUNT(RefNo) Cartons,
             myStyle.CharacterFormat.TextColor = Color.Black;
             myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
 
-           
+
             #endregion paragrpath formats
 
 
@@ -2509,7 +2509,7 @@ LEFT JOIN (SELECT SalesId,SalesMaterialId, LotNo, COUNT(RefNo) Cartons,
 
             //tax codes merging (horizontal)
             ROW = 0;
-          
+
 
             #region SalesTax
 
@@ -2552,7 +2552,7 @@ LEFT JOIN (SELECT SalesId,SalesMaterialId, LotNo, COUNT(RefNo) Cartons,
                         item.Text = "";
                     }
                     TAXROW.Cells[CE].Width = wTaxTable.Rows[0].Cells[CE].Width;
-                    
+
                 }
                 IWTextRange textRange = TAXROW.Cells[colTaxCode].AddParagraph().AppendText(materialTax.Rows[i]["TaxCode"].ToString());
                 IWTextRange textRangeP = TAXROW.Cells[colPercentage].AddParagraph().AppendText(materialTax.Rows[i]["Percentage"].ToString());
@@ -2562,14 +2562,14 @@ LEFT JOIN (SELECT SalesId,SalesMaterialId, LotNo, COUNT(RefNo) Cartons,
                 textRangeP.CharacterFormat.FontSize = 8;
                 textRangeT.CharacterFormat.FontSize = 8;
                 textRangeTA.CharacterFormat.FontSize = 8;
-                              
+
             }
-         //   trange.CharacterFormat.FontSize = 8;
+            //   trange.CharacterFormat.FontSize = 8;
 
             #endregion
 
 
-              IWParagraphStyle style = document.AddParagraphStyle("SubTotalStyle");
+            IWParagraphStyle style = document.AddParagraphStyle("SubTotalStyle");
             style.CharacterFormat.Bold = true;
             style.CharacterFormat.FontSize = 8f;
             style.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Left;
@@ -3972,7 +3972,7 @@ LEFT JOIN (SELECT SalesId,SalesMaterialId, LotNo, COUNT(RefNo) Cartons,
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
                 //|| dicTaxes.ContainsValue(C)
-                if (C == colArticle || C == colHSN || C == colUoM || C == colRate || C == colCartons || C == colChar1 ||C== colLot)
+                if (C == colArticle || C == colHSN || C == colUoM || C == colRate || C == colCartons || C == colChar1 || C == colLot)
                     continue;
 
                 double value = 0;
@@ -6594,9 +6594,9 @@ Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
             {
                 throw new CustomException("File <" + fileName + "> Not Found.");
             }
-              
+
             WordDocument document = new WordDocument(File, FormatType.Docx);
-             
+
             try
             {
                 WSection section = document.Sections[0];
