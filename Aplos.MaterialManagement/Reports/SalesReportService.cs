@@ -1799,7 +1799,7 @@ Where  SM.SalesId='" + SalesId + "'";
 						LEFT JOIN dbo.SalesPacking SP ON pla.ProductLibraryId = SP.ProductLibraryId
 						WHERE SP.SalesId=IR.Id
 						for XML PATH('')
-						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy,SCN.Cartons,SCN.LotNo
+						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy,BKD.Cartons,BKD.LotNo
                         FROM TRN.Sales IR
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
