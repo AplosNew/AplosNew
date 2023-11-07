@@ -219,6 +219,7 @@
                                 <th>Relay Sequence</th>
                                 <th>Process</th>
                                 <th style="width: 74px;">Base Process</th>
+                                <th style="width: 74px;">IsInventory</th>
                                 <th>+/-</th>
                                 <th style="width: 130px;">Lead/Lag Days</th>
                                 <th style="width: 130px;">Production Cycle Time({{model.RequiredTimeUnit}})/Per unit</th>
@@ -246,6 +247,14 @@
                                     <div class="radio">
                                         <label>
                                             <input type="radio" name="optradio" ng-checked="x.IsBaseProcess" ng-click="setPlusOrMinus($event,$index)" value="" />
+                                            <span class="cr"><i class="cr-icon"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="IsInventory" ng-checked="x.IsInventory" ng-click="setIsInventory($event,$index)"  value="" />
                                             <span class="cr"><i class="cr-icon"></i></span>
                                         </label>
                                     </div>

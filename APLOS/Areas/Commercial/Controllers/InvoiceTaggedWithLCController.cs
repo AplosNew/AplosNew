@@ -533,13 +533,13 @@ namespace Aplos.Areas.Commercial.Controllers
 
 
 		[HttpGet, Authorize]
-        public ActionResult GetpurchaseLCList()
-        {
-            try
-            {
+		public ActionResult GetpurchaseLCList()
+		{
+			try
+			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                string sql = @"
+				string sql = @"
                         SELECT 
                          PLCV.[Version] PreVersion, PLCV.Amount AmendmentAmount, FORMAT(PLC.AmendmentDate,'dd-MMM-yyyy') AmendmentDate, 
 						 PLC.Id,PLC.Version, PLC.ContractId, PLC.VendorId, PLC.BenificiaryBank, PLC.OpeningBankMasterId, PLC.BenificiaryBankDescription, 
@@ -557,15 +557,18 @@ namespace Aplos.Areas.Commercial.Controllers
 						LEFT JOIN SCS.Currency CN ON CN.Id=PLC.CurrencyId
 						LEFT JOIN [dbo].[PurchaseLCVersion] PLCV ON PLCV.PurchaseLCId=PLC.Id  
 						AND PLCV.Id=(SELECT TOP 1 Id FROM [dbo].[PurchaseLCVersion] WHERE PurchaseLCId=PLC.Id  ORDER BY [Version] ASC) Where PLC.PlantId='" + identity.PlantId + "'   ORDER BY PLC.AddedDate DESC";
-                return Json(_sqlRepository.GetDataCollection(sql,null), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+				var jsondata = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+				jsondata.MaxJsonLength = int.MaxValue;
+				return jsondata;
 
-        public JsonResult Create(List<Dictionary<string,object>> DataList, Dictionary<string, object> LcData)
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		public JsonResult Create(List<Dictionary<string,object>> DataList, Dictionary<string, object> LcData)
         {
             try
             {

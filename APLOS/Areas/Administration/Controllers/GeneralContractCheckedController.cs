@@ -51,7 +51,7 @@ namespace Aplos.Areas.Administration.Controllers
                             LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
                             LEFT JOIN MST.GeneralContract GC ON GC.Id = GCE.GeneralContractId
                             left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
-                            where GCE.CheckedByStatus is null";
+                            where GCE.CheckedByStatus='To Be Check'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
