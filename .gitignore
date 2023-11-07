@@ -6,10 +6,12 @@
 # User-specific files
 *.rsuser
 *.suo
+.suo
 *.user
 *.userosscache
 *.sln.docstates
-
+Web.Config
+.cache
 /web.Config
 ProductionSummarySFGController.js
 AplosSFG.cshtml
