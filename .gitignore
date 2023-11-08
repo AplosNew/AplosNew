@@ -11,7 +11,7 @@
 *.userosscache
 *.sln.docstates
 Web.Config
-ApplicationHost.config
+applicationhost.config
 .cache
 /web.Config
 ProductionSummarySFGController.js
