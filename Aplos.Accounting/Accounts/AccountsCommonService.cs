@@ -417,6 +417,28 @@ namespace Library.Accounting.Accounts
             dr["UpdatedDate"] = DateTime.Now.ToString();
             dr.EndEdit();
         }
+        private void EditRow_Dictionary(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
         private void VoucherTypeNumberEditRow<T>(DataRow dr, T Data)
         {
             Dictionary<string, object> sourceData = Data.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).ToDictionary(prop => prop.Name, prop => prop.GetValue(Data, null));
@@ -599,19 +621,17 @@ namespace Library.Accounting.Accounts
             return invoice;
         }
 
-        public void UpdateInvoice(Invoice voucherVM, ref DataSet _invoice)
+        public void UpdateInvoice(Dictionary<string, object>  invoice, ref DataSet _invoice)
         {
-
             if (_invoice == null || _invoice.Tables.Count == 0)
             {
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.getDataSet("Select * from TRN.Invoice where Id='" + voucherVM.Id + "'", out _invoice);
+                con.getDataSet("Select * from TRN.Invoice where Id='" + invoice["Id"].ToString() + "'", out _invoice);
 
             }
-
-            EditRow<Invoice>(_invoice.Tables[0].Rows[0], voucherVM);
+            EditRow_Dictionary(_invoice.Tables[0].Rows[0], invoice);
         }
-        public void UpdateInvoiceDetail(InvoiceDetail invoiceDetail, ref DataSet _invoiceDetail)
+        public void UpdateInvoiceDetails(InvoiceDetail invoiceDetail, ref DataSet _invoiceDetail)
         {
             if (_invoiceDetail == null || _invoiceDetail.Tables.Count == 0)
             {
@@ -619,6 +639,15 @@ namespace Library.Accounting.Accounts
                 con.getDataSet("Select * from TRN.InvoiceDetail where InvoiceId='" + invoiceDetail.InvoiceId + "'", out _invoiceDetail);
             }
             EditRow<InvoiceDetail>(_invoiceDetail.Tables[0].Rows[0], invoiceDetail);
+        }
+        public void UpdateInvoiceDetail(Dictionary<string, object> invoiceDetail, ref DataSet _invoiceDetail)
+        {
+            if (_invoiceDetail == null || _invoiceDetail.Tables.Count == 0)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from TRN.InvoiceDetail where InvoiceId='" + invoiceDetail["InvoiceId"].ToString()  + "'", out _invoiceDetail);
+            }
+            EditRow_Dictionary(_invoiceDetail.Tables[0].Rows[0], invoiceDetail);
         }
 
         public InvoiceWriteOff InsertInvoiceWriteOff(InvoiceWriteOff invoiceWriteOff, out DataSet dsData)

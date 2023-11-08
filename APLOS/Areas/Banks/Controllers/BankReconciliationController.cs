@@ -580,7 +580,7 @@ namespace Aplos.Areas.Banks.Controllers
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
             voucherVM.SourceType = SourceType.BankJournal.ToString();
-            voucherVM.IsPark = true;
+            voucherVM.IsPark = false;
             if (voucherVM.BankJournalType == BankJournalType.BankToGL.ToString() && voucherDetailVMList == null)
                 throw new CustomException("Please select GL!");
 
@@ -600,7 +600,7 @@ namespace Aplos.Areas.Banks.Controllers
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
             voucherVM.SourceType = SourceType.CustomerReceipt.ToString();
-            voucherVM.IsPark = true;
+            voucherVM.IsPark = false;
             if (voucherVM.CompanyCurrencyRate <= 0)
                 throw new CustomException("Please Input Rate.");
             if ((voucherVM.PaymentSource == "Bank") && (voucherVM.BankMasterId == null))

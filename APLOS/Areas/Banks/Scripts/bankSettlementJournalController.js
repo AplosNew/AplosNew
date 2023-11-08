@@ -340,6 +340,14 @@ function bankSettlementJournalController(bankService, accountService, cboService
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucher.CurrencyId = null;
         $scope.voucher.OtherCashMasterId = null;
+        $scope.voucher.BankName = null;
+        $scope.voucher.BankAmount = null;
+        $scope.voucher.GLGeneralInfoId = null;
+        $scope.voucher.BudgetMasterId = null;
+        $scope.voucher.ActivityId = null;
+        $scope.voucher.BankReferenceNo = null;
+        $scope.voucher.BankMasterId = null;
+        $scope.voucher.BankReconciliationUploadedDataId = null;
         $scope.voucher.CompanyCurrencyRate = 1;
         $scope.getCboVoucherTypeBankJournalList();
         $scope.advanceDetailList = [];
@@ -376,6 +384,10 @@ function bankSettlementJournalController(bankService, accountService, cboService
         if (!baseService.isUndefinedOrNull($scope.advanceCharge.FinancingTypeId)) {
             ShowResult("Please add Charges!", "failure");
             return false;
+        }
+        if (parseFloat($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount")) !== parseFloat($scope.voucher.Amount)) {
+            ShowResult("Bank settlement Amount must be equal Bank Amount!  " + $scope.voucher.Amount + " ", "failure");
+            return true;
         }
         if ($scope.voucher.BankJournalType == 'BankReverse') {
             $scope.voucher.IsReverse = true;

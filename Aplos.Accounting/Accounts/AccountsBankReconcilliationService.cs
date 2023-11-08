@@ -779,7 +779,8 @@ namespace Library.Accounting.Accounts
                             FROM  [TRN].[BankReconciliationUploadedData] BRUD 
                             JOIN [TRN].[BankReconciliationUpload] BRU ON BRU.Id=BRUD.BankReconciliationUploadId
                             LEFT JOIN MST.BankMaster BM ON BM.Id=BRU.BankMasterId
-                            WHERE BRUD.Id='" + id + "'  ";
+                            WHERE BRUD.Id='" + id + @"'  
+                            AND BRUD.Id not in(select BankReconciliationUploadedDataId from trn.BankReconciliationMap ) ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -799,7 +800,8 @@ namespace Library.Accounting.Accounts
                             FROM  [TRN].[BankReconciliationUploadedData] BRUD 
                             JOIN [TRN].[BankReconciliationUpload] BRU ON BRU.Id=BRUD.BankReconciliationUploadId
                             LEFT JOIN MST.BankMaster BM ON BM.Id=BRU.BankMasterId
-                            WHERE BRUD.Id='" + id + "'  ";
+                            WHERE BRUD.Id='" + id + @"'  
+                            AND BRUD.Id not in(select BankReconciliationUploadedDataId from trn.BankReconciliationMap ) ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -964,7 +966,7 @@ namespace Library.Accounting.Accounts
                             BudgetMasterId = voucherDetailVM.BudgetMasterId,
                             ActivityId = voucherDetailVM.ActivityId,
                             CurrencyId = voucher.CurrencyId,
-                            DrAmount = bankJournalDetail.Amount,
+                            DrAmount = voucherDetailVM.Amount,
                             PaymentSource = bankJournal.PaymentSource,
                             PartyType = bankJournal.PaymentSource,
                             Narration = voucherVM.Narration,
@@ -1123,46 +1125,22 @@ namespace Library.Accounting.Accounts
                 string voucherDetailTempId = null;
                 decimal taxDrAmount = 0;
 
-
-                var withholdgl = false;
-
-                //var invoiceIds = voucherDetailVMList.Select(r => r.InvoiceId);
-                //var inviceDbList = _sqlRepository.Query(r => invoiceIds.Contains(r.Id)).Select().ToList();
-                //var invoiceDetailIds = voucherDetailVMList.Select(r => r.InvoiceDetailId);
-                //var inviceDetailDbList = _invoiceService.QueryInvoiceDetailEnumerable(invoiceDetailIds);
-
-
                 foreach (var voucherDetailVM in voucherDetailVMList)
                 {
-                    //var invoiceDetail = inviceDetailDbList.FirstOrDefault(r => r.Id == voucherDetailVM.InvoiceDetailId);
-                    var invoiceDt = _accountsCommonService.GetInvoiceDetail(voucherDetailVM.InvoiceDetailId);
-
-                    var invoceDetailDb = new InvoiceDetail
-                    {
-                        InvoiceId = invoiceDt["InvoiceId"].ToString(),
-                        WrittenOffAmount = Convert.ToDecimal(invoiceDt["WrittenOffAmount"]) + voucherDetailVM.Amount,
-                        UpdatedBy = invoiceWriteOff.AddedBy,
-                        UpdatedDate = invoiceWriteOff.AddedDate,
-                        UpdatedFromIP = invoiceWriteOff.AddedFromIP,
-                        IsWrittenOff = Convert.ToDecimal(invoiceDt["NetAmount"]) == Convert.ToDecimal(invoiceDt["WrittenOffAmount"])
-                    };
-
-                    if (Convert.ToDecimal(invoiceDt["NetAmount"]) < Convert.ToDecimal(invoiceDt["WrittenOffAmount"]))
+                    var invoiceDetail = _accountsCommonService.GetInvoiceDetail(voucherDetailVM.InvoiceDetailId);
+                    invoiceDetail["WrittenOffAmount"] = Convert.ToDecimal(invoiceDetail["WrittenOffAmount"]) + voucherDetailVM.Amount;
+                    invoiceDetail["IsWrittenOff"] = Convert.ToDecimal(invoiceDetail["NetAmount"]) == Convert.ToDecimal(invoiceDetail["WrittenOffAmount"]);
+                    
+                    if (Convert.ToDecimal(invoiceDetail["NetAmount"]) < Convert.ToDecimal(invoiceDetail["WrittenOffAmount"]))
                         throw new CustomException("Received amount can not cross balance amount.");
-                    _accountsCommonService.UpdateInvoiceDetail(invoceDetailDb, ref _invoiceDetailData);
+                    _accountsCommonService.UpdateInvoiceDetail(invoiceDetail, ref _invoiceDetailData);
 
                     // TODO: have a gap here if invoice split
                     var invoice = _accountsCommonService.GetInvoice(voucherDetailVM.InvoiceId);
-                    var invoceDb = new Invoice
-                    {
-                        WrittenOffAmount = Convert.ToDecimal(invoice["WrittenOffAmount"]) + voucherDetailVM.Amount,
-                        UpdatedBy = invoiceWriteOff.AddedBy,
-                        Id = invoice["Id"].ToString(),
-                        UpdatedDate = invoiceWriteOff.AddedDate,
-                        UpdatedFromIP = invoiceWriteOff.AddedFromIP,
-                        IsWrittenOff = Convert.ToDecimal(invoice["Amount"]) == Convert.ToDecimal(invoice["WrittenOffAmount"])
-                    };
-                    _accountsCommonService.UpdateInvoice(invoceDb, ref _invoiceData);
+                    invoice["WrittenOffAmount"] = Convert.ToDecimal(invoice["WrittenOffAmount"]) + voucherDetailVM.Amount;
+                    invoice["IsWrittenOff"] = Convert.ToDecimal(invoice["Amount"]) == Convert.ToDecimal(invoice["WrittenOffAmount"]);
+                    
+                    _accountsCommonService.UpdateInvoice(invoice, ref _invoiceData);
 
                     // INSERT INTO InvoiceDetail
                     currentInvoiceWriteOffDetailId++;
@@ -1496,7 +1474,7 @@ namespace Library.Accounting.Accounts
                     throw new CustomException("Dr and Cr amount is not equal.");
 
                 clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_vdataset, _invoiceWriteOffData, _invoiceWriteOffDetailData, _crvDetailData,  _crvDetailCurrencyData, _drvDetailData, _drvDetailCurrencyData
+                objApp.SaveDataSets(_vdataset, _invoiceWriteOffData, _invoiceWriteOffDetailData, _invoiceData, _invoiceDetailData, _crvDetailData,  _crvDetailCurrencyData, _drvDetailData, _drvDetailCurrencyData
                     , _glTransactionDetailData, _bankReconciliationMapData, _drvDetailExLoseData, _drvDetailExLoseCurrencyData, _crvDetailExGainData, _crvDetailCurrencyExGainData, _drvDetailRoundingData, _drvDetailCurrencyRoundingData, _crvDetailRoundingData, _crvDetailCurrencyRoundingData);
 
                 return voucher.VoucherNo;
