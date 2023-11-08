@@ -1235,6 +1235,7 @@ upanelApp.controller("ExpenseDistributionReportController", ExpenseDistributionR
 upanelApp.controller("SubsequentInvestmentController", SubsequentInvestmentController)
 upanelApp.controller("BonusController", BonusController)
 upanelApp.controller("SalesChanlanCheckedController", SalesChanlanCheckedController)
+upanelApp.controller("SalesChanlanApproveController", SalesChanlanApproveController)
 
 
 

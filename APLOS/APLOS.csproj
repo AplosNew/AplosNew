@@ -1914,6 +1914,7 @@
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
     <Content Include="Areas\Accounts\Scripts\fiscalYearCloseController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractApprovedController.js" />
+    <Content Include="Areas\SalesManagements\Scripts\SalesChanlanApproveController.js" />
     <Content Include="Areas\SalesManagements\Scripts\SalesChanlanCheckedController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractCheckedController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractController.js" />
@@ -5015,6 +5016,7 @@
     <Content Include="Areas\QMS\Views\DailyQualityStatusReport\Aplos.cshtml" />
     <Content Include="Areas\SalesManagements\Views\SalesChalan\Aplos.cshtml" />
     <Content Include="Areas\SalesManagements\Views\SalesChalan\Approve.cshtml" />
+    <Content Include="Areas\SalesManagements\Views\SalesChalan\SalesChalanApprove.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

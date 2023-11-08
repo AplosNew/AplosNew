@@ -58,5 +58,9 @@ function salesManagementConfig($routeProvider) {
             templateUrl: "SalesManagements/SalesChalan/SalesChalanCheck",
             controller: "SalesChanlanCheckedController"
         })
+        .when("/sales-chalan-approve", {
+            templateUrl: "SalesManagements/SalesChalan/SalesChalanApprove",
+            controller: "SalesChanlanApproveController"
+        })
         ;
 }

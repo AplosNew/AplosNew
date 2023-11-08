@@ -83,22 +83,22 @@
         </div>
         <div class="form-group">
             <label class="col-sm-4 control-label" title="CheckBy">CheckBy</label>
-            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
-                <input type="text" ng-model="ModelNew.CheckBy" class="form-control" readonly>
-                <span class="input-group-btn">
-                    <button ng-click="popUp('CheckBy')" tabindex="20" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                    <button ng-click="clearEmpPop('CheckBy')" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                </span>
+            <div class="col-sm-8">
+                <div class="select-style" ng-show="checkedByList.length">
+                    <select id="CheckedBy" class="form-control" name="Checked By" ng-model="ModelNew.CheckedById" tabindex="8">
+                        <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-4 control-label" title="ApproveBy">ApproveBy</label>
-            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
-                <input type="text" ng-model="ModelNew.ApproveBy" class="form-control" readonly>
-                <span class="input-group-btn">
-                    <button ng-click="popUp('ApproveBy')" tabindex="20" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                    <button ng-click="clearEmpPop('ApproveBy')" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                </span>
+            <div class="col-sm-8">
+                <div class="select-style" ng-show="ApproveByList.length">
+                    <select id="ApproveBy" class="form-control" name="Approve By" ng-model="ModelNew.ApproveById" tabindex="8">
+                        <option ng-repeat="option in ApproveByList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
             </div>
         </div>
 
