@@ -143,12 +143,12 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 sheet.Range[ROW, 6].Text = dtOrder.Rows[0]["UserRef"].ToString();
 
                 //   sheet.Range[6, 1, 6, 7].BorderAround(ExcelLineStyle.Thick);
-                sheet.Range[ROW, 1, ROW, 6].CellStyle.Interior.ColorIndex = ExcelKnownColors.White;
-                sheet.Range[ROW, 1, ROW, 6].CellStyle.Font.Color = ExcelKnownColors.Black;
-                sheet.Range[ROW, 1, ROW, 6].CellStyle.Font.Bold = true;
-                sheet.Range[ROW, 1, ROW, 6].CellStyle.Font.Size = 9f;
-                sheet.Range[ROW, 1, ROW, 6].BorderInside(ExcelLineStyle.Hair);
-                sheet.Range[ROW, 1, ROW, 6].BorderAround(ExcelLineStyle.Hair);
+                //sheet.Range[ROW, 1, ROW, 6].CellStyle.Interior.ColorIndex = ExcelKnownColors.White;
+                //sheet.Range[ROW, 1, ROW, 6].CellStyle.Font.Color = ExcelKnownColors.Black;
+                //sheet.Range[ROW, 1, ROW, 6].CellStyle.Font.Bold = true;
+                //sheet.Range[ROW, 1, ROW, 6].CellStyle.Font.Size = 9f;
+                //sheet.Range[ROW, 1, ROW, 6].BorderInside(ExcelLineStyle.Hair);
+                //sheet.Range[ROW, 1, ROW, 6].BorderAround(ExcelLineStyle.Hair);
 
                 //sheet.Range[ROW, 1, ROW + 1, 7].CellStyle.Font.Bold = true;
                 //sheet.Range[ROW, 1, ROW + 1, 7].BorderAround(ExcelLineStyle.Hair);
