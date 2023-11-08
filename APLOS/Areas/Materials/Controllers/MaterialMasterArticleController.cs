@@ -111,7 +111,18 @@ namespace Aplos.Areas.Materials.Controllers
             return jsondata;
         }
 
-        
+        [HttpPost, Authorize]
+        public JsonResult GetMaterialArticlePopUpData(string column, string value, string type)
+        {
+            MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            // return Json(materialCommonService.GetMaterialMasterWithArticlePopUpData(column, value, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+
+            var jsondata = Json(materialCommonService.GetMaterialArticlePopUpData(column, value), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
         #endregion List
 
         #region -- Operations

@@ -1,9 +1,9 @@
 ﻿'use strict';
-GeneralContractCheckedController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', '$controller', '$route'];
-function GeneralContractCheckedController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, $controller, $route) {
-    $rootScope.title = 'General Contract Checked';
+SalesChanlanApproveController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', '$controller', '$route'];
+function SalesChanlanApproveController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, $controller, $route) {
+    $rootScope.title = 'Sales Chalan Approve';
     $scope.ModelList = [];
-    $scope.path = 'Administration/GeneralContractChecked/';
+    $scope.path = 'SalesManagements/SalesChalan/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.Action = 'Save';
@@ -28,7 +28,7 @@ function GeneralContractCheckedController(cboService, commonMessage, $scope, $ro
 
     $scope.GriddataISUnCheckedList = [];
     $scope.GetUncheckedData = function () {
-        $http.get('Administration/GeneralContractChecked/GetUncheckedData')
+        $http.get('SalesManagements/SalesChalan/GetApproveByUncheckedData')
             .then(function successCallback(response) {
                 $scope.GriddataISUnCheckedList = response.data;
             })
@@ -37,7 +37,7 @@ function GeneralContractCheckedController(cboService, commonMessage, $scope, $ro
 
     $scope.GriddataISCheckedList = [];
     $scope.GetcheckedData = function () {
-        $http.get('Administration/GeneralContractChecked/GetcheckedData')
+        $http.get('Administration/GeneralContractChecked/GetApproveBycheckedData')
             .then(function successCallback(response) {
                 $scope.GriddataISCheckedList = response.data;
             })

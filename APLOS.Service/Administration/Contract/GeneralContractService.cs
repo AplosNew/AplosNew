@@ -310,7 +310,7 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
         }
         #endregion Entity
 
-        public IEnumerable<object> GetVendorBasedEmployee(string vendorId)
+        public IEnumerable<object> GetVendorBasedEmployee()
         {
             try
             {
@@ -331,7 +331,7 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
                             left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
                             left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
                                      
-                            where ei.VendorId = '"+ vendorId + "' and ei.EmployeeStatus = 'Active'";
+                            where ei.EmployeeStatus = 'Active'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch(Exception ex)
@@ -521,7 +521,6 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
             try
             {
                 string TableName = "MST.GeneralContractVendorEmployee";
-
                 DataSet dsMaster;
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -529,7 +528,6 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
                 string _Id = "";
                 foreach (var item in vendoremployee)
                 {
-
                     DataView dv = new DataView(dsMaster.Tables[0]);
                     dv.RowFilter = "Id='" + item["Id"] + "'";
 
@@ -628,11 +626,11 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
             try
             {
                 var sql = @"select CI.Id, CI.ContractMasterId, GCIM.UserName ContractMaster, CI.GeneralContractId, GC.UserName GeneralContract, 
-                            CI.MinQty, CI.MaxQty, CI.AvgQty, CI.Rate, CI.EffectiveDate
+                            CI.MinQty, CI.MaxQty, CI.AvgQty, CI.Rate,format(CI.EffectiveDate,'dd-MMM-yyyy') EffectiveDate
                             from MST.ContractItemDetail CI
                             left join MST.GeneralContract GC on GC.Id = CI.GeneralContractId
                             left join HKP.GeneralContractItemMaster GCIM on GCIM.Id = CI.ContractMasterId
-                            where GC.Id = '"+gcId+"'";
+                            where GC.Id = '" + gcId+"'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1020,7 +1018,7 @@ left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
         }
         #endregion SAVE
 
-        public void GetMaterialIssueReportHeaderData(string ContractId, out DataTable dtOrder)
+        public void GetGeneralContractCheckedHeaderData(string ContractId, out DataTable dtOrder)
         {
             try
             {
@@ -1031,8 +1029,7 @@ left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
                                     LEFT JOIN MST.GeneralContract GC ON GC.Id = GCE.GeneralContractId
                                     left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
                                     left join EmployeeInformation EIM on EIM.SystemId = GCE.ApprovedById
-                                    where GCE.CheckedByStatus is null
-                                    and GCE.Id='" + ContractId + "'";
+                                    where GCE.Id='" + ContractId + "'";
 
                 dtOrder = _sqlRepository.GetDataTable(strSql);
             }
@@ -1045,7 +1042,7 @@ left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
 
             }
         }//End Function
-        public void GetMaterialIssueReportDetailsData(string ContractId, out DataTable dtDetail)
+        public void GetGeneralContractCheckedDetailsData(string ContractId, out DataTable dtDetail)
         {
             try
             {
@@ -1054,8 +1051,7 @@ left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
                                     from TRN.ContractItemEntry CIE
                                     left join TRN.GeneralContractEntry GCE on GCE.Id = CIE.GeneralContractEntryId
                                     left join HKP.GeneralContractItemMaster GCI on GCI.Id = CIE.ContractMasterId
-                                    where GCE.CheckedByStatus is null
-                                    and GCE.Id='" + ContractId + "'";
+                                    where GCE.Id='" + ContractId + "'";
 
                 dtDetail = _sqlRepository.GetDataTable(strSql);
             }
@@ -1068,7 +1064,7 @@ left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
 
             }
         }//End Function
-
+ 
     }
     #endregion GeneralContractCheckService
 }

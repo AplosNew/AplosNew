@@ -76,14 +76,15 @@ function LotControlController(commonMessage, $scope, $rootScope, baseService, $r
     $scope.tempModel = {};
     $scope.SetSufix = function (args) {
         $scope.tempModel = args.data;
-        var str = $scope.tempModel.UserLotNo;
-        var extention = str.substr(str.indexOf('/') + 1);
+        //var str = $scope.tempModel.UserLotNo;
+        //var extention = str.substr(str.indexOf('/') + 1);
 
-        if (!baseService.isUndefinedOrNull($scope.tempModel.Sufix)) {
-            if ($scope.tempModel.Sufix != extention) {
-                $scope.tempModel.UserLotNo = $scope.tempModel.UserLotNo + '/' + $scope.tempModel.Sufix;
-            }
-        }
+        //if (!baseService.isUndefinedOrNull($scope.tempModel.Sufix)) {
+        //    if ($scope.tempModel.Sufix != extention) {
+        //        $scope.tempModel.UserLotNo = $scope.tempModel.UserLotNo + '/' + $scope.tempModel.Sufix;
+        //    }
+        //}
+        $scope.tempModel.UserLotNo = $scope.tempModel.LotNo + '/' + $scope.tempModel.Sufix;
         var gridObj = $("#GridLC").data("ejGrid");
         gridObj.refreshContent();
         gridObj.refreshTemplate();
@@ -98,6 +99,35 @@ function LotControlController(commonMessage, $scope, $rootScope, baseService, $r
     }
 
     $scope.CopyDetailData = function () {
+        $scope.DetailNew.LotQty= $scope.DetailNew.LotQty / 2;
+        var ob = {};
+        ob.Id = null;
+        ob.SeqNo = $scope.DetailNew.SeqNo;
+        ob.EntityId = $scope.DetailNew.EntityId;
+        ob.LotNo = $scope.DetailNew.LotNo;
+        ob.UserLotNo = $scope.DetailNew.UserLotNo;
+        ob.ProductionBookingLevel = $scope.DetailNew.ProductionBookingLevel;
+        ob.ProductionOrderId = $scope.DetailNew.ProductionOrderId;
+        ob.MasterOrderItemId = $scope.DetailNew.MasterOrderItemId;
+        ob.SalesOrderId = $scope.DetailNew.SalesOrderId;
+        ob.ProcessId = $scope.DetailNew.ProcessId;
+        ob.LotArticle = $scope.DetailNew.LotArticle;
+        ob.Sufix = $scope.DetailNew.Sufix;
+        ob.Process = $scope.DetailNew.Process;
+        ob.LotQty = $scope.DetailNew.LotQty/2;
+        ob.OrderQty = $scope.DetailNew.OrderQty;
+        ob.PlanQty = $scope.DetailNew.PlanQty;
+        ob.SchedulePercentage = $scope.DetailNew.SchedulePercentage;
+        ob.Remark = $scope.DetailNew.Remark;
+
+        $scope.lotControlList.push(ob);
+        ob = {};
+        var gridObj = $("#GridLC").data("ejGrid");
+        gridObj.refreshContent();
+        gridObj.refreshTemplate();
+    }
+
+    $scope.XCopyDetailData = function () {
         $http({
             method: 'POST',
             url: $scope.path + 'CopyData?ProductionOrderId=' + $scope.DetailNew.ProductionOrderId + '&Id=' + $scope.DetailNew.Id,
@@ -142,5 +172,37 @@ function LotControlController(commonMessage, $scope, $rootScope, baseService, $r
     };
 
 
+    $scope.SaveLotSettingData = function () {
+        try {
+
+            for (var i = 0; i < $scope.lotControlList.length; i++) {
+                var getRow = $filter("filter")($scope.lotControlList, { "ProcessId": $scope.lotControlList[i].ProcessId, "UserLotNo": $scope.lotControlList[i].UserLotNo});
+                if (getRow.length > 1) {
+                    throw "Process wise Lot No should unique.";
+                }
+            }
+
+
+            $http({
+                method: 'POST',
+                url: 'Productions/LotControl/SaveLotSettingData',
+                data: { 'data': $scope.lotControlList, 'poId': $scope.ModelNew.ProductionOrderId },
+                dataType: 'JSON'
+                , contentType: "application/json charset=utf-8"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetPOLotControlSettingData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
 
 }

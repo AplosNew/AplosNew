@@ -1,4 +1,4 @@
-﻿<togglable name="Purchase LC Amendment"></togglable>
+﻿0<togglable name="Purchase LC Amendment"></togglable>
 <div class="form-elements form-horizontal" ng-form name="PurchaseLCForm">
     <input type="hidden" ng-model="purchaseLCNew.Id">
     <div class="col-xs-12">
@@ -434,8 +434,8 @@
     <div class="common-btn">
         <ul class="list-inline text-right">
 
-            <li> <button ng-click="$parent.Get(this,'Update');" ng-disabled="data.Version===1" class="btn"><i class="glyphicon glyphicon-pencil"></i></button></li>
-            <li> <button ng-click="$parent.Get(this,'Amendment');" class="btn"><i class="glyphicon glyphicon-edit"></i></button></li>
+            <li> <button ng-click="$parent.Get(this,'Update');" title="Update" ng-disabled="data.Version===1" class="btn"><i class="glyphicon glyphicon-pencil"></i></button></li>
+            <li> <button ng-click="$parent.Get(this,'Amendment');"  title="Amendment"  class="btn"><i class="glyphicon glyphicon-edit"></i></button></li>
         </ul>
     </div>
 

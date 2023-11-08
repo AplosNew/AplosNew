@@ -159,16 +159,17 @@ namespace Library.Service.Processes
 		{
 			try
 			{
-				parameters.CmdText = @"SELECT  P.Id, P.CompanyGroupId, P.Code
+				parameters.CmdText = @"SELECT DISTINCT P.Id, P.CompanyGroupId, P.Code
 								, P.[Sequence], P.ShortName, P.StandardName, P.UserName
 								, P.IsProductionProcess, P.IsProcessRouting, P.IsLocked
 								, P.IsAppApplicable, IsChecked, P.IsValueAdded
 								, P.MaterialTypeId, MT.[Description] AS MaterialType
 								, P.Remarks,TG.ProductionBookingLevel
-								, P.Active, P.Archive, Convert(bit,0) AS Flag
+								, P.Active, P.Archive, Convert(bit,0) AS Flag,IsInventory=CAST(CASE WHEN M.Id IS NOT NULL THEN 1 ELSE 0 END AS BIT)
 							FROM [HKP].[Process] AS P
 							LEFT JOIN HKP.MaterialType AS MT ON P.MaterialTypeId=MT.Id
 							LEFT JOIN [HKP].[EntityProcessTag] TG ON TG.ProcessId=P.Id AND TG.EntityId='"+ EntityId + @"' 
+							LEFT JOIN [dbo].[EntityConfig] M ON M.ConsumptionProcessId=P.Id AND M.EntityId='" + EntityId + @"' 
 							WHERE P.CompanyGroupId='" + companyGroupId + @"' AND P.IsProductionProcess=1 AND P.Archive=0
 							AND P.Id NOT IN(Select ProcessId from TRN.ProductionOrderProcessSet Where  ProductionOrderId='"+ productionOrderId + "')";
 				return _sqlRepository.GetGridData(parameters);

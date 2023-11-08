@@ -1,9 +1,9 @@
 ﻿'use strict';
-GeneralContractCheckedController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', '$controller', '$route'];
-function GeneralContractCheckedController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, $controller, $route) {
-    $rootScope.title = 'General Contract Checked';
+SalesChanlanCheckedController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', '$controller', '$route'];
+function SalesChanlanCheckedController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, $controller, $route) {
+    $rootScope.title = 'Sales Chalan Check';
     $scope.ModelList = [];
-    $scope.path = 'Administration/GeneralContractChecked/';
+    $scope.path = 'SalesManagements/SalesChalan/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.Action = 'Save';
@@ -28,7 +28,7 @@ function GeneralContractCheckedController(cboService, commonMessage, $scope, $ro
 
     $scope.GriddataISUnCheckedList = [];
     $scope.GetUncheckedData = function () {
-        $http.get('Administration/GeneralContractChecked/GetUncheckedData')
+        $http.get('SalesManagements/SalesChalan/GetUncheckedData')
             .then(function successCallback(response) {
                 $scope.GriddataISUnCheckedList = response.data;
             })

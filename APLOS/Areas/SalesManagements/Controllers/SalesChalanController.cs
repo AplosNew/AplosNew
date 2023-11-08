@@ -54,6 +54,15 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             return View();
         }
+        public ActionResult SalesChalanCheck()
+        {
+            return View();
+        }
+        public ActionResult SalesChalanApprove()
+        {
+            return View();
+        }
+
 
 
         [HttpGet, Authorize]
@@ -142,12 +151,17 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 sheet.Range[ROW, 5].Text = "GatePassNo:";
                 sheet.Range[ROW, 6].Text = dtOrder.Rows[0]["UserRef"].ToString();
 
-             //   sheet.Range[6, 1, 6, 7].BorderAround(ExcelLineStyle.Thick);
-               
+                //   sheet.Range[6, 1, 6, 7].BorderAround(ExcelLineStyle.Thick);
+                //sheet.Range[ROW, 1, ROW, 6].CellStyle.Interior.ColorIndex = ExcelKnownColors.White;
+                //sheet.Range[ROW, 1, ROW, 6].CellStyle.Font.Color = ExcelKnownColors.Black;
+                //sheet.Range[ROW, 1, ROW, 6].CellStyle.Font.Bold = true;
+                //sheet.Range[ROW, 1, ROW, 6].CellStyle.Font.Size = 9f;
+                //sheet.Range[ROW, 1, ROW, 6].BorderInside(ExcelLineStyle.Hair);
+                //sheet.Range[ROW, 1, ROW, 6].BorderAround(ExcelLineStyle.Hair);
 
-                sheet.Range[ROW, 1, ROW + 1, 7].CellStyle.Font.Bold = true;
-                sheet.Range[ROW, 1, ROW + 1, 7].BorderAround(ExcelLineStyle.Hair);
-                sheet.Range[ROW, 1, ROW + 1, 7].BorderInside(ExcelLineStyle.Hair);
+                //sheet.Range[ROW, 1, ROW + 1, 7].CellStyle.Font.Bold = true;
+                //sheet.Range[ROW, 1, ROW + 1, 7].BorderAround(ExcelLineStyle.Hair);
+                //sheet.Range[ROW, 1, ROW + 1, 7].BorderInside(ExcelLineStyle.Hair);
 
                 ROW++;
                 ROW++;
@@ -232,10 +246,18 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 edCRow++;
                 edCRow++;
               
-                sheet.Range[edCRow, 7].Text = "Authorized Signatory";
+                //sheet.Range[edCRow, 7].Text = "Authorized Signatory";
+
+
+                sheet.Range[edCRow - 1, 1].Text = dtOrder.Rows[0]["AddedBy"].ToString();
+                sheet.Range[edCRow, 1].Text = "Parepared By";
+                sheet.Range[edCRow - 1, 3].Text = dtOrder.Rows[0]["CheckedBy"].ToString();
+                sheet.Range[edCRow, 3].Text = "Checked By";
+                sheet.Range[edCRow - 1, 5].Text = dtOrder.Rows[0]["ApprovedBy"].ToString();
+                sheet.Range[edCRow, 5].Text = "Approved By";
 
                 #region ReportHeader
-            
+
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -282,20 +304,23 @@ namespace Aplos.Areas.SalesManagements.Controllers
             try
             {
                 strSql = @"Select SCD.*,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight,DT.UserName Destination,FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
-,SC.VechileNo,SC.UserRef,FORMAT(SC.AddedDate,'dd-MMM-yyyy')GatePassDate
-from dbo.SalesChalanDetail SCD
-LEFT JOIN dbo.SalesChalan SC ON SC.Id=SCD.SalesChalanId
-LEFT JOIN TRN.Sales S ON S.Id=SCD.InvoiceId
-LEFT JOIN HKP.Party P ON P.Id=S.PartyId
-left join (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage,isc.SalesId 
-                from itemscanchild isc
-                left join trn.POLotReference PLR on PLR.Id = isc.PackingId
-                left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
-				group by  isc.salesId) BKD on BKD.salesId = s.Id
-left join PostSalesInvoice PSI on PSI.SalesId = BKD.SalesId
-left join MST.Addressmaster AM on Am.Id = P.AddressmasterId
-left join scs.District DT on DT.Id = AM.DistrictId
-Where SCD.SalesChalanId='" + masterId + "'";
+                                    ,SC.VechileNo,SC.UserRef,FORMAT(SC.AddedDate,'dd-MMM-yyyy')GatePassDate
+									,EI.EmployeeName CheckedBy,EIM.EmployeeName ApprovedBy
+                                    from dbo.SalesChalanDetail SCD
+                                    LEFT JOIN dbo.SalesChalan SC ON SC.Id=SCD.SalesChalanId
+                                    LEFT JOIN TRN.Sales S ON S.Id=SCD.InvoiceId
+                                    LEFT JOIN HKP.Party P ON P.Id=S.PartyId
+                                    left join (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage,isc.SalesId 
+                                                    from itemscanchild isc
+                                                    left join trn.POLotReference PLR on PLR.Id = isc.PackingId
+                                                    left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
+				                                    group by  isc.salesId) BKD on BKD.salesId = s.Id
+                                    left join PostSalesInvoice PSI on PSI.SalesId = BKD.SalesId
+                                    left join MST.Addressmaster AM on Am.Id = P.AddressmasterId
+                                    left join scs.District DT on DT.Id = AM.DistrictId
+									left join EmployeeInformation EI on EI.SystemId = SC.CheckById
+									left join EmployeeInformation EIM on EIM.SystemId = SC.ApproveById
+                                    Where SCD.SalesChalanId='" + masterId + "'";
 
                 dtOrder = _sqlRepository.GetDataTable(strSql);
             }
@@ -315,9 +340,9 @@ Where SCD.SalesChalanId='" + masterId + "'";
             try
             {
                 string sql = @"SELECT DISTINCT TransportVehicleNo AS Value,TransportVehicleNo AS Text,TransportDriverNo 
-FROM [dbo].[PostSalesInvoice] PO
-LEFT JOIN TRN.Sales S ON S.Id=PO.SalesId
-Where TransportVehicleNo IS NOT NULL AND FORMAT(S.AddedDate,'dd-MMM-yyyy') between '" + fromDate + @"' AND '" + toDate + "'";
+                                FROM [dbo].[PostSalesInvoice] PO
+                                LEFT JOIN TRN.Sales S ON S.Id=PO.SalesId
+                                Where TransportVehicleNo IS NOT NULL AND FORMAT(S.AddedDate,'dd-MMM-yyyy') between '" + fromDate + @"' AND '" + toDate + "'";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -336,12 +361,12 @@ Where TransportVehicleNo IS NOT NULL AND FORMAT(S.AddedDate,'dd-MMM-yyyy') betwe
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select * from (Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
-from [dbo].[SalesChalan] SC
-LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
-LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
-LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
-LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
-LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById) AS TEMP WHERE " + strkey + " Order By TEMP.AddedDate DESC";
+                                                    from [dbo].[SalesChalan] SC
+                                                    LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
+                                                    LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
+                                                    LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
+                                                    LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
+                                                    LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById) AS TEMP WHERE " + strkey + " Order By TEMP.AddedDate DESC";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -352,19 +377,19 @@ LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById) AS TEMP WHER
             try
             {
                 string sql = @"SELECT Checked=CAST(0 AS bit),FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate, S.Id InvoiceId,P.UserName Customer,DT.UserName Destination,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight
-FROM TRN.Sales S
-LEFT JOIN HKP.Party P ON P.Id=S.PartyId
-LEFT JOIN (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage , isc.SalesId 
-                from itemscanchild isc
-                left join trn.POLotReference PLR on PLR.Id = isc.PackingId
-                left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
-				group by  isc.salesId) BKD on BKD.salesId = s.Id
-left join PostSalesInvoice PSI on PSI.SalesId = BKD.SalesId
-left join MST.Addressmaster AM on Am.Id = P.AddressmasterId
-left join scs.District Dt on DT.Id = AM.DistrictId
-Where FORMAT(S.AddedDate,'dd-MMM-yyyy') between '" + fromDate + @"' AND '" + toDate + @"' AND PSI.Transportvehicleno='" + vehicleno + @"'
-AND S.Id NOT IN(Select  InvoiceId from dbo.SalesChalanDetail)
-ORDER BY S.Id";
+                                FROM TRN.Sales S
+                                LEFT JOIN HKP.Party P ON P.Id=S.PartyId
+                                LEFT JOIN (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage , isc.SalesId 
+                                                from itemscanchild isc
+                                                left join trn.POLotReference PLR on PLR.Id = isc.PackingId
+                                                left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
+				                                group by  isc.salesId) BKD on BKD.salesId = s.Id
+                                left join PostSalesInvoice PSI on PSI.SalesId = BKD.SalesId
+                                left join MST.Addressmaster AM on Am.Id = P.AddressmasterId
+                                left join scs.District Dt on DT.Id = AM.DistrictId
+                                Where FORMAT(S.AddedDate,'dd-MMM-yyyy') between '" + fromDate + @"' AND '" + toDate + @"' AND PSI.Transportvehicleno='" + vehicleno + @"'
+                                AND S.Id NOT IN(Select  InvoiceId from dbo.SalesChalanDetail)
+                                ORDER BY S.Id";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -379,18 +404,18 @@ ORDER BY S.Id";
             try
             {
                 string sql = @"Select SCD.*,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight,DT.UserName Destination,FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate 
-from dbo.SalesChalanDetail SCD
-LEFT JOIN TRN.Sales S ON S.Id=SCD.InvoiceId
-LEFT JOIN HKP.Party P ON P.Id=S.PartyId
-left join (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage,isc.SalesId 
-                from itemscanchild isc
-                left join trn.POLotReference PLR on PLR.Id = isc.PackingId
-                left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
-				group by  isc.salesId) BKD on BKD.salesId = s.Id
-left join PostSalesInvoice PSI on PSI.SalesId = BKD.SalesId
-left join MST.Addressmaster AM on Am.Id = P.AddressmasterId
-left join scs.District DT on DT.Id = AM.DistrictId
-Where SCD.SalesChalanId='" + masterId + "'";
+                                    from dbo.SalesChalanDetail SCD
+                                    LEFT JOIN TRN.Sales S ON S.Id=SCD.InvoiceId
+                                    LEFT JOIN HKP.Party P ON P.Id=S.PartyId
+                                    left join (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage,isc.SalesId 
+                                                    from itemscanchild isc
+                                                    left join trn.POLotReference PLR on PLR.Id = isc.PackingId
+                                                    left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
+				                                    group by  isc.salesId) BKD on BKD.salesId = s.Id
+                                    left join PostSalesInvoice PSI on PSI.SalesId = BKD.SalesId
+                                    left join MST.Addressmaster AM on Am.Id = P.AddressmasterId
+                                    left join scs.District DT on DT.Id = AM.DistrictId
+                                    Where SCD.SalesChalanId='" + masterId + "'";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -514,8 +539,7 @@ Where SCD.SalesChalanId='" + masterId + "'";
 
 
         }
-
-
+         
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -561,5 +585,101 @@ Where SCD.SalesChalanId='" + masterId + "'";
             dr.EndEdit();
         }
 
+        public ActionResult GetUncheckedData()
+        {
+            try
+            {
+                var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
+								from [dbo].[SalesChalan] SC
+								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
+								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
+								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
+								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
+								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
+								where SC.IsChecked=0";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public ActionResult GetcheckedData()
+        {
+            try
+            {
+                var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
+								from [dbo].[SalesChalan] SC
+								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
+								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
+								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
+								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
+								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
+								where SC.IsChecked=1 and SC.IsApproved=0";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public ActionResult GetApproveByUncheckedData()
+        {
+            try
+            {
+                var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
+								from [dbo].[SalesChalan] SC
+								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
+								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
+								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
+								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
+								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
+								where SC.IsApproved=0";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public ActionResult GetApproveBycheckedData()
+        {
+            try
+            {
+                var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
+								from [dbo].[SalesChalan] SC
+								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
+								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
+								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
+								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
+								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
+								where SC.IsChecked=1 and SC.IsApproved=1";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetSalesChalanCheckedByCboList()
+        {
+            var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where  A.ActionStatus='SalesChalanCheckBy' AND E.EmployeeStatus='Active'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetSalesChalanApproveByCboList()
+        {
+            var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where  A.ActionStatus='SalesChalanApproveBy' AND E.EmployeeStatus='Active'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
     }
 }
