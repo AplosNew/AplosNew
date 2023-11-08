@@ -334,9 +334,7 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
 
     $scope.PrintData = function (data) {
         try {
-            $scope.fileName = "SalesChalanReport.xls";
-
-
+            $scope.fileName = "SalesChalanReport.xlsx"; 
             //$scope.ReportFormat = 'Excel';
             $scope.ReportFormat = 'Pdf';
             var url = 'SalesManagements/SalesChalan/GetSalesChalanReportPdf?reportFormat=' + $scope.ReportFormat + '&masterId=' + data.data.Id;

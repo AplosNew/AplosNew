@@ -142,12 +142,17 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 sheet.Range[ROW, 5].Text = "GatePassNo:";
                 sheet.Range[ROW, 6].Text = dtOrder.Rows[0]["UserRef"].ToString();
 
-             //   sheet.Range[6, 1, 6, 7].BorderAround(ExcelLineStyle.Thick);
-               
+                //   sheet.Range[6, 1, 6, 7].BorderAround(ExcelLineStyle.Thick);
+                sheet.Range[ROW, 1, ROW, 6].CellStyle.Interior.ColorIndex = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, 6].CellStyle.Font.Color = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, 6].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, 6].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, 6].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, 6].BorderAround(ExcelLineStyle.Hair);
 
-                sheet.Range[ROW, 1, ROW + 1, 7].CellStyle.Font.Bold = true;
-                sheet.Range[ROW, 1, ROW + 1, 7].BorderAround(ExcelLineStyle.Hair);
-                sheet.Range[ROW, 1, ROW + 1, 7].BorderInside(ExcelLineStyle.Hair);
+                //sheet.Range[ROW, 1, ROW + 1, 7].CellStyle.Font.Bold = true;
+                //sheet.Range[ROW, 1, ROW + 1, 7].BorderAround(ExcelLineStyle.Hair);
+                //sheet.Range[ROW, 1, ROW + 1, 7].BorderInside(ExcelLineStyle.Hair);
 
                 ROW++;
                 ROW++;
@@ -232,10 +237,18 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 edCRow++;
                 edCRow++;
               
-                sheet.Range[edCRow, 7].Text = "Authorized Signatory";
+                //sheet.Range[edCRow, 7].Text = "Authorized Signatory";
+
+
+                sheet.Range[edCRow - 1, 1].Text = dtOrder.Rows[0]["AddedBy"].ToString();
+                sheet.Range[edCRow, 1].Text = "Parepared By";
+                sheet.Range[edCRow - 1, 3].Text = dtOrder.Rows[0]["CheckedBy"].ToString();
+                sheet.Range[edCRow, 3].Text = "Checked By";
+                sheet.Range[edCRow - 1, 5].Text = dtOrder.Rows[0]["ApprovedBy"].ToString();
+                sheet.Range[edCRow, 5].Text = "Approved By";
 
                 #region ReportHeader
-            
+
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -282,20 +295,23 @@ namespace Aplos.Areas.SalesManagements.Controllers
             try
             {
                 strSql = @"Select SCD.*,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight,DT.UserName Destination,FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
-,SC.VechileNo,SC.UserRef,FORMAT(SC.AddedDate,'dd-MMM-yyyy')GatePassDate
-from dbo.SalesChalanDetail SCD
-LEFT JOIN dbo.SalesChalan SC ON SC.Id=SCD.SalesChalanId
-LEFT JOIN TRN.Sales S ON S.Id=SCD.InvoiceId
-LEFT JOIN HKP.Party P ON P.Id=S.PartyId
-left join (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage,isc.SalesId 
-                from itemscanchild isc
-                left join trn.POLotReference PLR on PLR.Id = isc.PackingId
-                left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
-				group by  isc.salesId) BKD on BKD.salesId = s.Id
-left join PostSalesInvoice PSI on PSI.SalesId = BKD.SalesId
-left join MST.Addressmaster AM on Am.Id = P.AddressmasterId
-left join scs.District DT on DT.Id = AM.DistrictId
-Where SCD.SalesChalanId='" + masterId + "'";
+                                    ,SC.VechileNo,SC.UserRef,FORMAT(SC.AddedDate,'dd-MMM-yyyy')GatePassDate
+									,EI.EmployeeName CheckedBy,EIM.EmployeeName ApprovedBy
+                                    from dbo.SalesChalanDetail SCD
+                                    LEFT JOIN dbo.SalesChalan SC ON SC.Id=SCD.SalesChalanId
+                                    LEFT JOIN TRN.Sales S ON S.Id=SCD.InvoiceId
+                                    LEFT JOIN HKP.Party P ON P.Id=S.PartyId
+                                    left join (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage,isc.SalesId 
+                                                    from itemscanchild isc
+                                                    left join trn.POLotReference PLR on PLR.Id = isc.PackingId
+                                                    left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
+				                                    group by  isc.salesId) BKD on BKD.salesId = s.Id
+                                    left join PostSalesInvoice PSI on PSI.SalesId = BKD.SalesId
+                                    left join MST.Addressmaster AM on Am.Id = P.AddressmasterId
+                                    left join scs.District DT on DT.Id = AM.DistrictId
+									left join EmployeeInformation EI on EI.SystemId = SC.CheckById
+									left join EmployeeInformation EIM on EIM.SystemId = SC.ApproveById
+                                    Where SCD.SalesChalanId='" + masterId + "'";
 
                 dtOrder = _sqlRepository.GetDataTable(strSql);
             }
