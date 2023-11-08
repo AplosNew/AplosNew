@@ -54,8 +54,6 @@ function GeneralContractApprovedController(cboService, commonMessage, $scope, $r
     $scope.GetcheckedApprovedData();
 
     $scope.onClickPOA = function (z) {
-        debugger;
-
         var x = "#" + z;
         var gridObj = $(x).data("ejGrid");
         $scope.podata = gridObj.getSelectedRecords()[0];
@@ -76,8 +74,6 @@ function GeneralContractApprovedController(cboService, commonMessage, $scope, $r
 
     $scope.detailTemp = "#tabGridContents";
     $scope.detailgrid = function detailGridData(e) {
-        //debugger;
-
         var filteredData = e.data["Id"];
         var data = ej.DataManager($scope.ContractItemList).executeLocal(ej.Query().where("GeneralContractEntryId", "equal", parseInt(filteredData), true).take(100));
         e.detailsElement.find("#detailGrid").ejGrid({
