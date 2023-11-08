@@ -1914,6 +1914,7 @@
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
     <Content Include="Areas\Accounts\Scripts\fiscalYearCloseController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractApprovedController.js" />
+    <Content Include="Areas\SalesManagements\Scripts\SalesChanlanCheckedController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractCheckedController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractEntryController.js" />
@@ -4851,6 +4852,7 @@
     <Content Include="Areas\Accounts\Views\EDReport.cshtml" />
     <Content Include="Areas\Accounts\Views\SubsequentInvestment.cshtml" />
     <Content Include="Areas\Accounts\Views\Bonus\Aplos.cshtml" />
+    <Content Include="Areas\SalesManagements\Views\SalesChalan\SalesChalanCheck.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

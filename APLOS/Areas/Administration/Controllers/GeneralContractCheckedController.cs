@@ -233,9 +233,9 @@ namespace Aplos.Areas.Administration.Controllers
                 sheet.Range[ROW, COL + 2].Text = "Approved By";
                 sheet.Range[ROW, COL + 3].Text = dtOrder.Rows[0]["ApprovedBy"].ToString();
 
-                sheet.Range[ROW, 1, ROW, COL + 3].CellStyle.Font.Bold = true;
-                sheet.Range[ROW, 1, ROW, COL + 3].BorderAround(ExcelLineStyle.Hair);
-                sheet.Range[ROW, 1, ROW, COL + 3].BorderInside(ExcelLineStyle.Hair);
+                //sheet.Range[ROW, 1, ROW, COL + 3].CellStyle.Font.Bold = true;
+                //sheet.Range[ROW, 1, ROW, COL + 3].BorderAround(ExcelLineStyle.Hair);
+                //sheet.Range[ROW, 1, ROW, COL + 3].BorderInside(ExcelLineStyle.Hair);
 
                 #region ColumnsHeader
 
