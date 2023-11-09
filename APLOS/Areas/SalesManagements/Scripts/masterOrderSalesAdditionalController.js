@@ -1,10 +1,19 @@
 ﻿"use strict";
 masterOrderSalesAdditionalController.$inject = ["cboService", "commonMessage", '$window', "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller", "accountService", "bankService"];
 function masterOrderSalesAdditionalController(cboService, commonMessage, $window, $scope, $rootScope, baseService, $http, $filter, $controller, accountService, bankService) {
-    $rootScope.title = "Master Order Sales";
+    $rootScope.title = "Invoice Info";
     $scope.Action = "Save";
     $scope.invoiceList = [];
     $scope.postedSalesList = [];
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
 
     $scope.searchByPostedSales = "InvoiceNo"; $scope.searchSales = "";
     $scope.searchByPostedSalesList = [{ value: 'InvoiceNo', name: "Invoice No" }, { value: 'VoucherNo', name: "Voucher No" }, { value: 'PartyCode', name: "Party Code" }, { value: 'PartyName', name: "Party Name" }
