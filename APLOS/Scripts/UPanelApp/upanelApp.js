@@ -1233,6 +1233,7 @@ upanelApp.controller("DailyQualityStatusReportController", DailyQualityStatusRep
 upanelApp.controller("SalesChalanController", SalesChalanController)
 upanelApp.controller("ExpenseDistributionReportController", ExpenseDistributionReportController)
 upanelApp.controller("BonusController", BonusController)
+upanelApp.controller("SQCMasterController", SQCMasterController)
 
 
 
