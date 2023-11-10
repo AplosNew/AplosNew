@@ -187,7 +187,7 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
                 };
             }
         } catch (e) {
-            ShowResult(e, "failure", 'detailpopup');
+            ShowResult(e, "failure");
         }
     };
 
