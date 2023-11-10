@@ -7,7 +7,7 @@ function SalesChanlanCheckedController(cboService, commonMessage, $scope, $rootS
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.Action = 'Save';
-    $scope.saveUrl = $scope.path + 'Save';
+    $scope.saveUrla = $scope.path + 'Save';
     $scope.updateUrl = $scope.path + 'Update';
     $scope.deleteUrl = 'Administration/GeneralContractItemMaster/Delete'
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
@@ -24,22 +24,31 @@ function SalesChanlanCheckedController(cboService, commonMessage, $scope, $rootS
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
+
+    //$scope.tab = 2;
+    //$scope.setTab = function (newTab) {
+    //    $scope.tab = newTab;
+    //};
+
+    //$scope.isSet = function (tabNum) {
+    //    return $scope.tab === tabNum;
+    //};
     // #endregion TAB CHANGE
 
-    $scope.GriddataISUnCheckedList = [];
+    $scope.GriddataSCCUnCheckedList = [];
     $scope.GetUncheckedData = function () {
         $http.get('SalesManagements/SalesChalan/GetUncheckedData')
             .then(function successCallback(response) {
-                $scope.GriddataISUnCheckedList = response.data;
+                $scope.GriddataSCCUnCheckedList = response.data;
             })
     }
     $scope.GetUncheckedData();
 
-    $scope.GriddataISCheckedList = [];
+    $scope.GriddataSCCCheckedList = [];
     $scope.GetcheckedData = function () {
         $http.get('Administration/GeneralContractChecked/GetcheckedData')
             .then(function successCallback(response) {
-                $scope.GriddataISCheckedList = response.data;
+                $scope.GriddataSCCCheckedList = response.data;
             })
     }
     $scope.GetcheckedData();
@@ -53,6 +62,35 @@ function SalesChanlanCheckedController(cboService, commonMessage, $scope, $rootS
             })
     }
     $scope.GetAllCheckBy();
+
+
+    //$scope.GriddataISUnCheckedList = [];
+    //$scope.GetUncheckedData = function () {
+    //    $http.get('SalesManagements/SalesChalan/GetcheckedData')
+    //        .then(function successCallback(response) {
+    //            $scope.GriddataISUnCheckedList = response.data;
+    //        })
+    //}
+    //$scope.GetUncheckedData();
+
+    //$scope.GriddataISCheckedList = [];
+    //$scope.GetcheckedData = function () {
+    //    $http.get('SalesManagements/SalesChalan/GetApproveBycheckedData')
+    //        .then(function successCallback(response) {
+    //            $scope.GriddataISCheckedList = response.data;
+    //        })
+    //}
+    //$scope.GetcheckedData();
+
+    //// Employee Who Responsible For Approving
+    //$scope.CheckedByList = [];
+    //$scope.GetAllCheckBy = function () {
+    //    $http.get('SalesManagements/SalesChalan/GetcheckedData')
+    //        .then(function successCallback(response) {
+    //            $scope.CheckedByList = response.data;
+    //        })
+    //}
+    //$scope.GetAllCheckBy();
 
     //-----------------------------------------------------------------------------------
     $scope.onClickPOA = function (z) {
@@ -75,7 +113,7 @@ function SalesChanlanCheckedController(cboService, commonMessage, $scope, $rootS
     $scope.POApprovalList = [
         {
             'Text': 'Checked',
-            'Value':'Checked'
+            'Value': 'Checked'
         }
     ];
     //$scope.poApproved = function () {
@@ -93,18 +131,18 @@ function SalesChanlanCheckedController(cboService, commonMessage, $scope, $rootS
             });
     }
     $scope.GetChildList();
-   
+
     //$scope.lst = [];
     //$scope.data1 = $scope.lst;
-    
+
     $scope.detailTemp = "#tabGridContents";
-    
+
     $scope.detailgrid = function detailGridData(e) {
         //debugger;
 
         var filteredData = e.data["Id"];
         var data = ej.DataManager($scope.ContractItemList).executeLocal(ej.Query().where("GeneralContractEntryId", "equal", parseInt(filteredData), true).take(100));
- 
+
         e.detailsElement.find("#detailGrid").ejGrid({
 
             dataSource: data,
@@ -114,7 +152,7 @@ function SalesChanlanCheckedController(cboService, commonMessage, $scope, $rootS
                 { field: "TransactionQuantity", headerText: "Transaction Quantity", width: 100 },
                 { field: "Rate", headerText: "Rate", width: 100 },
                 { field: "Amount", headerText: "Amount", width: 100 },
-               
+
             ]
         });
         e.detailsElement.find(".tabcontrol").ejTab();
@@ -151,9 +189,9 @@ function SalesChanlanCheckedController(cboService, commonMessage, $scope, $rootS
                 url: 'Administration/GeneralContractChecked/GeneralContractChecked',
                 data: {
                     'headerId': $scope.podata.Id,
-                   
+
                     'CheckedStataus': $scope.podata.CheckedStatus,
-                    
+
                     'AuthorizedById': $scope.podata.AuthorizedBy,
                     'CheckedReason': $scope.podata.CheckedRejectReason,
 
@@ -193,3 +231,199 @@ function SalesChanlanCheckedController(cboService, commonMessage, $scope, $rootS
     };
 
 }
+
+////'use strict';
+////SalesChanlanCheckedController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', '$controller', '$route'];
+////function SalesChanlanCheckedController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, $controller, $route) {
+////    $rootScope.title = 'Sales Chalan Check';
+////    $scope.ModelList = [];
+////    $scope.path = 'SalesManagements/SalesChalan/';
+////    $scope.getListUrl = $scope.path + 'getlist';
+////    $scope.getSeqUrl = $scope.path + 'getautosequence';
+////    $scope.Action = 'Save';
+////    $scope.saveUrl = $scope.path + 'Save';
+////    $scope.updateUrl = $scope.path + 'Update';
+////    $scope.deleteUrl = 'Administration/GeneralContractItemMaster/Delete'
+////    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+////    $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
+////    $controller("employeeBaseController", { $scope: $scope, $http: $http });
+
+
+////    // #region TAB CHANGE
+////    $scope.tab = 1;
+////    $scope.setTab = function (newTab) {
+////        $scope.tab = newTab;
+////    };
+
+////    $scope.isSet = function (tabNum) {
+////        return $scope.tab === tabNum;
+////    };
+////    // #endregion TAB CHANGE
+
+////    $scope.GriddataISUnCheckedList = [];
+////    $scope.GetUncheckedData = function () {
+////        $http.get('SalesManagements/SalesChalan/GetUncheckedData')
+////            .then(function successCallback(response) {
+////                $scope.GriddataISUnCheckedList = response.data;
+////            })
+////    }
+////    $scope.GetUncheckedData();
+
+////    $scope.GriddataISCheckedList = [];
+////    $scope.GetcheckedData = function () {
+////        $http.get('Administration/GeneralContractChecked/GetcheckedData')
+////            .then(function successCallback(response) {
+////                $scope.GriddataISCheckedList = response.data;
+////            })
+////    }
+////    $scope.GetcheckedData();
+
+////    // Employee Who Responsible For Approving
+////    $scope.CheckedByList = [];
+////    $scope.GetAllCheckBy = function () {
+////        $http.get('Administration/GeneralContractChecked/GetAllCheckBy')
+////            .then(function successCallback(response) {
+////                $scope.CheckedByList = response.data;
+////            })
+////    }
+////    $scope.GetAllCheckBy();
+
+////    //-----------------------------------------------------------------------------------
+////    $scope.onClickPOA = function (z) {
+////        debugger;
+
+////        var x = "#" + z;
+////        var gridObj = $(x).data("ejGrid");
+////        $scope.podata = gridObj.getSelectedRecords()[0];
+
+////        $scope.message = 'Are you sure want to ' + $scope.podata.CheckedStatus + '?';
+////        angular.element(document.querySelector('#poapprovealert')).modal('show');
+
+////    };
+////    $scope.approvalAlert = function () {
+////        $scope.message = 'Are you sure want to Approve?';
+////        angular.element(document.querySelector('#poapprovealert')).modal('show');
+////    };
+
+////    //-----------------------------------------------------------------------------------
+////    $scope.POApprovalList = [
+////        {
+////            'Text': 'Checked',
+////            'Value':'Checked'
+////        }
+////    ];
+////    //$scope.poApproved = function () {
+////    //    cboService.getEnumCbo("enum/GetPOApprovalStatusCbo", function (result) {
+////    //        $scope.POApprovalList = result[3];
+////    //    });
+////    //}
+////    //$scope.poApproved();
+
+////    $scope.ContractItemList = []
+////    $scope.GetChildList = function () {
+////        $http.get('Administration/GeneralContractChecked/GetChildList')
+////            .then(function successCallback(response) {
+////                $scope.ContractItemList = response.data;
+////            });
+////    }
+////    $scope.GetChildList();
+   
+////    //$scope.lst = [];
+////    //$scope.data1 = $scope.lst;
+    
+////    $scope.detailTemp = "#tabGridContents";
+    
+////    $scope.detailgrid = function detailGridData(e) {
+////        //debugger;
+
+////        var filteredData = e.data["Id"];
+////        var data = ej.DataManager($scope.ContractItemList).executeLocal(ej.Query().where("GeneralContractEntryId", "equal", parseInt(filteredData), true).take(100));
+ 
+////        e.detailsElement.find("#detailGrid").ejGrid({
+
+////            dataSource: data,
+////            columns: [
+////                { field: "UserName", headerText: "Item", width: 100 },
+////                { field: "AvgQty", headerText: "Avg Qty", width: 100 },
+////                { field: "TransactionQuantity", headerText: "Transaction Quantity", width: 100 },
+////                { field: "Rate", headerText: "Rate", width: 100 },
+////                { field: "Amount", headerText: "Amount", width: 100 },
+               
+////            ]
+////        });
+////        e.detailsElement.find(".tabcontrol").ejTab();
+////    }
+
+////    //  #region Save
+////    $scope.poApp = function () {
+////        try {
+
+////            if ($scope.podata.CheckedStatus === "For Checked" || $scope.podata.CheckedStatus === "Select" || baseService.isUndefinedOrNull($scope.podata.CheckedStatus)) {
+////                ShowResult("Please Select Checked By Status", 'failure');
+////                return false;
+////            }
+
+////            else if ($scope.podata.CheckedStatus === "Checked" && baseService.isUndefinedOrNull($scope.podata.AuthorizedBy)) {
+////                ShowResult("Please Select To be Approved By", 'failure');
+////                return false;
+////            }
+////            else if (($scope.podata.CheckedStatus === "Hold" || $scope.podata.CheckedStatus === "Reject") && baseService.isUndefinedOrNull($scope.podata.CheckedRejectReason)) {
+////                ShowResult("Enter The Reason", 'failure');
+////                return false;
+////            }
+
+////            var filteredData = $scope.podata.Id;
+////            var data = ej.DataManager($scope.ContractItemList).executeLocal(ej.Query().where("GeneralContractEntryId", "equal", parseInt(filteredData), true).take(100));
+
+////            if (data.length == 0) {
+////                throw "Contract Details is reuired.";
+////            }
+
+
+////            $http({
+////                method: 'POST',
+////                url: 'Administration/GeneralContractChecked/GeneralContractChecked',
+////                data: {
+////                    'headerId': $scope.podata.Id,
+                   
+////                    'CheckedStataus': $scope.podata.CheckedStatus,
+                    
+////                    'AuthorizedById': $scope.podata.AuthorizedBy,
+////                    'CheckedReason': $scope.podata.CheckedRejectReason,
+
+////                },
+
+////                dataType: 'JSON'
+////            }).then(function successCallback(response) {
+////                if (response.data.Error === true) {
+////                    ShowResult(response.data.Message, 'failure');
+////                }
+////                else {
+////                    ShowResult(response.data.Message, 'success');
+////                    //$window.location.reload();
+////                    $route.reload();
+////                }
+////            }, function errorCallBack(response) {
+////                ShowResult(response.data.Message, 'failure');
+////            });
+////        } catch (e) {
+////            ShowResult(e, 'failure');
+////        }
+////    }
+////    //  #endregion Save
+
+////    $scope.PrintData = function (data) {
+////        try {
+////            $scope.fileName = "General Contract Report.xlsx";
+
+////            //$scope.ReportFormat = 'Excel';
+////            $scope.ReportFormat = 'Pdf';
+////            var url = 'Administration/GeneralContractChecked/GetGeneralContractReport?reportFormat=' + $scope.ReportFormat + '&ContractId=' + data.data.Id;
+////            $rootScope.report(url);
+
+////        } catch (e) {
+////            ShowResult(e, 'failure');
+////        }
+////    };
+
+////}
