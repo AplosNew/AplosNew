@@ -801,7 +801,7 @@ Where HeadCategory='Net Payable' ";
             return json;
         }
 
-        [HttpPost, Authorize]
+        /*[HttpPost, Authorize]
         public ActionResult GetEmployeeInformation(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string employeeCategoryId, string PaymentMode)
         {
 
@@ -919,7 +919,7 @@ Where HeadCategory='Net Payable' ";
             JsonResult json = Json(new { empdata, empNetPay }, JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
-        }
+        }*/
 
         #region Salary UnDisbursed
         [HttpPost, Authorize]
@@ -2000,36 +2000,115 @@ Where HeadCategory='Net Payable' ";
         }
 
         #endregion
+
+        #region Aman
+        [Authorize, HttpPost]
+        public ActionResult GetEmployeeInformation(string from, string to)
+        {
+            var sql = "";
+            try
+            {
+                sql = @"select  B.MonthNo,B.YearNo,B.SystemID,B.EmpSysID, B.EmpCode, B.EmpName,
+B.Section,B.SubSection,B.Designation,B.Category  ,B.EmployeeStatus ,B.Residence, B.Transport, B.ResLocation, B.ResNo,
+B.Flag, B.DOJ, B.DOS,B.PaymentMode ,B.Bank ,B.BankAccNo,B.IFSCCode,B.IsDisbursed,B.Paydays ,B.SalaryHead
+, ISNULL(B.Amount, 0)Amount
+into #tempOT from
+(select A.MonthNo, A.YearNo, A.SystemID, A.EmpSysID, A.EmpCode, A.EmpName,
+A.Section, A.SubSection, A.Designation, A.Category, A.EmployeeStatus, A.Residence, A.Transport, A.ResLocation, A.ResNo,
+A.Flag, A.DOJ, A.DOS, A.PaymentMode, A.Bank, A.BankAccNo, A.IFSCCode, A.IsDisbursed, A.Paydays, A.SalaryHead
+, A.Amount from
+(
+select SPM.MonthNo, SPM.YearNo, SPM.SystemID, SPC.EmpInfoSystemID EmpSysID, EMP.EmployeeCode EmpCode, EMP.EmployeeName EmpName,
+SC.StandardName Section, SSC.StandardName SubSection, GDSG.StandardName Designation, EC.StandardName Category, EMP.EmployeeStatus, RG.StandardName as Residence,
+TG.StandardName as Transport, RESM.Location ResLocation, RESM.ResidenceNumber ResNo,
+SPD.Flag, EMP.DOJ, EMP.DOS, SPD.PaymentMode, B.StandardName Bank, SPD.BankAccNo, SPD.IFSCCode, SPC.IsDisbursed, ATT.TotalPayDay Paydays
+, replace(SH.SalaryHead, ' ', '')SalaryHead
+,case when isnull(SPC.DisbusmentAmount, 0) < 0 then(isnull(SPC.DisbusmentAmount, 0) * -1)
+else isnull(SPC.DisbusmentAmount, 0) end as Amount
+
+
+from SalaryProcChild SPC
+join SalaryProcMaster SPM on SPM.SystemID = SPC.SlrProcMstSystemID
+left
+join SalaryProceAttdnData ATT on ATT.EmpSystemID = SPC.EmpInfoSystemID and ATT.SlrProcMstSystemID = SPM.SystemID
+join SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
+left join SalaryProcessLogDetail SPD on SPD.EmpSystemId = SPC.EmpInfoSystemID and SPD.SalaryProcessId = SPM.SystemID
+left join EmployeeInformation EMP on EMP.SystemId = SPC.EmpInfoSystemID
+left join mst.ManpowerBudget MB on MB.Id = SPD.BudgetCode
+left join ORG.Position POS on POS.Id = MB.PositionId
+left join ORG.Department DEP on DEP.Id = POS.DepartmentId
+left join ORG.Section SC on SC.Id = POS.SectionId
+left join ORG.SubSection SSC on SSC.Id = POS.SubSectionId
+LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id = SPD.LegalDesignationId
+left join hkp.EmployeeCategory EC on EC.Id = SPD.EmployeeCategoryId
+left join hkp.Bank B on B.Id = SPD.BankSystemID
+left join ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId
+left join TransportGroup TG on TG.Id = EMP.TransportGroupId
+left join ResidenceAllocatedEmployees RES on RES.EmployeeSystemId = EMP.SystemId and RES.isOccupied = 1
+left join ResidenceMaster RESM on RESM.Id = RES.ResidenceId
+
+where SPM.FromDate >= '" + from + "' and SPM.ToDate <= '" + to + @"' and SH.SalaryHeadID = 'SHD20211'
+)A
+)B
+DECLARE @sql nvarchar(max), @col nvarchar(max)
+                            SELECT @col = (
+                                SELECT DISTINCT ',' + QUOTENAME(REPLACE(CONVERT(VARCHAR(40), SalaryHead, 113), ' ', '-'))
+                                FROM #tempOT 
+                                FOR XML PATH('')
+                            )                             SELECT @sql = N'
+                            (SELECT *
+                            FROM #tempOT
+                            PIVOT(
+                                MAX([Amount]) FOR[SalaryHead] IN('+STUFF(@col,1,1,'')+')
+                            ) as pvt)' 
+                            EXEC sp_executesql @sql
+                            drop table #tempOT";
+
+
+                var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+
+                //return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion Aman
+
     }
 
-   /* public class SalaryDisburseTemplate
-    {
-        public string EmployeeCode { get; set; }
-        public string EmployeeName { get; set; }
-        public string Designation { get; set; }
-        public string Department { get; set; }
-        public string Division { get; set; }
-        public string EmployeeCategory { get; set; }
-        public string Plant { get; set; }
-        public string Section { get; set; }
-        public string SubSection { get; set; }
-        public string Unit { get; set; }
-        public string DOJ { get; set; }
-        public string DOS { get; set; }
-        public string CurrentMonthEmployeeStatus { get; set; }
-        public string EmployeeStatus { get; set; }
-        public string SalaryProcFlag { get; set; }
-        public string PayRollGroup { get; set; }
-        public string JobLocation { get; set; }
-        public string PaymentMode { get; set; }
-        public string BankName { get; set; }
-        public string VoucherNo { get; set; }
-        public string PayableVoucherNo { get; set; }
-        public string DisbursementVoucherNo { get; set; }
-        public string IsLock { get; set; }
-        public string IsDisburse { get; set; }
-        public string NetPayment { get; set; }
+    /* public class SalaryDisburseTemplate
+     {
+         public string EmployeeCode { get; set; }
+         public string EmployeeName { get; set; }
+         public string Designation { get; set; }
+         public string Department { get; set; }
+         public string Division { get; set; }
+         public string EmployeeCategory { get; set; }
+         public string Plant { get; set; }
+         public string Section { get; set; }
+         public string SubSection { get; set; }
+         public string Unit { get; set; }
+         public string DOJ { get; set; }
+         public string DOS { get; set; }
+         public string CurrentMonthEmployeeStatus { get; set; }
+         public string EmployeeStatus { get; set; }
+         public string SalaryProcFlag { get; set; }
+         public string PayRollGroup { get; set; }
+         public string JobLocation { get; set; }
+         public string PaymentMode { get; set; }
+         public string BankName { get; set; }
+         public string VoucherNo { get; set; }
+         public string PayableVoucherNo { get; set; }
+         public string DisbursementVoucherNo { get; set; }
+         public string IsLock { get; set; }
+         public string IsDisburse { get; set; }
+         public string NetPayment { get; set; }
 
-    }*/
+     }*/
 
 }

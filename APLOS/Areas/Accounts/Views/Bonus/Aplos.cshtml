@@ -10,7 +10,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="ToDate" ng-model="FromDate" datepicker required class="form-control" tabindex="3">
+                        <input type="text" name="FromDate" ng-model="BonusNew.FromDate" datepicker required class="form-control" tabindex="3">
                     </div>
                 </div>
 
@@ -19,7 +19,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="ToDate" ng-model="ToDate" datepicker required class="form-control" tabindex="3">
+                        <input type="text" name="ToDate" ng-model="BonusNew.ToDate" datepicker required class="form-control" tabindex="3">
                     </div>
                 </div>
             </div>
@@ -27,7 +27,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label">BonusDate<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="BonusDate" ng-model="BonusDate" datepicker required class="form-control" tabindex="3">
+                        <input type="text" name="BonusDate" ng-model="BonusNew.BonusDate" datepicker required class="form-control" tabindex="3">
                     </div>
                 </div>
             </div>
@@ -39,159 +39,158 @@
         </div>
         <div class="clearfix"></div>
         <div class="tab-design">
-        <div class="site-tab">
-            <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Service" role="tab" data-toggle="tab">Disbursed</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">UnDisbursed</a></li>
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Service" role="tab" data-toggle="tab">Disbursed</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">UnDisbursed</a></li>
 
-            </ul>
-        </div>
-        <div class="tab-content">
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-                <div class="row" ng-show="empGrid">
-                    <div class="col-sm-12">
-                        <div class="inputBtnSection common-btn">
-                            <label class="fileUpload col-sm-4 ">
-                                <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
-                            </label>
-                            <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportData()" />
-                        </div>
-                    </div>
-
-                    <div class="clearfix"></div>
-                    <div class="col-md-12" ng-show="empGrid">
-                        <div id="empInfoGrid" ng-init="chkinit()" ej-grid e-datasource="EmployeeListTemp" e-recorddoubleclick="Get" e-allowscrolling="true" e-pageSettings-pageSize="15"
-                             e-actioncomplete="actionCompleteSelected" e-templaterefresh="refreshTemplateemployee"
-                             e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
-                             e-allowselection="true" e-filtersettings-filterType="excel" style="margin-left:1%">
-
-                            <div e-columns>
-                                <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
-                                <div e-column e-field="SalaryProcId" e-headertext="SalaryProcId" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="AddedBy" e-headertext="Created By" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="120"></div>
-                                <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="Division" e-headertext="Division" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="Line" e-headertext="Line" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="CurrentMonthEmployeeStatus" e-headertext="CurrentMonthEmployeeStatus" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="EmployeeStatus" e-headertext="EmployeeStatus" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="AccountsGroup" e-headertext="AccountsGroup" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="PayableVoucherNo" e-headertext="Payable Voucher No" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="IsLock" e-headertext="Lock" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="DisbursementVoucherNo" e-headertext="Disbursement Voucher No" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="IsDisburse" e-headertext="Disbursed" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="DisbursementDate" e-headertext="Disbursement Date" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="PayRollGroup" e-headertext="PayRoll Gruop" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="JobLocation" e-headertext="Job Location" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="PaymentMode" e-headertext="Payment Mode" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="BankName" e-headertext="Bank Name" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="DOS" e-headertext="DOS" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="SalaryProcFlag" e-headertext="EmployeeStatus" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="NetPayment" e-headertext="Net Payment" e-allowediting="false" e-width="80"></div>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="inputBtnSection common-btn">
+                                <label class="fileUpload col-sm-4 ">
+                                    <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                                </label>
+                                <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportData()" />
                             </div>
                         </div>
 
-                        <script type="text/template" id="checkboxTemplate">
-                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" e-enabled="{{data.IsDisbursed == true && data.DisbursementVoucherId != '' ?'false':'true'}}" />
-                        </script>
-
-                        <script type="text/x-jsrender" id="headerTemplate">
-
-                            <input type="checkbox" id="headchk" />
-                        </script>
-
-
-                    </div>
-                    <div class="col-sm-12">
-                        <div class="common-btn left">
-                            <ul class="list-inline text-left">
-                                <li> <button ng-click="SalaryDisbursement();" class="btn"><i class="glyphicon glyphicon-lock"></i> {{Action}}</button></li>
-                                <li> <button ng-click="XlsSalaryDisbursement();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
-
-                            </ul>
-                        </div>
-
-                    </div>
-                </div>
-
-            </div>
-
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                <div class="">
-                    <div class="col-md-12">
-                        <div id="empInfoGridSalaryUnDisbursed" ej-grid e-datasource="SalaryUnDisburseList" e-recorddoubleclick="Get" e-allowscrolling="true" e-pageSettings-pageSize="15"
-                             e-actioncomplete="actionCompleteSelected" e-templaterefresh="refreshTemplateSalaryUnDisbursed"
-                             e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
-                             e-allowselection="true" e-filtersettings-filterType="excel" style="margin-left:1%">
-
-                            <div e-columns>
-                                <div e-column e-headertext="" e-headertemplateid="#headerTemplateB" e-template="#checkboxTemplateB" e-textalign="center" e-width="30"></div>
-                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="Division" e-headertext="Division" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="Line" e-headertext="Line" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="PayableVoucherNo" e-headertext="Payable Voucher No" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="IsLock" e-headertext="Lock" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="DisbursementVoucherNo" e-headertext="Disbursement Voucher No" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="IsDisburse" e-headertext="Disbursed" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="DisbursementDate" e-headertext="Disbursement Date" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="PayRollGroup" e-headertext="PayRoll Gruop" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="JobLocation" e-headertext="Job Location" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="PaymentMode" e-headertext="Payment Mode" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="BankName" e-headertext="Bank Name" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="DOS" e-headertext="DOS" e-allowediting="false" e-width="80"></div>
-                                <div e-column e-field="SalaryProcFlag" e-headertext="EmployeeStatus" e-allowediting="false" e-width="80"></div>
-                            </div>
-                        </div>
-
-                        <script type="text/template" id="checkboxTemplateB">
-                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" e-enabled="{{data.IsDisbursed == true && data.DisbursementVoucherId != '' ?'false':'true'}}" />
-                        </script>
-
-                        <script type="text/x-jsrender" id="headerTemplateB">
-
-                            <input type="checkbox" id="headchkB" e-checked="data.CheckBoxSelect" />
-                        </script>
-
-
-                    </div>
-                    <div class="col-sm-12">
-        <div class="col-sm-4">
-                <br />
-            </div>
-
-            <div class="col-sm-4">
-                <br />
-            </div>
-
-            <div class="col-sm-4">
-                <br />
-            </div>
-
-        <div class="col-sm-6">
-                                <div class="common-btn">
-                                    <ul style="display:flex; justify-content:space-between">
-                                        <li> <button ng-click="SalaryUnDisbursement();" class="btn"><i class="glyphicon glyphicon-lock"></i>Salary UnDisbursement</button></li>
-                                        <li> <button ng-click="XlsSalaryUnDisburseReport();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
-                                    </ul>
+                        <div class="clearfix"></div>
+                        <div class="col-md-12">
+                            <div id="empbonus"  ej-grid e-datasource="EmployeeListTemp"  e-allowscrolling="true" e-pageSettings-pageSize="15"
+                                e-actioncomplete="actionCompleteSelected" e-templaterefresh="refreshTemplateemployee"
+                                e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                                e-allowselection="true" e-filtersettings-filterType="excel" style="margin-left:1%">
+                                <div e-columns>
+                                    <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                                    <div e-column e-field="SalaryProcId" e-headertext="SalaryProcId" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="AddedBy" e-headertext="Created By" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="EmpCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="EmpName" e-headertext="Employee Name" e-allowediting="false" e-width="120"></div>
+                                    <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="Division" e-headertext="Division" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="Line" e-headertext="Line" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="CurrentMonthEmployeeStatus" e-headertext="CurrentMonthEmployeeStatus" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="EmployeeStatus" e-headertext="EmployeeStatus" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="AccountsGroup" e-headertext="AccountsGroup" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="PayableVoucherNo" e-headertext="Payable Voucher No" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="IsLock" e-headertext="Lock" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="DisbursementVoucherNo" e-headertext="Disbursement Voucher No" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="IsDisburse" e-headertext="Disbursed" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="DisbursementDate" e-headertext="Disbursement Date" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="PayRollGroup" e-headertext="PayRoll Gruop" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="JobLocation" e-headertext="Job Location" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="PaymentMode" e-headertext="Payment Mode" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="BankName" e-headertext="Bank Name" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="DOS" e-headertext="DOS" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="SalaryProcFlag" e-headertext="EmployeeStatus" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="NetPayment" e-headertext="Net Payment" e-allowediting="false" e-width="80"></div>
                                 </div>
                             </div>
 
+                            <script type="text/template" id="checkboxTemplate">
+                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" e-enabled="{{data.IsDisbursed == true && data.DisbursementVoucherId != '' ?'false':'true'}}" />
+                            </script>
+
+                            <script type="text/x-jsrender" id="headerTemplate">
+
+                                <input type="checkbox" id="headchk" />
+                            </script>
+
+
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="common-btn left">
+                                <ul class="list-inline text-left">
+                                    <li> <button ng-click="SalaryDisbursement();" class="btn"><i class="glyphicon glyphicon-lock"></i> {{Action}}</button></li>
+                                    <li> <button ng-click="XlsSalaryDisbursement();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
+
+                                </ul>
+                            </div>
+
                         </div>
                     </div>
+
                 </div>
+
+                @*   <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                        <div class="">
+                            <div class="col-md-12">
+                                <div id="empInfoGridSalaryUnDisbursed" ej-grid e-datasource="SalaryUnDisburseList" e-recorddoubleclick="Get" e-allowscrolling="true" e-pageSettings-pageSize="15"
+                                     e-actioncomplete="actionCompleteSelected" e-templaterefresh="refreshTemplateSalaryUnDisbursed"
+                                     e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                                     e-allowselection="true" e-filtersettings-filterType="excel" style="margin-left:1%">
+
+                                    <div e-columns>
+                                        <div e-column e-headertext="" e-headertemplateid="#headerTemplateB" e-template="#checkboxTemplateB" e-textalign="center" e-width="30"></div>
+                                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
+                                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
+                                        <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>
+                                        <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="80"></div>
+                                        <div e-column e-field="Division" e-headertext="Division" e-allowediting="false" e-width="80"></div>
+                                        <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-allowediting="false" e-width="80"></div>
+                                        <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="80"></div>
+                                        <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
+                                        <div e-column e-field="Line" e-headertext="Line" e-allowediting="false" e-width="80"></div>
+                                        <div e-column e-field="PayableVoucherNo" e-headertext="Payable Voucher No" e-allowediting="false" e-width="80"></div>
+                                        <div e-column e-field="IsLock" e-headertext="Lock" e-allowediting="false" e-width="80"></div>
+                                        <div e-column e-field="DisbursementVoucherNo" e-headertext="Disbursement Voucher No" e-allowediting="false" e-width="80"></div>
+                                        <div e-column e-field="IsDisburse" e-headertext="Disbursed" e-allowediting="false" e-width="80"></div>
+                                        <div e-column e-field="DisbursementDate" e-headertext="Disbursement Date" e-allowediting="false" e-width="80"></div>
+                                        <div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="80"></div>
+                                        <div e-column e-field="PayRollGroup" e-headertext="PayRoll Gruop" e-allowediting="false" e-width="80"></div>
+                                        <div e-column e-field="JobLocation" e-headertext="Job Location" e-allowediting="false" e-width="80"></div>
+                                        <div e-column e-field="PaymentMode" e-headertext="Payment Mode" e-allowediting="false" e-width="80"></div>
+                                        <div e-column e-field="BankName" e-headertext="Bank Name" e-allowediting="false" e-width="80"></div>
+                                        <div e-column e-field="DOS" e-headertext="DOS" e-allowediting="false" e-width="80"></div>
+                                        <div e-column e-field="SalaryProcFlag" e-headertext="EmployeeStatus" e-allowediting="false" e-width="80"></div>
+                                    </div>
+                                </div>
+
+                                <script type="text/template" id="checkboxTemplateB">
+                                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" e-enabled="{{data.IsDisbursed == true && data.DisbursementVoucherId != '' ?'false':'true'}}" />
+                                </script>
+
+                                <script type="text/x-jsrender" id="headerTemplateB">
+
+                                    <input type="checkbox" id="headchkB" e-checked="data.CheckBoxSelect" />
+                                </script>
+
+
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="col-sm-4">
+                                    <br />
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <br />
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <br />
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <div class="common-btn">
+                                        <ul style="display:flex; justify-content:space-between">
+                                            <li> <button ng-click="SalaryUnDisbursement();" class="btn"><i class="glyphicon glyphicon-lock"></i>Salary UnDisbursement</button></li>
+                                            <li> <button ng-click="XlsSalaryUnDisburseReport();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>*@
 
             </div>
 

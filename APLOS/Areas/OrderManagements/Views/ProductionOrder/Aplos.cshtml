@@ -219,6 +219,7 @@
                                 <th>Relay Sequence</th>
                                 <th>Process</th>
                                 <th style="width: 74px;">Base Process</th>
+                                <th style="width: 74px;">IsInventory</th>
                                 <th>+/-</th>
                                 <th style="width: 130px;">Lead/Lag Days</th>
                                 <th style="width: 130px;">Production Cycle Time({{model.RequiredTimeUnit}})/Per unit</th>
@@ -246,6 +247,14 @@
                                     <div class="radio">
                                         <label>
                                             <input type="radio" name="optradio" ng-checked="x.IsBaseProcess" ng-click="setPlusOrMinus($event,$index)" value="" />
+                                            <span class="cr"><i class="cr-icon"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="IsInventory" ng-checked="x.IsInventory" ng-click="setIsInventory($event,$index)"  value="" />
                                             <span class="cr"><i class="cr-icon"></i></span>
                                         </label>
                                     </div>
@@ -873,7 +882,7 @@
             </div>
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
-            <div class="row" ng-form="tablcFrom">
+            <div class="row" ng-form="tablcFrom" ng-show="model.IsPreDefineLotApplicable==true" >
                 <div class="col-xs-6 col-sm-6 col-md-6">
                     <div class="form-group">
                         <label class="col-sm-4 control-label">User LotNo</label>
@@ -887,7 +896,7 @@
                     <div class="form-group">
                         <div class="common-btn">
                             <ul class="list-inline text-right">
-                                <li><button ng-click="GetPOLotControlData();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Go</button></li>
+                                <li><button ng-click="GetPOLotControlData();" ng-disabled="model.UsedInPB==true" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Go</button></li>
                             </ul>
                         </div>
                     </div>
@@ -933,7 +942,7 @@
                 </div>
                 <div class="modal-footer common-btn">
                     <ul class="list-inline text-right">
-                        <li><button type="button" class="btn btn-default" ng-click="SaveLotControl();">Save</button></li>
+                        <li><button type="button" class="btn btn-default"  ng-disabled="model.UsedInPB==true"  ng-click="SaveLotControl();">Save</button></li>
                     </ul>
                 </div>
             </div>

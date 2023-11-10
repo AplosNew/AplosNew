@@ -91,9 +91,9 @@ namespace Aplos.Areas.Administration.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetVendorBasedEmployee(string vendorId)
+        public ActionResult GetVendorBasedEmployee()
         {
-            return Json(gc.GetVendorBasedEmployee(vendorId), JsonRequestBehavior.AllowGet);
+            return Json(gc.GetVendorBasedEmployee(), JsonRequestBehavior.AllowGet);
         }
 
         #endregion GetFunction

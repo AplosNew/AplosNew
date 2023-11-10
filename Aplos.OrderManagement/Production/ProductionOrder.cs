@@ -30,12 +30,14 @@ namespace Library.OrderManagement.Production
 case when PO.PlantId='" + identity.PlantId + @"' AND PO.PlantId=EN.PlantId then 'OWN' else 
 case when PO.PlantId='" + identity.PlantId + @"' and EN.PlantId<>PO.PlantId then 'OUT' ELSE
 case when PO.PlantId<>'" + identity.PlantId + @"' AND EN.PlantId='" + identity.PlantId + @"' THEN 'IN' ELSE '' END END END AS Owner,
-PO.*,isnull(po.Remarks,'') AS ProductionRemarks,isnull(s.UserName,'') AS ProductionStatus, isnull(EN.UserName,'') AS EntityName, 
+PO.*,UsedInPB=CAST(CASE WHEN m.productionorderid IS NOT NULL THEN 1 ELSE 0 END AS BIT),isnull(po.Remarks,'') AS ProductionRemarks,isnull(s.UserName,'') AS ProductionStatus, isnull(EN.UserName,'') AS EntityName, 
 FORMAT(PO.AddedDate,'dd-MMM-yyyy') CreationDate,
                                         isnull(PS.UserName,'') AS ProductionStatusName,PB.Id BulletinTemplateId,SO.*
                                 FROM [TRN].[ProductionOrder] AS PO
                             JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
                             LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.EntityId = PS.Id
+LEFT JOIN TRN.ProductionSummary M ON m.productionorderid=PO.Id
+                                AND m.Id=(SELECT TOP 1 ID FROM TRN.ProductionSummary EII WHERE EII.productionorderid=PO.Id ORDER BY EII.AddedDate DESC )
                             LEFT OUTER  JOIN (select
                                                     pod.ProductionOrderId, sum(so.Qty) AS SOQuantity, Format(Min(so.DeliveryDate),'dd-MMM-yyyy') DeliveryDate,
                                                     MasterOrderId=STUFF((select distinct ','+XMOI.MasterOrderId from 
@@ -716,7 +718,7 @@ LEFT JOIN TRN.ProductionOrderDetail POD ON POD.ProductionOrderId=PO.Id
 LEFT JOIN TRN.SalesOrder SO ON SO.Id=POD.SalesOrderId
 LEFT JOIN TRN.[MasterOrderItem] MOI ON SO.MasterOrderItemId=moi.Id
 LEFT JOIN MST.MaterialMasterArticle A ON A.Id=MOI.ArticleId
-Where PS.ProductionOrderId='" + poId + "'";
+Where PS.ProductionOrderId='" + poId + "' Order By P.UserName";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -737,7 +739,7 @@ FROM [dbo].[ProductionOrderLotControl] L
 LEFT JOIN HKP.Process P ON P.Id=L.ProcessId
 JOIN TRN.[MasterOrderItem] MOI ON L.MasterOrderItemId=moi.Id
 JOIN MST.MaterialMasterArticle A ON A.Id=MOI.ArticleId
-Where L.ProductionOrderId='" + PoId + "' AND L.EntityId='"+entityId+"'";
+Where L.ProductionOrderId='" + PoId + "' AND L.EntityId='"+entityId+ "' Order By P.UserName";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -832,17 +834,17 @@ CASE WHEN B.ProductionBookingLevel='MasterOrderItem' THEN
 				Where C.ProductionOrderId=" + PoId + @"
 				Group By C.ProductionOrderId) END
 )))/(100-(PS.Qty-100))*100))
-,UserLotNo=CASE WHEN B.ProductionBookingLevel='ProductionOrder' THEN CAST('" + userLotNo + @"' AS varchar(50))
-				WHEN B.ProductionBookingLevel='MasterOrderItem' THEN CAST('" + userLotNo + @"' AS varchar(50))+'-'+CAST(B.SeqNo AS varchar(10))
-				WHEN B.ProductionBookingLevel='SalesOrder' THEN CAST('" + userLotNo + @"' AS varchar(50))+'-S'+CAST(B.SeqNo AS varchar(10)) ELSE NULL END, NULL Sufix
+,UserLotNo=CASE WHEN B.ProductionBookingLevel='ProductionOrder' THEN CAST('555' AS varchar(50))
+				WHEN B.ProductionBookingLevel='MasterOrderItem' THEN CAST('555' AS varchar(50))+'-'+CAST(B.SeqNo AS varchar(10))
+				WHEN B.ProductionBookingLevel='SalesOrder' THEN CAST('555' AS varchar(50))+'-S'+CAST(B.SeqNo AS varchar(10)) ELSE NULL END
+,LotNo=CASE WHEN B.ProductionBookingLevel='ProductionOrder' THEN CAST('555' AS varchar(50))
+				WHEN B.ProductionBookingLevel='MasterOrderItem' THEN CAST('555' AS varchar(50))+'-'+CAST(B.SeqNo AS varchar(10))
+				WHEN B.ProductionBookingLevel='SalesOrder' THEN CAST('555' AS varchar(50))+'-S'+CAST(B.SeqNo AS varchar(10)) ELSE NULL END
+,NULL Sufix
 From(
 Select A.*,ProductionBookingLevel=CASE WHEN (A.MasterOrderItemId IS NULL AND A.SalesOrderId IS NULL) THEN 'ProductionOrder'   
 					WHEN (A.MasterOrderItemId IS NOT NULL AND A.SalesOrderId IS NULL) THEN 'MasterOrderItem'   
 					WHEN (A.MasterOrderItemId IS NULL AND A.SalesOrderId IS  NOT NULL) THEN 'SalesOrder' ELSE NULL END
-
-,LotNo=CASE WHEN (A.MasterOrderItemId IS NULL AND A.SalesOrderId IS NULL) THEN CAST(A.ProductionOrderId AS varchar(50))
-					WHEN (A.MasterOrderItemId IS NOT NULL AND A.SalesOrderId IS NULL) THEN CAST(A.ProductionOrderId AS varchar(50))+'-'+CAST(A.SeqNo AS varchar(10))
-					WHEN (A.MasterOrderItemId IS NULL AND A.SalesOrderId IS  NOT NULL) THEN CAST(A.SalesOrderId AS varchar(50)) ELSE NULL END 
 
 from (
 Select Id ProductionOrderId,NULL MasterOrderItemId,NULL SalesOrderId,Qty

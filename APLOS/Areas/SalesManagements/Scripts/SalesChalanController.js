@@ -34,6 +34,8 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
         ResponsiblePersonId: null,
         CheckById: null,
         ApproveById: null,
+        IsChecked: false,
+        IsApproved: false,
         UserRef: null,
         DestinationId: null,
         FromDate: null,
@@ -270,6 +272,29 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
             ShowResult(e, 'failure');
         }
     }
+
+    $scope.checkedByList = [];
+    $scope.GetSalesChalanCheckedByCboList = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetSalesChalanCheckedByCboList'
+        }).then(function successCallback(response) {
+            $scope.checkedByList = response.data; 
+        });
+    }
+    $scope.GetSalesChalanCheckedByCboList();
+
+    $scope.ApproveByList = [];
+    $scope.GetSalesChalanApproveByCboList = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetSalesChalanApproveByCboList'
+        }).then(function successCallback(response) {
+            $scope.ApproveByList = response.data; 
+        });
+    }
+    $scope.GetSalesChalanApproveByCboList();
+
     $scope.btndisable = false;
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
@@ -334,9 +359,7 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
 
     $scope.PrintData = function (data) {
         try {
-            $scope.fileName = "SalesChalanReport.xls";
-
-
+            $scope.fileName = "SalesChalanReport.xlsx"; 
             //$scope.ReportFormat = 'Excel';
             $scope.ReportFormat = 'Pdf';
             var url = 'SalesManagements/SalesChalan/GetSalesChalanReportPdf?reportFormat=' + $scope.ReportFormat + '&masterId=' + data.data.Id;

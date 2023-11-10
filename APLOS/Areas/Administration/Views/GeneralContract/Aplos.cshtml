@@ -100,9 +100,7 @@
                                 <th>Avg Qty</th>
                                 <th>Rate</th>
                                 <th>Effective Date</th>
-
                                 <th>Action</th>
-
                             </tr>
                         </thead>
                         <tbody>
@@ -160,6 +158,7 @@
                             </ul>
                         </div>
                     </div>
+                </div>
 
                     <div class="table-responsive modal-table">
                         <table class="table table-striped">
@@ -191,14 +190,13 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <div class="common-btn">
+                        @*<div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
 
                             </ul>
-                        </div>
+                        </div>*@
                     </div>
-                </div>
             </div>
 
             @*  TAB - 3   *@
@@ -370,7 +368,7 @@
 
 
 
-@Html.Partial("~/Areas/HumanResource/Views/MedicineMaster/_UOMPopUpScreen.cshtml")
+@*@Html.Partial("~/Areas/HumanResource/Views/MedicineMaster/_UOMPopUpScreen.cshtml")*@
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
 @Html.Partial("~/Areas/Administration/Views/GeneralContract/_ContractMasterPopUp.cshtml")
 @Html.Partial("~/Areas/Administration/Views/GeneralContract/_EmployeePopUp.cshtml")

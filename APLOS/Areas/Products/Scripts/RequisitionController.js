@@ -931,13 +931,14 @@ function RequisitionController(accountService, addressService, $window, cboServi
 		});
 	}
 	$scope.uom();
-	$scope.selectarticle = function (ob) {
+	$scope.setInputeMaterialArticleData = function (ob) {
 		try {
-			$scope.detailModel.ArticleId = ob.Id;
-			$scope.detailModel.ArticleName = ob.StandardName;
+			$scope.detailModel.ArticleId = ob.data.Id;
+			$scope.detailModel.ArticleName = ob.data.StandardName;
 			manualValidation('div_ar', false);
-			$scope.GetRequisitionStockBalance(ob.MaterialMasterId,ob.Id);
-			angular.element(document.querySelector('#articleSearchPop')).modal('hide');
+			$scope.GetRequisitionStockBalance(ob.data.MaterialMasterId, ob.data.Id);
+			angular.element(document.querySelector('#materialarticleNewPopUp')).modal('hide');
+			GetArticleAlias();
 		} catch (e) {
 			ShowResult(e, '', 'articleSearchPop');
 		}
@@ -3685,4 +3686,54 @@ function RequisitionController(accountService, addressService, $window, cboServi
 		});
 	}
 
+	// New Article start by Omar
+	$scope.getArticle = function (index) {
+		$scope.itemIndex = index;
+		//if (!baseService.isUndefinedOrNull($scope.itemList[$scope.itemIndex].MaterialMasterId) && !$scope.itemList[$scope.itemIndex].HasAttribute)
+		//	return ShowResult('This material has no attribute', 'failure');
+		// $scope.getArticleSearchList($scope.itemList[$scope.itemIndex].MaterialMasterId);
+		$scope.getMaterialMasterWithArticle(null);
+	};
+
+	$scope.materialArticleList = [];
+	$scope.InputMaterialArticlelistData = {};
+	$scope.getMaterialMasterWithArticle = function (data) {
+		$http({
+			method: 'POST',
+			url: 'Materials/MaterialMasterArticle/GetMaterialArticlePopUpData?type=' + $scope.materialType,
+			data: { column: $scope.searchByMaterial, value: $scope.search },
+			dataType: 'JSON',
+		}).then(function successCallback(response) {
+			$scope.materialArticleList = response.data;
+		});
+		$scope.InputMaterialArticlelistData = data;
+		angular.element(document.querySelector('#materialarticleNewPopUp')).modal('show');
+
+	};
+
+	$scope.ArticleId = null;
+	// selectarticle setInputeMaterialArticleData
+	//$scope.setInputeMaterialArticleData = function (ob) {
+	//	try {
+	//		$scope.detailModel.MaterialMasterId = ob.data.MaterialMasterId;
+	//		$scope.detailModel.MaterialMasterName = ob.data.MaterialMasterName;
+	//		$scope.detailModel.ArticleId = ob.data.Id;
+	//		$scope.detailModel.ArticleName = ob.data.StandardName;
+	//		angular.element(document.querySelector('#materialarticleNewPopUp')).modal('hide');
+
+	//		$scope.mmChangeFlag = true;
+	//		GetArticleAlias();
+	//	} catch (e) {
+	//		ShowResult(e, '', 'articleSearchPop');
+	//	}
+	//};
+
+	function GetArticleAlias() {
+		$http.get("Materials/materialmasterarticle/getArticleAliaslist?articleId=" + $scope.detailModel.ArticleId)
+			.then(function (response) {
+				$scope.itemList[$scope.itemIndex].CustomerArticle = response.data[0].ArticlePartyName;
+			});
+	}
+
+	//End Article
 }

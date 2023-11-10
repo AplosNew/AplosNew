@@ -225,7 +225,11 @@ namespace Library.Service.Enums
         [Description("GoodWork CheckBy")]
         GoodWorkCheckBy,
         [Description("Party ApproveBy")]
-        PartyApproveBy
+        PartyApproveBy,
 
+        [Description("Sales Chalan CheckedBy")]
+        SalesChalanCheckBy,
+        [Description("Sales Chalan ApproveBy")]
+        SalesChalanApproveBy
     }
 }

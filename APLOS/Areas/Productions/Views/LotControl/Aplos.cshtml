@@ -31,7 +31,7 @@
         </div>
         <div class="col-xs-12" ng-show="lotControlList.length>0">
 
-            <div id="GridLC" ej-grid e-datasource="lotControlList" e-allowpaging="true"  e-enabletouch="false" e-responsive="true" e-allowselection="true"  e-allowtextwrap="true">
+            <div id="GridLC" ej-grid e-datasource="lotControlList" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-allowselection="true" e-allowtextwrap="true">
                 <div e-columns>
                     <div e-column e-headertext="Actions" e-template="#ShowActionButtons" e-width="3"></div>
                     <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
@@ -53,7 +53,7 @@
                 </div>
                 <script type="text/template" id="ShowActionButtons">
                     <button style="color: #f3f3ec;background-color: #1c1f32;" title="Copy" class="btn"><i class="glyphicon glyphicon-copy" ng-click="$parent.copyDetail(this);" style="margin: -6px;"></i></button>
-                    <button style="color: #f3f3ec;background-color: #1c1f32;" title="Edit" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.SaveRowData(this);" style="margin: -6px;"></i></button>
+                    @*<button style="color: #f3f3ec;background-color: #1c1f32;" title="Edit" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.SaveRowData(this);" style="margin: -6px;"></i></button>*@
                 </script>
                 <script type="text/template" id="Sufix">
                     <div class="col-sm-12" style="padding:0px;">
@@ -67,6 +67,11 @@
                 </script>
             </div>
 
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="SaveLotSettingData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                </ul>
+            </div>
         </div>
 
     </div>

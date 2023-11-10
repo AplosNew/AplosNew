@@ -68,7 +68,7 @@
                                 <div e-columns>
                                     <div e-column e-headertext="Actions" e-width="80">
                                         <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Approved/H/R" ng-click="$parent.onClickPOA('GridPOAPp');" style="margin: -6px;"></i></button>
-                                       @* <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPOAPp');" style="margin: -6px;"></i></button>*@
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>
                                     </div>
                                     <div e-column e-template="#RejectApprovedReason" e-headertext="Hold / Reject Reason" e-width="300" style="height: 20px;"></div>
                                     <div e-column e-template="#ApprovedStatus" e-headertext="Approved Status" e-width="180"></div>
@@ -123,12 +123,14 @@
                     <div id="approved">
                         <div class="content-container-fluid" style="color:black;">
                             <div style="color:black;" id="GridPO12" ej-grid e-datasource="ApprovedList"
-                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true" 
                                  e-filtersettings-filterType="excel" e-enabletouch="true" e-recorddoubleclick="recorddoubleclick1"
                                  e-detailstemplate="detailTemp"
                                  e-detailsdatabound="detailgrid">
                                 <div e-columns>
-
+                                    <div e-column e-headertext="Actions" e-width="30">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>
+                                    </div>
                                     <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
                                     <div e-column e-field="Date" e-headertext="Date" e-width="100"></div>
                                     <div e-column e-field="Contract" e-headertext="Contract" e-width="100"></div>

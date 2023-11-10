@@ -97,6 +97,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         { 'name': 'Buyer', 'value': 'buyer' },
         { 'name': 'Customer', 'value': 'Customer' },
     ];
+   
     $scope.getData = function () {
         $scope.modelList = [];
         $http({
@@ -368,6 +369,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         , color: '#ffffff'
         , IsPreDefineLotApplicable: false
         , UserDefineLotNo: null
+        , UsedInPB:false
     };
     $scope.model = Object.assign({}, $scope.model);
 
@@ -396,6 +398,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         $scope.model = Row.data;
         //$scope.model = Object.assign({}, $scope.model);
         $scope.model = Object.assign({}, Row.data);
+
         if (baseService.isUndefinedOrNull($scope.model.UserDefineLotNo)) {
             $scope.model.UserDefineLotNo = $scope.model.Id;
         }
@@ -1143,6 +1146,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             , UOMId: null
             , RelaySequence: data.RelaySequence
             , ProductionBookingLevel: data.ProductionBookingLevel
+            , IsInventory: data.IsInventory
         });
         UomCboByFGMaterialMaster(data.MaterialMasterId);
     };
@@ -1163,6 +1167,15 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             }
         }
     };
+
+    $scope.setIsInventory = function (event, index) {
+        for (var i = 0; i <= $scope.prdProcessSetList.length - 1; i++) {
+             if (i === index) {
+                 $scope.prdProcessSetList[i].IsInventory = true;
+            }
+        }
+    };
+
 
     $scope.clearEntityOrVendor = function (list, index) {
         list[index].EntityIdWithinCompany = null;
@@ -4256,14 +4269,15 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     $scope.tempModel = {};
     $scope.SetSufix = function (args) {
         $scope.tempModel = args.data;
-        var str = $scope.tempModel.UserLotNo;
-        var extention = str.substr(str.indexOf('/')+1);
+        //var str = $scope.tempModel.UserLotNo;
+        //var extention = str.substr(str.indexOf('/')+1);
 
-        if (!baseService.isUndefinedOrNull($scope.tempModel.Sufix)) {
-            if ($scope.tempModel.Sufix != extention) {
-                $scope.tempModel.UserLotNo = $scope.tempModel.UserLotNo + '/' + $scope.tempModel.Sufix;
-            }
-        }
+        //if (!baseService.isUndefinedOrNull($scope.tempModel.Sufix)) {
+        //    if ($scope.tempModel.Sufix != extention) {
+        //        $scope.tempModel.UserLotNo = $scope.tempModel.UserLotNo + '/' + $scope.tempModel.Sufix;
+        //    }
+        //}
+        $scope.tempModel.UserLotNo = $scope.tempModel.LotNo + '/' + $scope.tempModel.Sufix;
         var gridObj = $("#GridLC").data("ejGrid");
         gridObj.refreshContent();
         gridObj.refreshTemplate();

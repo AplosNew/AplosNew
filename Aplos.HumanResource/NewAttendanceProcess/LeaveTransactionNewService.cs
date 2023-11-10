@@ -2588,6 +2588,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
             try
             {
                 var dsLvAllo = GetLeaveBalanceTypeNew(companyGroupId, plantId, employeeId, calanderYearId);
+//                var dsLvAllo = GetLeaveBalanceType(companyGroupId, plantId, employeeId, calanderYearId);
 
                 dvLocal = new DataView();
                 dvLocal.Table = dsLvAllo.Tables[0];
