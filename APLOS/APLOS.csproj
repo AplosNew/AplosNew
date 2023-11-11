@@ -1814,6 +1814,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>ProductsDataSet.xsd</DependentUpon>
     </Compile>
+    <Compile Include="SqlServerTypes\Loader.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Accounts\Scripts\BonusController.js" />
@@ -5320,6 +5321,11 @@
     <Content Include="Scripts\UPanelApp\upanelLoginApp.js" />
     <Content Include="Scripts\UPanelApp\upanelLoginController.js" />
     <Content Include="Scripts\UPanelApp\upanelLogoutController.js" />
+    <Content Include="SqlServerTypes\readme.htm" />
+    <Content Include="SqlServerTypes\x64\msvcr120.dll" />
+    <Content Include="SqlServerTypes\x64\SqlServerSpatial140.dll" />
+    <Content Include="SqlServerTypes\x86\msvcr120.dll" />
+    <Content Include="SqlServerTypes\x86\SqlServerSpatial140.dll" />
     <Content Include="SyncfusionLib\css\mobile\android-theme\ej.mobile.android-core.css" />
     <Content Include="SyncfusionLib\css\mobile\android-theme\ej.mobile.android-core.min.css" />
     <Content Include="SyncfusionLib\css\mobile\android-theme\ej.mobile.android.css" />
