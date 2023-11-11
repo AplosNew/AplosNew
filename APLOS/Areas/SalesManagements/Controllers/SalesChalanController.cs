@@ -151,17 +151,6 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 sheet.Range[ROW, 5].Text = "GatePassNo:";
                 sheet.Range[ROW, 6].Text = dtOrder.Rows[0]["UserRef"].ToString();
 
-                //   sheet.Range[6, 1, 6, 7].BorderAround(ExcelLineStyle.Thick);
-                //sheet.Range[ROW, 1, ROW, 6].CellStyle.Interior.ColorIndex = ExcelKnownColors.White;
-                //sheet.Range[ROW, 1, ROW, 6].CellStyle.Font.Color = ExcelKnownColors.Black;
-                //sheet.Range[ROW, 1, ROW, 6].CellStyle.Font.Bold = true;
-                //sheet.Range[ROW, 1, ROW, 6].CellStyle.Font.Size = 9f;
-                //sheet.Range[ROW, 1, ROW, 6].BorderInside(ExcelLineStyle.Hair);
-                //sheet.Range[ROW, 1, ROW, 6].BorderAround(ExcelLineStyle.Hair);
-
-                //sheet.Range[ROW, 1, ROW + 1, 7].CellStyle.Font.Bold = true;
-                //sheet.Range[ROW, 1, ROW + 1, 7].BorderAround(ExcelLineStyle.Hair);
-                //sheet.Range[ROW, 1, ROW + 1, 7].BorderInside(ExcelLineStyle.Hair);
 
                 ROW++;
                 ROW++;
@@ -513,6 +502,67 @@ namespace Aplos.Areas.SalesManagements.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public JsonResult CreateCheckBy(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                   // data["CheckedByStatus"] = "Checked";
+                    data["ApprovedStatus"] = "To Be Approve";
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpPost,Authorize]
+        public JsonResult CreateApproveBy(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    data["ApprovedStatus"] = "Approved";
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
         public ActionResult Delete(string id)
         {
             string sql = @"select * from '" + TableName + "' where Id = '" + id + "'";
@@ -533,12 +583,8 @@ namespace Aplos.Areas.SalesManagements.Controllers
             }
             catch (Exception ex)
             {
-
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-
             }
-
-
         }
          
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
@@ -586,6 +632,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             dr.EndEdit();
         }
 
+        [HttpGet, Authorize]
         public ActionResult GetUncheckedData()
         {
             try
@@ -597,7 +644,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
 								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
 								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
 								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
-								where SC.IsChecked=0";
+								where SC.CheckedByStatus='To Be Check'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -606,6 +653,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             }
         }
 
+        [HttpGet, Authorize]
         public ActionResult GetcheckedData()
         {
             try
@@ -617,7 +665,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
 								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
 								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
 								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
-								where SC.IsChecked=1 and SC.IsApproved=0";
+								where SC.CheckedByStatus='Checked'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -626,26 +674,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             }
         }
 
-        public ActionResult GetApproveByUncheckedData()
-        {
-            try
-            {
-                var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
-								from [dbo].[SalesChalan] SC
-								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
-								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
-								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
-								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
-								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
-								where SC.IsApproved=0";
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
+        [HttpGet, Authorize]
         public ActionResult GetApproveBycheckedData()
         {
             try
@@ -657,7 +686,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
 								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
 								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
 								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
-								where SC.IsChecked=1 and SC.IsApproved=1";
+								where SC.ApprovedStatus='Approved'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

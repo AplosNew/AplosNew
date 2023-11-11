@@ -284,16 +284,7 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
     }
     $scope.GetSalesChalanCheckedByCboList();
 
-    $scope.ApproveByList = [];
-    $scope.GetSalesChalanApproveByCboList = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'GetSalesChalanApproveByCboList'
-        }).then(function successCallback(response) {
-            $scope.ApproveByList = response.data; 
-        });
-    }
-    $scope.GetSalesChalanApproveByCboList();
+   
 
     $scope.btndisable = false;
     $scope.Save = function () {
