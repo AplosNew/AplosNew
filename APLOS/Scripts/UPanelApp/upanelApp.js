@@ -1236,6 +1236,7 @@ upanelApp.controller("SubsequentInvestmentController", SubsequentInvestmentContr
 upanelApp.controller("BonusController", BonusController)
 upanelApp.controller("SalesChanlanCheckedController", SalesChanlanCheckedController)
 upanelApp.controller("SalesChanlanApproveController", SalesChanlanApproveController)
+upanelApp.controller("SQCMasterController", SQCMasterController)
 
 
 

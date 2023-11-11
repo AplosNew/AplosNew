@@ -665,6 +665,7 @@
     <Compile Include="Areas\QMS\Controllers\ProductParameterMasterController.cs" />
     <Compile Include="Areas\QMS\Controllers\ProcessParameterMasterController.cs" />
     <Compile Include="Areas\QMS\Controllers\CustomerRequirementControlController.cs" />
+    <Compile Include="Areas\QMS\Controllers\SQCMasterController.cs" />
     <Compile Include="Areas\QMS\Controllers\QualityManagementMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SurveyandFeedbackController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\TrainingMasterController.cs" />
@@ -2337,6 +2338,7 @@
     <Content Include="Areas\QMS\Scripts\ProductParameterMasterController.js" />
     <Content Include="Areas\QMS\Scripts\ProcessParameterMasterController.js" />
     <Content Include="Areas\QMS\Scripts\CustomerRequirementControlController.js" />
+    <Content Include="Areas\QMS\Scripts\SQCMasterController.js" />
     <Content Include="Areas\QMS\Scripts\QualityManagementMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\SurveyandFeedbackController.js" />
     <Content Include="Areas\HumanResource\Scripts\TablesUploadController.js" />
@@ -5017,6 +5019,7 @@
     <Content Include="Areas\SalesManagements\Views\SalesChalan\Aplos.cshtml" />
     <Content Include="Areas\SalesManagements\Views\SalesChalan\Approve.cshtml" />
     <Content Include="Areas\SalesManagements\Views\SalesChalan\SalesChalanApprove.cshtml" />
+    <Content Include="Areas\QMS\Views\SQCMaster\Aplos.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

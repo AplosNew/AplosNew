@@ -84,10 +84,10 @@ namespace Aplos.Areas.Administration.Controllers
         {
             try
             {
-                var sql = @"select EI.SystemId Value, EI.EmployeeName Text
-                            from MST.GeneralContractApproveBy GCA
-                            left join  MST.GeneralContract GC on GC.Id = GCA.GeneralContractId
-                            left join EmployeeInformation EI on EI.SystemId = GCA.SystemId";
+                var sql = @"SELECT DISTINCT EI.SystemId Value, EI.EmployeeName Text
+                            FROM MST.GeneralContractApproveBy GCA
+                            LEFT JOIN  MST.GeneralContract GC on GC.Id = GCA.GeneralContractId
+                            LEFT JOIN EmployeeInformation EI on EI.SystemId = GCA.SystemId";
 
 
 
