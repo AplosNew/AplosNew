@@ -5,6 +5,7 @@
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Post Sales Invoice</a></li>
             <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Invoice Additional Info</a></li>
+            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Negotiating Bank</a></li>
         </ul>
     </div>
     <div class="tab-content">
@@ -381,8 +382,46 @@
                 </div>
             </div>
         </div>
+
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Bank Name<sup>*</sup></label>
+                    <div class="col-sm-8">
+                        <input type="text" name="PreCarriageBy" ng-model="ModelNew.BankName" class="form-control" tabindex="25">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Account No.<sup>*</sup></label>
+                    <div class="col-sm-8">
+                        <input type="number" name="TransportDocRefNo" ng-model="ModelNew.AccountNo" class="form-control" tabindex="27">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Country<sup>*</sup></label>
+                    <div class="col-sm-8">
+                        <input type="text" name="PlaceOfReceiptByPreCarriage" ng-model="ModelNew.PlaceOfReceiptByPreCarriage" class="form-control" tabindex="26">
+                    </div>
+                </div>
+               <div class="form-group">
+                    <label class="col-sm-4 control-label">Limit<sup>*</sup></label>
+                    <div class="col-sm-8">
+                        <input type="number" name="TransportDocRefNo" ng-model="ModelNew.Limit" class="form-control" tabindex="27">
+                    </div>
+                </div>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="SavePostSales();"  class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                    @*<li> <button data-toggle="modal" ng-disabled="ModelNew.Id==null" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+                    <li> <button ng-click="ClearPostSales();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
+        </div>
+        </div>
     </div>
-</div>
 <div class="aplos-grid-toggle">
     <div class="row text-right">
         <div class="form-element-ctrl" ng-form name="0Form">
@@ -464,8 +503,8 @@
     <div class="bounce2"></div>
     <div class="bounce3"></div>
 </div>
-@Html.Partial("~/Areas/SalesManagements/Views/_postedSalesPopUp.cshtml")
-@Html.Partial("~/Areas/SalesManagements/Views/_BillToShipToPopUp.cshtml")
+@*@Html.Partial("~/Areas/SalesManagements/Views/_postedSalesPopUp.cshtml")
+@Html.Partial("~/Areas/SalesManagements/Views/_BillToShipToPopUp.cshtml")*@
 <div class="modal fade site-modal in" id="detailpopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content" ng-form="detailFormNew">
