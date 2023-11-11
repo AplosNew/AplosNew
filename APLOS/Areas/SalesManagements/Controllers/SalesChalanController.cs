@@ -458,6 +458,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                     genid.GenID(TableName, out _Id);
 
                     data["Id"] = _Id;
+                    data["CheckedByStatus"] = "To Be Check";
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
