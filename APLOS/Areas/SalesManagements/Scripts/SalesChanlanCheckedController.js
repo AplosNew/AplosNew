@@ -62,8 +62,8 @@ function SalesChanlanCheckedController(cboService, commonMessage, $scope, $rootS
             if (baseService.isUndefinedOrNull(args.data.ApproveById)) {
                 throw "Select Approve By Person.";
             }
-            if (baseService.isUndefinedOrNull(args.data.ApproveById)) {
-                throw "Select Approve By Person.";
+            if (baseService.isUndefinedOrNull(args.data.CheckedStatus)) {
+                throw "Select Checked Status.";
             }
             $scope.btndisable = true;
             $http({
@@ -90,4 +90,52 @@ function SalesChanlanCheckedController(cboService, commonMessage, $scope, $rootS
         }
     };
 
+
+    $scope.approvalStatusList = [
+        {
+            'Text': 'Approved',
+            'Value': 'Approved'
+        }
+    ];
+
+    $scope.SaveApproveData = function (args) {
+        try {
+            if (baseService.isUndefinedOrNull(args.data.ApprovedStatus)) {
+                throw "Select Approved Status.";
+            }
+            $scope.btndisable = true;
+            $http({
+                method: 'POST',
+                url: 'SalesManagements/SalesChalan/CreateApproveBy',
+                data: { 'data': args.data },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    $scope.btndisable = false;
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.btndisable = false;
+                    $scope.GetcheckedData();
+                    $scope.GetApproveBycheckedData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.GriddataApproveList = [];
+    $scope.GetApproveBycheckedData = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetApproveBycheckedData'
+        }).then(function successCallback(response) {
+            $scope.GriddataApproveList = response.data;
+        });
+    }
+    $scope.GetApproveBycheckedData();
 }

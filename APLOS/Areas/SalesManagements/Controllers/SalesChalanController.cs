@@ -447,7 +447,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                     genid.GenID(TableName, out _Id);
 
                     data["Id"] = _Id;
-                    data["CheckedByStatus"] = "To Be Check";
+                    data["CheckedStatus"] = "To Be Check";
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -644,7 +644,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
 								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
 								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
 								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
-								where SC.CheckedByStatus='To Be Check'";
+								where SC.CheckedStatus='To Be Check'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -665,7 +665,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
 								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
 								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
 								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
-								where SC.CheckedByStatus='Checked'";
+								where SC.CheckedStatus='Checked' AND SC.ApprovedStatus='To Be Approve'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -679,7 +679,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             try
             {
-                var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
+                var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy,SC.CheckedStatus,SC.ApprovedStatus
 								from [dbo].[SalesChalan] SC
 								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
 								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
