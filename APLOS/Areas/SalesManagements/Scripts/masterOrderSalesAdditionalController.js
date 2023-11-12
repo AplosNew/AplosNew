@@ -57,7 +57,19 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
     }
 
     $scope.ClosePopUp = function () {
-        $scope.model = { Id: null, SalesId: null, PostCode: null, ShippingDate: null, ShippingBill: null, RodTepAmount: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+        $scope.model = {
+            Id: null,
+            SalesId: null,
+            PostCode: null,
+            ShippingDate: null,
+            ShippingBill: null, 
+            AddedBy: null,
+            AddedDate: null,
+            AddedFromIP: null,
+            UpdatedBy: null,
+            UpdatedDate: null,
+             UpdatedFromIP: null
+        }
         $scope.modelNew = Object.assign({}, $scope.model);
         angular.element(document.querySelector('#detailpopup')).modal('hide');
     }
@@ -443,6 +455,23 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
         PortOfDelivaryId: null,
         BankDocRef: null,
         BankDocDate: null,
+
+        ExportRefNo: null,
+        VendorSelection: null,
+        DocumentReceiveDate: null,
+        AWBB2B: null,
+        ActualPaymentReceived: null,
+        ShippingBillNo: null,
+        PortCode: null,
+        DocumentSubmissionDate: null,
+        DocAcceptanceDate: null,
+        FinalShipmentStatus: null,
+        ShippingBillDate: null,
+        ShipmentDate: null,
+        NegotiationType: null,
+        PaymentReceivedDate: null,
+        Remark: null,
+
         AddedBy: null,
         AddedDate: null,
         AddedFromIP: null,

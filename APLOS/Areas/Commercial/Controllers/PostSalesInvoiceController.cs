@@ -157,13 +157,15 @@ namespace Aplos.Areas.Commercial.Controllers
                           ,S.InvoiceNo
 						  ,PT.UserName [Port]
 						  ,SP.UserName ShipMode
+                          ,P.ExportRefNo,P.VendorSelection,P.DocumentReceiveDate,P.AWBB2B,P.ActualPaymentReceived,P.ShippingBillNo,P.PortCode,P.DocumentSubmissionDate
+					      ,P.DocAcceptanceDate,P.FinalShipmentStatus,P.ShippingBillDate,P.ShipmentDate,P.NegotiationType,P.PaymentReceivedDate,P.Remark
                       FROM [dbo].[PostSalesInvoice] P
 					  LEFT JOIN TRN.Sales S ON S.Id=P.SalesId
 					  LEFT JOIN HKP.Party C ON C.Id=P.CNFAgentId
 					  LEFT JOIN HKP.Party T ON T.Id=P.TransportAgentId					  
 					  LEFT JOIN MST.[Port] PT ON PT.Id=P.PortOfLoadingId
 					  LEFT JOIN [MST].[ShipMode] SP ON SP.Id=P.ShipmentModeId
-                      Where P.SalesId='"+SalesId+"' ";
+                      Where P.SalesId='" + SalesId+"' ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -387,7 +389,25 @@ namespace Aplos.Areas.Commercial.Controllers
                     else
                     {
                         dr["CNFBLAWBDate"] = data.CNFBLAWBDate;
-                    }       
+                    }
+
+                    dr["CNFAgentId"] = data.CNFAgentId;
+
+                    dr["ExportRefNo"] = data.ExportRefNo;
+                    dr["VendorSelection"] = data.VendorSelection;
+                    dr["DocumentReceiveDate"] = data.DocumentReceiveDate;
+                    dr["AWBB2B"] = data.AWBB2B;
+                    dr["ActualPaymentReceived"] = data.ActualPaymentReceived;
+                    dr["ShippingBillNo"] = data.ShippingBillNo;
+                    dr["PortCode"] = data.PortCode;
+                    dr["DocumentSubmissionDate"] = data.DocumentSubmissionDate;
+                    dr["DocAcceptanceDate"] = data.DocAcceptanceDate;
+                    dr["FinalShipmentStatus"] = data.FinalShipmentStatus;
+                    dr["ShippingBillDate"] = data.ShippingBillDate;
+                    dr["ShipmentDate"] = data.ShipmentDate;
+                    dr["NegotiationType"] = data.NegotiationType;
+                    dr["PaymentReceivedDate"] = data.PaymentReceivedDate;
+                    dr["Remark"] = data.Remark;
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
@@ -495,6 +515,22 @@ namespace Aplos.Areas.Commercial.Controllers
                         dr["CNFBLAWBDate"] = data.CNFBLAWBDate;
                     }
 
+                    dr["ExportRefNo"] = data.ExportRefNo;
+                    dr["VendorSelection"] = data.VendorSelection;
+                    dr["DocumentReceiveDate"] = data.DocumentReceiveDate;
+                    dr["AWBB2B"] = data.AWBB2B;
+                    dr["ActualPaymentReceived"] = data.ActualPaymentReceived;
+                    dr["ShippingBillNo"] = data.ShippingBillNo;
+                    dr["PortCode"] = data.PortCode;
+                    dr["DocumentSubmissionDate"] = data.DocumentSubmissionDate;
+                    dr["DocAcceptanceDate"] = data.DocAcceptanceDate;
+                    dr["FinalShipmentStatus"] = data.FinalShipmentStatus;
+                    dr["ShippingBillDate"] = data.ShippingBillDate;
+                    dr["ShipmentDate"] = data.ShipmentDate;
+                    dr["NegotiationType"] = data.NegotiationType;
+                    dr["PaymentReceivedDate"] = data.PaymentReceivedDate;
+                    dr["Remark"] = data.Remark;
+
 
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedFromIP"] = identity.IPAddress;
@@ -595,6 +631,22 @@ namespace Aplos.Areas.Commercial.Controllers
         public string PortOfDelivaryId { get; set; }
         public string BankDocRef { get; set; }
         public DateTime? BankDocDate { get; set; }
+
+        public string ExportRefNo { get; set; }
+        public string VendorSelection { get; set; }
+        public DateTime? DocumentReceiveDate { get; set; }
+        public string AWBB2B { get; set; }
+        public string ActualPaymentReceived { get; set; }
+        public string ShippingBillNo { get; set; }
+        public string PortCode { get; set; }
+        public DateTime? DocumentSubmissionDate { get; set; }
+        public DateTime? DocAcceptanceDate { get; set; }
+        public string FinalShipmentStatus { get; set; }
+        public DateTime? ShippingBillDate { get; set; }
+        public DateTime? ShipmentDate { get; set; }
+        public string NegotiationType { get; set; }
+        public DateTime? PaymentReceivedDate { get; set; }
+        public string Remark { get; set; }
 
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }
