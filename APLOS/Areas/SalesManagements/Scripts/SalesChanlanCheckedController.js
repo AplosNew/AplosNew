@@ -1,7 +1,7 @@
 ﻿'use strict';
 SalesChanlanCheckedController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', '$controller', '$route'];
 function SalesChanlanCheckedController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, $controller, $route) {
-    $rootScope.title = 'Sales Chalan Check';
+    $rootScope.title = 'Sales Chalan Check & Approve';
     $scope.ModelList = [];
     $scope.path = 'SalesManagements/SalesChalan/';
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
