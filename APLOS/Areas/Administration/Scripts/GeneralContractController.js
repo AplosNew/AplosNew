@@ -28,6 +28,8 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
                 $scope.SelectedItemList = response.data;
             })
     }
+
+    $scope.SelectedCheckedByList = [];
     $scope.GetCheckByList = function () {
         $http.get('Administration/GeneralContract/GetCheckByList?gcId=' + $scope.ModelNew.Id)
             .then(function successCallback(response) {
@@ -55,6 +57,7 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
         $scope.ModelNew.PartyCode = args.data.PartyCode;
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.GetContractItemDetail();
+        $scope.GetGeneralContractEmployee();
         $scope.GetCheckByList();
         $scope.GetApproveByList();
         $scope.GetSaveEntityList();
@@ -110,36 +113,48 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
 
     //  #region Save
     $scope.Save = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        $http({
-            method: 'POST',
-            url: $scope.saveUrl,
-            data: {
-                'data': $scope.ModelNew,
-                'contractItemDetail': $scope.SelectedItemList,
-                'checkby': $scope.SelectedCheckedByList,
-                'approveby': $scope.SelectedApprovedByList,
-                'entity': $scope.SelectedEntityList
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            for (var i = 0; i < $scope.SelectedItemList.length; i++) {
+                if (baseService.isUndefinedOrNull($scope.SelectedItemList[i].EffectiveDate)) {
+                    throw 'Please select Effective Date first';
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: {
+                    'data': $scope.ModelNew,
+                    'contractItemDetail': $scope.SelectedItemList,
+                    'checkby': $scope.SelectedCheckedByList,
+                    'approveby': $scope.SelectedApprovedByList,
+                    'entity': $scope.SelectedEntityList
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ModelNew.Id = response.data.Data.Id;
+                    $scope.GetContractItemDetail();
+                    $scope.GetGeneralContractEmployee();
+                    $scope.GetCheckByList();
+                    $scope.GetApproveByList();
+                    $scope.GetSaveEntityList();
+                    $scope.GetHeaderList();
+
+                }
+            }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.ModelNew.Id = response.data.Data.Id;
-                $scope.GetContractItemDetail();
-                $scope.GetCheckByList();
-                $scope.GetApproveByList();
-                $scope.GetSaveEntityList();
-                $scope.GetHeaderList();
-               
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
         }
-    };
+        catch (e)
+        {
+            ShowResult(e, 'Error');
+        };
+    }
 
     $scope.SaveVendorEmployee = function () {
         $scope.$broadcast('show-errors-check-validity');
@@ -157,10 +172,6 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
             }
             else {
                 ShowResult(response.data.Message, 'success');
-               
-
-                // ClearFields(response.data.Sequence);
-                //$scope.getData();
 
             }
         }), function errorCallBack(response) {
@@ -190,7 +201,7 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
             'name': 'Standard Name',
             'value': 'StandardName'
         },
-        
+
         {
             'name': 'Code',
             'value': 'Code'
@@ -203,10 +214,17 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
 
     $scope.getData = function () {
         $http.get('Administration/GeneralContractItemMaster/GetList?column=' + $scope.searchByGeneralContractItem + '&value=' + $scope.searchGeneralContractItem)
-        .then(function successCallback(response) {
+            .then(function successCallback(response) {
 
-            $scope.ModelList = response.data
-        });
+                $scope.ModelList = response.data
+            });
+    }
+
+    $scope.GetGeneralContractEmployee = function () {
+        $http.get('Administration/GeneralContract/GetGeneralContractEmployee?gcId=' + $scope.ModelNew.Id)
+            .then(function successCallback(response) {
+                $scope.SelectedVendorEmployee = response.data;
+            })
     }
     // #endregion Search fun for 
 
@@ -217,7 +235,7 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.closeGeneralContractMaster = function () {
         angular.element(document.querySelector('#contractmasterPopup')).modal('hide');
-        
+
     }
     //$scope.Get = function (args) {
     //    $scope.ModelNew = Object.assign({}, args.data);
@@ -237,7 +255,7 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
     //    $scope.ModelNew = Object.assign({}, args.data);
     //    angular.element(document.querySelector('#contractmasterPopup')).modal('hide');
     //    }
-    
+
     // #endregion Double Tap open grid
 
     //----------------------------------------------------------------------------------------------------
@@ -271,11 +289,11 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
         $scope.GetEntityList();
     }
     $scope.OpenVendorEmployeePopUp = function () {
-        angular.element(document.querySelector('#vendorEmployePopUp')).modal('show');
+        angular.element(document.querySelector('#vendorEmployePopUp')).modal('show');        
         $scope.GetVendorBasedEmployee();
     }
     //  #endregion Open  POP UP
-    
+
     //  #region close Pop Up
     $scope.CloseContractorPopUp = function () {
         angular.element(document.querySelector('#contractorPopUp')).modal('hide');
@@ -328,7 +346,7 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
     // #region  Approved By
     $scope.ApprovedByList = [];
     $scope.GetForApprovedByByList = function () {
-       
+
         $http.get('Administration/GeneralContract/GetForApprovedByByList')
             .then(function successCallback(response) {
                 $scope.ApprovedByList = response.data;
@@ -338,7 +356,7 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
 
     $scope.VendorEmployeeList = [];
     $scope.GetVendorBasedEmployee = function () {
-        $http.get('Administration/GeneralContract/GetVendorBasedEmployee?vendorId=' + $scope.ModelNew.PartyId)
+        $http.get('Administration/GeneralContract/GetVendorBasedEmployee')
             .then(function successCallback(response) {
                 $scope.VendorEmployeeList = response.data;
             });
@@ -347,182 +365,304 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
 
     // #region SelectFun
     var currentDate = new Date();
-    $scope.SelectedItemList = [];
+
     $scope.AddItems = function () {
-        if (baseService.arrayLength($scope.ModelList) > 0) {
-            angular.forEach($scope.ModelList, function (a) {
-
-                if (a.chk) {
-                    var ob = {};
-                    ob.Id = '';
-                    ob.GeneralContractId = $scope.ModelNew.Id;
-                    ob.ContractMasterId = a.ContractMasterId;
-                    ob.ContractMaster = a.ContractMaster
-                    ob.MinQty = '';
-                    ob.MaxQty = '';
-                    ob.AvgQty = '';
-                    ob.Rate = '';
-                    ob.EffectiveDate = currentDate;
-                    ob.FileName = '';
-                    $scope.SelectedItemList.push(ob);
-                    ob = {};
-                    a.chk = false;
-                    angular.element(document.querySelector('#contractmasterPopup')).modal('hide');
+        //if (true) {
+        for (var i = 0; i < $scope.ModelList.length; i++) {
+            if ($scope.ModelList[i].chk == true) {
+                if (checkDoubleGCItem($scope.SelectedItemList, $scope.ModelList[i].ContractMasterId) === false) {
+                    $scope.SelectedItemList.push($scope.ModelList[i]);
                 }
-
-            });
+            }
         }
-       
-        
-    };
+        //}
+        //else {
+        //    if (baseService.arrayLength($scope.ModelList) > 0) {
+        //        angular.forEach($scope.ModelList, function (a) {
 
-    $scope.SelectedCheckedByList = [];
+        //            if (a.chk) {
+        //                var ob = {};
+        //                ob.Id = '';
+        //                ob.GeneralContractId = $scope.ModelNew.Id;
+        //                ob.ContractMasterId = a.ContractMasterId;
+        //                ob.ContractMaster = a.ContractMaster
+        //                ob.MinQty = '';
+        //                ob.MaxQty = '';
+        //                ob.AvgQty = '';
+        //                ob.Rate = '';
+        //                ob.EffectiveDate = currentDate;
+        //                ob.FileName = '';
+        //                $scope.SelectedItemList.push(ob);
+        //                ob = {};
+        //                a.chk = false;
+        //            }
+
+        //        });
+        //    }
+        //}
+        angular.element(document.querySelector('#contractmasterPopup')).modal('hide');
+
+    };
+    function checkDoubleGCItem(list, ContractMasterId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].ContractMasterId === ContractMasterId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     $scope.AddCheckedBy = function () {
-        if (baseService.arrayLength($scope.CheckedByList) > 0) {
-            angular.forEach($scope.CheckedByList, function (a) {
-
-                if (a.chk) {
-                    var ob = {};
-                    ob.Id = '';
-                    ob.SystemId = a.SystemId;
-                    ob.EmployeeCode = a.EmployeeCode;
-                    ob.EmployeeName = a.EmployeeName;
-                    ob.DOJ = a.DOJ;
-                    ob.Department = a.Department;
-                    ob.Section = a.Section;
-                    ob.SubSection = a.SubSection;
-                    ob.LegalDesignation = a.LegalDesignation
-                    ob.Designation = a.Designatio;
-                    ob.isCheck = false;
-                    $scope.SelectedCheckedByList.push(ob);
-                    ob = {};
-                    a.chk = false;
-                    angular.element(document.querySelector('#checkbyPopUp')).modal('hide');
+         for (var i = 0; i < $scope.CheckedByList.length; i++) {
+            if ($scope.CheckedByList[i].chk == true) {
+                if (checkDoubleEmpInformation($scope.SelectedCheckedByList, $scope.CheckedByList[i].SystemId) === false) {
+                    $scope.SelectedCheckedByList.push($scope.CheckedByList[i]);
                 }
-
-            });
+            }
         }
-
-
+        angular.element(document.querySelector('#checkbyPopUp')).modal('hide');
     };
+
 
     $scope.SelectedApprovedByList = [];
     $scope.AddApprovedBy = function () {
-        if (baseService.arrayLength($scope.ApprovedByList) > 0) {
-            angular.forEach($scope.ApprovedByList, function (a) {
-
-                if (a.chk) {
-                    var ob = {};
-                    ob.Id = '';
-                    ob.SystemId = a.SystemId;
-                    ob.EmployeeCode = a.EmployeeCode;
-                    ob.EmployeeName = a.EmployeeName;
-                    ob.DOJ = a.DOJ;
-                    ob.Department = a.Department;
-                    ob.Section = a.Section;
-                    ob.SubSection = a.SubSection;
-                    ob.LegalDesignation = a.LegalDesignation
-                    ob.Designation = a.Designation
-                    ob.isApprove = false;
-                    $scope.SelectedApprovedByList.push(ob);
-                    ob = {};
-                    a.chk = false;
-                    angular.element(document.querySelector('#approvedbyPopUp')).modal('hide');
+       for (var i = 0; i < $scope.ApprovedByList.length; i++) {
+            if ($scope.ApprovedByList[i].chk == true) {
+                if (checkDoubleEmpInformation($scope.SelectedApprovedByList, $scope.ApprovedByList[i].SystemId) === false) {
+                    $scope.SelectedApprovedByList.push($scope.ApprovedByList[i]);
                 }
-
-            });
+            }
         }
-
-
+        angular.element(document.querySelector('#approvedbyPopUp')).modal('hide');
     };
 
     $scope.SelectedEntityList = [];
     $scope.AddEntity = function () {
-        if (baseService.arrayLength($scope.EntityList) > 0) {
-            angular.forEach($scope.EntityList, function (a) {
-
-                if (a.chk) {
-                    var ob = {};
-                    ob.Id = '';
-                    ob.EntityId = a.Id;
-                    ob.UserName = a.UserName;
-                    ob.Code = a.Code;
-                    ob.EntityType = a.EntityType;
-                    $scope.SelectedEntityList.push(ob);
-                    ob = {};
-                    a.chk = false;
-                    angular.element(document.querySelector('#entityPopUp')).modal('hide');
+         for (var i = 0; i < $scope.EntityList.length; i++) {
+            if ($scope.EntityList[i].chk == true) {
+                if (checkDoubleEntity($scope.SelectedEntityList, $scope.EntityList[i].Id) === false) {
+                    $scope.SelectedEntityList.push($scope.EntityList[i]);
                 }
-
-            });
+            }
         }
-
+        angular.element(document.querySelector('#entityPopUp')).modal('hide');
     };
+    function checkDoubleEntity(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].EntityId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     $scope.SelectedVendorEmployee = [];
     $scope.AddVendorEmployee = function () {
-        if (baseService.arrayLength($scope.VendorEmployeeList) > 0) {
-            angular.forEach($scope.VendorEmployeeList, function (a) {
-
-                if (a.chk) {
-                    var ob = {};
-                    ob.Id = '';
-                    ob.SystemId = a.SystemId;
-                    ob.EmployeeCode = a.EmployeeCode;
-                    ob.EmployeeName = a.EmployeeName;
-                    ob.DOJ = a.DOJ;
-                    ob.Department = a.Department;
-                    ob.Section = a.Section;
-                    ob.SubSection = a.SubSection;
-                    ob.LegalDesignation = a.LegalDesignation
-                    ob.Designation = a.Designation
-                    $scope.SelectedVendorEmployee.push(ob);
-                    ob = {};
-                    a.chk = false;
-                    angular.element(document.querySelector('#vendorEmployePopUp')).modal('hide');
+        for (var i = 0; i < $scope.VendorEmployeeList.length; i++) {
+            if ($scope.VendorEmployeeList[i].chk == true) {
+                if (checkDoubleEmpInformation($scope.SelectedVendorEmployee, $scope.VendorEmployeeList[i].SystemId) === false) {
+                    $scope.SelectedVendorEmployee.push($scope.VendorEmployeeList[i]);
                 }
-
-            });
-        }
-
+            }
+        } 
+        angular.element(document.querySelector('#vendorEmployePopUp')).modal('hide');
+        $scope.SaveVendorEmployee();
     };
-     // #endregion SelectFun
+
+    function checkDoubleEmpInformation(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].EmployeeId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+    // #endregion SelectFun
 
     // #region RemoveRow
-    $scope.RemoveParticularRow = function (item) {
-        //$scope.SelectedItemList.splice($scope.SelectedItemList.indexOf(item), 1)
-        $http({
-            method: 'POST',
-            url: $scope.path + 'delete',
-            data: { 'item':item.Id},
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                ClearFields(response.data.Sequence);
-                $scope.getData();
-            }
-            function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        });
+    $scope.RemoveParticularRowConfirmation = function (tempId) {
+        try {
+            $scope.tempId = tempId;
+            $scope.message_confirmation = "Are you sure want to permanent delete ?";
+            angular.element(document.querySelector('#confirmParticularRowRemovePopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.RemoveContractItemDetailRow = function () {
+        if (baseService.isUndefinedOrNull($scope.tempId.Id)) {
+            $scope.SelectedItemList.splice($scope.SelectedItemList.indexOf($scope.tempId), 1)
+        }
+
+        else {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'delete',
+                data: { 'item': $scope.tempId.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetContractItemDetail();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
     }
 
-    $scope.RemoveCheckedRow = function (item) {
-        $scope.SelectedCheckedByList.splice($scope.SelectedCheckedByList.indexOf(item), 1)
+    $scope.RemoveCheckedByRowConfirmation = function (tempId) {
+        try {
+            $scope.tempId = tempId;
+            $scope.message_confirmation = "Are you sure want to permanent delete ?";
+            angular.element(document.querySelector('#confirmCheckedByPopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.RemoveCheckedByRow = function () {
+        if (baseService.isUndefinedOrNull($scope.tempId.Id)) {
+            $scope.SelectedCheckedByList.splice($scope.SelectedCheckedByList.indexOf($scope.tempId), 1)
+        }
+
+        else {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'deleteCheckedBy',
+                data: { 'item': $scope.tempId.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetCheckByList();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
     }
 
-    $scope.RemoveApprovedRow = function (item) {
-        $scope.SelectedApprovedByList.splice($scope.SelectedApprovedByList.indexOf(item), 1)
+    $scope.RemoveApprovedByRowConfirmation = function (tempId) {
+        try {
+            $scope.tempId = tempId;
+            $scope.message_confirmation = "Are you sure want to permanent delete ?";
+            angular.element(document.querySelector('#confirmApprovedByPopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.RemoveApprovedByRow = function () {
+        if (baseService.isUndefinedOrNull($scope.tempId.Id)) {
+            $scope.SelectedApprovedByList.splice($scope.SelectedApprovedByList.indexOf($scope.tempId), 1)
+        }
+
+        else {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'deleteApprovedBy',
+                data: { 'item': $scope.tempId.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetApproveByList();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
     }
-    $scope.RemoveEntityRow = function (item) {
-        $scope.SelectedEntityList.splice($scope.SelectedEntityList.indexOf(item), 1)
+
+    $scope.RemoveEntityRowConfirmation = function (tempId) {
+        try {
+            $scope.tempId = tempId;
+            $scope.message_confirmation = "Are you sure want to permanent delete ?";
+            angular.element(document.querySelector('#confirmEntityPopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.RemoveEntityRow = function () {
+        if (baseService.isUndefinedOrNull($scope.tempId.Id)) {
+            $scope.SelectedEntityList.splice($scope.SelectedEntityList.indexOf($scope.tempId), 1)
+        }
+
+        else {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'deleteEntity',
+                data: { 'item': $scope.tempId.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetSaveEntityList();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
     }
-    $scope.RemoveVendorEmployeeRow = function (item) {
-        $scope.SelectedEntityList.splice($scope.SelectedEntityList.indexOf(item), 1)
+
+    $scope.RemoveVendorEmployeeRowConfirmation = function (tempId) {
+        try {
+            $scope.tempId = tempId;
+            $scope.message_confirmation = "Are you sure want to permanent delete ?";
+            angular.element(document.querySelector('#confirmVendorEmpRemovePopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.RemoveVendorEmpRow = function () {
+        if (baseService.isUndefinedOrNull($scope.tempId.Id)) {
+            $scope.SelectedVendorEmployee.splice($scope.SelectedVendorEmployee.indexOf($scope.tempId), 1)
+        }
+
+        else {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'deleteVendorEmployee',
+                data: { 'item': $scope.tempId.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetGeneralContractEmployee();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
     }
     // #endregion RemoveRow
 
@@ -555,9 +695,9 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
     $scope.FileDownload = function (data) {
         $scope.dwonloadUrl = null;
         var str = data.FileName;
-        var extention = str.substr(str.indexOf('.'));       
+        var extention = str.substr(str.indexOf('.'));
         $scope.dwonloadUrl = virtualPath.GeneralContractPath + '/' + data.Id + extention;
-           
+
     };
 
     $scope.getFileList = function () {
@@ -599,6 +739,7 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
         $scope.SelectedCheckedByList = [];
         $scope.SelectedApprovedByList = [];
         $scope.SelectedEntityList = [];
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
     //  #endregion Clear
 }

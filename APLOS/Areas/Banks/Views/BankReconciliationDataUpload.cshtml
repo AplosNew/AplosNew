@@ -160,7 +160,7 @@
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet11(11), active: isSet11(11) }">
 
             <div class="form-elements form-horizontal row" ng-form name="ModelNewForm">
-                <div class="col-md-10">
+                <div class="col-md-6">
                     <input type="hidden" ng-model="EmployeeProfileFromExcel.EmployeeCode">
                     <div class="inputBtnSection common-btn">
                         <label class="fileUpload col-sm-4 ">
@@ -169,6 +169,9 @@
                         <input type="button" value="Import Data" class="btn btn-success"
                                ng-click="ImportData()" />
                     </div>
+                </div>
+                <div class="col-md-4">
+                    <i>**Date format will be Text format as like 06-Nov-2023 **</i>
                 </div>
                 <div class="col-md-2">
                     <div class="common-btn">

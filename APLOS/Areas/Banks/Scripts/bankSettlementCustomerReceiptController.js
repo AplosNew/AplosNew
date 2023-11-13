@@ -796,6 +796,15 @@ function bankSettlementCustomerReceiptController(bankService, cboService, common
         $scope.voucher.RoundingType = $scope.roundingTypeList[0].Value;
         $scope.voucher.PaymentSource = "Bank";
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
+        $scope.voucher.BankName = null;
+        $scope.voucher.BankAmount = null;
+        $scope.voucher.DocRefNo = null;
+        $scope.voucher.GLGeneralInfoId = null;
+        $scope.voucher.BudgetMasterId = null;
+        $scope.voucher.ActivityId = null;
+        $scope.voucher.BankReferenceNo = null;
+        $scope.voucher.BankMasterId = null;
+        $scope.voucher.BankReconciliationUploadedDataId = null;
         $scope.getCboVoucherTypePaymentList();
         $scope.currencyExchangeRate = [];
         $scope.voucherDetailList = [];
@@ -889,6 +898,10 @@ function bankSettlementCustomerReceiptController(bankService, cboService, common
                 ShowResult("Bank Amount and Group Currency Amount are not equal!", "failure");
                 return true;
             }
+        }
+        if (parseFloat($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount")) !== parseFloat($scope.voucher.Amount)) {
+            ShowResult("Receipt Amount must be equal Invoice Amount!  " + $scope.voucher.Amount + " ", "failure");
+            return true;
         }
         return false;
     };

@@ -301,8 +301,6 @@ namespace Aplos.Areas.Products.Controllers
 		#endregion
 
 
-
-
 		#region  Operations / Methods
 
 		[Authorize, HttpGet]
@@ -1004,28 +1002,7 @@ namespace Aplos.Areas.Products.Controllers
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-				//var sql = @"SELECT A.Id AS  MasterOrderId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, A.TotalQty	
-				//                        ,A.TotalQtyUOMId,PL.UserName,C.Code Currency, 0 Active,B.UserName Buyer
-				//			--, M.Amount
-				//			--,M.CM
-				//			--,M.SOQty 
-				//			--,M.Qty
-				//                        FROM [TRN].[MasterOrder] AS A
-				//                        JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
-				//                        LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
-				//                        LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
-				//                        LEFT JOIN [HKP].[Buyer] AS B ON B.Id=A.BuyerId
-				//                        --LEFT JOIN (SELECT SUM(SO.Amount) Amount,MO.Id,SO.CM,SO.Qty, SUM(SO.Qty) SOQty 
-				//			--			FROM [TRN].[MasterOrder] MO
-				//			--			LEFT JOIN TRN.MasterOrderItem MOI ON MOI.MasterOrderId=MO.Id
-				//			--			LEFT JOIN (SELECT Qty, (Qty*Rate) Amount, MasterOrderItemId,CM
-				//			--			FROM TRN.SalesOrder
-				//			--			) SO ON SO.MasterOrderItemId=MOI.Id GROUP BY MO.Id,CM,Qty
-				//			--) M ON M.Id=A.Id
-				//                        WHERE A.CompanyId='" + identity.CompanyId + "'  AND A.PlantId='" + identity.PlantId + "' ORDER BY P.Id";//AND A.ContractId='" + contractId + "'
-
-				var sql = @"SELECT A.Id, A.CompanyId, A.CommitmentId, A.PlantId, A.EntityId
+				 var sql = @"SELECT A.Id, A.CompanyId, A.CommitmentId, A.PlantId, A.EntityId
                                     , A.OrderType, A.PartyId, P.UserName AS CustomerName, A.BuyerId	
                                     , A.BuyerBrandId, A.BuyerDivisionId, A.TestingStandardId, A.MasterOrderNo, A.OrderStatusId	
                                     , A.OrderCategoryId, A.SeasonId, A.OrderYear, A.CurrencyId, A.TotalQty	
@@ -1044,7 +1021,16 @@ namespace Aplos.Areas.Products.Controllers
                                      [OwnItem]=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
 																			trn.MasterOrderItem XMOI 	  
 							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                                    ,CNT.ContractNo  ContractNo,MLC.Id MasterLCNo
+									,[ContractNo]=STUFF((select distinct ','+CO.ContractNo from 
+																			dbo.Contract CO
+															left join trn.SalesOrder SO on SO.ContractId=CO.Id
+															left join [TRN].[MasterOrderItem] MOI ON MOI.Id=SO.MasterOrderItemId
+							                                where MOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									,[MasterLCNo]=STUFF((select distinct ','+MLC.LCRef from dbo.MasterLC MLC
+															left join dbo.Contract CO on CO.MasterLCId=MLC.Id
+															left join trn.SalesOrder SO on SO.ContractId=CO.Id
+															left join [TRN].[MasterOrderItem] MOI ON MOI.Id=SO.MasterOrderItemId
+							                                where MOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                             FROM [TRN].[MasterOrder] AS A
                             left JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
                             LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
@@ -1055,9 +1041,6 @@ namespace Aplos.Areas.Products.Controllers
                             LEFT JOIN TRN.Commitment COM ON COM.Id=A.CommitmentId
 							LEFT JOIN [MST].[ProductMaster] PM ON COM.ProductMasterId=PM.Id
                             LEFT JOIN HKP.OrderStatus OS ON OS.Id=A.OrderStatusId
-                            LEFT JOIN dbo.Contract CNT ON CNT.Id=A.MasterOrderNo
-							left join [TRN].[MasterOrderItem] MOI ON MOI.ContractId=CNT.Id
-							LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId
                             WHERE A.CompanyId='" + identity.CompanyId + "' AND OrderType='ExternalOrder'";
 				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 			}

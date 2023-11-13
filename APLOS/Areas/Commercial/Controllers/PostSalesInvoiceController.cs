@@ -157,13 +157,15 @@ namespace Aplos.Areas.Commercial.Controllers
                           ,S.InvoiceNo
 						  ,PT.UserName [Port]
 						  ,SP.UserName ShipMode
+                          ,P.ExportRefNo,P.VendorSelection,P.DocumentReceiveDate,P.AWBB2B,P.ActualPaymentReceived,P.ShippingBillNo,P.PortCode,P.DocumentSubmissionDate
+					      ,P.DocAcceptanceDate,P.FinalShipmentStatus,P.ShippingBillDate,P.ShipmentDate,P.NegotiationType,P.PaymentReceivedDate,P.Remark
                       FROM [dbo].[PostSalesInvoice] P
 					  LEFT JOIN TRN.Sales S ON S.Id=P.SalesId
 					  LEFT JOIN HKP.Party C ON C.Id=P.CNFAgentId
 					  LEFT JOIN HKP.Party T ON T.Id=P.TransportAgentId					  
 					  LEFT JOIN MST.[Port] PT ON PT.Id=P.PortOfLoadingId
 					  LEFT JOIN [MST].[ShipMode] SP ON SP.Id=P.ShipmentModeId
-                      Where P.SalesId='"+SalesId+"' ";
+                      Where P.SalesId='" + SalesId+"' ";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -187,7 +189,34 @@ namespace Aplos.Areas.Commercial.Controllers
 									, S.InvoiceNo, PPI.UserName AS BillTo, AM.StateId AS InvoicingStateId, ST.UserName AS InvoicingState, PPI.GSTIN AS InvoicingGSTIN
 									, PPD.UserName AS ShipTo, STD.UserName AS DeliveryState, PPD.GSTIN AS DeliveryGSTIN, S.InvoicingByAddress, S.DeliveryByAddress, S.MatureDate, S.ToCurrencyRate
 									, S.ToCurrencyRate AS CompanyCurrencyRate, S.Narration, S.PartyType, S.VoucherId, AMP.StateId AS PlantStateId,S.BLNumber,S.ItemDescription,S.ComercialInvoiceNo,S.EXPFromNo,S.EXPDate,S.BLDate
-                                    , CASE WHEN S.RowState = 'Parked' THEN 1 ELSE 0 END AS IsPark,FORMAT(S.AddedDate, 'dd-MMM-yyyy')AddedDate,s.AddedBy,S.AddedFromIP,FORMAT(S.UpdatedDate, 'dd-MMM-yyyy') UpdatedDate,s.UpdatedBy,S.UpdatedFromIP ,B.ContractNo,B.LCRef, B.BenificiaryBankId
+                                    , CASE WHEN S.RowState = 'Parked' THEN 1 ELSE 0 END AS IsPark,FORMAT(S.AddedDate, 'dd-MMM-yyyy')AddedDate,s.AddedBy,S.AddedFromIP,FORMAT(S.UpdatedDate, 'dd-MMM-yyyy') UpdatedDate,s.UpdatedBy,S.UpdatedFromIP 
+									
+									,ContractNo=Stuff((
+                    SELECT distinct',' + C.ContractNo
+                    FROM  dbo.[Contract] C 
+					LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN [TRN].[SalesMaterial] SM ON SM.SalesOrderId=SO.Id
+                    WHERE S.Id = SM.SalesId
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+					,LCRef=Stuff((
+                    SELECT distinct',' + MLC.LCRef
+                    FROM  dbo.[Contract] C 
+					LEFT JOIN dbo.[MasterLC] MLC ON MLC.Id=C.MasterLCId
+					LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN [TRN].[SalesMaterial] SM ON SM.SalesOrderId=SO.Id
+                    WHERE S.Id = SM.SalesId
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+					,BenificiaryBankId=Stuff((
+                    SELECT distinct',' + MLC.BenificiaryBankId
+                    FROM  dbo.[Contract] C 
+					LEFT JOIN dbo.[MasterLC] MLC ON MLC.Id=C.MasterLCId
+					LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN [TRN].[SalesMaterial] SM ON SM.SalesOrderId=SO.Id
+                    WHERE S.Id = SM.SalesId
+                    FOR XML PATH('')
+                    ), 1, 1, '')
                                        FROM[TRN].[Sales] AS S
                                     JOIN[HKP].[Party] AS P ON P.Id = S.PartyId
                                     LEFT JOIN[HKP].[PartyPlant] AS PPI ON PPI.Id = S.InvoicingPartyPlantId
@@ -201,14 +230,11 @@ namespace Aplos.Areas.Commercial.Controllers
                                     LEFT JOIN[MST].[AddressMaster] AS AMP ON AMP.Id = PT.AddressMasterId
                                     LEFT JOIN(SELECT M.SalesId, SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId = S.Id
                                     LEFT JOIN(SELECT M.SalesId, SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId = S.Id
-                                    LEFT JOIN (SELECT distinct A.SalesId,MOI.ContractId,C.ContractNo,MLC.LCRef, MLC.BenificiaryBankId
-								FROM [TRN].[SalesOrderItem]  A
-                                LEFT JOIN TRN.MasterOrder B ON B.Id=A.MasterOrderId
-								LEFT JOIN TRN.MasterOrderItem MOI ON MOI.MasterOrderId=A.MasterOrderId
-								LEFT JOIN dbo.[Contract] C ON C.Id=MOI.ContractId
-								LEFT JOIN dbo.[MasterLC] MLC ON MLC.Id=C.MasterLCId) B ON B.SalesId=S.Id
+
                                     WHERE S.CompanyGroupId = '" + identity.CompanyGroupId + "' AND S.CompanyId = '" + identity.CompanyId + "'";
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
 
 
@@ -363,7 +389,25 @@ namespace Aplos.Areas.Commercial.Controllers
                     else
                     {
                         dr["CNFBLAWBDate"] = data.CNFBLAWBDate;
-                    }       
+                    }
+
+                    dr["CNFAgentId"] = data.CNFAgentId;
+
+                    dr["ExportRefNo"] = data.ExportRefNo;
+                    dr["VendorSelection"] = data.VendorSelection;
+                    dr["DocumentReceiveDate"] = data.DocumentReceiveDate;
+                    dr["AWBB2B"] = data.AWBB2B;
+                    dr["ActualPaymentReceived"] = data.ActualPaymentReceived;
+                    dr["ShippingBillNo"] = data.ShippingBillNo;
+                    dr["PortCode"] = data.PortCode;
+                    dr["DocumentSubmissionDate"] = data.DocumentSubmissionDate;
+                    dr["DocAcceptanceDate"] = data.DocAcceptanceDate;
+                    dr["FinalShipmentStatus"] = data.FinalShipmentStatus;
+                    dr["ShippingBillDate"] = data.ShippingBillDate;
+                    dr["ShipmentDate"] = data.ShipmentDate;
+                    dr["NegotiationType"] = data.NegotiationType;
+                    dr["PaymentReceivedDate"] = data.PaymentReceivedDate;
+                    dr["Remark"] = data.Remark;
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
@@ -471,6 +515,22 @@ namespace Aplos.Areas.Commercial.Controllers
                         dr["CNFBLAWBDate"] = data.CNFBLAWBDate;
                     }
 
+                    dr["ExportRefNo"] = data.ExportRefNo;
+                    dr["VendorSelection"] = data.VendorSelection;
+                    dr["DocumentReceiveDate"] = data.DocumentReceiveDate;
+                    dr["AWBB2B"] = data.AWBB2B;
+                    dr["ActualPaymentReceived"] = data.ActualPaymentReceived;
+                    dr["ShippingBillNo"] = data.ShippingBillNo;
+                    dr["PortCode"] = data.PortCode;
+                    dr["DocumentSubmissionDate"] = data.DocumentSubmissionDate;
+                    dr["DocAcceptanceDate"] = data.DocAcceptanceDate;
+                    dr["FinalShipmentStatus"] = data.FinalShipmentStatus;
+                    dr["ShippingBillDate"] = data.ShippingBillDate;
+                    dr["ShipmentDate"] = data.ShipmentDate;
+                    dr["NegotiationType"] = data.NegotiationType;
+                    dr["PaymentReceivedDate"] = data.PaymentReceivedDate;
+                    dr["Remark"] = data.Remark;
+
 
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedFromIP"] = identity.IPAddress;
@@ -571,6 +631,22 @@ namespace Aplos.Areas.Commercial.Controllers
         public string PortOfDelivaryId { get; set; }
         public string BankDocRef { get; set; }
         public DateTime? BankDocDate { get; set; }
+
+        public string ExportRefNo { get; set; }
+        public string VendorSelection { get; set; }
+        public DateTime? DocumentReceiveDate { get; set; }
+        public string AWBB2B { get; set; }
+        public string ActualPaymentReceived { get; set; }
+        public string ShippingBillNo { get; set; }
+        public string PortCode { get; set; }
+        public DateTime? DocumentSubmissionDate { get; set; }
+        public DateTime? DocAcceptanceDate { get; set; }
+        public string FinalShipmentStatus { get; set; }
+        public DateTime? ShippingBillDate { get; set; }
+        public DateTime? ShipmentDate { get; set; }
+        public string NegotiationType { get; set; }
+        public DateTime? PaymentReceivedDate { get; set; }
+        public string Remark { get; set; }
 
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }

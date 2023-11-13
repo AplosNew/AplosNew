@@ -237,7 +237,7 @@ namespace Library.OrderManagement.Sales
                 string sql = @"SELECT Flag=CAST(CASE WHEN SA.Id IS NULL THEN 0 ELSE 1 END AS bit),A.UserName,SA.Id,SA.SalesId
 ,A.Id AdditionalInfoId,SA.Value,SA.Remarks,A.CharecterType,'' CharType,''datepic
 FROM [HKP].[AdditionalInfo] A
-OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.Id AND SalesId='" + salesId + @"') SA";
+OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.Id AND SalesId='" + salesId + @"') SA Order By A.sequence";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -2025,7 +2025,33 @@ Order by P.Sequence";
 									, PPD.UserName AS ShipTo, STD.UserName AS DeliveryState, PPD.GSTIN AS DeliveryGSTIN, S.InvoicingByAddress, S.DeliveryByAddress, S.MatureDate, S.ToCurrencyRate
 									, S.ToCurrencyRate AS CompanyCurrencyRate, S.Narration, S.PartyType, S.VoucherId, AMP.StateId AS PlantStateId
                                     , CASE  WHEN S.RowState='Parked' THEN 1 ELSE 0 END AS IsPark
-									,V.VoucherNo,PAG.UserName PartyAccountGroup
+									,V.VoucherNo,PAG.UserName PartyAccountGroup,P.PartyNature
+,ContractNo=Stuff((
+                    SELECT distinct',' + C.ContractNo
+                    FROM  dbo.[Contract] C 
+					LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN [TRN].[SalesMaterial] SM ON SM.SalesOrderId=SO.Id
+                    WHERE S.Id = SM.SalesId
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+					,LCRef=Stuff((
+                    SELECT distinct',' + MLC.LCRef
+                    FROM  dbo.[Contract] C 
+					LEFT JOIN dbo.[MasterLC] MLC ON MLC.Id=C.MasterLCId
+					LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN [TRN].[SalesMaterial] SM ON SM.SalesOrderId=SO.Id
+                    WHERE S.Id = SM.SalesId
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+					,BenificiaryBankId=Stuff((
+                    SELECT distinct',' + MLC.BenificiaryBankId
+                    FROM  dbo.[Contract] C 
+					LEFT JOIN dbo.[MasterLC] MLC ON MLC.Id=C.MasterLCId
+					LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN [TRN].[SalesMaterial] SM ON SM.SalesOrderId=SO.Id
+                    WHERE S.Id = SM.SalesId
+                    FOR XML PATH('')
+                    ), 1, 1, '')
 									FROM [TRN].[Sales] AS S
                                     JOIN [HKP].[Party] AS P ON P.Id=S.PartyId
 									LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=S.InvoicingPartyPlantId

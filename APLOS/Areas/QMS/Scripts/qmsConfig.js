@@ -179,7 +179,10 @@
             templateUrl: 'QMS/DailyQualityStatusReport/aplos',
             controller: 'DailyQualityStatusReportController'
         })
-
+        .when('/sqc-master', {
+            templateUrl: 'QMS/SQCMaster/aplos',
+            controller: 'SQCMasterController'
+        })
         
 }
 qmsConfig.$inject = ['$routeProvider', '$locationProvider'];

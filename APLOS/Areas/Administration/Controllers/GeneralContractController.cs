@@ -41,6 +41,11 @@ namespace Aplos.Areas.Administration.Controllers
         {
             return Json(ci.GetContractItemDetail(gcId), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public ActionResult GetGeneralContractEmployee(string gcId)
+        {
+            return Json(ci.GetGeneralContractEmpDetail(gcId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public ActionResult GetCheckByList(string gcId)
@@ -91,9 +96,9 @@ namespace Aplos.Areas.Administration.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetVendorBasedEmployee(string vendorId)
+        public ActionResult GetVendorBasedEmployee()
         {
-            return Json(gc.GetVendorBasedEmployee(vendorId), JsonRequestBehavior.AllowGet);
+            return Json(gc.GetVendorBasedEmployee(), JsonRequestBehavior.AllowGet);
         }
 
         #endregion GetFunction
@@ -132,9 +137,24 @@ namespace Aplos.Areas.Administration.Controllers
             {
                 string TableName = "MST.ContractItemDetail";
 
-                if (string.IsNullOrEmpty(item))
-                    throw new Exception("Select entry first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + item + "'");
+                con.CommitTransaction();
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
 
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public JsonResult deleteVendorEmployee(string item)
+        {
+            try
+            {
+                string TableName = "[MST].[GeneralContractVendorEmployee]";
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
                 con.executeQuery("delete from " + TableName + " where id='" + item + "'");
@@ -149,6 +169,64 @@ namespace Aplos.Areas.Administration.Controllers
 
             }
         }
+        public JsonResult deleteCheckedBy(string item)
+        {
+            try
+            {
+                string TableName = "[MST].[GeneralContractCheckBy]";
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + item + "'");
+                con.CommitTransaction();
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+        public JsonResult deleteApprovedBy(string item)
+        {
+            try
+            {
+                string TableName = "[MST].[GeneralContractApproveBy]";
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + item + "'");
+                con.CommitTransaction();
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+        public JsonResult deleteEntity(string item)
+        {
+            try
+            {
+                string TableName = "[MST].[GeneralContractEntity]";
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + item + "'");
+                con.CommitTransaction();
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+
 
         #region FileUpload
         [HttpPost, Authorize]
