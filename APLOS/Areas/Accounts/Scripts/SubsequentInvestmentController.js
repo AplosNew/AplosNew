@@ -52,10 +52,10 @@ function SubsequentInvestmentController(accountService, bankService, cboService,
         TotalNoOfInstallment: "",
         ProfitRate: "",
         ProfitAmount: "",
-        TransactionType: "LoanTaken",
+        TransactionType: "InvestmentGiven",
         IsSchedule: false,
         CompanyCurrencyRate: 1,
-        SourceType: "LoanInterestPayable"
+        SourceType: "InvestmentInterestReceivable"
     };
 
     $scope.searchByList = [
@@ -93,7 +93,7 @@ function SubsequentInvestmentController(accountService, bankService, cboService,
         }
     ];
 
-    baseService.init("accounts/Loan/GetLoanInterestPayableList", null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
+    baseService.init("accounts/Investment/GetInvestmentInterestReceivableList", null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
     $scope.getData = function (pageno) {
         baseService.pagination(pageno)
             .then(function (result) {
@@ -111,9 +111,8 @@ function SubsequentInvestmentController(accountService, bankService, cboService,
                 $scope.entityList = result;
             });
     });
-
-    $scope.getCboVoucherTypeLoanList = function () {
-        accountService.getCboVoucherTypeLoanInterestPayableList(function (result) {
+    $scope.getCboVoucherTypeInvestmentList = function () {
+        accountService.getCboVoucherTypeInvestmentList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
@@ -121,8 +120,8 @@ function SubsequentInvestmentController(accountService, bankService, cboService,
                 $scope.voucher.DocDate = $scope.voucher.PostingDate;
             }
         });
-    }
-    $scope.getCboVoucherTypeLoanList();
+    };
+    $scope.getCboVoucherTypeInvestmentList();
 
     $scope.changeVoucherType = function (voucherTypeId) {
         var data = $.grep($scope.voucherTypeList, function (item) {
@@ -455,7 +454,7 @@ function SubsequentInvestmentController(accountService, bankService, cboService,
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
-                    url: "Accounts/Loan/InsertLoanInterestPayable",
+                    url: "Accounts/Investment/InsertInvestmentInterestReceivable",
                     data: {
                         "voucherVM": $scope.voucher,
                         "loanRepaymentSchedulelist": $scope.loanRepaymentSchedulelist,
@@ -657,7 +656,7 @@ function SubsequentInvestmentController(accountService, bankService, cboService,
     $scope.getPopUpData = function () {
         $http({
             method: 'GET',
-            url: 'Accounts/Loan/GetLoanPopUpList?transactionType=' + $scope.voucher.TransactionType
+            url: 'Accounts/Investment/GetInvestmentPopUpList?transactionType=' + $scope.voucher.TransactionType
         }).then(function successCallback(response) {
             $scope.loanDataList = response.data;
             for (var i = 0; i < $scope.loanDataList.length; i++) {
@@ -691,7 +690,7 @@ function SubsequentInvestmentController(accountService, bankService, cboService,
         $scope.voucher.CompanyId = data.CompanyId;
         $scope.voucher.PlantId = data.PlantId;
         $scope.voucher.LoanAmount = data.LoanAmount;
-        $scope.voucher.LoanSetOff = data.LoanPayment;
+        $scope.voucher.InvestmentSetOff = data.InvestmentSetOff;
         $scope.voucher.InitialSactionAmount = data.InitialSactionAmount;
         $scope.voucher.AdditionalLoanAmount = data.AdditionalLoanAmount;
         $scope.voucher.TotalInterestPayableAmount = data.InterestAmount;
