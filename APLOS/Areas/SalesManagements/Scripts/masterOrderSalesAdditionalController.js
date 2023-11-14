@@ -457,7 +457,7 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
         PortOfDischargeId: null,
         PortOfDelivaryId: null,
         BankDocRef: null,
-        BankDocDate: null,
+        NegotiatingDate: null,
 
         ExportRefNo: null,
         VendorSelection: null,
@@ -669,8 +669,8 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
                 }
             }
 
-            if (baseService.isUndefinedOrNull($scope.ModelNew.BankDocDate)) {
-                if (new Date($scope.ModelNew.CNFBLAWBDate) < new Date($scope.ModelNew.BankDocDate)) {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.NegotiatingDate)) {
+                if (new Date($scope.ModelNew.CNFBLAWBDate) < new Date($scope.ModelNew.NegotiatingDate)) {
                     throw "Bank Doc Date should greater than BL Date";
                 }
             }

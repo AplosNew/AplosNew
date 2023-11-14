@@ -84,7 +84,7 @@ namespace Aplos.Areas.Commercial.Controllers
                           ,P.PortOfDischargeId
                           ,P.PortOfDelivaryId
                           ,P.BankDocRef
-                          ,FORMAT(P.BankDocDate,'dd-MMM-yyyy')BankDocDate
+                          ,FORMAT(P.NegotiatingDate,'dd-MMM-yyyy')NegotiatingDate
                           ,P.AddedBy
                           ,FORMAT(P.[AddedDate],'dd-MMM-yyyy')AddedDate
                           ,P.[AddedFromIP]
@@ -96,10 +96,13 @@ namespace Aplos.Areas.Commercial.Controllers
                           ,S.InvoiceNo
 						  ,PT.UserName [Port]
 						  ,SP.UserName ShipMode
+                            ,P.ExportRefNo,P.TransporterCHAForwarderId,P.DocumentReceiveDate,P.AWBB2B,P.ActualPaymentReceived,P.ShippingBillNo,P.PortCode,P.DocumentSubmissionDate
+					      ,P.DocAcceptanceDate,P.FinalShipmentStatus,P.ShippingBillDate,P.ShipmentDate,P.NegotiationType,P.PaymentReceivedDate,P.Remark,S.InvoiceStatus,P.TransporterCHAForwarderId,TF.UserName TransporterCHAForwarder
                       FROM [dbo].[PostSalesInvoice] P
 					  LEFT JOIN TRN.Sales S ON S.Id=P.SalesId
 					  LEFT JOIN HKP.Party C ON C.Id=P.CNFAgentId
 					  LEFT JOIN HKP.Party T ON T.Id=P.TransportAgentId					  
+					  LEFT JOIN HKP.Party TF ON TF.Id=P.TransporterCHAForwarderId					  
 					  LEFT JOIN MST.[Port] PT ON PT.Id=P.PortOfLoadingId
 					  LEFT JOIN [MST].[ShipMode] SP ON SP.Id=P.ShipmentModeId";
 
@@ -145,7 +148,7 @@ namespace Aplos.Areas.Commercial.Controllers
                           ,P.PortOfDischargeId
                           ,P.PortOfDelivaryId
                           ,P.BankDocRef
-                          ,FORMAT(P.BankDocDate,'dd-MMM-yyyy')BankDocDate
+                          ,FORMAT(P.NegotiatingDate,'dd-MMM-yyyy')NegotiatingDate
                           ,P.AddedBy
                           ,FORMAT(P.[AddedDate],'dd-MMM-yyyy')AddedDate
                           ,P.[AddedFromIP]
@@ -158,11 +161,12 @@ namespace Aplos.Areas.Commercial.Controllers
 						  ,PT.UserName [Port]
 						  ,SP.UserName ShipMode
                           ,P.ExportRefNo,P.TransporterCHAForwarderId,P.DocumentReceiveDate,P.AWBB2B,P.ActualPaymentReceived,P.ShippingBillNo,P.PortCode,P.DocumentSubmissionDate
-					      ,P.DocAcceptanceDate,P.FinalShipmentStatus,P.ShippingBillDate,P.ShipmentDate,P.NegotiationType,P.PaymentReceivedDate,P.Remark,S.InvoiceStatus
+					      ,P.DocAcceptanceDate,P.FinalShipmentStatus,P.ShippingBillDate,P.ShipmentDate,P.NegotiationType,P.PaymentReceivedDate,P.Remark,S.InvoiceStatus,P.TransporterCHAForwarderId,TF.UserName TransporterCHAForwarder
                       FROM [dbo].[PostSalesInvoice] P
 					  LEFT JOIN TRN.Sales S ON S.Id=P.SalesId
 					  LEFT JOIN HKP.Party C ON C.Id=P.CNFAgentId
-					  LEFT JOIN HKP.Party T ON T.Id=P.TransportAgentId					  
+					  LEFT JOIN HKP.Party T ON T.Id=P.TransportAgentId	
+                        LEFT JOIN HKP.Party TF ON TF.Id=P.TransporterCHAForwarderId
 					  LEFT JOIN MST.[Port] PT ON PT.Id=P.PortOfLoadingId
 					  LEFT JOIN [MST].[ShipMode] SP ON SP.Id=P.ShipmentModeId
                       Where P.SalesId='" + SalesId+"' ";
@@ -292,6 +296,24 @@ namespace Aplos.Areas.Commercial.Controllers
 
                 string sql = "SELECT * FROM [dbo].[PostSalesInvoice] WHERE Id='" + data.Id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
+                if (!string.IsNullOrEmpty(data.ExportRefNo))
+                {
+                    objCon.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[PostSalesInvoice] WHERE Id<>'" + data.Id + "' AND ExportRefNo='"+data.ExportRefNo+"'", out DataSet dsERN, false, "1");
+                    if (dsERN.Tables[0].Rows.Count>0)
+                    {
+                        throw new Exception("Export Ref No is unique.");
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(data.ShippingBillNo))
+                {
+                    objCon.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[PostSalesInvoice] WHERE Id<>'" + data.Id + "' AND ShippingBillNo='" + data.ShippingBillNo + "'", out DataSet dsERN, false, "1");
+                    if (dsERN.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Shipping Bill No is unique.");
+                    }
+                }
+
                 objCon.OpenDataSetThroughAdapter(sql, out DataSet dsMaster, false, "1");
 
                 if (dsMaster.Tables[0].Rows.Count == 0)
@@ -304,13 +326,13 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["BankMasterId"] = data.BankMasterId;
                     dr["BankDocRef"] = data.BankDocRef;
 
-                    if (String.IsNullOrEmpty(data.BankDocDate.ToString()))
+                    if (String.IsNullOrEmpty(data.NegotiatingDate.ToString()))
                     {
-                        dr["BankDocDate"] = DBNull.Value;
+                        dr["NegotiatingDate"] = DBNull.Value;
                     }
                     else
                     {
-                        dr["BankDocDate"] = data.BankDocDate;
+                        dr["NegotiatingDate"] = data.NegotiatingDate;
                     }
                     dr["ExpFormNo"] = data.ExpFormNo;
                     if (String.IsNullOrEmpty(data.ExpDate.ToString()))
@@ -478,13 +500,13 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["BankMasterId"] = data.BankMasterId;
                     dr["BankDocRef"] = data.BankDocRef;
 
-                    if (String.IsNullOrEmpty(data.BankDocDate.ToString()))
+                    if (String.IsNullOrEmpty(data.NegotiatingDate.ToString()))
                     {
-                        dr["BankDocDate"] = DBNull.Value;
+                        dr["NegotiatingDate"] = DBNull.Value;
                     }
                     else
                     {
-                        dr["BankDocDate"] = data.BankDocDate;
+                        dr["NegotiatingDate"] = data.NegotiatingDate;
                     }
                     dr["ExpFormNo"] = data.ExpFormNo;
                     if (String.IsNullOrEmpty(data.ExpDate.ToString()))
@@ -775,7 +797,7 @@ namespace Aplos.Areas.Commercial.Controllers
         public string PortOfDischargeId { get; set; }
         public string PortOfDelivaryId { get; set; }
         public string BankDocRef { get; set; }
-        public DateTime? BankDocDate { get; set; }
+        public DateTime? NegotiatingDate { get; set; }
 
         public string ExportRefNo { get; set; }
         public string TransporterCHAForwarderId { get; set; }

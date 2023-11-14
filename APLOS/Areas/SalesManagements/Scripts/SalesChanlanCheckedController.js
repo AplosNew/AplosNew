@@ -128,6 +128,17 @@ function SalesChanlanCheckedController(cboService, commonMessage, $scope, $rootS
         }
     };
 
+    $scope.GriddataCheckedList = [];
+    $scope.GetcheckedDataList = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetcheckedDataList'
+        }).then(function successCallback(response) {
+            $scope.GriddataCheckedList = response.data;
+        });
+    }
+    $scope.GetcheckedDataList();
+
     $scope.GriddataApproveList = [];
     $scope.GetApproveBycheckedData = function () {
         $http({
