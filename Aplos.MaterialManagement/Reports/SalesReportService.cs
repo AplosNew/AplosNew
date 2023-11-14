@@ -1377,13 +1377,14 @@ namespace Library.MaterialManagement.Reports
             string strSQL;
             try
             {
-                strSQL = @"Select ROW_NUMBER() OVER(ORDER BY TC.Sequence) RoWNo,MA.UserName
+                strSQL = @"SELECT ROW_NUMBER() OVER(ORDER BY A.UserName) RoWNo,A.* FROM (
+Select DISTINCT MA.UserName
 from [dbo].MasterLCTermsAndConditions MA
 LEFT JOIN dbo.[Contract] C ON C.MasterLcId=MA.MasterLcId
 LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
 LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
 LEFT JOIN HKP.TermsAndConditions TC ON TC.Id=MA.TermsAndConditionsId
-                        where SM.SalesId='" + SalesId + "' Order By TC.Sequence ";
+                        where SM.SalesId='"+ SalesId + @"')A  ";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }
@@ -1402,7 +1403,7 @@ LEFT JOIN HKP.TermsAndConditions TC ON TC.Id=MA.TermsAndConditionsId
             string strSQL;
             try
             {
-                strSQL = @"Select MA.Description
+                strSQL = @"Select DISTINCT MA.Description
 from [dbo].[MasterLCAddInfo] MA
 LEFT JOIN dbo.[Contract] C ON C.MasterLcId=MA.MasterLcId
 LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
