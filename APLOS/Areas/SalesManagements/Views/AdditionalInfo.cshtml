@@ -6,6 +6,7 @@
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Post Sales Invoice</a></li>
             <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Invoice Additional Info</a></li>
             <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Negotiating Bank</a></li>
+            <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">Invoice Status</a></li>
         </ul>
     </div>
     <div class="tab-content">
@@ -515,7 +516,7 @@
                         <input type="text" name="PlaceOfReceiptByPreCarriage" ng-model="ModelNew.PlaceOfReceiptByPreCarriage" class="form-control" tabindex="26">
                     </div>
                 </div>
-               <div class="form-group">
+                <div class="form-group">
                     <label class="col-sm-4 control-label">Limit<sup>*</sup></label>
                     <div class="col-sm-8">
                         <input type="number" name="TransportDocRefNo" ng-model="ModelNew.Limit" class="form-control" tabindex="27">
@@ -524,13 +525,80 @@
             </div>
             <div class="common-btn">
                 <ul class="list-inline text-right">
-                    <li> <button ng-click="SavePostSales();"  class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                    <li> <button ng-click="SavePostSales();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
                     @*<li> <button data-toggle="modal" ng-disabled="ModelNew.Id==null" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
                     <li> <button ng-click="ClearPostSales();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                 </ul>
             </div>
         </div>
+
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+            <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+                <input type="hidden" ng-model="ModelNew.Id">
+                <fieldset class="scheduler-border">
+                    <div class="col-xs-12 col-sm-4 col-md-4">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Invoice No<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Purchase LCNo" ng-model="ModelInvoiceStatus.InvoiceNo" disabled class="form-control" tabindex="1">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Invoice Status<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select name="Invoice Status" id="IS" class="form-control" ng-model="ModelInvoiceStatus.InvoiceStatus" tabindex="3">
+                                        <option value="">--Select--</option>
+                                        <option value="Active">Active</option>
+                                        <option value="Close">Close</option>
+                                        <option value="Pending">Pending</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                      
+                        
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Invoice Date</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="InvoiceDate" ng-model="ModelInvoiceStatus.InvoiceDate" class="form-control" disabled tabindex="2">
+                            </div>
+                        </div>
+                        
+                        
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Amount</label>
+                            <div class="col-sm-5" style="margin-right: -30px;">
+                                <input type="text" name="Amount" ng-model="ModelInvoiceStatus.Amount" disabled class="form-control" tabindex="2">
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="select-style">
+                                    <select id="currency" class="form-control" tabindex="5" name="Currency" ng-disabled="true" ng-model="salesVM.CurrencyId" required>
+                                        @*<option value="">--Select--</option>*@
+                                        <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                       
+                         
+                    </div>
+                </fieldset>
+                
+              
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveInvoiceStatus();" ng-disabled="salesVM.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Update </button></li>
+                    </ul>
+                </div>
+            </div>
         </div>
+
+    </div>
     </div>
 <div class="aplos-grid-toggle">
     <div class="row text-right">
