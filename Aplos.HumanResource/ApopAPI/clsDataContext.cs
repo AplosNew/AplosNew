@@ -8521,7 +8521,7 @@ where BM.BankCategoryId = '" + categoryId + "' and BM.BankSubCategoryId = '" + s
             {
                 strSQL = @"select Distinct BM.AccountNumber Name , BM.Id Value from mst.BankMaster BM 
 left join HKP.Bank BK on BK.Id = BM.BankId 
-where BM.BankCategoryId = '" + categoryId + "' and BM.BankSubCategoryId = '" + subcategoryId + "' and BM.BankId = '"  + bankId + "'";
+where BM.BankCategoryId = '" + categoryId + "' and BM.BankSubCategoryId = '" + subcategoryId + "' and BM.BankId = '"  + bankId + "'"; 
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
