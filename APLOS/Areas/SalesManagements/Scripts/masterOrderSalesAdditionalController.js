@@ -798,7 +798,7 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
             $scope.ModelNew.TransportAgentName = party.UserName;
         } else {
             var party = obj.data;
-            $scope.ModelNew.TransporterCHAForwarderVendorId = party.Id;
+            $scope.ModelNew.TransporterCHAForwarderId = party.Id;
             $scope.ModelNew.TransporterCHAForwarder = party.UserName;
         }
         $scope.searchByParty = "UserName"; $scope.searchParty = "";
