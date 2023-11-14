@@ -1463,6 +1463,7 @@ namespace Library.Accounting.Accounts
                                     ,BMA.TaxApplicable= '" + item.TaxApplicable + "',BMA.TaxType= '" + item.TaxType + @"'
                                     ,BMA.UserCategory= '" + item.UserCategory + "',BMA.UserSubCategory= '" + item.UserSubCategory + @"'
                                     ,BMA.UserItem= '" + item.UserItem + "',BMA.UserReport= '" + item.UserReport + @"'
+                                    ,BMA.IsAllowed='" + item.IsAllowed + "',BMA.AllowedDays=" + item.AllowedDays + ",BMA.MonthDay=" + item.MonthDay + @"
                                     FROM [MST].[BudgetMasterActivity] BMA
                                     WHERE BMA.Id='" + item.BudgetMasterActivityId + @"'";
                         uploadedData.Append(uploadedDatasql);
@@ -1472,6 +1473,7 @@ namespace Library.Accounting.Accounts
                         uploadedDatasql = @"UPDATE BMA SET BMA.TaxApplicable= '" + item.TaxApplicable + "',BMA.TaxType= '" + item.TaxType + @"'
                                     ,BMA.UserCategory= '" + item.UserCategory + "',BMA.UserSubCategory= '" + item.UserSubCategory + @"'
                                     ,BMA.UserItem= '" + item.UserItem + "',BMA.UserReport= '" + item.UserReport + @"'
+                                    ,BMA.IsAllowed='" + item.IsAllowed + "',BMA.AllowedDays=" + item.AllowedDays + ",BMA.MonthDay=" + item.MonthDay + @"
                                     FROM [MST].[BudgetMasterActivity] BMA
                                     WHERE BMA.Id='" + item.BudgetMasterActivityId + @"'";
                         uploadedData.Append(uploadedDatasql);
