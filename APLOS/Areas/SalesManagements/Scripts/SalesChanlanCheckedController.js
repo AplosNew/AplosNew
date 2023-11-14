@@ -138,4 +138,18 @@ function SalesChanlanCheckedController(cboService, commonMessage, $scope, $rootS
         });
     }
     $scope.GetApproveBycheckedData();
+
+    $scope.PrintData = function (data) {
+        try {
+            $scope.fileName = "SalesChalanReport.xlsx";
+            //$scope.ReportFormat = 'Excel';
+            $scope.ReportFormat = 'Pdf';
+            var url = 'SalesManagements/SalesChalan/GetSalesChalanReportPdf?reportFormat=' + $scope.ReportFormat + '&masterId=' + data.data.Id;
+            $rootScope.report(url);
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
 }
