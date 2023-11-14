@@ -3,7 +3,6 @@ PackingInvoiceController.$inject = ['cboService', 'commonMessage', '$scope', '$r
 function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller, accountService, bankService, $window) {
     $rootScope.title = 'Packing Invoice';
     $scope.path = 'Productions/PackingInvoice/';
-    $controller("partyBaseController", { $scope: $scope, $http: $http });
     $scope.searchBy = "Customer"; $scope.search = "";
     $scope.searchByList = [{ value: 'PO', name: "PO" }, { value: 'Customer', name: "Customer" }, { value: 'Productcode', name: "Product Code" }];
     $scope.Action = 'Save';

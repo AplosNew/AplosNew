@@ -38,15 +38,39 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         }
     }
 
-    $scope.closePartyPopUp = function () {
-        if ($scope.partyIndex !== -1) {
-            var party = $scope.partyList[$scope.partyIndex];
-            $scope.masterLC.CustomerId = party.Id;
-            $scope.masterLC.PartyCode = party.Code;
-            $scope.masterLC.PartyName = party.UserName;
-        }
-        $scope.hidePartyPopUp();
+
+    $scope.searchByParty = "UserName"; $scope.searchParty = "";
+
+    $scope.ShowCustomerPopUpNew = function () {
+        $scope.partyType = "Customer";
+        $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+
+        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + $scope.partyType + '&CompanyId=' + $window.companyId + '&PlantId=' + $window.plantId;
+
+        $http({
+            method: 'POST',
+            url: $scope.partyUrl,
+            data: { column: $scope.searchByParty, value: $scope.searchParty },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.partyList = response.data;
+        });
+        angular.element(document.querySelector('#CustomerPopUpNew')).modal('show');
     };
+
+    $scope.SetCustomerData = function (obj) {
+        var party = obj.data;
+        $scope.masterLC.CustomerId = party.Id;
+        $scope.masterLC.PartyCode = party.Code;
+        $scope.masterLC.PartyName = party.UserName;
+
+        angular.element(document.querySelector('#CustomerPopUpNew')).modal('hide');
+        $scope.searchParty = '';
+        $scope.partyType = "Customer";
+    }
+
+
+   
     $scope.shipmentModeList = [];
     $scope.GetshipmentMode = function () {
         $http({
