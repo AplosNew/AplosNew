@@ -42,6 +42,7 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
     $scope.ShowAdditionalPopup = function (obj) {
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.salesVM = Object.assign({}, obj.data);
+        $scope.ModelInvoiceStatus = Object.assign({}, obj.data);
         $scope.SalesAdditionalInfoDataList = [];
         $scope.SalesId = obj.data.Id;
         $scope.ModelNew.SalesId = obj.data.Id;
@@ -351,6 +352,8 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
                         $scope.ModelNew = Object.assign({}, response.data[0]);
+                        $scope.ModelInvoiceStatus.InvoiceStatus = response.data[0].InvoiceStatus;
+
                     }
                     $scope.ModelNew.SalesId = $scope.salesVM.Id;
                     $scope.ModelNew.InvoiceDate = $scope.salesVM.InvoiceDate;
@@ -832,5 +835,36 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
 
 
     //#endregion PostInvoice
+    $scope.ModelInvoiceTemp = {
+        Id: null,
+        InvoiceNo: null,
+        InvoiceDate: null,
+        Amount: null,
+        InvoiceStatus: null 
+    };
+    $scope.ModelInvoiceStatus = Object.assign({}, $scope.ModelTemp);
 
+    $scope.saveInvoiceStatusUrl = $scope.path + 'CreateInvoiceStatus';
+    $scope.SaveInvoiceStatus = function () {
+        try {  
+            $http({
+                method: 'POST',
+                url: $scope.saveInvoiceStatusUrl,
+                data: { 'data': $scope.ModelInvoiceStatus },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success'); 
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            } 
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+ 
 }
