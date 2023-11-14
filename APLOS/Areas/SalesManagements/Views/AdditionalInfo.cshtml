@@ -28,6 +28,31 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-sm-4 control-label" tilte="EXP Form No">Export Ref No</label>
+                            <div class="col-sm-8">
+                                <input type="text" ng-maxlength="25" name="Export Ref No" ng-model="ModelNew.ExportRefNo" class="form-control" tabindex="7">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Vendor Selection<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select name="Vendor Selection" id="VS" class="form-control" ng-model="ModelNew.VendorSelection" tabindex="3">
+                                        <option value="">--Select--</option>
+                                        <option value="Transporter">Transporter</option>
+                                        <option value="CHA">CHA</option>
+                                        <option value="Forwarder">Forwarder</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Document Receive Date</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Document Receive Date" ng-model="ModelNew.DocumentReceiveDate" datepicker class="form-control" tabindex="2">
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Bank<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="select-style">
@@ -35,6 +60,18 @@
                                         <option value="">--Select--</option>
                                     </select>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" tilte="EXP Form No">AWB/B2B</label>
+                            <div class="col-sm-8">
+                                <input type="text" ng-maxlength="25" name="AWB/B2B" ng-model="ModelNew.AWBB2B" class="form-control" tabindex="7">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" tilte="EXP Form No">Actual Payment Received</label>
+                            <div class="col-sm-8">
+                                <input type="text" ng-maxlength="25" name="Actual Payment Received" ng-model="ModelNew.ActualPaymentReceived" class="form-control" tabindex="7">
                             </div>
                         </div>
                         <div class="form-group">
@@ -90,9 +127,45 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-sm-4 control-label" tilte="EXP Form No">Shipping Bill No</label>
+                            <div class="col-sm-8">
+                                <input type="text" ng-maxlength="25" name="Shipping Bill No" ng-model="ModelNew.ShippingBillNo" class="form-control" tabindex="7">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" tilte="EXP Form No">Port Code</label>
+                            <div class="col-sm-8">
+                                <input type="text" ng-maxlength="25" name="Port Code" ng-model="ModelNew.PortCode" class="form-control" tabindex="7">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Document Submission Date</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Document Submission Date" ng-model="ModelNew.DocumentSubmissionDate" datepicker class="form-control" tabindex="2">
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Bank Doc Ref</label>
                             <div class="col-sm-8">
                                 <input type="text" name="BankDocRef" ng-model="ModelNew.BankDocRef" class="form-control" tabindex="4">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Doc Acceptance Date</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Doc Acceptance Date" ng-model="ModelNew.DocAcceptanceDate" datepicker class="form-control" tabindex="2">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Final Shipment Status<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select name="Final Shipment Status" id="FST" class="form-control" ng-model="ModelNew.FinalShipmentStatus" tabindex="3">
+                                        <option value="">--Select--</option>
+                                        <option value="Closed">Closed</option>
+                                        <option value="InProgress">In Progress</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group">
@@ -154,10 +227,47 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Shipping Bill Date</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Shipping Bill Date" ng-model="ModelNew.ShippingBillDate" datepicker class="form-control" tabindex="5">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Shipment Date</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Shipment Date" ng-model="ModelNew.ShipmentDate" datepicker class="form-control" tabindex="5">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Negotiation Type<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select name="Negotiation Type" id="NT" class="form-control" ng-model="ModelNew.NegotiationType" tabindex="3">
+                                        <option value="">--Select--</option>
+                                        <option value="Collection">Collection</option>
+                                        <option value="Negotiation">Negotiation</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Bank Doc Date</label>
                             <div class="col-sm-8">
                                 <input type="text" name="BankDocDate" ng-model="ModelNew.BankDocDate" datepicker class="form-control" tabindex="5">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Payment Received Date</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Payment Received Date" ng-model="ModelNew.PaymentReceivedDate" datepicker class="form-control" tabindex="5">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remark</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Remark" ng-model="ModelNew.Remark" class="form-control" tabindex="5">
                             </div>
                         </div>
                         <div class="form-group">
@@ -424,7 +534,7 @@
     </div>
 <div class="aplos-grid-toggle">
     <div class="row text-right">
-        <div class="form-element-ctrl" ng-form name="0Form">
+        <div class="form-element-ctrl" ng-form name="FormDate">
             <div class="col-xs-12 col-sm-4 col-md-4">
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">From Date<sup>*</sup></label>

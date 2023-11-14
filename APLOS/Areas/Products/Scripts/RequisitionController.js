@@ -1016,17 +1016,17 @@ function RequisitionController(accountService, addressService, $window, cboServi
 		//debugger
 		try {
 			//$scope.validation();
-			if (baseService.isUndefinedOrNull($scope.detailModel.MaterialMasterId)) {
-				//ShowResult('Select Material');
-				ShowResult('Please Select Material', 'failure', 'detailPopUp');
-				return false;
+			//if (baseService.isUndefinedOrNull($scope.detailModel.MaterialMasterId)) {
+			//	//ShowResult('Select Material');
+			//	ShowResult('Please Select Material', 'failure', 'detailPopUp');
+			//	return false;
 				
-			}
+			//}
 
 
 
 
-			else if (baseService.isUndefinedOrNull($scope.detailModel.ActivityName)) {
+			 if (baseService.isUndefinedOrNull($scope.detailModel.ActivityName)) {
 				ShowResult('Please Select Budget Activity', 'failure', 'detailPopUp');
 				return false;
 			}
@@ -1057,12 +1057,12 @@ function RequisitionController(accountService, addressService, $window, cboServi
 
 			else {
 				$scope.detailModel.InventoryReceiveId = $scope.productNew.Id;
-				$scope.detailModel.FirstCharacteristicsId = $scope.char1.CharacteristicsId;
-				$scope.detailModel.FirstCharacteristicsValueId = $scope.char1.CharacteristicsValueId;
-				$scope.detailModel.SecondCharacteristicsId = $scope.char2.CharacteristicsId;
-				$scope.detailModel.SecondCharacteristicsValueId = $scope.char2.CharacteristicsValueId;
-				$scope.detailModel.ThirdCharacteristicsId = $scope.char3.CharacteristicsId;
-				$scope.detailModel.ThirdCharacteristicsValueId = $scope.char3.CharacteristicsValueId;
+				//$scope.detailModel.FirstCharacteristicsId = $scope.char1.CharacteristicsId;
+				//$scope.detailModel.FirstCharacteristicsValueId = $scope.char1.CharacteristicsValueId;
+				//$scope.detailModel.SecondCharacteristicsId = $scope.char2.CharacteristicsId;
+				//$scope.detailModel.SecondCharacteristicsValueId = $scope.char2.CharacteristicsValueId;
+				//$scope.detailModel.ThirdCharacteristicsId = $scope.char3.CharacteristicsId;
+				//$scope.detailModel.ThirdCharacteristicsValueId = $scope.char3.CharacteristicsValueId;
 				$scope.detailModel.CountryId = $scope.detailModel.CountryId;
 				// $scope.detailModel.CountryId = $("#Country option:selected").value();
 				// $("#AvgUom option:selected").text();
@@ -3712,26 +3712,27 @@ function RequisitionController(accountService, addressService, $window, cboServi
 	};
 
 	$scope.ArticleId = null;
-	// selectarticle setInputeMaterialArticleData
-	//$scope.setInputeMaterialArticleData = function (ob) {
-	//	try {
-	//		$scope.detailModel.MaterialMasterId = ob.data.MaterialMasterId;
-	//		$scope.detailModel.MaterialMasterName = ob.data.MaterialMasterName;
-	//		$scope.detailModel.ArticleId = ob.data.Id;
-	//		$scope.detailModel.ArticleName = ob.data.StandardName;
-	//		angular.element(document.querySelector('#materialarticleNewPopUp')).modal('hide');
+	 //selectarticle setInputeMaterialArticleData
+	$scope.setInputeMaterialArticleData = function (ob) {
+		try {
+			$scope.detailModel.MaterialMasterId = ob.data.MaterialMasterId;
+			$scope.detailModel.MaterialMasterName = ob.data.MaterialMasterName;
+			$scope.detailModel.ArticleId = ob.data.Id;
+			$scope.detailModel.ArticleName = ob.data.StandardName;
+			angular.element(document.querySelector('#materialarticleNewPopUp')).modal('hide');
 
-	//		$scope.mmChangeFlag = true;
-	//		GetArticleAlias();
-	//	} catch (e) {
-	//		ShowResult(e, '', 'articleSearchPop');
-	//	}
-	//};
+			$scope.mmChangeFlag = true;
+			GetArticleAlias();
+		} catch (e) {
+			ShowResult(e, '', 'articleSearchPop');
+		}
+	};
 
 	function GetArticleAlias() {
 		$http.get("Materials/materialmasterarticle/getArticleAliaslist?articleId=" + $scope.detailModel.ArticleId)
 			.then(function (response) {
-				$scope.itemList[$scope.itemIndex].CustomerArticle = response.data[0].ArticlePartyName;
+				$scope.CustomerArticle = response.data;
+				//$scope.CustomerArticle = response.data[0].ArticlePartyName;
 			});
 	}
 

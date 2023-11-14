@@ -11,17 +11,17 @@
             <label class="col-sm-4 col-xs-4 control-label" title="Transaction Type" tooltip>Transaction Type<sup>*</sup></label>
             <div class="radio col-sm-8 col-xs-8">
                 <label>
-                    <input type="radio" name="Transaction Type" ng-click="changeTransactionType('@Library.Model.Enums.TransactionType.LoanTaken.ToString()')" ng-model="voucher.TransactionType" value="@Library.Model.Enums.TransactionType.LoanTaken.ToString()">
-                    <span class="cr" tabindex="15"><i class="cr-icon"></i></span>Taken
+                    <input type="radio" name="Transaction Type" ng-click="changeTransactionType('@Library.Model.Enums.TransactionType.InvestmentGiven.ToString()')" ng-model="voucher.TransactionType" value="@Library.Model.Enums.TransactionType.InvestmentGiven.ToString()">
+                    <span class="cr" tabindex="15"><i class="cr-icon"></i></span>Given
                 </label>
                 <label>
-                    <input type="radio" name="Transaction Type" ng-click="changeTransactionType('@Library.Model.Enums.TransactionType.LoanGiven.ToString()')" ng-model="voucher.TransactionType" value="@Library.Model.Enums.TransactionType.LoanGiven.ToString()">
-                    <span class="cr" tabindex="14"><i class="cr-icon"></i></span>Given
+                    <input type="radio" name="Transaction Type" ng-click="changeTransactionType('@Library.Model.Enums.TransactionType.InvestmentTaken.ToString()')" ng-model="voucher.TransactionType" value="@Library.Model.Enums.TransactionType.InvestmentTaken.ToString()">
+                    <span class="cr" tabindex="14"><i class="cr-icon"></i></span>Taken
                 </label>
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-4 col-xs-4 control-label" title="Transaction Type" tooltip>Loan<sup>*</sup></label>
+            <label class="col-sm-4 col-xs-4 control-label" title="Transaction Type" tooltip>Investment<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="input-group">
                     <input type="text" name="Code" ng-model="voucher.LoanDocRefNo" class="form-control" readonly>
@@ -145,7 +145,7 @@
             <div class="form-group">
                 <label class="col-sm-3 control-label">SetOff Amount<sup>*</sup></label>
                 <div class="col-sm-3 show-message" style="padding-right:0px;">
-                    <input name="Amount" tabindex="19" ng-model="voucher.LoanSetOff" n-decimals="2" class="form-control text-right" readonly>
+                    <input name="Amount" tabindex="19" ng-model="voucher.InvestmentSetOff" n-decimals="2" class="form-control text-right" readonly>
                 </div>
                 <label class="col-sm-2 control-label">Doc Date<sup>*</sup></label>
                 <div class="col-sm-4">
@@ -168,34 +168,34 @@
     </div>
     <div class="col-md-5 col-sm-5 col-xs-5">
         <div class="form-group">
-            <label class="col-sm-3 col-xs-3 control-label" title="Source Type" tooltip>Payable Type<sup>*</sup></label>
+            <label class="col-sm-3 col-xs-3 control-label" title="Source Type" tooltip>Receivable Type<sup>*</sup></label>
             <div class="radio col-sm-9 col-xs-9">
                 <label>
-                    <input type="radio" name="Source Type" ng-click="changeSourceType('@Library.Service.Enums.LoanTransactionType.LoanInterestPayable.ToString()')" ng-model="voucher.SourceType" value="@Library.Service.Enums.LoanTransactionType.LoanInterestPayable.ToString()">
+                    <input type="radio" name="Source Type" ng-click="changeSourceType('@Library.Service.Enums.InvestmentTransactionType.InvestmentInterestReceivable.ToString()')" ng-model="voucher.SourceType" value="@Library.Service.Enums.InvestmentTransactionType.InvestmentInterestReceivable.ToString()">
                     <span class="cr" tabindex="14"><i class="cr-icon"></i></span>Interest Payable
                 </label>
 
                 <label>
-                    <input type="radio" name="Source Type" ng-click="changeSourceType('@Library.Service.Enums.LoanTransactionType.AdditionalLoanPayable.ToString()')" ng-model="voucher.SourceType" value="@Library.Service.Enums.LoanTransactionType.AdditionalLoanPayable.ToString()">
+                    <input type="radio" name="Source Type" ng-click="changeSourceType('@Library.Service.Enums.InvestmentTransactionType.AdditionalInvestmentReceivable.ToString()')" ng-model="voucher.SourceType" value="@Library.Service.Enums.InvestmentTransactionType.AdditionalInvestmentReceivable.ToString()">
                     <span class="cr" tabindex="15"><i class="cr-icon"></i></span>Additional Loan
                 </label>
-                <label>
-                    <input type="radio" name="Source Type" ng-click="changeSourceType('@Library.Service.Enums.LoanTransactionType.OtherExpensesPayable.ToString()')" ng-model="voucher.SourceType" value="@Library.Service.Enums.LoanTransactionType.OtherExpensesPayable.ToString()">
+                @*<label>
+                    <input type="radio" name="Source Type" ng-click="changeSourceType('@Library.Service.Enums.InvestmentTransactionType.OtherExpensesPayable.ToString()')" ng-model="voucher.SourceType" value="@Library.Service.Enums.InvestmentTransactionType.OtherExpensesPayable.ToString()">
                     <span class="cr" tabindex="15"><i class="cr-icon"></i></span>Other Expenses As Payable
                 </label>
                 <label>
-                    <input type="radio" name="Source Type" ng-click="changeSourceType('@Library.Service.Enums.LoanTransactionType.LoanTax.ToString()')" ng-model="voucher.SourceType" value="@Library.Service.Enums.LoanTransactionType.LoanTax.ToString()">
+                    <input type="radio" name="Source Type" ng-click="changeSourceType('@Library.Service.Enums.InvestmentTransactionType.LoanTax.ToString()')" ng-model="voucher.SourceType" value="@Library.Service.Enums.InvestmentTransactionType.LoanTax.ToString()">
                     <span class="cr" tabindex="15"><i class="cr-icon"></i></span>Tax
-                </label>
+                </label>*@
             </div>
         </div>
     </div>
     <div class="col-md-5 col-sm-5 col-xs-5">
-        <fieldset class="scheduler-border" ng-show="voucher.SourceType=='@Library.Service.Enums.LoanTransactionType.LoanInterestPayable.ToString()'">
-            <legend class="scheduler-border">Interest As Payable</legend>
+        <fieldset class="scheduler-border" ng-show="voucher.SourceType=='@Library.Service.Enums.InvestmentTransactionType.InvestmentInterestReceivable.ToString()'">
+            <legend class="scheduler-border">Interest As Receivable</legend>
             <div class="form-group" id="div_qty" show-errors>
-                <label class="col-sm-3 control-label" ng-show="voucher.TransactionType=='@Library.Model.Enums.TransactionType.LoanTaken.ToString()'">Payable Amount<sup>*</sup></label>
-                <label class="col-sm-3 control-label" ng-show="voucher.TransactionType=='@Library.Model.Enums.TransactionType.LoanGiven.ToString()'">Receiable Amount<sup>*</sup></label>
+                <label class="col-sm-3 control-label" ng-show="voucher.TransactionType=='@Library.Model.Enums.TransactionType.InvestmentTaken.ToString()'">Payable Amount<sup>*</sup></label>
+                <label class="col-sm-3 control-label" ng-show="voucher.TransactionType=='@Library.Model.Enums.TransactionType.InvestmentGiven.ToString()'">Receiable Amount<sup>*</sup></label>
                 <div class="col-sm-4 show-message" style="padding-right:0px;">
                     <input name="Amount" tabindex="19" ng-model="voucher.Amount" ng-keyup="exchangeGainLossAmount(voucher.Amount)" n-decimals="2" class="form-control text-right" autocomplete="off">
                 </div>
@@ -217,11 +217,11 @@
         </fieldset>
     </div>
     <div class="col-md-5 col-sm-5 col-xs-5">
-        <fieldset class="scheduler-border" ng-show="voucher.SourceType=='@Library.Service.Enums.LoanTransactionType.AdditionalLoanPayable.ToString()'">
+        <fieldset class="scheduler-border" ng-show="voucher.SourceType=='@Library.Service.Enums.InvestmentTransactionType.AdditionalInvestmentReceivable.ToString()'">
             <legend class="scheduler-border">Additional Loan</legend>
             <div class="form-group" id="div_qty" show-errors>
-                <label class="col-sm-3 control-label" ng-show="voucher.TransactionType=='@Library.Model.Enums.TransactionType.LoanTaken.ToString()'">Payable Amount<sup>*</sup></label>
-                <label class="col-sm-3 control-label" ng-show="voucher.TransactionType=='@Library.Model.Enums.TransactionType.LoanGiven.ToString()'">Receiable Amount<sup>*</sup></label>
+                <label class="col-sm-3 control-label" ng-show="voucher.TransactionType=='@Library.Model.Enums.TransactionType.InvestmentTaken.ToString()'">Payable Amount<sup>*</sup></label>
+                <label class="col-sm-3 control-label" ng-show="voucher.TransactionType=='@Library.Model.Enums.TransactionType.InvestmentGiven.ToString()'">Receiable Amount<sup>*</sup></label>
                 <div class="col-sm-4 show-message" style="padding-right:0px;">
                     <input name="Amount" tabindex="19" ng-model="voucher.Amount" ng-keyup="exchangeGainLossAmount(voucher.Amount);calTotalLoanAmount()" n-decimals="2" class="form-control text-right" autocomplete="off">
                 </div>
@@ -254,8 +254,8 @@
             </div>
         </fieldset>
     </div>
-    <div class="col-md-5 col-sm-5 col-xs-5">
-        <fieldset class="scheduler-border" ng-show="voucher.SourceType=='@Library.Service.Enums.LoanTransactionType.AdditionalLoanPayable.ToString()'">
+    @*<div class="col-md-5 col-sm-5 col-xs-5">
+        <fieldset class="scheduler-border" ng-show="voucher.SourceType=='@Library.Service.Enums.InvestmentTransactionType.AdditionalLoanPayable.ToString()'">
             <legend class="scheduler-border" ng-show="voucher.TransactionType=='LoanGiven'">From</legend>
             <legend class="scheduler-border" ng-show="voucher.TransactionType=='LoanTaken'">To</legend>
             <div class="col-xs-3 col-sm-3 col-md-3">
@@ -295,7 +295,7 @@
         </fieldset>
     </div>
     <div class="col-md-5 col-sm-5 col-xs-5">
-        <fieldset class="scheduler-border" ng-show="voucher.SourceType=='@Library.Service.Enums.LoanTransactionType.OtherExpensesPayable.ToString()'">
+        <fieldset class="scheduler-border" ng-show="voucher.SourceType=='@Library.Service.Enums.InvestmentTransactionType.OtherExpensesPayable.ToString()'">
             <legend class="scheduler-border">Other Expenses As Payable</legend>
             <div class="form-group" id="div_qty" show-errors>
                 <label class="col-sm-3 control-label" ng-show="voucher.TransactionType=='@Library.Model.Enums.TransactionType.LoanTaken.ToString()'">Expenses (If Any)</label>
@@ -330,7 +330,7 @@
         </fieldset>
     </div>
     <div class="col-md-5 col-sm-5 col-xs-5">
-        <fieldset class="scheduler-border" ng-show="voucher.SourceType=='@Library.Service.Enums.LoanTransactionType.LoanTax.ToString()'">
+        <fieldset class="scheduler-border" ng-show="voucher.SourceType=='@Library.Service.Enums.InvestmentTransactionType.LoanTax.ToString()'">
             <legend class="scheduler-border">Tax</legend>
             <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal">
                 <div class="common-btn">
@@ -379,7 +379,7 @@
             </div>
 
         </fieldset>
-    </div>
+    </div>*@
 
 
     <div class="common-btn">
@@ -444,8 +444,8 @@
                             <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
 
                             @*<li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>*@
-                            <li><a class="btn btn-action" href="Accounts/Loan/LoanIntersetPayableReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}&sourceType={{x.SourceType}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
-                            <li><a class="btn btn-action" href="Accounts/Loan/LoanIntersetPayableReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}&sourceType={{x.SourceType}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
+                            <li><a class="btn btn-action" href="Accounts/Investment/InvestmentInterestReceivableReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}&sourceType={{x.SourceType}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                            <li><a class="btn btn-action" href="Accounts/Investment/InvestmentInterestReceivableReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}&sourceType={{x.SourceType}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
                         </ul>
                     </td>
                 </tr>
@@ -454,7 +454,7 @@
         <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
     </div>
     @Html.Partial("~/Areas/Parties/Views/Party/_PartyPopUp.cshtml")
-    @Html.Partial("~/Areas/Accounts/Views/Loan/_LoanListPopUp.cshtml")
+    @Html.Partial("~/Areas/Accounts/Views/Loan/_InvestmentListPopUp.cshtml")
     @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
 
     <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(loanIntPayableId,voucherId)"></confirm-archive-generic>

@@ -17,4 +17,14 @@
         OtherExpensesPayment,
         LoanTax
     }
+
+    public enum InvestmentTransactionType
+    {
+        Investment,
+        InvestmentSetOff,
+        InvestmentInterestReceivable,
+        InterestReceivable,
+        AdditionalInvestmentReceivable,
+        InvestmentTax
+    }
 }

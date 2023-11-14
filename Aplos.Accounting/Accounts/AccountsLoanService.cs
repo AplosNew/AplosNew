@@ -1558,5 +1558,18 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public GridModel GetInvestmentInterestReceivableList(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
+        {
+            parameters.CmdText = @"SELECT  LP.VoucherId, V.VoucherNo, LP.Id, P.Code AS PartyCode, P.UserName AS PartyName, LP.PostingDate, LP.DocDate, LP.DocRefNo, C.Code AS CurrencyCode, LP.Amount
+                                    , LP.PartyPlantId, PP.UserName AS PartyPlantName, LP.IsPark,LP.FinancingId FinancingNo,F.DocRefNo InvestmentNo,V.SourceType
+                                    FROM [TRN].[FinancingSubsequentTransaction] AS LP
+                                    LEFT JOIN TRN.Financing F ON F.Id=LP.FinancingId
+                                    LEFT JOIN [TRN].[Voucher] AS V ON V.Id=LP.VoucherId
+                                    LEFT JOIN [HKP].[Party] AS P ON P.Id=LP.PartyId
+                                    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=LP.PartyPlantId
+                                    LEFT JOIN [SCS].[Currency] AS C ON C.Id=LP.CurrencyId
+                                WHERE V.Archive=0 AND LP.CompanyGroupId='" + companyGroupId + "'AND LP.CompanyId='" + companyId + "' AND LP.PlantId='" + plantId + "' AND LP.SourceType='"+ sourceType + "'";
+            return _sqlRepository.GetGridData(parameters);
+        }
     }
 }
