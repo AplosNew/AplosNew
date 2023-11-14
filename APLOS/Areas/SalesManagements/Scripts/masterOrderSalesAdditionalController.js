@@ -694,27 +694,27 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
             }
             //ValidationMaster();
             $scope.ModelNew.SalesId = $scope.salesVM.Id;
-            //$scope.$broadcast('show-errors-check-validity');
-            //if ($scope.ModelNewForm.$valid) {
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'entity': $scope.ModelNew },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.ModelNewForm.$valid) {
+                $http({
+                    method: 'POST',
+                    url: $scope.saveUrl,
+                    data: { 'entity': $scope.ModelNew },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.ModelNew.Id = response.data.Id;
+                        // $scope.getData();
+                    }
+                }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.ModelNew.Id = response.data.Id;
-                    // $scope.getData();
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
 
-            //}
+            }
         } catch (e) {
             ShowResult(e, 'failure');
         }
@@ -760,7 +760,7 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
     };
 
     $scope.GetVendorPopUpData = function () {
-        if ($scope.flag === 'Transport' || $scope.flag === 'CNF') {
+        if ($scope.flag === 'Transport' || $scope.flag === 'CNF' || $scope.flag === 'Forwarder') {
             $scope.partyType = 'Vendor';
         }
 
@@ -796,6 +796,10 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
             $scope.ModelNew.TransportAgentId = party.Id;
             $scope.ModelNew.TransportAgentCode = party.Code;
             $scope.ModelNew.TransportAgentName = party.UserName;
+        } else {
+            var party = obj.data;
+            $scope.ModelNew.TransporterCHAForwarderVendorId = party.Id;
+            $scope.ModelNew.TransporterCHAForwarder = party.UserName;
         }
         $scope.searchByParty = "UserName"; $scope.searchParty = "";
         angular.element(document.querySelector('#vendorPopUp')).modal('hide');

@@ -3083,7 +3083,10 @@ namespace Library.Accounting.Accounts
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UserCategory"); int colUserCategory = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UserSubCategory"); int colUserSubCategory = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UserItem"); int colUserItem = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UserReport"); int colUserReport = xlsCol;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UserReport"); int colUserReport = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Is Allowed"); int colIsAllowed = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Allowed Days"); int colAllowedDays = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Month Day"); int colMonthDay = xlsCol;
 
                 endXlsCol = xlsCol;
 
@@ -3121,6 +3124,9 @@ namespace Library.Accounting.Accounts
                     sheet1[xlsRow, colUserSubCategory].Text = dtBudgetMaster.Rows[i]["UserSubCategory"].ToString();
                     sheet1[xlsRow, colUserItem].Text = dtBudgetMaster.Rows[i]["UserItem"].ToString();
                     sheet1[xlsRow, colUserReport].Text = dtBudgetMaster.Rows[i]["UserReport"].ToString();
+                    sheet1[xlsRow, colIsAllowed].Text = dtBudgetMaster.Rows[i]["IsAllowed"].ToString();
+                    sheet1[xlsRow, colAllowedDays].Text = dtBudgetMaster.Rows[i]["AllowedDays"].ToString();
+                    sheet1[xlsRow, colMonthDay].Text = dtBudgetMaster.Rows[i]["MonthDay"].ToString();
                     xlsRow++;
                 }
 
@@ -3166,6 +3172,7 @@ namespace Library.Accounting.Accounts
 							, BC.UserName AS BudgetCategory,BSC.UserName AS BudgetSubCategory, B.UserName AS Budget, BM.RefNo
 							,A.UserName AS Activity, R.UserName AS Register,BMA.BalanceSheetSchedulingId,ISNULL(BMA.TaxApplicable,'No')TaxApplicable
 							,BMA.TaxType,BMA.UserCategory,BMA.UserSubCategory,BMA.UserItem,ISNULL(BMA.UserReport,'No')UserReport
+                            ,ISNULL(BMA.IsAllowed,'No')IsAllowed,ISNULL(BMA.AllowedDays,0) AllowedDays,ISNULL(BMA.MonthDay,0) MonthDay
                             FROM  [MST].[BudgetMasterActivity] AS BMA
 							LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=BMA.BudgetMasterId
 							LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
