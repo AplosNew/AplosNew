@@ -8510,7 +8510,7 @@ where BM.BankCategoryId = '" + categoryId + "' and BM.BankSubCategoryId = '" + s
             }
         }
 
-        public void GetBankAccount(out List<Default2> DataList, string bankId, string categoryId, string subcategoryId)
+        public void GetBankAccount(out List<Default2> DataList, string bankId, string categoryId, string subcategoryId) 
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
