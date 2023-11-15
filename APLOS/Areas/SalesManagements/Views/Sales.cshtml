@@ -408,19 +408,54 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label">Bank<sup>*</sup></label>
+                                <label class="col-sm-4 control-label" tilte="EXP Form No">Export Ref No</label>
                                 <div class="col-sm-8">
+                                    <input type="text" ng-maxlength="25" name="Export Ref No" ng-model="ModelNew.ExportRefNo" class="form-control" tabindex="7">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Transporter/CHA/Forwarder<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="input-group">
+                                        <input type="text" name="Transporter/CHA/Forwarder" ng-model="ModelNew.TransporterCHAForwarder" class="form-control" readonly required>
+                                        <span class="input-group-btn">
+                                            <button ng-click="showVendorPopUp('Forwarder');" class="btn single-small-btn" tabindex="19"><i class="glyphicon glyphicon-search"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Document Receive Date</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Document Receive Date" ng-model="ModelNew.DocumentReceiveDate" datepicker class="form-control" tabindex="2">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Negotiating Bank<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select name="Bank" id="OB" class="form-control" ng-model="ModelNew.BankMasterId" ng-options="item.Id as item.AccountTitle for item in bankMasterList" tabindex="3">
+                                        <select name="Negotiating Bank" id="OB" class="form-control" ng-model="ModelNew.BankMasterId" ng-options="item.Id as item.AccountTitle for item in bankMasterList" tabindex="3" required>
                                             <option value="">--Select--</option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
                             <div class="form-group">
+                                <label class="col-sm-4 control-label" tilte="EXP Form No">AWB/B2B</label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-maxlength="25" name="AWB/B2B" ng-model="ModelNew.AWBB2B" class="form-control" tabindex="7">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" tilte="Actual Payment Received">Actual Payment Received</label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-maxlength="25" n-decimal="2" name="Actual Payment Received" ng-model="ModelNew.ActualPaymentReceived" class="form-control" tabindex="7">
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label class="col-sm-4 control-label" tilte="EXP Form No">EXP Form No</label>
                                 <div class="col-sm-8">
-                                    <input type="text" maxlength="25" name="EXP Form No" ng-model="ModelNew.ExpFormNo" class="form-control" tabindex="7">
+                                    <input type="text" ng-maxlength="25" name="EXP Form No" ng-model="ModelNew.ExpFormNo" class="form-control" tabindex="7">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -429,21 +464,21 @@
                                     <input type="text" name="Cargo Net Wt" ng-model="ModelNew.CargoNetWt" class="form-control" autocomplete="off" tabindex="10" maxlength="50">
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Shipment Mode<sup>*</sup></label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select name="Shipment Mode" class="form-control" ng-model="ModelNew.ShipmentModeId" ng-options="item.Value as item.Text for item in shipmentModeList" tabindex="13">
+                                        <select name="Shipment Mode" class="form-control" ng-model="ModelNew.ShipmentModeId" ng-options="item.Value as item.Text for item in shipmentModeList" tabindex="13" required>
                                             <option value="">--Select--</option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Final Destination<sup>*</sup></label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select name="Destination" class="form-control" ng-model="ModelNew.FinalDestinationId" ng-options="item.Value as item.Text for item in destinationList" ng-change="GetPortOfDischargeByDstination()" tabindex="15">
+                                        <select name="Final Destination" class="form-control" ng-model="ModelNew.FinalDestinationId" ng-options="item.Value as item.Text for item in destinationList" ng-change="GetPortOfDischargeByDstination()" required tabindex="15">
                                             <option value=""></option>
                                         </select>
                                     </div>
@@ -470,9 +505,45 @@
                                 </div>
                             </div>
                             <div class="form-group">
+                                <label class="col-sm-4 control-label" tilte="Shipping Bill No">Shipping Bill No</label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-maxlength="25" name="Shipping Bill No" ng-model="ModelNew.ShippingBillNo" class="form-control" tabindex="7">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" tilte="Port Code">Port Code</label>
+                                <div class="col-sm-8">
+                                    <input type="text" ng-maxlength="25" name="Port Code" ng-model="ModelNew.PortCode" class="form-control" tabindex="7">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Document Submission Date</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Document Submission Date" ng-model="ModelNew.DocumentSubmissionDate" datepicker class="form-control" tabindex="2">
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label class="col-sm-4 control-label">Bank Doc Ref</label>
                                 <div class="col-sm-8">
                                     <input type="text" name="BankDocRef" ng-model="ModelNew.BankDocRef" class="form-control" tabindex="4">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Doc Acceptance Date</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Doc Acceptance Date" ng-model="ModelNew.DocAcceptanceDate" datepicker class="form-control" tabindex="2">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Final Shipment Status<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select name="Final Shipment Status" id="FST" class="form-control" ng-model="ModelNew.FinalShipmentStatus" tabindex="3">
+                                            <option value="">--Select--</option>
+                                            <option value="Closed">Closed</option>
+                                            <option value="InProgress">In Progress</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -487,18 +558,18 @@
                                     <input type="text" name="CargoGrossWt" ng-model="ModelNew.CargoGrossWt" class="form-control" autocomplete="off" tabindex="11" maxlength="50">
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Port <span style="text-transform:lowercase">Of</span> Loading<sup>*</sup></label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select name="Port Of Loading" class="form-control" ng-model="ModelNew.PortOfLoadingId" ng-options="item.Value as item.Text for item in portList" tabindex="14">
+                                        <select name="Port Of Loading" class="form-control" ng-model="ModelNew.PortOfLoadingId" ng-options="item.Value as item.Text for item in portList" tabindex="14" required>
                                             <option value=""></option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label">Port Of Discharge<sup>*</sup></label>
+                                <label class="col-sm-4 control-label">Port Of Discharge@*<sup>*</sup>*@</label>
                                 <div class="col-sm-8">
                                     <div class="select-style">
                                         <select name="PortOfDischargeId" class="form-control" ng-model="ModelNew.PortOfDischargeId" ng-options="item.Value as item.Text for item in dischargePortList" tabindex="16">
@@ -517,7 +588,7 @@
                                 <div class="col-sm-3">
                                     <div class="select-style">
                                         <select id="currency" class="form-control" tabindex="5" name="Currency" ng-disabled="true" ng-model="salesVM.CurrencyId" required>
-                                            <option value="">--Select--</option>
+                                            @*<option value="">--Select--</option>*@
                                             <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
                                         </select>
                                     </div>
@@ -525,7 +596,7 @@
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Customer<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
+                                <div class="col-sm-8">
                                     <div class="input-group">
                                         <input type="text" name="Customer" ng-model="salesVM.PartyName" class="form-control" readonly>
                                         <span class="input-group-btn">
@@ -534,10 +605,47 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="form-group">
-                                <label class="col-sm-4 control-label">Bank Doc Date</label>
+                                <label class="col-sm-4 control-label">Shipping Bill Date</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Shipping Bill Date" ng-model="ModelNew.ShippingBillDate" datepicker class="form-control" tabindex="5">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Shipment Date<sup>*</sup></label>
+                                <div class="col-sm-8  show-message">
+                                    <input type="text" name="Shipment Date" ng-model="ModelNew.ShipmentDate" datepicker class="form-control" tabindex="5" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Negotiation Type</label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select name="Negotiation Type" id="NT" class="form-control" ng-model="ModelNew.NegotiationType" tabindex="3">
+                                            <option value="">--Select--</option>
+                                            <option value="Collection">Collection</option>
+                                            <option value="Negotiation">Negotiation</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Negotiating Date</label>
                                 <div class="col-sm-8">
                                     <input type="text" name="BankDocDate" ng-model="ModelNew.BankDocDate" datepicker class="form-control" tabindex="5">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Payment Received Date</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Payment Received Date" ng-model="ModelNew.PaymentReceivedDate" datepicker class="form-control" tabindex="5">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remark</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Remark" ng-model="ModelNew.Remark" class="form-control" tabindex="5">
                                 </div>
                             </div>
                             <div class="form-group">

@@ -5,7 +5,8 @@
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Post Sales Invoice</a></li>
             <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Invoice Additional Info</a></li>
-            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Negotiating Bank</a></li>
+            @*<li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Negotiating Bank</a></li>*@
+            <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">Invoice Status</a></li>
         </ul>
     </div>
     <div class="tab-content">
@@ -33,16 +34,14 @@
                                 <input type="text" ng-maxlength="25" name="Export Ref No" ng-model="ModelNew.ExportRefNo" class="form-control" tabindex="7">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Vendor Selection<sup>*</sup></label>
-                            <div class="col-sm-8">
-                                <div class="select-style">
-                                    <select name="Vendor Selection" id="VS" class="form-control" ng-model="ModelNew.VendorSelection" tabindex="3">
-                                        <option value="">--Select--</option>
-                                        <option value="Transporter">Transporter</option>
-                                        <option value="CHA">CHA</option>
-                                        <option value="Forwarder">Forwarder</option>
-                                    </select>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Transporter/CHA/Forwarder<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+                                    <input type="text" name="Transporter/CHA/Forwarder" ng-model="ModelNew.TransporterCHAForwarder" class="form-control" readonly required>
+                                    <span class="input-group-btn">
+                                        <button ng-click="showVendorPopUp('Forwarder');" class="btn single-small-btn" tabindex="19"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -52,11 +51,11 @@
                                 <input type="text" name="Document Receive Date" ng-model="ModelNew.DocumentReceiveDate" datepicker class="form-control" tabindex="2">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Bank<sup>*</sup></label>
-                            <div class="col-sm-8">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Negotiating Bank<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select name="Bank" id="OB" class="form-control" ng-model="ModelNew.BankMasterId" ng-options="item.Id as item.AccountTitle for item in bankMasterList" tabindex="3">
+                                    <select name="Negotiating Bank" id="OB" class="form-control" ng-model="ModelNew.BankMasterId" ng-options="item.Id as item.AccountTitle for item in bankMasterList" tabindex="3" required>
                                         <option value="">--Select--</option>
                                     </select>
                                 </div>
@@ -69,9 +68,9 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label" tilte="EXP Form No">Actual Payment Received</label>
+                            <label class="col-sm-4 control-label" tilte="Actual Payment Received">Actual Payment Received</label>
                             <div class="col-sm-8">
-                                <input type="text" ng-maxlength="25" name="Actual Payment Received" ng-model="ModelNew.ActualPaymentReceived" class="form-control" tabindex="7">
+                                <input type="text" ng-maxlength="25" n-decimal="2" name="Actual Payment Received" ng-model="ModelNew.ActualPaymentReceived" class="form-control" tabindex="7">
                             </div>
                         </div>
                         <div class="form-group">
@@ -86,21 +85,21 @@
                                 <input type="text" name="Cargo Net Wt" ng-model="ModelNew.CargoNetWt" class="form-control" autocomplete="off" tabindex="10" maxlength="50">
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Shipment Mode<sup>*</sup></label>
-                            <div class="col-sm-8">
+                            <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select name="Shipment Mode" class="form-control" ng-model="ModelNew.ShipmentModeId" ng-options="item.Value as item.Text for item in shipmentModeList" tabindex="13">
+                                    <select name="Shipment Mode" class="form-control" ng-model="ModelNew.ShipmentModeId" ng-options="item.Value as item.Text for item in shipmentModeList" tabindex="13" required>
                                         <option value="">--Select--</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Final Destination<sup>*</sup></label>
-                            <div class="col-sm-8">
+                            <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select name="Destination" class="form-control" ng-model="ModelNew.FinalDestinationId" ng-options="item.Value as item.Text for item in destinationList" ng-change="GetPortOfDischargeByDstination()" tabindex="15">
+                                    <select name="Final Destination" class="form-control" ng-model="ModelNew.FinalDestinationId" ng-options="item.Value as item.Text for item in destinationList" ng-change="GetPortOfDischargeByDstination()" required tabindex="15">
                                         <option value=""></option>
                                     </select>
                                 </div>
@@ -127,13 +126,13 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label" tilte="EXP Form No">Shipping Bill No</label>
+                            <label class="col-sm-4 control-label" tilte="Shipping Bill No">Shipping Bill No</label>
                             <div class="col-sm-8">
                                 <input type="text" ng-maxlength="25" name="Shipping Bill No" ng-model="ModelNew.ShippingBillNo" class="form-control" tabindex="7">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label" tilte="EXP Form No">Port Code</label>
+                            <label class="col-sm-4 control-label" tilte="Port Code">Port Code</label>
                             <div class="col-sm-8">
                                 <input type="text" ng-maxlength="25" name="Port Code" ng-model="ModelNew.PortCode" class="form-control" tabindex="7">
                             </div>
@@ -180,11 +179,11 @@
                                 <input type="text" name="CargoGrossWt" ng-model="ModelNew.CargoGrossWt" class="form-control" autocomplete="off" tabindex="11" maxlength="50">
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Port <span style="text-transform:lowercase">Of</span> Loading<sup>*</sup></label>
-                            <div class="col-sm-8">
+                            <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select name="Port Of Loading" class="form-control" ng-model="ModelNew.PortOfLoadingId" ng-options="item.Value as item.Text for item in portList" tabindex="14">
+                                    <select name="Port Of Loading" class="form-control" ng-model="ModelNew.PortOfLoadingId" ng-options="item.Value as item.Text for item in portList" tabindex="14" required>
                                         <option value=""></option>
                                     </select>
                                 </div>
@@ -218,7 +217,7 @@
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Customer<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
+                            <div class="col-sm-8">
                                 <div class="input-group">
                                     <input type="text" name="Customer" ng-model="salesVM.PartyName" class="form-control" readonly>
                                     <span class="input-group-btn">
@@ -234,14 +233,14 @@
                                 <input type="text" name="Shipping Bill Date" ng-model="ModelNew.ShippingBillDate" datepicker class="form-control" tabindex="5">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Shipment Date</label>
-                            <div class="col-sm-8">
-                                <input type="text" name="Shipment Date" ng-model="ModelNew.ShipmentDate" datepicker class="form-control" tabindex="5">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Shipment Date<sup>*</sup></label>
+                            <div class="col-sm-8  show-message">
+                                <input type="text" name="Shipment Date" ng-model="ModelNew.ShipmentDate" datepicker class="form-control" tabindex="5" required>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Negotiation Type<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Negotiation Type</label>
                             <div class="col-sm-8">
                                 <div class="select-style">
                                     <select name="Negotiation Type" id="NT" class="form-control" ng-model="ModelNew.NegotiationType" tabindex="3">
@@ -253,7 +252,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Bank Doc Date</label>
+                            <label class="col-sm-4 control-label">Negotiating Date</label>
                             <div class="col-sm-8">
                                 <input type="text" name="BankDocDate" ng-model="ModelNew.BankDocDate" datepicker class="form-control" tabindex="5">
                             </div>
@@ -515,7 +514,7 @@
                         <input type="text" name="PlaceOfReceiptByPreCarriage" ng-model="ModelNew.PlaceOfReceiptByPreCarriage" class="form-control" tabindex="26">
                     </div>
                 </div>
-               <div class="form-group">
+                <div class="form-group">
                     <label class="col-sm-4 control-label">Limit<sup>*</sup></label>
                     <div class="col-sm-8">
                         <input type="number" name="TransportDocRefNo" ng-model="ModelNew.Limit" class="form-control" tabindex="27">
@@ -524,14 +523,81 @@
             </div>
             <div class="common-btn">
                 <ul class="list-inline text-right">
-                    <li> <button ng-click="SavePostSales();"  class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                    <li> <button ng-click="SavePostSales();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
                     @*<li> <button data-toggle="modal" ng-disabled="ModelNew.Id==null" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
                     <li> <button ng-click="ClearPostSales();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                 </ul>
             </div>
         </div>
+
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+            <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+                <input type="hidden" ng-model="ModelNew.Id">
+                <fieldset class="scheduler-border">
+                    <div class="col-xs-12 col-sm-4 col-md-4">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Invoice No<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Purchase LCNo" ng-model="ModelInvoiceStatus.InvoiceNo" disabled class="form-control" tabindex="1">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Invoice Status<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select name="Invoice Status" id="IS" class="form-control" ng-model="ModelInvoiceStatus.InvoiceStatus" tabindex="3">
+                                        <option value="">--Select--</option>
+                                        <option value="Active">Active</option>
+                                        <option value="Close">Close</option>
+                                        <option value="Pending">Pending</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Invoice Date</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="InvoiceDate" ng-model="ModelInvoiceStatus.InvoiceDate" class="form-control" disabled tabindex="2">
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Amount</label>
+                            <div class="col-sm-5" style="margin-right: -30px;">
+                                <input type="text" name="Amount" ng-model="ModelInvoiceStatus.Amount" disabled class="form-control" tabindex="2">
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="select-style">
+                                    <select id="currency" class="form-control" tabindex="5" name="Currency" ng-disabled="true" ng-model="salesVM.CurrencyId" required>
+                                        @*<option value="">--Select--</option>*@
+                                        <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </fieldset>
+
+
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveInvoiceStatus();" ng-disabled="salesVM.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Update </button></li>
+                    </ul>
+                </div>
+            </div>
         </div>
+
     </div>
+</div>
 <div class="aplos-grid-toggle">
     <div class="row text-right">
         <div class="form-element-ctrl" ng-form name="FormDate">
@@ -614,7 +680,7 @@
     <div class="bounce3"></div>
 </div>
 @*@Html.Partial("~/Areas/SalesManagements/Views/_postedSalesPopUp.cshtml")
-@Html.Partial("~/Areas/SalesManagements/Views/_BillToShipToPopUp.cshtml")*@
+    @Html.Partial("~/Areas/SalesManagements/Views/_BillToShipToPopUp.cshtml")*@
 <div class="modal fade site-modal in" id="detailpopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content" ng-form="detailFormNew">
@@ -699,6 +765,57 @@
                     </ul>
                 </div>
 
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="vendorPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header"> {{partyType}} List <button type="button" class="close" ng-click="closevendorPopUpNew();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByParty">
+                                            <option ng-repeat="option in searchByPartyList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchParty" ng-enter="GetVendorPopUpData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="GetVendorPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+
+                        <div style="color:black;" id="partyPopUpGrid" ej-grid e-datasource="partyList" e-recorddoubleclick="SetVendorData"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="50" e-filter="false"></div>
+                                <div e-column e-field="UserName" e-headertext="Party" e-width="130"></div>
+                                <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="130"></div>
+                                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                                <div e-column e-field="CountryName" e-headertext="Country" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="StateName" e-headertext="State" e-width="80" textAlign='Right'></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closevendorPopUpNew();" class="btn"> Close</button></li>
+                </ul>
+                <i>**Showing top 100 {{partyType}} order by Code</i>
             </div>
         </div>
     </div>

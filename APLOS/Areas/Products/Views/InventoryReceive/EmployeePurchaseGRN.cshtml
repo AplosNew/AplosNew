@@ -72,7 +72,7 @@
             <div class="form-group" id="div_docNo">
                 <label class="col-sm-6 control-label">RefNo<sup>*</sup></label>
                 <div class="col-sm-6 show-message pdr3">
-                    <input type="text" name="DocRefNo" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocRefNo" class="form-control" ng-keyup="modelValidation('div_docNo', 'productNew', 'DocRefNo');" maxlength="20" tabindex="2" autocomplete="off">
+                    <input type="text" name="DocRefNo" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocRefNo" class="form-control" ng-keyup="modelValidation('div_docNo', 'productNew', 'DocRefNo');CheckSpecialCharecter();" maxlength="20" tabindex="2" autocomplete="off">
                 </div>
             </div>
         </div>

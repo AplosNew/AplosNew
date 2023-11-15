@@ -55,6 +55,9 @@ namespace Library.Model.Accounts
         public string UserSubCategory { get; set; }
         public string UserItem { get; set; }
         public string UserReport { get; set; }
+        public string IsAllowed { get; set; }
+        public int AllowedDays { get; set; }
+        public int MonthDay { get; set; }
 
         #endregion Navigation Properties
     }

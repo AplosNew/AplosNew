@@ -42,6 +42,7 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
     $scope.ShowAdditionalPopup = function (obj) {
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.salesVM = Object.assign({}, obj.data);
+        $scope.ModelInvoiceStatus = Object.assign({}, obj.data);
         $scope.SalesAdditionalInfoDataList = [];
         $scope.SalesId = obj.data.Id;
         $scope.ModelNew.SalesId = obj.data.Id;
@@ -351,6 +352,8 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
                         $scope.ModelNew = Object.assign({}, response.data[0]);
+                        $scope.ModelInvoiceStatus.InvoiceStatus = response.data[0].InvoiceStatus;
+
                     }
                     $scope.ModelNew.SalesId = $scope.salesVM.Id;
                     $scope.ModelNew.InvoiceDate = $scope.salesVM.InvoiceDate;
@@ -454,7 +457,7 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
         PortOfDischargeId: null,
         PortOfDelivaryId: null,
         BankDocRef: null,
-        BankDocDate: null,
+        NegotiatingDate: null,
 
         ExportRefNo: null,
         VendorSelection: null,
@@ -666,8 +669,8 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
                 }
             }
 
-            if (baseService.isUndefinedOrNull($scope.ModelNew.BankDocDate)) {
-                if (new Date($scope.ModelNew.CNFBLAWBDate) < new Date($scope.ModelNew.BankDocDate)) {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.NegotiatingDate)) {
+                if (new Date($scope.ModelNew.CNFBLAWBDate) < new Date($scope.ModelNew.NegotiatingDate)) {
                     throw "Bank Doc Date should greater than BL Date";
                 }
             }
@@ -691,27 +694,27 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
             }
             //ValidationMaster();
             $scope.ModelNew.SalesId = $scope.salesVM.Id;
-            //$scope.$broadcast('show-errors-check-validity');
-            //if ($scope.ModelNewForm.$valid) {
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'entity': $scope.ModelNew },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.ModelNewForm.$valid) {
+                $http({
+                    method: 'POST',
+                    url: $scope.saveUrl,
+                    data: { 'entity': $scope.ModelNew },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.ModelNew.Id = response.data.Id;
+                        // $scope.getData();
+                    }
+                }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.ModelNew.Id = response.data.Id;
-                    // $scope.getData();
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
 
-            //}
+            }
         } catch (e) {
             ShowResult(e, 'failure');
         }
@@ -757,7 +760,7 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
     };
 
     $scope.GetVendorPopUpData = function () {
-        if ($scope.flag === 'Transport' || $scope.flag === 'CNF') {
+        if ($scope.flag === 'Transport' || $scope.flag === 'CNF' || $scope.flag === 'Forwarder') {
             $scope.partyType = 'Vendor';
         }
 
@@ -793,6 +796,10 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
             $scope.ModelNew.TransportAgentId = party.Id;
             $scope.ModelNew.TransportAgentCode = party.Code;
             $scope.ModelNew.TransportAgentName = party.UserName;
+        } else {
+            var party = obj.data;
+            $scope.ModelNew.TransporterCHAForwarderId = party.Id;
+            $scope.ModelNew.TransporterCHAForwarder = party.UserName;
         }
         $scope.searchByParty = "UserName"; $scope.searchParty = "";
         angular.element(document.querySelector('#vendorPopUp')).modal('hide');
@@ -832,5 +839,36 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
 
 
     //#endregion PostInvoice
+    $scope.ModelInvoiceTemp = {
+        Id: null,
+        InvoiceNo: null,
+        InvoiceDate: null,
+        Amount: null,
+        InvoiceStatus: null 
+    };
+    $scope.ModelInvoiceStatus = Object.assign({}, $scope.ModelTemp);
 
+    $scope.saveInvoiceStatusUrl = $scope.path + 'CreateInvoiceStatus';
+    $scope.SaveInvoiceStatus = function () {
+        try {  
+            $http({
+                method: 'POST',
+                url: $scope.saveInvoiceStatusUrl,
+                data: { 'data': $scope.ModelInvoiceStatus },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success'); 
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            } 
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+ 
 }

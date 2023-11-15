@@ -16,7 +16,7 @@ namespace Library.OrderManagement.Production
         public StocksAgeingReportService()
         {
             _sqlRepository = new SqlRepository();
-            ConManager = new ConnectionManager.clsConnectionManager();
+            ConManager = new ConnectionManager.clsConnectionManager(); 
         }
 
         public IEnumerable<object> getData()
