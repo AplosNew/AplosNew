@@ -1152,10 +1152,10 @@ namespace Library.Service.Finances
                 AuditService.AddedLog(loanInterestPayable);
                 if (voucherVM.SourceType == "AdditionalInvestmentReceivable")
                     loanInterestPayable.TransactionType = InvestmentTransactionType.AdditionalInvestmentReceivable.ToString();
-                if (voucherVM.SourceType == "AdditionalInvestmentReceivable")
-                    loanInterestPayable.TransactionType = InvestmentTransactionType.InvestmentInterestReceivable.ToString();
                 if (voucherVM.SourceType == "InvestmentInterestReceivable")
-                    loanInterestPayable.TransactionType = LoanTransactionType.OtherExpensesPayable.ToString();
+                    loanInterestPayable.TransactionType = InvestmentTransactionType.InvestmentInterestReceivable.ToString();
+                //if (voucherVM.SourceType == "InvestmentInterestReceivable")
+                //    loanInterestPayable.TransactionType = LoanTransactionType.OtherExpensesPayable.ToString();
                 //if (voucherVM.SourceType == "LoanTax")
                 //    loanInterestPayable.TransactionType = LoanTransactionType.LoanTax.ToString();
 
@@ -1203,21 +1203,17 @@ namespace Library.Service.Finances
                if (financing.TransactionType == TransactionType.InvestmentGiven.ToString())
                 {
                     #region From
-
-
                     voucherDetailTo.GLGeneralInfoId = financingDetail.GLGeneralInfoId;
                     voucherDetailTo.BudgetMasterId = financingDetail.BudgetMasterId;
                     voucherDetailTo.ActivityId = financingDetail.ActivityId;
-                    voucherDetailTo.BankMasterId = financing.BankMasterId;
+                    voucherDetailTo.BankMasterId = financing.OtherBankMasterId;
                     voucherDetailTo.DrAmount = voucherVM.Amount;
-                    
 
                     var gl = _accountsCommonService.GetInvestmentGL(financing.CompanyId, financing.FinancingTypeId);
                     if (string.IsNullOrEmpty(gl["RevenueGLId"].ToString()))
                         throw new CustomException("Loan Type Interest Payable GL not Found!");
                     if (string.IsNullOrEmpty(gl["RevenueActivityId"].ToString()))
                         throw new CustomException("Loan Type Expenses  GL not Found!");
-
 
                     voucherIncome.GLGeneralInfoId = gl["RevenueGLId"].ToString();
                     voucherIncome.BudgetMasterId = gl["RevenueBudgetMasterId"].ToString();
@@ -1467,7 +1463,7 @@ namespace Library.Service.Finances
                 if (!string.IsNullOrEmpty(voucherIncome.GLGeneralInfoId) && financing.TransactionType == TransactionType.InvestmentGiven.ToString()
                     && voucherVM.SourceType == InvestmentTransactionType.InvestmentInterestReceivable.ToString())
                 {
-                    voucherIncome.DrAmount = voucherVM.Amount;
+                    voucherIncome.CrAmount = voucherVM.Amount;
                     currentVoucherDetailId++;
                     _voucherService.InsertVoucherDetail(voucher, voucherIncome, currentVoucherDetailId);
                     totalAmountCr += voucherVM.Amount;
