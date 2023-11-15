@@ -206,6 +206,11 @@ namespace Library.Service.Invoices
         {
             CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.Id != entity.Id && r.PartyId == entity.PartyId && r.DocRefNo == entity.DocRefNo);
         }
+        private void CheckInvoiceDetail(InvoiceDetailCharges Item)
+        {
+            CheckUniqueColumn(UniqueColumnName.InvoiceDetailId, Item.InvoiceDetailId, r => r.Id != Item.Id);
+        }
+
         public Invoice FindInvoice(string Id)
         {
             return base.Find(Id);
@@ -2264,7 +2269,9 @@ namespace Library.Service.Invoices
 
                                     foreach (var item in invoiceDetailChargesList.Where(r => r.GLGeneralInfoId == voucherDetailVM.GLGeneralInfoId && r.BudgetMasterId== voucherDetailVM.BudgetMasterId && r.ActivityId== voucherDetailVM.ActivityId))
                                     {
-                                        var invoiceDetailChargesId = base.GetAutoNumber(nameof(InvoiceDetailCharges), PKGeneratorEnum.Yearly, null, DateTime.Now);
+                                    CheckInvoiceDetail(item);
+
+                                    var invoiceDetailChargesId = base.GetAutoNumber(nameof(InvoiceDetailCharges), PKGeneratorEnum.Yearly, null, DateTime.Now);
                                         var invoiceChargesId = 0;
                                         if (item.Id == null)
                                         {
