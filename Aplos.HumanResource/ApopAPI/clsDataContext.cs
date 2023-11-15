@@ -8514,7 +8514,7 @@ where BM.BankCategoryId = '" + categoryId + "' and BM.BankSubCategoryId = '" + s
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
-            DataList = new List<Default2>();
+            DataList = new List<Default2>(); 
 
             System.Data.DataSet dsRef; 
             try
