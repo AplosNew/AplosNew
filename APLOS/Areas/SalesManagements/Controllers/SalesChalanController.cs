@@ -340,10 +340,25 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             try
             {
-                string sql = @"SELECT DISTINCT TransportVehicleNo AS Value,TransportVehicleNo AS Text,TransportDriverNo 
+                string sql = @"SELECT DISTINCT TransportVehicleNo AS Value,TransportVehicleNo AS Text
                                 FROM [dbo].[PostSalesInvoice] PO
                                 LEFT JOIN TRN.Sales S ON S.Id=PO.SalesId
                                 Where TransportVehicleNo IS NOT NULL AND FORMAT(S.AddedDate,'dd-MMM-yyyy') between '" + fromDate + @"' AND '" + toDate + "'";
+                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetTransportDriverNo(string TransportVehicleNo)
+        {
+            try
+            {
+                string sql = @"SELECT TransportDriverNo FROM [dbo].[PostSalesInvoice] Where TransportVehicleNo='"+ TransportVehicleNo + "' AND TransportDriverNo IS NOT NULL";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -702,6 +717,28 @@ namespace Aplos.Areas.SalesManagements.Controllers
 								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
 								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
 								where SC.ApprovedStatus='Approved' AND SC.ApproveById='" + identity.EmployeeId + "'";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetcheckedDataList()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy,SC.CheckedStatus,SC.ApprovedStatus
+								from [dbo].[SalesChalan] SC
+								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
+								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
+								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
+								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
+								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
+								where SC.CheckedStatus='Checked' AND SC.CheckById='" + identity.EmployeeId + "'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

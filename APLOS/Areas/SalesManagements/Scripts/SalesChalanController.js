@@ -89,11 +89,14 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
     }
 
     $scope.SetMobileNo = function () {
-        for (var i = 0; i < $scope.vehicleNoList.length; i++) {
-            if ($scope.ModelNew.VechileNo == $scope.vehicleNoList[i].Value) {
-                $scope.ModelNew.MobileNo = $scope.vehicleNoList[i].TransportDriverNo;
-            }
-        }
+        $http({
+            method: 'GET',
+            url: 'SalesManagements/SalesChalan/GetTransportDriverNo?TransportVehicleNo=' + $scope.ModelNew.VechileNo
+        }).then(function successCallback(response) {
+            $scope.ModelNew.MobileNo = response.data[0].TransportDriverNo;
+        });
+
+        
     }
 
     $scope.popUpDataList = [];
