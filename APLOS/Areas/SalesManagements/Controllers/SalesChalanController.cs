@@ -340,10 +340,25 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             try
             {
-                string sql = @"SELECT DISTINCT TransportVehicleNo AS Value,TransportVehicleNo AS Text,TransportDriverNo 
+                string sql = @"SELECT DISTINCT TransportVehicleNo AS Value,TransportVehicleNo AS Text
                                 FROM [dbo].[PostSalesInvoice] PO
                                 LEFT JOIN TRN.Sales S ON S.Id=PO.SalesId
                                 Where TransportVehicleNo IS NOT NULL AND FORMAT(S.AddedDate,'dd-MMM-yyyy') between '" + fromDate + @"' AND '" + toDate + "'";
+                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetTransportDriverNo(string TransportVehicleNo)
+        {
+            try
+            {
+                string sql = @"SELECT TransportDriverNo FROM [dbo].[PostSalesInvoice] Where TransportVehicleNo='"+ TransportVehicleNo + "' AND TransportDriverNo IS NOT NULL";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
