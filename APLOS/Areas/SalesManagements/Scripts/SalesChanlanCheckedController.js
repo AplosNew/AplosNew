@@ -150,6 +150,42 @@ function SalesChanlanCheckedController(cboService, commonMessage, $scope, $rootS
     }
     $scope.GetApproveBycheckedData();
 
+    $scope.detailTemp = "#tabGridContents";
+
+    $scope.InvoiceNoList = [];
+   
+    $scope.detailgrid = function detailGridData(e) {
+        
+        var filteredData = e.data["Id"];
+       // $scope.GetInvoiceDataByChalan(filteredData);
+
+        $http({
+            method: 'GET',
+            url: 'SalesManagements/SalesChalan/GetInvoiceDataByChalan?masterId=' + filteredData
+        }).then(function successCallback(response) {
+            $scope.InvoiceNoList = response.data;
+        });
+
+        var data = ej.DataManager($scope.InvoiceNoList).executeLocal(ej.Query().where("SalesChalanId", "equal", parseInt(filteredData), true).take(100));
+
+        e.detailsElement.find("#detailGrid").ejGrid({
+
+            dataSource: data,
+            columns: [
+                { field: "InvoiceId", headerText: "Invoice No", width: 50 },
+                { field: "InvoiceDate", headerText: "Invoice Date", width: 100 },
+                { field: "Customer", headerText: "Customer", width: 100 },
+                { field: "NoOfPackage", headerText: "NoOfPackage", width: 100 },
+                { field: "NetWeight", headerText: "Net Weight", width: 100 },
+                { field: "GrossWeight", headerText: "Gross Weight", width: 100 },
+                { field: "Destination", headerText: "Destination", width: 100 },
+
+            ]
+        });
+        e.detailsElement.find(".tabcontrol").ejTab();
+    }
+
+
     $scope.PrintData = function (data) {
         try {
             $scope.fileName = "SalesChalanReport.xlsx";
