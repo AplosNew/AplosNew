@@ -1,0 +1,41 @@
+﻿<div><h4><span class="glyphicon glyphicon-info-sign"></span>Sales Chalan Dispatch Confirmation</h4></div>
+<div>
+    <div class="content-container-fluid" style="color:black;">
+        <div style="color:black;" id="GridMain" ej-grid e-datasource="ModelList"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+             e-filtersettings-filterType="excel" e-enabletouch="true"
+             e-detailstemplate="detailTemp"
+             e-detailsdatabound="detailgrid">
+
+            <div e-columns>
+                <div e-column e-headertext="Actions" e-width="60">
+                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" ng-disabled="btndisable" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Dispatch Confirm" ng-click="$parent.SaveDispatchConfirmData(this)" style="margin: -6px;"></i></button>
+                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>
+                </div>
+
+                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                <div e-column e-field="ByWhom" e-headertext="ByWhom" e-width="80"></div>
+                <div e-column e-field="VechileNo" e-headertext="VechileNo" e-width="100"></div>
+                <div e-column e-field="MobileNo" e-headertext="MobileNo" e-width="80"></div>
+                <div e-column e-field="SecurityInCharge" e-headertext="SecurityInCharge" e-width="100"></div>
+                <div e-column e-field="CheckedStatus" e-headertext="Checked Status" e-width="150"></div>
+                <div e-column e-field="ApprovedStatus" e-headertext="Approved Status" e-width="150"></div>
+            </div>
+
+        </div>
+        <script id="tabGridContents" type="text/x-jsrender">
+            <div class="tabcontrol" id="Test">
+                <ul>
+                    <li><a href="#gridTab{{:Id}}">Invoice Item</a></li>
+                </ul>
+                <div id="gridTab{{:Id}}">
+                    <div id="detailGrid"></div>
+                </div>
+            </div>
+        </script>
+
+    </div>
+</div>
+
+
+

@@ -4462,6 +4462,271 @@ order by SAI.SalesId";
 		}
 
 
+		public void GetSalesChalanReportData(string masterId, out DataTable dtOrder)
+		{
+			string strSql = string.Empty;
+			try
+			{
+				strSql = @"Select SCD.*,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight,DT.UserName Destination,FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
+                                    ,SC.VechileNo,SC.UserRef,FORMAT(SC.AddedDate,'dd-MMM-yyyy')GatePassDate
+									,EI.EmployeeName CheckedBy,EIM.EmployeeName ApprovedBy,SC.CheckedStatus,SC.ApprovedStatus
+                                    from dbo.SalesChalanDetail SCD
+                                    LEFT JOIN dbo.SalesChalan SC ON SC.Id=SCD.SalesChalanId
+                                    LEFT JOIN TRN.Sales S ON S.Id=SCD.InvoiceId
+                                    LEFT JOIN HKP.Party P ON P.Id=S.PartyId
+                                    left join (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage,isc.SalesId 
+                                                    from itemscanchild isc
+                                                    left join trn.POLotReference PLR on PLR.Id = isc.PackingId
+                                                    left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
+				                                    group by  isc.salesId) BKD on BKD.salesId = s.Id
+                                    left join PostSalesInvoice PSI on PSI.SalesId = BKD.SalesId
+                                    left join MST.Addressmaster AM on Am.Id = P.AddressmasterId
+                                    left join scs.District DT on DT.Id = AM.DistrictId
+									left join EmployeeInformation EI on EI.SystemId = SC.CheckById
+									left join EmployeeInformation EIM on EIM.SystemId = SC.ApproveById
+                                    Where SCD.SalesChalanId='" + masterId + "'";
+
+				dtOrder = _sqlRepository.GetDataTable(strSql);
+			}
+			catch (Exception ex)
+			{
+				throw (ex);
+			}
+			finally
+			{
+
+			}
+		}//End Function
+
+		public IEnumerable<object> GetVehicleNoCbo(string fromDate, string toDate)
+		{
+			try
+			{
+				string sql = @"SELECT DISTINCT TransportVehicleNo AS Value,TransportVehicleNo AS Text
+                                FROM [dbo].[PostSalesInvoice] PO
+                                LEFT JOIN TRN.Sales S ON S.Id=PO.SalesId
+                                Where TransportVehicleNo IS NOT NULL AND FORMAT(S.AddedDate,'dd-MMM-yyyy') between '" + fromDate + @"' AND '" + toDate + "'";
+				return _sqlRepository.GetDataCollection(sql, null);
+			}
+			catch (Exception ex)
+			{
+
+				throw ex;
+			}
+		}
+
+		public IEnumerable<object> GetTransportDriverNo(string TransportVehicleNo)
+		{
+			try
+			{
+				string sql = @"SELECT TransportDriverNo FROM [dbo].[PostSalesInvoice] Where TransportVehicleNo='" + TransportVehicleNo + "' AND TransportDriverNo IS NOT NULL";
+				return _sqlRepository.GetDataCollection(sql, null);
+			}
+			catch (Exception ex)
+			{
+
+				throw ex;
+			}
+		}
+		public IEnumerable<object> GetSalesChalan(string column, string value)
+		{
+			try
+			{
+				string strkey = "1=1";
+				if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+					strkey = column + " like '%" + value + "%'";
+
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				string sql = @"select * from (Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
+                                                    from [dbo].[SalesChalan] SC
+                                                    LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
+                                                    LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
+                                                    LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
+                                                    LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
+                                                    LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById) AS TEMP WHERE " + strkey + " Order By TEMP.AddedDate DESC";
+				return _sqlRepository.GetDataCollection(sql, null);
+			}
+			catch (Exception ex)
+			{
+
+				throw ex;
+			}
+		}
+
+		public IEnumerable<object> GetInvoiceData(string fromDate, string toDate, string vehicleno)
+		{
+			try
+			{
+				string sql = @"SELECT Checked=CAST(0 AS bit),FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate, S.Id InvoiceId,P.UserName Customer,DT.UserName Destination,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight
+                                FROM TRN.Sales S
+                                LEFT JOIN HKP.Party P ON P.Id=S.PartyId
+                                LEFT JOIN (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage , isc.SalesId 
+                                                from itemscanchild isc
+                                                left join trn.POLotReference PLR on PLR.Id = isc.PackingId
+                                                left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
+				                                group by  isc.salesId) BKD on BKD.salesId = s.Id
+                                left join PostSalesInvoice PSI on PSI.SalesId = BKD.SalesId
+                                left join MST.Addressmaster AM on Am.Id = P.AddressmasterId
+                                left join scs.District Dt on DT.Id = AM.DistrictId
+                                Where FORMAT(S.AddedDate,'dd-MMM-yyyy') between '" + fromDate + @"' AND '" + toDate + @"' AND PSI.Transportvehicleno='" + vehicleno + @"'
+                                AND S.Id NOT IN(Select  InvoiceId from dbo.SalesChalanDetail)
+                                ORDER BY S.Id";
+				return _sqlRepository.GetDataCollection(sql, null);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		public IEnumerable<object> GetInvoiceDataByChalan(string masterId)
+		{
+			try
+			{
+				string sql = @"Select SCD.*,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight,DT.UserName Destination,FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate 
+                                    from dbo.SalesChalanDetail SCD
+                                    LEFT JOIN TRN.Sales S ON S.Id=SCD.InvoiceId
+                                    LEFT JOIN HKP.Party P ON P.Id=S.PartyId
+                                    left join (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage,isc.SalesId 
+                                                    from itemscanchild isc
+                                                    left join trn.POLotReference PLR on PLR.Id = isc.PackingId
+                                                    left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
+				                                    group by  isc.salesId) BKD on BKD.salesId = s.Id
+                                    left join PostSalesInvoice PSI on PSI.SalesId = BKD.SalesId
+                                    left join MST.Addressmaster AM on Am.Id = P.AddressmasterId
+                                    left join scs.District DT on DT.Id = AM.DistrictId
+                                    Where SCD.SalesChalanId='" + masterId + "'";
+				return _sqlRepository.GetDataCollection(sql, null);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		public IEnumerable<object> GetUncheckedSalesChalanData(string EmployeeId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
+								from [dbo].[SalesChalan] SC
+								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
+								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
+								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
+								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
+								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
+								where SC.CheckedStatus='To Be Check' AND SC.CheckById='" + EmployeeId + "'";
+				return _sqlRepository.GetDataCollection(sql, null);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		public IEnumerable<object> GetcheckedSalesChalanData(string EmployeeId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
+								from [dbo].[SalesChalan] SC
+								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
+								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
+								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
+								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
+								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
+								where SC.CheckedStatus='Checked' AND SC.ApprovedStatus='To Be Approve' AND SC.ApproveById='" + EmployeeId + "'";
+				return _sqlRepository.GetDataCollection(sql, null);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		public IEnumerable<object> GetApproveBycheckedSalesChalanData(string EmployeeId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy,SC.CheckedStatus,SC.ApprovedStatus
+								from [dbo].[SalesChalan] SC
+								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
+								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
+								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
+								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
+								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
+								where SC.ApprovedStatus='Approved' AND SC.ApproveById='" + EmployeeId + "'";
+				return _sqlRepository.GetDataCollection(sql, null);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		public IEnumerable<object> GetcheckedSalesChalanDataList(string EmployeeId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy,SC.CheckedStatus,SC.ApprovedStatus
+								from [dbo].[SalesChalan] SC
+								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
+								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
+								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
+								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
+								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
+								where SC.CheckedStatus='Checked' AND SC.CheckById='" + EmployeeId + "'";
+				return _sqlRepository.GetDataCollection(sql, null);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		public IEnumerable<object> GetSalesChalanCheckedByCboList()
+		{
+			var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where  A.ActionStatus='SalesChalanCheckBy' AND E.EmployeeStatus='Active'";
+			return _sqlRepository.GetDataCollection(sql, null);
+		}
+
+		public IEnumerable<object> GetSalesChalanApproveByCboList()
+		{
+			var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where  A.ActionStatus='SalesChalanApproveBy' AND E.EmployeeStatus='Active'";
+			return _sqlRepository.GetDataCollection(sql, null);
+		}
+
+		public IEnumerable<object> GetApproveByDataForDispatchConfirmation()
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy,SC.CheckedStatus,SC.ApprovedStatus
+								from [dbo].[SalesChalan] SC
+								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
+								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
+								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
+								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
+								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
+								where SC.ApprovedStatus='Approved' AND SC.IsDispatchConfirmation=0";
+				return _sqlRepository.GetDataCollection(sql, null);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+
+
 	}
 
 
