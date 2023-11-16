@@ -3,7 +3,15 @@ SalesChanlanDispatchConfirmationController.$inject = ['cboService', 'commonMessa
 function SalesChanlanDispatchConfirmationController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, $controller, $route) {
     $rootScope.title = 'Sales Chalan Dispatch Confirmation';
     $scope.ModelList = [];
-  
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
     $scope.GetApproveByDataForDispatchConfirmation = function () {
         $http({
             method: 'GET',
@@ -13,6 +21,17 @@ function SalesChanlanDispatchConfirmationController(cboService, commonMessage, $
         });
     }
     $scope.GetApproveByDataForDispatchConfirmation();
+
+    $scope.ConfirmedModelList = [];
+    $scope.GetApproveByDataForDispatchConfirmed = function () {
+        $http({
+            method: 'GET',
+            url: 'SalesManagements/SalesChalan/GetApproveByDataForDispatchConfirmed'
+        }).then(function successCallback(response) {
+            $scope.ConfirmedModelList = response.data;
+        });
+    }
+    $scope.GetApproveByDataForDispatchConfirmed();
 
     $scope.detailTemp = "#tabGridContents";
 
@@ -55,7 +74,7 @@ function SalesChanlanDispatchConfirmationController(cboService, commonMessage, $
             $scope.fileName = "SalesChalanReport.xlsx";
 
             $scope.ReportFormat = 'Pdf';
-            var url = 'Administration/GeneralContractChecked/GetGeneralContractReport?reportFormat=' + $scope.ReportFormat + '&ContractId=' + data.data.Id;
+            var url = 'SalesManagements/SalesChalan/GetSalesChalanReportPdf?reportFormat=' + $scope.ReportFormat + '&masterId=' + data.data.Id;
             $rootScope.report(url);
 
         } catch (e) {
@@ -80,6 +99,7 @@ function SalesChanlanDispatchConfirmationController(cboService, commonMessage, $
                     ShowResult(response.data.Message, 'success');
                     $scope.btndisable = false;
                     $scope.GetApproveByDataForDispatchConfirmation();
+                    $scope.GetApproveByDataForDispatchConfirmed();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

@@ -249,6 +249,12 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 }
                 sheet.Range[edCRow, 5].Text = "Approved By";
 
+                if (Convert.ToBoolean(dtOrder.Rows[0]["IsDispatchConfirmation"].ToString()) == true)
+                {
+                    sheet.Range[edCRow - 1, 7].Text = dtOrder.Rows[0]["DispatchConfirmationBy"].ToString();
+                }
+                sheet.Range[edCRow, 7].Text = "Dispatch Confirmed By";
+
                 #region ReportHeader
 
                 sheet.UsedRange.WrapText = true;
@@ -649,6 +655,13 @@ namespace Aplos.Areas.SalesManagements.Controllers
             return Json(clsSales.GetApproveByDataForDispatchConfirmation(), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetApproveByDataForDispatchConfirmed()
+        {
+            return Json(clsSales.GetApproveByDataForDispatchConfirmed(), JsonRequestBehavior.AllowGet);
+        }
+
+
         [HttpPost]
         public JsonResult CreateDispatchConfirmData(Dictionary<string, object> data)
         {
@@ -663,7 +676,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
 
-                    data["IsDispatchConfirmation"] = true;
+                    data["IsDispatchConfirmation"] = 1;
                     data["DispatchConfirmationBy"] = identity.Name;
                     data["DispatchConfirmationDate"] = System.DateTime.Now.ToString();
                     EditRow(dsMaster.Tables[0].Rows[0], data);

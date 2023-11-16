@@ -4469,7 +4469,7 @@ order by SAI.SalesId";
 			{
 				strSql = @"Select SCD.*,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight,DT.UserName Destination,FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
                                     ,SC.VechileNo,SC.UserRef,FORMAT(SC.AddedDate,'dd-MMM-yyyy')GatePassDate
-									,EI.EmployeeName CheckedBy,EIM.EmployeeName ApprovedBy,SC.CheckedStatus,SC.ApprovedStatus
+									,EI.EmployeeName CheckedBy,EIM.EmployeeName ApprovedBy,SC.CheckedStatus,SC.ApprovedStatus,SC.IsDispatchConfirmation,SC.DispatchConfirmationBy
                                     from dbo.SalesChalanDetail SCD
                                     LEFT JOIN dbo.SalesChalan SC ON SC.Id=SCD.SalesChalanId
                                     LEFT JOIN TRN.Sales S ON S.Id=SCD.InvoiceId
@@ -4725,7 +4725,26 @@ order by SAI.SalesId";
 			}
 		}
 
-
+		public IEnumerable<object> GetApproveByDataForDispatchConfirmed()
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy,SC.CheckedStatus,SC.ApprovedStatus
+								from [dbo].[SalesChalan] SC
+								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
+								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
+								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
+								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
+								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
+								where SC.IsDispatchConfirmation=1";
+				return _sqlRepository.GetDataCollection(sql, null);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
 
 	}
 
