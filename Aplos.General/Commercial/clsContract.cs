@@ -276,12 +276,12 @@ where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1
 
         public IEnumerable<object> GetMasterLCDataList()
         {
-            string sql = @"SELECT MLC.Id, MLC.BenificiaryBankId, MLC.OpeningBank, MLC.OpeningDescription, MLC.LeinBank, MLC.LeinDescription, MLC.LCRef, FORMAT(MLC.LCDate,'dd-MMM-yyyy') LCDate, FORMAT(MLC.ExpiryDate,'dd-MMM-yyyy') ExpiryDate,
+            string sql = @"SELECT MLC.Id, MLC.BenificiaryBankId, NB.BankName OpeningBank, MLC.OpeningDescription, MLC.LeinBank, MLC.LeinDescription, MLC.LCRef, FORMAT(MLC.LCDate,'dd-MMM-yyyy') LCDate, FORMAT(MLC.ExpiryDate,'dd-MMM-yyyy') ExpiryDate,
 							FORMAT(MLC.ExpiryDate,'dd-MMM-yyyy') ExpiryDate, MLC.Amount, MLC.Type, MLC.Tenure, MLC.FinalDestinationId,MLC.PortOfLandingId,
 							PR.UserName PortOfLanding, MLC.AddedBy,FORMAT(MLC.AddedDate,'dd-MMM-yyyy') AddedDate, MLC.AddedFromIP, MLC.UpdatedBy, 
 							FORMAT(MLC.UpdatedDate,'dd-MMM-yyyy') UpdatedDate, MLC.UpdatedFromIP, MLC.CurrencyId,LB.UserName BenificiaryBank,CN.Code Currency, 
 							MLC.CustomerId, P.UserName PartyName,MLC.Version,mlc.LCShipmentDate,mlc.ShipmentModeId,sm.UserName ShipmentMode,mlc.AmendmentDate
-							,mlc.PortOfLoadingId,prl.UserName PortOfLoading,MLC.Remarks,MLC.DescriptionOfGoodsAndOrServices
+							,mlc.PortOfLoadingId,prl.UserName PortOfLoading,MLC.Remarks,MLC.DescriptionOfGoodsAndOrServices, MLC.OpeningBankId
                          FROM [dbo].[MasterLC] MLC
                          LEFT JOIN MST.BankMaster OB  ON OB.Id=MLC.BenificiaryBankId
                          LEFT JOIN HKP.Bank LB ON LB.Id=OB.BankId
@@ -290,6 +290,7 @@ where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1
                          LEFT JOIN mst.ShipMode AS sm ON sm.Id=mlc.ShipmentModeId
                          LEFT JOIN [MST].[Port] PR ON PR.Id=mlc.PortOfLandingId
                          LEFT JOIN [MST].[Port] PRL ON PRL.Id=mlc.PortOfLoadingId
+                         LEFT JOIN [dbo].[NegotiatingBank] NB ON NB.Id=mlc.OpeningBankId
 						 order By MLC.AddedDate Desc";
             return _sqlRepository.GetDataCollection(sql);
         }

@@ -692,6 +692,9 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
             $scope.NegotiatingBankList = response.data;
         });
     }
+    $scope.GetNegotiatingBankList();
+
+
 
 }
 

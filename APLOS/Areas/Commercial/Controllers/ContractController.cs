@@ -1147,7 +1147,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["CustomerId"] = data.CustomerId;
                     dr["IsClose"] = data.IsClose;
                     dr["BenificiaryBankId"] = data.BenificiaryBankId;
-                    dr["OpeningBank"] = data.OpeningBank;
+                    dr["OpeningBankId"] = data.OpeningBankId;
                     dr["OpeningDescription"] = data.OpeningDescription;
                     dr["LeinBank"] = data.LeinBank;
                     dr["LeinDescription"] = data.LeinDescription;
@@ -1183,7 +1183,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["CustomerId"] = data.CustomerId;
                     dr["IsClose"] = data.IsClose;
                     dr["BenificiaryBankId"] = data.BenificiaryBankId;
-                    dr["OpeningBank"] = data.OpeningBank;
+                    dr["OpeningBankId"] = data.OpeningBankId;
                     dr["OpeningDescription"] = data.OpeningDescription;
                     dr["LeinBank"] = data.LeinBank;
                     dr["LeinDescription"] = data.LeinDescription;
@@ -3975,7 +3975,7 @@ namespace Aplos.Areas.Commercial.Controllers
         public string CustomerId { get; set; }
         public bool IsClose { get; set; }
         public string BenificiaryBankId { get; set; }
-        public string OpeningBank { get; set; }
+        public string OpeningBankId { get; set; }
         public string OpeningDescription { get; set; }
         public string LeinBank { get; set; }
         public string LeinDescription { get; set; }
