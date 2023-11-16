@@ -1181,6 +1181,22 @@ LEFT JOIN HKP.TermsAndConditions TC ON TC.Id=CT.TermsAndConditionsId
             }
         }
 
+        public IEnumerable<object> GetNegotiatingBankList()
+        {
+            try
+            {
+
+                var sql = @"SELECT NB.*,C.userName Country FROM dbo.NegotiatingBank NB
+LEFT JOIN SCS.Country C ON C.Id=NB.CountryId";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
     }
 }
 
