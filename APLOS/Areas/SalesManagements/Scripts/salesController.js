@@ -439,7 +439,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
             }
 
             $scope.$broadcast("show-errors-check-validity");
-            if ($scope.form0.$valid) {
+            if ($scope.MainModelNewForm.$valid) {
                 $scope.savebtndisable = true;
                 if ($scope.Action === "Save") {
                     $http({
