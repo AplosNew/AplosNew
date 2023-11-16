@@ -868,6 +868,17 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
     }
     $scope.getBank();
 
+    $scope.NegotiatingBankList = [];
+    $scope.GetNegotiatingBankList = function () {
+        $http({
+            method: 'GET',
+            url: 'Commercial/Contract/GetNegotiatingBankList'
+        }).then(function successCallback(response) {
+            $scope.NegotiatingBankList = response.data;
+        });
+    }
+    $scope.GetNegotiatingBankList();
+
     $scope.SelectMasterLC = function (obj) {
         try {
             var gridObj = $("#GridLC").data("ejGrid");

@@ -1,6 +1,6 @@
 ﻿'use strict';
-masterLCController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService', 'bankService', '$controller'];
-function masterLCController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, cboService, bankService, $controller) {
+masterLCController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService', 'bankService', '$controller','addressService'];
+function masterLCController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, cboService, bankService, $controller, addressService) {
     $rootScope.title = "MasterLC";
     $scope.Action = 'Save';
     $scope.path = 'Commercial/contract/';
@@ -70,7 +70,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
     }
 
 
-   
+
     $scope.shipmentModeList = [];
     $scope.GetshipmentMode = function () {
         $http({
@@ -623,6 +623,78 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         });
 
     };
+
+    $scope.ModelBank = {
+        Id: null,
+        BankName: null,
+        AccountNo: null,
+        BankCategory: null,
+        UserName: null,
+        SWIFTCode: null,
+        CountryId: null,
+        Remark: null,
+        AddedBy: null,
+        AddedDate: null,
+        AddedFromIP: null,
+        UpdatedBy: null,
+        UpdatedDate: null,
+        UpdatedFromIP: null
+    }
+    $scope.BankModelNew = Object.assign({}, $scope.ModelBank);
+
+
+    addressService.getCountryCbo(function (result) {
+        $scope.companyList = result;
+    });
+
+    $scope.SaveNBank = function () {
+        try {
+            if (baseService.isUndefinedOrNull($scope.BankModelNew.BankName)) {
+                throw "Bank Name is required.";
+            }
+            if (baseService.isUndefinedOrNull($scope.BankModelNew.AccountNo)) {
+                throw "AccountNo is required.";
+            }
+            if (baseService.isUndefinedOrNull($scope.BankModelNew.UserName)) {
+                throw "User Name is required.";
+            }
+            if (baseService.isUndefinedOrNull($scope.BankModelNew.CountryId)) {
+                throw "Country is required.";
+            }
+           
+            $http({
+                method: 'POST',
+                url: 'Commercial/Contract/SaveNegotiatingBank',
+                data: { 'data': $scope.BankModelNew },
+                dataType: 'JSON'
+                , contentType: "application/json charset=utf-8"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetNegotiatingBankList();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+    $scope.NegotiatingBankList = [];
+    $scope.GetNegotiatingBankList = function () {
+        $http({
+            method: 'GET',
+            url: 'Commercial/Contract/GetNegotiatingBankList'
+        }).then(function successCallback(response) {
+            $scope.NegotiatingBankList = response.data;
+        });
+    }
+    $scope.GetNegotiatingBankList();
+
+
 
 }
 
