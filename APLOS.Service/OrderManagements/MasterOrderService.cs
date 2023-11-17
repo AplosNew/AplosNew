@@ -293,7 +293,7 @@ namespace Library.Service.OrderManagements
                             LEFT JOIN hkp.OrderCategory AS oc ON oc.Id=a.OrderCategoryId
                             LEFT JOIN HKP.Buyer B ON B.Id=A.BuyerId
                             LEFT JOIN ORG.Entity EN ON EN.Id=A.EntityId
-							LEFT JOIN(select moi.MasterOrderId,TotalAmount=AVG(so.Rate )*SUM(SO.Qty) 
+							LEFT JOIN(select moi.MasterOrderId,TotalAmount=SUM(SO.Qty*SO.Rate) 
 									from TRN.MasterOrderItem moi
 									LEFT JOIN TRN.SalesOrder so on so.MasterOrderItemId=moi.Id
 									Group By moi.MasterOrderId) MS ON MS.MasterOrderId=A.Id
@@ -557,7 +557,9 @@ namespace Library.Service.OrderManagements
 	                         , MOI.BuyerReferenceNo, MOI.OwnReferenceNo, MOI.TotalQty
 	                         , MOI.OrderWastagePercentage, MOI.ExtraOrderPercentage, MOI.ProductionGrouping, MM.HSNCodeId
 							 , ISNULL(HART.HasAttribute,CAST(0 AS BIT)) AS HasAttribute
-                             , ISNULL((select sum(SO.Qty) from TRN.SalesOrder SO where So.MasterOrderItemId = MOI.Id),0) as SOQty,MOI.Type,MOI.IsRepeat, PM.UserName AS ProductMaster
+                             , ISNULL((select sum(SO.Qty) from TRN.SalesOrder SO where So.MasterOrderItemId = MOI.Id),0) as SOQty
+                             , ISNULL((select sum(so.Rate*so.Qty) from TRN.SalesOrder SO where So.MasterOrderItemId = MOI.Id),0) as TotalAmount
+                             ,MOI.Type,MOI.IsRepeat, PM.UserName AS ProductMaster
                             --a ,MOI.ContractId,CNT.ContractNo,MLC.LCRef
 							 ,MOI.BuyerItemDescription,MOI.MainRawMaterialDescription,MOI.PartyId,MOI.EntityIdWithinGroup,MOI.EntityIdWithinCompany,MOI.JobWorkType
                              , EntityOrVendorName= CASE WHEN MOI.EntityIdWithinCompany<>'' THEN EWCC.UserName +' - '+EWC.UserName 

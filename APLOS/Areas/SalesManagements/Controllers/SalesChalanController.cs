@@ -7,6 +7,7 @@ using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.Model.Enums;
 using Library.Model.Setups;
+using Library.OrderManagement.Sales;
 using Library.Service.Enums;
 using Library.Service.Helpers;
 using Library.Service.Setups;
@@ -26,15 +27,11 @@ namespace Aplos.Areas.SalesManagements.Controllers
 {
     public class SalesChalanController : BaseController
     {
-        //abcd
-        //this is my code from tarek
-        string TableName = "dbo.SalesChalan";
-        //authentication for
-        //GetList Create Delete
 
+        string TableName = "dbo.SalesChalan";
 
         #region Constructor
-
+        clsSales clsSales = new clsSales();
         private readonly ISqlRepository _sqlRepository;
         public SalesChalanController(ISqlRepository R)
         {
@@ -44,21 +41,16 @@ namespace Aplos.Areas.SalesManagements.Controllers
         #endregion Constructor
 
 
-
         public ActionResult Aplos()
         {
             return View();
         }
 
-        public ActionResult Approve()
-        {
-            return View();
-        }
         public ActionResult SalesChalanCheck()
         {
             return View();
         }
-        public ActionResult SalesChalanApprove()
+        public ActionResult DispatchConfirmation()
         {
             return View();
         }
@@ -132,7 +124,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 workbook.Worksheets[0].Name = "Data";
                 sheet = workbook.Worksheets[0];
                 DataTable dtOrder;
-                GetSalesChalanReportData(masterId, out dtOrder);
+                clsSales.GetSalesChalanReportData(masterId, out dtOrder);
 
                 if (dtOrder.Rows.Count == 0)
                 {
@@ -146,12 +138,12 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 sheet.Range[ROW, COL].Text = "VechileNo.:";
                 sheet.Range[ROW, 2].Text = dtOrder.Rows[0]["VechileNo"].ToString();
                 sheet.Range[ROW, 3].Text = "GatePassDate: ";
-                sheet.Range[ROW,  4].Text = dtOrder.Rows[0]["GatePassDate"].ToString();
+                sheet.Range[ROW, 4].Text = dtOrder.Rows[0]["GatePassDate"].ToString();
 
                 sheet.Range[ROW, 5].Text = "GatePassNo:";
                 sheet.Range[ROW, 6].Text = dtOrder.Rows[0]["UserRef"].ToString();
 
-                ROW = 7;COL = 1;
+                ROW = 7; COL = 1;
                 sheet.Range[ROW, COL].Text = "Checked Status:";
                 sheet.Range[ROW, 2].Text = dtOrder.Rows[0]["CheckedStatus"].ToString();
 
@@ -168,7 +160,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 sheet[ROW, COL].Text = "Net Weight"; sheet[ROW, COL].ColumnWidth = 15; int colNW = COL; COL++;
                 sheet[ROW, COL].Text = "Gross Weight"; sheet[ROW, COL].ColumnWidth = 15; int colGW = COL; COL++;
                 sheet[ROW, COL].Text = "Invoice Date"; sheet[ROW, COL].ColumnWidth = 14; int colID = COL; COL++;
-                sheet[ROW, COL].Text = "Destination"; sheet[ROW, COL].ColumnWidth = 19; int colDN = COL; 
+                sheet[ROW, COL].Text = "Destination"; sheet[ROW, COL].ColumnWidth = 19; int colDN = COL;
 
                 int endCol = COL;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.White;
@@ -194,18 +186,18 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
                     sheet[ROW, colID].Text = dtOrder.Rows[i]["InvoiceDate"].ToString();
                     sheet[ROW, colDN].Text = dtOrder.Rows[i]["Destination"].ToString();
-                   
+
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                     ROW++;
                 }
-               
+
 
                 #endregion
                 int edCRow = ROW;
-                sheet.Range[edCRow, 2].Text = "No Of Invoice: "+ NoOfInv;
+                sheet.Range[edCRow, 2].Text = "No Of Invoice: " + NoOfInv;
                 sheet.Range[edCRow, 2].CellStyle.Font.Bold = true;
                 sheet.Range[edCRow, 1, edCRow, 2].Merge();
 
@@ -229,7 +221,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 sheet.Range[edCRow, 5].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                 sheet.Range[edCRow, 5].CellStyle.Font.Bold = true;
                 sheet.Range[edCRow, 5, edCRow, 5].VerticalAlignment = ExcelVAlign.VAlignTop;
-                sheet.Range[edCRow, 5, edCRow, 5].HorizontalAlignment = ExcelHAlign.HAlignRight;;
+                sheet.Range[edCRow, 5, edCRow, 5].HorizontalAlignment = ExcelHAlign.HAlignRight; ;
 
                 sheet.Range[edCRow, 1, edCRow, endCol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[edCRow, 1, edCRow, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -240,22 +232,28 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 edCRow++;
                 edCRow++;
                 edCRow++;
-              
+
                 //sheet.Range[edCRow, 7].Text = "Authorized Signatory";
 
 
                 sheet.Range[edCRow - 1, 1].Text = dtOrder.Rows[0]["AddedBy"].ToString();
                 sheet.Range[edCRow, 1].Text = "Parepared By";
-                if (dtOrder.Rows[0]["CheckedStatus"].ToString()=="Checked")
+                if (dtOrder.Rows[0]["CheckedStatus"].ToString() == "Checked")
                 {
                     sheet.Range[edCRow - 1, 3].Text = dtOrder.Rows[0]["CheckedBy"].ToString();
                 }
-                    sheet.Range[edCRow, 3].Text = "Checked By";
-                if (dtOrder.Rows[0]["ApprovedStatus"].ToString()=="Approved")
+                sheet.Range[edCRow, 3].Text = "Checked By";
+                if (dtOrder.Rows[0]["ApprovedStatus"].ToString() == "Approved")
                 {
-                    sheet.Range[edCRow - 1, 5].Text = dtOrder.Rows[0]["ApprovedBy"].ToString(); 
+                    sheet.Range[edCRow - 1, 5].Text = dtOrder.Rows[0]["ApprovedBy"].ToString();
                 }
                 sheet.Range[edCRow, 5].Text = "Approved By";
+
+                if (Convert.ToBoolean(dtOrder.Rows[0]["IsDispatchConfirmation"].ToString()) == true)
+                {
+                    sheet.Range[edCRow - 1, 7].Text = dtOrder.Rows[0]["DispatchConfirmationBy"].ToString();
+                }
+                sheet.Range[edCRow, 7].Text = "Dispatch Confirmed By";
 
                 #region ReportHeader
 
@@ -267,7 +265,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
                 ReportUtility reportUtility = new ReportUtility();
                 reportUtility.PlantHeader(ref sheet, endCol, "GATE PASS", identity.PlantId);
-             
+
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -299,52 +297,14 @@ namespace Aplos.Areas.SalesManagements.Controllers
             }
         }
 
-        public void GetSalesChalanReportData(string masterId, out DataTable dtOrder)
-        {
-            string strSql = string.Empty;
-            try
-            {
-                strSql = @"Select SCD.*,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight,DT.UserName Destination,FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
-                                    ,SC.VechileNo,SC.UserRef,FORMAT(SC.AddedDate,'dd-MMM-yyyy')GatePassDate
-									,EI.EmployeeName CheckedBy,EIM.EmployeeName ApprovedBy,SC.CheckedStatus,SC.ApprovedStatus
-                                    from dbo.SalesChalanDetail SCD
-                                    LEFT JOIN dbo.SalesChalan SC ON SC.Id=SCD.SalesChalanId
-                                    LEFT JOIN TRN.Sales S ON S.Id=SCD.InvoiceId
-                                    LEFT JOIN HKP.Party P ON P.Id=S.PartyId
-                                    left join (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage,isc.SalesId 
-                                                    from itemscanchild isc
-                                                    left join trn.POLotReference PLR on PLR.Id = isc.PackingId
-                                                    left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
-				                                    group by  isc.salesId) BKD on BKD.salesId = s.Id
-                                    left join PostSalesInvoice PSI on PSI.SalesId = BKD.SalesId
-                                    left join MST.Addressmaster AM on Am.Id = P.AddressmasterId
-                                    left join scs.District DT on DT.Id = AM.DistrictId
-									left join EmployeeInformation EI on EI.SystemId = SC.CheckById
-									left join EmployeeInformation EIM on EIM.SystemId = SC.ApproveById
-                                    Where SCD.SalesChalanId='" + masterId + "'";
 
-                dtOrder = _sqlRepository.GetDataTable(strSql);
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-
-            }
-        }//End Function
 
         [HttpGet, Authorize]
         public ActionResult GetVehicleNoCbo(string fromDate, string toDate)
         {
             try
             {
-                string sql = @"SELECT DISTINCT TransportVehicleNo AS Value,TransportVehicleNo AS Text
-                                FROM [dbo].[PostSalesInvoice] PO
-                                LEFT JOIN TRN.Sales S ON S.Id=PO.SalesId
-                                Where TransportVehicleNo IS NOT NULL AND FORMAT(S.AddedDate,'dd-MMM-yyyy') between '" + fromDate + @"' AND '" + toDate + "'";
-                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+                return Json(clsSales.GetVehicleNoCbo(fromDate, toDate), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -358,8 +318,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             try
             {
-                string sql = @"SELECT TransportDriverNo FROM [dbo].[PostSalesInvoice] Where TransportVehicleNo='"+ TransportVehicleNo + "' AND TransportDriverNo IS NOT NULL";
-                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+                return Json(clsSales.GetTransportDriverNo(TransportVehicleNo), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -371,20 +330,9 @@ namespace Aplos.Areas.SalesManagements.Controllers
         [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = column + " like '%" + value + "%'";
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select * from (Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
-                                                    from [dbo].[SalesChalan] SC
-                                                    LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
-                                                    LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
-                                                    LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
-                                                    LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
-                                                    LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById) AS TEMP WHERE " + strkey + " Order By TEMP.AddedDate DESC";
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(clsSales.GetSalesChalan(column, value), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
 
         [HttpGet, Authorize]
@@ -392,21 +340,9 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             try
             {
-                string sql = @"SELECT Checked=CAST(0 AS bit),FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate, S.Id InvoiceId,P.UserName Customer,DT.UserName Destination,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight
-                                FROM TRN.Sales S
-                                LEFT JOIN HKP.Party P ON P.Id=S.PartyId
-                                LEFT JOIN (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage , isc.SalesId 
-                                                from itemscanchild isc
-                                                left join trn.POLotReference PLR on PLR.Id = isc.PackingId
-                                                left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
-				                                group by  isc.salesId) BKD on BKD.salesId = s.Id
-                                left join PostSalesInvoice PSI on PSI.SalesId = BKD.SalesId
-                                left join MST.Addressmaster AM on Am.Id = P.AddressmasterId
-                                left join scs.District Dt on DT.Id = AM.DistrictId
-                                Where FORMAT(S.AddedDate,'dd-MMM-yyyy') between '" + fromDate + @"' AND '" + toDate + @"' AND PSI.Transportvehicleno='" + vehicleno + @"'
-                                AND S.Id NOT IN(Select  InvoiceId from dbo.SalesChalanDetail)
-                                ORDER BY S.Id";
-                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+                JsonResult json = Json(clsSales.GetInvoiceData(fromDate, toDate, vehicleno), JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
             }
             catch (Exception ex)
             {
@@ -419,20 +355,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             try
             {
-                string sql = @"Select SCD.*,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight,DT.UserName Destination,FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate 
-                                    from dbo.SalesChalanDetail SCD
-                                    LEFT JOIN TRN.Sales S ON S.Id=SCD.InvoiceId
-                                    LEFT JOIN HKP.Party P ON P.Id=S.PartyId
-                                    left join (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage,isc.SalesId 
-                                                    from itemscanchild isc
-                                                    left join trn.POLotReference PLR on PLR.Id = isc.PackingId
-                                                    left join trn.PackingLineItem pli on pli.PackingLineItemId = PLR.PackingLineItemId
-				                                    group by  isc.salesId) BKD on BKD.salesId = s.Id
-                                    left join PostSalesInvoice PSI on PSI.SalesId = BKD.SalesId
-                                    left join MST.Addressmaster AM on Am.Id = P.AddressmasterId
-                                    left join scs.District DT on DT.Id = AM.DistrictId
-                                    Where SCD.SalesChalanId='" + masterId + "'";
-                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+                return Json(clsSales.GetInvoiceDataByChalan(masterId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -463,7 +386,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 DataSet dsMaster, dsChild;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-               
+
                 string _Id = "";
                 string _cId = "";
                 bplib.clsGenID genid = new bplib.clsGenID();
@@ -541,7 +464,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
-                   // data["CheckedByStatus"] = "Checked";
+                    // data["CheckedByStatus"] = "Checked";
                     data["ApprovedStatus"] = "To Be Approve";
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
@@ -560,7 +483,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             }
         }
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public JsonResult CreateApproveBy(Dictionary<string, object> data)
         {
             try
@@ -613,7 +536,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-         
+
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -665,15 +588,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
-								from [dbo].[SalesChalan] SC
-								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
-								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
-								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
-								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
-								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
-								where SC.CheckedStatus='To Be Check' AND SC.CheckById='"+identity.EmployeeId+"'";
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                return Json(clsSales.GetUncheckedSalesChalanData(identity.EmployeeId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -687,15 +602,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
-								from [dbo].[SalesChalan] SC
-								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
-								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
-								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
-								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
-								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
-								where SC.CheckedStatus='Checked' AND SC.ApprovedStatus='To Be Approve' AND SC.ApproveById='" + identity.EmployeeId + "'";
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                return Json(clsSales.GetcheckedSalesChalanData(identity.EmployeeId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -709,15 +616,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy,SC.CheckedStatus,SC.ApprovedStatus
-								from [dbo].[SalesChalan] SC
-								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
-								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
-								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
-								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
-								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
-								where SC.ApprovedStatus='Approved' AND SC.ApproveById='" + identity.EmployeeId + "'";
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                return Json(clsSales.GetApproveBycheckedSalesChalanData(identity.EmployeeId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -731,15 +630,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy,SC.CheckedStatus,SC.ApprovedStatus
-								from [dbo].[SalesChalan] SC
-								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
-								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
-								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
-								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
-								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
-								where SC.CheckedStatus='Checked' AND SC.CheckById='" + identity.EmployeeId + "'";
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                return Json(clsSales.GetcheckedSalesChalanDataList(identity.EmployeeId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -750,18 +641,60 @@ namespace Aplos.Areas.SalesManagements.Controllers
         [Authorize, HttpGet]
         public JsonResult GetSalesChalanCheckedByCboList()
         {
-            var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
-                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='SalesChalanCheckBy' AND E.EmployeeStatus='Active'";
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            return Json(clsSales.GetSalesChalanCheckedByCboList(), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
         public JsonResult GetSalesChalanApproveByCboList()
         {
-            var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
-                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='SalesChalanApproveBy' AND E.EmployeeStatus='Active'";
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            return Json(clsSales.GetSalesChalanApproveByCboList(), JsonRequestBehavior.AllowGet);
         }
+
+        [Authorize, HttpGet]
+        public JsonResult GetApproveByDataForDispatchConfirmation()
+        {
+            return Json(clsSales.GetApproveByDataForDispatchConfirmation(), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetApproveByDataForDispatchConfirmed()
+        {
+            return Json(clsSales.GetApproveByDataForDispatchConfirmed(), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost]
+        public JsonResult CreateDispatchConfirmData(Dictionary<string, object> data)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+
+                    data["IsDispatchConfirmation"] = 1;
+                    data["DispatchConfirmationBy"] = identity.Name;
+                    data["DispatchConfirmationDate"] = System.DateTime.Now.ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
     }
 }
