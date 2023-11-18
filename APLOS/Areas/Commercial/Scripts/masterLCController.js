@@ -715,6 +715,9 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
             ShowResult(e, "failure");
         }
     };
+
+    $scope.searchByNB = "UserName"; $scope.searchNB = "";
+
     $scope.NegotiatingBankList = [];
     $scope.GetNegotiatingBankList = function () {
         $http({
@@ -727,10 +730,13 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
     $scope.GetNegotiatingBankList();
 
     $scope.NegotiatingBankDataList = [];
+    $scope.searchByNBList = [{ value: 'BankName', name: "Bank Name" }, { value: 'UserName', name: "User Name" }, { value: 'AccountNo', name: "AccountNo" },{ value: 'Country', name: "Country" }];
     $scope.ShowNBPopUp = function () {
         $http({
-            method: 'GET',
-            url: 'Commercial/Contract/GetNegotiatingBankList'
+            method: 'POST',
+            url: 'Commercial/Contract/GetNegotiatingBankDataList',
+            data: { column: $scope.searchByNB, value: $scope.searchNB },
+            dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.NegotiatingBankDataList = response.data;
             angular.element(document.querySelector('#NBPopUp')).modal('show');

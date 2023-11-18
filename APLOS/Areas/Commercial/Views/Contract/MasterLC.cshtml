@@ -7,7 +7,7 @@
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="Service" role="tab" data-toggle="tab">LC</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="AddInfo" role="tab" data-toggle="tab">Add Info</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="T&C" role="tab" data-toggle="tab">T&C</a></li>
-                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">Negotiating Bank</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">Opening Bank</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -588,9 +588,30 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Negotiating Bank</h4>
+                <h4 class="modal-title">Opening Bank</h4>
             </div>
             <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByNB">
+                                            <option ng-repeat="option in searchByNBList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchNB" ng-enter="ShowNBPopUp()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="ShowNBPopUp()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <div style="color:black;" id="GridNBPOP" ej-grid e-datasource="NegotiatingBankDataList" e-recorddoubleclick="SetNBData"
                          e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
