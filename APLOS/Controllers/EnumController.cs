@@ -713,6 +713,13 @@ namespace Aplos.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetValueOfDistributionEnumCbo()
+        {
+            return Json(new SelectList(EnumService.GetEnumCbo<ValueOfDistributionEnum>(), "Value", "Text"), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpGet, Authorize]
         public JsonResult GetWorkingDaysInAMonthEnumCbo()
         {
             return Json(new SelectList(EnumService.GetEnumCbo<WorkingDaysInAMonth>(), "Value", "Text"), JsonRequestBehavior.AllowGet);

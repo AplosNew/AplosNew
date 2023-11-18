@@ -8,4 +8,10 @@
         Order,
         Contract
     }
+
+    public enum ValueOfDistributionEnum
+    {
+        Amount,
+        Qty
+    }
 }
