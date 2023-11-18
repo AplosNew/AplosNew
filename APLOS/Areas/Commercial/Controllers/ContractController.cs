@@ -1147,7 +1147,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["CustomerId"] = data.CustomerId;
                     dr["IsClose"] = data.IsClose;
                     dr["BenificiaryBankId"] = data.BenificiaryBankId;
-                    dr["OpeningBank"] = data.OpeningBank;
+                    dr["OpeningBankId"] = data.OpeningBankId;
                     dr["OpeningDescription"] = data.OpeningDescription;
                     dr["LeinBank"] = data.LeinBank;
                     dr["LeinDescription"] = data.LeinDescription;
@@ -1183,7 +1183,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["CustomerId"] = data.CustomerId;
                     dr["IsClose"] = data.IsClose;
                     dr["BenificiaryBankId"] = data.BenificiaryBankId;
-                    dr["OpeningBank"] = data.OpeningBank;
+                    dr["OpeningBankId"] = data.OpeningBankId;
                     dr["OpeningDescription"] = data.OpeningDescription;
                     dr["LeinBank"] = data.LeinBank;
                     dr["LeinDescription"] = data.LeinDescription;
@@ -3310,6 +3310,61 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }//End of function
 
+        private string GetNegotiatingBankPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "NegotiatingBank", out sID);
+            return sID;
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetNegotiatingBankList()
+        {
+            return Json(clsCon.GetNegotiatingBankList(), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost, Authorize]
+        public JsonResult SaveNegotiatingBank(Dictionary<string, object> data)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsChild;
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.NegotiatingBank where  Id='" + data["Id"] + "'", out dsChild, false, "1");
+
+                if (data != null)
+                {
+                    DataView dv = new DataView(dsChild.Tables[0]);
+                    dv.RowFilter = "Id='" + data["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        data["Id"] = GetNegotiatingBankPK();
+                        AddNewRow(dsChild.Tables[0], data);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        EditRow(drmo, data);
+                    }
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsChild);
+                }
+
+
+                return Json(new { Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+        }
+
     }
 
     class clsStdLib
@@ -3920,7 +3975,7 @@ namespace Aplos.Areas.Commercial.Controllers
         public string CustomerId { get; set; }
         public bool IsClose { get; set; }
         public string BenificiaryBankId { get; set; }
-        public string OpeningBank { get; set; }
+        public string OpeningBankId { get; set; }
         public string OpeningDescription { get; set; }
         public string LeinBank { get; set; }
         public string LeinDescription { get; set; }
