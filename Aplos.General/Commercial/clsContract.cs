@@ -280,7 +280,7 @@ where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1
 							FORMAT(MLC.ExpiryDate,'dd-MMM-yyyy') ExpiryDate, MLC.Amount, MLC.Type, MLC.Tenure, MLC.FinalDestinationId,MLC.PortOfLandingId,
 							PR.UserName PortOfLanding, MLC.AddedBy,FORMAT(MLC.AddedDate,'dd-MMM-yyyy') AddedDate, MLC.AddedFromIP, MLC.UpdatedBy, 
 							FORMAT(MLC.UpdatedDate,'dd-MMM-yyyy') UpdatedDate, MLC.UpdatedFromIP, MLC.CurrencyId,LB.UserName BenificiaryBank,CN.Code Currency, 
-							MLC.CustomerId, P.UserName PartyName,MLC.Version,mlc.LCShipmentDate,mlc.ShipmentModeId,sm.UserName ShipmentMode,mlc.AmendmentDate
+							MLC.CustomerId, P.UserName PartyName,MLC.Version,FORMAT(mlc.LCShipmentDate,'dd-MMM-yyyy')LCShipmentDate,mlc.ShipmentModeId,sm.UserName ShipmentMode,FORMAT(mlc.AmendmentDate,'dd-MMM-yyyy')AmendmentDate
 							,mlc.PortOfLoadingId,prl.UserName PortOfLoading,MLC.Remarks,MLC.DescriptionOfGoodsAndOrServices, MLC.OpeningBankId
                          FROM [dbo].[MasterLC] MLC
                          LEFT JOIN MST.BankMaster OB  ON OB.Id=MLC.BenificiaryBankId
