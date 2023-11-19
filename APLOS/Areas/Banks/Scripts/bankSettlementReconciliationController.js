@@ -109,26 +109,30 @@ function bankSettlementReconciliationController(commonMessage, $scope, $rootScop
 
     $scope.SaveAdjustmentJournal = function () {
         try {
-             $http({
-                    method: "POST",
-                    url: $scope.path + "SaveAdjustmentJournalBankReconciliationMap",
-                    data: {
-                        "bankReconciliation": $scope.bankReconciliation
-                        , "bankReconciliationList": $scope.TempList
-                    },
-                    dataType: "JSON"
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, "failure");
-                    }
-                    else {
-                        $scope.getBnkReconList();
-                        ShowResult(response.data.Message, "success");
-                    }
-                });
-            
+            $scope.saveBtnDisable = true;
+            $http({
+                method: "POST",
+                url: $scope.path + "SaveAdjustmentJournalBankReconciliationMap",
+                data: {
+                    "bankReconciliation": $scope.bankReconciliation
+                    , "bankReconciliationList": $scope.TempList
+                },
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    $scope.saveBtnDisable = false;
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    $scope.getBnkReconList();
+                    $scope.saveBtnDisable = false;
+                    ShowResult(response.data.Message, "success");
+                }
+            });
+
 
         } catch (e) {
+            $scope.saveBtnDisable = false;
             ShowResult(e, "failure");
         }
     };
@@ -156,9 +160,10 @@ function bankSettlementReconciliationController(commonMessage, $scope, $rootScop
             ShowResult(e, "failure");
         }
     }
+    $scope.saveBtnDisable = false;
     $scope.Save = function () {
         try {
-                checkTotalAmount();
+            checkTotalAmount();
             $scope.listMergeTempList();
             if ($scope.bankDrTempList.length > 1 && $scope.bankDrUploadedDataTempList.length > 1) {
                 throw "Both site multiple not allowed,Please check One site one Dr. Reconcile Pending or other site multiple .!";
@@ -170,7 +175,7 @@ function bankSettlementReconciliationController(commonMessage, $scope, $rootScop
             if ($scope.TempList.length === 0) {
                 throw "Please check at least one Reconcile Pending .!";
             }
-                
+
 
             angular.copy($scope.bankReconciliationNew, $scope.bankReconciliation);
             if (bankDrReconDifferenceAmount > 0 && bankDrReconDifferenceAmount <= 2) {
@@ -178,6 +183,7 @@ function bankSettlementReconciliationController(commonMessage, $scope, $rootScop
                 angular.element(document.querySelector("#confirmSavePopUp")).modal("show");
             }
             else {
+                $scope.saveBtnDisable = true;
                 $http({
                     method: "POST",
                     url: $scope.path + "SaveBankReconciliationMap",
@@ -188,16 +194,19 @@ function bankSettlementReconciliationController(commonMessage, $scope, $rootScop
                     dataType: "JSON"
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
+                        $scope.saveBtnDisable = false;
                         ShowResult(response.data.Message, "failure");
                     }
                     else {
                         $scope.getBnkReconList();
+                        $scope.saveBtnDisable = false;
                         ShowResult(response.data.Message, "success");
                     }
                 });
             }
-                
+
         } catch (e) {
+            $scope.saveBtnDisable = false;
             ShowResult(e, "failure");
         }
     };
@@ -421,6 +430,7 @@ function bankSettlementReconciliationController(commonMessage, $scope, $rootScop
         $scope.bankCrTempList = [];
         $scope.bankCrUploadedDataTempList = [];
         $scope.TempList = [];
+        $scope.saveBtnDisable = false;
     }
     $scope.invalidDocDate = false;
     $scope.checkDocDate = function () {

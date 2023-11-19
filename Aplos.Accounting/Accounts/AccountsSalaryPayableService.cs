@@ -2318,7 +2318,7 @@ namespace Library.Accounting.Accounts
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 parameters.CmdText = @"SELECT V.Id PayableVoucherId, V.VoucherDate, V.PostingDate, V.DocRefNo, V.VoucherTypeId, V.CurrencyId, V.DocDate, V.EntityId, C.Code AS CurrencyCode
-                                    , VD.DrAmount, V.VoucherNo,BM.AccountTitle PaymentBank,sl.EmpBank EmployeeBank, V.IsPark, V.Narration
+                                    , VD.DrAmount, V.VoucherNo,BM.AccountTitle PaymentBank, V.IsPark, V.Narration
 									,[Month]=case when sl.MonthNo=1 then 'January'
                                     when sl.MonthNo=2 then 'February'
                                     when sl.MonthNo=3 then 'March'
@@ -2336,13 +2336,9 @@ namespace Library.Accounting.Accounts
                                     LEFT JOIN (SELECT SUM(VD.DrAmount) AS DrAmount, VD.VoucherId,VD.BankMasterId FROM [TRN].[VoucherDetail] AS VD WHERE VD.DrAmount <> 0 
 									GROUP BY VD.VoucherId,VD.BankMasterId
                                     ) AS VD ON VD.VoucherId=V.Id
-									left join (select distinct sl.DisbursementVoucherId,sl.MonthNo,sl.YearNo,b.UserName EmpBank 
+									left join (select distinct sl.DisbursementVoucherId,sl.MonthNo,sl.YearNo
 									from dbo.SalaryLock sl
-									 left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
-									left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
-									left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
-									left join hkp.Bank b on spd.BankSystemID=b.Id
-									where sl.DisbursementVoucherId<>'' and sl.IsDisbursed=1 and spd.BankSystemID<>''
+									where sl.DisbursementVoucherId<>'' and sl.IsDisbursed=1 
 									) sl on sl.DisbursementVoucherId=v.Id
 									LEFT JOIN TRN.VoucherDetail XVD ON XVD.VoucherId=V.Id AND XVD.BankMasterId<>''
 									left join MST.BankMaster BM ON BM.Id=XVD.BankMasterId
