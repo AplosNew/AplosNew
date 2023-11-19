@@ -133,7 +133,7 @@
                         </div>
                     </div>
                     <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                        <label class="col-sm-4 control-label">Work Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <input type="text" id="GFG" name="FromDate" ng-model="ModelNew.FromDate" class="form-control datepic"  ng-change="getPayDaysAmount();"  datepic placeholder="dd-Mmm-yyyy" tabindex="3">
                         </div>
@@ -193,7 +193,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group" show-errors>
+                    <div class="form-group" show-errors ng-hide="true" >
                         <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <input type="text" id="GFG" name="ToDate" ng-model="ModelNew.ToDate" class="form-control datepic"  ng-change="getPayDaysAmount();"  datepic placeholder="dd-Mmm-yyyy" tabindex="3">
@@ -264,15 +264,15 @@
                                 <th>Section</th>
                                 <th>SubSection</th>
                                 <th>Department</th>
-                                <th>Pay Days</th>
+                                <th title="SUM(CalculatedMinute/1440)">Pay Days</th>
                                 <th>Standard OT</th>
                                 <th>Additional OT</th>
                                 <th>Good Work</th>
-                                <th>Rate Per Day</th>
-                                <th>Rate Per Hour</th>
-                                <th>Amount</th>
+                                <th title="((Gross/208)*2)*2)">Rate Per Day</th>
+                                <th title="(((Gross/208)*2))">Rate Per Hour</th>
+                                <th  title="Basic/26*PayDays*Percentage">Amount</th>
                                 <th>AdvanceGiven</th>
-                                <th>NetPayable</th>
+                                <th title="(Basic/26*PayDays*Percentage)-AdvanceGiven">NetPayable</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -284,16 +284,14 @@
                                 <td>{{x.SubSection}}</td>
                                 <td>{{x.Department}}</td>
                                 <td>
-                                    <span class="input-group-btn">
-                                        <input type="number" class="form-control" name="PayDays" ng-model="x.PayDays" e-width="100" ng-disabled="true" />
-                                    </span>
+                                        <label>{{x.PayDays}}</label>
                                 </td>
                                 <td><input type="number" class="form-control" name="Standard OT" ng-model="x.StandardOT" e-width="100" ng-disabled="true" /></td>
                                 <td><input type="number" class="form-control" name="Additional OT" ng-model="x.AdditionalOT" e-width="100" ng-disabled="true" /></td>
                                 <td><input type="number" class="form-control" name="Good Work" ng-model="x.GoodWork" e-width="100" ng-disabled="true" /></td>
-                                <td><input type="number" class="form-control" name="Rate Per Day" ng-model="x.RatePerDay" e-width="100" ng-disabled="true" /></td>
-                                <td><input type="number" class="form-control" name="Rate Per Hour" ng-model="x.RatePerHour" e-width="100" ng-disabled="true" /></td>
-                                <td><input type="number" class="form-control" name="Amount" ng-model="x.Amount" e-width="100" ng-disabled="true" /></td>
+                                <td><input type="number" class="form-control" title="Gross: {{x.Gross}}" name="Rate Per Day" ng-model="x.RatePerDay" e-width="100" ng-disabled="true" /></td>
+                                <td><input type="number" class="form-control" title="Gross: {{x.Gross}}" name="Rate Per Hour" ng-model="x.RatePerHour" e-width="100" ng-disabled="true" /></td>
+                                <td><input type="number" class="form-control" title="Basic: {{x.Basic}}" name="Amount" ng-model="x.Amount" e-width="100" ng-disabled="true" /></td>
                                 <td><input type="number" class="form-control" name="AdvanceGiven" ng-model="x.AdvanceGiven" e-width="100" ng-disabled="true" /></td>
                                 <td><input type="number" class="form-control" name="NetPayable" ng-model="x.NetPayable" e-width="100" ng-disabled="true" /></td>
                                 <td class="text-right">

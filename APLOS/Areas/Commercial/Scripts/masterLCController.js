@@ -1,5 +1,5 @@
 ﻿'use strict';
-masterLCController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService', 'bankService', '$controller','addressService'];
+masterLCController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService', 'bankService', '$controller', 'addressService'];
 function masterLCController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, cboService, bankService, $controller, addressService) {
     $rootScope.title = "MasterLC";
     $scope.Action = 'Save';
@@ -69,7 +69,11 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         $scope.partyType = "Customer";
     }
 
-
+    $scope.closeCustomerPopUpNew = function () {
+        angular.element(document.querySelector('#CustomerPopUpNew')).modal('hide');
+        $scope.partyType = "Customer";
+        $scope.searchParty = '';
+    }
 
     $scope.shipmentModeList = [];
     $scope.GetshipmentMode = function () {
@@ -647,6 +651,33 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         $scope.companyList = result;
     });
 
+    $scope.EditNB = function (obj) {
+        $scope.NBAction = 'Update';
+        $scope.BankModelNew = Object.assign({}, obj.data);
+    }
+    $scope.NBAction = 'Save';
+
+    $scope.ClearNBank = function () {
+        $scope.ModelBank = {
+            Id: null,
+            BankName: null,
+            AccountNo: null,
+            BankCategory: null,
+            UserName: null,
+            SWIFTCode: null,
+            CountryId: null,
+            Remark: null,
+            AddedBy: null,
+            AddedDate: null,
+            AddedFromIP: null,
+            UpdatedBy: null,
+            UpdatedDate: null,
+            UpdatedFromIP: null
+        }
+        $scope.BankModelNew = Object.assign({}, $scope.ModelBank);
+        $scope.NBAction = 'Save';
+    }
+
     $scope.SaveNBank = function () {
         try {
             if (baseService.isUndefinedOrNull($scope.BankModelNew.BankName)) {
@@ -661,7 +692,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
             if (baseService.isUndefinedOrNull($scope.BankModelNew.CountryId)) {
                 throw "Country is required.";
             }
-           
+
             $http({
                 method: 'POST',
                 url: 'Commercial/Contract/SaveNegotiatingBank',
@@ -675,6 +706,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.GetNegotiatingBankList();
+                    $scope.ClearNBank();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -683,6 +715,9 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
             ShowResult(e, "failure");
         }
     };
+
+    $scope.searchByNB = "UserName"; $scope.searchNB = "";
+
     $scope.NegotiatingBankList = [];
     $scope.GetNegotiatingBankList = function () {
         $http({
@@ -693,6 +728,31 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         });
     }
     $scope.GetNegotiatingBankList();
+
+    $scope.NegotiatingBankDataList = [];
+    $scope.searchByNBList = [{ value: 'BankName', name: "Bank Name" }, { value: 'UserName', name: "User Name" }, { value: 'AccountNo', name: "AccountNo" },{ value: 'Country', name: "Country" }];
+    $scope.ShowNBPopUp = function () {
+        $http({
+            method: 'POST',
+            url: 'Commercial/Contract/GetNegotiatingBankDataList',
+            data: { column: $scope.searchByNB, value: $scope.searchNB },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.NegotiatingBankDataList = response.data;
+            angular.element(document.querySelector('#NBPopUp')).modal('show');
+        });
+    }
+
+    $scope.SetNBData = function (obj) {
+        $scope.masterLC.OpeningBankId = obj.data.Id;
+        $scope.masterLC.OpeningBank = obj.data.BankName;
+        angular.element(document.querySelector('#NBPopUp')).modal('hide');
+    }
+
+    $scope.CloseNB = function () {
+        angular.element(document.querySelector('#NBPopUp')).modal('hide');
+    }
+
 
 
 

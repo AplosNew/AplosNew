@@ -96,8 +96,8 @@ namespace Aplos.Areas.Commercial.Controllers
                           ,S.InvoiceNo
 						  ,PT.UserName [Port]
 						  ,SP.UserName ShipMode
-                            ,P.ExportRefNo,P.TransporterCHAForwarderId,P.DocumentReceiveDate,P.AWBB2B,P.ActualPaymentReceived,P.ShippingBillNo,P.PortCode,P.DocumentSubmissionDate
-					      ,P.DocAcceptanceDate,P.FinalShipmentStatus,P.ShippingBillDate,P.ShipmentDate,P.NegotiationType,P.PaymentReceivedDate,P.Remark,S.InvoiceStatus,P.TransporterCHAForwarderId,TF.UserName TransporterCHAForwarder
+                            ,P.ExportRefNo,P.TransporterCHAForwarderId,FORMAT(P.DocumentReceiveDate,'dd-MMM-yyyy')DocumentReceiveDate,P.AWBB2B,P.ActualPaymentReceived,P.ShippingBillNo,P.PortCode,FORMAT(P.DocumentSubmissionDate,'dd-MMM-yyyy')DocumentSubmissionDate
+					      ,FORMAT(P.DocAcceptanceDate,'dd-MMM-yyyy')DocAcceptanceDate,P.FinalShipmentStatus,FORMAT(P.ShippingBillDate,'dd-MMM-yyyy')ShippingBillDate,FORMAT(P.ShipmentDate,'dd-MMM-yyyy')ShipmentDate,P.NegotiationType,FORMAT(P.PaymentReceivedDate,'dd-MMM-yyyy')PaymentReceivedDate,P.Remark,S.InvoiceStatus,P.TransporterCHAForwarderId,TF.UserName TransporterCHAForwarder
                       FROM [dbo].[PostSalesInvoice] P
 					  LEFT JOIN TRN.Sales S ON S.Id=P.SalesId
 					  LEFT JOIN HKP.Party C ON C.Id=P.CNFAgentId
@@ -160,8 +160,8 @@ namespace Aplos.Areas.Commercial.Controllers
                           ,S.InvoiceNo
 						  ,PT.UserName [Port]
 						  ,SP.UserName ShipMode
-                          ,P.ExportRefNo,P.TransporterCHAForwarderId,P.DocumentReceiveDate,P.AWBB2B,P.ActualPaymentReceived,P.ShippingBillNo,P.PortCode,P.DocumentSubmissionDate
-					      ,P.DocAcceptanceDate,P.FinalShipmentStatus,P.ShippingBillDate,P.ShipmentDate,P.NegotiationType,P.PaymentReceivedDate,P.Remark,S.InvoiceStatus,P.TransporterCHAForwarderId,TF.UserName TransporterCHAForwarder
+                           ,P.ExportRefNo,P.TransporterCHAForwarderId,FORMAT(P.DocumentReceiveDate,'dd-MMM-yyyy')DocumentReceiveDate,P.AWBB2B,P.ActualPaymentReceived,P.ShippingBillNo,P.PortCode,FORMAT(P.DocumentSubmissionDate,'dd-MMM-yyyy')DocumentSubmissionDate
+					      ,FORMAT(P.DocAcceptanceDate,'dd-MMM-yyyy')DocAcceptanceDate,P.FinalShipmentStatus,FORMAT(P.ShippingBillDate,'dd-MMM-yyyy')ShippingBillDate,FORMAT(P.ShipmentDate,'dd-MMM-yyyy')ShipmentDate,P.NegotiationType,FORMAT(P.PaymentReceivedDate,'dd-MMM-yyyy')PaymentReceivedDate,P.Remark,S.InvoiceStatus,P.TransporterCHAForwarderId,TF.UserName TransporterCHAForwarder
                       FROM [dbo].[PostSalesInvoice] P
 					  LEFT JOIN TRN.Sales S ON S.Id=P.SalesId
 					  LEFT JOIN HKP.Party C ON C.Id=P.CNFAgentId

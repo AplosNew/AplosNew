@@ -280,7 +280,7 @@ where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1
 							FORMAT(MLC.ExpiryDate,'dd-MMM-yyyy') ExpiryDate, MLC.Amount, MLC.Type, MLC.Tenure, MLC.FinalDestinationId,MLC.PortOfLandingId,
 							PR.UserName PortOfLanding, MLC.AddedBy,FORMAT(MLC.AddedDate,'dd-MMM-yyyy') AddedDate, MLC.AddedFromIP, MLC.UpdatedBy, 
 							FORMAT(MLC.UpdatedDate,'dd-MMM-yyyy') UpdatedDate, MLC.UpdatedFromIP, MLC.CurrencyId,LB.UserName BenificiaryBank,CN.Code Currency, 
-							MLC.CustomerId, P.UserName PartyName,MLC.Version,mlc.LCShipmentDate,mlc.ShipmentModeId,sm.UserName ShipmentMode,mlc.AmendmentDate
+							MLC.CustomerId, P.UserName PartyName,MLC.Version,FORMAT(mlc.LCShipmentDate,'dd-MMM-yyyy')LCShipmentDate,mlc.ShipmentModeId,sm.UserName ShipmentMode,FORMAT(mlc.AmendmentDate,'dd-MMM-yyyy')AmendmentDate
 							,mlc.PortOfLoadingId,prl.UserName PortOfLoading,MLC.Remarks,MLC.DescriptionOfGoodsAndOrServices, MLC.OpeningBankId
                          FROM [dbo].[MasterLC] MLC
                          LEFT JOIN MST.BankMaster OB  ON OB.Id=MLC.BenificiaryBankId
@@ -1197,7 +1197,22 @@ LEFT JOIN SCS.Country C ON C.Id=NB.CountryId";
             }
         }
 
-
+        public IEnumerable<object> GetNegotiatingBankDataList(string column, string value)
+        {
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"SELECT * FROM (SELECT NB.*,C.UserName Country FROM dbo.NegotiatingBank NB
+                            LEFT JOIN SCS.Country C ON C.Id=NB.CountryId) AS TEMP WHERE " + strkey + " ORDER BY TEMP.AddedDate DESC";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }
 
