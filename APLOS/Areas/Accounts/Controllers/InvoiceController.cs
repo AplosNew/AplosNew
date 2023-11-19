@@ -1,5 +1,4 @@
-﻿using Aplos.Areas.Commercial.Controllers;
-using Aplos.Controllers;
+﻿using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Accounting.Accounts;
 using Library.Core;
@@ -11,14 +10,10 @@ using Library.Model.Commercial;
 using Library.Model.Enums;
 using Library.Model.Invoices;
 using Library.Model.Payments;
-using Library.Security.Core;
-using Library.Service.Currencies;
 using Library.Service.Employees;
 using Library.Service.Enums;
-using Library.Service.Extension;
 using Library.Service.Helpers;
 using Library.Service.Invoices;
-using Library.Service.Organizations;
 using Library.ViewModel.Accounts;
 using Library.ViewModel.Banks;
 using Library.ViewModel.Invoices;
@@ -32,12 +27,10 @@ using System.Linq;
 using System.Threading;
 using System.Web;
 using System.Web.Mvc;
-using OTSBD;
 using Library.Service.Advances;
 using Syncfusion.Pdf;
 using Syncfusion.ExcelToPdfConverter;
 using Library.ViewModel.OrderManagements;
-using Library.Service.Core;
 
 namespace Aplos.Areas.Accounts.Controllers
 {

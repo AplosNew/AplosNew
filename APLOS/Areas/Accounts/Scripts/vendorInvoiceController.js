@@ -765,6 +765,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         $scope.BudgetMasterId = 0;
         $scope.ActivityId = 0;
         $scope.activityOrderType = item.ActivityOrderType;
+        $scope.ValueOfDistribution = item.ValueOfDistribution;
         $scope.TotalChargesAmount = item.Amount;
         $scope.GLGeneralInfoId = item.GLGeneralInfoId;
         $scope.BudgetMasterId = item.BudgetMasterId;
@@ -772,7 +773,10 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         
         if ($scope.activityOrderType == "InboundInvoice") {
             $scope.isSet(1);
-            $scope.calDistributedAmount();
+            if ($scope.ValueOfDistribution=='Amount')
+                $scope.calDistributedAmount();
+            else
+                $scope.calDistributedQtyWise();
         }
         else if ($scope.activityOrderType == "OutboundInvoice") {
             $scope.isSet(2);
@@ -1128,6 +1132,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         $scope.voucherDetail.ActivityCode = data.ActivityCode;
         $scope.voucherDetail.IsOrderSpecific = data.IsOrderSpecific;
         $scope.voucherDetail.ActivityOrderType = data.ActivityOrderType;
+        $scope.voucherDetail.ValueOfDistribution = data.ValueOfDistribution;
         $scope.voucherDetail.AccountType = data.AccountType;
         $scope.addRow();
         $scope.closeGLPopUp();
@@ -1818,6 +1823,27 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         }
         
     }
+
+    $scope.TotalInvoiceQty = 0;
+    $scope.getTotalInvoiceQty = function () {
+        $scope.TotalInvoiceQty = 0;
+        if ($scope.activityOrderType == "InboundInvoice") {
+            if (baseService.arrayLength($scope.checkedInvoiceList) > 0)
+                $scope.TotalInvoiceQty += parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "Qty"));
+        }
+        else if ($scope.activityOrderType == "OutboundInvoice") {
+            if (baseService.arrayLength($scope.checkedOutBoundInvoiceList))
+                $scope.TotalInvoiceAmount += parseFloat($filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "BooksAmount"));
+        }
+        else if ($scope.activityOrderType == "BothInOutboundInvoice") {
+            if (baseService.arrayLength($scope.checkedInvoiceList) > 0)
+                $scope.TotalInvoiceAmount += parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "BooksAmount"));
+            if (baseService.arrayLength($scope.checkedOutBoundInvoiceList))
+                $scope.TotalInvoiceAmount += parseFloat($filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "BooksAmount"));
+        }
+
+    }
+
     $scope.TotalChargesAmount = 0;
     $scope.calDistributedAmount = function myfunction() {
         $scope.getTotalInvoiceAmount();
@@ -1847,6 +1873,35 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
             }
         }
        
+    }
+    $scope.calDistributedQtyWise = function myfunction() {
+        $scope.getTotalInvoiceQty();
+        $scope.TotalDistributedInvoiceAmount = 0;
+
+        $scope.TotalDistributedQtyInvoice = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "Qty"));
+        var totali = parseFloat(($scope.TotalDistributedQtyInvoice * $scope.TotalChargesAmount) / $scope.TotalInvoiceQty);
+
+        for (var i = 0; i < $scope.checkedInvoiceList.length; i++) {
+            $scope.checkedInvoiceList[i].DistributedAmount = 0;
+        }
+
+        for (var i = 0; i < $scope.checkedInvoiceList.length; i++) {
+            if ($scope.checkedInvoiceList.length == 1) {
+                $scope.checkedInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedInvoiceList[i].Qty) * $scope.TotalChargesAmount / $scope.TotalInvoiceQty).toFixed(2);
+                $scope.TotalDistributedInvoiceAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "DistributedAmount"));
+            }
+            else {
+                if ($scope.checkedInvoiceList.length - 1 == i) {
+
+                    $scope.TotalDistributedInvoiceAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "DistributedAmount"));
+                    $scope.checkedInvoiceList[i].DistributedAmount = (totali - $scope.TotalDistributedInvoiceAmount).toFixed(2);
+                }
+                else {
+                    $scope.checkedInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedInvoiceList[i].Qty) * $scope.TotalChargesAmount / $scope.TotalInvoiceQty).toFixed(2);
+                }
+            }
+        }
+
     }
     $scope.calOutBoundDistributedAmount = function myfunction() {
         //$scope.TotalChargesAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount"));
@@ -2047,6 +2102,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
                             InvoiceId: a.InvoiceId
                             , InvoiceDetailId: a.InvoiceDetailId
                             , Amount: a.Receivable
+                            , Qty: a.TrnQty
                             , BooksAmount: a.Receivable * a.CompanyCurrencyRate
                             , DistributedAmount: 0
                             , ChargesAmount: 0
@@ -2067,7 +2123,11 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         }
 
         $scope.hideInvoicePopUp();
-        $scope.calDistributedAmount();
+        if ($scope.ValueOfDistribution == 'Amount')
+            $scope.calDistributedAmount();
+        else
+            $scope.calDistributedQtyWise();
+
         $scope.calOutBoundDistributedAmount();
         $scope.totalBooksAmountCal();
     };
@@ -2081,6 +2141,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
                             InvoiceId: a.InvoiceId
                             , InvoiceDetailId: a.InvoiceDetailId
                             , Amount: a.Receivable
+                            , Qty: a.TrnQty
                             , BooksAmount: a.Receivable * a.CompanyCurrencyRate
                             , DistributedAmount: 0
                             , ChargesAmount: 0
