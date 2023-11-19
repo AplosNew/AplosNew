@@ -101,20 +101,20 @@
                                     </div>
                                 </div>
                             </div>
-                            <!--<div class="form-group" show-errors>
+                            <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Customer<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     <div class="input-group">
                                         <input type="text" name="Customer" ng-model="fileNew.CustomerName" class="form-control" readonly required>
                                         <span class="input-group-btn">
-                                            <button ng-click="ShowCustomerPopUpNew();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>-->
+                                            <button ng-click="ShowCustomerPopUpNew();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
                                             @*<button ng-click="showPartyPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>*@
-                                            <!--<button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
+                                            <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
                                         </span>
                                     </div>
                                 </div>
-                            </div>-->
-                            <div class="form-group">
+                            </div>
+                            @*<div class="form-group">
                                 <label class="col-sm-4 control-label" title="Customer">Customer<sup>*</sup></label>
                                 <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
                                     <span class="input-group-addon">{{fileNew.CustomerCode}}</span>
@@ -123,7 +123,7 @@
                                         <button ng-click="ShowCustomerPopUpNew()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                                     </span>
                                 </div>
-                            </div>
+                            </div>*@
 
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Buyer Ref No</label>
@@ -402,8 +402,8 @@
 
                                         <th>Total Quantity</th>
                                         <th>SO Total Quantity</th>
+                                        <th>Total Amount</th>
                                         <th>UoM</th>
-                                        @*<th>Material</th>*@
                                         <th>Article</th>
                                         <th>Customer Article</th>
                                         <th>Item Costing</th>
@@ -462,6 +462,9 @@
                                                 {{x.SOQty}}
                                             </label>
                                         </td>
+                                        <td> 
+                                            {{x.TotalAmount}}
+                                        </td>
                                         <td>
                                             <div class="select-style">
                                                 <select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId"
@@ -470,13 +473,13 @@
                                             </div>
                                         </td>
                                         @*<td>
-                                            <div class="input-group">
-                                                <input type="text" name="Customer" ng-model="x.MaterialMasterName" class="form-control" readonly style="width: 200px;">
-                                                <span class="input-group-btn">
-                                                    <button ng-click="getMaterial($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                </span>
-                                            </div>
-                                        </td>*@
+            <div class="input-group">
+                <input type="text" name="Customer" ng-model="x.MaterialMasterName" class="form-control" readonly style="width: 200px;">
+                <span class="input-group-btn">
+                    <button ng-click="getMaterial($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                </span>
+            </div>
+        </td>*@
                                         <td>
 
                                             <div class="input-group">
@@ -504,7 +507,7 @@
                                             <input type="text" ng-model=" x.BuyerReferenceNo" class="form-control" style="width: 105px;" ng-maxlength="50">
                                         </td>
                                         <td>
-                                            <input type="text" ng-model=" x.OwnReferenceNo" class="form-control"  style="width: 105px;" ng-maxlength="50" ng-keyup="SetProductionRef($index);">
+                                            <input type="text" ng-model=" x.OwnReferenceNo" class="form-control" style="width: 105px;" ng-maxlength="50" ng-keyup="SetProductionRef($index);">
                                         </td>
                                         <td>
                                             <input type="text" ng-model=" x.ProductionGrouping" class="form-control" ng-keyup="CheckSpecialCharecter($index);">
@@ -645,6 +648,11 @@
                                             </label>
                                         </td>
 
+                                        <td class="text-right">
+                                            <label>
+                                                {{itemList | sumByKey : 'TotalAmount'|number:2}}
+                                            </label>
+                                        </td>
                                         <td colspan="26"></td>
                                         <td class="text-center">
                                             <button ng-click="addNewItem();" ng-disabled="fileNew.Id===null" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add Line Item</button>
@@ -831,29 +839,29 @@
                 <div e-columns>
                     <div e-column e-headertext="Print" e-template="#Print" e-width="40"></div>
                     <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="50"></div>
-                    <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="CreationDate" e-headertext="Creation Date" e-width="80"></div>
-                    <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
                     <div e-column e-type="string" e-field="MasterOrderNo" e-headertext="Master Order No" e-width="80"></div>
+                    <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="CreationDate" e-headertext="Creation Date" e-width="90"></div>
+                    <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="180"></div>
+                    <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="180"></div>
+                    <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="Buyer Ord#" e-width="100"></div>
+                    <div e-column e-type="string" e-field="TotalQty" e-headertext="Total Quantity" e-width="90"></div>
+                    <div e-column e-type="string" e-field="TotalAmount" e-format="{0:0.00}" e-headertext="Total Amount" e-width="90"></div>
+                    <div e-column e-type="string" e-field="ResponsiblePersonName" e-headertext="Responsible Person" e-width="180"></div>
+                    <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
                     <div e-column e-type="string" e-field="UserName" e-headertext="Plant" e-width="100"></div>
                     <div e-column e-type="string" e-field="OrderYear" e-headertext="Order Year" e-width="80"></div>
-                    <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="180"></div>
-                    <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="Buyer Ord#" e-width="100"></div>
-                    <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Own Order#" e-width="100"></div>
-                    <div e-column e-type="string" e-field="TotalQty" e-headertext="Total Quantity" e-width="80"></div>
-                    <div e-column e-type="string" e-field="TotalAmount" e-format="{0:0.00}" e-headertext="Total Amount" e-width="80"></div>
-                    <div e-column e-type="string" e-field="OrderType" e-headertext="Order Type" e-width="80"></div>
+                    <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Own Order#" e-width="120"></div>
+                    <div e-column e-type="string" e-field="OrderType" e-headertext="Order Type" e-width="100"></div>
                     <div e-column e-type="string" e-field="OrderStatusId" e-headertext="Order Status" e-width="80"></div>
-                    <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="180"></div>
-                    <div e-column e-type="string" e-field="NoOfLineItem" e-headertext="Line Item No" e-width="50"></div>
+                    <div e-column e-type="string" e-field="NoOfLineItem" e-headertext="Line Item No" e-width="80"></div>
                     <div e-column e-type="string" e-field="OrderCategory" e-headertext="Order Category" e-width="80"></div>
-                    <div e-column e-type="string" e-field="ResponsiblePersonName" e-headertext="Responsible Person" e-width="180"></div>
                     <div e-column e-type="string" e-field="InvoicingPartyPlant" e-headertext="Bill To" e-width="180"></div>
                     <div e-column e-type="string" e-field="DeliveryPartyPlant" e-headertext="Ship To" e-width="180"></div>
-                    <div e-column e-type="string" e-field="BuyerReferenceNoItem" e-headertext="Buyer Ref. No-Item" e-width="100"></div>
-                    <div e-column e-type="string" e-field="OwnItem" e-headertext="Own Item#" e-width="100"></div>
-                    <div e-column e-type="string" e-field="ContractNo" e-headertext="ContractNo" e-width="100"></div>
-                    <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLCNo" e-width="100"></div>
-                    <div e-column e-type="string" e-field="AddedBy" e-headertext="Created By" e-width="100"></div>
+                    <div e-column e-type="string" e-field="BuyerReferenceNoItem" e-headertext="Buyer Ref. No-Item" e-width="120"></div>
+                    <div e-column e-type="string" e-field="OwnItem" e-headertext="Own Item#" e-width="120"></div>
+                    <div e-column e-type="string" e-field="ContractNo" e-headertext="ContractNo" e-width="120"></div>
+                    <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLCNo" e-width="120"></div>
+                    <div e-column e-type="string" e-field="AddedBy" e-headertext="Created By" e-width="120"></div>
                 </div>
 
             </div>

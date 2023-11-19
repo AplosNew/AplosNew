@@ -1,6 +1,6 @@
 ﻿'use strict';
-masterLCController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService', 'bankService', '$controller'];
-function masterLCController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, cboService, bankService, $controller) {
+masterLCController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService', 'bankService', '$controller', 'addressService'];
+function masterLCController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, cboService, bankService, $controller, addressService) {
     $rootScope.title = "MasterLC";
     $scope.Action = 'Save';
     $scope.path = 'Commercial/contract/';
@@ -38,15 +38,43 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         }
     }
 
-    $scope.closePartyPopUp = function () {
-        if ($scope.partyIndex !== -1) {
-            var party = $scope.partyList[$scope.partyIndex];
-            $scope.masterLC.CustomerId = party.Id;
-            $scope.masterLC.PartyCode = party.Code;
-            $scope.masterLC.PartyName = party.UserName;
-        }
-        $scope.hidePartyPopUp();
+
+    $scope.searchByParty = "UserName"; $scope.searchParty = "";
+
+    $scope.ShowCustomerPopUpNew = function () {
+        $scope.partyType = "Customer";
+        $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+
+        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + $scope.partyType + '&CompanyId=' + $window.companyId + '&PlantId=' + $window.plantId;
+
+        $http({
+            method: 'POST',
+            url: $scope.partyUrl,
+            data: { column: $scope.searchByParty, value: $scope.searchParty },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.partyList = response.data;
+        });
+        angular.element(document.querySelector('#CustomerPopUpNew')).modal('show');
     };
+
+    $scope.SetCustomerData = function (obj) {
+        var party = obj.data;
+        $scope.masterLC.CustomerId = party.Id;
+        $scope.masterLC.PartyCode = party.Code;
+        $scope.masterLC.PartyName = party.UserName;
+
+        angular.element(document.querySelector('#CustomerPopUpNew')).modal('hide');
+        $scope.searchParty = '';
+        $scope.partyType = "Customer";
+    }
+
+    $scope.closeCustomerPopUpNew = function () {
+        angular.element(document.querySelector('#CustomerPopUpNew')).modal('hide');
+        $scope.partyType = "Customer";
+        $scope.searchParty = '';
+    }
+
     $scope.shipmentModeList = [];
     $scope.GetshipmentMode = function () {
         $http({
@@ -599,6 +627,134 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         });
 
     };
+
+    $scope.ModelBank = {
+        Id: null,
+        BankName: null,
+        AccountNo: null,
+        BankCategory: null,
+        UserName: null,
+        SWIFTCode: null,
+        CountryId: null,
+        Remark: null,
+        AddedBy: null,
+        AddedDate: null,
+        AddedFromIP: null,
+        UpdatedBy: null,
+        UpdatedDate: null,
+        UpdatedFromIP: null
+    }
+    $scope.BankModelNew = Object.assign({}, $scope.ModelBank);
+
+
+    addressService.getCountryCbo(function (result) {
+        $scope.companyList = result;
+    });
+
+    $scope.EditNB = function (obj) {
+        $scope.NBAction = 'Update';
+        $scope.BankModelNew = Object.assign({}, obj.data);
+    }
+    $scope.NBAction = 'Save';
+
+    $scope.ClearNBank = function () {
+        $scope.ModelBank = {
+            Id: null,
+            BankName: null,
+            AccountNo: null,
+            BankCategory: null,
+            UserName: null,
+            SWIFTCode: null,
+            CountryId: null,
+            Remark: null,
+            AddedBy: null,
+            AddedDate: null,
+            AddedFromIP: null,
+            UpdatedBy: null,
+            UpdatedDate: null,
+            UpdatedFromIP: null
+        }
+        $scope.BankModelNew = Object.assign({}, $scope.ModelBank);
+        $scope.NBAction = 'Save';
+    }
+
+    $scope.SaveNBank = function () {
+        try {
+            if (baseService.isUndefinedOrNull($scope.BankModelNew.BankName)) {
+                throw "Bank Name is required.";
+            }
+            if (baseService.isUndefinedOrNull($scope.BankModelNew.AccountNo)) {
+                throw "AccountNo is required.";
+            }
+            if (baseService.isUndefinedOrNull($scope.BankModelNew.UserName)) {
+                throw "User Name is required.";
+            }
+            if (baseService.isUndefinedOrNull($scope.BankModelNew.CountryId)) {
+                throw "Country is required.";
+            }
+
+            $http({
+                method: 'POST',
+                url: 'Commercial/Contract/SaveNegotiatingBank',
+                data: { 'data': $scope.BankModelNew },
+                dataType: 'JSON'
+                , contentType: "application/json charset=utf-8"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetNegotiatingBankList();
+                    $scope.ClearNBank();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.searchByNB = "UserName"; $scope.searchNB = "";
+
+    $scope.NegotiatingBankList = [];
+    $scope.GetNegotiatingBankList = function () {
+        $http({
+            method: 'GET',
+            url: 'Commercial/Contract/GetNegotiatingBankList'
+        }).then(function successCallback(response) {
+            $scope.NegotiatingBankList = response.data;
+        });
+    }
+    $scope.GetNegotiatingBankList();
+
+    $scope.NegotiatingBankDataList = [];
+    $scope.searchByNBList = [{ value: 'BankName', name: "Bank Name" }, { value: 'UserName', name: "User Name" }, { value: 'AccountNo', name: "AccountNo" },{ value: 'Country', name: "Country" }];
+    $scope.ShowNBPopUp = function () {
+        $http({
+            method: 'POST',
+            url: 'Commercial/Contract/GetNegotiatingBankDataList',
+            data: { column: $scope.searchByNB, value: $scope.searchNB },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.NegotiatingBankDataList = response.data;
+            angular.element(document.querySelector('#NBPopUp')).modal('show');
+        });
+    }
+
+    $scope.SetNBData = function (obj) {
+        $scope.masterLC.OpeningBankId = obj.data.Id;
+        $scope.masterLC.OpeningBank = obj.data.BankName;
+        angular.element(document.querySelector('#NBPopUp')).modal('hide');
+    }
+
+    $scope.CloseNB = function () {
+        angular.element(document.querySelector('#NBPopUp')).modal('hide');
+    }
+
+
+
 
 }
 

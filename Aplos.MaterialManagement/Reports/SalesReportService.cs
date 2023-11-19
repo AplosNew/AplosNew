@@ -1,6 +1,9 @@
-﻿using Library.Crosscutting.Security;
+﻿using Library.Crosscutting;
+using Library.Crosscutting.Security;
 using Library.Data;
+using Library.Data.Repositories;
 using Library.Data.Sql;
+using Library.Model.Addresses;
 using Library.Service.Currencies;
 using Library.Service.Helpers;
 using Syncfusion.DocIO;
@@ -14,6 +17,8 @@ using System.Collections.Specialized;
 using System.Data;
 using System.Drawing;
 using System.IO;
+using System.Linq;
+using System.Net.Mail;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -21,15 +26,18 @@ namespace Library.MaterialManagement.Reports
 {
     public class SalesReportService : ISalesReportService
     {
+        private readonly IRepositoryAsync<SMTPConfiguration> _smtpConfigurationRepository;
         private readonly ISqlRepository _sqlRepository;//
         private readonly ICompanyParallelCurrencyService _companyParallelCurrencyService;
         public SalesReportService(
             ISqlRepository sqlRepository
             , ICompanyParallelCurrencyService companyParallelCurrencyService
+                , IRepositoryAsync<SMTPConfiguration> smtpConfigurationRepository
             )
         {
             _sqlRepository = sqlRepository;
             _companyParallelCurrencyService = companyParallelCurrencyService;
+            _smtpConfigurationRepository = smtpConfigurationRepository;
         }
 
         public IWorkbook GetSalesReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string salesId)
@@ -820,15 +828,25 @@ namespace Library.MaterialManagement.Reports
                 pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
                 //Closes the instance of document objects
                 pdfDocument.Close(true);
-                document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
-                document.Close();
+                // document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
+                string filePath = "";
+                string path = "";
 
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Prefix + ".pdf");
+                //document.SaveOptions.
 
+               // document.Close();
+                EmailSender email = null;
 
-                ////document.Protect(ProtectionType.AllowOnlyReading, "password");
-                //string filename = "TaxInvoice-" + salesId + ".docx";
-                //document.Save(filename, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
-                //document.Close();
+                var dom = _smtpConfigurationRepository.Query(a => a.CompanyGroupId == companyGroupId && a.CompanyId == companyId).Select().FirstOrDefault();
+                if (dom == null)
+                    throw new CustomException("This 'company group' has no web address!");
+
+                email = new EmailSender(dom.Host, dom.Port, dom.MailingUserName, dom.Password, dom.IsSSL);
+
+               // var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
+                //message.Attachments.Add(new Attachment(path.ToString()));
+                //email.Send(message);
 
             }
             catch (Exception ex)
@@ -1359,13 +1377,14 @@ namespace Library.MaterialManagement.Reports
             string strSQL;
             try
             {
-                strSQL = @"Select ROW_NUMBER() OVER(ORDER BY TC.Sequence) RoWNo,MA.UserName
+                strSQL = @"SELECT ROW_NUMBER() OVER(ORDER BY A.UserName) RoWNo,A.* FROM (
+Select DISTINCT MA.UserName
 from [dbo].MasterLCTermsAndConditions MA
 LEFT JOIN dbo.[Contract] C ON C.MasterLcId=MA.MasterLcId
 LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
 LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
 LEFT JOIN HKP.TermsAndConditions TC ON TC.Id=MA.TermsAndConditionsId
-                        where SM.SalesId='" + SalesId + "' Order By TC.Sequence ";
+                        where SM.SalesId='"+ SalesId + @"')A  ";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }
@@ -1384,7 +1403,7 @@ LEFT JOIN HKP.TermsAndConditions TC ON TC.Id=MA.TermsAndConditionsId
             string strSQL;
             try
             {
-                strSQL = @"Select MA.Description
+                strSQL = @"Select DISTINCT MA.Description
 from [dbo].[MasterLCAddInfo] MA
 LEFT JOIN dbo.[Contract] C ON C.MasterLcId=MA.MasterLcId
 LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
@@ -1692,7 +1711,7 @@ Where  SM.SalesId='" + SalesId + "'";
                 //                                ,IR.CompanyId,CRNC.Code
                 //								,p.UserName Customer
                 //                                , P.UserName Buyer
-                //                                 , ir.CurrencyId
+                //                                 , ir.CurfrencyId
                 //								,cmp.BaseCurrencyId
                 //								,P.TINNO CustomerGSTNo
                 //                                , p.VATResistrationNo as CustomerPANNo

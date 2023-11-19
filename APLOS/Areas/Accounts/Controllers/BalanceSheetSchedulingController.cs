@@ -306,6 +306,9 @@ namespace Aplos.Areas.Accounts.Controllers
                                 vm.UserSubCategory = dsExcel.Tables[0].Rows[i][18].ToString().Trim();
                                 vm.UserItem = dsExcel.Tables[0].Rows[i][19].ToString().Trim();
                                 vm.UserReport = dsExcel.Tables[0].Rows[i][20].ToString().Trim();
+                                vm.IsAllowed = dsExcel.Tables[0].Rows[i][21].ToString().Trim();
+                                vm.AllowedDays = Convert.ToInt32(dsExcel.Tables[0].Rows[i][22]);
+                                vm.MonthDay = Convert.ToInt32(dsExcel.Tables[0].Rows[i][23]);
                                 data.Add(vm);
 
                             }

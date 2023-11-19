@@ -51,35 +51,35 @@ namespace Aplos.Areas.Attendances.Controllers
             return View();
         }
         //Load Employee
-        [HttpGet]
-        public ActionResult LoadEmployeelist(string empCategory, string department, string section, string subSection, string designation, string userGroup)
+        [HttpPost]
+        public ActionResult LoadEmployeelist(Dictionary<string, string> parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = string.Empty;
             var ec = ""; var dep = ""; var sec = ""; var subsec = ""; var des = ""; var userGr = "";
-            if (empCategory != "null")
+            if (parameters["EmpCategoryId"] != "null")
             {
-                ec = "and EC.Id in ('" + empCategory + @"')";
+                ec = "and EC.Id in (" + parameters["EmpCategoryId"] + @")";
             }
-            if (department != "null")
+            if (parameters["DepartmentId"] != "null")
             {
-                dep = "and DP.Id in ('" + department + @"')";
+                dep = "and DP.Id in (" + parameters["DepartmentId"] + @")";
             }
-            if (section != "null")
+            if (parameters["SectionId"] != "null")
             {
-                sec = "and EI.SectionId in ('" + section + @"')";
+                sec = "and EI.SectionId in (" + parameters["SectionId"] + @")";
             }
-            if (subSection != "null")
+            if (parameters["SubSectionId"] != "null")
             {
-                subsec = "and EI.SubSectionId in ('" + subSection + @"')";
+                subsec = "and EI.SubSectionId in (" + parameters["SubSectionId"] + @")";
             }
-            if (designation != "null")
+            if (parameters["DesignationId"] != "null")
             {
-                des = "and EI.GivenDesignationId in ('" + designation + @"')";
+                des = "and EI.LegalDesignationId in (" + parameters["DesignationId"] + @")";
             }
-            if (userGroup != "null")
+            if (parameters["UserGroupId"] != "null")
             {
-                userGr = "and isnull(PR.UserReportGroup,'') in ('" + userGroup + @"')";
+                userGr = "and isnull(PR.Id,'') in (" + parameters["UserGroupId"] + @")";
             }
             try
             {
@@ -339,6 +339,34 @@ namespace Aplos.Areas.Attendances.Controllers
                 throw (ex);
             }
         }
+         
+        [HttpGet, Authorize]
+        public ActionResult getFiltersData()
+        {
+            try
+            {
+                var sql = @"SELECT EC.Id EmpCategoryId,EC.UserName EmployeeCategory
+                         ,DG.Id DesignationId ,DG.UserName LegalDesignation
+                         ,S.Id SectionId,S.UserName Section,SS.Id SubSectionId,SS.UserName SubSection,DP.Id DepartmentId,DP.UserName Department
+                         ,PR.Id UserGroupId,PR.UserReportGroup UserGroup 
+                         FROM dbo.Employeeinformation EI
+                         LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                         LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
+                         LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId	
+                         LEFT join MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
+						 LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
+                         LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
+                         LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+						 where EI.EmployeeStatus='Active'";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public class GoodWorkTransaction
         {
             #region Scalar Properties
@@ -478,18 +506,18 @@ namespace Aplos.Areas.Attendances.Controllers
         [Authorize, HttpGet]
         public JsonResult GetIssueSlipCheckByCbo()
         {
-            var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
-                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='GoodWorkCheckBy' AND E.EmployeeStatus='Active'";
+            var sql = @"select E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text from dbo.GoodWorkCheckBySetUp  A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.CheckById 
+                          where E.EmployeeStatus='Active'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
         public JsonResult GetApprovedByCbo()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
-                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='GoodWorkApproveBy' AND E.EmployeeStatus='Active'";
+            var sql = @"select E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text from dbo.GoodWorkAuthoritySetUp A 
+                         Inner JOin dbo.EmployeeInformation E On E.systemId=A.AuthorityId 
+                         where   E.EmployeeStatus='Active'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -620,8 +648,9 @@ namespace Aplos.Areas.Attendances.Controllers
                          , PMB.Code,PR.UserName PositionName
                          ,EI.EmployeeStatus
 						 ,OTTitle = case when EI.ExcludeOT=0 then 'Yes' else 'No' END
-						 ,x.DefineAmount Basic,x.SalaryHead,y.PayDays,y.StandardOT,y.AdditionalOT,y.GoodWork
-                         ,g.RatePerHour,g.RatePerDay,0 AdvanceGiven,'' GoodWorkPaymentDetailId
+						,convert(numeric(10,2),x.DefineAmount) Basic,x.SalaryHead,convert(numeric(10,2),y.PayDays)PayDays,y.StandardOT,y.AdditionalOT,y.GoodWork
+                         ,convert(numeric(10,2),g.RatePerHour)RatePerHour,convert(numeric(10,2),g.RatePerDay)RatePerDay,0 AdvanceGiven,'' GoodWorkPaymentDetailId
+						 ,convert(numeric(10,2),g.Gross) Gross
                          FROM dbo.Employeeinformation EI
                          LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
                          LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
@@ -640,7 +669,7 @@ namespace Aplos.Areas.Attendances.Controllers
                                       FROM SalaryInfoDefine SID 
                          LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                     WHERE SH.HeadCategory='Basic')x ON x.SalaryID = SIDM.SystemID
-                        LEFT JOIN(SELECT ((SID.DefineAmount/208)*2) RatePerHour,(((SID.DefineAmount/208)*2)*2) RatePerDay,SH.SalaryHead,SID.SalaryID
+                        LEFT JOIN(SELECT ((SID.DefineAmount/208)*2) RatePerHour,(((SID.DefineAmount/208)*2)*2) RatePerDay,SH.SalaryHead,SID.SalaryID,SID.DefineAmount Gross
                                       FROM SalaryInfoDefine SID 
                          LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                     WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID

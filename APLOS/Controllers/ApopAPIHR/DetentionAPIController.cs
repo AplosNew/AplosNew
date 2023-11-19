@@ -737,11 +737,11 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
 
-        public string PostVehicleRequisitionChild([FromBody] IEnumerable<VehicleChild> DataToSave )
+        public string PostDailyAccountClosing([FromBody] IEnumerable<AccountBalence> DataToSave )
         {
             try
             {
-                string Id = clsData.PostVehicleRequisitionChild(DataToSave);
+                string Id = clsData.PostDailyAccountClosing(DataToSave);
                 return Id;
             }
             catch (Exception ex)
@@ -1149,6 +1149,52 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetEmployeeUserId(out List<Default2> activelists, UserId);
             return activelists;
         }
+
+
+
         #endregion EmployeeUserId
+
+        #region Bank
+        public List<Default2> GetBankCategory()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetBankCategory(out List<Default2> activelists);
+            return activelists;
+        }
+
+        public List<Default2> GetBankSubCategory()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetBankSubCategory(out List<Default2> activelists);
+            return activelists;
+        }
+
+        public List<Default2> GetBankName(string categoryId, string subcategoryId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetBankName(out List<Default2> activelists, categoryId, subcategoryId);
+            return activelists;
+        }
+
+        public List<Default2> GetBankAccount(string bankId , string categoryId, string subcategoryId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetBankAccount(out List<Default2> activelists, bankId, categoryId , subcategoryId);
+            return activelists;
+        }
+
+        public string PostVehicleRequisitionChild([FromBody] IEnumerable<VehicleChild> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostVehicleRequisitionChild(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+        #endregion Bank
     }
 }

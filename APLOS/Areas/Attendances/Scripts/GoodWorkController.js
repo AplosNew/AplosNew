@@ -143,14 +143,17 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.EmployeeList = [];
     $scope.getEmploymeeList = function () {
         try {
+            $scope.filterComplete();
             if (!baseService.isUndefinedOrNull($scope.ModelNew.FromTime)) {
                 if (!baseService.isUndefinedOrNull($scope.ModelNew.ToTime)) {
                     if (!baseService.isUndefinedOrNull($scope.ModelNew.WorkDate)) {
-                        if ($scope.ModelNew.Minute > 0) {
-
-                        $http.get($scope.LoadEmpListUrl + '?empCategory=' + $scope.ModelNew.EmployeeCategoryId + '&department=' + $scope.ModelNew.DepartmentId + '&section=' + $scope.ModelNew.SectionId
-                            + '&subSection=' + $scope.ModelNew.SubSectionId + '&designation=' + $scope.ModelNew.DesignationId + '&userGroup=' + $scope.ModelNew.UserGroupId)
-                            .then(function successCallback(response) {
+                        if ($scope.ModelNew.Minute > 0) { 
+                            $http({
+                                method: 'POST',
+                                url: 'Attendances/GoodWork/LoadEmployeelist',
+                                data: {'parameters': $scope.parameters},
+                                dataType: 'JSON'
+                            }).then(function successCallback(response) {
                                 if (response.data.Error === true) {
                                     ShowResult(response.Message, 'failure');
                                 }
@@ -483,5 +486,76 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.selectUserGroup();
 
     // UserGroup
+
+
+    $scope.filters = [];
+    $scope.getFiltersData = function () {
+        try { 
+            $http({
+                method: 'GET',
+                url: $scope.path +'getFiltersData',
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.filters = response.data;
+                var columnList = [
+                    { field: 'EmployeeCategory', width: 110, headerText: "Employee Category", type: "string" },
+                    { field: 'Department', width: 100, headerText: "Department", type: "string" },
+                    { field: 'Section', width: 100, headerText: "Section", type: "string" },
+                    { field: 'SubSection', width: 100, headerText: "Sub-Section", type: "string" },
+                    { field: 'LegalDesignation', width: 100, headerText: "Designation", type: "string" },
+                    { field: 'UserGroup', width: 100, headerText: "User Group", type: "string" }
+
+                ];
+                $("#filters").ejGrid({
+                    dataSource: $scope.filters,
+                    minWidth: 450, minHeight: 400,
+                    allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+                    filterSettings: { filterType: "excel" },
+                    columns: columnList
+                });
+
+                var gridObj = $("#filters").data("ejGrid");
+                gridObj.refreshContent(true);
+                gridObj.refreshTemplate();
+                $("#filters").children('.e-pager.e-js.e-pager').hide();
+                $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
+                $("#filters").children('.e-gridcontent').hide();
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    $scope.getFiltersData();
+
+    $scope.parameters = [];
+    $scope.filterComplete = function () { 
+        var g = $("#filters").data("ejGrid");
+        var fl = g.getFilteredRecords();
+        if (fl.length == 0) {
+            fl = $scope.filters;
+        } 
+        var parameters = [];
+        parameters.push({ "Key": "EmpCategoryId", "Value": getString(fl, "EmpCategoryId") });
+        parameters.push({ "Key": "DepartmentId", "Value": getString(fl, "DepartmentId") });
+        parameters.push({ "Key": "SectionId", "Value": getString(fl, "SectionId") });
+        parameters.push({ "Key": "SubSectionId", "Value": getString(fl, "SubSectionId") });
+        parameters.push({ "Key": "DesignationId", "Value": getString(fl, "DesignationId") });
+        parameters.push({ "Key": "UserGroupId", "Value": getString(fl, "UserGroupId") });
+
+        $scope.parameters = parameters;
+    }
+
+    var getString = function (data, column) {
+        var string = "''";
+        var collection = [];
+
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i][column]) == false) {
+                string += ",'" + data[i][column] + "'";
+                collection.push(data[i][column]);
+            }
+        }
+        return string;
+    }
 
 }

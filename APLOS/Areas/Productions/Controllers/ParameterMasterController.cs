@@ -61,6 +61,12 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetSQParametertList(string column, string value)
+        {
+            return Json(ps.GetSQParametertList(column, value), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetProcess()
         {
             return Json(ps.GetProcess(), JsonRequestBehavior.AllowGet);

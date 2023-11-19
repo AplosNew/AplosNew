@@ -37,6 +37,7 @@ using Library.Service.Advances;
 using Syncfusion.Pdf;
 using Syncfusion.ExcelToPdfConverter;
 using Library.ViewModel.OrderManagements;
+using Library.Service.Core;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -320,6 +321,7 @@ namespace Aplos.Areas.Accounts.Controllers
         public JsonResult InsertVendorInvoice(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
             , IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList, IEnumerable<VoucherViewModel> existingLoanList)
         {
+            
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
@@ -359,7 +361,7 @@ namespace Aplos.Areas.Accounts.Controllers
             else
                 return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceService.InsertVendorInvoiceBeneficiaryEmployee(voucherVM, voucherDetailVMList, taxDetailVMList, tdsVMList)) });
 
-        }
+        } 
         [HttpPost, Authorize]
         public JsonResult InsertIncentiveReceivableInvoice(VoucherViewModel voucherVM,IEnumerable<IncentiveReceivableMap> incentiveReceivableMapList)
         {

@@ -18,7 +18,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Mobile No<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="MobileNo" ng-model="ModelNew.MobileNo" class="form-control" maxlength="100" tabindex="2"required>
+                <input type="text" name="MobileNo" ng-model="ModelNew.MobileNo" class="form-control" maxlength="100" tabindex="2" required>
             </div>
         </div>
         <div class="form-group">
@@ -31,10 +31,10 @@
                 </span>*@
             </div>
         </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label" title="SecurityInCharge">Security InCharge</label>
-            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
-                <input type="text" ng-model="ModelNew.SecurityInCharge" class="form-control" readonly>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label" title="SecurityInCharge">Security InCharge<sup>*</sup></label>
+            <div class="col-sm-8 input-group  show-message" style="padding-left: 15px;padding-right: 14px;">
+                <input type="text" ng-model="ModelNew.SecurityInCharge" name="Security InCharge" class="form-control" readonly required>
                 <span class="input-group-btn">
                     <button ng-click="popUp('SecurityInCharge')" tabindex="20" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                     <button ng-click="clearEmpPop('SecurityInCharge')" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
@@ -62,45 +62,45 @@
             <label class="col-sm-4 control-label">Vechile No<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 @*<div class="select-style">
-            <select name="VechileNo" class="form-control" ng-model="ModelNew.VechileNo" ng-options="item.Value as item.Text for item in vehicleNoList" tabindex="13" required>
-                <option value=""></option>
-            </select>
-        </div>*@
+                    <select name="VechileNo" class="form-control" ng-model="ModelNew.VechileNo" ng-options="item.Value as item.Text for item in vehicleNoList" tabindex="13" required>
+                        <option value=""></option>
+                    </select>
+                </div>*@
                 <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="vehicleNoList" e-value="ModelNew.VechileNo" e-fields-value="Value" e-fields-text="Text" e-change="SetMobileNo" e-width="100%" />
             </div>
         </div>
 
-        
-        <div class="form-group">
-            <label class="col-sm-4 control-label" title="ResponsiblePerson">Responsible Person</label>
-            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
-                <input type="text" ng-model="ModelNew.ResponsiblePerson" class="form-control" readonly>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label" title="ResponsiblePerson">Responsible Person<sup>*</sup></label>
+            <div class="col-sm-8 input-group  show-message" style="padding-left: 15px;padding-right: 14px;">
+                <input type="text" ng-model="ModelNew.ResponsiblePerson" name="Responsible Person" class="form-control" readonly required>
                 <span class="input-group-btn">
                     <button ng-click="popUp('ResponsiblePerson')" tabindex="20" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                     <button ng-click="clearEmpPop('ResponsiblePerson')" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                 </span>
             </div>
         </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label" title="CheckBy">CheckBy</label>
-            <div class="col-sm-8">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label" title="CheckBy">Check By<sup>*</sup></label>
+            <div class="col-sm-8  show-message">
                 <div class="select-style" ng-show="checkedByList.length">
-                    <select id="CheckedBy" class="form-control" name="Checked By" ng-model="ModelNew.CheckedById" tabindex="8">
+                    <select id="CheckedBy" class="form-control" name="Checked By" ng-model="ModelNew.CheckById" tabindex="8" required>
                         <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
                 </div>
             </div>
         </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label" title="ApproveBy">ApproveBy</label>
-            <div class="col-sm-8">
+        @*<div class="form-group" show-errors>
+            <label class="col-sm-4 control-label" title="ApproveBy">Approve By<sup>*</sup></label>
+            <div class="col-sm-8  show-message">
                 <div class="select-style" ng-show="ApproveByList.length">
-                    <select id="ApproveBy" class="form-control" name="Approve By" ng-model="ModelNew.ApproveById" tabindex="8">
+                    <select id="ApproveBy" class="form-control" name="Approve By" ng-model="ModelNew.ApproveById" tabindex="8" required>
                         <option ng-repeat="option in ApproveByList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
                 </div>
             </div>
-        </div>
+        </div>*@
 
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12">

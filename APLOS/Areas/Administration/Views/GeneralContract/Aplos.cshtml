@@ -134,7 +134,7 @@
                                     </div>
                                 </td>
 
-                                <td><button ng-click="RemoveParticularRow(x)" class="btn" tabindex="9"><i class="glyphicon glyphicon-remove"></i></button></td>
+                                <td><button ng-click="RemoveParticularRowConfirmation(x)" class="btn" tabindex="9"><i class="glyphicon glyphicon-remove"></i></button></td>
 
                             </tr>
                         </tbody>
@@ -160,43 +160,43 @@
                     </div>
                 </div>
 
-                    <div class="table-responsive modal-table">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Employee Code</th>
-                                    <th>Employee Name</th>
-                                    <th>DOJ</th>
-                                    <th>Department</th>
-                                    <th>Section</th>
-                                    <th>Sub Section</th>
-                                    <th>Legal Designation</th>
-                                    <th>Designation</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr ng-repeat="x in SelectedVendorEmployee">
-                                    <td>{{x.EmployeeCode}}</td>
-                                    <td>{{x.EmployeeName}}</td>
-                                    <td>{{x.DOJ}}</td>
-                                    <td>{{x.Department}}</td>
-                                    <td>{{x.Section}}</td>
-                                    <td>{{x.SubSection}}</td>
-                                    <td>{{x.LegalDesignation}}</td>
-                                    <td>{{x.Designation}}</td>
-                                    <td><button ng-click="RemoveVendorEmployeeRow(x)" class="btn" tabindex="9"><i class="glyphicon glyphicon-remove"></i></button></td>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee Code</th>
+                                <th>Employee Name</th>
+                                <th>DOJ</th>
+                                <th>Department</th>
+                                <th>Section</th>
+                                <th>Sub Section</th>
+                                <th>Legal Designation</th>
+                                <th>Designation</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in SelectedVendorEmployee">
+                                <td>{{x.EmployeeCode}}</td>
+                                <td>{{x.EmployeeName}}</td>
+                                <td>{{x.DOJ}}</td>
+                                <td>{{x.Department}}</td>
+                                <td>{{x.Section}}</td>
+                                <td>{{x.SubSection}}</td>
+                                <td>{{x.LegalDesignation}}</td>
+                                <td>{{x.Designation}}</td>
+                                <td><button ng-click="RemoveVendorEmployeeRowConfirmation(x)" class="btn" tabindex="9"><i class="glyphicon glyphicon-remove"></i></button></td>
 
-                                </tr>
-                            </tbody>
-                        </table>
-                        @*<div class="common-btn">
+                            </tr>
+                        </tbody>
+                    </table>
+                    @*<div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
 
                             </ul>
                         </div>*@
-                    </div>
+                </div>
             </div>
 
             @*  TAB - 3   *@
@@ -239,7 +239,7 @@
                                 <td>{{x.SubSection}}</td>
                                 <td>{{x.LegalDesignation}}</td>
                                 <td>{{x.Designation}}</td>
-                                <td><button ng-click="RemoveCheckedRow(x)" class="btn" tabindex="9"><i class="glyphicon glyphicon-remove"></i></button></td>
+                                <td><button ng-click="RemoveCheckedByRowConfirmation(x)" class="btn" tabindex="9"><i class="glyphicon glyphicon-remove"></i></button></td>
 
                             </tr>
                         </tbody>
@@ -287,7 +287,7 @@
                                 <td>{{x.SubSection}}</td>
                                 <td>{{x.LegalDesignation}}</td>
                                 <td>{{x.Designation}}</td>
-                                <td><button ng-click="RemoveApprovedRow(x)" class="btn" tabindex="9"><i class="glyphicon glyphicon-remove"></i></button></td>
+                                <td><button ng-click="RemoveApprovedByRowConfirmation(x)" class="btn" tabindex="9"><i class="glyphicon glyphicon-remove"></i></button></td>
 
                             </tr>
                         </tbody>
@@ -323,7 +323,7 @@
                                 <td>{{x.UserName}}</td>
                                 <td>{{x.EntityType}}</td>
 
-                                <td><button ng-click="RemoveEntityRow(x)" class="btn" tabindex="9"><i class="glyphicon glyphicon-remove"></i></button></td>
+                                <td><button ng-click="RemoveEntityRowConfirmation(x)" class="btn" tabindex="9"><i class="glyphicon glyphicon-remove"></i></button></td>
 
                             </tr>
                         </tbody>
@@ -355,7 +355,7 @@
         <div e-columns>
             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
             @*<div e-column e-field="Sequence" e-headertext="Seq" e-width="80"></div>
-            <div e-column e-field="Code" e-headertext="Code" e-width="100"></div>*@
+                <div e-column e-field="Code" e-headertext="Code" e-width="100"></div>*@
             <div e-column e-field="ShortName" e-headertext="Short Name" e-width="100"></div>
             <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="150"></div>
             <div e-column e-field="UserName" e-headertext="User Name" e-width="130"></div>
@@ -366,6 +366,11 @@
     </div>
 </div>
 
+<confirm-archive-generic modalid="confirmParticularRowRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="RemoveContractItemDetailRow();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmVendorEmpRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="RemoveVendorEmpRow();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmCheckedByPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="RemoveCheckedByRow();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmApprovedByPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="RemoveApprovedByRow();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmEntityPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="RemoveEntityRow();"></confirm-archive-generic>
 
 
 @*@Html.Partial("~/Areas/HumanResource/Views/MedicineMaster/_UOMPopUpScreen.cshtml")*@

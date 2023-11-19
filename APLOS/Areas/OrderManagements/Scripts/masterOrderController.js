@@ -30,7 +30,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $controller("TaskScheduleController", { cboService: cboService, $scope: $scope, $http: $http });
     $controller("CurrencyExchangeController", { cboService: cboService, $scope: $scope, $http: $http, TableName: 'MasterOrderExchangeRates' });
 
-    $scope.SearchColumn = 'Entity';
+    $scope.SearchColumn = 'MasterOrderNo';
     $scope.SearchValue = null;
 
     $scope.modelFilterByList = [

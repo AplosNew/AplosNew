@@ -1457,7 +1457,7 @@ namespace Library.Accounting.Accounts
 										LEFT JOIN [MST].CashMaster AS CM ON CM.Id=I.CashMasterId
                                         LEFT JOIN HKP.Bank AS bk ON bk.Id=OBKM.BankId
 										LEFT JOIN(SELECT LP.FinancingId,SUM(LP.Amount) InterestAmount
-											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InterestPayable','OtherExpensesPayable') 
+											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InvestmentInterestReceivable') 
 											group by LP.FinancingId) LIP ON LIP.FinancingId=I.Id
 											LEFT JOIN(SELECT LP.FinancingId,SUM(LP.Amount) TaxAmount
 											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('LoanTax') 
@@ -1523,11 +1523,11 @@ namespace Library.Accounting.Accounts
 										LEFT JOIN [MST].CashMaster AS CM ON CM.Id=I.CashMasterId
                                         LEFT JOIN HKP.Bank AS bk ON bk.Id=OBKM.BankId
 										LEFT JOIN(SELECT LP.FinancingId,SUM(LP.Amount) InterestAmount
-											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InterestPayable','OtherExpensesPayable') group by LP.FinancingId) LIP ON LIP.FinancingId=I.Id
+											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InvestmentInterestReceivable') group by LP.FinancingId) LIP ON LIP.FinancingId=I.Id
 											LEFT JOIN(SELECT LP.SetOffFinancingId,SUM(LP.Amount) LoanPayment
 											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('LoanPayment') and LP.SourceType='Loan' group by LP.SetOffFinancingId) LPY ON LPY.SetOffFinancingId=I.Id
 											LEFT JOIN(SELECT LP.SetOffFinancingId,SUM(LP.Amount) LoanPayment
-											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('LoanPayment') and LP.SourceType='LoanPayment' group by LP.SetOffFinancingId) SLPY ON SLPY.SetOffFinancingId=I.Id
+											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InvestmentGiven') and LP.SourceType='InvestmentSetOff' group by LP.SetOffFinancingId) SLPY ON SLPY.SetOffFinancingId=I.Id
 											
 											LEFT JOIN(SELECT LP.FinancingId,SUM(LP.Amount) InterestCashPayment
 											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('AccrulInterestPayment') and LP.SourceType='LoanPayment' group by LP.FinancingId) ASLPY ON ASLPY.FinancingId=I.Id
@@ -1557,6 +1557,19 @@ namespace Library.Accounting.Accounts
                     Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
+        }
+        public GridModel GetInvestmentInterestReceivableList(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
+        {
+            parameters.CmdText = @"SELECT  LP.VoucherId, V.VoucherNo, LP.Id, P.Code AS PartyCode, P.UserName AS PartyName, LP.PostingDate, LP.DocDate, LP.DocRefNo, C.Code AS CurrencyCode, LP.Amount
+                                    , LP.PartyPlantId, PP.UserName AS PartyPlantName, LP.IsPark,LP.FinancingId FinancingNo,F.DocRefNo InvestmentNo,V.SourceType
+                                    FROM [TRN].[FinancingSubsequentTransaction] AS LP
+                                    LEFT JOIN TRN.Financing F ON F.Id=LP.FinancingId
+                                    LEFT JOIN [TRN].[Voucher] AS V ON V.Id=LP.VoucherId
+                                    LEFT JOIN [HKP].[Party] AS P ON P.Id=LP.PartyId
+                                    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=LP.PartyPlantId
+                                    LEFT JOIN [SCS].[Currency] AS C ON C.Id=LP.CurrencyId
+                                WHERE V.Archive=0 AND LP.CompanyGroupId='" + companyGroupId + "'AND LP.CompanyId='" + companyId + "' AND LP.PlantId='" + plantId + "' AND LP.SourceType='"+ sourceType + "'";
+            return _sqlRepository.GetGridData(parameters);
         }
     }
 }

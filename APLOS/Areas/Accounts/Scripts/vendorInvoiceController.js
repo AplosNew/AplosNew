@@ -2475,4 +2475,21 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         $scope.existingLoan = {};
         $scope.voucherDetailList = [];
     }
+
+    function containsSpecialChars(str) {
+        const specialChars = /[@!#$%^&*()_+\-=\[\]{};':"|,.<>\?`~]/;
+        return specialChars.test(str);
+    }
+
+    $scope.CheckSpecialCharecter = function () {
+        try {
+            if (containsSpecialChars($scope.voucher.DocRefNo)) {
+                $scope.voucher.DocRefNo = $scope.voucher.DocRefNo.substring(0, $scope.voucher.DocRefNo.length - 1);
+                throw "No special characters allowed for Doc Ref No.";
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
 }

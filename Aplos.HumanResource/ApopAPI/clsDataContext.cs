@@ -8404,6 +8404,211 @@ left join EmployeeInformation EI on EI.SystemId  = US.EmployeeId where US.UserId
             }
         }
         #endregion EmployeeUsrId
+
+        #region Daily Account
+        public void GetBankCategory(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id Value , UserName Name from  HKP.BankCategory";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetBankSubCategory(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id Value , UserName Name from  HKP.BankSubCategory";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetBankName(out List<Default2> DataList , string categoryId , string subcategoryId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Distinct BK.UserName Name , BK.Id Value from mst.BankMaster BM 
+left join HKP.Bank BK on BK.Id = BM.BankId 
+where BM.BankCategoryId = '" + categoryId + "' and BM.BankSubCategoryId = '" + subcategoryId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetBankAccount(out List<Default2> DataList, string bankId, string categoryId, string subcategoryId) 
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>(); 
+
+            System.Data.DataSet dsRef; 
+            try
+            {
+                strSQL = @"select Distinct BM.AccountNumber Name , BM.Id Value from mst.BankMaster BM 
+left join HKP.Bank BK on BK.Id = BM.BankId 
+where BM.BankCategoryId = '" + categoryId + "' and BM.BankSubCategoryId = '" + subcategoryId + "' and BM.BankId = '"  + bankId + "'"; 
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public string PostDailyAccountClosing(IEnumerable<AccountBalence> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.DailyAccountBalence";
+                string Id = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<AccountBalence> items = DataToSave.ToList();
+
+                foreach (AccountBalence item in DataToSave)
+                {
+                    Id += ",'" + item.Id + "'";
+                }
+
+                con.OpenDataSetThroughAdapter("select * from TRN.DailyAccountBalence where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+
+                foreach (AccountBalence item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+                        dr["Id"] =  _Id;
+                        dr["BankMasterId"] = item.BankMasterId;
+                        dr["ClosingDate"] = item.ClosingDate;
+                        dr["ClosingBalence"] = item.ClosingBalence;
+                        dr["Remarks"] = item.Remarks;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+        }
+        #endregion Daily Account
     }
 
 
@@ -9447,6 +9652,21 @@ left join EmployeeInformation EI on EI.SystemId  = US.EmployeeId where US.UserId
         public string RepeatEntry { get; set; }
         public string LotNumber { get; set; }
         public string EntryLevel { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+    }
+
+    public class AccountBalence
+    {
+        public string Id { get; set; }
+        public string BankMasterId { get; set; }
+        public string ClosingDate { get; set; }
+        public string ClosingBalence { get; set; }
+        public string Remarks { get; set; }
         public string AddedBy { get; set; }
         public string AddedDate { get; set; }
         public string AddedFromIP { get; set; }

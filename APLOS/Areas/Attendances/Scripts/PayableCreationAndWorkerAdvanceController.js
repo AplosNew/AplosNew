@@ -374,12 +374,9 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.EmployeeList = [];
     $scope.EmployeeMainList = [];
     $scope.getEmploymeeList = function () {
-        if ($scope.ModelNew.ToDate === "" || $scope.ModelNew.ToDate === null || $scope.ModelNew.ToDate === undefined) {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
+        
         if ($scope.ModelNew.FromDate === "" || $scope.ModelNew.FromDate === null || $scope.ModelNew.FromDate === undefined) {
-            ShowResult('Select From Date', 'failure');
+            ShowResult('Select Work Date', 'failure');
             return false;
         }
         if ($scope.ModelNew.PayDaysType === "" || $scope.ModelNew.PayDaysType === null || $scope.ModelNew.PayDaysType === undefined) {
@@ -412,6 +409,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     }
 
     $scope.getPayDaysAmount = function () {
+        $scope.ModelNew.ToDate = $scope.ModelNew.FromDate;
         $http({
             method: 'POST',
             url: $scope.path + "LoadPCAACEmployeelist",

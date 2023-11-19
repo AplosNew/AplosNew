@@ -56,7 +56,7 @@ namespace Library.Service.Administration.Contract
                 //string TableName = "HKP.GeneralContractItemMaster";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                    strkey = "GC."+column + " like '%" + value + "%'";
+                    strkey = "GC." + column + " like '%" + value + "%'";
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -107,7 +107,7 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId
                 }
                 else
                 {
-                    
+
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion FURNITURE POLICY HEAD
@@ -204,15 +204,15 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId
         {
             try
             {
-                string sql = @"select GC.Id ContractMasterId, GC.UserName ContractMaster, GC.Code, GC.Sequence, GC.Category, GC.SubCategory,
+                string sql = @"select '' Id,GC.Id ContractMasterId, GC.UserName ContractMaster, GC.Code, GC.Sequence, GC.Category, GC.SubCategory,
 GC.Purpose, GC.Detail, GC.Remarks, UOM.UserName UOMName
 from [HKP].[GeneralContractItemMaster] GC
 left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
                 return _sqlRepository.GetDataCollection(sql);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-               throw ex;
+                throw ex;
             }
         }
         #endregion General Contract
@@ -225,7 +225,7 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
                 string sql = @"";
                 return _sqlRepository.GetDataCollection(sql);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -237,7 +237,7 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
         {
             try
             {
-                string sql = @"select ei.SystemId, ei.EmployeeName, ei.EmployeeId , FORMAT(ei.DOJ, 'dd-MMM-yyyy') as DOJ, x.UserName as category,
+                string sql = @"select '' Id,ei.SystemId, ei.EmployeeName, ei.EmployeeId , FORMAT(ei.DOJ, 'dd-MMM-yyyy') as DOJ, x.UserName as category,
                             FORMAT(ei.DOB, 'dd-MMM-yyyy') as DOB ,ei.EmployeeCode, DP.UserName as Department ,
                             LDSG.StandardName as Designation, SC.UserName as Section, GDSG.UserName LegalDesignation,
                             SBC.UserName as SubSection from dbo.EmployeeInformation ei
@@ -269,7 +269,7 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
         {
             try
             {
-                string sql = @"select ei.SystemId, ei.EmployeeName, ei.EmployeeId , FORMAT(ei.DOJ, 'dd-MMM-yyyy') as DOJ, x.UserName as category,
+                string sql = @"select '' Id,ei.SystemId, ei.EmployeeName, ei.EmployeeId , FORMAT(ei.DOJ, 'dd-MMM-yyyy') as DOJ, x.UserName as category,
                             FORMAT(ei.DOB, 'dd-MMM-yyyy') as DOB ,ei.EmployeeCode, DP.UserName as Department ,
                             LDSG.StandardName as Designation, SC.UserName as Section, GDSG.UserName LegalDesignation,
                             SBC.UserName as SubSection from dbo.EmployeeInformation ei
@@ -300,10 +300,10 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
         {
             try
             {
-                var sql = @"select Id, UserName, EntityType, Code from org.Entity where Active = 1";
+                var sql = @"select '' Id,Id EntityId, UserName, EntityType, Code from org.Entity where Active = 1";
                 return _sqlRepository.GetDataCollection(sql);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -314,7 +314,7 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
         {
             try
             {
-                var sql = @"select ei.SystemId, ei.EmployeeName, ei.EmployeeId , FORMAT(ei.DOJ, 'dd-MMM-yyyy') as DOJ, x.UserName as category,
+                var sql = @"select '' Id,ei.SystemId, ei.EmployeeName, ei.EmployeeId , FORMAT(ei.DOJ, 'dd-MMM-yyyy') as DOJ, x.UserName as category,
                             FORMAT(ei.DOB, 'dd-MMM-yyyy') as DOB ,ei.EmployeeCode, DP.UserName as Department ,
                             LDSG.StandardName as Designation, SC.UserName as Section, GDSG.UserName LegalDesignation,
                             SBC.UserName as SubSection from dbo.EmployeeInformation ei
@@ -334,7 +334,7 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
                             where ei.EmployeeStatus = 'Active'";
                 return _sqlRepository.GetDataCollection(sql);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -345,7 +345,7 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
     #region GeneralContract
     public class ContractItemDetailService
     {
-      private readonly  SqlRepository _sqlRepository ;
+        private readonly SqlRepository _sqlRepository;
         #region constructor
         public ContractItemDetailService()
         {
@@ -359,9 +359,7 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
             try
             {
                 string TableNameHead = "MST.GeneralContract";
-
                 DataSet dsMaster;
-
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
@@ -391,27 +389,26 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
                 ConnectionManager.DAL.ConManager conn = new ConnectionManager.DAL.ConManager("1");
                 conn.OpenDataSetThroughAdapter("select * from MST.ContractItemDetail where GeneralContractId ='" + data["Id"].ToString() + "'", out dsContractItemDetail, false, "1");
 
-                
+
                 foreach (var item in contractItemDetail)
                 {
-                    
                     DataView dv = new DataView(dsContractItemDetail.Tables[0]);
                     dv.RowFilter = "Id='" + item["Id"] + "'";
-                    
+
                     if (dv.Count == 0)
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID("MST.ContractItemDetail", out __Id);
                         item["Id"] = __Id;
                         item["GeneralContractId"] = data["Id"].ToString();
-                        
+
                         AddNewRow(dsContractItemDetail.Tables[0], item);
                     }
                     else
                     {
                         DataRow drmo = dv[0].Row;
                         item["GeneralContractId"] = data["Id"].ToString();
-                        
+
                         EditRow(drmo, item);
                     }
                 }
@@ -424,7 +421,6 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
 
                 foreach (var item in checkby)
                 {
-
                     DataView dv = new DataView(dsCheckBy.Tables[0]);
                     dv.RowFilter = "Id='" + item["Id"] + "'";
 
@@ -453,7 +449,6 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
                 conn.OpenDataSetThroughAdapter("select * from [MST].[GeneralContractApproveBy] where GeneralContractId ='" + data["Id"].ToString() + "'", out dsApproveBy, false, "1");
                 foreach (var item in approveby)
                 {
-
                     DataView dv = new DataView(dsApproveBy.Tables[0]);
                     dv.RowFilter = "Id='" + item["Id"] + "'";
 
@@ -482,7 +477,6 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
                 conn.OpenDataSetThroughAdapter("select * from [MST].[GeneralContractEntity] where GeneralContractId ='" + data["Id"].ToString() + "'", out dsEntity, false, "1");
                 foreach (var item in entity)
                 {
-
                     DataView dv = new DataView(dsEntity.Tables[0]);
                     dv.RowFilter = "Id='" + item["Id"] + "'";
 
@@ -520,12 +514,12 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
         {
             try
             {
-                string TableName = "MST.GeneralContractVendorEmployee";
                 DataSet dsMaster;
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from [MST].[GeneralContractVendorEmployee] where GeneralContractId ='" + headerId + "'", out dsMaster, false, "1");
                 string _Id = "";
+
                 foreach (var item in vendoremployee)
                 {
                     DataView dv = new DataView(dsMaster.Tables[0]);
@@ -534,16 +528,18 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
                     if (dv.Count == 0)
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("TableName", out _Id);
+                        genid.GenID("GeneralContractVendorEmployee", out _Id);
+
                         item["Id"] = _Id;
                         item["GeneralContractId"] = headerId;
+                        item["EmployeeId"] = item["SystemId"];
 
                         AddNewRow(dsMaster.Tables[0], item);
                     }
                     else
                     {
                         DataRow drmo = dv[0].Row;
-                        item["GeneralContractId"] = headerId;
+                        item["EmployeeId"] = dv[0].Row["EmployeeId"].ToString();
 
                         EditRow(drmo, item);
                     }
@@ -554,7 +550,7 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
                 return vendoremployee;
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -606,7 +602,7 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
         }
         #endregion CREATE AND EDIT DEFAULT COLUMN
 
-        public IEnumerable<object> GetHeaderList() 
+        public IEnumerable<object> GetHeaderList()
         {
             try
             {
@@ -615,7 +611,7 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
                             order by Id ASC";
                 return _sqlRepository.GetDataCollection(sql);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -630,7 +626,30 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
                             from MST.ContractItemDetail CI
                             left join MST.GeneralContract GC on GC.Id = CI.GeneralContractId
                             left join HKP.GeneralContractItemMaster GCIM on GCIM.Id = CI.ContractMasterId
-                            where GC.Id = '" + gcId+"'";
+                            where GC.Id = '" + gcId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetGeneralContractEmpDetail(string gcId)
+        {
+            try
+            {
+                var sql = @"select GCV.*,ei.EmployeeCode,ei.EmployeeName,ei.DOJ,D.UserName Department,S.UserName Section,SS.UserName SubSection
+                                    ,LD.UserName LegalDesignation,DD.UserName Designation
+                                    from [MST].[GeneralContractVendorEmployee] GCV
+                                    left join MST.GeneralContract GC on GC.Id=GCV.GeneralContractId
+                                    left join EmployeeInformation ei on ei.SystemId=GCV.EmployeeId
+                                    left join ORG.Department D on D.Id=ei.DepartmentId
+                                    left join ORG.Section S on S.Id=ei.SectionId
+                                    left join ORG.SubSection SS on SS.Id=ei.SubSectionId
+                                    left join HKP.LegalDesignation LD on LD.Id=ei.LegalDesignationId
+                                    left join HKP.Designation DD on DD.Id=ei.DesignationSystemID
+                            where GC.Id = '" + gcId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -643,13 +662,13 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
         {
             try
             {
-                var sql = @"select CB.Id, CB.isCheck, EI.SystemId, EI.EmployeeCode, EI.EmployeeName, FORMAT(EI.DOJ, 'dd-MMM-yyyy')DOJ,
-DP.UserName as Department, LDSG.StandardName as Designation, SC.UserName as Section, GDSG.UserName LegalDesignation,                           
- SBC.UserName as SubSection, CB.GeneralContractId, GC.UserName GeneralContract
-from MST.GeneralContractCheckBy CB
-left join MST.GeneralContract GC on GC.Id = CB.GeneralContractId 
-left join EmployeeInformation EI on EI.SystemId = CB.SystemId
- LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = ei.BudgetCode
+                var sql = @"select CB.Id, CB.isCheck, EI.SystemId EmployeeId, EI.EmployeeCode, EI.EmployeeName, FORMAT(EI.DOJ, 'dd-MMM-yyyy')DOJ,
+                            DP.UserName as Department, LDSG.StandardName as Designation, SC.UserName as Section, GDSG.UserName LegalDesignation,                           
+                             SBC.UserName as SubSection, CB.GeneralContractId, GC.UserName GeneralContract
+                            from MST.GeneralContractCheckBy CB
+                            left join MST.GeneralContract GC on GC.Id = CB.GeneralContractId 
+                            left join EmployeeInformation EI on EI.SystemId = CB.SystemId
+                             LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = ei.BudgetCode
                             LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
                             left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
                             left join ORG.Entity UN on UN.Id = MBGT.EntityId
@@ -675,13 +694,13 @@ left join EmployeeInformation EI on EI.SystemId = CB.SystemId
         {
             try
             {
-                var sql = @"select AB.Id, AB.isApprove, EI.SystemId, EI.EmployeeCode, EI.EmployeeName, FORMAT(EI.DOJ, 'dd-MMM-yyyy')DOJ,
-DP.UserName as Department, LDSG.StandardName as Designation, SC.UserName as Section, GDSG.UserName LegalDesignation,                           
- SBC.UserName as SubSection, AB.GeneralContractId, GC.UserName GeneralContract
-from MST.GeneralContractApproveBy AB
-left join MST.GeneralContract GC on GC.Id = AB.GeneralContractId 
-left join EmployeeInformation EI on EI.SystemId = AB.SystemId
- LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = ei.BudgetCode
+                var sql = @"select AB.Id, AB.isApprove, EI.SystemId EmployeeId, EI.EmployeeCode, EI.EmployeeName, FORMAT(EI.DOJ, 'dd-MMM-yyyy')DOJ,
+                            DP.UserName as Department, LDSG.StandardName as Designation, SC.UserName as Section, GDSG.UserName LegalDesignation,                           
+                             SBC.UserName as SubSection, AB.GeneralContractId, GC.UserName GeneralContract
+                            from MST.GeneralContractApproveBy AB
+                            left join MST.GeneralContract GC on GC.Id = AB.GeneralContractId 
+                            left join EmployeeInformation EI on EI.SystemId = AB.SystemId
+                             LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = ei.BudgetCode
                             LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
                             left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
                             left join ORG.Entity UN on UN.Id = MBGT.EntityId
@@ -705,15 +724,16 @@ left join EmployeeInformation EI on EI.SystemId = AB.SystemId
 
         public IEnumerable<object> GetSaveEntityList(string gcId)
         {
-            try 
+            try
             {
-                var str = @"select GE.Id, GE.EntityId, E.EntityType, E.UserName, E.Code, G.Id from MST.GeneralContractEntity GE
-left join org.Entity E on E.Id = GE.EntityId
-left join MST.GeneralContract G on G.Id = GE.GeneralContractId
-where G.Id = '"+gcId+"'";
+                var str = @"select GE.Id, GE.EntityId, E.EntityType, E.UserName, E.Code, G.Id 
+                            from MST.GeneralContractEntity GE
+                            left join org.Entity E on E.Id = GE.EntityId
+                            left join MST.GeneralContract G on G.Id = GE.GeneralContractId
+                            where G.Id = '" + gcId + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -764,7 +784,7 @@ where G.Id = '"+gcId+"'";
                 #endregion FURNITURE POLICY HEAD
 
                 #region Child
-                
+
                 DataSet dsChild;
                 ConnectionManager.DAL.ConManager conn = new ConnectionManager.DAL.ConManager("1");
                 conn.OpenDataSetThroughAdapter("select * from TRN.ContractItemEntry where GeneralContractEntryId ='" + data["Id"].ToString() + "'", out dsChild, false, "1");
@@ -793,7 +813,7 @@ where G.Id = '"+gcId+"'";
                         EditRow(drmo, item);
                     }
                 }
-                
+
                 #endregion Child
 
                 clsStaticInfo _info = new clsStaticInfo();
@@ -949,7 +969,7 @@ left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
             var sql = "";
             try
             {
-                               
+
                 if (entityid == null || entityid == "null")
                 {
                     sql = @"select  GCI.UserName Item, CIE.TransactionQuantity Quantity
@@ -1064,7 +1084,7 @@ left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
 
             }
         }//End Function
- 
+
     }
     #endregion GeneralContractCheckService
 }

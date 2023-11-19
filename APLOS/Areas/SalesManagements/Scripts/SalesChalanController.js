@@ -32,8 +32,8 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
         MobileNo: null,
         SecurityInChargeId: null,
         ResponsiblePersonId: null,
-        CheckById: false,
-        ApproveById: false,
+        CheckById: null,
+        ApproveById: null,
         UserRef: null,
         DestinationId: null,
         FromDate: null,
@@ -89,11 +89,14 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
     }
 
     $scope.SetMobileNo = function () {
-        for (var i = 0; i < $scope.vehicleNoList.length; i++) {
-            if ($scope.ModelNew.VechileNo == $scope.vehicleNoList[i].Value) {
-                $scope.ModelNew.MobileNo = $scope.vehicleNoList[i].TransportDriverNo;
-            }
-        }
+        $http({
+            method: 'GET',
+            url: 'SalesManagements/SalesChalan/GetTransportDriverNo?TransportVehicleNo=' + $scope.ModelNew.VechileNo
+        }).then(function successCallback(response) {
+            $scope.ModelNew.MobileNo = response.data[0].TransportDriverNo;
+        });
+
+        
     }
 
     $scope.popUpDataList = [];
@@ -282,16 +285,7 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
     }
     $scope.GetSalesChalanCheckedByCboList();
 
-    $scope.ApproveByList = [];
-    $scope.GetSalesChalanApproveByCboList = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'GetSalesChalanApproveByCboList'
-        }).then(function successCallback(response) {
-            $scope.ApproveByList = response.data; 
-        });
-    }
-    $scope.GetSalesChalanApproveByCboList();
+   
 
     $scope.btndisable = false;
     $scope.Save = function () {
