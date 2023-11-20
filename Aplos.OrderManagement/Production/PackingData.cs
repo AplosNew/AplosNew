@@ -500,7 +500,7 @@ namespace Library.OrderManagement.Production
                 //                  group by sc.ProductCode , sc.POId, sc.LotNo ,StockQty.StockQty,desp.Despatch,bb.BookQty,plann.PlanQty,PO.Qty, PS.StandardName
                 //                  ";
 
-                string str = @"Select sc.ProductCode , sc.POId as PO,PS.StandardName POStatus ,PO.Qty POQty ,pack.ProducedQty 
+                string str = @"Select G.QualityStatus,sc.ProductCode , sc.POId as PO,PS.StandardName POStatus ,PO.Qty POQty ,pack.ProducedQty 
                         ,case when pack.ProducedQty > PO.Qty then 0 else (isnull(PO.Qty,0)-isnull(pack.ProducedQty,0)) end as BalanceQty ,sc.LotNo 
                         ,isnull(plann.PlanQty,0) as PlannedQty , isnull(StockQty.StockQty,0)  as StockQty , isnull(desp.Despatch,0) as Despatch , isnull(bb.BookQty,0) as BookedQty,
                         (Case when bb.BookQty >plann.PlanQty then (isnull(StockQty.StockQty,0) - isnull(bb.BookQty,0)) else (isnull(StockQty.StockQty,0)  - isnull(plann.PlanQty,0)) end) as Available
@@ -547,8 +547,51 @@ namespace Library.OrderManagement.Production
                        
                        left join trn.ProductionOrder PO on PO.Id = sc.POId
                        left join hkp.ProductionStatus PS on PS.Id = PO.ProductionStatusId
+
+LEFT JOIN (
+					   select (case when sum(Convert(Int,Z.RejectValue)) > 0  then 'Reject'
+when sum(Convert(Int,Z.FailValue)) > 0  then 'Fail'
+when sum(Z.EntryMissing) > 0  then 'Pending'
+else 'Pass' end) QualityStatus,
+Z.PONo,Z.LotNumber
+
+from (select distinct M.ProductionOrderId PONo,isnull(QCData.LotNumber,M.LotNumber) LotNumber
+,QCData.PassValue,QCData.FailValue,QCData.RejectValue,
+(Case When (QCData.Value is null or QCData.Value = '0') then 1 else 0 end) EntryMissing
+from (Select  P.*,CP.IssueId,CP.ParameterId from (select Distinct PS.ProductionOrderId,PS.LotNumber,1 PlanSet
+from TRN.ProductionSummary PS
+left join trn.ProductionOrder PO on PO.Id=PS.ProductionOrderId
+
+) P
+inner Join (select QMP.QMID IssueId,QMP.Id ParameterId,1 as PlanSet,PR.UserName Process,QMP.ProcessId
+ from MST.QualityManagementParameterItem QMP
+ left join MST.QualityManagementMaster QMM on QMM.Id=QMP.QMID
+ left join Hkp.ParameterMaster PM on PM.Id=QMP.ParameterId
+ left join SCS.UnitOfMeasurement UOM on UOM.Id=QMP.UOMId
+ left join hkp.Process PR on  PR.Id=QMP.ProcessId
+ where CustomerParameter = 1) CP on CP.PlanSet=P.PlanSet) M
+ left join (select QC.IssueId,QMM.UserName IssueName,QCD.ItemId ParameterId,PM.UserName ParameterName,QC.LotNumber,QC.ProductionOrderId,
+ QCD.Value,QGD.GradeName,QCD.Remarks ParameterRemark,QAT.ActionToBeTakenName,EI.EmployeeName ResponsiblePerson,
+ format(QC.AddedDate,'dd-MMM-yyyy') QCDate,format(QCD.AddedDate,'dd-MMM-yyyy') QCDDate,QC.Id HeaderId,QCD.Id ChildId,QGD.IsPassValue PassValue,QGD.IsFailValue FailValue,QGD.IsRejectValue RejectValue,
+ (case when QCD.GradeId is null then 1 end) FailGrade,
+ (case when (QGD.IsFailValue <> 0 and QCD.Status not in ('Close','Complete')) then 1 else 0 end) ToClose,
+ (case when (QGD.IsFailValue <> 0 and QCD.Status not in ('Complete')) then 1 else 0 end) ToConfirm,QC.ProcessId
+ from TRN.QualityControlDetails QCD
+ left join TRN.QualityControl QC on QC.Id=QCD.QCId
+ left join MST.QualityManagementMaster QMM on QMM.Id=QC.IssueId
+ left join MST.QualityManagementParameterItem QMP on QMP.Id=QCD.ItemId
+ left join Hkp.ParameterMaster PM on PM.Id=QMP.ParameterId
+ left join MST.QualityGradeDetails QGD on QGD.Id=QCD.GradeId
+ left join MST.QualityActionToBeTakenDetails QAT on QAT.Id=QCD.ActionToBeTaken
+ left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
+ where QCD.ItemId in (select Id from MST.QualityManagementParameterItem where CustomerParameter = 1)) QCData on 
+ QCData.IssueId=M.IssueId and QCData.ParameterId=M.ParameterId and QCData.ProductionOrderId=M.ProductionOrderId and QCData.LotNumber=M.LotNumber)Z 
+ where 1=1    
+ Group By Z.PONo,Z.LotNumber
+					   )G ON G.PONo=sc.POId AND G.LotNumber=sc.LotNo
+
                         where sc.ProductCode = '" + productCode + @"' and StockQty.StockQty <> 0
-                        group by sc.ProductCode , sc.POId, sc.LotNo ,StockQty.StockQty,desp.Despatch,bb.BookQty,plann.PlanQty,PS.StandardName,PO.Qty,pack.ProducedQty";
+                        group by G.QualityStatus,sc.ProductCode , sc.POId, sc.LotNo ,StockQty.StockQty,desp.Despatch,bb.BookQty,plann.PlanQty,PS.StandardName,PO.Qty,pack.ProducedQty";
 
                 DataTable dt = _sqlRepository.GetDataTable(str);
 
