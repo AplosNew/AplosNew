@@ -620,43 +620,49 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
     $scope.cartonDetail = [];
     $scope.inactiveCartons = [];
     $scope.showCartons = function (e) {
-        if (parseFloat(e.data.quant) <= 0 ) {
-            ShowResult("Please First Enter the Plan Qty");
-            throw ("Invalid");
-        }
-        if ($scope.cartonDetail.length > 0) {
-            if ($scope.cartonDetail[0]["LotNo"] === e.data.LotNo) {
-                $scope.cartonDetal = $scope.cartonDetail;
-                $scope.inactiveCartons = $scope.inactiveCartons;
-                angular.element(document.querySelector('#cartonDetailModal')).modal('show');
+        try {
+            //if (baseService.isUndefinedOrNull(e.data.QualityStatus) !=="Pass") {
+            //    throw "This Item is  not pass the quality.";
+            //}
+            if (parseFloat(e.data.quant) <= 0) {
+                throw "Please First Enter the Plan Qty";
+            }
+            if ($scope.cartonDetail.length > 0) {
+                if ($scope.cartonDetail[0]["LotNo"] === e.data.LotNo) {
+                    $scope.cartonDetal = $scope.cartonDetail;
+                    $scope.inactiveCartons = $scope.inactiveCartons;
+                    angular.element(document.querySelector('#cartonDetailModal')).modal('show');
+                }
+                else {
+                    $http({
+                        method: 'GET',
+                        url: $scope.path + "getCartonsDetails",
+                        params: { 'LotNo': e.data.LotNo, 'ProductCode': e.data.ProductCode, 'PO': e.data.PO },
+                        dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        $scope.cartonDetail = response.data.Data;
+
+                        $scope.inactiveCartons = response.data.Inactive;
+                        fillCartons();
+                        angular.element(document.querySelector('#cartonDetailModal')).modal('show');
+                    });
+
+                }
             }
             else {
                 $http({
                     method: 'GET',
                     url: $scope.path + "getCartonsDetails",
-                    params: { 'LotNo': e.data.LotNo , 'ProductCode' : e.data.ProductCode , 'PO' : e.data.PO},
+                    params: { 'LotNo': e.data.LotNo, 'ProductCode': e.data.ProductCode, 'PO': e.data.PO },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     $scope.cartonDetail = response.data.Data;
-
                     $scope.inactiveCartons = response.data.Inactive;
-                    fillCartons();
                     angular.element(document.querySelector('#cartonDetailModal')).modal('show');
                 });
-
             }
-        }
-        else {
-            $http({
-                method: 'GET',
-                url: $scope.path + "getCartonsDetails",
-                params: { 'LotNo': e.data.LotNo, 'ProductCode': e.data.ProductCode, 'PO': e.data.PO },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.cartonDetail = response.data.Data;
-                $scope.inactiveCartons = response.data.Inactive;
-                angular.element(document.querySelector('#cartonDetailModal')).modal('show');
-            });
+        } catch (e) {
+            ShowResult(e,'failure');
         }
 
 
