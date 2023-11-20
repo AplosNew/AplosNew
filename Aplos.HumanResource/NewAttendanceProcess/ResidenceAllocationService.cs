@@ -1681,12 +1681,10 @@ format(SICU.Date,'dd-MMM-yyyy') between '" + FromDate + "' and '" + ToDate + "' 
                 if (PartialVacantFullyOccupied == "FullyOccupied")
                 {
                     sql = @"select RM.Id ResidenceId, RM.[Location], RM.ResidentType, RM.ResidenceCategory, RM.Block, RM.Floor, RM.ResidenceNumber
-, RM.Vacancy, O.Occupied,
-Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0), ei.EmployeeCode,  ei.EmployeeName,
-D.UserName Department,
-S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName Entity, P.Activity, ei.EmployeeStatus,
- FORMAT(ei.DOJ, 'dd-MMM-yyyy') DOJ, FORMAT(ei.DOS, 'dd-MMM-yyyy')DOS, ei.EmployeeCurrentStatus,  P.PaymentLink Skill, PR.UserName Process, RG.UserName ResidenceGroup
- , EmployeeCategory
+                            , RM.Vacancy, O.Occupied, Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0), ei.EmployeeCode,  ei.EmployeeName,
+                            D.UserName Department, S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName Entity,isnull(P.Activity,'') Activity, ei.EmployeeStatus,
+                             FORMAT(ei.DOJ, 'dd-MMM-yyyy') DOJ,isnull(FORMAT(ei.DOS, 'dd-MMM-yyyy'),'')DOS,isnull(ei.EmployeeCurrentStatus,'') EmployeeCurrentStatus,  P.PaymentLink Skill,isnull(PR.UserName,'') Process, RG.UserName ResidenceGroup
+                             , EmployeeCategory
 							from dbo.ResidenceAllocatedEmployees rae
                             left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
                             left join HKP.Designation DE on DE.Id=ei.GivenDesignationId
@@ -1725,12 +1723,10 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
                 if (PartialVacantFullyOccupied == "PartialVacant")
                 {
                     sql = @"select RM.Id ResidenceId, RM.[Location], RM.ResidentType, RM.ResidenceCategory, RM.Block, RM.Floor, RM.ResidenceNumber
-, RM.Vacancy, O.Occupied,
-Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0), ei.EmployeeCode,  ei.EmployeeName,  
-D.UserName Department,
-S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName Entity, P.Activity, ei.EmployeeStatus,
- FORMAT(ei.DOJ, 'dd-MMM-yyyy') DOJ, FORMAT(ei.DOS, 'dd-MMM-yyyy')DOS, ei.EmployeeCurrentStatus,  P.PaymentLink Skill, PR.UserName Process, RG.UserName ResidenceGroup
- , EmployeeCategory
+                            ,RM.Vacancy, O.Occupied,Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0), ei.EmployeeCode,  ei.EmployeeName,D.UserName Department,
+                            S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName Entity,isnull(P.Activity,'') Activity, ei.EmployeeStatus,
+                            FORMAT(ei.DOJ, 'dd-MMM-yyyy') DOJ,isnull(FORMAT(ei.DOS, 'dd-MMM-yyyy'),'')DOS,isnull(ei.EmployeeCurrentStatus,'') EmployeeCurrentStatus,  
+                            P.PaymentLink Skill,isnull(PR.UserName,'') Process, RG.UserName ResidenceGroup,EmployeeCategory
 							from dbo.ResidenceAllocatedEmployees rae
                             left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
                             left join HKP.Designation DE on DE.Id=ei.GivenDesignationId
@@ -1771,12 +1767,10 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
                 if (PartialVacantFullyOccupied == "All")
                 {
                     sql = @"select RM.Id ResidenceId, RM.[Location], RM.ResidentType, RM.ResidenceCategory, RM.Block, RM.Floor, RM.ResidenceNumber
-, RM.Vacancy, O.Occupied,
-Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0), ei.EmployeeCode,  ei.EmployeeName,   
-D.UserName Department,
-S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName Entity, P.Activity, ei.EmployeeStatus,
- FORMAT(ei.DOJ, 'dd-MMM-yyyy') DOJ, FORMAT(ei.DOS, 'dd-MMM-yyyy')DOS, ei.EmployeeCurrentStatus,  P.PaymentLink Skill, PR.UserName Process, RG.UserName ResidenceGroup
-, EmployeeCategory
+                            , RM.Vacancy, O.Occupied,Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0), ei.EmployeeCode,  ei.EmployeeName,   
+                            D.UserName Department,S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName Entity,isnull(P.Activity,'') Activity, ei.EmployeeStatus,
+                             FORMAT(ei.DOJ, 'dd-MMM-yyyy') DOJ,isnull(FORMAT(ei.DOS, 'dd-MMM-yyyy'),'')DOS,isnull(ei.EmployeeCurrentStatus,'') EmployeeCurrentStatus,  
+                             P.PaymentLink Skill,isnull(PR.UserName,'') Process, RG.UserName ResidenceGroup, EmployeeCategory
 							from dbo.ResidenceAllocatedEmployees rae
                             left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
                             left join HKP.Designation DE on DE.Id=ei.GivenDesignationId

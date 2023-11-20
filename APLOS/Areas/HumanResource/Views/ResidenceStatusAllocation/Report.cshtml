@@ -157,53 +157,25 @@
                                     <div e-column e-field="Activity" e-headertext="Activity" e-width="100"></div>
 
                                     <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>*@
-                                    <div e-column e-field="ResidenceGroup" e-headertext="Res Group" e-width="100"></div>
-
-
-
-
-                                    @*<div e-column e-field="Legal Designation" e-headertext="Legal Designation" e-width="100"></div>*@
-
-
-
-
-
-
-
-
-
-
+                                    <div e-column e-field="ResidenceGroup" e-headertext="Res Group" e-width="100"></div> 
                                     <div e-column e-field="ResidenceCategory" e-headertext="Res Category" e-width="100"></div>
 
-                                    <div e-column e-field="ResidentType" e-headertext="Resi Type" e-width="100"></div>
-
-
-
+                                    <div e-column e-field="ResidentType" e-headertext="Resi Type" e-width="100"></div> 
                                 </div>
                             </div>
                             <div class="common-btn">
                                 <ul class="list-inline text-right">
-                                    <li> <button ng-click="detailResidenceStatusReport();" style="margin-top:10px" class="btn" tabindex="9"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
-
-                                </ul>
-
+                                    <li> <button ng-click="detailResidenceStatusReport();" style="margin-top:10px" class="btn" tabindex="9"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li> 
+                                </ul> 
                             </div>
-                        </div>
-
-
-                    </div>
-
-
-                </div>
-
+                        </div> 
+                    </div> 
+                </div> 
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                 <div class=" row">
                     <div class="col-md-12">
-                        @{ Html.RenderPartial("pendingForAllocationGrid");}
-                      
-                       
-
+                        @{ Html.RenderPartial("pendingForAllocationGrid");} 
                     </div>
 
                 </div>
@@ -211,10 +183,8 @@
 
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
                 <div class=" row">
-                    <div class="col-md-12">
-
-                        @{ Html.RenderPartial("pendingForUnAllocationGrid");}
-
+                    <div class="col-md-12"> 
+                        @{ Html.RenderPartial("pendingForUnAllocationGrid");} 
                     </div>
 
                 </div>
