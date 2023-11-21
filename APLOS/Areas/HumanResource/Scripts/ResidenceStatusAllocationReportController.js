@@ -1,6 +1,6 @@
 ﻿'use strict';
-ResidenceStatusAllocationReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function ResidenceStatusAllocationReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+ResidenceStatusAllocationReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$window'];
+function ResidenceStatusAllocationReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Residence Status Report';
     $scope.Action = 'Save';
     $scope.ModelList = [];
@@ -10,6 +10,7 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
     $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
     // Tab Change
     $scope.tab = 1;
@@ -73,8 +74,8 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
             });
 
             var gridObj = $("#Reportfilters").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
+            //gridObj.refreshContent(true);
+            //gridObj.refreshTemplate();
             $("#Reportfilters").children('.e-pager.e-js.e-pager').hide();
             $("#Reportfilters").children('.e-gridcontent.e-droppable.e-js').hide();
             $("#Reportfilters").children('.e-gridcontent').hide();
@@ -158,7 +159,6 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
             }
         }
         $scope.fileName = 'Residence Status Allocation.xlsx';
-        $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
         $http({
             method: 'POST',
@@ -611,78 +611,104 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
 
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     $scope.detailResidenceStatusReport = function () {
+        var dataList = [];
+        var g = $("#designationTab").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        if (dataList.length == 0) {
+            dataList = $scope.DetailResidenceStatusList;
+        }
+        $scope.fileName = "ResidenceStatusReport.xlsx";
+       
         $http({
             method: 'POST',
             url: $scope.path + "XlsDetailResidenceStatus",
-            data: { 'PartialVacantFullyOccupied': $scope.ModelNew.PartialVacantFullyOccupied },
+            data: { 'data': dataList, 'reportFileName': $scope.fileName },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
             }
-            else {
-                
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            else {                
+               $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
         });
-
     };
 
     $scope.pendingForUnAllocationReport = function () {
+        var dataList = [];
+        var g = $("#pendingFUA").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        if (dataList.length == 0) {
+            dataList = $scope.PendingForUnallocationList;
+        }
+        $scope.fileName = "Pending For UnAllocation Report.xlsx";
+
         $http({
             method: 'POST',
             url: $scope.path + "XlsPendingForUnallocation",
-           
+            data: { 'data': dataList, 'reportFileName': $scope.fileName }, 
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
             }
-            else {
-
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            else { 
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
-        });
-
+        }); 
     };
 
     $scope.ResidenceSummaryReport = function () {
+        var dataList = [];
+        var g = $("#residenceSumGrid").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        if (dataList.length == 0) {
+            dataList = $scope.ResidenceSummaryList;
+        }
+        $scope.fileName = "Residence Summary Report.xlsx";
+
         $http({
             method: 'POST',
             url: $scope.path + "XlsResidenceSummary",
-           
+            data: { 'data': dataList, 'reportFileName': $scope.fileName },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
         });
-
     };
 
     $scope.PendingForAllocation = function () {
+        var dataList = [];
+        var g = $("#PendingAG").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        if (dataList.length == 0) {
+            dataList = $scope.PendingForAllocationList;
+        }
+        $scope.fileName = "Pending For Allocation Report.xlsx";
+
         $http({
             method: 'POST',
             url: $scope.path + "XlsPendingForAllocation",
-
+            data: { 'data': dataList, 'reportFileName': $scope.fileName },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');

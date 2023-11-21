@@ -997,25 +997,12 @@
                 <td>{{x.RowState}}</td>
                 <td class="text-right">
                     <ul class="list-inline action-list">
-                        @*<li>
-                            <a class="btn btn-action" ng-click="SendMailToParty(x);" title="Mail" href="" target="_blank"><i class=""></i>Mail</a>
-                        </li>*@
-                        <li>
-                            <a class="btn btn-action" ng-click="GetLotWiseTaxInvoice(x);" title="Lot Wise Tax Invoice" href="" target="_blank"><i class=""></i>TI</a>
-                        </li>
-                        <li>
-                            <a class="btn btn-action" ng-click="CommercialInvoiceReport(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Commercial Invoice" href="" target="_blank"><i class=""></i>CI</a>
-                        </li>
-                        <li>
-                            <a class="btn btn-action" ng-click="LocalTaxInvoiceReport(x);" title="Tax Invoice" href="" target="_blank"><i class=""></i>TI</a>
-                        </li>
-                        <li>
-                            <a class="btn btn-action" ng-click="LocalTaxInvoiceWithProductDetailService(x);" title="Tax Invoice With Product Detail" href="" target="_blank"><i class=""></i>TI</a>
-                        </li>
-                        <li>
-                            <a class="btn btn-action" ng-click="LocalTaxInvoiceWithoutSUIReport(x);" title="Tax Invoice Without SKU" href="" target="_blank"><i class=""></i>TI</a>
-                        </li>
-
+                        <li><a class="btn btn-action" ng-click="SendMailToParty(x);" title="Mail" href="" target="_blank"><i class=""></i>Mail</a></li>
+                        <li><a class="btn btn-action" ng-click="GetLotWiseTaxInvoice(x);" title="Lot Wise Tax Invoice" href="" target="_blank"><i class=""></i>TI</a></li>
+                        <li><a class="btn btn-action" ng-click="CommercialInvoiceReport(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Commercial Invoice" href="" target="_blank"><i class=""></i>CI</a></li>
+                        <li><a class="btn btn-action" ng-click="LocalTaxInvoiceReport(x);" title="Tax Invoice" href="" target="_blank"><i class=""></i>TI</a></li>
+                        <li><a class="btn btn-action" ng-click="LocalTaxInvoiceWithProductDetailService(x);" title="Tax Invoice With Product Detail" href="" target="_blank"><i class=""></i>TI</a></li>
+                        <li><a class="btn btn-action" ng-click="LocalTaxInvoiceWithoutSUIReport(x);" title="Tax Invoice Without SKU" href="" target="_blank"><i class=""></i>TI</a></li>
                     </ul>
                 </td>
             </tr>

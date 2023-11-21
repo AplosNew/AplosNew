@@ -4469,7 +4469,7 @@ order by SAI.SalesId";
 			{
 				strSql = @"Select SCD.*,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight,DT.UserName Destination,FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
                                     ,SC.VechileNo,SC.UserRef,FORMAT(SC.AddedDate,'dd-MMM-yyyy')GatePassDate
-									,EI.EmployeeName CheckedBy,EIM.EmployeeName ApprovedBy,SC.CheckedStatus,SC.ApprovedStatus,SC.IsDispatchConfirmation,SC.DispatchConfirmationBy
+									,EI.EmployeeName CheckedBy,EIM.EmployeeName ApprovedBy,SC.CheckedStatus,SC.ApprovedStatus,ISNULL(SC.IsDispatchConfirmation,0)IsDispatchConfirmation,SC.DispatchConfirmationBy
                                     from dbo.SalesChalanDetail SCD
                                     LEFT JOIN dbo.SalesChalan SC ON SC.Id=SCD.SalesChalanId
                                     LEFT JOIN TRN.Sales S ON S.Id=SCD.InvoiceId
