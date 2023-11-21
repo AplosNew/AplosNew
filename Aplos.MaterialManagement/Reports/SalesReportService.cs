@@ -825,17 +825,20 @@ namespace Library.MaterialManagement.Reports
                 //Saves the PDF file 
                 string Prefix = "TaxInvoice-" + salesId;
 
-                pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
+                //pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
                 //Closes the instance of document objects
                 pdfDocument.Close(true);
                 // document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 string filePath = "";
                 string path = "";
 
-                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Prefix + ".pdf");
-                //document.SaveOptions.
+               
+                var destinationPath = Path.Combine(ResourcesPathReader.GetProductionBulletinImagePath(), Prefix);
+                //File.Save (destinationPath);
 
-               // document.Close();
+                document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
+
+                // document.Close();
                 EmailSender email = null;
 
                 var dom = _smtpConfigurationRepository.Query(a => a.CompanyGroupId == companyGroupId && a.CompanyId == companyId).Select().FirstOrDefault();
@@ -844,9 +847,9 @@ namespace Library.MaterialManagement.Reports
 
                 email = new EmailSender(dom.Host, dom.Port, dom.MailingUserName, dom.Password, dom.IsSSL);
 
-               // var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
-                //message.Attachments.Add(new Attachment(path.ToString()));
-                //email.Send(message);
+                var message = email.PrepareMessage(dom.SenderSystemName + "<" + dom.SenderSystemEmail + ">", dsOrderMaster.Rows[0]["Email"].ToString(), null, null, "Tax Invoice Report", "Please find the attachment.");
+                message.Attachments.Add(new Attachment(destinationPath.ToString()));
+                email.Send(message);
 
             }
             catch (Exception ex)
@@ -5320,7 +5323,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
     ,P.UserName Buyer 
     ,P.TINNO CustomerGSTNo
     ,p.VATResistrationNo AS CustomerPANNo
-    ,Addres.Address1 VendorAddress
+    ,Addres.Address1 VendorAddress,Addres.Email
     ,ISNULL(HSNC.Code,MHSN.Code) HSNCode
     ,Plant.GSTIN
     ,Plant.VATResistrationNo AS PlantPANNo

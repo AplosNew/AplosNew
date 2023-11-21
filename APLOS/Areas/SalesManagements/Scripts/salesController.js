@@ -141,7 +141,8 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
         BooksCurrencyTaxAmount: null,
         BooksCurrencyBaseRate: null,
         IsPark: 1,
-        IsIncentiveApplicable: false
+        IsIncentiveApplicable: false,
+        InvoiceStatus:'Active'
     };
     $scope.salesVM.TaxOptionAddiTax = 'Yes';
     $scope.materialMaster = {
