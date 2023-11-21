@@ -52,6 +52,10 @@ function UserController($controller, fileReader, commonMessage, $scope, $rootSco
             'value': 'FullName'
         },
         {
+            'name': 'Email',
+            'value': 'Email'
+        },
+        {
             'name': 'AuthToken',
             'value': 'AuthToken'
         }
