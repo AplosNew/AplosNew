@@ -122,7 +122,8 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         BooksCurrencyBaseRate: null,
         IsPark: 1,
         IsAdditionalInfoApplicable: true,
-        IsIncentiveApplicable: false
+        IsIncentiveApplicable: false,
+        InvoiceStatus: 'Active'
     };
 
     $http({
