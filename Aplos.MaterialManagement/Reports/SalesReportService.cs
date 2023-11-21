@@ -10,6 +10,7 @@ using Syncfusion.DocIO;
 using Syncfusion.DocIO.DLS;
 using Syncfusion.DocToPDFConverter;
 using Syncfusion.Pdf;
+using Syncfusion.Pdf.Graphics;
 using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
@@ -739,6 +740,13 @@ namespace Library.MaterialManagement.Reports
                 DataTable dsOrderMaster;
 
                 dsOrderMaster = GetLotWiseSalesReportData(salesId);
+                if (dsOrderMaster.Rows.Count>0)
+                {
+                    if (string.IsNullOrEmpty(dsOrderMaster.Rows[0]["Email"].ToString()))
+                    {
+                        throw new Exception("Recipient mailId not found.");
+                    }
+                }
                 Dictionary<string, string> columns = new Dictionary<string, string>();
 
                 foreach (DataColumn item in dsOrderMaster.Columns)
@@ -800,7 +808,6 @@ namespace Library.MaterialManagement.Reports
                 document.ImportContent(sourceDoc, ImportOptions.KeepSourceFormatting);
                 document.Replace("{FileCopyName}", "Triplicate for recipient", false, false);
 
-
                 //removing any unused place holder  
                 foreach (var item in ReplaceInfo.Keys)
                 {
@@ -808,9 +815,7 @@ namespace Library.MaterialManagement.Reports
                         document.Replace(item.ToString(), "N/A", false, false);
                 }
 
-                /////////////////////
-                ///
-
+              
                 DocToPDFConverter converter = new DocToPDFConverter();
 
                 //Converts Word document into PDF document
@@ -823,32 +828,28 @@ namespace Library.MaterialManagement.Reports
                 //Closes the instance of document objects
 
                 //Saves the PDF file 
-                string Prefix = "TaxInvoice-" + salesId;
+                string FileName = "TaxInvoice-" + salesId+".pdf";
 
-                //pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
-                //Closes the instance of document objects
+                MemoryStream ms = new MemoryStream();
+                // Save and close the document.
+                pdfDocument.Save(ms);
                 pdfDocument.Close(true);
-                // document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
-                string filePath = "";
-                string path = "";
 
-               
-                var destinationPath = Path.Combine(ResourcesPathReader.GetProductionBulletinImagePath(), Prefix);
-                //File.Save (destinationPath);
+                //Reset the memory stream position.  
+                ms.Position = 0;
 
-                document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
+                //Attach the file
+                Attachment file = new Attachment(ms, FileName, "application/pdf");
 
-                // document.Close();
                 EmailSender email = null;
-
                 var dom = _smtpConfigurationRepository.Query(a => a.CompanyGroupId == companyGroupId && a.CompanyId == companyId).Select().FirstOrDefault();
                 if (dom == null)
                     throw new CustomException("This 'company group' has no web address!");
 
                 email = new EmailSender(dom.Host, dom.Port, dom.MailingUserName, dom.Password, dom.IsSSL);
 
-                var message = email.PrepareMessage(dom.SenderSystemName + "<" + dom.SenderSystemEmail + ">", dsOrderMaster.Rows[0]["Email"].ToString(), null, null, "Tax Invoice Report", "Please find the attachment.");
-                message.Attachments.Add(new Attachment(destinationPath.ToString()));
+                var message = email.PrepareMessage(dom.SenderSystemName + "<" + dom.MailingUserName + ">", dsOrderMaster.Rows[0]["Email"].ToString(), null, null, "Tax Invoice Report", "Please find the attachment.");
+                message.Attachments.Add(file);
                 email.Send(message);
 
             }
@@ -980,7 +981,7 @@ namespace Library.MaterialManagement.Reports
 
 
 
-                ////document.Protect(ProtectionType.AllowOnlyReading, "password");
+                //document.Protect(ProtectionType.AllowOnlyReading, "password");
                 //string filename = "TaxInvoice-" + salesId + ".docx";
                 //document.Save(filename, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 //document.Close();

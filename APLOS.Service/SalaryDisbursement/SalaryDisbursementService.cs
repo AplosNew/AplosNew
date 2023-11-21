@@ -947,6 +947,8 @@ namespace Library.Service.SalaryDisbursement
                 voucherVM.DocDate = voucherVM.PostingDate;
                 voucherVM.CurrencyId = companyCurrencyId;
                 voucherVM.CompanyCurrencyRate = 1;
+                var totalAmountDr = 0.0M;
+                var totalAmountCr = 0.0M;
 
                 //**************Insert Direct Salary JV****************
                 _unitOfWork.BeginTransaction();
@@ -970,6 +972,8 @@ namespace Library.Service.SalaryDisbursement
                             DrAmount = voucherDetailVM.CrAmount,
                         }, currentVoucherDetailId);
 
+                        totalAmountDr += voucherDetailDr.DrAmount;
+
                         // INSERT INTO VoucherDetailCurrency
                         _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailDr, new VoucherDetailCurrency
                         {
@@ -991,6 +995,8 @@ namespace Library.Service.SalaryDisbursement
                             CrAmount = directJVList.Sum(r => r.CrAmount),
                             PaymentSource = voucherVM.PaymentSource
                         };
+
+                        totalAmountCr += voucherDetailCr.CrAmount;
 
                         var glTransactionDetail = new GLTransactionDetail
                         {
@@ -1048,6 +1054,10 @@ namespace Library.Service.SalaryDisbursement
                     }
 
                 }
+
+                if (totalAmountDr != totalAmountCr)
+                    throw new CustomException("Dr and Cr amount is not equal.");
+
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();

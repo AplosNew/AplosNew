@@ -2318,7 +2318,7 @@ namespace Library.Accounting.Accounts
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 parameters.CmdText = @"SELECT V.Id PayableVoucherId, V.VoucherDate, V.PostingDate, V.DocRefNo, V.VoucherTypeId, V.CurrencyId, V.DocDate, V.EntityId, C.Code AS CurrencyCode
-                                    , VD.DrAmount, V.VoucherNo,BM.AccountTitle PaymentBank, V.IsPark, V.Narration
+                                    , VD.DrAmount, V.VoucherNo,ISNULL(BM.AccountTitle,CM.UserName) PaymentBank, V.IsPark, V.Narration
 									,[Month]=case when sl.MonthNo=1 then 'January'
                                     when sl.MonthNo=2 then 'February'
                                     when sl.MonthNo=3 then 'March'
@@ -2341,7 +2341,9 @@ namespace Library.Accounting.Accounts
 									where sl.DisbursementVoucherId<>'' and sl.IsDisbursed=1 
 									) sl on sl.DisbursementVoucherId=v.Id
 									LEFT JOIN TRN.VoucherDetail XVD ON XVD.VoucherId=V.Id AND XVD.BankMasterId<>''
+									LEFT JOIN TRN.VoucherDetail XVDC ON XVDC.VoucherId=V.Id AND  XVDC.CashMasterId<>''
 									left join MST.BankMaster BM ON BM.Id=XVD.BankMasterId
+									left join MST.CashMaster CM ON CM.Id=XVDC.CashMasterId
                                     WHERE  V.Archive=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + "'AND V.CompanyId='" + identity.CompanyId + "' AND V.PlantId='" + identity.PlantId + "' AND V.SourceType='" + SourceType.SalaryDisbursement + "'";
                 return _sqlRepository.GetGridData(parameters);
             }
@@ -2370,7 +2372,11 @@ namespace Library.Accounting.Accounts
                             , VD.DrAmount+VD.CrAmount AS Value,VD.DrAmount,VD.CrAmount, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount, [DRCR]=CASE WHEN VDC.DrAmount>0 THEN '1' ELSE '2' END, VD.GLGeneralInfoId, GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode
                             , REPLACE(CONVERT(VARCHAR(11), VD.DocDate, 106), ' ', '-') AS InvoiceDate, VD.DocRefNo AS InvoiceNo, UPPER(VD.Narration) AS DetailNarration, ENT.UserName AS Entity
                             , VD.Id AS BudgetMasterId, BUD.UserName AS BudgetName, ACT.UserName AS Activity, UPPER(V.Narration) AS Narration, P.UserName AS PartyName, PP.UserName AS PartyLocation,VD.PartyType, VD.FAType,VD.FixedAssetMasterId
-							,[ParticularName]=CASE WHEN VD.EmployeeId<>'' THEN  VD.TrnNature +' ( '+ISNULL(EI.EmployeeName,'')+' ) ' ELSE VD.TrnNature END
+							,[ParticularName]=CASE
+								WHEN BM.AccountTitle<>'' THEN BM.AccountTitle
+								WHEN CM.UserName<>'' THEN CM.UserName
+								WHEN VD.EmployeeId<>'' THEN  VD.TrnNature +' ( '+ISNULL(EI.EmployeeName,'')+' ) '
+								ELSE VD.TrnNature	END
                             FROM [TRN].[VoucherDetailCurrency] AS VDC
                             INNER JOIN [TRN].[VoucherDetail] AS VD ON VD.Id =VDC.VoucherDetailId
                             INNER JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
