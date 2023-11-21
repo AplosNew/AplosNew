@@ -72,12 +72,20 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
     $scope.year = new Date().getFullYear().toString();
     $scope.month = new Date().getMonth().toString();
     $scope.disbursementAdvice = {
-        Id: null, Remarks: null
+        Id: null, Remarks: null, PaymentMode: null
     };
 
     $scope.yearList = [];
     cboService.getCboLeaveYear(function (result) {
         $scope.yearList = result;
+    });
+
+    $scope.paymentModeList = [];
+    $http({
+        method: 'GET',
+        url: 'Enum/GetEMPPaymentModeEnumCbo/'
+    }).then(function successCallback(response) {
+        $scope.paymentModeList = response.data;
     });
 
     $scope.SelectDefaultValue = function (args) {
@@ -162,12 +170,15 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
         if (angular.isUndefinedOrNull($scope.year)) {
             ShowResult("Select Year", 'failure');
         }
+        if (angular.isUndefinedOrNull($scope.disbursementAdvice.PaymentMode)) {
+            ShowResult("Select Payment Mode", 'failure');
+        }
         else {
 
             var parameters = {
                 'effectiveDate': $scope.effectiveDate, 'salaryProcessId': $scope.salaryProcessId, 'payRollGroup': $scope.payGroupListSelected, 'isActive': $scope.isActive,
-                'isSeperated': $scope.isSeperated,
-                'isMaternity': $scope.isMaternity
+                'isSeperated': $scope.isSeperated, 'isMaternity': $scope.isMaternity, 'paymentMode': $scope.disbursementAdvice.PaymentMode
+                
             };
             $http({
                 method: "POST",
@@ -342,6 +353,7 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
 
     $scope.SalaryUnDisburseList = [];
     $scope.GetSalaryUnDisbursed = function () {
+        $scope.SalaryUnDisburseList = [];
         var monthName = $scope.monthList.filter(function (mnth) {
             return mnth.Value == $scope.month;
         });
@@ -357,8 +369,7 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
 
             var parameters = {
                 'effectiveDate': $scope.effectiveDate, 'salaryProcessId': $scope.salaryProcessId, 'payRollGroup': $scope.payGroupListSelected, 'isActive': $scope.isActive,
-                'isSeperated': $scope.isSeperated,
-                'isMaternity': $scope.isMaternity
+                'isSeperated': $scope.isSeperated, 'isMaternity': $scope.isMaternity, 'paymentMode': $scope.disbursementAdvice.PaymentMode
             };
             $http({
                 method: "POST",
@@ -402,8 +413,7 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
 
             var parameters = {
                 'effectiveDate': $scope.effectiveDate, 'salaryProcessId': $scope.salaryProcessId, 'payRollGroup': $scope.payGroupListSelected, 'isActive': $scope.isActive,
-                'isSeperated': $scope.isSeperated,
-                'isMaternity': $scope.isMaternity
+                'isSeperated': $scope.isSeperated, 'isMaternity': $scope.isMaternity, 'paymentMode': $scope.disbursementAdvice.PaymentMode
             };
             $http({
                 method: "POST",

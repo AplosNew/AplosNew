@@ -38,7 +38,7 @@
                 <label class="col-sm-2 control-label">Payment Mode</label>
                 <div class="col-sm-4">
                     <div class="select-style">
-                        <select id="PaymentModeId" class="form-control" name="Payment Mode" ng-change="changePaymentMode()" ng-model="voucher.PaymentMode" tabindex="5">
+                        <select id="PaymentModeId" class="form-control" name="Payment Mode" ng-change="changePaymentMode()" ng-model="voucher.PaymentMode" tabindex="5" disabled>
                             <option value="">--Select--</option>
                             <option ng-repeat="option in paymentModeList" value="{{option.Value}}">{{option.Text}}</option>
                         </select>
@@ -184,7 +184,7 @@
 
     <div class="common-btn">
         <ul class="list-inline text-right">
-            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li><button ng-click="Save();" class="btn" ng-disabled="saveBtnDisable==true"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
             <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
@@ -221,7 +221,7 @@
                     <th>Posting Date</th>
                     <th>Month</th>
                     <th>Year</th>
-                    <th>Payment Bank</th>
+                    <th>Payment Bank/Cash</th>
                     <th>Amount</th>
                     <th>Status</th>
                     <th>Action</th>
@@ -266,6 +266,7 @@
                             <div e-column e-field="MonthName" e-headertext="Month" e-width="80"></div>
                             <div e-column e-field="Status" e-headertext="Status" e-width="80"></div>
                             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
+                            <div e-column e-field="PaymentMode" e-headertext="Payment Mode" e-width="80"></div>
                         </div>
                     </div>
                 </div>
