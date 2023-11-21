@@ -1,48 +1,34 @@
 ﻿<fieldset class="scheduler-border">
     <legend class="scheduler-border">Residence Summary</legend>
     <div class="row">
-
-
-        <div class="col-xs-12" style="margin-top:20px">
-            <div class="table-responsive" id="EGSGrid">
-                <div id="" ej-grid style="z-index:3;"
-                     e-datasource="ResidenceSummaryList"
-                     e-rowdatabound="onactivedatabound"
-                     e-allowfiltering="true"
-                     e-allowpaging="true"
-                     e-allowsorting="true"
-                     e-enabletouch="false"
-                     e-responsive="true"
-                     e-allowselection="true"
-                     e-filtersettings-filterType="excel">
-                    <div e-columns>
-
-                        <div e-column e-field="EmpCategory" e-headertext="Emp Category" e-width="100"></div>
-                        <div e-column e-field="Location" e-headertext="Location" e-width="100"></div>
-                        <div e-column e-field="Block" e-headertext="Block" e-width="100"></div>
-                        <div e-column e-field="ResidentType" e-headertext="Resident Type" e-width="100"></div>
-                        <div e-column e-field="Rooms" e-headertext="Rooms" e-width="100"></div>
-                        <div e-column e-field="Capacity" e-headertext="Vacancy" e-width="100"></div>
-                        <div e-column e-field="Allotted" e-headertext="Occupied" e-width="100"></div>
-                        <div e-column e-field="Balance" e-headertext="Available" e-width="100"></div>
-
-
-
-                    </div>
-                </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="residenceSummarGrid();" style="margin-top:10px" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
-                        <li> <button ng-click="ResidenceSummaryReport();" style="margin-top:10px" class="btn" tabindex="9"><i class="glyphicon glyphicon-cloud-download"></i> Download </button></li>
-
-                    </ul>
-
-                </div>
+        <div class="table-responsive" id="EGSGrid">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="residenceSummarGrid();" style="margin-top:10px" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
+                    <li> <button ng-click="ResidenceSummaryReport();" style="margin-top:10px" class="btn" tabindex="9"><i class="glyphicon glyphicon-cloud-download"></i> Download </button></li>
+                </ul>
             </div>
-
-
         </div>
-
-
+        <div id="residenceSumGrid" ej-grid style="z-index:3;"
+             e-datasource="ResidenceSummaryList"
+             e-rowdatabound="onactivedatabound"
+             e-allowfiltering="true"
+             e-allowpaging="true"
+             e-allowsorting="true"
+             e-enabletouch="false"
+             e-responsive="true"
+             e-allowselection="true"
+             e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-type="string" e-field="EmpCategory" e-headertext="Emp Category" e-width="100"></div>
+                <div e-column e-type="string" e-field="Location" e-headertext="Location" e-width="100"></div>
+                <div e-column e-type="string" e-field="Block" e-headertext="Block" e-width="100"></div>
+                <div e-column e-type="string" e-field="ResidentType" e-headertext="Resident Type" e-width="100"></div>
+                <div e-column e-type="string" e-field="Rooms" e-headertext="Rooms" e-width="100"></div>
+                <div e-column e-type="string" e-field="Capacity" e-headertext="Vacancy" e-width="100"></div>
+                <div e-column e-type="string" e-field="Allotted" e-headertext="Occupied" e-width="100"></div>
+                <div e-column e-type="Number" e-field="Balance" e-headertext="Available" e-width="100"></div>
+            </div>
+        </div>
     </div>
 </fieldset>

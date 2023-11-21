@@ -71,7 +71,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult getemployeeDataList(string plantId,string residenceGroupId, string EmployeeTypeId)
+        public JsonResult getemployeeDataList(string plantId, string residenceGroupId, string EmployeeTypeId)
         {
             return Json(rsl.getemployeeDataList(plantId, residenceGroupId, EmployeeTypeId), JsonRequestBehavior.AllowGet);
         }
@@ -131,7 +131,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return Json(rsl.GetViewData(parameters), JsonRequestBehavior.AllowGet);
         }
-        
+
         [HttpPost, Authorize]
         public ActionResult PopupEmployeeView(string fromDate, string toDate, string EmployeeCategorySystemID)
         {
@@ -161,7 +161,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             try
             {
-               
+
                 rsl.SaveRSUnallocation(employeeList);
                 return Json(new { Data = employeeList, Message = AplosMessage.Insert });
                 //return Json(new { Error = "No", Data = rsl.Save( EmployeeList, ResidenceMasterId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
@@ -185,7 +185,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-       
+
         [HttpPost]
         public ActionResult getResidenceStatusLocation(string EmployeeId, string ResidenceMasterId)
         {
@@ -218,7 +218,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         [HttpGet, Authorize]
         public ActionResult getResidenceReportFilters()
-        
+
         {
             try
             {
@@ -356,7 +356,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             report.SetHeaderText(ref sheet, ROW, COL, "Resident Type", 15, ExcelHAlign.HAlignLeft);
             int ColResidentType = COL;
-            
+
 
             report.SetHeaderText(ref sheet, ROW, COL, "Employee Status", 18, ExcelHAlign.HAlignLeft);
             int ColEmployeeStatus = COL;
@@ -452,7 +452,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         public DataTable GetResidenceStatusAllocationSql(string employeeId)
         {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
                 var str = @"select DGM.EmployeeCategoryId,DGM.EmployeeCategory,'' [To],
@@ -490,9 +490,9 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                             where ei.SystemId in(" + employeeId + @") ";
 
-                
-                    return _sqlRepository.GetDataTable(str);
-                
+
+                return _sqlRepository.GetDataTable(str);
+
             }
             catch (Exception e)
             {
@@ -559,7 +559,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColLocation = COL;
             COL++;
 
-            
+
 
             report.SetHeaderText(ref sheet, ROW, COL, "Employee Category", 12, ExcelHAlign.HAlignCenter);
             int ColEmpCategory = COL;
@@ -637,7 +637,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColVacancy].Number = clsStaticInfo.dbl(data.Rows[i]["Vacancy"].ToString());
                 sheet[ROW, ColOccupied].Number = clsStaticInfo.dbl(data.Rows[i]["Occupied"].ToString());
                 sheet[ROW, ColAvailable].Number = clsStaticInfo.dbl(data.Rows[i]["Available"].ToString());
-                
+
                 arr[0] += clsStaticInfo.dbl(data.Rows[i]["Rooms"].ToString());
                 arr[1] += clsStaticInfo.dbl(data.Rows[i]["Vacancy"].ToString());
                 arr[2] += clsStaticInfo.dbl(data.Rows[i]["Occupied"].ToString());
@@ -682,7 +682,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             {
                 return Json(rsl.employeeCurrrentStatus(), JsonRequestBehavior.AllowGet);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -717,9 +717,9 @@ namespace Aplos.Areas.HumanResource.Controllers
             var workbook = report.GetWorkbook(ref excelEngine, 3);
             workbook.Version = ExcelVersion.Excel2016;
 
-          
-                var data = rsl.residencemasterReport(empCurrentStatus);
-            
+
+            var data = rsl.residencemasterReport(empCurrentStatus);
+
 
             var sheet = workbook.Worksheets[0];
 
@@ -813,7 +813,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColVacancy = COL;
             COL++;
 
-           
+
 
             ROW++;
             endCol = COL;
@@ -850,12 +850,12 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColEmployeeCode].Text = data.Rows[i]["EmployeeCode"].ToString();
                 sheet[ROW, ColEmployeeStatus].Text = data.Rows[i]["EmployeeStatus"].ToString();
                 sheet[ROW, ColEmployeeCurrentStatus].Text = data.Rows[i]["EmployeeCurrentStatus"].ToString();
-                sheet[ROW, ColDOJ].Text =data.Rows[i]["DOJ"].ToString();
+                sheet[ROW, ColDOJ].Text = data.Rows[i]["DOJ"].ToString();
                 sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
                 sheet[ROW, ColSubSection].Text = data.Rows[i]["Sub Section"].ToString();
                 sheet[ROW, ColDesignation].Text = data.Rows[i]["Designation"].ToString();
                 sheet[ROW, ColLegalDesignation].Text = data.Rows[i]["Legal Designation"].ToString();
-                
+
                 ROW++;
 
 
@@ -1083,33 +1083,12 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #region Detail Residence Status
         [Authorize, HttpPost]
-        //public ActionResult XlsDetailResidenceStatus(string PartialVacantFullyOccupied)
-        //{
-        //    try
-        //    {
-        //        ReportUtility oRU = null;
-        //        oRU = new ReportUtility();
-        //        var workbook = DetailResidenceStatus(PartialVacantFullyOccupied, oRU);
-
-        //        var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "DetailResidenceStatus.xlsx";
-        //        string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-        //        workbook.SaveAs(fullPath);
-
-
-        //        return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        throw ex;
-        //    }
-        //}
         public ActionResult XlsDetailResidenceStatus(List<Dictionary<string, object>> data, string reportFileName)
         {
             try
             {
                 string fileName = "";
-                fileName = DetailResidenceStatus(data,DateTime.Now.ToString("yy-MM-dd") + " " + reportFileName);
+                fileName = DetailResidenceStatus(data, DateTime.Now.ToString("yy-MM-dd") + " " + reportFileName);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -1117,17 +1096,14 @@ namespace Aplos.Areas.HumanResource.Controllers
                 throw ex;
             }
         }
-        private String DetailResidenceStatus(List<Dictionary<string, object>> data, string reportFileName)
+        public String DetailResidenceStatus(List<Dictionary<string, object>> data, string reportFileName)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
             var workbook = report.GetWorkbook(ref excelEngine, 1);
             workbook.Version = ExcelVersion.Excel2016;
-             
-            IApplication application = null;  
-            var filePath = "";
-            //var data = rsr.detailResidenceStatusReport(PartialVacantFullyOccupied);
 
+            var filePath = "";
             var sheet = workbook.Worksheets[0];
             #region sheet1
             sheet.Name = "Detail Residence Status";
@@ -1219,7 +1195,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             report.SetHeaderText(ref sheet, ROW, COL, "Process", 12, ExcelHAlign.HAlignCenter);
             int ColProcess = COL;
             COL++;
-            
+
             report.SetHeaderText(ref sheet, ROW, COL, "DOJ", 12, ExcelHAlign.HAlignCenter);
             int ColDOJ = COL;
             COL++;
@@ -1244,20 +1220,11 @@ namespace Aplos.Areas.HumanResource.Controllers
             #endregion Headers
 
             var startRow = 0;
-            var endRow = 0;
             int RowIndex = ROW;
             startRow = ROW;
 
-            string Article = "";
-            string LotNum = "";
-            int ArtRow = 0;
-            int LotRow = 0;
-
-            double[] arr = new double[3];
-
             for (int i = 0; i < data.Count; i++)
             {
-
                 sheet[ROW, ColId].Text = data[i]["ResidenceId"].ToString();
                 sheet[ROW, ColEmpCategory].Text = data[i]["EmployeeCategory"].ToString();
                 sheet[ROW, ColResidenceGroup].Text = data[i]["ResidenceGroup"].ToString();
@@ -1266,7 +1233,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColBlock].Text = data[i]["Block"].ToString();
                 sheet[ROW, ColFloor].Text = data[i]["Floor"].ToString();
                 sheet[ROW, ColResidenceNumber].Text = data[i]["ResidenceNumber"].ToString();
-               
+
                 sheet[ROW, ColResidentType].Text = data[i]["ResidentType"].ToString();
                 sheet[ROW, ColVacancy].Number = clsStaticInfo.dbl(data[i]["Vacancy"].ToString());
                 sheet[ROW, ColEmployeeName].Text = data[i]["EmployeeName"].ToString();
@@ -1280,7 +1247,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 //sheet[ROW, ColLegalDesignation].Text = data.Rows[i]["LegalDesignation"].ToString();
                 sheet[ROW, ColDepartment].Text = data[i]["Department"].ToString();
                 sheet[ROW, ColResidentType].Text = data[i]["ResidentType"].ToString();
-                
+
                 sheet[ROW, ColOccupied].Number = clsStaticInfo.dbl(data[i]["Occupied"].ToString());
                 sheet[ROW, ColAvailable].Number = clsStaticInfo.dbl(data[i]["Available"].ToString());
                 sheet[ROW, ColEntity].Text = data[i]["Entity"].ToString();
@@ -1295,28 +1262,17 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                 ROW++;
             }
-            //ROW++;
-
-            //endRow = ROW - 1;
-            //endRow = ROW - 1;
-            #endregion sheet1
-
+            #endregion sheet1 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
 
-            //sheet.Range[startRow, COL].NumberFormat = oRU.NumberFormatDecimalTwo();
-            //sheet.Range["A4" + ":" + oRU.GetColumnNameForXls(COL) + "4"].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            //sheet.Range["A4" + ":" + oRU.GetColumnNameForXls(COL) + "4"].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-
-            //oRU.PageSetup(ref sheet, 4, ExcelPageOrientation.Portrait);
             sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, startRow, endCol];
-
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
             sheet["A" + startRow.ToString()].FreezePanes();
-             
+
             ReportUtility reportUtility = new ReportUtility();
             reportUtility.PlantHeader(ref sheet, endCol, "Detail Residence Status", identity.PlantId);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
@@ -1326,8 +1282,6 @@ namespace Aplos.Areas.HumanResource.Controllers
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.IsGridLinesVisible = false;
-
-            //sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
 
             //#endregion ******************Report Header******************
             sheet.PageSetup.TopMargin = 0.2;
@@ -1340,7 +1294,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             sheet.PageSetup.FitToPagesWide = 1;
             sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
             sheet.PageSetup.CenterHorizontally = true;
-             
+
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
 
             filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
@@ -1355,49 +1309,35 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #region Pending for unallcation
         [Authorize, HttpPost]
-        public ActionResult XlsPendingForUnallocation()
+        public ActionResult XlsPendingForUnallocation(List<Dictionary<string, object>> data, string reportFileName)
         {
             try
             {
-                var workbook = pendingForUnAllocationReport();
-
-                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "PendingForUnAllocation.xlsx";
-                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-                workbook.SaveAs(fullPath);
-
-
-                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+                string fileName = "";
+                fileName = pendingForUnAllocationReport(data, DateTime.Now.ToString("yy-MM-dd") + " " + reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
         }
 
-        [HttpPost]
-        private IWorkbook pendingForUnAllocationReport()
+        public string pendingForUnAllocationReport(List<Dictionary<string, object>> data, string reportFileName)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
             var workbook = report.GetWorkbook(ref excelEngine, 3);
             workbook.Version = ExcelVersion.Excel2016;
-
-
-            var data = rsr.pendingForUnAllocationReport();
-
-
+            //var data = rsr.pendingForUnAllocationReport();
             var sheet = workbook.Worksheets[0];
-
-
+            var filePath = "";
             #region sheet1
             sheet.Name = "PendingForUnallocation";
 
             int ROW = 6;
             int endCol = 1;
             int COL = 1;
-
-
             #region Grid Headers
             report.SetHeaderText(ref sheet, ROW, COL, "Residence Id", 12, ExcelHAlign.HAlignCenter);
             int ColId = COL;
@@ -1459,7 +1399,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColDepartment = COL;
             COL++;
 
-          
+
             report.SetHeaderText(ref sheet, ROW, COL, "Entity", 12, ExcelHAlign.HAlignCenter);
             int ColEntity = COL;
             COL++;
@@ -1475,7 +1415,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             report.SetHeaderText(ref sheet, ROW, COL, "Process", 12, ExcelHAlign.HAlignCenter);
             int ColProcess = COL;
             COL++;
-          
+
             report.SetHeaderText(ref sheet, ROW, COL, "DOJ", 12, ExcelHAlign.HAlignCenter);
             int ColDOJ = COL;
             COL++;
@@ -1502,150 +1442,142 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             report.SetHeaderText(ref sheet, ROW, COL, "Residence Group", 12, ExcelHAlign.HAlignCenter);
             int ColResidenceGroup = COL;
-            COL++;
 
-          
             ROW++;
             endCol = COL;
-            #endregion Headers
-
+            #endregion Headers 
 
             var startRow = 0;
-            var endRow = 0;
             int RowIndex = ROW;
             startRow = ROW;
 
-            string Article = "";
-            string LotNum = "";
-            int ArtRow = 0;
-            int LotRow = 0;
-
-            double[] arr = new double[3];
-
-            for (int i = 0; i < data.Rows.Count; i++)
+            for (int i = 0; i < data.Count; i++)
             {
+                sheet[ROW, ColId].Text = data[i]["ResidenceId"].ToString();
+                sheet[ROW, ColEmpCategory].Text = data[i]["EmployeeCategory"].ToString();
+                sheet[ROW, ColResidenceGroup].Text = data[i]["ResidenceGroup"].ToString();
+                sheet[ROW, ColLocation].Text = data[i]["Location"].ToString();
+                sheet[ROW, ColResidenceCategory].Text = data[i]["ResidenceCategory"].ToString();
+                sheet[ROW, ColBlock].Text = data[i]["Block"].ToString();
+                sheet[ROW, ColFloor].Text = data[i]["Floor"].ToString();
+                sheet[ROW, ColResidenceNumber].Text = data[i]["ResidenceNumber"].ToString();
 
-                sheet[ROW, ColId].Text = data.Rows[i]["ResidenceId"].ToString();
-                sheet[ROW, ColEmpCategory].Text = data.Rows[i]["EmployeeCategory"].ToString();
-                sheet[ROW, ColResidenceGroup].Text = data.Rows[i]["ResidenceGroup"].ToString();
-                sheet[ROW, ColLocation].Text = data.Rows[i]["Location"].ToString();
-                sheet[ROW, ColResidenceCategory].Text = data.Rows[i]["ResidenceCategory"].ToString();
-                sheet[ROW, ColBlock].Text = data.Rows[i]["Block"].ToString();
-                sheet[ROW, ColFloor].Text = data.Rows[i]["Floor"].ToString();
-                sheet[ROW, ColResidenceNumber].Text = data.Rows[i]["ResidenceNumber"].ToString();
-
-                sheet[ROW, ColResidentType].Text = data.Rows[i]["ResidentType"].ToString();
-                sheet[ROW, ColVacancy].Number = clsStaticInfo.dbl(data.Rows[i]["Vacancy"].ToString());
-                sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
-                sheet[ROW, ColEmployeeCode].Number = clsStaticInfo.dbl(data.Rows[i]["EmployeeCode"].ToString());
-                sheet[ROW, ColEmployeeStatus].Text = data.Rows[i]["EmployeeStatus"].ToString();
-                sheet[ROW, ColEmployeeCurrentStatus].Text = data.Rows[i]["EmployeeCurrentStatus"].ToString();
-                sheet[ROW, ColDOJ].Text = data.Rows[i]["DOJ"].ToString();
-                sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
-                sheet[ROW, ColSubSection].Text = data.Rows[i]["SubSection"].ToString();
-                sheet[ROW, ColDesignation].Text = data.Rows[i]["Designation"].ToString();
+                sheet[ROW, ColResidentType].Text = data[i]["ResidentType"].ToString();
+                sheet[ROW, ColVacancy].Number = clsStaticInfo.dbl(data[i]["Vacancy"].ToString());
+                sheet[ROW, ColEmployeeName].Text = data[i]["EmployeeName"].ToString();
+                sheet[ROW, ColEmployeeCode].Number = clsStaticInfo.dbl(data[i]["EmployeeCode"].ToString());
+                sheet[ROW, ColEmployeeStatus].Text = data[i]["EmployeeStatus"].ToString();
+                sheet[ROW, ColEmployeeCurrentStatus].Text = data[i]["EmployeeCurrentStatus"].ToString();
+                sheet[ROW, ColDOJ].Text = data[i]["DOJ"].ToString();
+                sheet[ROW, ColSection].Text = data[i]["Section"].ToString();
+                sheet[ROW, ColSubSection].Text = data[i]["SubSection"].ToString();
+                sheet[ROW, ColDesignation].Text = data[i]["Designation"].ToString();
                 //sheet[ROW, ColLegalDesignation].Text = data.Rows[i]["LegalDesignation"].ToString();
-                sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
-                sheet[ROW, ColResidentType].Text = data.Rows[i]["ResidentType"].ToString();
+                sheet[ROW, ColDepartment].Text = data[i]["Department"].ToString();
+                sheet[ROW, ColResidentType].Text = data[i]["ResidentType"].ToString();
 
-                sheet[ROW, ColOccupied].Number = clsStaticInfo.dbl(data.Rows[i]["Occupied"].ToString());
-                sheet[ROW, ColAvailable].Number = clsStaticInfo.dbl(data.Rows[i]["Available"].ToString());
-                sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
-                sheet[ROW, ColActivity].Text = data.Rows[i]["Activity"].ToString();
-                sheet[ROW, ColSkill].Text = data.Rows[i]["Skill"].ToString();
-                sheet[ROW, ColProcess].Text = data.Rows[i]["Process"].ToString();
-                sheet[ROW, ColDOS].Text = data.Rows[i]["DOS"].ToString();
-                sheet[ROW, ColResidenceCategory].Text = data.Rows[i]["ResidenceCategory"].ToString();
+                sheet[ROW, ColOccupied].Number = clsStaticInfo.dbl(data[i]["Occupied"].ToString());
+                sheet[ROW, ColAvailable].Number = clsStaticInfo.dbl(data[i]["Available"].ToString());
+                sheet[ROW, ColEntity].Text = data[i]["Entity"].ToString();
+                if (data[i]["Activity"] != null)
+                {
+                    sheet[ROW, ColActivity].Text = data[i]["Activity"].ToString();
 
+                }
+                sheet[ROW, ColSkill].Text = data[i]["Skill"].ToString();
+                if (data[i]["Process"] != null)
+                {
+                    sheet[ROW, ColProcess].Text = data[i]["Process"].ToString();
+                }
+                if (data[i]["DOS"] != null)
+                {
+                    sheet[ROW, ColDOS].Text = data[i]["DOS"].ToString();
+
+                }
+                if (data[i]["ResidenceCategory"] != null)
+                {
+                    sheet[ROW, ColResidenceCategory].Text = data[i]["ResidenceCategory"].ToString();
+                }
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                 ROW++;
-
             }
-
+            #endregion sheet1 
             ROW++;
-
-            endRow = ROW - 1;
-            endRow = ROW - 1;
-            #endregion sheet1
-
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
             sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, startRow, endCol];
-            //for (int i = 0; i <= sheet.Range.Row; i++)
-            //{
-            //    for (int j = 0; i <= sheet.Range.Column; j++)
-            //    {
-            //        sheet.Range[startRow, i, startRow, endCol][startRow, j, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //    }
-            //}
-
-            sheet.Range[startRow, 1, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            sheet.Range[startRow, 2, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            sheet.Range[startRow, 3, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            sheet.Range[startRow, 4, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            sheet.Range[startRow, 5, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            sheet.Range[startRow, 6, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            sheet.Range[startRow, 7, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            sheet.Range[startRow, 8, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            sheet.Range[startRow, 9, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            sheet.Range[startRow, 10, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-
-
-            // sheet.Range[startRow, 1, startRow, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-
+            sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, startRow, endCol];
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+            sheet["A" + startRow.ToString()].FreezePanes();
 
             ReportUtility reportUtility = new ReportUtility();
-            //reportUtility.CompanyHeader(ref sheet, endCol, "DetailResidenceStatus", identity.CompanyId);
+            reportUtility.PlantHeader(ref sheet, endCol, "Pending For UnAllocation", identity.PlantId);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-            return workbook;
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.IsGridLinesVisible = false;
+
+            //#endregion ******************Report Header******************
+            sheet.PageSetup.TopMargin = 0.2;
+            sheet.PageSetup.BottomMargin = 0.8;
+            //sheet.PageSetup.PrintTitleRows = "$1:$6";
+            sheet.PageSetup.LeftMargin = 0.2;
+            sheet.PageSetup.RightMargin = 0.2;
+            sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+            sheet.PageSetup.FitToPagesTall = 0;
+            sheet.PageSetup.FitToPagesWide = 1;
+            sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+            sheet.PageSetup.CenterHorizontally = true;
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+
+            filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+            workbook.SaveAs(filePath);
+            workbook.Close();
+            excelEngine.Dispose();
+            return filePath;
         }
 
         #endregion Pending for unallcation
 
         #region Residence Summary Report
         [Authorize, HttpPost]
-        public ActionResult XlsResidenceSummary()
+        public ActionResult XlsResidenceSummary(List<Dictionary<string, object>> data, string reportFileName)
         {
             try
             {
-                var workbook = ResidenceSummaryReport();
-
-                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "ResidenceSummary.xlsx";
-                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-                workbook.SaveAs(fullPath);
-
-
-                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+                string fileName = "";
+                fileName = ResidenceSummaryReport(data, DateTime.Now.ToString("yy-MM-dd") + " " + reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
         }
 
-        [HttpPost]
-        private IWorkbook ResidenceSummaryReport()
+        public string ResidenceSummaryReport(List<Dictionary<string, object>> data, string reportFileName)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
             var workbook = report.GetWorkbook(ref excelEngine, 3);
             workbook.Version = ExcelVersion.Excel2016;
+            //var data = rsr.ResidenceSummaryReport();
 
-
-            var data = rsr.ResidenceSummaryReport();
-
-
+            var filePath = "";
             var sheet = workbook.Worksheets[0];
-
-
             #region sheet1
             sheet.Name = "Residence Summary Rport";
-
             int ROW = 6;
             int endCol = 1;
             int COL = 1;
-
 
             #region Grid Headers
             report.SetHeaderText(ref sheet, ROW, COL, "Employee Category", 12, ExcelHAlign.HAlignCenter);
@@ -1687,25 +1619,22 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             string EmpCategory = "";
             string Location = "";
-
             var startRow = 0;
             var endRow = 0;
             int RowIndex = ROW;
             startRow = ROW;
-
             int EmpCateRow = 0;
             int LocationRow = 0;
-            
 
             double[] arr = new double[4];
 
-            for (int i = 0; i < data.Rows.Count; i++)
+            for (int i = 0; i < data.Count; i++)
             {
-                if(EmpCategory != data.Rows[i]["EmpCategory"].ToString())
+                if (EmpCategory != data[i]["EmpCategory"].ToString())
                 {
-                    EmpCategory = data.Rows[i]["EmpCategory"].ToString();
+                    EmpCategory = data[i]["EmpCategory"].ToString();
 
-                    sheet[ROW, ColEmployeeCtegory].Text = data.Rows[i]["EmpCategory"].ToString();
+                    sheet[ROW, ColEmployeeCtegory].Text = data[i]["EmpCategory"].ToString();
 
                     if (i != 0 && EmpCateRow != (ROW - 1))
                     {
@@ -1715,46 +1644,50 @@ namespace Aplos.Areas.HumanResource.Controllers
                     EmpCateRow = ROW;
                 }
 
-                if(Location != data.Rows[i]["Location"].ToString())
+                if (Location != data[i]["Location"].ToString())
                 {
-                    Location = data.Rows[i]["Location"].ToString();
-                    sheet[ROW, ColLocation].Text = data.Rows[i]["Location"].ToString();
+                    Location = data[i]["Location"].ToString();
+                    sheet[ROW, ColLocation].Text = data[i]["Location"].ToString();
 
-                    if(i != 0 && LocationRow != (ROW - 1))
+                    if (i != 0 && LocationRow != (ROW - 1))
                     {
                         sheet.Range[LocationRow, ColLocation, ROW - 1, ColLocation].Merge();
                         sheet.Range[LocationRow, ColLocation, ROW - 1, ColLocation].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
                     }
                     LocationRow = ROW;
                 }
-               
-                sheet[ROW, ColLocation].Text = data.Rows[i]["Location"].ToString();
-                sheet[ROW, ColEmployeeCtegory].Text = data.Rows[i]["EmpCategory"].ToString();
-               
-                sheet[ROW, ColBlock].Text = data.Rows[i]["Block"].ToString();
-                sheet[ROW, ColResidentType].Text = data.Rows[i]["ResidentType"].ToString();
-               
-               
-                sheet[ROW, ColRooms].Number = clsStaticInfo.dbl(data.Rows[i]["Rooms"].ToString());
-                sheet[ROW, ColVacancy].Number = clsStaticInfo.dbl(data.Rows[i]["Capacity"].ToString());
-               
+                sheet[ROW, ColLocation].Text = data[i]["Location"].ToString();
+                sheet[ROW, ColEmployeeCtegory].Text = data[i]["EmpCategory"].ToString();
 
-                sheet[ROW, ColOccupied].Number = clsStaticInfo.dbl(data.Rows[i]["Allotted"].ToString());
-                sheet[ROW, ColAvailable].Number = clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
+                sheet[ROW, ColBlock].Text = data[i]["Block"].ToString();
+                sheet[ROW, ColResidentType].Text = data[i]["ResidentType"].ToString();
 
 
-                arr[0] += clsStaticInfo.dbl(data.Rows[i]["Capacity"].ToString());
-                arr[1] += clsStaticInfo.dbl(data.Rows[i]["Allotted"].ToString());
-                arr[2] += clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
-                arr[3] += clsStaticInfo.dbl(data.Rows[i]["Rooms"].ToString());
+                sheet[ROW, ColRooms].Number = clsStaticInfo.dbl(data[i]["Rooms"].ToString());
+                sheet[ROW, ColVacancy].Number = clsStaticInfo.dbl(data[i]["Capacity"].ToString());
 
-               
+                if (data[i]["Allotted"] != null)
+                {
+                    sheet[ROW, ColOccupied].Number = clsStaticInfo.dbl(data[i]["Allotted"].ToString());
+                }
+                else
+                {
+                    data[i]["Allotted"] = 0;
+                }
+                sheet[ROW, ColAvailable].Number = clsStaticInfo.dbl(data[i]["Balance"].ToString());
+                sheet[ROW, ColAvailable].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                arr[0] += clsStaticInfo.dbl(data[i]["Capacity"].ToString());
+                arr[1] += clsStaticInfo.dbl(data[i]["Allotted"].ToString());
+                arr[2] += clsStaticInfo.dbl(data[i]["Balance"].ToString());
+                arr[3] += clsStaticInfo.dbl(data[i]["Rooms"].ToString());
+
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                 ROW++;
-
             }
 
-            ROW++;
-            
             sheet[ROW, ColEmployeeCtegory].Text = "Grand Total";
             sheet[ROW, ColVacancy].Number = arr[0];
             sheet[ROW, ColOccupied].Number = arr[1];
@@ -1769,84 +1702,79 @@ namespace Aplos.Areas.HumanResource.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
+
             sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, startRow, endCol];
-            //for (int i = 0; i <= sheet.Range.Row; i++)
-            //{
-            //    for (int j = 0; i <= sheet.Range.Column; j++)
-            //    {
-            //        sheet.Range[startRow, i, startRow, endCol][startRow, j, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //    }
-            //}
-
-            //sheet.Range[startRow, 1, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //sheet.Range[startRow, 2, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //sheet.Range[startRow, 3, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //sheet.Range[startRow, 4, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //sheet.Range[startRow, 5, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //sheet.Range[startRow, 6, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //sheet.Range[startRow, 7, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //sheet.Range[startRow, 8, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //sheet.Range[startRow, 9, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //sheet.Range[startRow, 10, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-
-
-            // sheet.Range[startRow, 1, startRow, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-
+            sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, startRow, endCol];
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+            sheet["A" + startRow.ToString()].FreezePanes();
 
             ReportUtility reportUtility = new ReportUtility();
-            //reportUtility.CompanyHeader(ref sheet, endCol, "ResidenceSmmaryReport", identity.CompanyId);
+            reportUtility.PlantHeader(ref sheet, endCol, "Residence Summary Report", identity.PlantId);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-            return workbook;
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.IsGridLinesVisible = false;
+
+            //#endregion ******************Report Header******************
+            sheet.PageSetup.TopMargin = 0.2;
+            sheet.PageSetup.BottomMargin = 0.8;
+            //sheet.PageSetup.PrintTitleRows = "$1:$6";
+            sheet.PageSetup.LeftMargin = 0.2;
+            sheet.PageSetup.RightMargin = 0.2;
+            sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+            sheet.PageSetup.FitToPagesTall = 0;
+            sheet.PageSetup.FitToPagesWide = 1;
+            sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+            sheet.PageSetup.CenterHorizontally = true;
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+
+            filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+            workbook.SaveAs(filePath);
+            workbook.Close();
+            excelEngine.Dispose();
+            return filePath;
         }
         #endregion Residence Summary Report
 
         #region Pending for allocation
         [Authorize, HttpPost]
-        public ActionResult XlsPendingForAllocation()
+        public ActionResult XlsPendingForAllocation(List<Dictionary<string, object>> data, string reportFileName)
         {
             try
             {
-                var workbook = pendingForAllocationReport();
-
-                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "PendingForAllocation.xlsx";
-                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-                workbook.SaveAs(fullPath);
-
-
-                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+                string fileName = "";
+                fileName = pendingForAllocationReportxlsx(data, DateTime.Now.ToString("yy-MM-dd") + " " + reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
         }
 
-        [HttpPost]
-        private IWorkbook pendingForAllocationReport()
+        public string pendingForAllocationReportxlsx(List<Dictionary<string, object>> data, string reportFileName)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
             var workbook = report.GetWorkbook(ref excelEngine, 3);
             workbook.Version = ExcelVersion.Excel2016;
-
-
-            var data = rsr.pendingForAllocationReport();
-
-
+            var filePath = "";
+            //var data = rsr.pendingForAllocationReport();
             var sheet = workbook.Worksheets[0];
-
 
             #region sheet1
             sheet.Name = "Pending For Allocation";
-
             int ROW = 6;
             int endCol = 1;
             int COL = 1;
 
-
             #region Grid Headers
-            
+
 
             report.SetHeaderText(ref sheet, ROW, COL, "Employee Code", 12, ExcelHAlign.HAlignCenter);
             int ColEmployeeCode = COL;
@@ -1864,7 +1792,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColEmpCategory = COL;
             COL++;
 
-            
+
 
             report.SetHeaderText(ref sheet, ROW, COL, "Sub Section", 12, ExcelHAlign.HAlignCenter);
             int ColSubSection = COL;
@@ -1894,7 +1822,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColProcess = COL;
             COL++;
 
-           
+
 
             report.SetHeaderText(ref sheet, ROW, COL, "DOJ", 12, ExcelHAlign.HAlignCenter);
             int ColDOJ = COL;
@@ -1918,93 +1846,99 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             report.SetHeaderText(ref sheet, ROW, COL, "Residence Group", 12, ExcelHAlign.HAlignCenter);
             int ColResidenceGroup = COL;
-            COL++;
-
 
             ROW++;
             endCol = COL;
             #endregion Headers
 
-
             var startRow = 0;
-            var endRow = 0;
             int RowIndex = ROW;
             startRow = ROW;
 
-            string Article = "";
-            string LotNum = "";
-            int ArtRow = 0;
-            int LotRow = 0;
-
-            double[] arr = new double[3];
-
-            for (int i = 0; i < data.Rows.Count; i++)
+            for (int i = 0; i < data.Count; i++)
             {
+                sheet[ROW, ColEmpCategory].Text = data[i]["EmployeeCategory"].ToString();
+                sheet[ROW, ColResidenceGroup].Text = data[i]["ResidenceGroup"].ToString();
 
-               
-                sheet[ROW, ColEmpCategory].Text = data.Rows[i]["EmployeeCategory"].ToString();
-                sheet[ROW, ColResidenceGroup].Text = data.Rows[i]["ResidenceGroup"].ToString();
-               
-                sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
-                sheet[ROW, ColEmployeeCode].Number = clsStaticInfo.dbl(data.Rows[i]["EmployeeCode"].ToString());
-                sheet[ROW, ColEmployeeStatus].Text = data.Rows[i]["EmployeeStatus"].ToString();
-                sheet[ROW, ColEmployeeCurrentStatus].Text = data.Rows[i]["EmployeeCurrentStatus"].ToString();
-                sheet[ROW, ColDOJ].Text = data.Rows[i]["DOJ"].ToString();
-                sheet[ROW, ColDOS].Text = data.Rows[i]["DOS"].ToString();
-                sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
-                sheet[ROW, ColSubSection].Text = data.Rows[i]["SubSection"].ToString();
-                sheet[ROW, ColDesignation].Text = data.Rows[i]["Designation"].ToString();
+                sheet[ROW, ColEmployeeName].Text = data[i]["EmployeeName"].ToString();
+                sheet[ROW, ColEmployeeCode].Number = clsStaticInfo.dbl(data[i]["EmployeeCode"].ToString());
+                sheet[ROW, ColEmployeeStatus].Text = data[i]["EmployeeStatus"].ToString();
+                if (data[i]["EmployeeCurrentStatus"] != null)
+                {
+                    sheet[ROW, ColEmployeeCurrentStatus].Text = data[i]["EmployeeCurrentStatus"].ToString();
+                }
+                sheet[ROW, ColDOJ].Text = data[i]["DOJ"].ToString();
+                if (data[i]["DOS"] != null)
+                {
+                    sheet[ROW, ColDOS].Text = data[i]["DOS"].ToString();
+                }
+                sheet[ROW, ColSection].Text = data[i]["Section"].ToString();
+                sheet[ROW, ColSubSection].Text = data[i]["SubSection"].ToString();
+                sheet[ROW, ColDesignation].Text = data[i]["Designation"].ToString();
                 //sheet[ROW, ColLegalDesignation].Text = data.Rows[i]["LegalDesignation"].ToString();
-                sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
-               
-                sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
-                sheet[ROW, ColActivity].Text = data.Rows[i]["Activity"].ToString();
-                sheet[ROW, ColSkill].Text = data.Rows[i]["Skill"].ToString();
-                sheet[ROW, ColProcess].Text = data.Rows[i]["Process"].ToString();
-                sheet[ROW, ColResidentType].Text = data.Rows[i]["ResidentType"].ToString();
-                
-                
-                ROW++;
+                sheet[ROW, ColDepartment].Text = data[i]["Department"].ToString();
 
+                sheet[ROW, ColEntity].Text = data[i]["Entity"].ToString();
+                if (data[i]["Activity"] != null)
+                {
+                    sheet[ROW, ColActivity].Text = data[i]["Activity"].ToString();
+
+                }
+                sheet[ROW, ColSkill].Text = data[i]["Skill"].ToString();
+                if (data[i]["Process"] != null)
+                {
+                    sheet[ROW, ColProcess].Text = data[i]["Process"].ToString();
+                }
+                if (data[i]["ResidentType"] != null)
+                {
+                    sheet[ROW, ColResidentType].Text = data[i]["ResidentType"].ToString();
+                }
+
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                ROW++;
             }
 
-            ROW++;
-
-            endRow = ROW - 1;
-            endRow = ROW - 1;
-            #endregion sheet1
-
+            #endregion sheet1 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
             sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, startRow, endCol];
-            //for (int i = 0; i <= sheet.Range.Row; i++)
-            //{
-            //    for (int j = 0; i <= sheet.Range.Column; j++)
-            //    {
-            //        sheet.Range[startRow, i, startRow, endCol][startRow, j, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //    }
-            //}
+            sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, startRow, endCol];
 
-            //sheet.Range[startRow, 1, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //sheet.Range[startRow, 2, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //sheet.Range[startRow, 3, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //sheet.Range[startRow, 4, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //sheet.Range[startRow, 5, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //sheet.Range[startRow, 6, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //sheet.Range[startRow, 7, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //sheet.Range[startRow, 8, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //sheet.Range[startRow, 9, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            //sheet.Range[startRow, 10, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+            sheet["A" + startRow.ToString()].FreezePanes();
 
-
-            // sheet.Range[startRow, 1, startRow, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-
-            sheet.Range[startRow - 1, 1, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
             ReportUtility reportUtility = new ReportUtility();
-            //reportUtility.CompanyHeader(ref sheet, endCol, "PendingForAllocation", identity.CompanyId);
+            reportUtility.PlantHeader(ref sheet, endCol, "pending For Allocation Report", identity.PlantId);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-            return workbook;
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.IsGridLinesVisible = false;
+
+            //#endregion ******************Report Header******************
+            sheet.PageSetup.TopMargin = 0.2;
+            sheet.PageSetup.BottomMargin = 0.8;
+            sheet.PageSetup.LeftMargin = 0.2;
+            sheet.PageSetup.RightMargin = 0.2;
+            sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+            sheet.PageSetup.FitToPagesTall = 0;
+            sheet.PageSetup.FitToPagesWide = 1;
+            sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+            sheet.PageSetup.CenterHorizontally = true;
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+
+            filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+            workbook.SaveAs(filePath);
+            workbook.Close();
+            excelEngine.Dispose();
+            return filePath;
         }
         #endregion Pending for allocation
 
@@ -2016,7 +1950,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             {
                 return Json(rsr.detailResidenceStatusGrid(PartialVacantFullyOccupied), JsonRequestBehavior.AllowGet);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }

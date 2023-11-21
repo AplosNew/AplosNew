@@ -92,21 +92,7 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
-        //[HttpPost, Authorize]
-        //public ActionResult GetUtilityTransactionReport(string ToDate , string FromDate)
-        //{
-        //    try
-        //    {
-        //        string fileName = "";
-        //        fileName = UtilityTransactionReport(ToDate,FromDate, "Utility Transaction Report");
-        //        return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-
-        //}
+            
         [HttpPost, Authorize]
         public ActionResult GetUtilityTransactionReport(List<Dictionary<string, object>> data, string reportFileName)
         {

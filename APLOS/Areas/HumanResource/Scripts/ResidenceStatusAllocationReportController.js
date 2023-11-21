@@ -618,8 +618,7 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
             dataList = $scope.DetailResidenceStatusList;
         }
         $scope.fileName = "ResidenceStatusReport.xlsx";
-        //$scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
-
+       
         $http({
             method: 'POST',
             url: $scope.path + "XlsDetailResidenceStatus",
@@ -638,58 +637,78 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
     };
 
     $scope.pendingForUnAllocationReport = function () {
+        var dataList = [];
+        var g = $("#pendingFUA").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        if (dataList.length == 0) {
+            dataList = $scope.PendingForUnallocationList;
+        }
+        $scope.fileName = "Pending For UnAllocation Report.xlsx";
+
         $http({
             method: 'POST',
             url: $scope.path + "XlsPendingForUnallocation",
-           
+            data: { 'data': dataList, 'reportFileName': $scope.fileName }, 
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
             }
-            else {
-
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            else { 
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
-        });
-
+        }); 
     };
 
     $scope.ResidenceSummaryReport = function () {
+        var dataList = [];
+        var g = $("#residenceSumGrid").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        if (dataList.length == 0) {
+            dataList = $scope.ResidenceSummaryList;
+        }
+        $scope.fileName = "Residence Summary Report.xlsx";
+
         $http({
             method: 'POST',
             url: $scope.path + "XlsResidenceSummary",
-           
+            data: { 'data': dataList, 'reportFileName': $scope.fileName },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
         });
-
     };
 
     $scope.PendingForAllocation = function () {
+        var dataList = [];
+        var g = $("#PendingAG").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        if (dataList.length == 0) {
+            dataList = $scope.PendingForAllocationList;
+        }
+        $scope.fileName = "Pending For Allocation Report.xlsx";
+
         $http({
             method: 'POST',
             url: $scope.path + "XlsPendingForAllocation",
-
+            data: { 'data': dataList, 'reportFileName': $scope.fileName },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
