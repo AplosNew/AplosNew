@@ -1457,7 +1457,7 @@ namespace Library.Accounting.Accounts
 										LEFT JOIN [MST].CashMaster AS CM ON CM.Id=I.CashMasterId
                                         LEFT JOIN HKP.Bank AS bk ON bk.Id=OBKM.BankId
 										LEFT JOIN(SELECT LP.FinancingId,SUM(LP.Amount) InterestAmount
-											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InterestPayable','OtherExpensesPayable') 
+											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InvestmentInterestReceivable') 
 											group by LP.FinancingId) LIP ON LIP.FinancingId=I.Id
 											LEFT JOIN(SELECT LP.FinancingId,SUM(LP.Amount) TaxAmount
 											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('LoanTax') 
@@ -1523,11 +1523,11 @@ namespace Library.Accounting.Accounts
 										LEFT JOIN [MST].CashMaster AS CM ON CM.Id=I.CashMasterId
                                         LEFT JOIN HKP.Bank AS bk ON bk.Id=OBKM.BankId
 										LEFT JOIN(SELECT LP.FinancingId,SUM(LP.Amount) InterestAmount
-											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InterestPayable','OtherExpensesPayable') group by LP.FinancingId) LIP ON LIP.FinancingId=I.Id
+											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InvestmentInterestReceivable') group by LP.FinancingId) LIP ON LIP.FinancingId=I.Id
 											LEFT JOIN(SELECT LP.SetOffFinancingId,SUM(LP.Amount) LoanPayment
 											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('LoanPayment') and LP.SourceType='Loan' group by LP.SetOffFinancingId) LPY ON LPY.SetOffFinancingId=I.Id
 											LEFT JOIN(SELECT LP.SetOffFinancingId,SUM(LP.Amount) LoanPayment
-											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('LoanPayment') and LP.SourceType='LoanPayment' group by LP.SetOffFinancingId) SLPY ON SLPY.SetOffFinancingId=I.Id
+											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InvestmentGiven') and LP.SourceType='InvestmentSetOff' group by LP.SetOffFinancingId) SLPY ON SLPY.SetOffFinancingId=I.Id
 											
 											LEFT JOIN(SELECT LP.FinancingId,SUM(LP.Amount) InterestCashPayment
 											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('AccrulInterestPayment') and LP.SourceType='LoanPayment' group by LP.FinancingId) ASLPY ON ASLPY.FinancingId=I.Id

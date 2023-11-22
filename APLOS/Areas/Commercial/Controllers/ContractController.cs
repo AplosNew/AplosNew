@@ -3325,6 +3325,11 @@ namespace Aplos.Areas.Commercial.Controllers
             return Json(clsCon.GetNegotiatingBankList(), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetNegotiatingBankDataList(string column, string value)
+        {
+            return Json(clsCon.GetNegotiatingBankDataList(column,value), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpPost, Authorize]
         public JsonResult SaveNegotiatingBank(Dictionary<string, object> data)

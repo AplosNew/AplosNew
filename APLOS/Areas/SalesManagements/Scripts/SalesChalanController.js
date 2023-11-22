@@ -34,6 +34,7 @@ function SalesChalanController(cboService, commonMessage, $scope, $rootScope, ba
         ResponsiblePersonId: null,
         CheckById: null,
         ApproveById: null,
+        IsDispatchConfirmation:false,
         UserRef: null,
         DestinationId: null,
         FromDate: null,

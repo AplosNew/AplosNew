@@ -122,7 +122,8 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         BooksCurrencyBaseRate: null,
         IsPark: 1,
         IsAdditionalInfoApplicable: true,
-        IsIncentiveApplicable: false
+        IsIncentiveApplicable: false,
+        InvoiceStatus: 'Active'
     };
 
     $http({
@@ -2178,23 +2179,27 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     //};
 
     $scope.SendMailToParty = function (args) {
-        $http({
-            method: 'POST',
-            url: 'SalesManagements/Sales/SendMailInvoiceReport',
-            params: {
-                'Id': args.data.Id
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
+        try {
+            $http({
+                method: 'POST',
+                url: 'SalesManagements/Sales/SendMailInvoiceReport',
+                params: {
+                    'salesId': args.Id
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }), function errorCallback(response) {
                 ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-            }
-        }), function errorCallback(response) {
-            ShowResult(response.data.Message, 'failure');
-        };
+            };
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     };
 
     //#endregion

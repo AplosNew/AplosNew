@@ -627,8 +627,9 @@ namespace Aplos.Areas.Accounts.Controllers
                 throw new CustomException("Posting Date must in the selected month of " + monthName);
             voucherVM.Amount = directJVList.Sum(r => r.CrAmount);
             voucherVM.SourceType = SourceType.SalaryDisbursement.ToString();
+            string disbursementAdviceId = "", empSystemIds = "";
 
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkSalaryPayableDisbursement(voucherVM, yearNo, monthNo, monthName, pMode, directJVList)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkSalaryPayableDisbursement(voucherVM, yearNo, monthNo, monthName, pMode, directJVList, disbursementAdviceId, empSystemIds)) });
         }
 
         [HttpPost]

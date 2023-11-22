@@ -1027,12 +1027,14 @@ namespace Library.Accounting.Accounts
                                         IVD.WrittenOffAmount AS Received, IVD.NetAmount-IVD.WrittenOffAmount AS Balance, IV.PartyPlantId, PP.UserName AS PartyPlantName,
 										CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, CC.CompanyCurrencyConversion,
 										GC.CompanyGroupCurrencyId, GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion
-										,PDA.AcceptanceNo,PLC.ContractId,PDA.PurchaseLCId
+										,PDA.AcceptanceNo,PLC.ContractId,PDA.PurchaseLCId,ISNULL(IRD.TrnQty,0) TrnQty
                                         FROM [TRN].[InvoiceDetail] AS IVD
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
 									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
                                         LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
                                         LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                        LEFT JOIN [TRN].[InventoryReceive] AS IR ON IR.Id=iv.InventoryReceiveId
+										LEFT JOIN (SELECT InventoryReceiveId,SUM(TransactionQty) TrnQty FROM TRN.InventoryReceiveDetail group By InventoryReceiveId) IRD ON IRD.InventoryReceiveId=IR.Id
                                         LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=IVD.GLGeneralInfoId
 										LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=IVD.BudgetMasterId
 										LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId

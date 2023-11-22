@@ -71,11 +71,21 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
     ];
     $scope.year = new Date().getFullYear().toString();
     $scope.month = new Date().getMonth().toString();
-
+    $scope.disbursementAdvice = {
+        Id: null, Remarks: null, PaymentMode: null
+    };
 
     $scope.yearList = [];
     cboService.getCboLeaveYear(function (result) {
         $scope.yearList = result;
+    });
+
+    $scope.paymentModeList = [];
+    $http({
+        method: 'GET',
+        url: 'Enum/GetEMPPaymentModeEnumCbo/'
+    }).then(function successCallback(response) {
+        $scope.paymentModeList = response.data;
     });
 
     $scope.SelectDefaultValue = function (args) {
@@ -146,6 +156,9 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
     $scope.EmpNetPayment = [];
 
     $scope.GetEmployeeInformation = function () {
+        $scope.EmployeeList = [];
+        $scope.EmployeeListDefault = [];
+        $scope.EmployeeListTemp = [];
         var monthName = $scope.monthList.filter(function (mnth) {
             return mnth.Value == $scope.month;
         });
@@ -157,12 +170,15 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
         if (angular.isUndefinedOrNull($scope.year)) {
             ShowResult("Select Year", 'failure');
         }
+        if (angular.isUndefinedOrNull($scope.disbursementAdvice.PaymentMode)) {
+            ShowResult("Select Payment Mode", 'failure');
+        }
         else {
 
             var parameters = {
                 'effectiveDate': $scope.effectiveDate, 'salaryProcessId': $scope.salaryProcessId, 'payRollGroup': $scope.payGroupListSelected, 'isActive': $scope.isActive,
-                'isSeperated': $scope.isSeperated,
-                'isMaternity': $scope.isMaternity
+                'isSeperated': $scope.isSeperated, 'isMaternity': $scope.isMaternity, 'paymentMode': $scope.disbursementAdvice.PaymentMode
+                
             };
             $http({
                 method: "POST",
@@ -171,28 +187,15 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
                 data: parameters
             }).then(function successCallback(response) {
                 if (response.data.empdata.length > 0) {
-                    for (var i = 0; i < response.data.empdata.length; i++) {
-                        for (var j = 0; j < response.data.empNetPay.length; j++) {
-                            if (response.data.empdata[i].EmpSystemId == response.data.empNetPay[j].EmpInfoSystemID) {
-                                response.data.empdata[i].NetPayment = response.data.empNetPay[j].NetPayment;
-
-                            }
-                        }
-
-                    }
                     $scope.empGrid = true;
                     $scope.EmployeeListDefault = response.data.empdata.filter(d => d.isSelect == true);
                     $scope.EmployeeList = $scope.EmployeeListDefault;
                     $scope.EmployeeListTemp = $scope.EmployeeListDefault;
-
-                    $scope.GetSalaryUnDisbursed();
                     $scope.EmployeeListTemp = response.data.empdata
 
                 }
-                else {
-                    ShowResult("No Data Found", 'failure');
-                    $scope.empGrid = false;
-                }
+                
+                $scope.GetSalaryUnDisbursed();
                 var gridObj = $("#empInfoGrid").data("ejGrid");
                 gridObj.windowonresize();
                 gridObj.refreshContent(true);
@@ -291,13 +294,13 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
         }
         return false;
     }
-
+    $scope.saveBtnDisable = false;
     $scope.SalaryDisbursement = function () {
         try {
             var EmployeeListNew = [];
-            for (var i = 0; i < $scope.EmployeeListTemp.length; i++) {
-                if ($scope.EmployeeListTemp[i].CheckBoxSelect) {
-                    EmployeeListNew.push($scope.EmployeeListTemp[i]);
+            for (var i = 0; i < $scope.SalaryUnDisburseList.length; i++) {
+                if ($scope.SalaryUnDisburseList[i].CheckBoxSelect) {
+                    EmployeeListNew.push($scope.SalaryUnDisburseList[i]);
                 }
             }
 
@@ -307,18 +310,23 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
             //var data = ej.DataManager(EmployeeListNew).executeLocal(ej.Query().select(["EmpSystemId", "PayableVoucherId", "DisbursementVoucherId", "Id", "MonthNo", "YearNo", "Lock", "CheckBoxSelect"]));
 
             $scope.$broadcast('show-errors-check-validity');
+            $scope.saveBtnDisable = true;
             $http({
                 method: 'POST',
                 url: $scope.SaveSalaryDisbursementUrl,
-                data: { 'EmployeeList': EmployeeListNew },
+                data: { 'DisbursementAdvice': $scope.disbursementAdvice, 'EmployeeList': EmployeeListNew },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
+                    $scope.saveBtnDisable = false;
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.disbursementAdvice.Remarks = null;
+                        
                     $scope.GetEmployeeInformation();
+                   
                     var gridObj = $("#empInfoGrid").data("ejGrid");
                     gridObj.refreshContent();
                 }
@@ -345,6 +353,7 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
 
     $scope.SalaryUnDisburseList = [];
     $scope.GetSalaryUnDisbursed = function () {
+        $scope.SalaryUnDisburseList = [];
         var monthName = $scope.monthList.filter(function (mnth) {
             return mnth.Value == $scope.month;
         });
@@ -360,8 +369,7 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
 
             var parameters = {
                 'effectiveDate': $scope.effectiveDate, 'salaryProcessId': $scope.salaryProcessId, 'payRollGroup': $scope.payGroupListSelected, 'isActive': $scope.isActive,
-                'isSeperated': $scope.isSeperated,
-                'isMaternity': $scope.isMaternity
+                'isSeperated': $scope.isSeperated, 'isMaternity': $scope.isMaternity, 'paymentMode': $scope.disbursementAdvice.PaymentMode
             };
             $http({
                 method: "POST",
@@ -374,10 +382,11 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
                     $scope.SalaryUnDisburseList = response.data;
                     $scope.EmployeeList = $scope.EmployeeListDefault;
                     $scope.EmployeeListTemp = $scope.EmployeeListDefault;
+                    $scope.saveBtnDisable = false;
                 }
                 else {
                     ShowResult("No Data Found", 'failure');
-                    $scope.empGrid = false;
+                    //$scope.empGrid = false;
                 }
                 var gridObj = $("#empInfoGrid").data("ejGrid");
                 gridObj.windowonresize();
@@ -404,8 +413,7 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
 
             var parameters = {
                 'effectiveDate': $scope.effectiveDate, 'salaryProcessId': $scope.salaryProcessId, 'payRollGroup': $scope.payGroupListSelected, 'isActive': $scope.isActive,
-                'isSeperated': $scope.isSeperated,
-                'isMaternity': $scope.isMaternity
+                'isSeperated': $scope.isSeperated, 'isMaternity': $scope.isMaternity, 'paymentMode': $scope.disbursementAdvice.PaymentMode
             };
             $http({
                 method: "POST",
@@ -428,7 +436,7 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
     }
 
     $scope.refreshTemplateSalaryUnDisbursed = function (args) {
-        $("#headchkB").ejCheckBox({ "change": CheckBoxSelectSalaryUnDisbursed });
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectSalaryUnDisbursed });
     };
 
     function CheckBoxSelectSalaryUnDisbursed(e) {
@@ -527,6 +535,8 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
         }
 
         for (let i = 0; i < dataList.length; i++) {
+            obj.DisbursementAdviceId = dataList[i].DisbursementAdviceId;
+            obj.Remarks = dataList[i].Remarks;
             obj.SalaryProcId = dataList[i].SalaryProcId;
             obj.AddedBy = dataList[i].AddedBy;
             obj.EmployeeCode = dataList[i].EmployeeCode;

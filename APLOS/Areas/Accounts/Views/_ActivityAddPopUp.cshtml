@@ -112,7 +112,18 @@
                             <div class="col-sm-8">
                                 <div class="select-style">
                                     <select class="form-control" ng-model="activity.ActivityOrderType"
-                                            ng-options="item.Value as item.Text for item in ActivityOrderTypeList" name="Activity Order Type" tabindex="6">
+                                            ng-options="item.Value as item.Text for item in ActivityOrderTypeList" name="Activity Order Type" ng-change="onChangeActivityOrderType()" tabindex="6">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" ng-show="activity.ActivityOrderType">
+                            <label class="col-sm-4 control-label">Value Of Distribution</label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="activity.ValueOfDistribution"
+                                            ng-options="item.Value as item.Text for item in valueOfDistributionList" name="ValueOfDistribution" tabindex="6">
                                         <option value=""></option>
                                     </select>
                                 </div>

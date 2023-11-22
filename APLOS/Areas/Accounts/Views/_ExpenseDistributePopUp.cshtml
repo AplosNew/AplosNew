@@ -32,6 +32,7 @@
                                             <th>Invoice Date</th>
                                             <th>Vendor</th>
                                             <th>Voucher No</th>
+                                            <th>Qty</th>
                                             <th>TRN Amount</th>
                                             <th>Currency</th>
                                             <th>Books Amount</th>
@@ -45,6 +46,7 @@
                                             <td>{{x.PostingDate}}</td>
                                             <td>{{x.PartyPlantName}}</td>
                                             <td>{{x.VoucherNo}}</td>
+                                            <td class="text-right">{{x.Qty|number:2}}</td>
                                             <td class="text-right">{{x.Amount|number:2}}</td>
                                             <td>{{x.CurrencyCode}}</td>
                                             <td class="text-right">{{x.BooksAmount|number:2}}</td>
@@ -60,10 +62,7 @@
 
                                         </tr>
                                         <tr>
-                                            <td colspan="1" class="text-right"><strong>Total : </strong></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
+                                            <td colspan="5" class="text-right"><strong>Total : </strong></td>
                                             <td class="text-right"><strong>{{checkedInvoiceList | sumByKey : 'Amount' | number:2 }}</strong></td>
                                             <td></td>
                                             <td class="text-right"><strong>{{checkedInvoiceList | sumByKey : 'BooksAmount' | number:2 }}</strong></td>

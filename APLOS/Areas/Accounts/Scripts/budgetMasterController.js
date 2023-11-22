@@ -45,6 +45,11 @@ function budgetMasterController(cboService, commonMessage, $scope, $rootScope, b
         $scope.ActivityOrderTypeList = result;
     });
 
+    $scope.valueOfDistributionList = [];
+    cboService.getEnumCbo("enum/GetValueOfDistributionEnumCbo", function (result) {
+        $scope.valueOfDistributionList = result;
+    });
+
     cboService.getBudgetClassCbo(function (result) {
         $scope.BudgetClassList = result;
     });
@@ -146,6 +151,7 @@ function budgetMasterController(cboService, commonMessage, $scope, $rootScope, b
         Active: null,
         Archive: null,
         IsDefault: null
+        
     };
 
     $scope.searchByList = [
@@ -474,7 +480,8 @@ function budgetMasterController(cboService, commonMessage, $scope, $rootScope, b
         FALinked: null,
         Description: null,
         Remarks: null,
-        Active: true
+        Active: true,
+        ValueOfDistribution: null
     };
 
     $scope.addActivity = function () {
@@ -520,6 +527,13 @@ function budgetMasterController(cboService, commonMessage, $scope, $rootScope, b
         angular.element(document.querySelector("#activityAddPopUp")).modal("hide");
     };
 
+    $scope.onChangeActivityOrderType = function () {
+        if ($scope.activity.ActivityOrderType !=null)
+            $scope.activity.ValueOfDistribution = 'Amount';
+        else
+            $scope.activity.ValueOfDistribution = null;
+
+    }
     // #region Activity
     $scope.budgetActivityList = [];
     $scope.budgetActivityFixedAssetList = [];

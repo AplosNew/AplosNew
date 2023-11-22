@@ -241,7 +241,7 @@ namespace Library.Accounting.Accounts
             try
             {
                 parameters.CmdText = @"SELECT distinct GLGI.COAId, C.UserName AS COA, GLGI.AccountGroupId, AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
-                                    , BU.BudgetMasterId, BU.BudgetCode, BU.BudgetName,BU.RefNo, A.ActivityId, A.ActivityCode, A.ActivityName,ACT.Id AccountType,A.IsOrderSpecific,A.ActivityOrderType
+                                    , BU.BudgetMasterId, BU.BudgetCode, BU.BudgetName,BU.RefNo, A.ActivityId, A.ActivityCode, A.ActivityName,ACT.Id AccountType,A.IsOrderSpecific,A.ActivityOrderType,A.ValueOfDistribution
                                     FROM [HKP].[GLGeneralInfo] AS GLGI
                                     LEFT JOIN HKP.[GLCompanyInfo]AS GLCI ON GLCI.GLGeneralInfoId = GLGI.Id
                                     LEFT JOIN HKP.[AccountGroup]  AS AG ON AG.Id = GLGI.AccountGroupId
@@ -251,7 +251,7 @@ namespace Library.Accounting.Accounts
                                     LEFT JOIN (SELECT BM.Id AS BudgetMasterId,BM.RefNo, B.Code AS BudgetCode, B.UserName AS BudgetName, BM.GLGeneralInfoId FROM HKP.Budget AS B
                                         LEFT JOIN [MST].[BudgetMaster] AS BM ON B.Id=BM.BudgetId
                                     ) AS BU ON BU.GLGeneralInfoId=GLGI.Id
-                                    LEFT OUTER JOIN (SELECT A.Id AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, BM.Id AS BudgetMasterId,A.IsOrderSpecific,A.ActivityOrderType  FROM HKP.Activity AS A
+                                    LEFT OUTER JOIN (SELECT A.Id AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, BM.Id AS BudgetMasterId,A.IsOrderSpecific,A.ActivityOrderType,A.ValueOfDistribution  FROM HKP.Activity AS A
 										LEFT OUTER JOIN [MST].[BudgetMasterActivity] AS BA ON A.Id= BA.ActivityId
 										LEFT OUTER JOIN [MST].[BudgetMaster] AS BM ON BA.BudgetMasterId=BM.Id
 										LEFT OUTER JOIN HKP.Budget AS B ON BM.BudgetId = B.Id
