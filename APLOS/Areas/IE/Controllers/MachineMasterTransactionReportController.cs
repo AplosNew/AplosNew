@@ -29,8 +29,6 @@ namespace Aplos.Areas.IE.Controllers
 {
     public class MachineMasterTransactionReportController : BaseController
     {
-
-
         #region Constructor
         private readonly ISqlRepository _sqlRepository;
         public MachineMasterTransactionReportController(ISqlRepository R)
@@ -39,9 +37,6 @@ namespace Aplos.Areas.IE.Controllers
         }
 
         #endregion Constructor
-
-
-
         public ActionResult Aplos()
         {
             return View();
@@ -60,7 +55,7 @@ namespace Aplos.Areas.IE.Controllers
             {
                 var sql = @"select format(MMT.FromTime,'dd-MMM-yyyy') [From],format(MMT.ToTime,'dd-MMM-yyyy')[To],P.Id ProcessId,P.UserName Process
                                             ,E.Id EntityId,E.UserName Entity,D.Id DepartmentId,D.UserName Department,DM.Id DetentionId
-											,DM.DetentionType,SD.SystemID ShiftId,SD.UserName Shift,EI.SystemId ResponsiblePersonId,EI.EmployeeName ResponsiblePerson
+											,DT.UserName DetentionType,SD.SystemID ShiftId,SD.UserName Shift,EI.SystemId ResponsiblePersonId,EI.EmployeeName ResponsiblePerson
 											,DMM.DetentionCategory,DMM.DetentionSubCategory,0 as Avoidable,0 as Criticality
 											from MachineMasterTransaction MMT
 											left join ORG.Entity E on E.Id=MMT.EntityId
@@ -69,16 +64,18 @@ namespace Aplos.Areas.IE.Controllers
 											left join DetentionMaster DM on DM.Id=MMT.DetentionId
 											left join ShiftDefination SD on SD.SystemID=MMT.ShiftId
 											left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
-											left join DetentionMaster DMM on DMM.Id=MMT.DetentionId";
-
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+											left join DetentionMaster DMM on DMM.Id=MMT.DetentionId
+                                            left join [HKP].[DetentionType] DT on DT.Id = DM.DetentionTypeId";
+                
+                var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata; 
             }
             catch (Exception e)
             {
                 throw e;
             }
         }
-
 
         [HttpPost, Authorize]
         public ActionResult GetMachineMasterTransactionReport(Dictionary<string, string> parameters)
@@ -93,9 +90,7 @@ namespace Aplos.Areas.IE.Controllers
             {
                 throw ex;
             }
-
         }
-
         public string MachineMasterTransactionReport(Dictionary<string, string> parameters, string SheetName)
         {
             ExcelEngine excelEngine = null;
@@ -105,8 +100,6 @@ namespace Aplos.Areas.IE.Controllers
             var filePath = "";
             try
             {
-
-
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(1);
@@ -116,7 +109,6 @@ namespace Aplos.Areas.IE.Controllers
                 MachineMasterTransactionReportSQL(parameters, out data);
 
                 int ROW = 6; int COL = 1;
-
                 #region columns
                 sheet[ROW, COL].Text = "From";
                 sheet[ROW, COL].ColumnWidth = 16;
@@ -137,30 +129,37 @@ namespace Aplos.Areas.IE.Controllers
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColProcess = COL;
                 COL++;
+
                 sheet[ROW, COL].Text = "Department";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColDepartment = COL;
                 COL++;
+
                 sheet[ROW, COL].Text = "Detention Type";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColDetentionType = COL;
                 COL++;
+
                 sheet[ROW, COL].Text = "Shift";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColShift = COL;
                 COL++;
+
                 sheet[ROW, COL].Text = "Responsible Person";
                 sheet[ROW, COL].ColumnWidth = 22;
                 int ColResponsiblePerson = COL;
                 COL++;
+
                 sheet[ROW, COL].Text = "Detention Category";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int ColDetentionCategory = COL;
                 COL++;
+
                 sheet[ROW, COL].Text = "Detention Sub Category";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int ColDetentionSubCategory = COL;
                 COL++;
+
                 sheet[ROW, COL].Text = "Avoidable";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColAvoidable = COL;
@@ -170,9 +169,7 @@ namespace Aplos.Areas.IE.Controllers
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColCritically = COL;
 
-
                 #endregion columns
-
                 int endCol = COL;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
@@ -180,7 +177,6 @@ namespace Aplos.Areas.IE.Controllers
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-
                 ROW++;
 
                 int startRow = ROW;
@@ -200,13 +196,10 @@ namespace Aplos.Areas.IE.Controllers
                     sheet[ROW, ColAvoidable].Text = data.Rows[i]["Avoidable"].ToString();
                     sheet[ROW, ColCritically].Text = data.Rows[i]["Criticality"].ToString();
 
-
-
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                     ROW++;
-
                 }
                 //IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
                 //table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
@@ -226,11 +219,7 @@ namespace Aplos.Areas.IE.Controllers
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.IsGridLinesVisible = false;
 
-                //sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-
-
                 //#endregion ******************Report Header******************
-
                 sheet.PageSetup.TopMargin = 0.2;
                 sheet.PageSetup.BottomMargin = 0.8;
                 //sheet.PageSetup.PrintTitleRows = "$1:$6";
@@ -242,15 +231,11 @@ namespace Aplos.Areas.IE.Controllers
                 sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
                 sheet.PageSetup.CenterHorizontally = true;
 
-
-
-
                 filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
                 workbook.SaveAs(filePath);
                 workbook.Close();
                 excelEngine.Dispose();
                 return filePath;
-
             }
             catch (Exception ex)
             {
@@ -261,12 +246,10 @@ namespace Aplos.Areas.IE.Controllers
         public void MachineMasterTransactionReportSQL(Dictionary<string, string> parameters, out DataTable data)
         {
             try
-            {
-
-
+            { 
                 string strSQL = @"select format(MMT.FromTime,'dd-MMM-yyyy') [From],format(MMT.ToTime,'dd-MMM-yyyy')[To],P.UserName Process,E.UserName Entity
-											,D.UserName Department,DM.DetentionType,SD.UserName Shift,EI.EmployeeName ResponsiblePerson
-											,DMM.DetentionCategory,DMM.DetentionSubCategory,0 as Avoidable,0 as Criticality
+											,D.UserName Department ,SD.UserName Shift,EI.EmployeeName ResponsiblePerson
+											,DMM.DetentionCategory,DMM.DetentionSubCategory,0 as Avoidable,0 as Criticality,DT.UserName DetentionType
 											from MachineMasterTransaction MMT
 											left join ORG.Entity E on E.Id=MMT.EntityId
 											left join HKP.Process P on P.Id=MMT.ProcessId
@@ -275,20 +258,21 @@ namespace Aplos.Areas.IE.Controllers
 											left join ShiftDefination SD on SD.SystemID=MMT.ShiftId
 											left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
 											left join DetentionMaster DMM on DMM.Id=MMT.DetentionId
-										
+										    left join [HKP].[DetentionType] DT on DT.Id = DM.DetentionTypeId
+
                             where MMT.ProcessId in(" + parameters["ProcessId"] + @")
                             AND MMT.DepartmentId in(" + parameters["DepartmentId"] + @")
                             AND MMT.DetentionId in(" + parameters["DetentionId"] + @")
                             AND MMT.ShiftId in(" + parameters["ShiftId"] + @")
                             AND MMT.ResponsiblePersonId in(" + parameters["ResponsiblePersonId"] + @")";
-
-                data = _sqlRepository.GetDataTable(strSQL);
+                 
+                var jsondata = Json(data = _sqlRepository.GetDataTable(strSQL), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue; 
             }
             catch (Exception ex)
             {
                 throw (ex);
             }
-
         }
 
         [HttpGet, Authorize]
@@ -306,19 +290,14 @@ namespace Aplos.Areas.IE.Controllers
                 catch (Exception)
                 {
                 }
-
                 workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
                 return null;
-
             }
             catch (Exception ex)
             {
 
-
             }
             return null;
         }
-
-
     }
 }
