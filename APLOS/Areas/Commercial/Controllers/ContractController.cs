@@ -2062,7 +2062,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 //Closes the instance of document objects
 
                 //Saves the PDF file 
-                string Prefix = "ProformaContractInvoice" + plantId;
+                string Prefix = "ProformaContractInvoice" + ContractId;
 
                 pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
                 //Closes the instance of document objects
