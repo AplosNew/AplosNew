@@ -848,7 +848,7 @@ namespace Library.MaterialManagement.Reports
 
                 email = new EmailSender(dom.Host, dom.Port, dom.MailingUserName, dom.Password, dom.IsSSL);
 
-                var message = email.PrepareMessage(dom.SenderSystemName + "<" + dom.MailingUserName + ">", dsOrderMaster.Rows[0]["Email"].ToString(), null, null, "Tax Invoice Report", "Please find the attachment.");
+                var message = email.PrepareMessage(dom.SenderSystemName + "<" + dom.MailingUserName + ">", dsOrderMaster.Rows[0]["Email"].ToString(), null, null, "Tax Invoice Report", "Please Find Attached.");
                 message.Attachments.Add(file);
                 email.Send(message);
 
