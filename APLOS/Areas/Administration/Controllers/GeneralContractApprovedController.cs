@@ -33,18 +33,20 @@ namespace Aplos.Areas.Administration.Controllers
         {
             return View();
         }
-
+        [HttpGet, Authorize]
         public ActionResult GetcheckedApprovedData()
         {
             try
             {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var sql = @"select  GCE.Id, FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, EI.EmployeeName, GC.UserName Contract,
                 GCE.CheckedByStatus, GCE.CheckedReason, GCE.ApprovedStatus, GCE.ApprovedReason
                 from TRN.GeneralContractEntry GCE
                 LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
                 LEFT JOIN MST.GeneralContract GC ON GC.Id = GCE.GeneralContractId
                 left join EmployeeInformation EI on EI.SystemId = GCE.ApprovedById
-                where GCE.CheckedByStatus = 'Checked' and GCE.ApprovedStatus = 'Approved'";
+                where GCE.CheckedByStatus = 'Checked' and GCE.ApprovedStatus = 'Approved' AND SC.ApproveById = '" + identity.EmployeeId + "'";
+
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -53,6 +55,27 @@ namespace Aplos.Areas.Administration.Controllers
             }
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetcheckedUnApprovedData()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var sql = @"select  GCE.Id, FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, EI.EmployeeName, GC.UserName Contract,
+                GCE.CheckedByStatus, GCE.CheckedReason, GCE.ApprovedStatus, GCE.ApprovedReason
+                from TRN.GeneralContractEntry GCE
+                LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
+                LEFT JOIN MST.GeneralContract GC ON GC.Id = GCE.GeneralContractId
+                left join EmployeeInformation EI on EI.SystemId = GCE.ApprovedById
+                where GCE.CheckedByStatus = 'Checked' and GCE.ApprovedStatus = 'To Be Approve' AND SC.ApproveById = '" + identity.EmployeeId + "'";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        } 
         #region SAVE
         [HttpPost]
         public ActionResult GeneralContractAuth(string headerId, string ApprovedStataus, string AuthorizedById, string ApprovedReason)
