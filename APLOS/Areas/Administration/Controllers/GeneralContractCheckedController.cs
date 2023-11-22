@@ -38,20 +38,22 @@ namespace Aplos.Areas.Administration.Controllers
             return View();
         }
 
-        
+
         #endregion Page
 
         #region GETFUNCTION
+        [HttpGet, Authorize]
         public ActionResult GetUncheckedData()
         {
             try
             {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var sql = @"select  GCE.Id, FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, EI.EmployeeName, GC.UserName Contract
                             from TRN.GeneralContractEntry GCE
                             LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
                             LEFT JOIN MST.GeneralContract GC ON GC.Id = GCE.GeneralContractId
                             left join EmployeeInformation EI on EI.SystemId = GCE.CheckBySystemId
-                            where GCE.CheckedByStatus='To Be Check'";
+                            where GCE.CheckedByStatus='To Be Check' AND GCE.CheckById='" + identity.EmployeeId + "'"; 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -59,18 +61,19 @@ namespace Aplos.Areas.Administration.Controllers
                 throw ex;
             }
         }
-
+        [HttpGet, Authorize]
         public ActionResult GetcheckedData()
         {
             try
             {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var sql = @"select  GCE.Id, FORMAT([GCE].[Date], 'dd-MMM-yyyy')[Date], E.UserName Entity, EI.EmployeeName, GC.UserName Contract,
                             GCE.CheckedByStatus, GCE.CheckedReason
                             from TRN.GeneralContractEntry GCE
                             LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
                             LEFT JOIN MST.GeneralContract GC ON GC.Id = GCE.GeneralContractId
                             left join EmployeeInformation EI on EI.SystemId = GCE.ApprovedById
-                            where GCE.CheckedByStatus = 'Checked'";
+                            where GCE.CheckedByStatus = 'Checked' AND GCE.CheckById='" + identity.EmployeeId + "'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

@@ -123,8 +123,7 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
                 ShowResult(response.data.Message, 'success');
                 //ClearFields(response.data.Sequence);
                 $scope.GetList();
-               // $scope.getData();
-               // $scope.GetChildList();
+                $scope.Clear();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -162,11 +161,9 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                ShowResult(response.data.Message, 'success');
-                ClearFields(response.data.Sequence);
-                
+                ShowResult(response.data.Message, 'success');               
                 $scope.GetList();
-
+                $scope.Clear();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');

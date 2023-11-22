@@ -773,12 +773,11 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
                     genid.GenID(TableNameHead, out _Id);
 
                     data["Id"] = _Id;
-
+                    data["CheckedByStatus"] = "To Be Check";
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
-
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion FURNITURE POLICY HEAD
@@ -1015,7 +1014,7 @@ left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
         {
             try
             {
-                string _sql = "Update TRN.GeneralContractEntry set CheckedByStatus='" + CheckedStataus + "', ApprovedById='" + AuthorizedById + "', CheckedReason='" + CheckedReason + "' where Id='" + headerId + "'";
+                string _sql = "Update TRN.GeneralContractEntry set CheckedByStatus='" + CheckedStataus + "',ApprovedStatus='To Be Approve', ApprovedById='" + AuthorizedById + "', CheckedReason='" + CheckedReason + "' where Id='" + headerId + "'";
                 _sqlRepository.ExecuteSqlCommand(_sql);
             }
             catch (Exception ex)

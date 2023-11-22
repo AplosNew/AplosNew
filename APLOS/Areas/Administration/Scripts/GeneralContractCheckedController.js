@@ -56,8 +56,6 @@ function GeneralContractCheckedController(cboService, commonMessage, $scope, $ro
 
     //-----------------------------------------------------------------------------------
     $scope.onClickPOA = function (z) {
-        debugger;
-
         var x = "#" + z;
         var gridObj = $(x).data("ejGrid");
         $scope.podata = gridObj.getSelectedRecords()[0];
