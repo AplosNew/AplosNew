@@ -1046,5 +1046,9 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/Bonus/Aplos",
             controller: "BonusController"
         })
+        .when("/payment-advice", {
+            templateUrl: "Accounts/Invoice/paymentadvice",
+            controller: "PaymentAdviceController"
+        })
         ;
 } 

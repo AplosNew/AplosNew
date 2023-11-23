@@ -77,11 +77,13 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return View("~/Areas/Accounts/Views/InvoiceOverhead.cshtml");
         }
-
-
         public ActionResult InvoiceOverheadPost()
         {
             return View("~/Areas/Accounts/Views/InvoiceOverheadPost.cshtml");
+        }
+        public ActionResult paymentadvice()
+        {
+            return View("~/Areas/Accounts/Views/paymentadvice.cshtml");
         }
 
 
@@ -1823,5 +1825,18 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
         #endregion
+
+        #region Payment Advice
+        [Authorize, HttpGet]
+         public JsonResult GatePaymentAdviceData(string fromDate, string toDate, string BankMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var jsondata = Json(_invoiceWriteOffService.GetGatePaymentAdviceData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, BankMasterId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        } 
+
+        #endregion Payment Advice
     }
 }
