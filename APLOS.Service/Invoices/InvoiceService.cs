@@ -206,11 +206,23 @@ namespace Library.Service.Invoices
         {
             CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.Id != entity.Id && r.PartyId == entity.PartyId && r.DocRefNo == entity.DocRefNo);
         }
-        private void CheckInvoiceDetail(InvoiceDetailCharges Item)
+        public bool CheckInvoiceDetailActivity(string InvoiceDetailId, string ActivityId)
         {
-            CheckUniqueColumn(UniqueColumnName.InvoiceDetailId, Item.InvoiceDetailId, r => r.Id != Item.Id);
+            try
+            {
+                var sql = "IF EXISTS(SELECT * FROM(" +
+                        "SELECT I.InvoiceDetailId InvoiceDetailId, VD.ActivityId ActivityId  " +
+                         "FROM trn.InvoiceDetailCHarges I  " +
+                         "LEFT JOIN TRN.VoucherDetail VD ON VD.Id = I.VoucherDetailId  " +
+                         ") A WHERE InvoiceDetailId = '" + InvoiceDetailId + "' AND ActivityId = '" + ActivityId + @"') SELECT 1 ELSE SELECT 0 RETURN ";
+                return Convert.ToBoolean(_invoiceDetailRepository.SqlQuery<int>(sql).Single());
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
-
+        
         public Invoice FindInvoice(string Id)
         {
             return base.Find(Id);
@@ -2269,7 +2281,9 @@ namespace Library.Service.Invoices
 
                                     foreach (var item in invoiceDetailChargesList.Where(r => r.GLGeneralInfoId == voucherDetailVM.GLGeneralInfoId && r.BudgetMasterId== voucherDetailVM.BudgetMasterId && r.ActivityId== voucherDetailVM.ActivityId))
                                     {
-                                    CheckInvoiceDetail(item);
+
+                                    if (CheckInvoiceDetailActivity(item.InvoiceDetailId, item.ActivityId) == true)
+                                        throw new CustomException("InvoiceDetailId " + item.InvoiceDetailId + " and Activity " + voucherDetailVM.ActivityName + " already distributed!");
 
                                     var invoiceDetailChargesId = base.GetAutoNumber(nameof(InvoiceDetailCharges), PKGeneratorEnum.Yearly, null, DateTime.Now);
                                         var invoiceChargesId = 0;

@@ -4,6 +4,7 @@ using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
 using Library.Model.Accounts;
+using Library.Model.Advances;
 using Library.Model.Banks;
 using Library.Model.Commercial;
 using Library.Model.Enums;
@@ -15,7 +16,6 @@ using Library.Model.Taxations;
 using Library.Model.Vouchers;
 using Library.Service.Banks;
 using Library.Service.Core;
-using Library.Service.Currencies;
 using Library.Service.Enums;
 using Library.Service.Extension;
 using Library.Service.Extension.Accounts;
@@ -72,8 +72,12 @@ namespace Library.Service.Invoices
         private readonly IFinancingService _financingService;
         private readonly IRepositoryAsync<FinancingSubsequentTransaction> _loanInterestPayableRepository;
         private readonly IRepositoryAsync<FinancingWriteOff> _financingWriteOffRepository;
+        private readonly IRepositoryAsync<Advance> _advanceRepository;
+        private readonly IRepositoryAsync<AdvanceDetail> _advanceDetailRepository;
+        private readonly IRepositoryAsync<AdvanceWriteOff> _advanceWriteOffRepository;
+        private readonly IRepositoryAsync<AdvanceWriteOffDetail> _advanceWriteOffDetailRepository;
 
-        
+
         public InvoiceWriteOffService(
               IRepositoryAsync<InvoiceWriteOff> invoiceWriteOffRepository
             , IUnitOfWork unitOfWork
@@ -109,6 +113,11 @@ namespace Library.Service.Invoices
             , IRepositoryAsync<FinancingWriteOff> financingWriteOffRepository
             , IRepositoryAsync<AdditionalInvoice> additionalInvoiceRepository
             , IRepositoryAsync<AdditionalInvoiceDetail> additionalInvoiceDetailRepository
+            , IRepositoryAsync<Advance> advanceRepository
+            , IRepositoryAsync<AdvanceDetail> advanceDetailRepository
+            , IRepositoryAsync<AdvanceWriteOff> advanceWriteOffRepository
+            , IRepositoryAsync<AdvanceWriteOffDetail> advanceWriteOffDetailRepository
+            
             ) : base(invoiceWriteOffRepository, unitOfWork, pkGeneratorService)
         {
             _sqlRepository = sqlRepository;
@@ -145,6 +154,10 @@ namespace Library.Service.Invoices
             _financingWriteOffRepository = financingWriteOffRepository;
             _additionalInvoiceRepository = additionalInvoiceRepository;
             _additionalInvoiceDetailRepository = additionalInvoiceDetailRepository;
+            _advanceRepository = advanceRepository;
+            _advanceDetailRepository = advanceDetailRepository;
+            _advanceWriteOffRepository = advanceWriteOffRepository;
+            _advanceWriteOffDetailRepository = advanceWriteOffDetailRepository;
         }
 
         public InvoiceWriteOff InsertInvoiceWriteOff(InvoiceWriteOff invoiceWriteOff)
@@ -8477,6 +8490,8 @@ namespace Library.Service.Invoices
                 var invoiceWriteOff = _invoiceWriteOffRepository.Find(invoiceWriteOffId);
                 var invoiceWriteOffDetail = _invoiceWriteOffDetailRepository.Query(r => r.InvoiceWriteOffId == invoiceWriteOffId).Select().ToList();
                 var invoiceTax = _invoiceTaxRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var advanceWriteOff = _advanceWriteOffRepository.Query(r => r.VoucherId == voucherId).Select().FirstOrDefault();
+                var advanceWriteOffDetail = _advanceWriteOffDetailRepository.Query(r => r.AdvanceWriteOffId == advanceWriteOff.Id).Select().ToList();
                 foreach (var item in voucherdetailcurrnecy)
                 {
                     _voucherService.DeleteVoucherDetailCurrency(item.Id);
@@ -8536,6 +8551,24 @@ namespace Library.Service.Invoices
                     }
 
                     _invoiceWriteOffDetailRepository.Delete(item.Id);
+                }
+                if (advanceWriteOffDetail != null)
+                {
+                    foreach (var item in advanceWriteOffDetail)
+                    {
+                        var advance = _advanceRepository.Find(item.AdvanceId);
+                        var advanceDetail = _advanceDetailRepository.Find(item.AdvanceDetailId);
+
+                        advanceDetail.WrittenOffAmount -= item.Amount;
+                        advance.WrittenOffAmount -= item.Amount;
+                        advanceDetail.IsWrittenOff = advanceDetail.NetAmount == advanceDetail.WrittenOffAmount;
+                        advance.IsWrittenOff = advance.Amount == advance.WrittenOffAmount;
+
+                        _advanceDetailRepository.Update(advanceDetail);
+                        _advanceRepository.Update(advance);
+                        _advanceWriteOffDetailRepository.Delete(item.Id);
+                    }
+                    _advanceWriteOffRepository.Delete(advanceWriteOff.Id);
                 }
                 _invoiceWriteOffRepository.Delete(invoiceWriteOffId);
                 _voucherService.DeleteVoucher(voucher.Id);
