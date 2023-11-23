@@ -327,10 +327,13 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
                     diffDays = 0.5;
                 }
 
-                if ($scope.LeaveBalanceList[i].Balance < diffDays &&
-                    $scope.LeaveBalanceList[i].IsExceptionAllowed == false) {
+                if ($scope.LeaveBalanceList[i].Balance < diffDays && $scope.LeaveBalanceList[i].IsExceptionAllowed == false) {
                     throw 'Leave Duration is greater then balance.';
                     ShowResult('Leave Duration is greater then balance.', 'failure');
+                }
+
+                if ($scope.LeaveBalanceList[i].LeaveDays - $scope.LeaveBalanceList[i].Applied <= $scope.LeaveBalanceList[i].Balance) {
+                    throw 'Leave Duration is greater then balance.';
                 }
             }
         }
