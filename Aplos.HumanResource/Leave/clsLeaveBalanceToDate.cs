@@ -1046,6 +1046,9 @@ LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                         _ToDate = dtCalendar.Rows[0]["ToDate"].ToString();
                     }
                 }
+                var _LFromDate = Convert.ToDateTime(_FromDate).AddYears(-1);
+                var _LToDate = Convert.ToDateTime(_ToDate).AddYears(-1);
+
                 //                string X_sql = @"SELECT ei.SystemId,B.LeaveTypeId, ei.EmployeeCode,ei.EmployeeName,FORMAT(ei.DOJ,'dd-MMM-yyyy') AS DOJ,p.UserName AS PlantName,D.UserName AS Designation,
                 //                                DEPT.UserName AS Department,ct.UserName AS EmployeeCategory,LT.UserName AS LeaveName,CurrentYearAllocation=ISNULL(CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(B.CurrentYearAllocation, 0) END,0)								
                 //								, BroughtForward= CASE WHEN  ISNULL(AL.PBroughtForward,0)=0 THEN B.BroughtForward ELSE AL.PBroughtForward END								
@@ -1219,12 +1222,15 @@ LEFT JOIN
 										   select A.Opening,A.EmployeeId,A.LeaveTypeId,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate from dbo.AnnualLeaveDataCurrent A
 										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
 										  LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
+										  Where LY.FromDate between'" + _FromDate + @"' and '" + _ToDate + @"' AND LY.ToDate between'" + _FromDate + @"' and '" + _ToDate + @"' AND A.EmployeeId='" + EmployeeSystemId + @"'
 											)ALD ON ALD.EmployeeId=els.EmployeeId AND lt.Id=ALD.LeaveTypeId
 
  LEFT JOIN
 											(
 										  select PBroughtForward=CASE WHEN A.Opening=0 THEN A.Adjustment ELSE A.Opening END,A.EmployeeId,A.LeaveTypeId from dbo.AnnualLeaveDataPast A
 										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+                                           LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
+										  Where LY.FromDate between'" + _LFromDate + @"' and '" + _LToDate + @"' AND LY.ToDate between'" + _LFromDate + @"' and '" + _LToDate + @"' AND A.EmployeeId='" + EmployeeSystemId + @"'
 											)ALP ON ALP.EmployeeId=els.EmployeeId AND lt.Id=ALP.LeaveTypeId
 										 left outer join (
 															select sum(m.LeaveDays) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m
@@ -1293,6 +1299,8 @@ LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                     _FromDate = dsCalYear.Tables[0].Rows[0]["FromDate"].ToString();
                     _ToDate = dsCalYear.Tables[0].Rows[0]["ToDate"].ToString();
                 }
+                var _LFromDate = Convert.ToDateTime(_FromDate).AddYears(-1);
+                var _LToDate = Convert.ToDateTime(_ToDate).AddYears(-1);
 
                 //                string X_sql = @"SELECT ei.SystemId,B.LeaveTypeId, ei.EmployeeCode,ei.EmployeeName,FORMAT(ei.DOJ,'dd-MMM-yyyy') AS DOJ,p.UserName AS PlantName,D.UserName AS Designation,
                 //                                DEPT.UserName AS Department,ct.UserName AS EmployeeCategory,LT.UserName AS LeaveName,CurrentYearAllocation=ISNULL(CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(B.CurrentYearAllocation, 0) END,0)								
@@ -1466,12 +1474,15 @@ LEFT JOIN
 										   select A.Opening,A.EmployeeId,A.LeaveTypeId,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate from dbo.AnnualLeaveDataCurrent A
 										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
 										  LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
+										  Where LY.FromDate between'" + _FromDate + @"' and '" + _ToDate + @"' AND LY.ToDate between'" + _FromDate + @"' and '" + _ToDate + @"' AND A.EmployeeId='" + EmployeeSystemId + @"'
 											)ALD ON ALD.EmployeeId=els.EmployeeId AND lt.Id=ALD.LeaveTypeId
 
  LEFT JOIN
 											(
 										  select PBroughtForward=CASE WHEN A.Opening=0 THEN A.Adjustment ELSE A.Opening END,A.EmployeeId,A.LeaveTypeId from dbo.AnnualLeaveDataPast A
 										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+                                        LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
+										  Where LY.FromDate between'" + _LFromDate + @"' and '" + _LToDate + @"' AND LY.ToDate between'" + _LFromDate + @"' and '" + _LToDate + @"' AND A.EmployeeId='" + EmployeeSystemId + @"'
 											)ALP ON ALP.EmployeeId=els.EmployeeId AND lt.Id=ALP.LeaveTypeId
 										 left outer join (
 															select sum(m.LeaveDays) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m

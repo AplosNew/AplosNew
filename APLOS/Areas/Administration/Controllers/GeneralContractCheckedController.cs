@@ -73,7 +73,7 @@ namespace Aplos.Areas.Administration.Controllers
                             LEFT JOIN ORG.Entity E on E.Id = GCE.EntityId
                             LEFT JOIN MST.GeneralContract GC ON GC.Id = GCE.GeneralContractId
                             left join EmployeeInformation EI on EI.SystemId = GCE.ApprovedById
-                            where GCE.CheckedByStatus = 'Checked' AND GCE.CheckBySystemId='" + identity.EmployeeId + "'";
+                            where GCE.CheckedByStatus = 'Checked' and GCE.IsCancel=0 AND GCE.CheckBySystemId='" + identity.EmployeeId + "'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

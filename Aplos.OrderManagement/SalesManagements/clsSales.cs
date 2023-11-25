@@ -608,7 +608,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
 ,am.Address2 BuyerAddr2,ST.UserName BuyerLocation,P.PINCode BuyerPinCode,ST.UserName BuyerState, am.Phone BuyerPhoneNumber,am.Email BuyerEmailId
 ,'' DispatchName,'' DispatchAddr1,''DispatchAddr2,''DispatchLocation,''DispatchPinCode,''DispatchState,''ShippingGSTIN,''ShippingLegalName,''ShippingTradeName
 ,''ShippingAddr1,''ShippingAddr2,''ShippingLocation,''ShippingPinCode,''ShippingState,''SlNo,mma.StandardName ProductDescription,''IsService,ISNULL(ha.Code,h.Code) HSNcode   
-,''Barcode, sm.TransactionQty Quantity,''FreeQuantity,uom.Code Unit,FORMAT(sm.TransactionRate,'N2') UnitPrice,FORMAT(sm.TransactionAmount,'N2') GrossAmount,'' Discount,''PreTaxValue
+,''Barcode, sm.TransactionQty Quantity,''FreeQuantity,uom.Code Unit,FORMAT(sm.TransactionRate,'N4') UnitPrice,FORMAT(sm.TransactionAmount,'N2') GrossAmount,'' Discount,''PreTaxValue
 ,FORMAT(sm.TransactionAmount,'N2') Taxablevalue,FORMAT(TAxInfo1.Percentage,'N2') GSTRate,FORMAT(TAxInfo1.Amount,'N4') IgstAmt,FORMAT(TAxInfo2.Amount,'N2') SgstAmt,FORMAT(TAxInfo3.Amount,'N2') CgstAmt,'' CessRate,''CessAmtAdval
 ,''CessNonAdvalAmt,''StateCessRate,''StateCessAdvalAmt,''StateCessNonAdvalAmt,TAxInfo4.TaxAmount OtherCharges,FORMAT(sm.NetAmount,'N2') ItemTotal,''BatchName,''BatchExpiryDt,''WarrantyDt
 ,FORMAT(sm.NetAmount,'N2') TotalInvoicevalue,''ShippingBillNo,''ShippingBillDt,''[Port],''Refundclaim,''ForeignCurrency,''CountryCode,''ExportDutyAmount,''TransID,''TransName 

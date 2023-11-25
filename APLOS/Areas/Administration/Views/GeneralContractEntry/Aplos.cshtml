@@ -19,51 +19,51 @@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" ng-model="ModelNew.Date"  name="Date" datepicker class="form-control datepicker"  maxlength="50" tabindex="0" required>
+                    <input type="text" ng-model="ModelNew.Date" name="Date" datepicker class="form-control datepicker" maxlength="50" tabindex="0" required>
                 </div>
             </div>
 
         </div>
 
         @*COLUMN 2*@
-    <div class="col-xs-12 col-sm-8 col-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-model="ModelNew.EntityId" required name="Process"
-                            tabindex="2">
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in EntityList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
+        <div class="col-xs-12 col-sm-8 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.EntityId" required name="Process"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in EntityList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Check By<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.CheckBySystemId" required name="Process"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in CheckedByIdList" value="{{option.SystemId}}">{{option.EmployeeName}}</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Check By<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-model="ModelNew.CheckBySystemId" required name="Process"
-                            tabindex="2">
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in CheckedByIdList" value="{{option.SystemId}}">{{option.EmployeeName}}</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    </div>
         @*<div class="common-btn">
-            <ul class="list-inline text-right">
-                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
 
-            </ul>
-        </div>*@
+                </ul>
+            </div>*@
     </div>
     <div class="tab-design">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Contract Item Entry</a></li>
-               
+
             </ul>
         </div>
         <div class="tab-content">
@@ -107,24 +107,25 @@
                             </tr>
                         </tbody>
                         @*<tfoot ng-show="userMedicineList.length">
-                            <tr>
-                                <td>Total</td>
-                                <td></td>
-                                <td></td>
-                                <td class="text-right"><strong>{{ContractItemList | sumByKey : 'Amount' | number:2}}</strong></td>
+                                <tr>
+                                    <td>Total</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td class="text-right"><strong>{{ContractItemList | sumByKey : 'Amount' | number:2}}</strong></td>
 
-                            </tr>
+                                </tr>
 
-                        </tfoot>*@
+                            </tfoot>*@
                     </table>
 
                 </div>
             </div>
-          
+
             <div class="common-btn">
                 <ul class="list-inline text-right">
-                    <li> <button ng-click="Save();" id="savebtn" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
-                    <li> <button ng-click="Update();" ng-disabled="ModelNew.ApprovedStatus == 'Approved'" id="updatebtn" class="btn" tabindex="9" style="display:none"><i class="glyphicon glyphicon-floppy-disk"></i>Update</button></li>
+                    <li> <button ng-click="Save();" id="savebtn" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                    <li> <button ng-click="Update();" ng-disabled="ModelNew.ApprovedStatus == 'Approved'" id="updatebtn" class="btn" tabindex="9" style="display:none"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                    <li> <button ng-click="CancelPopUp();" ng-disabled="ModelNew.CheckedByStatus=='Checked'" class="btn" tabindex="11"><i class="glyphicon glyphicon-folder-close"></i> Cancel</button></li>
                     <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                 </ul>
             </div>
@@ -149,9 +150,11 @@
             <div e-column e-field="CheckedByStatus" e-headertext="Check Status" e-width="130"></div>
             <div e-column e-field="ApproveBy" e-headertext="Approve By" e-width="130"></div>
             <div e-column e-field="ApprovedStatus" e-headertext="Approved Status" e-width="130"></div>
-
-
+            <div e-column e-field="IsCancel" e-headertext="Cancel Status" e-width="40"></div>
         </div>
     </div>
 </div>
 <confirm-modal></confirm-modal>
+
+<confirm-archive-generic modalid="confirmCancelPopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="Cancel();"></confirm-archive-generic>
+

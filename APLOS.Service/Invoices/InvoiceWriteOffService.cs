@@ -4,6 +4,7 @@ using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
 using Library.Model.Accounts;
+using Library.Model.Advances;
 using Library.Model.Banks;
 using Library.Model.Commercial;
 using Library.Model.Enums;
@@ -15,7 +16,6 @@ using Library.Model.Taxations;
 using Library.Model.Vouchers;
 using Library.Service.Banks;
 using Library.Service.Core;
-using Library.Service.Currencies;
 using Library.Service.Enums;
 using Library.Service.Extension;
 using Library.Service.Extension.Accounts;
@@ -72,8 +72,12 @@ namespace Library.Service.Invoices
         private readonly IFinancingService _financingService;
         private readonly IRepositoryAsync<FinancingSubsequentTransaction> _loanInterestPayableRepository;
         private readonly IRepositoryAsync<FinancingWriteOff> _financingWriteOffRepository;
+        private readonly IRepositoryAsync<Advance> _advanceRepository;
+        private readonly IRepositoryAsync<AdvanceDetail> _advanceDetailRepository;
+        private readonly IRepositoryAsync<AdvanceWriteOff> _advanceWriteOffRepository;
+        private readonly IRepositoryAsync<AdvanceWriteOffDetail> _advanceWriteOffDetailRepository;
 
-        
+
         public InvoiceWriteOffService(
               IRepositoryAsync<InvoiceWriteOff> invoiceWriteOffRepository
             , IUnitOfWork unitOfWork
@@ -109,6 +113,11 @@ namespace Library.Service.Invoices
             , IRepositoryAsync<FinancingWriteOff> financingWriteOffRepository
             , IRepositoryAsync<AdditionalInvoice> additionalInvoiceRepository
             , IRepositoryAsync<AdditionalInvoiceDetail> additionalInvoiceDetailRepository
+            , IRepositoryAsync<Advance> advanceRepository
+            , IRepositoryAsync<AdvanceDetail> advanceDetailRepository
+            , IRepositoryAsync<AdvanceWriteOff> advanceWriteOffRepository
+            , IRepositoryAsync<AdvanceWriteOffDetail> advanceWriteOffDetailRepository
+            
             ) : base(invoiceWriteOffRepository, unitOfWork, pkGeneratorService)
         {
             _sqlRepository = sqlRepository;
@@ -145,6 +154,10 @@ namespace Library.Service.Invoices
             _financingWriteOffRepository = financingWriteOffRepository;
             _additionalInvoiceRepository = additionalInvoiceRepository;
             _additionalInvoiceDetailRepository = additionalInvoiceDetailRepository;
+            _advanceRepository = advanceRepository;
+            _advanceDetailRepository = advanceDetailRepository;
+            _advanceWriteOffRepository = advanceWriteOffRepository;
+            _advanceWriteOffDetailRepository = advanceWriteOffDetailRepository;
         }
 
         public InvoiceWriteOff InsertInvoiceWriteOff(InvoiceWriteOff invoiceWriteOff)
@@ -8477,6 +8490,8 @@ namespace Library.Service.Invoices
                 var invoiceWriteOff = _invoiceWriteOffRepository.Find(invoiceWriteOffId);
                 var invoiceWriteOffDetail = _invoiceWriteOffDetailRepository.Query(r => r.InvoiceWriteOffId == invoiceWriteOffId).Select().ToList();
                 var invoiceTax = _invoiceTaxRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var advanceWriteOff = _advanceWriteOffRepository.Query(r => r.VoucherId == voucherId).Select().FirstOrDefault();
+                var advanceWriteOffDetail = _advanceWriteOffDetailRepository.Query(r => r.AdvanceWriteOffId == advanceWriteOff.Id).Select().ToList();
                 foreach (var item in voucherdetailcurrnecy)
                 {
                     _voucherService.DeleteVoucherDetailCurrency(item.Id);
@@ -8536,6 +8551,24 @@ namespace Library.Service.Invoices
                     }
 
                     _invoiceWriteOffDetailRepository.Delete(item.Id);
+                }
+                if (advanceWriteOffDetail != null)
+                {
+                    foreach (var item in advanceWriteOffDetail)
+                    {
+                        var advance = _advanceRepository.Find(item.AdvanceId);
+                        var advanceDetail = _advanceDetailRepository.Find(item.AdvanceDetailId);
+
+                        advanceDetail.WrittenOffAmount -= item.Amount;
+                        advance.WrittenOffAmount -= item.Amount;
+                        advanceDetail.IsWrittenOff = advanceDetail.NetAmount == advanceDetail.WrittenOffAmount;
+                        advance.IsWrittenOff = advance.Amount == advance.WrittenOffAmount;
+
+                        _advanceDetailRepository.Update(advanceDetail);
+                        _advanceRepository.Update(advance);
+                        _advanceWriteOffDetailRepository.Delete(item.Id);
+                    }
+                    _advanceWriteOffRepository.Delete(advanceWriteOff.Id);
                 }
                 _invoiceWriteOffRepository.Delete(invoiceWriteOffId);
                 _voucherService.DeleteVoucher(voucher.Id);
@@ -9099,6 +9132,29 @@ namespace Library.Service.Invoices
 
         #endregion
 
+        public List<Dictionary<string, object>> GetGatePaymentAdviceData(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string BankMasterId)
+        {
+            var sql = @"SELECT AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id, P.Code AS PartyCode, P.UserName AS PartyName,format(AW.PostingDate,'dd-MMM-yyyy') PostingDate,format(AW.DocDate,'dd-MMM-yyyy')DocDate
+                                    , AW.DocRefNo, C.Code AS CurrencyCode, SUM(IWD.Amount) AS Amount
+                                    , AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.IsPark, AW.BankJournalId,IWD.MultiplePaymentNo
+                                    ,Status=case when AW.IsPark=1 then 'Parked' else 'Posted' end,AW.BankMasterId
+                                    FROM [TRN].[InvoiceWriteOff] AS AW
+									LEFT JOIN (SELECT WD.Id,WD.InvoiceWriteOffId,MPD.MultiplePaymentId MultiplePaymentNo,SUM(WD.Amount) Amount 
+											FROM [TRN].[InvoiceWriteOffDetail] WD 
+											LEFT JOIN TRN.Invoice IV ON WD.InvoiceId=IV.Id
+											LEFT JOIN TRN.MultiplePaymentDetail MPD ON MPD.InvoiceId=IV.Id
+											Group BY WD.Id,WD.InvoiceWriteOffId,IV.Id ,MPD.MultiplePaymentId) AS IWD ON IWD.InvoiceWriteOffId=AW.Id
+									LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceWriteOffDetailId=IWD.Id
+                                    LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                    LEFT JOIN [HKP].[Party] AS P ON P.Id=AW.PartyId
+                                    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AW.PartyPlantId
+                                    LEFT JOIN [SCS].[Currency] AS C ON C.Id=AW.CurrencyId 
+                                    WHERE AW.Archive=0 AND V.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + "' AND AW.PlantId='" + plantId +@"' 
+                                    AND AW.BankMasterId = '" + BankMasterId + "' AND AW.PostingDate between '" + fromDate + "' AND '" + toDate + @"' AND AW.[SourceType]= 'VendorPayment'
 
+                                    Group BY AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id, P.Code , P.UserName, AW.PostingDate
+									, AW.DocDate, AW.DocRefNo, C.Code, AW.PartyPlantId, PP.UserName, AW.IsPark, AW.BankJournalId, IWD.MultiplePaymentNo,AW.BankMasterId";
+            return _sqlRepository.GetDataCollection(sql, null);
+        } 
     }
 }
