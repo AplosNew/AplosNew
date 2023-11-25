@@ -1211,6 +1211,13 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetGatepassapproving(out List<GatePassCheckApprove> activelists, UserId);
             return activelists;
         }
+
+        public List<Default2> GetGatepassAprovelperson()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetGatepassAprovelperson(out List<Default2> activelists);
+            return activelists;
+        }
         #endregion Gate pass 
     }
 }
