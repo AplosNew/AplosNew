@@ -1218,6 +1218,34 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetGatepassAprovelperson(out List<Default2> activelists);
             return activelists;
         }
+
+        public string PostGatePassChecking([FromBody] IEnumerable<GatePassCheckApprove> DataToSave, string GatePassId)
+        {
+            try
+            {
+                string Id = clsData.PostGatePassChecking(DataToSave, GatePassId);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+        public string PostGatePassApprove([FromBody] IEnumerable<GatePassCheckApprove> DataToSave, string GatePassId)
+        {
+            try
+            {
+                string Id = clsData.PostGatePassApprove(DataToSave, GatePassId);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
         #endregion Gate pass 
     }
 }

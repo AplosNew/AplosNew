@@ -8784,6 +8784,106 @@ where ActionStatus = 'GatePassApproveBy'";
                 objCon = null;
             }
         }
+
+        public string PostGatePassChecking(IEnumerable<GatePassCheckApprove> DataToSave, string GatePassId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<GatePassCheckApprove> items = DataToSave.ToList();
+
+
+                con.OpenDataSetThroughAdapter("select * from dbo.SalesChalan where Id='" + GatePassId + "'", out dsMaster, false, "1");
+
+                foreach (GatePassCheckApprove item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                        // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["CheckById"] = item.CheckById;
+                        dr["ApproveById"] = item.ApproveById;
+                        dr["CheckedStatus"] = item.CheckedStatus;
+                        dr["ApprovedStatus"] = item.ApprovedStatus;
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = "163.47.212.50";
+
+
+                        dr.EndEdit();
+
+                    }
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public string PostGatePassApprove(IEnumerable<GatePassCheckApprove> DataToSave, string GatePassId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<GatePassCheckApprove> items = DataToSave.ToList();
+
+
+                con.OpenDataSetThroughAdapter("select * from dbo.SalesChalan where Id='" + GatePassId + "'", out dsMaster, false, "1");
+
+                foreach (GatePassCheckApprove item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                        // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["ApproveById"] = item.ApproveById;
+                        dr["ApprovedStatus"] = item.ApprovedStatus;
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = "163.47.212.50";
+
+
+                        dr.EndEdit();
+
+                    }
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         #endregion Gate pass
     }
 
