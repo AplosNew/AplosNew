@@ -5,8 +5,7 @@ function PaymentAdviceController(accountService, addressService, $window, factor
     $rootScope.title = "Payment Advice";
     $scope.Action = 'Save';
     $scope.path = 'Accounts/Invoice/';
-
-
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
     $controller("bankBaseController", { $scope: $scope, $http: $http });
 
     $scope.FromDate = $filter('dateFiltering')(Date.now());
@@ -31,4 +30,33 @@ function PaymentAdviceController(accountService, addressService, $window, factor
         }
         $scope.hideBankPopUp();
     };
+
+    $scope.PaymentAdviceReportExcel = function () {
+        $scope.fileName = 'Payment Advice Report.xlsx';
+
+        var dataList = [];
+        var g = $("#GridPAPrint").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.PaymentAdviceList;
+        }
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetPaymentAdviceReport",
+            data: { 'data': dataList, 'reportFileName': $scope.fileName },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
 }
