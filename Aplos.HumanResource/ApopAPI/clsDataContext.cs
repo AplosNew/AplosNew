@@ -8608,7 +8608,147 @@ where BM.BankCategoryId = '" + categoryId + "' and BM.BankSubCategoryId = '" + s
             }
 
         }
-        #endregion Daily Account
+        #endregion Daily Account 
+
+        #region Gate pass
+        public void GetGatepasschecking(out List<GatePassCheckApprove> DataList, string UserId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<GatePassCheckApprove>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
+								from [dbo].[SalesChalan] SC
+								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
+								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
+								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
+								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
+								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
+								where SC.CheckedStatus='To Be Check' AND SC.CheckById='" + UserId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new GatePassCheckApprove
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        VechileNo = dsRef.Tables[0].Rows[i]["VechileNo"].ToString(),
+                        ByWhomId = dsRef.Tables[0].Rows[i]["ByWhomId"].ToString(),
+                        MobileNo = dsRef.Tables[0].Rows[i]["MobileNo"].ToString(),
+                        SecurityInChargeId = dsRef.Tables[0].Rows[i]["SecurityInChargeId"].ToString(),
+                        ResponsiblePersonId = dsRef.Tables[0].Rows[i]["ResponsiblePersonId"].ToString(),
+                        CheckById = dsRef.Tables[0].Rows[i]["CheckById"].ToString(),
+                        ApproveById = dsRef.Tables[0].Rows[i]["ApproveById"].ToString(),
+                        UserRef = dsRef.Tables[0].Rows[i]["UserRef"].ToString(),
+                        FromDate = dsRef.Tables[0].Rows[i]["FromDate"].ToString(),
+                        Remark = dsRef.Tables[0].Rows[i]["Remark"].ToString(),
+                        ToDate = dsRef.Tables[0].Rows[i]["ToDate"].ToString(),
+                        AddedBy = dsRef.Tables[0].Rows[i]["AddedBy"].ToString(),
+                        AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
+                        AddedFromIP = dsRef.Tables[0].Rows[i]["AddedFromIP"].ToString(),
+                        UpdatedBy = dsRef.Tables[0].Rows[i]["UpdatedBy"].ToString(),
+                        UpdatedDate = dsRef.Tables[0].Rows[i]["UpdatedDate"].ToString(),
+                        UpdatedFromIP = dsRef.Tables[0].Rows[i]["UpdatedFromIP"].ToString(),
+                        ApprovedReason = dsRef.Tables[0].Rows[i]["ApprovedReason"].ToString(),
+                        ApprovedStatus = dsRef.Tables[0].Rows[i]["ApprovedStatus"].ToString(),
+                        CheckedStatus = dsRef.Tables[0].Rows[i]["CheckedStatus"].ToString(),
+                        CheckedReason = dsRef.Tables[0].Rows[i]["CheckedReason"].ToString(),
+                        IsDispatchConfirmation = dsRef.Tables[0].Rows[i]["IsDispatchConfirmation"].ToString(),
+                        DispatchConfirmationBy = dsRef.Tables[0].Rows[i]["DispatchConfirmationBy"].ToString(),
+                        DispatchConfirmationDate = dsRef.Tables[0].Rows[i]["DispatchConfirmationDate"].ToString(),
+                        ByWhom = dsRef.Tables[0].Rows[i]["ByWhom"].ToString(),
+                        SecurityInCharge = dsRef.Tables[0].Rows[i]["SecurityInCharge"].ToString(),
+                        ResponsiblePerson = dsRef.Tables[0].Rows[i]["ResponsiblePerson"].ToString(),
+                        CheckBy = dsRef.Tables[0].Rows[i]["CheckBy"].ToString(),
+                        ApproveBy = dsRef.Tables[0].Rows[i]["ApproveBy"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetGatepassapproving(out List<GatePassCheckApprove> DataList, string UserId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<GatePassCheckApprove>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
+								from [dbo].[SalesChalan] SC
+								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
+								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
+								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
+								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
+								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
+								where SC.CheckedStatus='Checked' AND SC.ApprovedStatus='To Be Approve' AND SC.ApproveById='" + UserId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new GatePassCheckApprove
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        VechileNo = dsRef.Tables[0].Rows[i]["VechileNo"].ToString(),
+                        ByWhomId = dsRef.Tables[0].Rows[i]["ByWhomId"].ToString(),
+                        MobileNo = dsRef.Tables[0].Rows[i]["MobileNo"].ToString(),
+                        SecurityInChargeId = dsRef.Tables[0].Rows[i]["SecurityInChargeId"].ToString(),
+                        ResponsiblePersonId = dsRef.Tables[0].Rows[i]["ResponsiblePersonId"].ToString(),
+                        CheckById = dsRef.Tables[0].Rows[i]["CheckById"].ToString(),
+                        ApproveById = dsRef.Tables[0].Rows[i]["ApproveById"].ToString(),
+                        UserRef = dsRef.Tables[0].Rows[i]["UserRef"].ToString(),
+                        FromDate = dsRef.Tables[0].Rows[i]["FromDate"].ToString(),
+                        Remark = dsRef.Tables[0].Rows[i]["Remark"].ToString(),
+                        ToDate = dsRef.Tables[0].Rows[i]["ToDate"].ToString(),
+                        AddedBy = dsRef.Tables[0].Rows[i]["AddedBy"].ToString(),
+                        AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
+                        AddedFromIP = dsRef.Tables[0].Rows[i]["AddedFromIP"].ToString(),
+                        UpdatedBy = dsRef.Tables[0].Rows[i]["UpdatedBy"].ToString(),
+                        UpdatedDate = dsRef.Tables[0].Rows[i]["UpdatedDate"].ToString(),
+                        UpdatedFromIP = dsRef.Tables[0].Rows[i]["UpdatedFromIP"].ToString(),
+                        ApprovedReason = dsRef.Tables[0].Rows[i]["ApprovedReason"].ToString(),
+                        ApprovedStatus = dsRef.Tables[0].Rows[i]["ApprovedStatus"].ToString(),
+                        CheckedStatus = dsRef.Tables[0].Rows[i]["CheckedStatus"].ToString(),
+                        CheckedReason = dsRef.Tables[0].Rows[i]["CheckedReason"].ToString(),
+                        IsDispatchConfirmation = dsRef.Tables[0].Rows[i]["IsDispatchConfirmation"].ToString(),
+                        DispatchConfirmationBy = dsRef.Tables[0].Rows[i]["DispatchConfirmationBy"].ToString(),
+                        DispatchConfirmationDate = dsRef.Tables[0].Rows[i]["DispatchConfirmationDate"].ToString(),
+                        ByWhom = dsRef.Tables[0].Rows[i]["ByWhom"].ToString(),
+                        SecurityInCharge = dsRef.Tables[0].Rows[i]["SecurityInCharge"].ToString(),
+                        ResponsiblePerson = dsRef.Tables[0].Rows[i]["ResponsiblePerson"].ToString(),
+                        CheckBy = dsRef.Tables[0].Rows[i]["CheckBy"].ToString(),
+                        ApproveBy = dsRef.Tables[0].Rows[i]["ApproveBy"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        #endregion Gate pass
     }
 
 
@@ -9673,6 +9813,40 @@ where BM.BankCategoryId = '" + categoryId + "' and BM.BankSubCategoryId = '" + s
         public string UpdatedBy { get; set; }
         public string UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
+    }
+
+    public class GatePassCheckApprove
+    {
+        public string Id { get; set; }
+        public string VechileNo { get; set; }
+        public string ByWhomId { get; set; }
+        public string MobileNo { get; set; }
+        public string SecurityInChargeId { get; set; }
+        public string ResponsiblePersonId { get; set; }
+        public string CheckById { get; set; }
+        public string ApproveById { get; set; }
+        public string UserRef { get; set; }
+        public string FromDate { get; set; }
+        public string ToDate { get; set; }
+        public string Remark { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+        public string ApprovedReason { get; set; }
+        public string ApprovedStatus { get; set; }
+        public string CheckedStatus { get; set; }
+        public string CheckedReason { get; set; }
+        public string IsDispatchConfirmation { get; set; }
+        public string DispatchConfirmationBy { get; set; }
+        public string DispatchConfirmationDate { get; set; }
+        public string ByWhom { get; set; }
+        public string SecurityInCharge { get; set; }
+        public string ResponsiblePerson { get; set; }
+        public string CheckBy { get; set; }
+        public string ApproveBy { get; set; }
     }
 
 }

@@ -1196,5 +1196,21 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
         #endregion Bank
+
+        #region Gate pass 
+        public List<GatePassCheckApprove> GetGatepasschecking(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetGatepasschecking(out List<GatePassCheckApprove> activelists, UserId);
+            return activelists;
+        }
+
+        public List<GatePassCheckApprove> GetGatepassapproving(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetGatepassapproving(out List<GatePassCheckApprove> activelists, UserId);
+            return activelists;
+        }
+        #endregion Gate pass 
     }
 }
