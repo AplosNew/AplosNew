@@ -79,5 +79,6 @@ namespace Library.Service.Invoices
         void DeleteAdjustmentNoteWriteOff(string invoiceWriteOffId, string voucherId);
         string DeleteMultipleVendorRow(IEnumerable<MultiplePayment> multiplePaymentlist, IEnumerable<MultiplePaymentDetail> multiplePaymentDetailList);
         List<Dictionary<string, object>> GetGatePaymentAdviceData(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string BankMasterId);
+        string PaymentAdviceReportxlx(List<Dictionary<string, object>> data, string reportFileName);
     }
 }
