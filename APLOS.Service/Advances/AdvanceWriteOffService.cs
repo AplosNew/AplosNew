@@ -4711,7 +4711,7 @@ namespace Library.Service.Advances
 
         public List<Dictionary<string, object>> GetAdvanceWriteOffReportData(string companyId, string voucherId)
         {
-            var sql = @"SELECT GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, B.Code AS BudgetCode, B.UserName AS BudgetName, A.Code AS ActivityCode
+            var sql = @"SELECT GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, B.Code AS BudgetCode, B.UserName AS BudgetName, A.Code AS ActivityCode,VD.DocRefNo
                     , ActivityName=case when vd.BankMasterId<>'' then BNKM.AccountTitle else A.UserName End , VD.BankMasterId, BNKM.AccountNumber, BNKM.AccountTitle, VD.DrAmount, VD.CrAmount, CC.CompanyCurrencyDrAmount, CC.CompanyCurrencyCrAmount
                         FROM [TRN].[VoucherDetail] AS VD
                         LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
