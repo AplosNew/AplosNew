@@ -1,11 +1,15 @@
-﻿<div class="row">
-    <fieldset class="scheduler-border">
+﻿    <fieldset class="scheduler-border">
         <legend class="scheduler-border">Pending For Allocation</legend>
-        <div class="row">
-
-            <div class="col-xs-12" style="margin-top:20px">
+        <div class="row"> 
                 <div class="table-responsive" id="EGSGrid">
-                    <div id="" ej-grid style="z-index:3;"
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="pendingForAllocationGrid();" style="margin-top:10px" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
+                            <li> <button ng-click="PendingForAllocation();" style="margin-top:10px" class="btn" tabindex="9"><i class="glyphicon glyphicon-cloud-download"></i> Download </button></li>
+                        </ul>
+
+                    </div> 
+                    <div id="PendingAG" ej-grid style="z-index:3;"
                          e-datasource="PendingForAllocationList"
                          e-rowdatabound="onactivedatabound"
                          e-allowfiltering="true"
@@ -16,46 +20,26 @@
                          e-allowselection="true"
                          e-filtersettings-filterType="excel">
                         <div e-columns>
-                            <div e-column e-field="EmployeeStatus" e-headertext="Emp Status" e-width="100"></div>
-                            <div e-column e-field="EmployeeCurrentStatus" e-headertext="Emp Ct Sts" e-width="100"></div>
-
-                            <div e-column e-field="DOS" e-headertext="DOS" e-width="100"></div>
-                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
-                            <div e-column e-field="EmployeeCategory" e-headertext="Emp Category" e-width="100"></div>
-                            <div e-column e-field="Skill" e-headertext="Skill" e-width="100"></div>
-                            <div e-column e-field="Designation" e-headertext="Designation" e-width="100"></div>
-                            <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
-                            <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
-                            <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
-                            <div e-column e-field="EmployeeCode" e-headertext="Emp Code" e-width="100"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Emp Name" e-width="100"></div>
-                            <div e-column e-field="ResidentType" e-headertext="Resi Type" e-width="100"></div>
-                            <div e-column e-field="ResidenceCategory" e-headertext="Res Category" e-width="100"></div>
-                            <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
-                            <div e-column e-field="Activity" e-headertext="Activity" e-width="100"></div>
-                            <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
-                            @*<div e-column e-field="Legal Designation" e-headertext="Legal Designation" e-width="100"></div>*@
-
-                            <div e-column e-field="ResidenceGroup" e-headertext="Res Group" e-width="100"></div>
-
-
-
-
+                            <div e-column e-type="string" e-field="EmployeeStatus" e-headertext="Emp Status" e-width="100"></div>
+                            <div e-column e-type="string" e-field="EmployeeCurrentStatus" e-headertext="Emp Ct Sts" e-width="100"></div> 
+                            <div e-column e-type="string" e-field="DOS" e-headertext="DOS" e-width="100"></div>
+                            <div e-column e-type="string" e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
+                            <div e-column e-type="string" e-field="EmployeeCategory" e-headertext="Emp Category" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Skill" e-headertext="Skill" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="100"></div>
+                            <div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="100"></div>
+                            <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Emp Code" e-width="100"></div>
+                            <div e-column e-type="string" e-field="EmployeeName" e-headertext="Emp Name" e-width="100"></div>
+                            <div e-column e-type="string" e-field="ResidentType" e-headertext="Resi Type" e-width="100"></div>
+                            <div e-column e-type="string" e-field="ResidenceCategory" e-headertext="Res Category" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Activity" e-headertext="Activity" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div> 
+                            <div e-column e-type="string" e-field="ResidenceGroup" e-headertext="Res Group" e-width="100"></div> 
                         </div>
                     </div>
-                    <div class="common-btn">
-                        <ul class="list-inline text-right">
-                            <li> <button ng-click="pendingForAllocationGrid();" style="margin-top:10px" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
-                            <li> <button ng-click="PendingForAllocation();" style="margin-top:10px" class="btn" tabindex="9"><i class="glyphicon glyphicon-cloud-download"></i> Download </button></li>
-                        </ul>
-
-                    </div>
-                </div>
-
-
-            </div>
-
-
-        </div>
+                </div> 
+            </div> 
     </fieldset>
-</div>

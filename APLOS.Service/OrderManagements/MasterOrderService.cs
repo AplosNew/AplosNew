@@ -344,14 +344,15 @@ namespace Library.Service.OrderManagements
         {
             try
             {
-                var sql = @"SELECT A.Id AS  MasterOrderId,MOI.Id MasterOrderItemId, A.CompanyId, A.CommitmentId, A.PlantId, A.EntityId
+                var sql = @"SELECT  A.Id AS  MasterOrderId,MOI.Id MasterOrderItemId, A.CompanyId, A.CommitmentId, A.PlantId, A.EntityId
                                     , A.PartyId, P.UserName AS CustomerName, A.CurrencyId,CO.BaseCurrencyId, A.TotalQty	
                                     , A.InvoicingPartyPlantId, InvPP.UserName AS InvoicingPartyPlant, A.InvoicingByAddress
 		                            , A.DeliveryPartyPlantId, DeliPP.UserName AS DeliveryPartyPlant, A.DeliveryByAddress								    
 								    ,A.TotalQtyUOMId,PL.UserName,A.IsReplacement,A.Type,C.Code Currency,0 Active
-                                    ,ISNULL(CNT.ContractNo,'')ContractNo,ISNULL(MLC.LCRef,'')LCRef
-									,B.UserName Buyer,ISNULL(A.BuyerReferenceNo,'')BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'')OwnReferenceNo,ISNULL(MOI.BuyerReferenceNo,'') StyleNo,ISNULL(MOI.OwnReferenceNo,'') OwnStyleNo
-                                    ,MM.UserName MaterialMaster,MMA.StandardName Article,MOI.TotalQty ItemQty,SO.ContractId
+                                    --,ISNULL(CNT.ContractNo,'')ContractNo,ISNULL(MLC.LCRef,'')LCRef
+									,B.UserName Buyer,ISNULL(A.BuyerReferenceNo,'')BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'')OwnReferenceNo,ISNULL(MOI.BuyerReferenceNo,'') StyleNo
+									,ISNULL(MOI.OwnReferenceNo,'') OwnStyleNo
+                                    ,MM.UserName MaterialMaster,MMA.StandardName Article,MOI.TotalQty ItemQty--,SO.ContractId
                                     , CP.PaymentTermId, PT.Code AS PaymentTermCode, PT.UserName AS PaymentTermName, CP.IsPaymentTermChangeable
                                     ,PONumber=  REPLACE(REPLACE(
 										            STUFF((SELECT DISTINCT ','+CPO.PONumber from 
@@ -361,6 +362,28 @@ namespace Library.Service.OrderManagements
 		                                                    LEFT OUTER JOIN TRN.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 			                                                WHERE MOI.Id=Xmoi.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 										                    ,'&amp;','&'), 'amp;', '')	
+									,ContractNo=Stuff((
+                    SELECT distinct',' + C.ContractNo
+                    FROM  dbo.[Contract] C 
+					LEFT JOIN TRN.SalesOrder SO on SO.ContractId = C.Id
+                    WHERE SO.MasterOrderItemId=MOI.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+					,ContractId=Stuff((
+                    SELECT distinct',' + C.Id
+                    FROM  dbo.[Contract] C 
+					LEFT JOIN TRN.SalesOrder SO on SO.ContractId = C.Id
+                    WHERE SO.MasterOrderItemId=MOI.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+					,LCRef=Stuff((
+                    SELECT distinct',' + MLC.LCRef
+                    FROM dbo.MasterLC MLC 
+					left join dbo.[Contract] C on C.MasterLCId=MLC.Id 
+					LEFT JOIN TRN.SalesOrder SO on SO.ContractId = C.Id
+                    WHERE SO.MasterOrderItemId=MOI.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
                             FROM [TRN].[MasterOrder] AS A
                             LEFT JOIN [ORG].[Company] AS CO ON CO.Id=A.CompanyId
 							JOIN TRN.MasterOrderItem MOI ON MOI.MasterOrderId=A.Id
@@ -372,10 +395,7 @@ namespace Library.Service.OrderManagements
                             LEFT JOIN [HKP].[PartyPlant] AS DeliPP ON A.DeliveryPartyPlantId=DeliPP.Id
                             LEFT JOIN EmployeeInformation AS EI ON A.ResponsiblePersonId=EI.SystemId
                             LEFT JOIN HKP.Buyer AS B ON B.Id=A.BuyerId
-                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
-							LEFT JOIN TRN.SalesOrder SO on MOI.Id = SO.MasterOrderItemId
-                         LEFT JOIN dbo.[Contract]  CNT on CNT.Id = SO.ContractId
-							LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId 
                             LEFT JOIN MST.MaterialMaster MM ON MM.Id=MOI.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=MOI.ArticleId
                             WHERE A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' ORDER BY P.Id";

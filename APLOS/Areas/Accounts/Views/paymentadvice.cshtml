@@ -1,0 +1,91 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>Payment Advice</h3>
+
+<div class="row">
+    <div class="form-elements form-horizontal" ng-form id="from" name="from">
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group" show-errors id="div_FromDate">
+                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Date" ng-model="FromDate" datepicker class="form-control" required tabindex="3">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group" show-errors id="div_WDToDate">
+                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Date" ng-model="ToDate" datepicker class="form-control" required tabindex="4">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Bank<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <input type="text" name="BankName" ng-model="BankName" class="form-control" readonly data-toggle="tooltip" data-placement="top" tooltip>
+                        <span class="input-group-btn">
+                            <button ng-click="showBankPopUp();" class="btn single-small-btn" tabindex="23"><i class="glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-elements form-horizontal">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li><button ng-click="GetPaymentAdvice();" class="btn"><i class="glyphicon glyphicon-download"></i>View</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+ 
+
+<div id="Test"> 
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+        <div id="PR">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li><button ng-click="PaymentAdviceReportExcel();" class="btn"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
+                </ul>
+            </div>
+            <div class="content-container-fluid" style="color:black;">
+
+                <div style="color:black;" id="GridPAPrint" ej-grid e-datasource="PaymentAdviceList"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
+                     e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true"> 
+                    <div e-columns> 
+                        <div e-column e-type="string" e-field="InvoiceWriteOffNo" e-headertext="Invoice WriteOff No" e-width="150" textAlign='Left'></div> 
+                        <div e-column e-type="string" e-field="VoucherNo" e-headertext="Voucher No" e-width="130" textAlign='Left'></div>
+                        <div e-column e-type="string" e-field="PartyCode" e-headertext="Party Code" e-width="120" textAlign='Left'></div>
+                        <div e-column e-type="string" e-field="PartyName" e-headertext="Party Name" e-width="160" textAlign='Left'></div>
+                        <div e-column e-type="string" e-field="PostingDate" e-headertext="Posting Date" e-width="150" textAlign='Left'></div>
+                        <div e-column e-type="string" e-field="DocDate" e-headertext="Doc Date" e-width="150" textAlign='Left'></div>
+                        <div e-column e-type="string" e-field="DocRefNo" e-headertext="Doc Ref No." e-width="300" textAlign='Left'></div>
+                        <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency Code" e-width="150" textAlign='Left'></div>
+                        <div e-column e-type="string" e-field="Amount" e-headertext="Amount" e-width="150" textAlign='Left'></div>
+                        <div e-column e-type="string" e-field="PartyPlantName" e-headertext="Party Plant Name" e-width="100" textAlign='Left'></div>
+                        <div e-column e-type="string" e-field="MultiplePaymentNo" e-headertext="Multiple Payment No" e-width="150" textAlign='Left'></div>
+                        <div e-column e-type="string" e-field="Status" e-headertext="Status" textAlign='Left'></div>
+                        
+                    </div> 
+                </div> 
+            </div>
+        </div>
+    </fieldset> 
+
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            @*<li><button ng-click="GatenntryRegisterList();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Gatenntry Report</button></li>*@
+        </ul>
+    </div>
+</div>
+
+@Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
+

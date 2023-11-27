@@ -14,6 +14,7 @@ using Library.Service.Employees;
 using Library.Service.Helpers;
 using Library.Service.HumanResources.Profile;
 using Library.Service.SalaryDisbursement;
+using Library.Service.Systems;
 using Library.ViewModel.Vouchers;
 using OTSBD;
 using Syncfusion.XlsIO;
@@ -448,7 +449,7 @@ namespace Aplos.Areas.Accounts.Controllers
         public JsonResult GetDisbursementAdviceData()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"SELECT  [Id], [YearNo], [MonthNo], [Status], [Remarks]
+            var sql = @"SELECT  [Id], [YearNo], [MonthNo], [Status], [Remarks], [PaymentMode]
                           ,CASE WHEN [MonthNo]=1 THEN 'January'
 			                    WHEN [MonthNo]=2 THEN 'February'
 			                    WHEN [MonthNo]=3 THEN 'March'
@@ -543,7 +544,7 @@ namespace Aplos.Areas.Accounts.Controllers
         #region Salary Disbusment ---------------------------------
 
         [HttpPost, Authorize]
-        public ActionResult GetEmpInfo(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity)
+        public ActionResult GetEmpInfo(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string paymentMode)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             bool sa = identity.IsSysAdmin;
@@ -670,18 +671,10 @@ namespace Aplos.Areas.Accounts.Controllers
                                     LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
                                     LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
                                     LEFT JOIN [dbo].[DisbursementAdvice]  DA ON DA.Id=sl.DisbursementAdviceId 
-                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' and sl.islocked=1 AND sl.IsDisbursed = 1 " + wcPayrollGroup + @" 
+                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(e.PaymentMode,'')='" + paymentMode + "' and sl.islocked=1 AND sl.IsDisbursed = 1 " + wcPayrollGroup + @" 
                                     ) DD " + wcEmpStatus + @" ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
             var empdata = _sqlRepository.GetDataCollection(sql);
-
-            var sql2 = @"select SPC.DisbusmentAmount NetPayment, SPC.EmpInfoSystemID from SalaryProcChild SPC
-left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
-JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
-Where HeadCategory='Net Payable' ";
-
-            var empNetPay = _sqlRepository.GetDataCollection(sql2);
-            
-            JsonResult json = Json(new { empdata, empNetPay }, JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(new { empdata}, JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
@@ -806,7 +799,7 @@ Where HeadCategory='Net Payable' ";
 
         #region Salary UnDisbursed
         [HttpPost, Authorize]
-        public ActionResult GetSalaryUnDisbursed(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity)
+        public ActionResult GetSalaryUnDisbursed(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string paymentMode)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             bool sa = identity.IsSysAdmin;
@@ -934,7 +927,7 @@ Where HeadCategory='Net Payable' ";
                                     LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
                                     LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
                                     LEFT JOIN [dbo].[DisbursementAdvice]  DA ON DA.Id=sl.DisbursementAdviceId 
-                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' and sl.islocked=1 AND sl.IsDisbursed = 0 " + wcPayrollGroup + @" 
+                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(e.PaymentMode,'')='" + paymentMode + "' and sl.islocked=1 AND sl.IsDisbursed = 0 " + wcPayrollGroup + @" 
                                     ) DD " + wcEmpStatus + @" ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
 
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -943,7 +936,7 @@ Where HeadCategory='Net Payable' ";
         }
 
         #region Report
-        public void SalaryUndisbursedReportQry(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, out DataTable data)
+        public void SalaryUndisbursedReportQry(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string paymentMode, out DataTable data)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             bool sa = identity.IsSysAdmin;
@@ -1033,6 +1026,10 @@ Where HeadCategory='Net Payable' ";
                                     from SalaryProcessLogDetail s
                                     JOIN SalaryProcMaster SPM ON SPM.SystemID = s.SalaryProcessId and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
                                     left join EmployeeInformation e on e.SystemId= s.EmpSystemId
+                                    INNER JOIN (select SPC.DisbusmentAmount NetPayment,SPC.EmpInfoSystemID from SalaryProcChild SPC
+                                    left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
+                                    JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
+                                    Where HeadCategory='Net Payable' AND ISNULL(SPC.DisbusmentAmount,0)!=0)SPCD ON SPCD.EmpInfoSystemID=s.EmpSystemId
                                     LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=s.DesignationId
                                     LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=s.LegalDesignationId
                                     LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
@@ -1060,18 +1057,18 @@ Where HeadCategory='Net Payable' ";
                                     Left join SalaryLock sl on sl.EmpSystemId=e.SystemId and sl.YearNo=YEAR('" + effectiveDate + @"') AND SL.MonthNo=Month('" + effectiveDate + @"')
                                     LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
                                     LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
-                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' and sl.islocked=1 and sl.IsDisbursed = 0  " + wcPayrollGroup + @" 
+                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' AND ISNULL(e.PaymentMode,'')='" + paymentMode + "' and sl.islocked=1 and sl.IsDisbursed = 0  " + wcPayrollGroup + @" 
                                     ) DD " + wcEmpStatus + @" ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
             data = _sqlRepository.GetDataTable(sql);
         }
         [HttpPost, Authorize]
-        public ActionResult GetEmployeeSalaryUnDisbursed(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity)
+        public ActionResult GetEmployeeSalaryUnDisbursed(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string paymentMode)
         {
             try
             {
 
                 string fileName = "";
-                fileName = GeSalaryUndisburseXlsReport(effectiveDate, salaryProcessId, isActive, isSeperated, isMaternity, "Salary UnDisbursed");
+                fileName = GeSalaryUndisburseXlsReport(effectiveDate, salaryProcessId, isActive, isSeperated, isMaternity, paymentMode, "Salary UnDisbursed");
 
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
 
@@ -1084,7 +1081,7 @@ Where HeadCategory='Net Payable' ";
             }
         }
 
-        public string GeSalaryUndisburseXlsReport(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string SheetName)
+        public string GeSalaryUndisburseXlsReport(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string paymentMode, string SheetName)
         {
             ExcelEngine excelEngine = null;
             IApplication application = null;
@@ -1101,7 +1098,7 @@ Where HeadCategory='Net Payable' ";
                 workbook.Worksheets[0].Name = "Salary Not Disbursed";
                 sheet = workbook.Worksheets[0];
                 DataTable data;
-                SalaryUndisbursedReportQry(effectiveDate, salaryProcessId, isActive, isSeperated, isMaternity, out data);
+                SalaryUndisbursedReportQry(effectiveDate, salaryProcessId, isActive, isSeperated, isMaternity, paymentMode, out data);
 
                 int ROW = 6; int COL = 1;
 
@@ -1373,7 +1370,6 @@ Where HeadCategory='Net Payable' ";
                     }
                 }
 
-                bplib.clsGenID genid = new bplib.clsGenID();
                 string _Id = string.Empty;
                 string _masterId = string.Empty;
                 string sqlDA = "SELECT * FROM [dbo].[DisbursementAdvice] WHERE Id='" + DisbursementAdvice["Id"] + "'";
@@ -1383,13 +1379,15 @@ Where HeadCategory='Net Payable' ";
                 if (MasterDS.Tables[0].Rows.Count == 0)
                 {
                     DataRow drMS = MasterDS.Tables[0].NewRow();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "DisbursementAdvice", out _Id);
+                    AccountsCommonService _accountsCommonService = new AccountsCommonService(_sqlRepository);
+                    _Id = _accountsCommonService.GetAutoNumber(nameof(DisbursementAdvice), PKGeneratorEnum.Yearly, null, DateTime.Now);
 
                     drMS["Id"] = _Id;
                     drMS["YearNo"] = EmployeeList.FirstOrDefault().YearNo;
                     drMS["MonthNo"] = EmployeeList.FirstOrDefault().MonthNo;
                     drMS["Status"] = "Active";
                     drMS["Remarks"] = DisbursementAdvice["Remarks"];
+                    drMS["PaymentMode"] = DisbursementAdvice["PaymentMode"];
                     drMS["AddedBy"] = identity.Name;
                     drMS["AddedDate"] = DateTime.Now;
                     drMS["AddedFromIP"] = identity.IPAddress;

@@ -2017,7 +2017,7 @@ Order by P.Sequence";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
                 var sql = @"DECLARE @plantId VARCHAR(10)='" + plantId + @"';
-                        select * from (SELECT S.Id,S.Id AS SalesId, S.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, S.CurrencyId, C.Code AS CurrencyCode, S.DocRefNo, ISNULL(SM.Amount,0) + ISNULL(SS.Amount,0) AS Amount,
+                        select * from (SELECT S.Id,S.Id AS SalesId,S.InvoiceStatus, S.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, S.CurrencyId, C.Code AS CurrencyCode, S.DocRefNo, ISNULL(SM.Amount,0) + ISNULL(SS.Amount,0) AS Amount,
 									Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') InvoiceDate,
 									Replace(CONVERT(VARCHAR(11), S.EntryDate, 106), ' ', '-') VoucherDate, Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') PostingDate
                                     , S.RowState, S.DeliveryPartyPlantId, S.InvoicingPartyPlantId AS PartyPlantId, S.InvoicingPartyPlantId, S.EntityId, S.PaymentTermId, S.BaseNoOfDays, S.BaseOnDueDate
@@ -4469,7 +4469,7 @@ order by SAI.SalesId";
 			{
 				strSql = @"Select SCD.*,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight,DT.UserName Destination,FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
                                     ,SC.VechileNo,SC.UserRef,FORMAT(SC.AddedDate,'dd-MMM-yyyy')GatePassDate
-									,EI.EmployeeName CheckedBy,EIM.EmployeeName ApprovedBy,SC.CheckedStatus,SC.ApprovedStatus,SC.IsDispatchConfirmation,SC.DispatchConfirmationBy
+									,EI.EmployeeName CheckedBy,EIM.EmployeeName ApprovedBy,SC.CheckedStatus,SC.ApprovedStatus,ISNULL(SC.IsDispatchConfirmation,0)IsDispatchConfirmation,SC.DispatchConfirmationBy
                                     from dbo.SalesChalanDetail SCD
                                     LEFT JOIN dbo.SalesChalan SC ON SC.Id=SCD.SalesChalanId
                                     LEFT JOIN TRN.Sales S ON S.Id=SCD.InvoiceId

@@ -37,7 +37,7 @@ function GeneralContractApprovedController(cboService, commonMessage, $scope, $r
 
     $scope.UnapprovedList = [];
     $scope.GetcheckedData = function () {
-        $http.get('Administration/GeneralContractChecked/GetcheckedData')
+        $http.get('Administration/GeneralContractApproved/GetcheckedUnApprovedData')
             .then(function successCallback(response) {
                 $scope.UnapprovedList = response.data;
             })

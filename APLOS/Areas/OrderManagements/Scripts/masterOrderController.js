@@ -2221,6 +2221,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
                         $scope.ShowCostingSORatePopup();
                         $scope.getMasterItemList();
+                        $scope.getData();
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure', 'soPoUp');

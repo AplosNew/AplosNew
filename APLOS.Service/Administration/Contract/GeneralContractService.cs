@@ -773,12 +773,12 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
                     genid.GenID(TableNameHead, out _Id);
 
                     data["Id"] = _Id;
-
+                    data["CheckedByStatus"] = "To Be Check";
+                    data["IsCancel"] = 0;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
-
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion FURNITURE POLICY HEAD
@@ -872,6 +872,35 @@ left join SCS.UnitOfMeasurement UOM on UOM.Id = GC.UOMId";
         }
         #endregion CREATE AND EDIT DEFAULT COLUMN
 
+        public Dictionary<string, object> CancelContractEntry(Dictionary<string, object> data,string Name)
+        {
+            try
+            {
+                string TableNameHead = "TRN.GeneralContractEntry";
+                DataSet dsMaster;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                string _Id = "";
+                 
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                { 
+                    data["IsCancel"] = 1;
+                    data["CancelBy"] = Name;
+                    data["CancelDateTime"] = System.DateTime.Now.ToString();
+
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
     #endregion COntract Entry
 
@@ -1015,7 +1044,7 @@ left join mst.GeneralContract GC on GC.Id = GCE.GeneralContractId
         {
             try
             {
-                string _sql = "Update TRN.GeneralContractEntry set CheckedByStatus='" + CheckedStataus + "', ApprovedById='" + AuthorizedById + "', CheckedReason='" + CheckedReason + "' where Id='" + headerId + "'";
+                string _sql = "Update TRN.GeneralContractEntry set CheckedByStatus='" + CheckedStataus + "',ApprovedStatus='To Be Approve', ApprovedById='" + AuthorizedById + "', CheckedReason='" + CheckedReason + "' where Id='" + headerId + "'";
                 _sqlRepository.ExecuteSqlCommand(_sql);
             }
             catch (Exception ex)

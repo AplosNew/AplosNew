@@ -10,6 +10,7 @@ using Syncfusion.DocIO;
 using Syncfusion.DocIO.DLS;
 using Syncfusion.DocToPDFConverter;
 using Syncfusion.Pdf;
+using Syncfusion.Pdf.Graphics;
 using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
@@ -739,6 +740,13 @@ namespace Library.MaterialManagement.Reports
                 DataTable dsOrderMaster;
 
                 dsOrderMaster = GetLotWiseSalesReportData(salesId);
+                if (dsOrderMaster.Rows.Count>0)
+                {
+                    if (string.IsNullOrEmpty(dsOrderMaster.Rows[0]["Email"].ToString()))
+                    {
+                        throw new Exception("Recipient mailId not found.");
+                    }
+                }
                 Dictionary<string, string> columns = new Dictionary<string, string>();
 
                 foreach (DataColumn item in dsOrderMaster.Columns)
@@ -793,14 +801,7 @@ namespace Library.MaterialManagement.Reports
 
                 document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
 
-                var sourceDoc = document.Clone();
                 document.Replace("{FileCopyName}", "Original Copy", false, false);
-                document.ImportContent(sourceDoc, ImportOptions.KeepSourceFormatting);
-                document.Replace("{FileCopyName}", "Duplicate Copy", false, false);
-                document.ImportContent(sourceDoc, ImportOptions.KeepSourceFormatting);
-                document.Replace("{FileCopyName}", "Triplicate for recipient", false, false);
-
-
                 //removing any unused place holder  
                 foreach (var item in ReplaceInfo.Keys)
                 {
@@ -808,8 +809,6 @@ namespace Library.MaterialManagement.Reports
                         document.Replace(item.ToString(), "N/A", false, false);
                 }
 
-                /////////////////////
-                ///
 
                 DocToPDFConverter converter = new DocToPDFConverter();
 
@@ -823,30 +822,29 @@ namespace Library.MaterialManagement.Reports
                 //Closes the instance of document objects
 
                 //Saves the PDF file 
-                string Prefix = "TaxInvoice-" + salesId;
+                string FileName = "TaxInvoice-" + salesId+".pdf";
 
-                pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
-                //Closes the instance of document objects
+                MemoryStream ms = new MemoryStream();
+                // Save and close the document.
+                pdfDocument.Save(ms);
                 pdfDocument.Close(true);
-                // document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
-                string filePath = "";
-                string path = "";
 
-                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Prefix + ".pdf");
-                //document.SaveOptions.
+                //Reset the memory stream position.  
+                ms.Position = 0;
 
-               // document.Close();
+                //Attach the file
+                Attachment file = new Attachment(ms, FileName, "application/pdf");
+
                 EmailSender email = null;
-
                 var dom = _smtpConfigurationRepository.Query(a => a.CompanyGroupId == companyGroupId && a.CompanyId == companyId).Select().FirstOrDefault();
                 if (dom == null)
                     throw new CustomException("This 'company group' has no web address!");
 
                 email = new EmailSender(dom.Host, dom.Port, dom.MailingUserName, dom.Password, dom.IsSSL);
 
-               // var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
-                //message.Attachments.Add(new Attachment(path.ToString()));
-                //email.Send(message);
+                var message = email.PrepareMessage(dom.SenderSystemName + "<" + dom.MailingUserName + ">", dsOrderMaster.Rows[0]["Email"].ToString(), null, null, "Tax Invoice Report", "Please Find Attached.");
+                message.Attachments.Add(file);
+                email.Send(message);
 
             }
             catch (Exception ex)
@@ -977,7 +975,7 @@ namespace Library.MaterialManagement.Reports
 
 
 
-                ////document.Protect(ProtectionType.AllowOnlyReading, "password");
+                //document.Protect(ProtectionType.AllowOnlyReading, "password");
                 //string filename = "TaxInvoice-" + salesId + ".docx";
                 //document.Save(filename, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 //document.Close();
@@ -2540,7 +2538,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Description");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 175;
+            wTable.Rows[ROW].Cells[colArticle].Width = 165;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Shade");
             range.ApplyCharacterFormat(FontBold);
@@ -2560,7 +2558,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Bag");
             range.ApplyCharacterFormat(FontBold);
             int colBag = COL; COL++;
-            wTable.Rows[ROW].Cells[colBag].Width = 45;
+            wTable.Rows[ROW].Cells[colBag].Width = 40;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Gross");
             range.ApplyCharacterFormat(FontBold);
@@ -2580,7 +2578,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Amount(INR)");
             range.ApplyCharacterFormat(FontBold);
             int colTotalTaxableAmount = COL;
-            wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 80;
+            wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 95;
 
 
             #endregion column headers
@@ -5320,7 +5318,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
     ,P.UserName Buyer 
     ,P.TINNO CustomerGSTNo
     ,p.VATResistrationNo AS CustomerPANNo
-    ,Addres.Address1 VendorAddress
+    ,Addres.Address1 VendorAddress,Addres.Email
     ,ISNULL(HSNC.Code,MHSN.Code) HSNCode
     ,Plant.GSTIN
     ,Plant.VATResistrationNo AS PlantPANNo

@@ -509,11 +509,8 @@
                             <label class="col-sm-4 control-label">Invoice Status<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="select-style">
-                                    <select name="Invoice Status" id="IS" class="form-control" ng-model="ModelInvoiceStatus.InvoiceStatus" tabindex="3">
+                                    <select name="Invoice Status" id="IS" class="form-control" ng-model="ModelInvoiceStatus.InvoiceStatus" ng-options="item.Value as item.Text for item in InvoiceStatusList" tabindex="3" required>
                                         <option value="">--Select--</option>
-                                        <option value="Active">Active</option>
-                                        <option value="Closed">Closed</option>
-                                        <option value="Pending">Pending</option>
                                     </select>
                                 </div>
                             </div>

@@ -398,6 +398,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
                     data["Id"] = _Id;
                     data["CheckedStatus"] = "To Be Check";
+                    data["IsDispatchConfirmation"] = 0;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else

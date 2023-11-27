@@ -29,7 +29,8 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
         Date: null,
         GeneralContractId: null,
         EntityId: null,
-        CheckBySystemId: null
+        CheckBySystemId: null,
+        CheckedByStatus: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     //#endregion List object
@@ -52,7 +53,7 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
     }
     $scope.GetEntity();
 
-    
+
 
     $scope.ContractItemList = [];
     $scope.GetAllContractItem = function () {
@@ -74,7 +75,7 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
         $http.get('Administration/GeneralContractEntry/GetList')
             .then(function successCallback(response) {
                 $scope.ModelList = response.data;
-              
+
             })
     }
     $scope.GetList();
@@ -104,7 +105,7 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
     }
 
     //  #region Save
-   
+
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         $http({
@@ -123,8 +124,7 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
                 ShowResult(response.data.Message, 'success');
                 //ClearFields(response.data.Sequence);
                 $scope.GetList();
-               // $scope.getData();
-               // $scope.GetChildList();
+                $scope.Clear();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -134,7 +134,6 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
     //  #endregion Save
     // #region Double Tap open grid
     $scope.Get = function (args) {
-       
         $scope.ModelNew = Object.assign({}, args.data);
         document.getElementById("updatebtn").style.display = "block"
         document.getElementById("savebtn").style.display = "none"
@@ -144,6 +143,7 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
             $rootScope.toggle();
 
         }
+        $scope.Action = 'Update';
     };
     // #endregion Double Tap open grid
     // #region Update
@@ -163,10 +163,8 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                ClearFields(response.data.Sequence);
-                
                 $scope.GetList();
-
+                $scope.Clear();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -177,11 +175,11 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
     //  #region Clear
     $scope.Clear = function () {
         ClearFields();
+        $scope.Action = 'Save';
         return true;
     };
 
     function ClearFields() {
-        $scope.Action = 'Save';
         $scope.ModelTemp = {
             Id: null,
             Date: null,
@@ -196,14 +194,40 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
     //  #endregion Clear
+ 
+    $scope.message_detailconfirmation = null;
+    $scope.CancelPopUp = function () { 
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id))
+            $scope.message_detailconfirmation = 'Are you sure want to Cancel [ ' + $scope.ModelNew.Id + ' ]';
+        angular.element(document.querySelector('#confirmCancelPopUp')).modal('show');
+    }
 
-   
+
+    $scope.Cancel = function () {
+        $http({
+            method: 'POST',
+            url: 'Administration/GeneralContractEntry/CancelContract',
+            data: { 'data': $scope.ModelNew },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetList();
+                $scope.Clear();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
 
     $scope.invalidDate = false;
     $scope.DateValidation = function () {
         var msg = "";
         if (new Date($scope.ModelNew.Date) > new Date()) {
-         
+
             throw "Date must be equal to current Date!";
         }
         else if (new Date($scope.ModelNew.Date) < new Date()) {
@@ -215,7 +239,7 @@ function GeneralContractEntryController(cboService, commonMessage, $scope, $root
             $scope.invalidDate = true;
         }
         else $scope.invalidDocDate = false;
-       // return manualValidation("div_DocDate", $scope.invalidDocDate, msg);
+        // return manualValidation("div_DocDate", $scope.invalidDocDate, msg);
     }
 
     $scope.PrintData = function (data) {

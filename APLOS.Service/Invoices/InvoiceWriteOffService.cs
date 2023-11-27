@@ -5,6 +5,7 @@ using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
 using Library.Model.Accounts;
+using Library.Model.Advances;
 using Library.Model.Banks;
 using Library.Model.Commercial;
 using Library.Model.Enums;
@@ -16,11 +17,11 @@ using Library.Model.Taxations;
 using Library.Model.Vouchers;
 using Library.Service.Banks;
 using Library.Service.Core;
-using Library.Service.Currencies;
 using Library.Service.Enums;
 using Library.Service.Extension;
 using Library.Service.Extension.Accounts;
 using Library.Service.Finances;
+using Library.Service.Helpers;
 using Library.Service.Logs;
 using Library.Service.Systems;
 using Library.Service.Vouchers;
@@ -29,9 +30,11 @@ using Library.ViewModel.Banks;
 using Library.ViewModel.Invoices;
 using Library.ViewModel.OrderManagements;
 using Library.ViewModel.Vouchers;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -74,8 +77,12 @@ namespace Library.Service.Invoices
         private readonly IFinancingService _financingService;
         private readonly IRepositoryAsync<FinancingSubsequentTransaction> _loanInterestPayableRepository;
         private readonly IRepositoryAsync<FinancingWriteOff> _financingWriteOffRepository;
+        private readonly IRepositoryAsync<Advance> _advanceRepository;
+        private readonly IRepositoryAsync<AdvanceDetail> _advanceDetailRepository;
+        private readonly IRepositoryAsync<AdvanceWriteOff> _advanceWriteOffRepository;
+        private readonly IRepositoryAsync<AdvanceWriteOffDetail> _advanceWriteOffDetailRepository;
 
-        
+
         public InvoiceWriteOffService(
               IRepositoryAsync<InvoiceWriteOff> invoiceWriteOffRepository
             , IUnitOfWork unitOfWork
@@ -111,6 +118,11 @@ namespace Library.Service.Invoices
             , IRepositoryAsync<FinancingWriteOff> financingWriteOffRepository
             , IRepositoryAsync<AdditionalInvoice> additionalInvoiceRepository
             , IRepositoryAsync<AdditionalInvoiceDetail> additionalInvoiceDetailRepository
+            , IRepositoryAsync<Advance> advanceRepository
+            , IRepositoryAsync<AdvanceDetail> advanceDetailRepository
+            , IRepositoryAsync<AdvanceWriteOff> advanceWriteOffRepository
+            , IRepositoryAsync<AdvanceWriteOffDetail> advanceWriteOffDetailRepository
+            
             ) : base(invoiceWriteOffRepository, unitOfWork, pkGeneratorService)
         {
             _sqlRepository = sqlRepository;
@@ -147,6 +159,10 @@ namespace Library.Service.Invoices
             _financingWriteOffRepository = financingWriteOffRepository;
             _additionalInvoiceRepository = additionalInvoiceRepository;
             _additionalInvoiceDetailRepository = additionalInvoiceDetailRepository;
+            _advanceRepository = advanceRepository;
+            _advanceDetailRepository = advanceDetailRepository;
+            _advanceWriteOffRepository = advanceWriteOffRepository;
+            _advanceWriteOffDetailRepository = advanceWriteOffDetailRepository;
         }
 
         public InvoiceWriteOff InsertInvoiceWriteOff(InvoiceWriteOff invoiceWriteOff)
@@ -8480,6 +8496,8 @@ namespace Library.Service.Invoices
                 var invoiceWriteOff = _invoiceWriteOffRepository.Find(invoiceWriteOffId);
                 var invoiceWriteOffDetail = _invoiceWriteOffDetailRepository.Query(r => r.InvoiceWriteOffId == invoiceWriteOffId).Select().ToList();
                 var invoiceTax = _invoiceTaxRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var advanceWriteOff = _advanceWriteOffRepository.Query(r => r.VoucherId == voucherId).Select().FirstOrDefault();
+                var advanceWriteOffDetail = _advanceWriteOffDetailRepository.Query(r => r.AdvanceWriteOffId == advanceWriteOff.Id).Select().ToList();
                 foreach (var item in voucherdetailcurrnecy)
                 {
                     _voucherService.DeleteVoucherDetailCurrency(item.Id);
@@ -8539,6 +8557,24 @@ namespace Library.Service.Invoices
                     }
 
                     _invoiceWriteOffDetailRepository.Delete(item.Id);
+                }
+                if (advanceWriteOffDetail != null)
+                {
+                    foreach (var item in advanceWriteOffDetail)
+                    {
+                        var advance = _advanceRepository.Find(item.AdvanceId);
+                        var advanceDetail = _advanceDetailRepository.Find(item.AdvanceDetailId);
+
+                        advanceDetail.WrittenOffAmount -= item.Amount;
+                        advance.WrittenOffAmount -= item.Amount;
+                        advanceDetail.IsWrittenOff = advanceDetail.NetAmount == advanceDetail.WrittenOffAmount;
+                        advance.IsWrittenOff = advance.Amount == advance.WrittenOffAmount;
+
+                        _advanceDetailRepository.Update(advanceDetail);
+                        _advanceRepository.Update(advance);
+                        _advanceWriteOffDetailRepository.Delete(item.Id);
+                    }
+                    _advanceWriteOffRepository.Delete(advanceWriteOff.Id);
                 }
                 _invoiceWriteOffRepository.Delete(invoiceWriteOffId);
                 _voucherService.DeleteVoucher(voucher.Id);
@@ -9102,6 +9138,185 @@ namespace Library.Service.Invoices
 
         #endregion
 
+        public List<Dictionary<string, object>> GetGatePaymentAdviceData(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string BankMasterId)
+        {
+            var sql = @"SELECT AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id, P.Code AS PartyCode, P.UserName AS PartyName,format(AW.PostingDate,'dd-MMM-yyyy') PostingDate,format(AW.DocDate,'dd-MMM-yyyy')DocDate
+                                    , AW.DocRefNo, C.Code AS CurrencyCode, SUM(IWD.Amount) AS Amount
+                                    , AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.IsPark, AW.BankJournalId,IWD.MultiplePaymentNo
+                                    ,Status=case when AW.IsPark=1 then 'Parked' else 'Posted' end,AW.BankMasterId
+                                    FROM [TRN].[InvoiceWriteOff] AS AW
+									LEFT JOIN (SELECT WD.Id,WD.InvoiceWriteOffId,MPD.MultiplePaymentId MultiplePaymentNo,SUM(WD.Amount) Amount 
+											FROM [TRN].[InvoiceWriteOffDetail] WD 
+											LEFT JOIN TRN.Invoice IV ON WD.InvoiceId=IV.Id
+											LEFT JOIN TRN.MultiplePaymentDetail MPD ON MPD.InvoiceId=IV.Id
+											Group BY WD.Id,WD.InvoiceWriteOffId,IV.Id ,MPD.MultiplePaymentId) AS IWD ON IWD.InvoiceWriteOffId=AW.Id
+									LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceWriteOffDetailId=IWD.Id
+                                    LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                    LEFT JOIN [HKP].[Party] AS P ON P.Id=AW.PartyId
+                                    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AW.PartyPlantId
+                                    LEFT JOIN [SCS].[Currency] AS C ON C.Id=AW.CurrencyId 
+                                    WHERE AW.Archive=0 AND V.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + "' AND AW.PlantId='" + plantId +@"' 
+                                    AND AW.BankMasterId = '" + BankMasterId + "' AND AW.PostingDate between '" + fromDate + "' AND '" + toDate + @"' AND AW.[SourceType]= 'VendorPayment'
+
+                                    Group BY AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id, P.Code , P.UserName, AW.PostingDate
+									, AW.DocDate, AW.DocRefNo, C.Code, AW.PartyPlantId, PP.UserName, AW.IsPark, AW.BankJournalId, IWD.MultiplePaymentNo,AW.BankMasterId";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public string PaymentAdviceReportxlx(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "PaymentAdviceReport";
+                sheet = workbook.Worksheets[0];
+
+                int ROW = 5; int COL = 1;
+                #region columns
+                sheet[ROW, COL].Text = "Invoice WriteOff No";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColInvoiceWriteOffNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Voucher No";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColVoucherNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Party Code";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColPartyCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Party Name";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColPartyName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PostingDate";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int ColPostingDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "DocDate";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColDocDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Doc RefNo";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColDocRefNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Currency Code";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColCurrencyCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Amount";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Party Plant Name";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColPartyPlantName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Multiple Payment No";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColMultiplePaymentNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Status";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColStatus = COL;
+
+                #endregion columns
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                ROW++;
+
+                int startRow = ROW;
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    if (data[i]["InvoiceWriteOffNo"] != null)
+                    {
+                        sheet[ROW, ColInvoiceWriteOffNo].Text = data[i]["InvoiceWriteOffNo"].ToString();
+                    }
+                    sheet[ROW, ColVoucherNo].Text = data[i]["VoucherNo"].ToString();
+                    sheet[ROW, ColPartyCode].Text = data[i]["PartyCode"].ToString();
+                    sheet[ROW, ColPartyName].Text = data[i]["PartyName"].ToString();
+                    sheet[ROW, ColPostingDate].Text = data[i]["PostingDate"].ToString();
+                    sheet[ROW, ColDocDate].Text = data[i]["DocDate"].ToString();
+                    sheet[ROW, ColDocRefNo].Text = data[i]["DocRefNo"].ToString();
+                    sheet[ROW, ColCurrencyCode].Text = data[i]["CurrencyCode"].ToString();
+                    sheet[ROW, ColAmount].Number = clsStaticInfo.dbl(data[i]["Amount"].ToString());
+                    sheet[ROW, ColAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColPartyPlantName].Text = data[i]["PartyPlantName"].ToString();
+                    if (data[i]["MultiplePaymentNo"] != null)
+                    {
+                        sheet[ROW, ColMultiplePaymentNo].Text = data[i]["MultiplePaymentNo"].ToString();
+                    }
+                    sheet[ROW, ColStatus].Text = data[i]["Status"].ToString();
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Payment Advice Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //#endregion ******************Report Header******************
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
     }
 }

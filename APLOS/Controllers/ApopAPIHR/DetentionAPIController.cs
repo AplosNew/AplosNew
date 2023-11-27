@@ -1196,5 +1196,56 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
         #endregion Bank
+
+        #region Gate pass 
+        public List<GatePassCheckApprove> GetGatepasschecking(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetGatepasschecking(out List<GatePassCheckApprove> activelists, UserId);
+            return activelists;
+        }
+
+        public List<GatePassCheckApprove> GetGatepassapproving(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetGatepassapproving(out List<GatePassCheckApprove> activelists, UserId);
+            return activelists;
+        }
+
+        public List<Default2> GetGatepassAprovelperson()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetGatepassAprovelperson(out List<Default2> activelists);
+            return activelists;
+        }
+
+        public string PostGatePassChecking([FromBody] IEnumerable<GatePassCheckApprove> DataToSave, string GatePassId)
+        {
+            try
+            {
+                string Id = clsData.PostGatePassChecking(DataToSave, GatePassId);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+        public string PostGatePassApprove([FromBody] IEnumerable<GatePassCheckApprove> DataToSave, string GatePassId)
+        {
+            try
+            {
+                string Id = clsData.PostGatePassApprove(DataToSave, GatePassId);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+        #endregion Gate pass 
     }
 }

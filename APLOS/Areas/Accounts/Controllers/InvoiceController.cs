@@ -31,6 +31,7 @@ using Library.Service.Advances;
 using Syncfusion.Pdf;
 using Syncfusion.ExcelToPdfConverter;
 using Library.ViewModel.OrderManagements;
+using Library.Security.Core;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -77,11 +78,13 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return View("~/Areas/Accounts/Views/InvoiceOverhead.cshtml");
         }
-
-
         public ActionResult InvoiceOverheadPost()
         {
             return View("~/Areas/Accounts/Views/InvoiceOverheadPost.cshtml");
+        }
+        public ActionResult paymentadvice()
+        {
+            return View("~/Areas/Accounts/Views/paymentadvice.cshtml");
         }
 
 
@@ -1823,5 +1826,33 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
         #endregion
+
+        #region Payment Advice
+        [Authorize, HttpGet]
+         public JsonResult GatePaymentAdviceData(string fromDate, string toDate, string BankMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var jsondata = Json(_invoiceWriteOffService.GetGatePaymentAdviceData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, BankMasterId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetPaymentAdviceReport(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                string fileName = "";
+                fileName = _invoiceWriteOffService.PaymentAdviceReportxlx(data, reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion Payment Advice
     }
 }

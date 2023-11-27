@@ -345,7 +345,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             _salesReportService.GetLotWiseTaxInvoiceServiceReporttoMail(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, salesId);
-            return Json(new { Message = AplosMessage.Success });
+            return Json(new { Message = "Mail send successfully." });
         }
 
         [Authorize, HttpGet]

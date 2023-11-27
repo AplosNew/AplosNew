@@ -347,7 +347,7 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
         var entityrowdata = $filter("filter")($scope.entityList, { Value: id });
         $scope.voucher.PlantId = entityrowdata[0].PlantId;
     };
-
+    $scope.saveBtnDisable = false;
     $scope.Save = function () {
         if ($scope.EmployeeListNew.length === 0) {
             ShowResult("Please select Employee!", "failure");
@@ -371,6 +371,7 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
         }
         
         $scope.$broadcast("show-errors-check-validity");
+        $scope.saveBtnDisable = true;
         try {
             if ($scope.form0.$valid) {
                 if ($scope.Action === "Save") {
@@ -390,6 +391,7 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
                         dataType: "JSON"
                     }).then(function successCallback(response) {
                         if (response.data.Error === true) {
+                            $scope.saveBtnDisable = false;
                             ShowResult(response.data.Message, "failure");
                         }
                         else {
@@ -481,6 +483,7 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
         $scope.employeeDisbursementDataList = [];
         $scope.salaryLockPayableGLData = [];
         $scope.EmployeeListNew = [];
+        $scope.saveBtnDisable = false;
 
     }
 
@@ -775,6 +778,8 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
         $scope.voucher.YearNo = data.YearNo;
         $scope.voucher.MonthNo = data.MonthNo;
         $scope.voucher.MonthName = data.MonthName;
+        $scope.voucher.PaymentMode = data.PaymentMode;
+        $scope.voucher.PaymentSource = data.PaymentMode;
 
         $scope.GetemployeeDisbursement();
         $scope.getSalaryLockPayableGL();
