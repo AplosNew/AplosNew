@@ -136,7 +136,7 @@ namespace Library.Service.Advances
                 report.SetText(ref sheet, _rowL, col, data[n]["GLGeneralInfoCode"] + " - " + data[n]["GLGeneralInfoName"]); col++;
                 report.SetText(ref sheet, _rowL, col, data[n]["BudgetName"].ToString()); col++;
                 report.SetText(ref sheet, _rowL, col, data[n]["ActivityName"].ToString()); col++;
-                report.SetText(ref sheet, _rowL, col, data[n]["AdvanceDocRefNo"].ToString()); col++;
+                report.SetText(ref sheet, _rowL, col, data[n]["Particulars"].ToString()); col++;
                 if (companyCurrencyId != headerData["CurrencyId"].ToString())
                 {
                     report.SetText(ref sheet, _rowL, col, Convert.ToDouble(data[n]["DrAmount"])); col++;
