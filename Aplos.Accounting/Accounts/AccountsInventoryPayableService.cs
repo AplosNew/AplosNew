@@ -3336,7 +3336,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 								, IR.DocRefNo
                                 ,Replace(CONVERT(VARCHAR(11), IR.DocDate, 106), ' ', '-') AS DocDate
                                 ,Replace(CONVERT(VARCHAR(11), IR.DocDate, 106), ' ', '-') AS AcknolwdgementDate
-	                            , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId
+	                            , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy,IPP.GSTIN GSTINNo, IR.InvoicingByAddress, IR.DeliveryPartyPlantId
 								, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
 	                            , IRD.TransactionAmount, IRD.BaseAmount
                                 , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName

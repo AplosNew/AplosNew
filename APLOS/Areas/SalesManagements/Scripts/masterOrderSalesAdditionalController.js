@@ -43,6 +43,9 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.salesVM = Object.assign({}, obj.data);
         $scope.ModelInvoiceStatus = Object.assign({}, obj.data);
+        if (baseService.isUndefinedOrNull($scope.ModelInvoiceStatus.InvoiceStatus)) {
+            $scope.ModelInvoiceStatus.InvoiceStatus = 'Active';
+        }
         $scope.SalesAdditionalInfoDataList = [];
         $scope.SalesId = obj.data.Id;
         $scope.ModelNew.SalesId = obj.data.Id;
@@ -342,7 +345,8 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
         BooksCurrencyBaseRate: null,
         IsPark: 1,
         IsAdditionalInfoApplicable: true,
-        IsIncentiveApplicable: false
+        IsIncentiveApplicable: false,
+        InvoiceStatus:'Active'
     };
 
     $scope.getPostSalesData = function () {
@@ -353,7 +357,9 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
                     if (baseService.arrayLength(response.data) > 0) {
                         $scope.ModelNew = Object.assign({}, response.data[0]);
                         $scope.ModelInvoiceStatus.InvoiceStatus = response.data[0].InvoiceStatus;
-
+                        if (baseService.isUndefinedOrNull($scope.ModelInvoiceStatus.InvoiceStatus)) {
+                            $scope.ModelInvoiceStatus.InvoiceStatus = 'Active';
+                        }
                     }
                     $scope.ModelNew.SalesId = $scope.salesVM.Id;
                     $scope.ModelNew.InvoiceDate = $scope.salesVM.InvoiceDate;
@@ -844,9 +850,18 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
         InvoiceNo: null,
         InvoiceDate: null,
         Amount: null,
-        InvoiceStatus: null 
+        InvoiceStatus: 'Active'
     };
     $scope.ModelInvoiceStatus = Object.assign({}, $scope.ModelTemp);
+
+    console.log($scope.ModelInvoiceStatus);
+    $scope.InvoiceStatusList = [
+        { Value: 'Active', Text:'Active'},
+        { Value: 'Closed', Text:'Closed'},
+        { Value: 'Pending', Text:'Pending'}
+    ]
+    
+  
 
     $scope.saveInvoiceStatusUrl = $scope.path + 'CreateInvoiceStatus';
     $scope.SaveInvoiceStatus = function () {
