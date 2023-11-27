@@ -100,7 +100,7 @@ namespace Library.Service.Advances
             report.SetHeaderText(ref sheet, _rowL, headreColIndex, "GL", 32); headreColIndex++;
             report.SetHeaderText(ref sheet, _rowL, headreColIndex, "Budget", 32); headreColIndex++;
             report.SetHeaderText(ref sheet, _rowL, headreColIndex, "Activity", 32); headreColIndex++;
-            report.SetHeaderText(ref sheet, _rowL, headreColIndex, "Doc RefNo", 32); headreColIndex++;
+            report.SetHeaderText(ref sheet, _rowL, headreColIndex, "Particulars", 32); headreColIndex++;
 
             var sumdrcrCol = headreColIndex;
             if (companyCurrencyId != headerData["CurrencyId"].ToString())
@@ -136,7 +136,7 @@ namespace Library.Service.Advances
                 report.SetText(ref sheet, _rowL, col, data[n]["GLGeneralInfoCode"] + " - " + data[n]["GLGeneralInfoName"]); col++;
                 report.SetText(ref sheet, _rowL, col, data[n]["BudgetName"].ToString()); col++;
                 report.SetText(ref sheet, _rowL, col, data[n]["ActivityName"].ToString()); col++;
-                report.SetText(ref sheet, _rowL, col, data[n]["DocRefNo"].ToString()); col++;
+                report.SetText(ref sheet, _rowL, col, data[n]["AdvanceDocRefNo"].ToString()); col++;
                 if (companyCurrencyId != headerData["CurrencyId"].ToString())
                 {
                     report.SetText(ref sheet, _rowL, col, Convert.ToDouble(data[n]["DrAmount"])); col++;
