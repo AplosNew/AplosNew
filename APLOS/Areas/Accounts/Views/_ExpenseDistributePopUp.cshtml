@@ -53,7 +53,6 @@
                                             <td>
                                                 <input ng-keyup="checkDistributedAmount($index,x)" type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="DistributedAmount" autocomplete="off" ng-model="x.DistributedAmount">
                                             </td>
-                                            @*<td class="text-right">{{x.DistributedAmount|number:2}}</td>*@
                                             <td class="text-right">
                                                 <ul class="list-inline action-list">
                                                     <li><button ng-click="DeleteConfirmation(x.InvoiceId)" ng-disabled="x.Id" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
@@ -62,7 +61,8 @@
 
                                         </tr>
                                         <tr>
-                                            <td colspan="5" class="text-right"><strong>Total : </strong></td>
+                                            <td colspan="4" class="text-right"><strong>Total : </strong></td>
+                                            <td class="text-right"><strong>{{checkedInvoiceList | sumByKey : 'Qty' | number:2 }}</strong></td>
                                             <td class="text-right"><strong>{{checkedInvoiceList | sumByKey : 'Amount' | number:2 }}</strong></td>
                                             <td></td>
                                             <td class="text-right"><strong>{{checkedInvoiceList | sumByKey : 'BooksAmount' | number:2 }}</strong></td>
@@ -89,6 +89,7 @@
                                             <th>Invoice Date</th>
                                             <th>Customer</th>
                                             <th>Voucher No</th>
+                                            <th>Qty</th>
                                             <th>TRN Amount</th>
                                             <th>Currency</th>
                                             <th>Books Amount</th>
@@ -102,13 +103,13 @@
                                             <td>{{x.PostingDate}}</td>
                                             <td>{{x.PartyPlantName}}</td>
                                             <td>{{x.VoucherNo}}</td>
+                                            <td class="text-right">{{x.Qty|number:2}}</td>
                                             <td class="text-right">{{x.Amount|number:2}}</td>
                                             <td>{{x.CurrencyCode}}</td>
                                             <td class="text-right">{{x.BooksAmount|number:2}}</td>
                                             <td>
                                                 <input ng-keyup="checkDistributedAmount($index,x)" type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="DistributedAmount" autocomplete="off" ng-model="x.DistributedAmount">
                                             </td>
-                                            @*<td class="text-right">{{x.DistributedAmount|number:2}}</td>*@
                                             <td class="text-right">
                                                 <ul class="list-inline action-list">
                                                     <li><button ng-click="DeleteOutBoutConfirmation(x.InvoiceId)" ng-disabled="x.Id" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
@@ -121,6 +122,7 @@
                                             <td></td>
                                             <td></td>
                                             <td></td>
+                                            <td class="text-right"><strong>{{checkedOutBoundInvoiceList | sumByKey : 'Qty'|  number:2 }}</strong></td>
                                             <td class="text-right"><strong>{{checkedOutBoundInvoiceList | sumByKey : 'Amount'|  number:2 }}</strong></td>
                                             <td></td>
                                             <td class="text-right"><strong>{{checkedOutBoundInvoiceList | sumByKey : 'BooksAmount' | number:2 }}</strong></td>

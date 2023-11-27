@@ -773,19 +773,32 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         
         if ($scope.activityOrderType == "InboundInvoice") {
             $scope.isSet(1);
-            if ($scope.ValueOfDistribution=='Amount')
+            if ($scope.ValueOfDistribution == 'Amount') {
                 $scope.calDistributedAmount();
-            else
+            }
+            else {
                 $scope.calDistributedQtyWise();
+            }
         }
         else if ($scope.activityOrderType == "OutboundInvoice") {
             $scope.isSet(2);
-            $scope.calOutBoundDistributedAmount();
+            if ($scope.ValueOfDistribution == 'Amount') {
+                $scope.calOutBoundDistributedAmount();
+            }
+            else {
+                $scope.calOutBoundDistributedQtyWise();
+            }
         }
         else if ($scope.activityOrderType == "BothInOutboundInvoice") {
             $scope.isSet(1);
-            $scope.calDistributedAmount();
-            $scope.calOutBoundDistributedAmount();
+            if ($scope.ValueOfDistribution == 'Amount') {
+                $scope.calDistributedAmount();
+                $scope.calOutBoundDistributedAmount();
+            }
+            else {
+                $scope.calDistributedQtyWise();
+                $scope.calOutBoundDistributedQtyWise();
+            }
         }
         else if ($scope.activityOrderType == "Order") {
             $scope.isSet(3);
@@ -1833,13 +1846,13 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         }
         else if ($scope.activityOrderType == "OutboundInvoice") {
             if (baseService.arrayLength($scope.checkedOutBoundInvoiceList))
-                $scope.TotalInvoiceAmount += parseFloat($filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "BooksAmount"));
+                $scope.TotalInvoiceQty += parseFloat($filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "Qty"));
         }
         else if ($scope.activityOrderType == "BothInOutboundInvoice") {
             if (baseService.arrayLength($scope.checkedInvoiceList) > 0)
-                $scope.TotalInvoiceAmount += parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "BooksAmount"));
+                $scope.TotalInvoiceQty += parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "Qty"));
             if (baseService.arrayLength($scope.checkedOutBoundInvoiceList))
-                $scope.TotalInvoiceAmount += parseFloat($filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "BooksAmount"));
+                $scope.TotalInvoiceQty += parseFloat($filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "Qty"));
         }
 
     }
@@ -1934,6 +1947,36 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         }
        
     }
+    $scope.calOutBoundDistributedQtyWise = function myfunction() {
+        $scope.getTotalInvoiceQty();
+        $scope.TotalDistributedInvoiceAmount = 0;
+
+        $scope.TotalDistributedQtyout = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "Qty"));
+        var totaloutQty = parseFloat(($scope.TotalDistributedQtyout * $scope.TotalChargesAmount) / $scope.TotalInvoiceQty);
+
+        for (var i = 0; i < $scope.checkedOutBoundInvoiceList.length; i++) {
+            $scope.checkedOutBoundInvoiceList[i].DistributedAmount = 0;
+        }
+
+        for (var i = 0; i < $scope.checkedOutBoundInvoiceList.length; i++) {
+
+            if ($scope.checkedOutBoundInvoiceList.length == 1) {
+                $scope.checkedOutBoundInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedOutBoundInvoiceList[i].Qty) * parseFloat($scope.TotalChargesAmount) / $scope.TotalInvoiceQty).toFixed(2);
+                $scope.TotalDistributedInvoiceAmount = $filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount");
+            }
+            else {
+                if ($scope.checkedOutBoundInvoiceList.length - 1 == i) {
+                    $scope.TotalDistributedInvoiceAmount = $filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount");
+
+                    $scope.checkedOutBoundInvoiceList[i].DistributedAmount = (totaloutQty - $scope.TotalDistributedInvoiceAmount).toFixed(2);
+                }
+                else {
+                    $scope.checkedOutBoundInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedOutBoundInvoiceList[i].Qty) * parseFloat($scope.TotalChargesAmount) / $scope.TotalInvoiceQty).toFixed(2);
+                }
+            }
+        }
+
+    }
     $scope.calMasterOrderDistributedAmount = function myfunction() {
         //$scope.TotalChargesAmount = 0;
         for (var i = 0; i < $scope.checkedMasterOrderList.length; i++) {
@@ -1955,110 +1998,226 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         $scope.activityOrderType = "";
         $scope.activityOrderType = item.ActivityOrderType;
         if ($scope.activityOrderType == "InboundInvoice") {
-            $scope.getTotalInvoiceAmount();
-            $scope.TotalDistributedInvoiceAmount = 0;
-            $scope.TotalDistributedAmountInvoice = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "BooksAmount"));
-            var totali = parseFloat(($scope.TotalDistributedAmountInvoice * $scope.TotalChargesAmount) / $scope.TotalInvoiceAmount);
+            if (item.ValueOfDistribution == "Amount") {
+                $scope.getTotalInvoiceAmount();
+                $scope.TotalDistributedInvoiceAmount = 0;
+                $scope.TotalDistributedAmountInvoice = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "BooksAmount"));
+                var totali = parseFloat(($scope.TotalDistributedAmountInvoice * $scope.TotalChargesAmount) / $scope.TotalInvoiceAmount);
 
-            for (var i = 0; i < $scope.checkedInvoiceList.length; i++) {
-                $scope.checkedInvoiceList[i].DistributedAmount = 0;
-            }
-
-            for (var i = 0; i < $scope.checkedInvoiceList.length; i++) {
-                if ($scope.checkedInvoiceList.length == 1) {
-                    $scope.checkedInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedInvoiceList[i].BooksAmount) * $scope.TotalChargesAmount / $scope.TotalInvoiceAmount).toFixed(2);
-                    $scope.TotalDistributedInvoiceAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "DistributedAmount"));
+                for (var i = 0; i < $scope.checkedInvoiceList.length; i++) {
+                    $scope.checkedInvoiceList[i].DistributedAmount = 0;
                 }
-                else {
-                    if ($scope.checkedInvoiceList.length - 1 == i) {
 
+                for (var i = 0; i < $scope.checkedInvoiceList.length; i++) {
+                    if ($scope.checkedInvoiceList.length == 1) {
+                        $scope.checkedInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedInvoiceList[i].BooksAmount) * $scope.TotalChargesAmount / $scope.TotalInvoiceAmount).toFixed(2);
                         $scope.TotalDistributedInvoiceAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "DistributedAmount"));
-                        $scope.checkedInvoiceList[i].DistributedAmount = (totali - $scope.TotalDistributedInvoiceAmount).toFixed(2);
                     }
                     else {
-                        $scope.checkedInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedInvoiceList[i].BooksAmount) * $scope.TotalChargesAmount / $scope.TotalInvoiceAmount).toFixed(2);
+                        if ($scope.checkedInvoiceList.length - 1 == i) {
+
+                            $scope.TotalDistributedInvoiceAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "DistributedAmount"));
+                            $scope.checkedInvoiceList[i].DistributedAmount = (totali - $scope.TotalDistributedInvoiceAmount).toFixed(2);
+                        }
+                        else {
+                            $scope.checkedInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedInvoiceList[i].BooksAmount) * $scope.TotalChargesAmount / $scope.TotalInvoiceAmount).toFixed(2);
+                        }
                     }
                 }
-            } 
+            }
+            else {
+                $scope.getTotalInvoiceQty();
+                $scope.TotalDistributedInvoiceAmount = 0;
+
+                $scope.TotalDistributedQtyInvoice = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "Qty"));
+                var totali = parseFloat(($scope.TotalDistributedQtyInvoice * $scope.TotalChargesAmount) / $scope.TotalInvoiceQty);
+
+                for (var i = 0; i < $scope.checkedInvoiceList.length; i++) {
+                    $scope.checkedInvoiceList[i].DistributedAmount = 0;
+                }
+
+                for (var i = 0; i < $scope.checkedInvoiceList.length; i++) {
+                    if ($scope.checkedInvoiceList.length == 1) {
+                        $scope.checkedInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedInvoiceList[i].Qty) * $scope.TotalChargesAmount / $scope.TotalInvoiceQty).toFixed(2);
+                        $scope.TotalDistributedInvoiceAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "DistributedAmount"));
+                    }
+                    else {
+                        if ($scope.checkedInvoiceList.length - 1 == i) {
+
+                            $scope.TotalDistributedInvoiceAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "DistributedAmount"));
+                            $scope.checkedInvoiceList[i].DistributedAmount = (totali - $scope.TotalDistributedInvoiceAmount).toFixed(2);
+                        }
+                        else {
+                            $scope.checkedInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedInvoiceList[i].Qty) * $scope.TotalChargesAmount / $scope.TotalInvoiceQty).toFixed(2);
+                        }
+                    }
+                }
+            }
         }
         else if ($scope.activityOrderType == "OutboundInvoice") {
-            $scope.getTotalInvoiceAmount();
-            $scope.TotalDistributedInvoiceAmount = 0;
+            if (item.ValueOfDistribution == "Amount") {
+                $scope.getTotalInvoiceAmount();
+                $scope.TotalDistributedInvoiceAmount = 0;
 
-            $scope.TotalDistributedAmountout = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "BooksAmount"));
-            var tatalout = parseFloat(($scope.TotalDistributedAmountout * $scope.TotalChargesAmount) / $scope.TotalInvoiceAmount);
+                $scope.TotalDistributedAmountout = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "BooksAmount"));
+                var tatalout = parseFloat(($scope.TotalDistributedAmountout * $scope.TotalChargesAmount) / $scope.TotalInvoiceAmount);
 
-            for (var i = 0; i < $scope.checkedOutBoundInvoiceList.length; i++) {
-                $scope.checkedOutBoundInvoiceList[i].DistributedAmount = 0;
-            }
-
-            for (var i = 0; i < $scope.checkedOutBoundInvoiceList.length; i++) {
-
-                if ($scope.checkedOutBoundInvoiceList.length == 1) {
-                    $scope.checkedOutBoundInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedOutBoundInvoiceList[i].BooksAmount) * parseFloat($scope.TotalChargesAmount) / $scope.TotalInvoiceAmount).toFixed(2);
-                    $scope.TotalDistributedInvoiceAmount = $filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount");
+                for (var i = 0; i < $scope.checkedOutBoundInvoiceList.length; i++) {
+                    $scope.checkedOutBoundInvoiceList[i].DistributedAmount = 0;
                 }
-                else {
-                    if ($scope.checkedOutBoundInvoiceList.length - 1 == i) {
-                        $scope.TotalDistributedInvoiceAmount = $filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount");
 
-                        $scope.checkedOutBoundInvoiceList[i].DistributedAmount = (tatalout - $scope.TotalDistributedInvoiceAmount).toFixed(2);
+                for (var i = 0; i < $scope.checkedOutBoundInvoiceList.length; i++) {
+
+                    if ($scope.checkedOutBoundInvoiceList.length == 1) {
+                        $scope.checkedOutBoundInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedOutBoundInvoiceList[i].BooksAmount) * parseFloat($scope.TotalChargesAmount) / $scope.TotalInvoiceAmount).toFixed(2);
+                        $scope.TotalDistributedInvoiceAmount = $filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount");
                     }
                     else {
-                        $scope.checkedOutBoundInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedOutBoundInvoiceList[i].BooksAmount) * parseFloat($scope.TotalChargesAmount) / $scope.TotalInvoiceAmount).toFixed(2);
+                        if ($scope.checkedOutBoundInvoiceList.length - 1 == i) {
+                            $scope.TotalDistributedInvoiceAmount = $filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount");
+
+                            $scope.checkedOutBoundInvoiceList[i].DistributedAmount = (tatalout - $scope.TotalDistributedInvoiceAmount).toFixed(2);
+                        }
+                        else {
+                            $scope.checkedOutBoundInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedOutBoundInvoiceList[i].BooksAmount) * parseFloat($scope.TotalChargesAmount) / $scope.TotalInvoiceAmount).toFixed(2);
+                        }
+                    }
+                }
+            }
+            else {
+                $scope.getTotalInvoiceQty();
+                $scope.TotalDistributedInvoiceAmount = 0;
+
+                $scope.TotalDistributedQtyout = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "Qty"));
+                var totaloutQty = parseFloat(($scope.TotalDistributedQtyout * $scope.TotalChargesAmount) / $scope.TotalInvoiceQty);
+
+                for (var i = 0; i < $scope.checkedOutBoundInvoiceList.length; i++) {
+                    $scope.checkedOutBoundInvoiceList[i].DistributedAmount = 0;
+                }
+
+                for (var i = 0; i < $scope.checkedOutBoundInvoiceList.length; i++) {
+
+                    if ($scope.checkedOutBoundInvoiceList.length == 1) {
+                        $scope.checkedOutBoundInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedOutBoundInvoiceList[i].Qty) * parseFloat($scope.TotalChargesAmount) / $scope.TotalInvoiceQty).toFixed(2);
+                        $scope.TotalDistributedInvoiceAmount = $filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount");
+                    }
+                    else {
+                        if ($scope.checkedOutBoundInvoiceList.length - 1 == i) {
+                            $scope.TotalDistributedInvoiceAmount = $filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount");
+
+                            $scope.checkedOutBoundInvoiceList[i].DistributedAmount = (totaloutQty - $scope.TotalDistributedInvoiceAmount).toFixed(2);
+                        }
+                        else {
+                            $scope.checkedOutBoundInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedOutBoundInvoiceList[i].Qty) * parseFloat($scope.TotalChargesAmount) / $scope.TotalInvoiceQty).toFixed(2);
+                        }
                     }
                 }
             }
         }
         else if ($scope.activityOrderType == "BothInOutboundInvoice") {
-            $scope.getTotalInvoiceAmount();
-            $scope.TotalDistributedInvoiceAmount = 0;
+            if (item.ValueOfDistribution == "Amount") {
+                $scope.getTotalInvoiceAmount();
+                $scope.TotalDistributedInvoiceAmount = 0;
 
-            $scope.TotalDistributedAmountInvoice = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "BooksAmount"));
-            var totali = parseFloat(($scope.TotalDistributedAmountInvoice * $scope.TotalChargesAmount) / $scope.TotalInvoiceAmount);
+                $scope.TotalDistributedAmountInvoice = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "BooksAmount"));
+                var totali = parseFloat(($scope.TotalDistributedAmountInvoice * $scope.TotalChargesAmount) / $scope.TotalInvoiceAmount);
 
-            for (var i = 0; i < $scope.checkedInvoiceList.length; i++) {
-                $scope.checkedInvoiceList[i].DistributedAmount = 0;
-            }
-
-            for (var i = 0; i < $scope.checkedInvoiceList.length; i++) {
-                if ($scope.checkedInvoiceList.length == 1) {
-                    $scope.checkedInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedInvoiceList[i].BooksAmount) * $scope.TotalChargesAmount / $scope.TotalInvoiceAmount).toFixed(2);
-                    $scope.TotalDistributedInvoiceAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "DistributedAmount"));
+                for (var i = 0; i < $scope.checkedInvoiceList.length; i++) {
+                    $scope.checkedInvoiceList[i].DistributedAmount = 0;
                 }
-                else {
-                    if ($scope.checkedInvoiceList.length - 1 == i) {
 
-                        $scope.TotalDistributedInvoiceAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "DistributedAmount"));
-                        $scope.checkedInvoiceList[i].DistributedAmount = (totali - $scope.TotalDistributedInvoiceAmount).toFixed(2);
-                    }
-                    else {
+                for (var i = 0; i < $scope.checkedInvoiceList.length; i++) {
+                    if ($scope.checkedInvoiceList.length == 1) {
                         $scope.checkedInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedInvoiceList[i].BooksAmount) * $scope.TotalChargesAmount / $scope.TotalInvoiceAmount).toFixed(2);
-                    }
-                }
-            }
-
-            $scope.TotalDistributedAmountout = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "BooksAmount"));
-            var tatalout = parseFloat(($scope.TotalDistributedAmountout * $scope.TotalChargesAmount) / $scope.TotalInvoiceAmount);
-
-            for (var i = 0; i < $scope.checkedOutBoundInvoiceList.length; i++) {
-                $scope.checkedOutBoundInvoiceList[i].DistributedAmount = 0;
-            }
-
-            for (var i = 0; i < $scope.checkedOutBoundInvoiceList.length; i++) {
-
-                if ($scope.checkedOutBoundInvoiceList.length == 1) {
-                    $scope.checkedOutBoundInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedOutBoundInvoiceList[i].BooksAmount) * parseFloat($scope.TotalChargesAmount) / $scope.TotalInvoiceAmount).toFixed(2);
-                    $scope.TotalDistributedInvoiceAmount = $filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount");
-                }
-                else {
-                    if ($scope.checkedOutBoundInvoiceList.length - 1 == i) {
-                        $scope.TotalDistributedInvoiceAmount = $filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount");
-
-                        $scope.checkedOutBoundInvoiceList[i].DistributedAmount = (tatalout - $scope.TotalDistributedInvoiceAmount).toFixed(2);
+                        $scope.TotalDistributedInvoiceAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "DistributedAmount"));
                     }
                     else {
+                        if ($scope.checkedInvoiceList.length - 1 == i) {
+
+                            $scope.TotalDistributedInvoiceAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "DistributedAmount"));
+                            $scope.checkedInvoiceList[i].DistributedAmount = (totali - $scope.TotalDistributedInvoiceAmount).toFixed(2);
+                        }
+                        else {
+                            $scope.checkedInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedInvoiceList[i].BooksAmount) * $scope.TotalChargesAmount / $scope.TotalInvoiceAmount).toFixed(2);
+                        }
+                    }
+                }
+
+                $scope.TotalDistributedAmountout = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "BooksAmount"));
+                var tatalout = parseFloat(($scope.TotalDistributedAmountout * $scope.TotalChargesAmount) / $scope.TotalInvoiceAmount);
+
+                for (var i = 0; i < $scope.checkedOutBoundInvoiceList.length; i++) {
+                    $scope.checkedOutBoundInvoiceList[i].DistributedAmount = 0;
+                }
+
+                for (var i = 0; i < $scope.checkedOutBoundInvoiceList.length; i++) {
+
+                    if ($scope.checkedOutBoundInvoiceList.length == 1) {
                         $scope.checkedOutBoundInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedOutBoundInvoiceList[i].BooksAmount) * parseFloat($scope.TotalChargesAmount) / $scope.TotalInvoiceAmount).toFixed(2);
+                        $scope.TotalDistributedInvoiceAmount = $filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount");
+                    }
+                    else {
+                        if ($scope.checkedOutBoundInvoiceList.length - 1 == i) {
+                            $scope.TotalDistributedInvoiceAmount = $filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount");
+
+                            $scope.checkedOutBoundInvoiceList[i].DistributedAmount = (tatalout - $scope.TotalDistributedInvoiceAmount).toFixed(2);
+                        }
+                        else {
+                            $scope.checkedOutBoundInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedOutBoundInvoiceList[i].BooksAmount) * parseFloat($scope.TotalChargesAmount) / $scope.TotalInvoiceAmount).toFixed(2);
+                        }
+                    }
+                }
+            }
+            else {
+                $scope.getTotalInvoiceQty();
+                $scope.TotalDistributedInvoiceAmount = 0;
+
+                $scope.TotalDistributedQtyInvoice = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "Qty"));
+                var totali = parseFloat(($scope.TotalDistributedQtyInvoice * $scope.TotalChargesAmount) / $scope.TotalInvoiceQty);
+
+                for (var i = 0; i < $scope.checkedInvoiceList.length; i++) {
+                    $scope.checkedInvoiceList[i].DistributedAmount = 0;
+                }
+
+                for (var i = 0; i < $scope.checkedInvoiceList.length; i++) {
+                    if ($scope.checkedInvoiceList.length == 1) {
+                        $scope.checkedInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedInvoiceList[i].Qty) * $scope.TotalChargesAmount / $scope.TotalInvoiceQty).toFixed(2);
+                        $scope.TotalDistributedInvoiceAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "DistributedAmount"));
+                    }
+                    else {
+                        if ($scope.checkedInvoiceList.length - 1 == i) {
+
+                            $scope.TotalDistributedInvoiceAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedInvoiceList), "DistributedAmount"));
+                            $scope.checkedInvoiceList[i].DistributedAmount = (totali - $scope.TotalDistributedInvoiceAmount).toFixed(2);
+                        }
+                        else {
+                            $scope.checkedInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedInvoiceList[i].Qty) * $scope.TotalChargesAmount / $scope.TotalInvoiceQty).toFixed(2);
+                        }
+                    }
+                }
+
+                $scope.TotalDistributedQtyout = parseFloat($filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "Qty"));
+                var totaloutQty = parseFloat(($scope.TotalDistributedQtyout * $scope.TotalChargesAmount) / $scope.TotalInvoiceQty);
+
+                for (var i = 0; i < $scope.checkedOutBoundInvoiceList.length; i++) {
+                    $scope.checkedOutBoundInvoiceList[i].DistributedAmount = 0;
+                }
+
+                for (var i = 0; i < $scope.checkedOutBoundInvoiceList.length; i++) {
+
+                    if ($scope.checkedOutBoundInvoiceList.length == 1) {
+                        $scope.checkedOutBoundInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedOutBoundInvoiceList[i].Qty) * parseFloat($scope.TotalChargesAmount) / $scope.TotalInvoiceQty).toFixed(2);
+                        $scope.TotalDistributedInvoiceAmount = $filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount");
+                    }
+                    else {
+                        if ($scope.checkedOutBoundInvoiceList.length - 1 == i) {
+                            $scope.TotalDistributedInvoiceAmount = $filter("sumByKey")($filter("filter")($scope.checkedOutBoundInvoiceList), "DistributedAmount");
+
+                            $scope.checkedOutBoundInvoiceList[i].DistributedAmount = (totaloutQty - $scope.TotalDistributedInvoiceAmount).toFixed(2);
+                        }
+                        else {
+                            $scope.checkedOutBoundInvoiceList[i].DistributedAmount = parseFloat(parseFloat($scope.checkedOutBoundInvoiceList[i].Qty) * parseFloat($scope.TotalChargesAmount) / $scope.TotalInvoiceQty).toFixed(2);
+                        }
                     }
                 }
             }
@@ -2123,12 +2282,15 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         }
 
         $scope.hideInvoicePopUp();
-        if ($scope.ValueOfDistribution == 'Amount')
+        if ($scope.ValueOfDistribution == 'Amount') {
             $scope.calDistributedAmount();
+            $scope.calOutBoundDistributedAmount();
+        }
         else
+        {
             $scope.calDistributedQtyWise();
-
-        $scope.calOutBoundDistributedAmount();
+            $scope.calOutBoundDistributedQtyWise();
+        }
         $scope.totalBooksAmountCal();
     };
     $scope.checkedOutBoundInvoiceList = [];
@@ -2167,8 +2329,15 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
                     $scope.checkedOutBoundInvoiceList.splice(a, 1);
             });
         $scope.hideOutBoundInvoicePopUp();
-        $scope.calDistributedAmount();
-        $scope.calOutBoundDistributedAmount();
+        if ($scope.ValueOfDistribution == 'Amount') {
+            $scope.calDistributedAmount();
+            $scope.calOutBoundDistributedAmount();
+        }
+        else {
+            $scope.calDistributedQtyWise();
+            $scope.calOutBoundDistributedQtyWise();
+        }
+        
         $scope.totalBooksAmountCal();
     };
     $scope.checkedMasterOrderList = [];
@@ -2262,8 +2431,14 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         for (var i = 0; i < $scope.checkedInvoiceList.length; i++) {
             $scope.checkedInvoiceList[i].DistributedAmount = 0;
         }
-        $scope.calDistributedAmount();
-        $scope.calOutBoundDistributedAmount();
+        if ($scope.ValueOfDistribution == 'Amount') {
+            $scope.calDistributedAmount();
+            $scope.calOutBoundDistributedAmount();
+        }
+        else {
+            $scope.calDistributedQtyWise();
+            $scope.calOutBoundDistributedQtyWise();
+        }
         $scope.totalBooksAmountCal();
 
     }
@@ -2281,8 +2456,14 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         for (var i = 0; i < $scope.checkedOutBoundInvoiceList.length; i++) {
             $scope.checkedOutBoundInvoiceList[i].DistributedAmount = 0;
         }
-        $scope.calDistributedAmount();
-        $scope.calOutBoundDistributedAmount();
+        if ($scope.ValueOfDistribution == 'Amount') {
+            $scope.calDistributedAmount();
+            $scope.calOutBoundDistributedAmount();
+        }
+        else {
+            $scope.calDistributedQtyWise();
+            $scope.calOutBoundDistributedQtyWise();
+        }
         $scope.totalBooksAmountCal();
     }
     $scope.DeleteMasterOrderConfirmation = function (InvoiceId) {
