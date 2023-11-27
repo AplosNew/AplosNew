@@ -91,11 +91,16 @@ namespace Library.MaterialManagement.Inventory
             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(GRNDocumentMap), out sID);
             return sID;
         }
+        private void CheckDocRef(InventoryReceive entity)
+        {
+            CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.Id != entity.Id && r.PartyId == entity.PartyId && r.DocRefNo == entity.DocRefNo);
+        }
 
         public override void Insert(InventoryReceive entity)
         {
             try
             {
+                CheckDocRef(entity);
                 entity.FixedAssetOrInventory = "Inventory";
                 //var leastDate = base.Query(t => t.Id != entity.Id && t.PlantId == entity.PlantId).Select(t => t.GRNDate).OrderByDescending(t => t.Year).ThenByDescending(t => t.Month).ThenByDescending(t => t.Date).FirstOrDefault();
                 //if (Convert.ToDateTime(entity.GRNDate) < leastDate) throw new CustomException("GRN date can't less then " + leastDate.ToString("dd/MMM/yyyy"));
@@ -122,6 +127,7 @@ namespace Library.MaterialManagement.Inventory
                 //_companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
 
                 _unitOfWork.BeginTransaction();
+                CheckDocRef(entity);
                 flag = true;
                 entity.ModelState = ModelState.Added;
                 entity.Id = _pkGeneratorService.GetAutoNumber(nameof(entity), PKGeneratorEnum.Yearly, null, DateTime.Now);

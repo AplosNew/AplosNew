@@ -1,4 +1,5 @@
 ﻿using Library.Core;
+using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
@@ -33,6 +34,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 
 namespace Library.Service.Invoices
 {
@@ -3570,8 +3572,9 @@ namespace Library.Service.Invoices
 
                 financing.IsPark = false;
                 AuditService.UpdatedLog(financing);
+                //AuditService.PostedLog(financing);
                 _invoiceWriteOffRepository.Update(financing);
-                _voucherService.PostVoucher(financing.VoucherId);
+                _voucherService.PostVoucher(financing.VoucherId, financing.UpdatedBy,financing.UpdatedFromIP);
                 if (financing.VoucherId != null)
                 {
                     var adjustmentNote = _adjustmentNoteRepository.Query(r => r.VoucherId == financing.VoucherId).Select().FirstOrDefault();
