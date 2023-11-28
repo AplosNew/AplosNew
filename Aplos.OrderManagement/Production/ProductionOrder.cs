@@ -737,8 +737,8 @@ Where PS.ProductionOrderId='" + poId + "' Order By P.UserName";
 , L.[ProcessPlanQty], L.[Sufix], L.[Remark],P.UserName Process,A.StandardName LotArticle  
 FROM [dbo].[ProductionOrderLotControl] L
 LEFT JOIN HKP.Process P ON P.Id=L.ProcessId
-JOIN TRN.[MasterOrderItem] MOI ON L.MasterOrderItemId=moi.Id
-JOIN MST.MaterialMasterArticle A ON A.Id=MOI.ArticleId
+LEFT JOIN TRN.[MasterOrderItem] MOI ON L.MasterOrderItemId=moi.Id
+LEFT JOIN MST.MaterialMasterArticle A ON A.Id=MOI.ArticleId
 Where L.ProductionOrderId='" + PoId + "' AND L.EntityId='"+entityId+ "' Order By P.UserName";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -834,12 +834,14 @@ CASE WHEN B.ProductionBookingLevel='MasterOrderItem' THEN
 				Where C.ProductionOrderId=" + PoId + @"
 				Group By C.ProductionOrderId) END
 )))/(100-(PS.Qty-100))*100))
-,UserLotNo=CASE WHEN B.ProductionBookingLevel='ProductionOrder' THEN CAST('"+ userLotNo + @"' AS varchar(50))
-				WHEN B.ProductionBookingLevel='MasterOrderItem' THEN CAST('" + userLotNo + @"' AS varchar(50))+'-'+CAST(B.SeqNo AS varchar(10))
-				WHEN B.ProductionBookingLevel='SalesOrder' THEN CAST('" + userLotNo + @"' AS varchar(50))+'-S'+CAST(B.SeqNo AS varchar(10)) ELSE NULL END
+,UserLotNo=CASE WHEN B.ProductionBookingLevel='ProductionOrder' THEN CAST('" + userLotNo + @"' AS varchar(50))
+				WHEN B.ProductionBookingLevel='MasterOrderItem' THEN CAST(B.SeqNo AS varchar(10)) +'-'+CAST('" + userLotNo + @"' AS varchar(50))
+				WHEN B.ProductionBookingLevel='SalesOrder' THEN 'S'+CAST(B.SeqNo AS varchar(10)) +'-'+CAST('" + userLotNo + @"' AS varchar(50)) ELSE NULL END
 ,LotNo=CASE WHEN B.ProductionBookingLevel='ProductionOrder' THEN CAST('" + userLotNo + @"' AS varchar(50))
-				WHEN B.ProductionBookingLevel='MasterOrderItem' THEN CAST('" + userLotNo + @"' AS varchar(50))+'-'+CAST(B.SeqNo AS varchar(10))
-				WHEN B.ProductionBookingLevel='SalesOrder' THEN CAST('" + userLotNo + @"' AS varchar(50))+'-S'+CAST(B.SeqNo AS varchar(10)) ELSE NULL END
+				WHEN B.ProductionBookingLevel='MasterOrderItem' THEN CAST(B.SeqNo AS varchar(10)) +'-'+CAST('" + userLotNo + @"' AS varchar(50))
+				WHEN B.ProductionBookingLevel='SalesOrder' THEN 'S'+CAST(B.SeqNo AS varchar(10)) +'-'+CAST('" + userLotNo + @"' AS varchar(50)) ELSE NULL END
+
+
 ,NULL Sufix
 From(
 Select A.*,ProductionBookingLevel=CASE WHEN (A.MasterOrderItemId IS NULL AND A.SalesOrderId IS NULL) THEN 'ProductionOrder'   

@@ -64,7 +64,7 @@ namespace Aplos.Areas.Productions.Controllers
                 Library.OrderManagement.BOM.TemplateAttchment _attachment = new Library.OrderManagement.BOM.TemplateAttchment();
                 CopyDetail(ProductionOrderId, Id);
 
-                return Json(new { Error = false, Message = "BOM copied successfully" });
+                return Json(new { Error = false, Message = "Lot copied successfully" });
             }
             catch (Exception ex)
             {

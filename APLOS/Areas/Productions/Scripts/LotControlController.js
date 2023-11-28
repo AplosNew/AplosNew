@@ -93,13 +93,13 @@ function LotControlController(commonMessage, $scope, $rootScope, baseService, $r
     $scope.copymessage_detailconfirmation = null;
     $scope.copyDetail = function (obj) {
         $scope.DetailNew = obj.data;
-        if (!baseService.isUndefinedOrNull($scope.DetailNew.Id))
-            $scope.copymessage_detailconfirmation = 'Are you sure want to copy Lot No:' + $scope.DetailNew.UserLotNo+' ?';
+
+        $scope.copymessage_detailconfirmation = 'Are you sure want to copy Lot No:' + $scope.DetailNew.UserLotNo + ' ?';
         angular.element(document.querySelector('#confirmCopyDetailPopUp')).modal('show');
     }
 
     $scope.CopyDetailData = function () {
-        $scope.DetailNew.LotQty= $scope.DetailNew.LotQty / 2;
+        $scope.DetailNew.LotQty = $scope.DetailNew.LotQty / 2;
         var ob = {};
         ob.Id = null;
         ob.SeqNo = $scope.DetailNew.SeqNo;
@@ -114,13 +114,14 @@ function LotControlController(commonMessage, $scope, $rootScope, baseService, $r
         ob.LotArticle = $scope.DetailNew.LotArticle;
         ob.Sufix = $scope.DetailNew.Sufix;
         ob.Process = $scope.DetailNew.Process;
-        ob.LotQty = $scope.DetailNew.LotQty/2;
+        ob.LotQty = $scope.DetailNew.LotQty / 2;
         ob.OrderQty = $scope.DetailNew.OrderQty;
         ob.PlanQty = $scope.DetailNew.PlanQty;
         ob.SchedulePercentage = $scope.DetailNew.SchedulePercentage;
         ob.Remark = $scope.DetailNew.Remark;
 
         $scope.lotControlList.push(ob);
+       // $scope.lotControlList.sort('Process');
         ob = {};
         var gridObj = $("#GridLC").data("ejGrid");
         gridObj.refreshContent();
@@ -148,7 +149,7 @@ function LotControlController(commonMessage, $scope, $rootScope, baseService, $r
 
     $scope.SaveRowData = function (obj) {
         try {
-           
+
             $http({
                 method: 'POST',
                 url: 'Productions/LotControl/SaveTNCRowData',
@@ -172,13 +173,30 @@ function LotControlController(commonMessage, $scope, $rootScope, baseService, $r
     };
 
 
+
+    function checkExistLot(list, ProcessId, UserLotNo) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].ProcessId === ProcessId && list[i].UserLotNo === UserLotNo && !baseService.isUndefinedOrNull(list[i].Id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     $scope.SaveLotSettingData = function () {
         try {
 
+            //for (var i = 0; i < $scope.lotControlList.length; i++) {
+            //    var getRow = $filter("filter")($scope.lotControlList, { "ProcessId": $scope.lotControlList[i].ProcessId, "UserLotNo": $scope.lotControlList[i].UserLotNo });
+            //    if (getRow.length > 1) {
+            //        throw "Process wise Lot No should unique.";
+            //    }
+            //}
             for (var i = 0; i < $scope.lotControlList.length; i++) {
-                var getRow = $filter("filter")($scope.lotControlList, { "ProcessId": $scope.lotControlList[i].ProcessId, "UserLotNo": $scope.lotControlList[i].UserLotNo});
-                if (getRow.length > 1) {
-                    throw "Process wise Lot No should unique.";
+                if (baseService.isUndefinedOrNull($scope.lotControlList[i].Id)) {
+                    if (checkExistLot($scope.lotControlList, $scope.lotControlList[i].ProcessId, $scope.lotControlList[i].UserLotNo)) {
+                        throw "Process wise Lot No should unique.";
+                    }
                 }
             }
 
