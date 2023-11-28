@@ -240,7 +240,7 @@ namespace Aplos.Areas.Productions.Controllers
                         {
                             item["Id"] = poId + "-" + dsId.Tables[0].Rows[0]["CId"].ToString();
                             item["ProductionOrderId"] = poId;
-
+                            item["IsDefault"] = false;
                             AddNewRow(dsChild.Tables[0], item);
                         }
                         else
