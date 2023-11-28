@@ -98,7 +98,21 @@ function LotControlController(commonMessage, $scope, $rootScope, baseService, $r
         angular.element(document.querySelector('#confirmCopyDetailPopUp')).modal('show');
     }
 
-    $scope.CopyDetailData = function () {
+    function refreshSerial() {
+        for (var j = 0; j < $scope.lotControlList.length; j++) {
+            $scope.lotControlList[j].Serial = j;
+        }
+    }
+    $scope.CopyDetailData = function (e) {
+        let ob = {};
+        Object.assign(ob, e);
+        ob.Id = null;
+        $scope.lotControlList.splice(e.Serial + 1, 0, ob);
+        refreshSerial();
+    }
+
+
+    $scope.XXCopyDetailData = function () {
         $scope.DetailNew.LotQty = $scope.DetailNew.LotQty / 2;
         var ob = {};
         ob.Id = null;
@@ -121,7 +135,7 @@ function LotControlController(commonMessage, $scope, $rootScope, baseService, $r
         ob.Remark = $scope.DetailNew.Remark;
 
         $scope.lotControlList.push(ob);
-       // $scope.lotControlList.sort('Process');
+        $scope.lotControlList.sort('Process');
         ob = {};
         var gridObj = $("#GridLC").data("ejGrid");
         gridObj.refreshContent();
@@ -222,5 +236,35 @@ function LotControlController(commonMessage, $scope, $rootScope, baseService, $r
             ShowResult(e, "failure");
         }
     };
+
+
+    $scope.message_deleteconfirmation = null;
+    $scope.removeDetail = function (obj) {
+
+        $scope.DetailNew = obj.data;
+        $scope.message_deleteconfirmation = 'Are you sure want to delete permanently [ ' + $scope.DetailNew.UserLotNo + ' ]';
+        angular.element(document.querySelector('#confirDeletePopUp')).modal('show');
+    }
+
+    $scope.Delete = function () {
+        $http({
+            method: 'POST',
+            url: 'Productions/LotControl/Delete?id=' + $scope.DetailNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetPOLotControlSettingData();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+
+
 
 }

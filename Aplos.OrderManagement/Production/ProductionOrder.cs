@@ -734,7 +734,7 @@ Where PS.ProductionOrderId='" + poId + "' Order By P.UserName";
 
                 var sql = @"SELECT DISTINCT L.[Id], L.[SeqNo], L.[EntityId], L.[LotNo], L.[UserLotNo], L.[ProductionBookingLevel], L.[ProductionOrderId]
 , L.[MasterOrderItemId], L.[SalesOrderId], L.[ProcessId], L.[LotQty], L.[OrderQty], L.[PlanQty], L.[SchedulePercentage]
-, L.[ProcessPlanQty], L.[Sufix], L.[Remark],P.UserName Process,A.StandardName LotArticle  
+, L.[ProcessPlanQty], L.[Sufix], L.[Remark],P.UserName Process,A.StandardName LotArticle,L.IsDefault ,ROW_NUMBER() OVER(ORDER BY P.UserName) Serial 
 FROM [dbo].[ProductionOrderLotControl] L
 LEFT JOIN HKP.Process P ON P.Id=L.ProcessId
 LEFT JOIN TRN.[MasterOrderItem] MOI ON L.MasterOrderItemId=moi.Id
