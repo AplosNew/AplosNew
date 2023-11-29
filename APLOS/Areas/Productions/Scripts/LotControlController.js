@@ -84,7 +84,12 @@ function LotControlController(commonMessage, $scope, $rootScope, baseService, $r
         //        $scope.tempModel.UserLotNo = $scope.tempModel.UserLotNo + '/' + $scope.tempModel.Sufix;
         //    }
         //}
-        $scope.tempModel.UserLotNo = $scope.tempModel.LotNo + '/' + $scope.tempModel.Sufix;
+        if (baseService.isUndefinedOrNull($scope.tempModel.Sufix)) {
+            $scope.tempModel.UserLotNo = $scope.tempModel.LotNo;
+        }
+        else {
+            $scope.tempModel.UserLotNo = $scope.tempModel.LotNo + '/' + $scope.tempModel.Sufix;
+        }
         var gridObj = $("#GridLC").data("ejGrid");
         gridObj.refreshContent();
         gridObj.refreshTemplate();

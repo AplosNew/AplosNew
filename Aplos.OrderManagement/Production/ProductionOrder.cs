@@ -734,11 +734,17 @@ Where PS.ProductionOrderId='" + poId + "' Order By P.UserName";
 
                 var sql = @"SELECT DISTINCT L.[Id], L.[SeqNo], L.[EntityId], L.[LotNo], L.[UserLotNo], L.[ProductionBookingLevel], L.[ProductionOrderId]
 , L.[MasterOrderItemId], L.[SalesOrderId], L.[ProcessId], L.[LotQty], L.[OrderQty], L.[PlanQty], L.[SchedulePercentage]
-, L.[ProcessPlanQty], L.[Sufix], L.[Remark],P.UserName Process,A.StandardName LotArticle,L.IsDefault ,ROW_NUMBER() OVER(ORDER BY P.UserName) Serial 
+, L.[ProcessPlanQty], L.[Sufix], L.[Remark],P.UserName Process,ISNULL(A.StandardName,PMA.StandardName) LotArticle,ISNULL(L.IsDefault,0)IsDefault ,CAST(ROW_NUMBER() OVER(ORDER BY P.UserName) AS INT) Serial 
+, UsedInPS=ISNULL((Select top(1) CAST(CASE WHEN Id IS NULL THEN 0 ELSE 1 END AS bit) from TRN.ProductionSummary Where ProductionOrderId=L.ProductionOrderId AND ProcessId=L.ProcessId ORDER BY AddedDate DESC),0)
 FROM [dbo].[ProductionOrderLotControl] L
 LEFT JOIN HKP.Process P ON P.Id=L.ProcessId
 LEFT JOIN TRN.[MasterOrderItem] MOI ON L.MasterOrderItemId=moi.Id
 LEFT JOIN MST.MaterialMasterArticle A ON A.Id=MOI.ArticleId
+LEFT JOIN(SELECT IA.StandardName,PD.ProductionOrderId FROM TRN.ProductionOrderDetail PD
+LEFT JOIN TRN.SalesOrder S ON S.Id=PD.SalesOrderId
+LEFT JOIN TRN.[MasterOrderItem] MI ON S.MasterOrderItemId=mi.Id
+LEFT JOIN MST.MaterialMasterArticle IA ON IA.Id=MI.ArticleId
+) PMA ON PMA.ProductionOrderId=L.ProductionOrderId
 Where L.ProductionOrderId='" + PoId + "' AND L.EntityId='"+entityId+ "' Order By P.UserName";
                 return _sqlRepository.GetDataCollection(sql);
             }
