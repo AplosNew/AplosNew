@@ -5,6 +5,7 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
+using Library.Model.Commercial;
 using Library.Model.Enums;
 using Library.Model.Parties;
 using Library.Service.Advances;
@@ -121,7 +122,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult InsertDebitNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList, IEnumerable<InvoiceTaxViewModel> tdsTaxList)
+        public JsonResult InsertDebitNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList, IEnumerable<InvoiceTaxViewModel> tdsTaxList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -129,7 +130,7 @@ namespace Aplos.Areas.Accounts.Controllers
             voucherVM.PlantId = identity.PlantId;
             voucherVM.IsPark = true;
             voucherVM.SourceType = SourceType.DebitNote.ToString();
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _adjustmentNoteService.InsertDebitNote(voucherVM, voucherDetailVMList, invoiceTaxVMList, tdsTaxList)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _adjustmentNoteService.InsertDebitNote(voucherVM, voucherDetailVMList, invoiceTaxVMList, tdsTaxList, invoiceDetailChargesList)) });
         }
 
         public JsonResult UpdateDebitNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList)

@@ -3588,8 +3588,9 @@ namespace Library.Service.Invoices
 
                 financing.IsPark = false;
                 AuditService.UpdatedLog(financing);
+                //AuditService.PostedLog(financing);
                 _invoiceWriteOffRepository.Update(financing);
-                _voucherService.PostVoucher(financing.VoucherId);
+                _voucherService.PostVoucher(financing.VoucherId, financing.UpdatedBy,financing.UpdatedFromIP);
                 if (financing.VoucherId != null)
                 {
                     var adjustmentNote = _adjustmentNoteRepository.Query(r => r.VoucherId == financing.VoucherId).Select().FirstOrDefault();
