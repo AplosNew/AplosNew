@@ -554,7 +554,7 @@ namespace Library.MaterialManagement.Inventory
                                     itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
 
                                 }
-                                itemDetail.BaseQty = Convert.ToDecimal(itemDetail.NetQty * itemDetail.BaseUoMFactor);//Convert.ToDecimal(itemDetail.TransactionQty * itemDetail.BaseUoMFactor);
+                                itemDetail.BaseQty = Convert.ToDecimal(itemDetail.TransactionQty * itemDetail.BaseUoMFactor);//Convert.ToDecimal(itemDetail.TransactionQty * itemDetail.BaseUoMFactor);
                                 itemDetail.MaterialTranAmount = itemDetail.TrnAmount;
                                 itemDetail.ChargesTranAmount = itemDetail.ServiceCharge; //itemDetail.TrnAmount * ratio;
                                 itemDetail.ChargesTaxTranAmount = itemDetail.ServiceTax;//itemDetail.TrnAmount * ratioServiceTax;
@@ -567,7 +567,7 @@ namespace Library.MaterialManagement.Inventory
                             else
                             {
                                 itemDetail.BaseUoMFactor = 1;
-                                itemDetail.BaseQty = itemDetail.NetQty * itemDetail.BaseUoMFactor;//itemDetail.TransactionQty;
+                                itemDetail.BaseQty = itemDetail.TransactionQty * itemDetail.BaseUoMFactor;//itemDetail.TransactionQty;
                                 itemDetail.ChargesTranAmount = itemDetail.ServiceCharge; //itemDetail.TrnAmount * ratio;
                                 itemDetail.ChargesTaxTranAmount = itemDetail.ServiceTax;//itemDetail.TrnAmount * ratioServiceTax;
                                 itemDetail.TotalTaxAmount = itemDetail.BaseTaxAmount;
@@ -614,7 +614,7 @@ namespace Library.MaterialManagement.Inventory
                                     MaterialStorageId = itemDetail.MaterialStorageId,//MaterialStorageId
                                     InventoryReceiveId = entity.Id,//itemDetail.InventoryReceiveId,
                                                                    //InventoryMaterialId = entity.InventoryMaterialId,
-                                    TransactionQty = itemDetail.NetQty,//itemDetail.TransactionQty,
+                                    TransactionQty = itemDetail.TransactionQty,//itemDetail.TransactionQty,
                                     TransactionUoMId = itemDetail.TransactionUoMId,
                                     BaseQty = Convert.ToDecimal(itemDetail.BaseQty),
                                     BaseUOMId = itemDetail.BaseUOMId,
@@ -3605,8 +3605,8 @@ namespace Library.MaterialManagement.Inventory
                     if (itemDetail.BaseUOMId != itemDetail.TransactionUoMId && itemDetail.CurrencyId != itemDetail.BaseCurrencyId && (baseUoMFactorList != null && baseUoMFactorList.Count() > 0))
                     {
                         itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
-                        itemDetail.BaseQty = Convert.ToDecimal(itemDetail.NetQty * itemDetail.BaseUoMFactor);
-                        itemDetail.TotalMaterialTranAmount = (itemDetail.TransactionRate * itemDetail.NetQty); //itemDetail.TransactionAmount; 
+                        itemDetail.BaseQty = Convert.ToDecimal(itemDetail.TransactionQty * itemDetail.BaseUoMFactor);
+                        itemDetail.TotalMaterialTranAmount = (itemDetail.TransactionRate * itemDetail.TransactionQty); //itemDetail.TransactionAmount; 
                         itemDetail.ChargesTranAmount = (itemDetail.TransactionRate * itemDetail.NetQty) * ratio;//itemDetail.TransactionAmount * ratio;
                         itemDetail.ChargesTaxTranAmount = (itemDetail.TransactionRate * itemDetail.NetQty) * ratioServiceTax;//itemDetail.TransactionAmount * ratioServiceTax;
                         itemDetail.TotalMaterialTranAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) :
@@ -3623,14 +3623,14 @@ namespace Library.MaterialManagement.Inventory
                     else if (itemDetail.BaseUOMId != itemDetail.TransactionUoMId && itemDetail.CurrencyId == itemDetail.BaseCurrencyId && (baseUoMFactorList != null && baseUoMFactorList.Count() > 0))
                     {
                         itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
-                        itemDetail.BaseQty = Convert.ToDecimal(itemDetail.NetQty * itemDetail.BaseUoMFactor);
+                        itemDetail.BaseQty = Convert.ToDecimal(itemDetail.TransactionQty * itemDetail.BaseUoMFactor);
                         //itemDetail.TotalMaterialTranAmount = itemDetail.TransactionAmount;
-                        itemDetail.TotalMaterialTranAmount = (itemDetail.TransactionRate * itemDetail.NetQty); //itemDetail.TransactionAmount;
+                        itemDetail.TotalMaterialTranAmount = (itemDetail.TransactionRate * itemDetail.TransactionQty); //itemDetail.TransactionAmount;
                         itemDetail.ChargesTranAmount = (itemDetail.TransactionRate * itemDetail.NetQty) * ratio; //itemDetail.TransactionAmount * ratio;
                         itemDetail.ChargesTaxTranAmount = (itemDetail.TransactionRate * itemDetail.NetQty) * ratioServiceTax;//itemDetail.TransactionAmount * ratioServiceTax;
                         itemDetail.TotalMaterialTranAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) :
                           Convert.ToDecimal(itemDetail.ChargesTranAmount);
-                        itemDetail.TotalMaterialBooksCurrencyAmount = (itemDetail.TransactionRate * itemDetail.NetQty) * itemDetail.ToCurrencyRate; //itemDetail.TransactionAmount * itemDetail.ToCurrencyRate;
+                        itemDetail.TotalMaterialBooksCurrencyAmount = (itemDetail.TransactionRate * itemDetail.TransactionQty) * itemDetail.ToCurrencyRate; //itemDetail.TransactionAmount * itemDetail.ToCurrencyRate;
 
                         itemDetail.TotalMaterialBooksCurrencyAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate) :
                                  Convert.ToDecimal(itemDetail.ChargesTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate);
@@ -3644,13 +3644,13 @@ namespace Library.MaterialManagement.Inventory
                     {
 
                         itemDetail.BaseUoMFactor = 1;
-                        itemDetail.BaseQty = itemDetail.NetQty;
-                        itemDetail.TotalMaterialTranAmount = (itemDetail.TransactionRate * itemDetail.NetQty);//itemDetail.TransactionAmount;
+                        itemDetail.BaseQty = itemDetail.TransactionQty;
+                        itemDetail.TotalMaterialTranAmount = (itemDetail.TransactionRate * itemDetail.TransactionQty);//itemDetail.TransactionAmount;
                         itemDetail.ChargesTranAmount = (itemDetail.TransactionRate * itemDetail.NetQty) * ratio; //itemDetail.TransactionAmount * ratio;
                         itemDetail.ChargesTaxTranAmount = (itemDetail.TransactionRate * itemDetail.NetQty) * ratioServiceTax; //itemDetail.TransactionAmount * ratioServiceTax;
                         itemDetail.TotalMaterialTranAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) :
                           Convert.ToDecimal(itemDetail.ChargesTranAmount);
-                        itemDetail.TotalMaterialBooksCurrencyAmount = (itemDetail.TransactionRate * itemDetail.NetQty) * itemDetail.ToCurrencyRate; //itemDetail.TransactionAmount * itemDetail.ToCurrencyRate;
+                        itemDetail.TotalMaterialBooksCurrencyAmount = (itemDetail.TransactionRate * itemDetail.TransactionQty) * itemDetail.ToCurrencyRate; //itemDetail.TransactionAmount * itemDetail.ToCurrencyRate;
                                                                                                                                                     //itemDetail.ChargesTranAmount = itemDetail.MaterialTranAmount * ratio;
                         itemDetail.TotalMaterialBooksCurrencyAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate) :
                                  Convert.ToDecimal(itemDetail.ChargesTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate);
@@ -3665,14 +3665,14 @@ namespace Library.MaterialManagement.Inventory
                     {
                         //itemDetail.BaseUoMFactor = itemDetail.TransactionQty;
                         itemDetail.BaseUoMFactor = 1;
-                        itemDetail.BaseQty = itemDetail.NetQty;
-                        itemDetail.TotalMaterialTranAmount = (itemDetail.TransactionRate * itemDetail.NetQty);//itemDetail.TransactionAmount;
+                        itemDetail.BaseQty = itemDetail.TransactionQty;
+                        itemDetail.TotalMaterialTranAmount = (itemDetail.TransactionRate * itemDetail.TransactionQty);//itemDetail.TransactionAmount;
                         itemDetail.ChargesTranAmount = Math.Round(Convert.ToDecimal(itemDetail.TransactionRate * itemDetail.NetQty) * ratio, 2); //itemDetail.TransactionAmount * ratio;
                         itemDetail.ChargesTaxTranAmount = Math.Round(Convert.ToDecimal(itemDetail.TransactionRate * itemDetail.NetQty) * ratioServiceTax, 2);//itemDetail.TransactionAmount * ratioServiceTax;
                         itemDetail.TotalMaterialTranAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) :
                           Convert.ToDecimal(itemDetail.ChargesTranAmount);
 
-                        itemDetail.TotalMaterialBooksCurrencyAmount = (itemDetail.TransactionRate * itemDetail.NetQty) * itemDetail.ToCurrencyRate;//itemDetail.TransactionAmount * itemDetail.ToCurrencyRate;
+                        itemDetail.TotalMaterialBooksCurrencyAmount = (itemDetail.TransactionRate * itemDetail.TransactionQty) * itemDetail.ToCurrencyRate;//itemDetail.TransactionAmount * itemDetail.ToCurrencyRate;
 
                         itemDetail.TotalMaterialBooksCurrencyAmount += itemDetail.IsNonCreditable ? Convert.ToDecimal(itemDetail.TotalTaxAmount + itemDetail.ChargesTranAmount + itemDetail.ChargesTaxTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate) :
                                  Convert.ToDecimal(itemDetail.ChargesTranAmount) * Convert.ToDecimal(itemDetail.ToCurrencyRate);
@@ -3701,13 +3701,13 @@ namespace Library.MaterialManagement.Inventory
                             MaterialStorageId = itemDetail.MaterialStorageId,
                             InventoryReceiveId = itemDetail.InventoryReceiveId,
                             //InventoryMaterialId = entity.InventoryMaterialId,
-                            TransactionQty = itemDetail.NetQty,//itemDetail.TransactionQty,
+                            TransactionQty = itemDetail.TransactionQty,//itemDetail.TransactionQty,
                             TransactionUoMId = itemDetail.TransactionUoMId,
                             BaseQty = Convert.ToDecimal(itemDetail.BaseQty),
                             BaseUOMId = itemDetail.BaseUOMId,
                             BaseUoMFactor = Convert.ToDecimal(itemDetail.BaseUoMFactor),
                             MaterialTranRate = Math.Round(Convert.ToDecimal(itemDetail.TransactionRate), 4),
-                            MaterialTranAmount = Math.Round((Convert.ToDecimal(itemDetail.TransactionRate) * itemDetail.NetQty), 2),//Convert.ToDecimal(itemDetail.TransactionAmount),
+                            MaterialTranAmount = Math.Round((Convert.ToDecimal(itemDetail.TransactionRate) * itemDetail.TransactionQty), 2),//Convert.ToDecimal(itemDetail.TransactionAmount),
 
                             TotalMaterialTranAmount = Math.Round(Convert.ToDecimal(itemDetail.TotalMaterialTranAmount), 2),
                             TotalMaterialBooksCurrencyAmount = Math.Round(Convert.ToDecimal(itemDetail.TotalMaterialBooksCurrencyAmount), 2),
