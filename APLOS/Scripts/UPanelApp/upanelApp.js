@@ -1237,6 +1237,7 @@ upanelApp.controller("BonusController", BonusController)
 upanelApp.controller("SalesChanlanCheckedController", SalesChanlanCheckedController)
 upanelApp.controller("SalesChanlanDispatchConfirmationController", SalesChanlanDispatchConfirmationController)
 upanelApp.controller("SQCMasterController", SQCMasterController)
+upanelApp.controller("PaymentAdviceController", PaymentAdviceController)
 upanelApp.controller("DefineSQCIssueController", DefineSQCIssueController)
           
 

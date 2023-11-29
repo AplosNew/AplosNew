@@ -517,13 +517,20 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 {
                     throw new Exception("No Year found...");
                 }
+                var esic = GetESICEligibleEmployeeFromEnum(EmpSystemID, DateTime.Now.ToString("dd-MMM-yyyy"));
 
+                var lastYear = Convert.ToDateTime(_FromDate).AddYears(-1);
 
-                GridParameter parameters = null;
-                parameters = new GridParameter
+                var _LFromDate = Convert.ToDateTime(_FromDate).AddYears(-1);
+                var  _LToDate = Convert.ToDateTime(_ToDate).AddYears(-1);
+
+                if (esic.Tables[0].Rows.Count > 0)
                 {
-                    ExportType = "DATASET",
-                    CmdText = @"SELECT	els.CalanderYearID,ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed
+                    GridParameter parameters = null;
+                    parameters = new GridParameter
+                    {
+                        ExportType = "DATASET",
+                        CmdText = @"SELECT	els.CalanderYearID,ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed
                                         ,FromDate=CASE WHEN LT.LeaveType='Earn' THEN ALD.FromDate ELSE FORMAT(ELS.FromDate,'dd-MMM-yyyy') END
 										,ToDate=CASE WHEN LT.LeaveType='Earn' THEN ALD.ToDate ELSE FORMAT(ELS.ToDate,'dd-MMM-yyyy') END
 										 ,els.Id SystemID,
@@ -629,12 +636,15 @@ LEFT JOIN
 										   select A.Opening,A.EmployeeId,A.LeaveTypeId,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate from dbo.AnnualLeaveDataCurrent A
 										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
 										  LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
+										  Where LY.FromDate between'" + _FromDate + @"' AND '" + _ToDate + @"' AND LY.ToDate between'" + _FromDate + @"' AND '" + _ToDate + @"' AND A.EmployeeId='" + EmpSystemID + @"'
 											)ALD ON ALD.EmployeeId=emp.SystemId AND lt.Id=ALD.LeaveTypeId
 
  LEFT JOIN
 											(
 										  select PBroughtForward=CASE WHEN A.Opening=0 THEN A.Adjustment ELSE A.Opening END,A.EmployeeId,A.LeaveTypeId from dbo.AnnualLeaveDataPast A
 										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+                                        LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
+										  Where LY.FromDate between'" + _LFromDate + @"' AND '" + _LToDate + @"' AND LY.ToDate between'" + _LFromDate + @"' AND '" + _LToDate + @"' AND A.EmployeeId='" + EmpSystemID + @"'
 											)ALP ON ALP.EmployeeId=emp.SystemId AND lt.Id=ALP.LeaveTypeId
 
 										 left outer join (
@@ -692,7 +702,20 @@ LEFT JOIN
                                     LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId
                                     WHERE DC.PlantId='" + sPlantID + @"') DM
                                                      WHERE DM.DesignationId IN (SELECT GivenDesignationId FROM dbo.EmployeeInformation WHERE SystemID='" + EmpSystemID + @"'))) AND LT.UserName NOT LIKE '%Maternity%'
-UNION 
+
+"
+                    };
+                    parameters.sort = "LeaveName";
+                    parameters.order = "ASC";
+                    return _sqlRepository.GetGridData(parameters).Source; 
+                }
+                else
+                {
+                    GridParameter parameters = null;
+                    parameters = new GridParameter
+                    {
+                        ExportType = "DATASET",
+                        CmdText = @"
 SELECT els.CalanderYearID, ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed
                                         ,FromDate=CASE WHEN LT.LeaveType='Earn' THEN ALD.FromDate ELSE FORMAT(ELS.FromDate,'dd-MMM-yyyy') END
 										,ToDate=CASE WHEN LT.LeaveType='Earn' THEN ALD.ToDate ELSE FORMAT(ELS.ToDate,'dd-MMM-yyyy') END
@@ -795,12 +818,15 @@ LEFT JOIN
 										   select A.Opening,A.EmployeeId,A.LeaveTypeId,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate from dbo.AnnualLeaveDataCurrent A
 										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
 										  LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
+										  Where LY.FromDate between'" + _FromDate + @"' AND '" + _ToDate + @"' AND LY.ToDate between'" + _FromDate + @"' AND '" + _ToDate + @"' AND A.EmployeeId='" + EmpSystemID + @"'
 											)ALD ON ALD.EmployeeId=els.EmployeeId AND lt.Id=ALD.LeaveTypeId
 
  LEFT JOIN
 											(
 										  select PBroughtForward=CASE WHEN A.Opening=0 THEN A.Adjustment ELSE A.Opening END,A.EmployeeId,A.LeaveTypeId from dbo.AnnualLeaveDataPast A
 										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+                                        LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
+										  Where LY.FromDate between'" + _LFromDate + @"' AND '" + _LToDate + @"' AND LY.ToDate between'" + _LFromDate + @"' AND '" + _LToDate + @"' AND A.EmployeeId='" + EmpSystemID + @"'
 											)ALP ON ALP.EmployeeId=els.EmployeeId AND lt.Id=ALP.LeaveTypeId
 										 left outer join (
 															Select Sum(LTD.LeaveDuration) ldays,LT.EmpSystemID,LT.LTSystemID  from LeaveTransaction LT
@@ -822,7 +848,7 @@ LEFT JOIN
 														)tav on tav.EmpSystemID = els.EmployeeId and tav.LTSystemId = els.LeaveTypeId
 										 left outer join (
 															select sum(m.LeaveDays) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m
-																where m.SystemID not in(select d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where	IsAvailed = 1 or WorkDate<=CONVERT(date, getdate()))
+																where m.SystemID not in(select d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where IsAvailed = 1 or WorkDate<=CONVERT(date, getdate()))
 																group by EmpSystemID,LTSystemID
 														  )acApl  on acApl.EmpSystemID = els.EmployeeId and acApl.LTSystemId = els.LeaveTypeId
                                          left outer join (select * from dbo.LeavePolicyDetail
@@ -847,11 +873,11 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                               AND els.LeaveTypeId not IN 
                                             (select id from LeaveType where IsESIC=1 and IsGeneral=0) AND LT.UserName NOT LIKE '%Maternity%'
 "
-                };
-                parameters.sort = "LeaveName";
-                parameters.order = "ASC";
-                return _sqlRepository.GetGridData(parameters).Source;
-
+                    };
+                    parameters.sort = "LeaveName";
+                    parameters.order = "ASC";
+                    return _sqlRepository.GetGridData(parameters).Source;
+                }
 
             }
             catch (Exception ex)
@@ -1019,7 +1045,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                  WHERE DM.DesignationId IN (
                   SELECT GivenDesignationId FROM dbo.EmployeeInformation WHERE SystemID='" + employeeId + @"'
                   )
-                )";
+                ) AND LT.UserName NOT like'%Maternity%'";
                 }
                 else
                 {
@@ -1031,7 +1057,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                                     WHERE DC.PlantId='" + sPlantID + @"') DM ON DM.LeavePolicyMasterId=LPM.SystemID
                                     LEFT JOIN EmployeeInformation EI ON EI.GivenDesignationId=DM.DesignationId
                                     LEFT JOIN ESICEligibleEmployee EE ON EE.EmpSystemID=EI.SystemId
-                                    WHERE EI.SystemID='" + employeeId + @"' AND EI.GroupID='" + CompanyGroupId + @"' AND EI.PlantID='" + sPlantID + @"' AND LT.IsGeneral = 1 AND LT.LeaveType <>'Maternity'";
+                                    WHERE EI.SystemID='" + employeeId + @"' AND EI.GroupID='" + CompanyGroupId + @"' AND EI.PlantID='" + sPlantID + @"' AND LT.IsGeneral = 1 AND LT.UserName NOT like'%Maternity%'";
                 }
 
                 return _sqlRepository.GetCombo(_sql, "ID", "UserName");

@@ -77,7 +77,7 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
     //$scope.GetItemList();
 
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
-    $scope.materialType = ['BOM'];
+    $scope.materialType = 'BOM';
     $scope.SelectedMaterial = {};
     $scope.getMaterial = function (data) {
         $scope.SelectedMaterial = data;

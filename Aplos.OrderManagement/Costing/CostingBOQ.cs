@@ -701,10 +701,12 @@ namespace Library.OrderManagement.Costing
 
         private void BOQQuery(string CostingBOQMasterId, string SalesOrderIds, string ProcurementCostingItemIds, string CostingTemplateId, string costingStage, out DataTable dt, out Dictionary<string, DataRow> dicNewBOQ)
         {
-            string _sql = "";
-            if (costingStage== "PreCosting")
+            try
             {
-                _sql = @"SELECT so.Id AS SalesOrderId,ocs.CostingItemId,ocs.MaterialMasterId,ocs.ArticleId,ocs.VendorId,so.DestinationId,ci.Sequence,
+                string _sql = "";
+                if (costingStage == "PreCosting")
+                {
+                    _sql = @"SELECT so.Id AS SalesOrderId,ocs.CostingItemId,ocs.MaterialMasterId,ocs.ArticleId,ocs.VendorId,so.DestinationId,ci.Sequence,
                                 OCS.Id AS OrderProcurementCostingDirectMaterialId,OCS.BOQCriteria,OCS.POCriteria,
                                 fc.CharacteristicsValueId AS FGFirstCharacteristicsValueId,sc.CharacteristicsValueId FGSecondCharacteristicsValueId,tc.CharacteristicsValueId FGThirdCharacteristicsValueId,
                                 ocs.GrossConsumption,ci.UnitOfMeasurementId AS UoMId, ocs.GrossAmount,cmt.CurrencyId,
@@ -735,10 +737,10 @@ namespace Library.OrderManagement.Costing
                                     WHERE so.Id IN (" + SalesOrderIds + @") AND Ci.Id  IN (" + ProcurementCostingItemIds + @") AND ocs.OrderCostingMasterTemplateId='" + CostingTemplateId + @"'
                                           and isnull(CONCAT(SO.Id,'-',OCS.Id),'') NOT IN (select isnull(CONCAT(SalesOrderId,'-',OrderProcurementCostingDirectMaterialId),'') AS Id from CostingBOQItems where CostingBOQMasterId<>'" + CostingBOQMasterId + @"')
                                     ORDER BY so.Id,fc.CharacteristicsValueId,sc.CharacteristicsValueId,tc.CharacteristicsValueId,ci.Id";
-            }
-            else
-            {
-                _sql = @"SELECT so.Id AS SalesOrderId,ocs.CostingItemId,ocs.MaterialMasterId,ocs.ArticleId,ocs.VendorId,so.DestinationId,ci.Sequence,
+                }
+                else
+                {
+                    _sql = @"SELECT so.Id AS SalesOrderId,ocs.CostingItemId,ocs.MaterialMasterId,ocs.ArticleId,ocs.VendorId,so.DestinationId,ci.Sequence,
                                 OCS.Id AS OrderProcurementCostingDirectMaterialId,OCS.BOQCriteria,OCS.POCriteria,
                                 fc.CharacteristicsValueId AS FGFirstCharacteristicsValueId,sc.CharacteristicsValueId FGSecondCharacteristicsValueId,tc.CharacteristicsValueId FGThirdCharacteristicsValueId,
                                 ocs.GrossConsumption,ci.UnitOfMeasurementId AS UoMId, ocs.GrossAmount,cmt.CurrencyId,
@@ -769,30 +771,36 @@ namespace Library.OrderManagement.Costing
                                     WHERE so.Id IN (" + SalesOrderIds + @") AND Ci.Id  IN (" + ProcurementCostingItemIds + @") AND ocs.OrderCostingMasterTemplateId='" + CostingTemplateId + @"'
                                           and isnull(CONCAT(SO.Id,'-',OCS.Id),'') NOT IN (select isnull(CONCAT(SalesOrderId,'-',OrderProcurementCostingDirectMaterialId),'') AS Id from CostingBOQItems where CostingBOQMasterId<>'" + CostingBOQMasterId + @"')
                                     ORDER BY so.Id,fc.CharacteristicsValueId,sc.CharacteristicsValueId,tc.CharacteristicsValueId,ci.Id";
+                }
+
+
+                dt = _sqlRepository.GetDataTable(_sql);
+                dt.Columns.Add("BOMQty");
+                dt.Columns.Add("RequiredQty");
+                dt.Columns.Add("BOMAmount");
+                dt.Columns.Add("MasterOrderItemId");
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    dt.Rows[i]["BOMQty"] = OTSBD.clsStaticInfo.dbl(dt.Rows[i]["OrderQty"].ToString()) * OTSBD.clsStaticInfo.dbl(dt.Rows[i]["GrossConsumption"].ToString());
+                    dt.Rows[i]["RequiredQty"] = OTSBD.clsStaticInfo.dbl(dt.Rows[i]["OrderQty"].ToString()) * OTSBD.clsStaticInfo.dbl(dt.Rows[i]["GrossConsumption"].ToString());
+                    dt.Rows[i]["BOMAmount"] = OTSBD.clsStaticInfo.dbl(dt.Rows[i]["OrderQty"].ToString()) * OTSBD.clsStaticInfo.dbl(dt.Rows[i]["GrossAmount"].ToString());
+                }
+
+                dicNewBOQ = new Dictionary<string, DataRow>();
+                string KEY = "";
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    KEY = BOMComparingString(dt.Rows[i]);
+                    dicNewBOQ.Add(KEY, dt.Rows[i]);
+                }
+
             }
-
-
-            dt = _sqlRepository.GetDataTable(_sql);
-            dt.Columns.Add("BOMQty");
-            dt.Columns.Add("RequiredQty");
-            dt.Columns.Add("BOMAmount");
-            dt.Columns.Add("MasterOrderItemId");
-
-            for (int i = 0; i < dt.Rows.Count; i++)
+            catch (Exception ex)
             {
-                dt.Rows[i]["BOMQty"] = OTSBD.clsStaticInfo.dbl(dt.Rows[i]["OrderQty"].ToString()) * OTSBD.clsStaticInfo.dbl(dt.Rows[i]["GrossConsumption"].ToString());
-                dt.Rows[i]["RequiredQty"] = OTSBD.clsStaticInfo.dbl(dt.Rows[i]["OrderQty"].ToString()) * OTSBD.clsStaticInfo.dbl(dt.Rows[i]["GrossConsumption"].ToString());
-                dt.Rows[i]["BOMAmount"] = OTSBD.clsStaticInfo.dbl(dt.Rows[i]["OrderQty"].ToString()) * OTSBD.clsStaticInfo.dbl(dt.Rows[i]["GrossAmount"].ToString());
-            }
 
-            dicNewBOQ = new Dictionary<string, DataRow>();
-            string KEY = "";
-            for (int i = 0; i < dt.Rows.Count; i++)
-            {
-                KEY = BOMComparingString(dt.Rows[i]);
-                dicNewBOQ.Add(KEY, dt.Rows[i]);
+                throw ex;
             }
-
         }
 
         private string BOMComparingString(DataRow dr)

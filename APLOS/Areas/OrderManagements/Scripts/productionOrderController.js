@@ -57,7 +57,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         }
 
     }
- 
+
     $scope.modelFilterByList = [
         {
             value: 'Id'
@@ -97,7 +97,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         { 'name': 'Buyer', 'value': 'buyer' },
         { 'name': 'Customer', 'value': 'Customer' },
     ];
-   
+
     $scope.getData = function () {
         $scope.modelList = [];
         $http({
@@ -369,7 +369,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         , color: '#ffffff'
         , IsPreDefineLotApplicable: false
         , UserDefineLotNo: null
-        , UsedInPB:false
+        , UsedInPB: false
     };
     $scope.model = Object.assign({}, $scope.model);
 
@@ -1119,37 +1119,50 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     };
 
     $scope.processAdd = function (data) {
-        $scope.prdProcessSetList.push({
-            Id: null
-            , CompanyGroupId: $window.companyGroupId
-            , CompanyId: $window.companyId
-            , ProductionOrderId: $scope.model.Id
-            , ProcessId: data.Id
-            , ProcessName: data.UserName
-            , Sequence: $scope.prdProcessSetList.length + 1
-            , IsBaseProcess: false
-            , Days: 0
-            , Symbol: '+'
-            , ProductionCycleTime: 1
-            , JobWorkApplicable: false
-            , JobWorkType: null
-            , EntityOrVendorId: null
-            , EntityOrVendorName: null
-            , Archive: false
-            , class: 'new'
-            , setDisable: true
-            , MaterialMasterId: null
-            , ArticleId: null
-            , MaterialMasterName: null
-            , ArticleName: null
-            , Qty: 100
-            , UOMId: null
-            , RelaySequence: data.RelaySequence
-            , ProductionBookingLevel: data.ProductionBookingLevel
-            , IsInventory: data.IsInventory
-        });
-        UomCboByFGMaterialMaster(data.MaterialMasterId);
+
+        if (checkExistProcessId($scope.prdProcessSetList, data.Id) === false) {
+            $scope.prdProcessSetList.push({
+                Id: null
+                , CompanyGroupId: $window.companyGroupId
+                , CompanyId: $window.companyId
+                , ProductionOrderId: $scope.model.Id
+                , ProcessId: data.Id
+                , ProcessName: data.UserName
+                , Sequence: $scope.prdProcessSetList.length + 1
+                , IsBaseProcess: false
+                , Days: 0
+                , Symbol: '+'
+                , ProductionCycleTime: 1
+                , JobWorkApplicable: false
+                , JobWorkType: null
+                , EntityOrVendorId: null
+                , EntityOrVendorName: null
+                , Archive: false
+                , class: 'new'
+                , setDisable: true
+                , MaterialMasterId: null
+                , ArticleId: null
+                , MaterialMasterName: null
+                , ArticleName: null
+                , Qty: 100
+                , UOMId: null
+                , RelaySequence: data.RelaySequence
+                , ProductionBookingLevel: data.ProductionBookingLevel
+                , IsInventory: data.IsInventory
+            });
+            UomCboByFGMaterialMaster(data.MaterialMasterId);
+        }
     };
+
+    function checkExistProcessId(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].ProcessId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     $scope.setPlusOrMinus = function (event, index) {
         for (var i = 0; i <= $scope.prdProcessSetList.length - 1; i++) {
             if (i < index) {
@@ -1170,8 +1183,8 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
     $scope.setIsInventory = function (event, index) {
         for (var i = 0; i <= $scope.prdProcessSetList.length - 1; i++) {
-             if (i === index) {
-                 $scope.prdProcessSetList[i].IsInventory = true;
+            if (i === index) {
+                $scope.prdProcessSetList[i].IsInventory = true;
             }
         }
     };
@@ -4277,7 +4290,12 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         //        $scope.tempModel.UserLotNo = $scope.tempModel.UserLotNo + '/' + $scope.tempModel.Sufix;
         //    }
         //}
-        $scope.tempModel.UserLotNo = $scope.tempModel.LotNo + '/' + $scope.tempModel.Sufix;
+        if (baseService.isUndefinedOrNull($scope.tempModel.Sufix)) {
+            $scope.tempModel.UserLotNo = $scope.tempModel.LotNo;
+        }
+        else {
+            $scope.tempModel.UserLotNo = $scope.tempModel.LotNo + '/' + $scope.tempModel.Sufix;
+        }
         var gridObj = $("#GridLC").data("ejGrid");
         gridObj.refreshContent();
         gridObj.refreshTemplate();
@@ -4300,7 +4318,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                     $scope.GetPOLotControlSettingsData();
+                    $scope.GetPOLotControlSettingsData();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

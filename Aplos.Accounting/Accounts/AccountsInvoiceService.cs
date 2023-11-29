@@ -286,7 +286,7 @@ namespace Library.Accounting.Accounts
                                     , PP.UserName AS PartyPlantName
                                     , (ISNULL(ID.NetAmount,0)- (ISNULL(ID.WrittenOffAmount,0))) AS Balance, CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, 0 ToCurrencyRate
                                     , CC.CompanyCurrencyConversion, GC.CompanyGroupCurrencyId, GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion, HC.HardCurrencyId, HC.HardFromCurrencyId
-                                    , HC.HardCurrencyRate, HC.HardCurrencyConversion, V.TransactionRefNo, I.SalesOrderNo
+                                     , HC.HardCurrencyRate, HC.HardCurrencyConversion, V.TransactionRefNo, I.SalesOrderNo,ISNULL(SM.TrnQty,0) TrnQty
                                     FROM [TRN].[InvoiceDetail] AS ID
                                     LEFT JOIN [TRN].[Invoice] AS I ON I.Id=ID.InvoiceId
 									LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId
@@ -294,6 +294,8 @@ namespace Library.Accounting.Accounts
                                     LEFT JOIN [TRN].[AdjustmentNote] AS AJ ON AJ.Id=AJD.AdjustmentNoteId
                                     LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=ID.Id
                                     LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                    LEFT JOIN [TRN].[Sales] AS S ON S.VoucherId=V.Id
+									LEFT JOIN (SELECT SalesId,SUM(TransactionQty) TrnQty FROM TRN.SalesMaterial group By SalesId) SM ON SM.SalesId=S.Id
                                     LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=ID.GLGeneralInfoId
                                     LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=ID.BudgetMasterId
                                     LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
@@ -340,7 +342,7 @@ namespace Library.Accounting.Accounts
             try
             {
                 var sql = @"SELECT VD.GLGeneralInfoId, GL.AccountCode+'-'+GL.UserName AS GLGeneralInfoName, VD.BudgetMasterId, BU.UserName AS BudgetName
-                            , VD.ActivityId, ACT.UserName AS ActivityName, VDC.CrAmount AS Amount, VDC.CrAmount AS InvoiceAmount, VD.Id
+                            , VD.ActivityId, ACT.UserName AS ActivityName, VDC.CrAmount AS Amount, VDC.CrAmount AS InvoiceAmount, VD.Id,ACT.IsOrderSpecific
                             FROM TRN.VoucherDetail AS VD
                             LEFT JOIN TRN.VoucherDetailCurrency AS VDC ON VD.Id=VDC.VoucherDetailId
                             LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId

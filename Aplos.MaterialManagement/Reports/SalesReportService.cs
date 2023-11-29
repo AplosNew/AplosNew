@@ -801,13 +801,7 @@ namespace Library.MaterialManagement.Reports
 
                 document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
 
-                var sourceDoc = document.Clone();
                 document.Replace("{FileCopyName}", "Original Copy", false, false);
-                document.ImportContent(sourceDoc, ImportOptions.KeepSourceFormatting);
-                document.Replace("{FileCopyName}", "Duplicate Copy", false, false);
-                document.ImportContent(sourceDoc, ImportOptions.KeepSourceFormatting);
-                document.Replace("{FileCopyName}", "Triplicate for recipient", false, false);
-
                 //removing any unused place holder  
                 foreach (var item in ReplaceInfo.Keys)
                 {
@@ -815,7 +809,7 @@ namespace Library.MaterialManagement.Reports
                         document.Replace(item.ToString(), "N/A", false, false);
                 }
 
-              
+
                 DocToPDFConverter converter = new DocToPDFConverter();
 
                 //Converts Word document into PDF document
@@ -2544,7 +2538,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Description");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 175;
+            wTable.Rows[ROW].Cells[colArticle].Width = 165;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Shade");
             range.ApplyCharacterFormat(FontBold);
@@ -2564,7 +2558,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Bag");
             range.ApplyCharacterFormat(FontBold);
             int colBag = COL; COL++;
-            wTable.Rows[ROW].Cells[colBag].Width = 45;
+            wTable.Rows[ROW].Cells[colBag].Width = 40;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Gross");
             range.ApplyCharacterFormat(FontBold);
@@ -2584,7 +2578,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Amount(INR)");
             range.ApplyCharacterFormat(FontBold);
             int colTotalTaxableAmount = COL;
-            wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 80;
+            wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 95;
 
 
             #endregion column headers
