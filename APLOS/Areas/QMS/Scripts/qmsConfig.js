@@ -183,6 +183,10 @@
             templateUrl: 'QMS/SQCMaster/aplos',
             controller: 'SQCMasterController'
         })
+        .when('/define-sqc-issue', {
+            templateUrl: 'QMS/DefineSQCIssue/AplosWC',
+            controller: 'DefineSQCIssueController'
+        })
         
 }
 qmsConfig.$inject = ['$routeProvider', '$locationProvider'];
