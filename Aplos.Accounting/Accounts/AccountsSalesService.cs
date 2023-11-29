@@ -270,7 +270,8 @@ namespace Library.Accounting.Accounts
 									, PPD.UserName AS ShipTo, STD.UserName AS DeliveryState, PPD.GSTIN AS DeliveryGSTIN, S.InvoicingByAddress, S.DeliveryByAddress, S.MatureDate, S.ToCurrencyRate
 									, S.ToCurrencyRate AS CompanyCurrencyRate, S.Narration, S.PartyType, S.VoucherId, AMP.StateId AS PlantStateId
                                     , CASE  WHEN S.RowState='Parked' THEN 1 ELSE 0 END AS IsPark
-									,V.VoucherNo,SP.VoucherId SalesPackingVoucherId
+									,V.VoucherNo,SalesPackingVoucherId=STUFF((select distinct ','+SP.VoucherId from dbo.SalesPacking SP                                          
+							                                where SP.SalesId=S.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 									FROM [TRN].[Sales] AS S
                                     JOIN [HKP].[Party] AS P ON P.Id=S.PartyId
 									LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=S.InvoicingPartyPlantId
@@ -282,7 +283,6 @@ namespace Library.Accounting.Accounts
                                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=S.CurrencyId
 									LEFT JOIN [ORG].[Plant] AS PT ON PT.Id=S.PlantId
 									LEFT JOIN [TRN].Voucher V ON V.Id=S.VoucherId
-									LEFT JOIN dbo.SalesPacking SP ON SP.SalesId=S.Id
 									LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PT.AddressMasterId
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=S.Id
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id

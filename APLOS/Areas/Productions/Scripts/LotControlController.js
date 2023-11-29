@@ -38,22 +38,21 @@ function LotControlController(commonMessage, $scope, $rootScope, baseService, $r
     $scope.PRSearchValue = null;
     $scope.getProductionOrderPopUp = function () {
         $scope.ProductionOrderList = [];
-        if (!baseService.isUndefinedOrNull($scope.ModelNew.EntityId)) {
-            $http({
-                method: 'POST',
-                data: {
-                    'entityid': $scope.ModelNew.EntityId, 'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
-                },
-                url: 'Materials/MaterialIssueControl/getlist'
-            }).then(function successCallback(response) {
-                $scope.ProductionOrderList = response.data;
-            });
-        }
+        $http({
+            method: 'POST',
+            data: {
+                'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
+            },
+            url: 'Productions/LotControl/GetPOList'
+        }).then(function successCallback(response) {
+            $scope.ProductionOrderList = response.data;
+        });
         angular.element(document.querySelector('#POItemPopup')).modal('show');
     };
 
     $scope.SetPrOData = function ($event) {
         $scope.ModelNew.ProductionOrderId = $event.data.Id;
+        $scope.ModelNew.EntityId = $event.data.EntityId;
         $scope.GetPOLotControlSettingData();
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
     }
@@ -84,7 +83,12 @@ function LotControlController(commonMessage, $scope, $rootScope, baseService, $r
         //        $scope.tempModel.UserLotNo = $scope.tempModel.UserLotNo + '/' + $scope.tempModel.Sufix;
         //    }
         //}
-        $scope.tempModel.UserLotNo = $scope.tempModel.LotNo + '/' + $scope.tempModel.Sufix;
+        if (baseService.isUndefinedOrNull($scope.tempModel.Sufix)) {
+            $scope.tempModel.UserLotNo = $scope.tempModel.LotNo;
+        }
+        else {
+            $scope.tempModel.UserLotNo = $scope.tempModel.LotNo + '/' + $scope.tempModel.Sufix;
+        }
         var gridObj = $("#GridLC").data("ejGrid");
         gridObj.refreshContent();
         gridObj.refreshTemplate();
@@ -98,7 +102,21 @@ function LotControlController(commonMessage, $scope, $rootScope, baseService, $r
         angular.element(document.querySelector('#confirmCopyDetailPopUp')).modal('show');
     }
 
-    $scope.CopyDetailData = function () {
+    function refreshSerial() {
+        for (var j = 0; j < $scope.lotControlList.length; j++) {
+            $scope.lotControlList[j].Serial = j;
+        }
+    }
+    $scope.CopyDetailData = function (e) {
+        let ob = {};
+        Object.assign(ob, e);
+        ob.Id = null;
+        $scope.lotControlList.splice(e.Serial + 1, 0, ob);
+        refreshSerial();
+    }
+
+
+    $scope.XXCopyDetailData = function () {
         $scope.DetailNew.LotQty = $scope.DetailNew.LotQty / 2;
         var ob = {};
         ob.Id = null;
@@ -121,7 +139,7 @@ function LotControlController(commonMessage, $scope, $rootScope, baseService, $r
         ob.Remark = $scope.DetailNew.Remark;
 
         $scope.lotControlList.push(ob);
-       // $scope.lotControlList.sort('Process');
+        $scope.lotControlList.sort('Process');
         ob = {};
         var gridObj = $("#GridLC").data("ejGrid");
         gridObj.refreshContent();
@@ -222,5 +240,35 @@ function LotControlController(commonMessage, $scope, $rootScope, baseService, $r
             ShowResult(e, "failure");
         }
     };
+
+
+    $scope.message_deleteconfirmation = null;
+    $scope.removeDetail = function (obj) {
+
+        $scope.DetailNew = obj.data;
+        $scope.message_deleteconfirmation = 'Are you sure want to delete permanently [ ' + $scope.DetailNew.UserLotNo + ' ]';
+        angular.element(document.querySelector('#confirDeletePopUp')).modal('show');
+    }
+
+    $scope.Delete = function () {
+        $http({
+            method: 'POST',
+            url: 'Productions/LotControl/Delete?id=' + $scope.DetailNew.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetPOLotControlSettingData();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+
+
 
 }

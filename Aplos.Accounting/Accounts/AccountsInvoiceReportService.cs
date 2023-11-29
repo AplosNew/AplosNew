@@ -3645,28 +3645,23 @@ namespace Library.Accounting.Accounts
         }
         private Dictionary<string, object> GetVendorInvoiceHeaderExpenseDistribution(string companyGroupId, string companyId, string plantId, string voucherId, SourceType sourceType)
         {
-            var cmdText = @"
-                            SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+            var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
 							, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
                             , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo
 							, AddedBy =case when u.FullName<>'' then u.FullName else v.AddedBy end
 							,PostedBy = case when up.FullName<>'' then up.FullName else v.PostedBy end
-
-							--, AddedBy =case when u.FullName<>'' then u.FullName else v.AddedBy end
-							--,PostedBy = case when u.FullName<>'' then u.FullName else v.PostedBy end
 							 , UPPER(V.Narration) AS Narration 
 					    	, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
-                            , P.UserName AS Vendor, PP.UserName AS VendorPlant, BJ.CurrencyId, C.Code AS CurrencyCode
-                            FROM [TRN].[Invoice] AS BJ
-                            LEFT JOIN [TRN].[Voucher] AS V ON V.Id=BJ.VoucherId
+                            , P.UserName AS Vendor, PP.UserName AS VendorPlant, V.CurrencyId, C.Code AS CurrencyCode
+                            FROM [TRN].[Voucher] AS V 
+							LEFT JOIN [TRN].[Invoice] AS BJ ON V.Id=BJ.VoucherId
                             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
 							LEFT JOIN [HKP].[Party] AS P ON P.Id=BJ.PartyId
 							LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=BJ.PartyPlantId
 							LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
 							left join [sec].[User] U on U.UserId=v.AddedBy
 							left join sec.[User] up on up.UserId=v.PostedBy
-                            WHERE BJ.Archive=0 --AND BJ.CompanyGroupId='" + companyGroupId + @"' AND BJ.CompanyId='" + companyId + @"' AND BJ.PlantId='" + plantId + @"' 
-                            AND BJ.VoucherId='" + voucherId + @"' AND BJ.SourceType='" + sourceType + @"'";
+                            WHERE  V.Id='" + voucherId + @"' ";
             return _sqlRepository.GetData(cmdText);
         }
         #endregion

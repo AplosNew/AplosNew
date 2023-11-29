@@ -4,18 +4,6 @@
     <div class="row">
 
         <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.EntityId" name="Entity" ng-options="item.Id as item.UserName for item in entityList" @*ng-change="GetPOLotControlSettingData();"*@ required>
-                            <option value=""></option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-6">
             <div class="form-group">
                 <label class="col-sm-4 control-label">Production Order<sup>*</sup></label>
                 <div class="col-sm-8">
@@ -25,6 +13,18 @@
                             <button ng-click="getProductionOrderPopUp();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                             @*<button ng-click="getSalesOrderByProdOrderList(productionSummaryNew.ProductionOrderId);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>*@
                         </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.EntityId" name="Entity" disabled ng-options="item.Id as item.UserName for item in entityList" @*ng-change="GetPOLotControlSettingData();"*@ required>
+                            <option value=""></option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -50,20 +50,30 @@
                     <div e-column e-field="SchedulePercentage" e-headertext="SchedulePercentage" e-width="2"></div>
                     <div e-column e-field="ProcessPlanQty" e-headertext="ProcessPlanQty" e-width="2"></div>
                     <div e-column e-field="Remark" e-headertext="Remark" e-width="4"></div>
+                    <div e-column e-headertext="Remove" e-template="#RemoveButtons" e-width="3"></div>
                 </div>
+                @*<script type="text/template" id="ShowActionButtons">
+                    <button style="color: #f3f3ec;background-color: #1c1f32;" title="Copy" class="btn"><i class="glyphicon glyphicon-plus" ng-click="$parent.copyDetail(data);" style="margin: -6px;"></i></button>
+                </script>*@
                 <script type="text/template" id="ShowActionButtons">
-                    <button style="color: #f3f3ec;background-color: #1c1f32;" title="Copy" class="btn"><i class="glyphicon glyphicon-plus" ng-click="$parent.copyDetail(this);" style="margin: -6px;"></i></button>
-                    @*<button style="color: #f3f3ec;background-color: #1c1f32;" title="Edit" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.SaveRowData(this);" style="margin: -6px;"></i></button>*@
+                    <div class="common-btn">
+                        <ul class="list-inline text-center">
+                            <li><button ng-click="$parent.CopyDetailData(data);" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i></button></li>
+                        </ul>
+                    </div>
                 </script>
                 <script type="text/template" id="Sufix">
                     <div class="col-sm-12" style="padding:0px;">
-                        <input type="text" name="Sufix" ng-model="data.Sufix" class="form-control" maxlength="3" ng-blur="$parent.SetSufix(this)">
+                        <input type="text" name="Sufix" ng-model="data.Sufix" class="form-control" ng-disabled="data.UsedInPS==true && data.Id!=null" maxlength="3" ng-blur="$parent.SetSufix(this)">
                     </div>
                 </script>
                 <script type="text/template" id="LotQty">
                     <div class="col-sm-12" style="padding:0px;">
                         <input type="text" name="LotQty" ng-model="data.LotQty" disabled class="form-control" only-numbers>
                     </div>
+                </script>
+                <script type="text/template" id="RemoveButtons">
+                    <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" ng-disabled="data.IsDefault==true" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.removeDetail(this);" style="margin: -6px;"></i></button>
                 </script>
             </div>
 
@@ -129,3 +139,4 @@
     </div>
 </div>
 <confirm-archive-generic modalid="confirmCopyDetailPopUp" title="Confirmation" message={{copymessage_detailconfirmation}} data-ng-click-right-button="CopyDetailData();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirDeletePopUp" title="Confirmation" message={{message_deleteconfirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>

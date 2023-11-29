@@ -78,7 +78,7 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
                 sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
                 ROW++;
-                
+
 
                 COL = 1;
                 int StartRow = ROW;
@@ -480,7 +480,7 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, COL].CellStyle.Font.Size = 13;
                 sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
                 sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
-                sheet.Range[ROW, COL, ROW, COL + 13].Merge();
+                sheet.Range[ROW, COL, ROW, COL + 6].Merge();
                 ROW++;
 
                 sheet[ROW, COL].Text = "Sl No.";
@@ -492,17 +492,17 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].ColumnWidth = 20;
                 COL++;
 
-                sheet[ROW, COL].Text = "Buyer Costing(A)";
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colBuyerCosting = COL;
-                sheet[ROW, COL].ColumnWidth = 15;
-                COL++;
+                //sheet[ROW, COL].Text = "Buyer Costing(A)";
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colBuyerCosting = COL;
+                //sheet[ROW, COL].ColumnWidth = 15;
+                //COL++;
 
-                sheet[ROW, COL].Text = "Quick Costing(B)";
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colQuickCosting = COL;
-                sheet[ROW, COL].ColumnWidth = 20;
-                COL++;
+                //sheet[ROW, COL].Text = "Quick Costing(B)";
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colQuickCosting = COL;
+                //sheet[ROW, COL].ColumnWidth = 20;
+                //COL++;
 
                 sheet[ROW, COL].Text = "Pre Costing(C)";
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -516,27 +516,27 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].ColumnWidth = 14;
                 COL++;
 
-                sheet[ROW, COL].Text = "Proc. Costing(D)";
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colProcCosting = COL;
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].WrapText = true;
-                COL++;
+                //sheet[ROW, COL].Text = "Proc. Costing(D)";
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colProcCosting = COL;
+                //sheet[ROW, COL].ColumnWidth = 12;
+                //sheet[ROW, COL].WrapText = true;
+                //COL++;
 
-                sheet[ROW, COL].Text = "Proc-Costing %";
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colProcCostingPer = COL;
-                sheet[ROW, COL].ColumnWidth = 8;
-                sheet[ROW, COL].WrapText = true;
-                COL++;
+                //sheet[ROW, COL].Text = "Proc-Costing %";
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colProcCostingPer = COL;
+                //sheet[ROW, COL].ColumnWidth = 8;
+                //sheet[ROW, COL].WrapText = true;
+                //COL++;
 
 
-                sheet[ROW, COL].Text = "C-D";
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colDifferencePreProCosting = COL;
-                sheet[ROW, COL].ColumnWidth = 10;
-                sheet[ROW, COL].WrapText = true;
-                COL++;
+                //sheet[ROW, COL].Text = "C-D";
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colDifferencePreProCosting = COL;
+                //sheet[ROW, COL].ColumnWidth = 10;
+                //sheet[ROW, COL].WrapText = true;
+                //COL++;
 
                 sheet[ROW, COL].Text = "Total Buyer Costing(A)";
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -559,25 +559,25 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].WrapText = true;
                 COL++;
 
-                sheet[ROW, COL].Text = "Total Proc. Costing(D)";
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colTotalProcCosting = COL;
-                sheet[ROW, COL].ColumnWidth = 10;
-                sheet[ROW, COL].WrapText = true;
-                COL++;
+                //sheet[ROW, COL].Text = "Total Proc. Costing(D)";
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colTotalProcCosting = COL;
+                //sheet[ROW, COL].ColumnWidth = 10;
+                //sheet[ROW, COL].WrapText = true;
+                //COL++;
 
-                sheet[ROW, COL].Text = "C-D";
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colDifferenceTotalPrePro = COL;
-                sheet[ROW, COL].ColumnWidth = 8;
+                //sheet[ROW, COL].Text = "C-D";
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colDifferenceTotalPrePro = COL;
+                //sheet[ROW, COL].ColumnWidth = 8;
 
                 int CostingDetailEndCol = COL;
-                sheet.Range[ROW, 1, ROW, CostingDetailEndCol].CellStyle.Font.Bold = true;
-                sheet.Range[ROW, 1, ROW, CostingDetailEndCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
-                sheet.Range[ROW - 2, 1, ROW - 2, CostingDetailEndCol].Merge();
+                sheet.Range[ROW, 1, ROW, CostingDetailEndCol-1].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, CostingDetailEndCol-1].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+                sheet.Range[ROW - 2, 1, ROW - 2, CostingDetailEndCol-1].Merge();
 
-                sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderAround(ExcelLineStyle.Hair);
-                sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, CostingDetailEndCol-1].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, CostingDetailEndCol-1].BorderInside(ExcelLineStyle.Hair);
                 ROW++;
 
 
@@ -587,8 +587,8 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colSlNo].Number = (i + 1);
 
                     sheet[ROW, colCostingComponent].Text = dtCostingDetailInfo.Rows[i]["UserName"].ToString();
-                    sheet[ROW, colBuyerCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["BuyerTarget"].ToString());
-                    sheet[ROW, colQuickCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["CostingValue"].ToString());
+                    //sheet[ROW, colBuyerCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["BuyerTarget"].ToString());
+                    //sheet[ROW, colQuickCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["CostingValue"].ToString());
                     sheet[ROW, colPreCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString());
 
                     if (clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) != 0)
@@ -606,33 +606,33 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colTotalPreCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) * orderquantity;
                     if (preCosting == "1")
                     {
-                        sheet[ROW, colProcCosting].Number = 0;
-                        sheet[ROW, colDifferencePreProCosting].Number = 0;
+                        //sheet[ROW, colProcCosting].Number = 0;
+                        //sheet[ROW, colDifferencePreProCosting].Number = 0;
 
-                        sheet[ROW, colTotalProcCosting].Number = 0;
-                        sheet[ROW, colDifferenceTotalPrePro].Number = 0;
+                        //sheet[ROW, colTotalProcCosting].Number = 0;
+                        //sheet[ROW, colDifferenceTotalPrePro].Number = 0;
                     }
                     else
                     {
-                        sheet[ROW, colProcCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString());
+                        //sheet[ROW, colProcCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString());
 
                         if (clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) != 0)
                         {
                             double proSum = clsStaticInfo.dbl(dtCostingDetailInfo.Compute("SUM(TotalProcurementGrossAmount)", null));
-                            sheet[ROW, colProcCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) + "/" + proSum + "*" + 100; ;
+                            //sheet[ROW, colProcCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) + "/" + proSum + "*" + 100; ;
 
                             //sheet[ROW, colProcCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) + "/" + clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[0]["TargetSellingPrice"].ToString()) + "%";
 
-                            sheet.Range[ROW, colProcCostingPer].NumberFormat = "#,##0.00;(#,##0.00)";
+                            //sheet.Range[ROW, colProcCostingPer].NumberFormat = "#,##0.00;(#,##0.00)";
 
                         }
-                        sheet[ROW, colDifferencePreProCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["DifferencePreProCosting"].ToString());
-                        sheet[ROW, colTotalProcCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) * orderquantity;
-                        sheet[ROW, colDifferenceTotalPrePro].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) * orderquantity -
-                                                                clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) * orderquantity;
+                        //sheet[ROW, colDifferencePreProCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["DifferencePreProCosting"].ToString());
+                        //sheet[ROW, colTotalProcCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) * orderquantity;
+                        //sheet[ROW, colDifferenceTotalPrePro].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) * orderquantity -
+                                                                //clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) * orderquantity;
                     }
-                    sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderAround(ExcelLineStyle.Hair);
-                    sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, CostingDetailEndCol-1].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, CostingDetailEndCol-1].BorderInside(ExcelLineStyle.Hair);
 
                     ROW++;
                     var endRow = ROW;
@@ -641,16 +641,16 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, 1].CellStyle.Font.Bold = true;
 
                 sheet.Range[ROW, 1, ROW, 2].Merge();
-                sheet.Range[ROW, colBuyerCosting].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colBuyerCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colBuyerCosting) + (ROW - 1) + ")";
-                sheet.Range[ROW, colBuyerCosting].CellStyle.Font.Bold = true;
-                sheet.Range[ROW, colQuickCosting].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colQuickCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colQuickCosting) + (ROW - 1) + ")";
-                sheet.Range[ROW, colQuickCosting].CellStyle.Font.Bold = true;
+                //sheet.Range[ROW, colBuyerCosting].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colBuyerCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colBuyerCosting) + (ROW - 1) + ")";
+                //sheet.Range[ROW, colBuyerCosting].CellStyle.Font.Bold = true;
+                //sheet.Range[ROW, colQuickCosting].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colQuickCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colQuickCosting) + (ROW - 1) + ")";
+                //sheet.Range[ROW, colQuickCosting].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, colPreCosting].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colPreCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colPreCosting) + (ROW - 1) + ")";
                 sheet.Range[ROW, colPreCosting].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, colPreCostingPer].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colPreCostingPer) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colPreCostingPer) + (ROW - 1) + ")";
                 sheet.Range[ROW, colPreCostingPer].CellStyle.Font.Bold = true;
-                sheet.Range[ROW, colProcCosting].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colProcCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colProcCosting) + (ROW - 1) + ")";
-                sheet.Range[ROW, colProcCosting].CellStyle.Font.Bold = true;
+                //sheet.Range[ROW, colProcCosting].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colProcCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colProcCosting) + (ROW - 1) + ")";
+                //sheet.Range[ROW, colProcCosting].CellStyle.Font.Bold = true;
 
                 sheet.Range[ROW, colTotalBuyerCosting].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colTotalBuyerCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colTotalBuyerCosting) + (ROW - 1) + ")";
                 sheet.Range[ROW, colTotalBuyerCosting].CellStyle.Font.Bold = true;
@@ -658,14 +658,14 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, colTotalQuickCosting].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, colTotalPreCosting].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colTotalPreCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colTotalPreCosting) + (ROW - 1) + ")";
                 sheet.Range[ROW, colTotalPreCosting].CellStyle.Font.Bold = true;
-                sheet.Range[ROW, colTotalProcCosting].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colTotalProcCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colTotalProcCosting) + (ROW - 1) + ")";
-                sheet.Range[ROW, colTotalProcCosting].CellStyle.Font.Bold = true;
+                //sheet.Range[ROW, colTotalProcCosting].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colTotalProcCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colTotalProcCosting) + (ROW - 1) + ")";
+                //sheet.Range[ROW, colTotalProcCosting].CellStyle.Font.Bold = true;
 
-                sheet.Range[ROW, colProcCostingPer].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colProcCostingPer) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colProcCostingPer) + (ROW - 1) + ")";
-                sheet.Range[ROW, colProcCostingPer].CellStyle.Font.Bold = true;
+                //sheet.Range[ROW, colProcCostingPer].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colProcCostingPer) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colProcCostingPer) + (ROW - 1) + ")";
+                //sheet.Range[ROW, colProcCostingPer].CellStyle.Font.Bold = true;
 
-                sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderAround(ExcelLineStyle.Hair);
-                sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, CostingDetailEndCol-1].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, CostingDetailEndCol-1].BorderInside(ExcelLineStyle.Hair);
                 sheet.IsGridLinesVisible = false;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[CostingDetailStartRow, 1, ROW, CostingDetailEndCol].CellStyle.Font.Size = 11f;
@@ -701,7 +701,7 @@ namespace Library.OrderManagement.Costing
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 5, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet[ROW, colProcCosting].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //sheet[ROW, colProcCosting].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 string strFileName = "OrderCostingReport.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
@@ -2082,7 +2082,7 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, COL].CellStyle.Font.Size = 15;
                 sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
                 sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
-
+                sheet.Range[ROW, COL, ROW, 7].Merge();
                 ROW++;
                 ROW++;
 
@@ -2117,11 +2117,11 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
                 //sheet.Range[ROW, 1, ROW, CostingDetailEndCol].CellStyle.Font.Color = ExcelKnownColors.White;
-                sheet.Range[ROW - 2, 1, ROW - 2, CostingDetailEndCol].Merge();
+                //sheet.Range[ROW - 2, 1, ROW - 2, CostingDetailEndCol].Merge();
 
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
-                ROW++;
+                //ROW++;
 
                 int CostingDetailStartRow = ROW; //row 20
                 for (int i = 0; i < dtCostingDetailInfo.Rows.Count; i++)

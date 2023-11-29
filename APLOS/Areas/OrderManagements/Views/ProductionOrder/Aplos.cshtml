@@ -896,7 +896,7 @@
                     <div class="form-group">
                         <div class="common-btn">
                             <ul class="list-inline text-right">
-                                <li><button ng-click="GetPOLotControlData();" @*ng-disabled="model.UsedInPB==true"*@ class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Go</button></li>
+                                <li><button ng-click="GetPOLotControlData();" ng-disabled="model.UsedInPB==true" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Go</button></li>
                             </ul>
                         </div>
                     </div>
@@ -925,7 +925,7 @@
 
                         <script type="text/template" id="Sufix">
                             <div class="col-sm-12" style="padding:0px;">
-                                <input type="text" name="Sufix" ng-model="data.Sufix" class="form-control" maxlength="3" ng-blur="$parent.SetSufix(this)">
+                                <input type="text" name="Sufix" ng-model="data.Sufix" ng-disabled="data.UsedInPS==true" class="form-control" maxlength="3" ng-blur="$parent.SetSufix(this)">
                             </div>
                         </script>
                         @*<script type="text/template" id="UserLotNo">

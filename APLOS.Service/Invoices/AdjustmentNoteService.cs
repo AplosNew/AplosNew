@@ -4,6 +4,7 @@ using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
 using Library.Model.Accounts;
+using Library.Model.Commercial;
 using Library.Model.Enums;
 using Library.Model.Finances;
 using Library.Model.Invoices;
@@ -53,6 +54,7 @@ namespace Library.Service.Invoices
         private readonly ITaxCategoryGLService _taxCategoryGLService;
         private readonly IRepositoryAsync<TaxCode> _taxCodeRepository;
         private readonly IRepositoryAsync<TaxCodeGL> _taxCodeGLRepository;
+        private readonly IRepositoryAsync<InvoiceDetailCharges> _invoiceDetailChargesRepository;
 
         public AdjustmentNoteService(
               IRepositoryAsync<AdjustmentNote> repository
@@ -76,6 +78,7 @@ namespace Library.Service.Invoices
             , ITaxCategoryGLService taxCategoryGLService
             , IRepositoryAsync<TaxCode> taxCodeRepository
             , IRepositoryAsync<TaxCodeGL> taxCodeGLRepository
+            , IRepositoryAsync<InvoiceDetailCharges> invoiceDetailChargesRepository
             ) : base(repository, unitOfWork, pkGeneratorService)
         {
             _unitOfWork = unitOfWork;
@@ -97,6 +100,7 @@ namespace Library.Service.Invoices
             _taxCategoryGLService = taxCategoryGLService;
             _taxCodeRepository = taxCodeRepository;
             _taxCodeGLRepository = taxCodeGLRepository;
+            _invoiceDetailChargesRepository = invoiceDetailChargesRepository;
         }
 
         #endregion Constructor
@@ -104,7 +108,10 @@ namespace Library.Service.Invoices
         public GridModel Query(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
             parameters.CmdText = @"SELECT V.VoucherNo, A.Id, A.Id AS AdjustmentNoteId, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.VoucherId, A.PostingDate, A.DocDate
-                                , A.DocRefNo, A.CurrencyId, C.Code AS CurrencyCode, A.Amount, A.IsPark, A.PartyType 
+                                , A.DocRefNo, A.CurrencyId, C.Code AS CurrencyCode, A.Amount, A.IsPark, A.PartyType
+                                ,IsExpenseDistribution=CASE WHEN ISNULL((select COUNT(ID.Id) from TRN.InvoiceDetailCharges ID
+										INNER JOIN TRN.VoucherDetail VD ON VD.Id=ID.VoucherDetailId
+										WHERE VD.VoucherId=A.VoucherId),0)>0 THEN 1 ELSE 0 END
                                 FROM [TRN].[AdjustmentNote] AS A
                                 LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
                                 LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=A.PartyPlantId
@@ -830,8 +837,24 @@ namespace Library.Service.Invoices
             }
         }
 
+        public bool CheckInvoiceDetailActivity(string InvoiceDetailId, string ActivityId)
+        {
+            try
+            {
+                var sql = "IF EXISTS(SELECT * FROM(" +
+                        "SELECT I.InvoiceDetailId InvoiceDetailId, VD.ActivityId ActivityId  " +
+                         "FROM trn.InvoiceDetailCHarges I  " +
+                         "LEFT JOIN TRN.VoucherDetail VD ON VD.Id = I.VoucherDetailId  " +
+                         ") A WHERE InvoiceDetailId = '" + InvoiceDetailId + "' AND ActivityId = '" + ActivityId + @"') SELECT 1 ELSE SELECT 0 RETURN ";
+                return Convert.ToBoolean(_adjustmentNoteDetailRepository.SqlQuery<int>(sql).Single());
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
         public string InsertDebitNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-            , IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList, IEnumerable<InvoiceTaxViewModel> additionalTaxList)
+            , IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList, IEnumerable<InvoiceTaxViewModel> additionalTaxList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList)
         {
             var flag = false;
             try
@@ -905,6 +928,46 @@ namespace Library.Service.Invoices
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetaiSales.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
                         CrAmount = voucherVM.CompanyCurrencyRate * voucherDetaiSales.CrAmount
                     });
+
+                    if (null != invoiceDetailChargesList && invoiceDetailChargesList.Count() > 0 && voucherDetailVM.IsOrderSpecific == true)
+                    {
+
+                        foreach (var item in invoiceDetailChargesList.Where(r => r.GLGeneralInfoId == voucherDetailVM.GLGeneralInfoId && r.BudgetMasterId == voucherDetailVM.BudgetMasterId && r.ActivityId == voucherDetailVM.ActivityId))
+                        {
+
+                            if (CheckInvoiceDetailActivity(item.InvoiceDetailId, item.ActivityId) == true)
+                                throw new CustomException("InvoiceDetailId " + item.InvoiceDetailId + " and Activity " + voucherDetailVM.ActivityName + " already distributed!");
+
+                            var invoiceDetailChargesId = base.GetAutoNumber(nameof(InvoiceDetailCharges), PKGeneratorEnum.Yearly, null, DateTime.Now);
+                            var invoiceChargesId = 0;
+                            if (item.Id == null)
+                            {
+                                invoiceChargesId++;
+                                var invoiceCharges = new InvoiceDetailCharges
+                                {
+                                    Id = MakePK(invoiceDetailChargesId, invoiceChargesId, 2),
+                                    InvoiceDetailId = item.InvoiceDetailId,
+                                    InvoiceId = item.InvoiceId,
+                                    DistributedAmount = item.DistributedAmount,
+                                    InvoiceServiceMasterChargesId = null,
+                                    VoucherDetailId = voucherDetaiSales.Id,
+                                    Amount = item.Amount,
+                                    InvoiceType = item.InvoiceType,
+                                    MasterOrderId = item.MasterOrderId,
+                                    ContractId = item.ContractId
+                                };
+                                AuditService.AddedLog(invoiceCharges);
+                                _invoiceDetailChargesRepository.Insert(invoiceCharges);
+                            }
+                            else
+                            {
+                                var invoiceCharges = _invoiceDetailChargesRepository.Find(item.Id);
+                                invoiceCharges.DistributedAmount = item.DistributedAmount;
+                                AuditService.UpdatedLog(invoiceCharges);
+                                _invoiceDetailChargesRepository.Update(invoiceCharges);
+                            }
+                        }
+                    }
 
                     if (voucherVM.PartyType == PartyType.Vendor.ToString() && null != voucherDetailVM.InvoiceTaxViewModel && voucherDetailVM.InvoiceTaxViewModel.Count > 0)
                     {
@@ -1762,6 +1825,9 @@ namespace Library.Service.Invoices
                                     , (ISNULL(ID.Amount,0)- (ISNULL(ID.WrittenOffAmount,0))) AS Balance, CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, 0 ToCurrencyRate
                                     , CC.CompanyCurrencyConversion, GC.CompanyGroupCurrencyId, GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion
                                     ,V.TransactionRefNo
+                                    ,IsExpenseDistribution=CASE WHEN ISNULL((select COUNT(ID.Id) from TRN.InvoiceDetailCharges ID
+										INNER JOIN TRN.VoucherDetail VD ON VD.Id=ID.VoucherDetailId
+										WHERE VD.VoucherId=I.VoucherId),0)>0 THEN 1 ELSE 0 END
                                     FROM [TRN].[AdjustmentNoteDetail] AS ID
                                     LEFT JOIN [TRN].[AdjustmentNote] AS I ON I.Id=ID.AdjustmentNoteId
 									LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId
