@@ -199,7 +199,7 @@
                     <td>{{x.BudgetName}}</td>
                     <td>{{x.ActivityName}}</td>
                     <td class="text-right" ng-show="voucher.SettlementType=='@Library.Model.Payments.SettlementType.Invoice.ToString()'">{{x.InvoiceAmount| number:2}}</td>
-                    <td><input type="text" class="form-control text-right" id="vdCrAmount" ng-model="x.Amount" n-decimals="2" ng-keyup="calculatebackTax($index);calculateTax($index)" autocomplete="off"></td>
+                    <td><input type="text" class="form-control text-right" id="vdCrAmount" ng-model="x.Amount" n-decimals="2" ng-keyup="calculatebackTax($index);calculateTax($index);calReDistributedAmount($index,x);" autocomplete="off"></td>
                     <td>
                         <div class="show-message">
                             <input type="text" n-decimals="4" class="form-control text-right" ng-model="x.TotalTax" readonly>
@@ -372,6 +372,7 @@
                         <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
                         <li><a class="btn btn-action" href="Accounts/AdjustmentNote/GetDebitNoteReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                         <li><a class="btn btn-action" href="Accounts/AdjustmentNote/GetDebitNoteReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
+                        <li ng-show="x.IsExpenseDistribution"><a ng-click="ExpenseDistributionReport('Excel',x.VoucherId);" class="btn btn-action" title="Expense Distribution Report"><i class="fa fa-file-excel-o"></i></a></li>
                     </ul>
                 </td>
             </tr>

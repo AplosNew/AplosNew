@@ -108,7 +108,10 @@ namespace Library.Service.Invoices
         public GridModel Query(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
             parameters.CmdText = @"SELECT V.VoucherNo, A.Id, A.Id AS AdjustmentNoteId, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.VoucherId, A.PostingDate, A.DocDate
-                                , A.DocRefNo, A.CurrencyId, C.Code AS CurrencyCode, A.Amount, A.IsPark, A.PartyType 
+                                , A.DocRefNo, A.CurrencyId, C.Code AS CurrencyCode, A.Amount, A.IsPark, A.PartyType
+                                ,IsExpenseDistribution=CASE WHEN ISNULL((select COUNT(ID.Id) from TRN.InvoiceDetailCharges ID
+										INNER JOIN TRN.VoucherDetail VD ON VD.Id=ID.VoucherDetailId
+										WHERE VD.VoucherId=A.VoucherId),0)>0 THEN 1 ELSE 0 END
                                 FROM [TRN].[AdjustmentNote] AS A
                                 LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
                                 LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=A.PartyPlantId
@@ -1822,6 +1825,9 @@ namespace Library.Service.Invoices
                                     , (ISNULL(ID.Amount,0)- (ISNULL(ID.WrittenOffAmount,0))) AS Balance, CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, 0 ToCurrencyRate
                                     , CC.CompanyCurrencyConversion, GC.CompanyGroupCurrencyId, GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion
                                     ,V.TransactionRefNo
+                                    ,IsExpenseDistribution=CASE WHEN ISNULL((select COUNT(ID.Id) from TRN.InvoiceDetailCharges ID
+										INNER JOIN TRN.VoucherDetail VD ON VD.Id=ID.VoucherDetailId
+										WHERE VD.VoucherId=I.VoucherId),0)>0 THEN 1 ELSE 0 END
                                     FROM [TRN].[AdjustmentNoteDetail] AS ID
                                     LEFT JOIN [TRN].[AdjustmentNote] AS I ON I.Id=ID.AdjustmentNoteId
 									LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId

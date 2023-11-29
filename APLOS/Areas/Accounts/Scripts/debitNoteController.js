@@ -1,6 +1,6 @@
 ﻿"use strict";
-debitNoteController.$inject = ["accountService", "cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller"];
-function debitNoteController(accountService, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
+debitNoteController.$inject = ["accountService", "cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller", '$window'];
+function debitNoteController(accountService, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, $window) {
     $rootScope.title = "Debit Note";
     $scope.Action = "Save";
     $scope.index = -1;
@@ -601,6 +601,7 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
     };
 
     $scope.Save = function () {
+        $scope.InvoiceDetailChargesList();
         $scope.$broadcast("show-errors-check-validity");
         $scope.checkDocDate();
         $scope.checkPostingDate();
@@ -758,6 +759,7 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
         $scope.salesDetailList = [];
         $scope.SelectedCurrency = null;
         $scope.isReadOnly = false;
+        $scope.invoiceDetailChargesList = [];
     };
 
     $scope.closePopUpselected = function (data) {
@@ -1420,7 +1422,6 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
 
     }
     $scope.calOutBoundDistributedAmount = function myfunction() {
-        //$scope.TotalChargesAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount"));
         $scope.getTotalInvoiceAmount();
         $scope.TotalDistributedInvoiceAmount = 0;
 
@@ -1481,7 +1482,6 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
 
     }
     $scope.calMasterOrderDistributedAmount = function myfunction() {
-        //$scope.TotalChargesAmount = 0;
         for (var i = 0; i < $scope.checkedMasterOrderList.length; i++) {
             $scope.checkedMasterOrderList[i].DistributedAmount = $scope.TotalChargesAmount;
 
@@ -1489,7 +1489,6 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
 
     }
     $scope.calContractDistributedAmount = function myfunction() {
-        //$scope.TotalChargesAmount = 0;
         for (var i = 0; i < $scope.checkedContractList.length; i++) {
             $scope.checkedContractList[i].DistributedAmount = $scope.TotalChargesAmount;
 
@@ -1497,7 +1496,7 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
 
     }
     $scope.calReDistributedAmount = function myfunction(index, item) {
-        $scope.TotalChargesAmount = parseFloat($scope.voucherDetailList[index].Amount);
+        $scope.TotalChargesAmount = parseFloat($scope.invoiceSalesAvailableList[index].Amount);
         $scope.activityOrderType = "";
         $scope.activityOrderType = item.ActivityOrderType;
         if ($scope.activityOrderType == "InboundInvoice") {
@@ -2023,5 +2022,13 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
                 ShowResult('Distributed Amount must be equal Taxable Amount.!', 'failure', 'ExpenseDistributePopUp');
             }
         }
+    }
+    $scope.invoiceDetailChargesList = [];
+    $scope.InvoiceDetailChargesList = function myfunction() {
+        $scope.invoiceDetailChargesList = $scope.checkedInvoiceList.concat($scope.checkedOutBoundInvoiceList).concat($scope.checkedMasterOrderList).concat($scope.checkedContractList);
+
+    };
+    $scope.ExpenseDistributionReport = function (reportFormat, voucherId) {
+        $window.open('Accounts/Invoice/ReportVendorInvoiceExpenseDistribution?reportFormat=' + reportFormat + '&voucherId=' + voucherId, '_blank');
     }
 }
