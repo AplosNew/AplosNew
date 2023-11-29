@@ -342,7 +342,7 @@ namespace Library.Accounting.Accounts
             try
             {
                 var sql = @"SELECT VD.GLGeneralInfoId, GL.AccountCode+'-'+GL.UserName AS GLGeneralInfoName, VD.BudgetMasterId, BU.UserName AS BudgetName
-                            , VD.ActivityId, ACT.UserName AS ActivityName, VDC.CrAmount AS Amount, VDC.CrAmount AS InvoiceAmount, VD.Id
+                            , VD.ActivityId, ACT.UserName AS ActivityName, VDC.CrAmount AS Amount, VDC.CrAmount AS InvoiceAmount, VD.Id,ACT.IsOrderSpecific
                             FROM TRN.VoucherDetail AS VD
                             LEFT JOIN TRN.VoucherDetailCurrency AS VDC ON VD.Id=VDC.VoucherDetailId
                             LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
