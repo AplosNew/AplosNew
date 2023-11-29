@@ -9185,9 +9185,49 @@ namespace Library.Service.Invoices
                 int ColInvoiceWriteOffNo = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "Sender's A/C Number";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColSendersACNumber = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Sender's  Name";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColSendersName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Beneficiary A/C No";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColBeneficiaryACNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Receiver IFSC";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColReceiverIFSC = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Narration 1";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColNarration = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "E-Mail";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColEMail = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Cheque No";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColChequeNo = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Voucher No";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int ColVoucherNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Cheque Date";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColChequeDate = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Party Code";
@@ -9195,7 +9235,7 @@ namespace Library.Service.Invoices
                 int ColPartyCode = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Party Name";
+                sheet[ROW, COL].Text = "Beneficiary Name";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int ColPartyName = COL;
                 COL++;
@@ -9220,7 +9260,7 @@ namespace Library.Service.Invoices
                 int ColCurrencyCode = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Amount";
+                sheet[ROW, COL].Text = "Transaction Amount";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int ColAmount = COL;
                 COL++;
@@ -9253,6 +9293,14 @@ namespace Library.Service.Invoices
 
                 for (int i = 0; i < data.Count; i++)
                 {
+                    sheet[ROW, ColSendersACNumber].Text = data[i]["VoucherNo"].ToString();
+                    sheet[ROW, ColSendersName].Text = data[i]["VoucherNo"].ToString();
+                    sheet[ROW, ColBeneficiaryACNo].Text = data[i]["VoucherNo"].ToString();
+                    sheet[ROW, ColReceiverIFSC].Text = data[i]["VoucherNo"].ToString();
+                    sheet[ROW, ColNarration].Text = data[i]["VoucherNo"].ToString();
+                    sheet[ROW, ColEMail].Text = data[i]["VoucherNo"].ToString();
+                    sheet[ROW, ColChequeNo].Text = data[i]["VoucherNo"].ToString();
+                    sheet[ROW, ColChequeDate].Text = data[i]["VoucherNo"].ToString();
                     if (data[i]["InvoiceWriteOffNo"] != null)
                     {
                         sheet[ROW, ColInvoiceWriteOffNo].Text = data[i]["InvoiceWriteOffNo"].ToString();

@@ -262,7 +262,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
         {
             try
             {
-                var sql = @" SELECT DISTINCT Convert(bit, 'False') IsActives,POD.InventoryReceiveId POId,P.UserName CustomerName,so.ContractId,mo.Id MasterOrderId,boq.SalesOrderId,PO.CurrencyId,CU.Code CurrencyCode
+                var sql = @" SELECT DISTINCT Convert(bit, 'False') IsActives,POD.InventoryReceiveId POId,P.UserName CustomerName,C.ContractNo,mo.Id MasterOrderId
+                            ,boq.SalesOrderId,PO.CurrencyId,CU.Code CurrencyCode,moi.BuyerReferenceNo StyleNo,moi.OwnReferenceNo
 							FROM BOQ  boq 
 							LEFT JOIN MST.MaterialMaster mm on mm.Id=boq.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle mma on mma.Id=boq.ArticleId
@@ -274,6 +275,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 							LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=pomap.PODetailId
 							LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=POD.InventoryReceiveId
 							LEFT JOIN SCS.Currency CU ON CU.Id=PO.CurrencyId
+                            LEFT JOIN dbo.Contract C on C.Id=so.ContractId
 							WHERE boq.MaterialMasterId IN (" + MaterialIds + ") AND boq.ArticleId IN (" + ArticleIds + @")
                             AND ISNULL(boq.OwnReferenceNo,'') in (" + OwnReferenceNo + ") AND ISNULL(boq.RMCustomerSpec,'') IN (" + CustomerRefNos + @")
 							AND ISNULL(boq.RMVendorSpec,'') IN (" + VendorRefNos + @") AND  PO.PartyId='" + PartyId + @"' AND POD.InventoryReceiveId<>''";

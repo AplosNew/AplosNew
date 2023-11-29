@@ -4,18 +4,6 @@
     <div class="row">
 
         <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.EntityId" name="Entity" ng-options="item.Id as item.UserName for item in entityList" @*ng-change="GetPOLotControlSettingData();"*@ required>
-                            <option value=""></option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-6">
             <div class="form-group">
                 <label class="col-sm-4 control-label">Production Order<sup>*</sup></label>
                 <div class="col-sm-8">
@@ -25,6 +13,18 @@
                             <button ng-click="getProductionOrderPopUp();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                             @*<button ng-click="getSalesOrderByProdOrderList(productionSummaryNew.ProductionOrderId);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-th-list"></i></button>*@
                         </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.EntityId" name="Entity" disabled ng-options="item.Id as item.UserName for item in entityList" @*ng-change="GetPOLotControlSettingData();"*@ required>
+                            <option value=""></option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -64,7 +64,7 @@
                 </script>
                 <script type="text/template" id="Sufix">
                     <div class="col-sm-12" style="padding:0px;">
-                        <input type="text" name="Sufix" ng-model="data.Sufix" class="form-control" maxlength="3" ng-blur="$parent.SetSufix(this)">
+                        <input type="text" name="Sufix" ng-model="data.Sufix" class="form-control" ng-disabled="data.UsedInPS==true && data.Id!=null" maxlength="3" ng-blur="$parent.SetSufix(this)">
                     </div>
                 </script>
                 <script type="text/template" id="LotQty">

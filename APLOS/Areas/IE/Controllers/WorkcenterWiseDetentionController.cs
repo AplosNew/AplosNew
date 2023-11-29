@@ -66,7 +66,7 @@ WHERE WorkCenterMasterId IN(SELECT Id FROM SCS.WorkCenterMaster AS wcm WHERE wcm
             var sqlCondition = "";
             if (headerid == null || headerid == "")
             {
-                sqlCondition = $"where WCM.EntityId = '{entityid}' and WCM.ProcessId = '{processid}' and WCM.StandardName is not null";
+                sqlCondition = $"where WCM.EntityId = '{entityid}' and WCM.ProcessId = '{processid}' and Active=1 and WCM.StandardName is not null";
             }
             
             else
