@@ -1176,8 +1176,6 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult GetInventoryTaxList(string inveReveiveId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
             return Json(_inventoryMaterialService.GetInventoryTaxList(inveReveiveId), JsonRequestBehavior.AllowGet);
         }
 

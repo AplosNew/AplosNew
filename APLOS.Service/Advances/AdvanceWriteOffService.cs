@@ -4711,7 +4711,7 @@ namespace Library.Service.Advances
 
         public List<Dictionary<string, object>> GetAdvanceWriteOffReportData(string companyId, string voucherId)
         {
-            var sql = @"SELECT GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, B.Code AS BudgetCode, B.UserName AS BudgetName, A.Code AS ActivityCode
+            var sql = @"SELECT GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, B.Code AS BudgetCode, B.UserName AS BudgetName, A.Code AS ActivityCode,AD.DocRefNo Particulars
                     , ActivityName=case when vd.BankMasterId<>'' then BNKM.AccountTitle else A.UserName End , VD.BankMasterId, BNKM.AccountNumber, BNKM.AccountTitle, VD.DrAmount, VD.CrAmount, CC.CompanyCurrencyDrAmount, CC.CompanyCurrencyCrAmount
                         FROM [TRN].[VoucherDetail] AS VD
                         LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
@@ -4719,6 +4719,8 @@ namespace Library.Service.Advances
                         LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
                         LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
 						LEFT JOIN [MST].[BankMaster] AS BNKM ON BNKM.Id=VD.BankMasterId
+                        LEFT JOIN TRN.AdvanceWriteOffDetail AWD ON AWD.Id=VD.AdvanceWriteOffDetailId
+						LEFT JOIN TRN.Advance AD ON AD.Id=AWD.AdvanceId
                         LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
 	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId

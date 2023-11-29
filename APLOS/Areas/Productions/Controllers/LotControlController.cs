@@ -64,7 +64,7 @@ namespace Aplos.Areas.Productions.Controllers
                 Library.OrderManagement.BOM.TemplateAttchment _attachment = new Library.OrderManagement.BOM.TemplateAttchment();
                 CopyDetail(ProductionOrderId, Id);
 
-                return Json(new { Error = false, Message = "BOM copied successfully" });
+                return Json(new { Error = false, Message = "Lot copied successfully" });
             }
             catch (Exception ex)
             {
@@ -240,7 +240,7 @@ namespace Aplos.Areas.Productions.Controllers
                         {
                             item["Id"] = poId + "-" + dsId.Tables[0].Rows[0]["CId"].ToString();
                             item["ProductionOrderId"] = poId;
-
+                            item["IsDefault"] = false;
                             AddNewRow(dsChild.Tables[0], item);
                         }
                         else
@@ -262,5 +262,48 @@ namespace Aplos.Areas.Productions.Controllers
                 throw (ex);
             }
         }
+
+        [HttpPost]
+        public ActionResult Delete(string id)
+        {
+            DeleteData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+
+        public void DeleteData(string id)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+
+                strSQL = "DELETE FROM [dbo].[ProductionOrderLotControl] WHERE Id = '" + id + "'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
     }
 }

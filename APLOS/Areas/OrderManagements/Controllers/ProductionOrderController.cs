@@ -2524,7 +2524,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                         {
                             item["Id"] = poId + "-" + c;
                             item["ProductionOrderId"] = poId;
-
+                            item["IsDefault"] = true;
                             AddNewRow(dsEntity.Tables[0], item);
                         }
                         else
