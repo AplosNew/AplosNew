@@ -11,6 +11,7 @@ using Library.Crosscutting.Security;
 using System.Data;
 using Library.Security.Core;
 using System.Threading;
+using Library.MaterialManagement.Material;
 
 #endregion Using
 
@@ -21,6 +22,7 @@ namespace Aplos.Areas.Productions.Controllers
         #region Constructor
         string TableName = "dbo.LotControl";
         private readonly ISqlRepository _sqlRepository;
+        clsMaterial clsM = new clsMaterial();
         public LotControlController(ISqlRepository R)
         {
             _sqlRepository = R;
@@ -39,7 +41,14 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + ""), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetPOList(string column, string value)
+        {
 
+            var jsondata = Json(clsM.GetNotClosedPOList(column, value), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
 
         [HttpGet, Authorize]
         public JsonResult GetPOLotControlSettingData(string entityId, string PoId)

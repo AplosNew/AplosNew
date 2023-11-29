@@ -38,22 +38,21 @@ function LotControlController(commonMessage, $scope, $rootScope, baseService, $r
     $scope.PRSearchValue = null;
     $scope.getProductionOrderPopUp = function () {
         $scope.ProductionOrderList = [];
-        if (!baseService.isUndefinedOrNull($scope.ModelNew.EntityId)) {
-            $http({
-                method: 'POST',
-                data: {
-                    'entityid': $scope.ModelNew.EntityId, 'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
-                },
-                url: 'Materials/MaterialIssueControl/getlist'
-            }).then(function successCallback(response) {
-                $scope.ProductionOrderList = response.data;
-            });
-        }
+        $http({
+            method: 'POST',
+            data: {
+                'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
+            },
+            url: 'Productions/LotControl/GetPOList'
+        }).then(function successCallback(response) {
+            $scope.ProductionOrderList = response.data;
+        });
         angular.element(document.querySelector('#POItemPopup')).modal('show');
     };
 
     $scope.SetPrOData = function ($event) {
         $scope.ModelNew.ProductionOrderId = $event.data.Id;
+        $scope.ModelNew.EntityId = $event.data.EntityId;
         $scope.GetPOLotControlSettingData();
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
     }
