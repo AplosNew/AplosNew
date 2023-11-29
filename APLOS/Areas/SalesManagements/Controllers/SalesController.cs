@@ -139,69 +139,93 @@ namespace Aplos.Areas.SalesManagements.Controllers
         [HttpPost]
         public JsonResult InsertSales(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesServiceViewModel> salesServiceVMList)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            voucherVM.CompanyGroupId = identity.CompanyGroupId;
-            voucherVM.CompanyId = identity.CompanyId;
-            voucherVM.PlantId = identity.PlantId;
-            if (salesMaterialVMList != null)
+            try
             {
-                foreach (var item in salesMaterialVMList)
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM TRN.Sales where DocRefNo='" + voucherVM.DocRefNo + "' AND  Id<>'" + voucherVM.Id + "'", out DataSet dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Doc Ref already exists!!!");
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                voucherVM.CompanyGroupId = identity.CompanyGroupId;
+                voucherVM.CompanyId = identity.CompanyId;
+                voucherVM.PlantId = identity.PlantId;
+                if (salesMaterialVMList != null)
                 {
-                    if (item.MaterialMasterId == null)
-                        throw new CustomException("Please Select Material !");
-                    if (item.TransactionAmount == 0)
-                        throw new CustomException("Please Input   Amount !");
-                    if (item.TransactionQty == 0)
-                        throw new CustomException("Please Input   Quantity !");
+                    foreach (var item in salesMaterialVMList)
+                    {
+                        if (item.MaterialMasterId == null)
+                            throw new CustomException("Please Select Material !");
+                        if (item.TransactionAmount == 0)
+                            throw new CustomException("Please Input   Amount !");
+                        if (item.TransactionQty == 0)
+                            throw new CustomException("Please Input   Quantity !");
+                    }
                 }
+                if (salesServiceVMList != null)
+                {
+                    foreach (var item in salesServiceVMList)
+                    {
+                        if (item.ServiceMasterId == null)
+                            throw new CustomException("Please Select Service !");
+                        if (item.Amount == 0)
+                            throw new CustomException("Please Input  Service Amount !");
+                    }
+                }
+                _salesService.Insert(voucherVM, salesMaterialVMList, salesServiceVMList);
+                return Json(new { Data = voucherVM, Message = AplosMessage.Insert + "Invoice No: " + voucherVM.Id + "" });
             }
-            if (salesServiceVMList != null)
+            catch (Exception ex)
             {
-                foreach (var item in salesServiceVMList)
-                {
-                    if (item.ServiceMasterId == null)
-                        throw new CustomException("Please Select Service !");
-                    if (item.Amount == 0)
-                        throw new CustomException("Please Input  Service Amount !");
-                }
+                throw ex;
             }
-            _salesService.Insert(voucherVM, salesMaterialVMList, salesServiceVMList);
-            return Json(new { Data = voucherVM, Message = AplosMessage.Insert + "Invoice No: " + voucherVM.Id + "" });
         }
 
         [HttpPost]
         public JsonResult UpdateSales(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesServiceViewModel> salesServiceVMList)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            voucherVM.CompanyGroupId = identity.CompanyGroupId;
-            voucherVM.CompanyId = identity.CompanyId;
-            voucherVM.PlantId = identity.PlantId;
-            if (salesMaterialVMList != null)
+            try
             {
-                foreach (var item in salesMaterialVMList)
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM TRN.Sales where DocRefNo='" + voucherVM.DocRefNo + "' AND  Id<>'" + voucherVM.Id + "'", out DataSet dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Doc Ref already exists!!!");
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                voucherVM.CompanyGroupId = identity.CompanyGroupId;
+                voucherVM.CompanyId = identity.CompanyId;
+                voucherVM.PlantId = identity.PlantId;
+                if (salesMaterialVMList != null)
                 {
-                    if (item.MaterialMasterId == null)
-                        throw new CustomException("Please Select Material !");
-                    if (item.TransactionAmount == 0)
-                        throw new CustomException("Please Input   Amount !");
-                    if (item.TransactionQty == 0)
-                        throw new CustomException("Please Input   Quantity !");
+                    foreach (var item in salesMaterialVMList)
+                    {
+                        if (item.MaterialMasterId == null)
+                            throw new CustomException("Please Select Material !");
+                        if (item.TransactionAmount == 0)
+                            throw new CustomException("Please Input   Amount !");
+                        if (item.TransactionQty == 0)
+                            throw new CustomException("Please Input   Quantity !");
+                    }
                 }
+                if (salesServiceVMList != null)
+                {
+                    foreach (var item in salesServiceVMList)
+                    {
+                        if (item.ServiceMasterId == null)
+                            throw new CustomException("Please Select Service !");
+                        if (item.Amount == 0)
+                            throw new CustomException("Please Input  Service Amount !");
+                    }
+                }
+
+                _salesService.Update(voucherVM, salesMaterialVMList, salesServiceVMList);
+
+                return Json(new { Data = voucherVM, Message = AplosMessage.Updated + "Invoice No: " + voucherVM.Id + "" });
             }
-            if (salesServiceVMList != null)
+            catch (Exception ex)
             {
-                foreach (var item in salesServiceVMList)
-                {
-                    if (item.ServiceMasterId == null)
-                        throw new CustomException("Please Select Service !");
-                    if (item.Amount == 0)
-                        throw new CustomException("Please Input  Service Amount !");
-                }
+                throw ex;
             }
-
-            _salesService.Update(voucherVM, salesMaterialVMList, salesServiceVMList);
-
-            return Json(new { Data = voucherVM, Message = AplosMessage.Updated + "Invoice No: " + voucherVM.Id + "" });
         }
 
         [HttpPost]
