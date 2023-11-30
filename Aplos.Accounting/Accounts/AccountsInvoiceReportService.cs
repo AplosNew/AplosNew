@@ -712,7 +712,10 @@ namespace Library.Accounting.Accounts
 							 , VDC.ToCurrencyRate, SUM(VD.DrAmount) AS DrAmount, SUM(VD.CrAmount) AS CrAmount, SUM(VDC.DrAmount) AS CompanyCurrencyDrAmount, SUM(VDC.CrAmount) AS CompanyCurrencyCrAmount
 							, [DRCR]=CASE WHEN SUM(VDC.DrAmount)>0 THEN '1' ELSE '2' END
                             , VD.GLGeneralInfoId, GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode, P.UserName AS Customer, PP.UserName AS CustomerPlant, VD.Narration AS DetailNarration, BUD.UserName AS Budget
-                            , Activity= CASE WHEN VD.BankMasterId<>'' THEN ACT.UserName+' - '+ BM.AccountTitle ELSE ACT.UserName END,VD.PartyType,I.DocRefNo InvoiceNo
+                            , Activity= CASE WHEN VD.BankMasterId<>'' THEN ACT.UserName+' - '+ BM.AccountTitle ELSE ACT.UserName END,VD.PartyType
+                            ,CASE WHEN I.DocRefNo IS NOT NULL THEN I.DocRefNo
+										WHEN LOAN.DocRefNo IS NOT NULL THEN LOAN.DocRefNo
+										ELSE '' END InvoiceNo
                             FROM 
 							 [TRN].[InvoiceWriteOff] AS IV 
                             LEFT JOIN [TRN].[Voucher] AS V  ON IV.VoucherId=V.Id
@@ -732,6 +735,8 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id=BUM.BudgetId
                             LEFT JOIN [HKP].[Activity] AS ACT ON ACT.Id=VD.ActivityId
                             LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=VD.BankMasterId
+                            LEFT JOIN (select F.DocRefNo,FST.VoucherDetailId from TRN.FinancingSubsequentTransaction FST
+												INNER JOIN TRN.Financing F ON F.Id=FST.FinancingId)LOAN ON LOAN.VoucherDetailId=VD.Id
                             WHERE V.Archive=0 AND IV.InvoiceWriteOffGroupNo='" + invoiceWriteOffGroupNo + @"' 
 							GROUP BY  GL.Id 
 							, FY.FiscalYearName, FYP.PeriodName, FYP.PeriodNo, V.IsPark, V.PostingDate
@@ -740,7 +745,7 @@ namespace Library.Accounting.Accounts
                             , VDC.FromCurrencyId, VDC.ToCurrencyId
 							, VDC.ToCurrencyRate--, VD.DrAmount, VD.CrAmount, VDC.DrAmount, VDC.CrAmount
                             , VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, P.UserName, PP.UserName , VD.Narration, BUD.UserName
-                            ,  VD.BankMasterId,ACT.UserName,BM.AccountTitle ,VD.PartyType,I.DocRefNo
+                            ,  VD.BankMasterId,ACT.UserName,BM.AccountTitle ,VD.PartyType,I.DocRefNo,LOAN.DocRefNo
 							ORDER BY SUM(VD.DrAmount) DESC";
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -829,7 +834,7 @@ namespace Library.Accounting.Accounts
 
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "GL"); colGl = xlsCol; xlsCol++;
             sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(2) + row].Merge(); xlsCol++;
-            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Invoice No"); int colInvoiceNo = xlsCol; xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Particulars"); int colInvoiceNo = xlsCol; xlsCol++;
             //sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(2) + row].Merge(); xlsCol++;
 
             if (companyCurrencyId != transcationCurrency)
@@ -1431,7 +1436,7 @@ namespace Library.Accounting.Accounts
                 //sheet[row, colGl, row, colGl+1].Merge();
                 sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(colGl + 1) + row].Merge();
                 xlsCol++;
-                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Invoice No"); int colInvoiceNo = xlsCol; xlsCol++;
+                reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Particulars"); int colInvoiceNo = xlsCol; xlsCol++;
                 //sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(2) + row].Merge(); xlsCol++;
 
                 if (companyCurrencyId != transcationCurrency)
@@ -1659,7 +1664,10 @@ namespace Library.Accounting.Accounts
 							 , VDC.ToCurrencyRate,VD.DrAmount,VD.CrAmount,VDC.DrAmount CompanyCurrencyDrAmount,VDC.CrAmount AS CompanyCurrencyCrAmount
 							, [DRCR]=CASE WHEN VDC.DrAmount>0 THEN '1' ELSE '2' END
                             , VD.GLGeneralInfoId, GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode, P.UserName AS Customer, PP.UserName AS CustomerPlant, VD.Narration AS DetailNarration, BUD.UserName AS Budget
-                            , Activity= CASE WHEN VD.BankMasterId<>'' THEN ACT.UserName+' - '+ BM.AccountTitle ELSE ACT.UserName END,VD.PartyType,I.DocRefNo InvoiceNo
+                            , Activity= CASE WHEN VD.BankMasterId<>'' THEN ACT.UserName+' - '+ BM.AccountTitle ELSE ACT.UserName END,VD.PartyType
+                            ,CASE WHEN I.DocRefNo IS NOT NULL THEN I.DocRefNo
+							        WHEN LOAN.DocRefNo IS NOT NULL THEN LOAN.DocRefNo
+							        ELSE '' END InvoiceNo
                             FROM 
 							 [TRN].[InvoiceWriteOff] AS IV 
                             LEFT JOIN [TRN].[Voucher] AS V  ON IV.VoucherId=V.Id
@@ -1679,6 +1687,8 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id=BUM.BudgetId
                             LEFT JOIN [HKP].[Activity] AS ACT ON ACT.Id=VD.ActivityId
                             LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=VD.BankMasterId
+                            LEFT JOIN (select F.DocRefNo,FST.VoucherDetailId from TRN.FinancingSubsequentTransaction FST
+									    INNER JOIN TRN.Financing F ON F.Id=FST.FinancingId)LOAN ON LOAN.VoucherDetailId=VD.Id
                             WHERE V.Archive=0 AND IV.InvoiceWriteOffGroupNo='" + invoiceWriteOffGroupNo + @"'  
 							ORDER BY VD.VoucherId,VD.DrAmount DESC";
                 return _sqlRepository.GetDataCollection(sql);

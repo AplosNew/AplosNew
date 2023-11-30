@@ -122,7 +122,7 @@ namespace Library.Service.Invoices
         }
 
         public string InsertCreditNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList
-            , IEnumerable<InvoiceTaxViewModel> additionalTaxList)
+            , IEnumerable<InvoiceTaxViewModel> additionalTaxList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList)
         {
             var flag = false;
             try
@@ -179,6 +179,46 @@ namespace Library.Service.Invoices
                     totalAmountDr += voucherDetaiSales.DrAmount;
                     currentVoucherDetailId++;
                     _voucherService.InsertVoucherDetail(voucher, voucherDetaiSales, currentVoucherDetailId);
+
+                    if (null != invoiceDetailChargesList && invoiceDetailChargesList.Count() > 0 && voucherDetailVM.IsOrderSpecific == true)
+                    {
+
+                        foreach (var item in invoiceDetailChargesList.Where(r => r.GLGeneralInfoId == voucherDetailVM.GLGeneralInfoId && r.BudgetMasterId == voucherDetailVM.BudgetMasterId && r.ActivityId == voucherDetailVM.ActivityId))
+                        {
+
+                            if (CheckInvoiceDetailActivity(item.InvoiceDetailId, item.ActivityId) == true)
+                                throw new CustomException("InvoiceDetailId " + item.InvoiceDetailId + " and Activity " + voucherDetailVM.ActivityName + " already distributed!");
+
+                            var invoiceDetailChargesId = base.GetAutoNumber(nameof(InvoiceDetailCharges), PKGeneratorEnum.Yearly, null, DateTime.Now);
+                            var invoiceChargesId = 0;
+                            if (item.Id == null)
+                            {
+                                invoiceChargesId++;
+                                var invoiceCharges = new InvoiceDetailCharges
+                                {
+                                    Id = MakePK(invoiceDetailChargesId, invoiceChargesId, 2),
+                                    InvoiceDetailId = item.InvoiceDetailId,
+                                    InvoiceId = item.InvoiceId,
+                                    DistributedAmount = item.DistributedAmount,
+                                    InvoiceServiceMasterChargesId = null,
+                                    VoucherDetailId = voucherDetaiSales.Id,
+                                    Amount = item.Amount,
+                                    InvoiceType = item.InvoiceType,
+                                    MasterOrderId = item.MasterOrderId,
+                                    ContractId = item.ContractId
+                                };
+                                AuditService.AddedLog(invoiceCharges);
+                                _invoiceDetailChargesRepository.Insert(invoiceCharges);
+                            }
+                            else
+                            {
+                                var invoiceCharges = _invoiceDetailChargesRepository.Find(item.Id);
+                                invoiceCharges.DistributedAmount = item.DistributedAmount;
+                                AuditService.UpdatedLog(invoiceCharges);
+                                _invoiceDetailChargesRepository.Update(invoiceCharges);
+                            }
+                        }
+                    }
 
                     if (voucherVM.PartyType==PartyType.Vendor.ToString() && null != voucherDetailVM.InvoiceTaxViewModel && voucherDetailVM.InvoiceTaxViewModel.Count > 0)
                     {

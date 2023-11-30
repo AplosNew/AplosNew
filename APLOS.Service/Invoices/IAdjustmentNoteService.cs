@@ -22,7 +22,7 @@ namespace Library.Service.Invoices
 
         void Post(string adjustmentNoteId);
 
-        string InsertCreditNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList, IEnumerable<InvoiceTaxViewModel> tdsTaxList);
+        string InsertCreditNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList, IEnumerable<InvoiceTaxViewModel> tdsTaxList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList);
 
         string InsertDebitNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList, IEnumerable<InvoiceTaxViewModel> tdsTaxList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList);
         GridModel GetDebitNoteList(GridParameter parameters, string companyGroupId, string companyId, string plantId, string partyId, string partyType);
