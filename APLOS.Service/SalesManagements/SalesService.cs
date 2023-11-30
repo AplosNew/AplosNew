@@ -417,213 +417,216 @@ namespace Library.Service.SalesManagements
                 var currentSalesTaxId = _salesMaterialRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 4) AS INT)), 0) Id FROM TRN.SalesTax WHERE SalesId='{sales.Id}'").First();
 
                 var currentSalesServiceId = 0;
-                foreach (var salesMaterialVM in salesMaterialVMList)
+                if (salesMaterialVMList!=null)
                 {
-                    if (string.IsNullOrEmpty(salesMaterialVM.Id))
+                    foreach (var salesMaterialVM in salesMaterialVMList)
                     {
+                        if (string.IsNullOrEmpty(salesMaterialVM.Id))
+                        {
 
-                        currentSalesMaterialId++;
-                        var salesMaterial = new SalesMaterial
-                        {
-                            Id = _pkGeneratorService.MakePK(sales.Id, currentSalesMaterialId, 2),
-                            SalesId = sales.Id,
-                            MaterialMasterId = salesMaterialVM.MaterialMasterId,
-                            ArticleId = salesMaterialVM.ArticleId,
-                            FirstCharacteristicsId = salesMaterialVM.FirstCharacteristicsId,
-                            FirstCharacteristicsValueId = salesMaterialVM.FirstCharacteristicsValueId,
-                            SecondCharacteristicsId = salesMaterialVM.SecondCharacteristicsId,
-                            SecondCharacteristicsValueId = salesMaterialVM.SecondCharacteristicsValueId,
-                            ThirdCharacteristicsId = salesMaterialVM.ThirdCharacteristicsId,
-                            ThirdCharacteristicsValueId = salesMaterialVM.ThirdCharacteristicsValueId,
-                            //BaseUOMId = salesMaterialVM.BaseUOMId,
-                            BaseUOMId = salesMaterialVM.TransactionUoMId,
-                            //BaseRate = salesMaterialVM.BaseRate,
-                            BaseRate = salesMaterialVM.TransactionRate,
-                            //BaseQty = salesMaterialVM.BaseQty,
-                            BaseQty = salesMaterialVM.TransactionQty,
-                            //BaseAmount = salesMaterialVM.BaseAmount,
-                            BaseAmount = salesMaterialVM.TransactionAmount,
-                            BaseUoMFactor = salesMaterialVM.BaseUoMFactor,
-                            TransactionUoMId = salesMaterialVM.TransactionUoMId,
-                            TransactionRate = salesMaterialVM.TransactionRate,
-                            TransactionQty = salesMaterialVM.TransactionQty,
-                            TransactionAmount = salesMaterialVM.TransactionAmount,
-                            TaxAmount = salesMaterialVM.TaxAmount,
-                            NetAmount = salesMaterialVM.TaxAmount + salesMaterialVM.TransactionAmount,
-                            //BooksCurrencyTransactionAmount = Math.Round(salesMaterialVM.TransactionAmount * voucherVM.CompanyCurrencyRate),
-                            BooksCurrencyTransactionAmount = Math.Round(salesMaterialVM.TransactionAmount * sales.ToCurrencyRate,2),
-                            BooksCurrencyTaxAmount = Math.Round(salesMaterialVM.TaxAmount * sales.ToCurrencyRate, 2),
-                            //BooksCurrencyTaxAmount = Math.Round(salesMaterialVM.TaxAmount * voucherVM.CompanyCurrencyRate, 2),
-                            BooksCurrencyBaseRate = Math.Round(voucherVM.CompanyCurrencyRate * salesMaterialVM.TransactionRate, 4),
-                            ModelState = ModelState.Added,
-                            AddedBy = sales.AddedBy,
-                            AddedDate = sales.AddedDate,
-                            AddedFromIP = sales.AddedFromIP,
-                            UpdatedBy = null,
-                            UpdatedDate = null,
-                            UpdatedFromIP = null
-                        };
-                        _salesMaterialRepository.Insert(salesMaterial);
-                        if (salesMaterialVM.TaxList != null && salesMaterialVM.TaxList.Count > 0)
-                        {
-                            foreach (var taxVM in salesMaterialVM.TaxList)
+                            currentSalesMaterialId++;
+                            var salesMaterial = new SalesMaterial
                             {
-                                if (string.IsNullOrEmpty(taxVM.Id))
+                                Id = _pkGeneratorService.MakePK(sales.Id, currentSalesMaterialId, 2),
+                                SalesId = sales.Id,
+                                MaterialMasterId = salesMaterialVM.MaterialMasterId,
+                                ArticleId = salesMaterialVM.ArticleId,
+                                FirstCharacteristicsId = salesMaterialVM.FirstCharacteristicsId,
+                                FirstCharacteristicsValueId = salesMaterialVM.FirstCharacteristicsValueId,
+                                SecondCharacteristicsId = salesMaterialVM.SecondCharacteristicsId,
+                                SecondCharacteristicsValueId = salesMaterialVM.SecondCharacteristicsValueId,
+                                ThirdCharacteristicsId = salesMaterialVM.ThirdCharacteristicsId,
+                                ThirdCharacteristicsValueId = salesMaterialVM.ThirdCharacteristicsValueId,
+                                //BaseUOMId = salesMaterialVM.BaseUOMId,
+                                BaseUOMId = salesMaterialVM.TransactionUoMId,
+                                //BaseRate = salesMaterialVM.BaseRate,
+                                BaseRate = salesMaterialVM.TransactionRate,
+                                //BaseQty = salesMaterialVM.BaseQty,
+                                BaseQty = salesMaterialVM.TransactionQty,
+                                //BaseAmount = salesMaterialVM.BaseAmount,
+                                BaseAmount = salesMaterialVM.TransactionAmount,
+                                BaseUoMFactor = salesMaterialVM.BaseUoMFactor,
+                                TransactionUoMId = salesMaterialVM.TransactionUoMId,
+                                TransactionRate = salesMaterialVM.TransactionRate,
+                                TransactionQty = salesMaterialVM.TransactionQty,
+                                TransactionAmount = salesMaterialVM.TransactionAmount,
+                                TaxAmount = salesMaterialVM.TaxAmount,
+                                NetAmount = salesMaterialVM.TaxAmount + salesMaterialVM.TransactionAmount,
+                                //BooksCurrencyTransactionAmount = Math.Round(salesMaterialVM.TransactionAmount * voucherVM.CompanyCurrencyRate),
+                                BooksCurrencyTransactionAmount = Math.Round(salesMaterialVM.TransactionAmount * sales.ToCurrencyRate, 2),
+                                BooksCurrencyTaxAmount = Math.Round(salesMaterialVM.TaxAmount * sales.ToCurrencyRate, 2),
+                                //BooksCurrencyTaxAmount = Math.Round(salesMaterialVM.TaxAmount * voucherVM.CompanyCurrencyRate, 2),
+                                BooksCurrencyBaseRate = Math.Round(voucherVM.CompanyCurrencyRate * salesMaterialVM.TransactionRate, 4),
+                                ModelState = ModelState.Added,
+                                AddedBy = sales.AddedBy,
+                                AddedDate = sales.AddedDate,
+                                AddedFromIP = sales.AddedFromIP,
+                                UpdatedBy = null,
+                                UpdatedDate = null,
+                                UpdatedFromIP = null
+                            };
+                            _salesMaterialRepository.Insert(salesMaterial);
+                            if (salesMaterialVM.TaxList != null && salesMaterialVM.TaxList.Count > 0)
+                            {
+                                foreach (var taxVM in salesMaterialVM.TaxList)
                                 {
-                                    if (taxVM.TaxCategoryId == null)
-                                        throw new CustomException("Please Selete Tax Category !");
+                                    if (string.IsNullOrEmpty(taxVM.Id))
+                                    {
+                                        if (taxVM.TaxCategoryId == null)
+                                            throw new CustomException("Please Selete Tax Category !");
 
-                                    currentSalesTaxId++;
-                                    var salesTax = new SalesTax
+                                        currentSalesTaxId++;
+                                        var salesTax = new SalesTax
+                                        {
+                                            Id = _pkGeneratorService.MakePK(salesMaterial.Id, currentSalesTaxId, 2),
+                                            AddedBy = sales.AddedBy,
+                                            AddedDate = sales.AddedDate,
+                                            AddedFromIP = sales.AddedFromIP,
+                                            Amount = taxVM.TotalAmount,
+                                            //BooksCurrencyTransactionAmount = Math.Round(taxVM.TotalAmount * voucherVM.CompanyCurrencyRate, 2),
+                                            BooksCurrencyTransactionAmount = Math.Round(taxVM.TotalAmount * sales.ToCurrencyRate, 2),
+                                            HSNCodeId = taxVM.HSNCodeId,
+                                            Percentage = taxVM.Percentage,
+                                            SalesId = sales.Id,
+                                            SalesMaterialId = salesMaterial.Id,
+                                            TaxCategoryId = taxVM.TaxCategoryId,
+                                            SalesServiceId = null,
+                                            ModelState = ModelState.Added,
+                                            UpdatedBy = null,
+                                            UpdatedDate = null,
+                                            UpdatedFromIP = null
+                                        };
+                                        _salesTaxRepository.Insert(salesTax);
+                                    }
+                                    else
                                     {
-                                        Id = _pkGeneratorService.MakePK(salesMaterial.Id, currentSalesTaxId, 2),
-                                        AddedBy = sales.AddedBy,
-                                        AddedDate = sales.AddedDate,
-                                        AddedFromIP = sales.AddedFromIP,
-                                        Amount = taxVM.TotalAmount,
-                                        //BooksCurrencyTransactionAmount = Math.Round(taxVM.TotalAmount * voucherVM.CompanyCurrencyRate, 2),
-                                        BooksCurrencyTransactionAmount = Math.Round(taxVM.TotalAmount * sales.ToCurrencyRate, 2),
-                                        HSNCodeId = taxVM.HSNCodeId,
-                                        Percentage = taxVM.Percentage,
-                                        SalesId = sales.Id,
-                                        SalesMaterialId = salesMaterial.Id,
-                                        TaxCategoryId = taxVM.TaxCategoryId,
-                                        SalesServiceId = null,
-                                        ModelState = ModelState.Added,
-                                        UpdatedBy = null,
-                                        UpdatedDate = null,
-                                        UpdatedFromIP = null
-                                    };
-                                    _salesTaxRepository.Insert(salesTax);
-                                }
-                                else
-                                {
-                                    var salesTax = new SalesTax
-                                    {
-                                        Id = taxVM.Id,
-                                        AddedBy = sales.AddedBy,
-                                        AddedDate = sales.AddedDate,
-                                        AddedFromIP = sales.AddedFromIP,
-                                        Amount = taxVM.TotalAmount,
-                                        BooksCurrencyTransactionAmount = Math.Round(taxVM.TotalAmount * sales.ToCurrencyRate, 2),
-                                        //BooksCurrencyTransactionAmount = Math.Round(taxVM.TotalAmount * voucherVM.CompanyCurrencyRate, 2),
-                                        HSNCodeId = taxVM.HSNCodeId,
-                                        Percentage = taxVM.Percentage,
-                                        SalesId = sales.Id,
-                                        SalesMaterialId = salesMaterial.Id,
-                                        TaxCategoryId = taxVM.TaxCategoryId,
-                                        SalesServiceId = null,
-                                        ModelState = ModelState.Modified,
-                                        UpdatedBy = sales.UpdatedBy,
-                                        UpdatedDate = sales.UpdatedDate,
-                                        UpdatedFromIP = sales.UpdatedFromIP
-                                    };
-                                    _salesTaxRepository.Update(salesTax);
+                                        var salesTax = new SalesTax
+                                        {
+                                            Id = taxVM.Id,
+                                            AddedBy = sales.AddedBy,
+                                            AddedDate = sales.AddedDate,
+                                            AddedFromIP = sales.AddedFromIP,
+                                            Amount = taxVM.TotalAmount,
+                                            BooksCurrencyTransactionAmount = Math.Round(taxVM.TotalAmount * sales.ToCurrencyRate, 2),
+                                            //BooksCurrencyTransactionAmount = Math.Round(taxVM.TotalAmount * voucherVM.CompanyCurrencyRate, 2),
+                                            HSNCodeId = taxVM.HSNCodeId,
+                                            Percentage = taxVM.Percentage,
+                                            SalesId = sales.Id,
+                                            SalesMaterialId = salesMaterial.Id,
+                                            TaxCategoryId = taxVM.TaxCategoryId,
+                                            SalesServiceId = null,
+                                            ModelState = ModelState.Modified,
+                                            UpdatedBy = sales.UpdatedBy,
+                                            UpdatedDate = sales.UpdatedDate,
+                                            UpdatedFromIP = sales.UpdatedFromIP
+                                        };
+                                        _salesTaxRepository.Update(salesTax);
+                                    }
                                 }
                             }
                         }
-                    }
-                    else
-                    {
-                        var salesMaterial = new SalesMaterial
+                        else
                         {
-                            Id = salesMaterialVM.Id,
-                            SalesId = sales.Id,
-                            MaterialMasterId = salesMaterialVM.MaterialMasterId,
-                            ArticleId = salesMaterialVM.ArticleId,
-                            //BaseUOMId = salesMaterialVM.BaseUOMId,
-                            FirstCharacteristicsId = salesMaterialVM.FirstCharacteristicsId,
-                            FirstCharacteristicsValueId = salesMaterialVM.FirstCharacteristicsValueId,
-                            SecondCharacteristicsId = salesMaterialVM.SecondCharacteristicsId,
-                            SecondCharacteristicsValueId = salesMaterialVM.SecondCharacteristicsValueId,
-                            ThirdCharacteristicsId = salesMaterialVM.ThirdCharacteristicsId,
-                            ThirdCharacteristicsValueId = salesMaterialVM.ThirdCharacteristicsValueId,
-                            //BaseUOMId = salesMaterialVM.BaseUOMId,
-                            BaseUOMId = salesMaterialVM.TransactionUoMId,
-                            //BaseRate = salesMaterialVM.BaseRate,
-                            BaseRate = salesMaterialVM.TransactionRate,
-                            //BaseQty = salesMaterialVM.BaseQty,
-                            BaseQty = salesMaterialVM.TransactionQty,
-                            //BaseAmount = salesMaterialVM.BaseAmount,
-                            BaseAmount = salesMaterialVM.TransactionAmount,
-                            BaseUoMFactor = salesMaterialVM.BaseUoMFactor,
-                            TransactionUoMId = salesMaterialVM.TransactionUoMId,
-                            TransactionRate = salesMaterialVM.TransactionRate,
-                            TransactionQty = salesMaterialVM.TransactionQty,
-                            TransactionAmount = salesMaterialVM.TransactionAmount,
-                            TaxAmount = salesMaterialVM.TaxAmount,
-                            BooksCurrencyTransactionAmount = Math.Round(salesMaterialVM.TransactionAmount * sales.ToCurrencyRate,2),
-                            //BooksCurrencyTransactionAmount = Math.Round(salesMaterialVM.TransactionAmount * voucherVM.CompanyCurrencyRate),
-                            //BooksCurrencyTaxAmount = Math.Round(salesMaterialVM.TaxAmount * voucherVM.CompanyCurrencyRate, 2),
-                            BooksCurrencyBaseRate = Math.Round(voucherVM.CompanyCurrencyRate * salesMaterialVM.TransactionRate, 4),
-                            BooksCurrencyTaxAmount = Math.Round(salesMaterialVM.TaxAmount * sales.ToCurrencyRate, 2),
-                            NetAmount = salesMaterialVM.TaxAmount + salesMaterialVM.TransactionAmount,
-                            ModelState = ModelState.Modified,
-                            UpdatedBy = sales.UpdatedBy,
-                            UpdatedDate = sales.UpdatedDate,
-                            UpdatedFromIP = sales.UpdatedFromIP
-                        };
-                        _salesMaterialRepository.Update(salesMaterial);
-                        if (salesMaterialVM.TaxList != null && salesMaterialVM.TaxList.Count > 0)
-                        {
-                            foreach (var taxVM in salesMaterialVM.TaxList)
+                            var salesMaterial = new SalesMaterial
                             {
-                                if (string.IsNullOrEmpty(taxVM.Id))
+                                Id = salesMaterialVM.Id,
+                                SalesId = sales.Id,
+                                MaterialMasterId = salesMaterialVM.MaterialMasterId,
+                                ArticleId = salesMaterialVM.ArticleId,
+                                //BaseUOMId = salesMaterialVM.BaseUOMId,
+                                FirstCharacteristicsId = salesMaterialVM.FirstCharacteristicsId,
+                                FirstCharacteristicsValueId = salesMaterialVM.FirstCharacteristicsValueId,
+                                SecondCharacteristicsId = salesMaterialVM.SecondCharacteristicsId,
+                                SecondCharacteristicsValueId = salesMaterialVM.SecondCharacteristicsValueId,
+                                ThirdCharacteristicsId = salesMaterialVM.ThirdCharacteristicsId,
+                                ThirdCharacteristicsValueId = salesMaterialVM.ThirdCharacteristicsValueId,
+                                //BaseUOMId = salesMaterialVM.BaseUOMId,
+                                BaseUOMId = salesMaterialVM.TransactionUoMId,
+                                //BaseRate = salesMaterialVM.BaseRate,
+                                BaseRate = salesMaterialVM.TransactionRate,
+                                //BaseQty = salesMaterialVM.BaseQty,
+                                BaseQty = salesMaterialVM.TransactionQty,
+                                //BaseAmount = salesMaterialVM.BaseAmount,
+                                BaseAmount = salesMaterialVM.TransactionAmount,
+                                BaseUoMFactor = salesMaterialVM.BaseUoMFactor,
+                                TransactionUoMId = salesMaterialVM.TransactionUoMId,
+                                TransactionRate = salesMaterialVM.TransactionRate,
+                                TransactionQty = salesMaterialVM.TransactionQty,
+                                TransactionAmount = salesMaterialVM.TransactionAmount,
+                                TaxAmount = salesMaterialVM.TaxAmount,
+                                BooksCurrencyTransactionAmount = Math.Round(salesMaterialVM.TransactionAmount * sales.ToCurrencyRate, 2),
+                                //BooksCurrencyTransactionAmount = Math.Round(salesMaterialVM.TransactionAmount * voucherVM.CompanyCurrencyRate),
+                                //BooksCurrencyTaxAmount = Math.Round(salesMaterialVM.TaxAmount * voucherVM.CompanyCurrencyRate, 2),
+                                BooksCurrencyBaseRate = Math.Round(voucherVM.CompanyCurrencyRate * salesMaterialVM.TransactionRate, 4),
+                                BooksCurrencyTaxAmount = Math.Round(salesMaterialVM.TaxAmount * sales.ToCurrencyRate, 2),
+                                NetAmount = salesMaterialVM.TaxAmount + salesMaterialVM.TransactionAmount,
+                                ModelState = ModelState.Modified,
+                                UpdatedBy = sales.UpdatedBy,
+                                UpdatedDate = sales.UpdatedDate,
+                                UpdatedFromIP = sales.UpdatedFromIP
+                            };
+                            _salesMaterialRepository.Update(salesMaterial);
+                            if (salesMaterialVM.TaxList != null && salesMaterialVM.TaxList.Count > 0)
+                            {
+                                foreach (var taxVM in salesMaterialVM.TaxList)
                                 {
-                                    if (taxVM.TaxCategoryId == null)
-                                        throw new CustomException("Please Selete Tax Category !");
+                                    if (string.IsNullOrEmpty(taxVM.Id))
+                                    {
+                                        if (taxVM.TaxCategoryId == null)
+                                            throw new CustomException("Please Selete Tax Category !");
 
-                                    currentSalesTaxId++;
-                                    var salesTax = new SalesTax
+                                        currentSalesTaxId++;
+                                        var salesTax = new SalesTax
+                                        {
+                                            Id = _pkGeneratorService.MakePK(salesMaterialVM.Id, currentSalesTaxId, 2),
+                                            AddedBy = sales.AddedBy,
+                                            AddedDate = sales.AddedDate,
+                                            AddedFromIP = sales.AddedFromIP,
+                                            Amount = taxVM.TotalAmount,
+                                            //BooksCurrencyTransactionAmount = Math.Round(taxVM.TotalAmount * voucherVM.CompanyCurrencyRate, 2),
+                                            BooksCurrencyTransactionAmount = Math.Round(taxVM.TotalAmount * sales.ToCurrencyRate, 2),
+                                            HSNCodeId = taxVM.HSNCodeId,
+                                            Percentage = taxVM.Percentage,
+                                            SalesId = sales.Id,
+                                            SalesMaterialId = salesMaterial.Id,
+                                            TaxCategoryId = taxVM.TaxCategoryId,
+                                            SalesServiceId = null,
+                                            ModelState = ModelState.Added,
+                                            UpdatedBy = null,
+                                            UpdatedDate = null,
+                                            UpdatedFromIP = null
+                                        };
+                                        _salesTaxRepository.Insert(salesTax);
+                                    }
+                                    else
                                     {
-                                        Id = _pkGeneratorService.MakePK(salesMaterialVM.Id, currentSalesTaxId, 2),
-                                        AddedBy = sales.AddedBy,
-                                        AddedDate = sales.AddedDate,
-                                        AddedFromIP = sales.AddedFromIP,
-                                        Amount = taxVM.TotalAmount,
-                                        //BooksCurrencyTransactionAmount = Math.Round(taxVM.TotalAmount * voucherVM.CompanyCurrencyRate, 2),
-                                        BooksCurrencyTransactionAmount = Math.Round(taxVM.TotalAmount * sales.ToCurrencyRate, 2),
-                                        HSNCodeId = taxVM.HSNCodeId,
-                                        Percentage = taxVM.Percentage,
-                                        SalesId = sales.Id,
-                                        SalesMaterialId = salesMaterial.Id,
-                                        TaxCategoryId = taxVM.TaxCategoryId,
-                                        SalesServiceId = null,
-                                        ModelState = ModelState.Added,
-                                        UpdatedBy = null,
-                                        UpdatedDate = null,
-                                        UpdatedFromIP = null
-                                    };
-                                    _salesTaxRepository.Insert(salesTax);
-                                }
-                                else
-                                {
-                                    var salesTax = new SalesTax
-                                    {
-                                        Id = taxVM.Id,
-                                        AddedBy = sales.AddedBy,
-                                        AddedDate = sales.AddedDate,
-                                        AddedFromIP = sales.AddedFromIP,
-                                        Amount = taxVM.TotalAmount,
-                                        //BooksCurrencyTransactionAmount = Math.Round(taxVM.TotalAmount * voucherVM.CompanyCurrencyRate, 2),
-                                        BooksCurrencyTransactionAmount = Math.Round(taxVM.TotalAmount * sales.ToCurrencyRate, 2),
-                                        HSNCodeId = taxVM.HSNCodeId,
-                                        Percentage = taxVM.Percentage,
-                                        SalesId = sales.Id,
-                                        SalesMaterialId = salesMaterial.Id,
-                                        TaxCategoryId = taxVM.TaxCategoryId,
-                                        SalesServiceId = null,
-                                        ModelState = ModelState.Modified,
-                                        UpdatedBy = sales.UpdatedBy,
-                                        UpdatedDate = sales.UpdatedDate,
-                                        UpdatedFromIP = sales.UpdatedFromIP
-                                    };
-                                    _salesTaxRepository.Update(salesTax);
+                                        var salesTax = new SalesTax
+                                        {
+                                            Id = taxVM.Id,
+                                            AddedBy = sales.AddedBy,
+                                            AddedDate = sales.AddedDate,
+                                            AddedFromIP = sales.AddedFromIP,
+                                            Amount = taxVM.TotalAmount,
+                                            //BooksCurrencyTransactionAmount = Math.Round(taxVM.TotalAmount * voucherVM.CompanyCurrencyRate, 2),
+                                            BooksCurrencyTransactionAmount = Math.Round(taxVM.TotalAmount * sales.ToCurrencyRate, 2),
+                                            HSNCodeId = taxVM.HSNCodeId,
+                                            Percentage = taxVM.Percentage,
+                                            SalesId = sales.Id,
+                                            SalesMaterialId = salesMaterial.Id,
+                                            TaxCategoryId = taxVM.TaxCategoryId,
+                                            SalesServiceId = null,
+                                            ModelState = ModelState.Modified,
+                                            UpdatedBy = sales.UpdatedBy,
+                                            UpdatedDate = sales.UpdatedDate,
+                                            UpdatedFromIP = sales.UpdatedFromIP
+                                        };
+                                        _salesTaxRepository.Update(salesTax);
+                                    }
                                 }
                             }
                         }
-                    }
 
+                    } 
                 }
 
                 if (salesServiceVMList != null)
