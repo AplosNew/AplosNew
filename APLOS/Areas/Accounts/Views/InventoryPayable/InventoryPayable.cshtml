@@ -417,6 +417,12 @@
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group" ng-show="modelNew.ShortageQty">
+                        <label class="col-sm-4 control-label">Shortage Qty</label>
+                        <label class="col-sm-2 control-label">{{modelNew.ShortageQty}}</label>
+                        <label class="col-sm-4 control-label">Shortage Amount</label>
+                        <label class="col-sm-2 control-label">{{modelNew.ShortageValue}}</label>
+                    </div>
                 </div>
                 <div class="col-xs-12 col-sm-4 col-md-4">
 
@@ -675,6 +681,9 @@
                         <button ng-disabled="data.AdditionalTaxId==null" ng-click="$parent.onClickadditionalTaxPop(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="TDS">
                             TDS
                         </button>
+                        <button ng-disabled="data.ShortageQty==null" ng-click="$parent.onClickshortageQtyPop(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="TDS">
+                            Shortage
+                        </button>
                         <button ng-disabled="data.IsPark==false" ng-click="$parent.onClickDeletePopUp(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
                             <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
                         </button>
@@ -710,6 +719,7 @@
 
 @Html.Partial("~/Areas/Accounts/Views/InventoryPayable/_ApprovedGRNDetailPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_AdditionalTaxPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_ShortageQtyPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_PartyFiscalInvoiceAmountPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_InvoiceSetOffDetailByInvoicePopUp.cshtml")
 

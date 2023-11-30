@@ -1561,7 +1561,7 @@ namespace Library.Service.Invoices
         {
             CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.Id != entity.Id && r.PartyId == entity.PartyId && r.DocRefNo == entity.DocRefNo);
         }
-        private AdjustmentNote InsertAdjustmentNote(VoucherViewModel voucherVM)
+        public  AdjustmentNote InsertAdjustmentNote(VoucherViewModel voucherVM)
         {
             var adjustmentNote = new AdjustmentNote
             {
@@ -1611,7 +1611,7 @@ namespace Library.Service.Invoices
             return InsertAdjustmentNote(adjustmentNote);
         }
 
-        private AdjustmentNoteDetail InsertAdjustmentNoteDetail(AdjustmentNote adjustmentNote, AdjustmentNoteDetail adjustmentNoteDetail, int currentId)
+        public AdjustmentNoteDetail InsertAdjustmentNoteDetail(AdjustmentNote adjustmentNote, AdjustmentNoteDetail adjustmentNoteDetail, int currentId)
         {
             adjustmentNoteDetail.Id = MakePK(adjustmentNote.Id, currentId, 1);
             adjustmentNoteDetail.AdjustmentNoteId = adjustmentNote.Id;
