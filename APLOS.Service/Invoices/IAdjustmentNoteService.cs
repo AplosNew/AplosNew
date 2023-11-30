@@ -32,6 +32,7 @@ namespace Library.Service.Invoices
         void UpdateAdjustmentNoteDetail(AdjustmentNoteDetail adjustmentNoteDetail);
         IQueryFluent<AdjustmentNoteDetail> QueryAdjustmentNoteDetail(string adjustmentNoteId);
 
-
+         AdjustmentNote InsertAdjustmentNote(VoucherViewModel voucherVM);
+        AdjustmentNoteDetail InsertAdjustmentNoteDetail(AdjustmentNote adjustmentNote, AdjustmentNoteDetail adjustmentNoteDetail, int currentId);
     }
 }

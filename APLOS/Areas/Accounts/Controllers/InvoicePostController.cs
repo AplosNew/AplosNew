@@ -121,6 +121,20 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost, Authorize]
+        public JsonResult InsertShortageDebitNote( VoucherViewModel voucherVM,string grnId, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.SourceType = SourceType.DebitNote.ToString();
+            voucherVM.PartyType = "Vendor";
+            _inventoryPayableService.InsertShortageDebitNote(voucherVM, grnId, voucherDetailVMList);
+            return Json(new { Message = AplosMessage.Insert });
+        }
+
+
+        [HttpPost, Authorize]
         public JsonResult InsertCreditNoteAdditionalTaxPost(string additionalTaxId, VoucherViewModel voucherVM)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

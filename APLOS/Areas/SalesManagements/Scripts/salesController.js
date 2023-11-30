@@ -406,8 +406,21 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
         }
     };
 
+    function containsSpecialChars(str) {
+        const specialChars = /[@!#$%^&*()_+\-=\[\]{};':"|,.<>\?`~]/;
+        return specialChars.test(str);
+    }
 
-
+    $scope.CheckSpecialCharecter = function () {
+        try {
+            if (containsSpecialChars($scope.salesVM.DocRefNo)) {
+                $scope.salesVM.DocRefNo = $scope.salesVM.DocRefNo.substring(0, $scope.salesVM.DocRefNo.length - 1);
+                throw "No special characters allowed for Doc Ref.";
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 
 
     $scope.dateMessage = "";

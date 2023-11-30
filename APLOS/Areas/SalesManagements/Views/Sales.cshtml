@@ -86,7 +86,7 @@
                         <div class="form-group" show-errors>
                             <label class="col-sm-2 control-label">Doc Ref<sup>*</sup></label>
                             <div class="col-sm-10 show-message">
-                                <input type="text" maxlength="20" name="Doc Ref" ng-model="salesVM.DocRefNo" class="form-control" tabindex="4" required capitalize autocomplete="off">
+                                <input type="text" maxlength="20" name="Doc Ref" ng-model="salesVM.DocRefNo" @*ng-keyup="CheckSpecialCharecter();"*@ class="form-control" tabindex="4" required capitalize autocomplete="off">
                             </div>
                         </div>
 

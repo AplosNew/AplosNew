@@ -462,8 +462,8 @@ namespace Library.Accounting.Accounts
 							,ActivityCode =case WHEN MM.IsAsset=0 THEN A.Code  ELSE AF.Code END
 							,ActivityName =case WHEN MM.IsAsset=0 THEN A.UserName  ELSE AF.UserName END
 							
-							, SUM(IRD.TotalMaterialTranAmount - IRD.ShortageValue) AS Dr, NULL Cr
-							, SUM(IRD.TotalMaterialTranAmount - IRD.ShortageValue) AS Amount
+							, SUM(IRD.TotalMaterialTranAmount ) AS Dr, NULL Cr
+							, SUM(IRD.TotalMaterialTranAmount ) AS Amount
                             ,MM.IsAsset,IRD.Id AS  InventoryReceiveDetailId
 						FROM [TRN].[InventoryReceiveDetail] AS IRD
 						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
@@ -492,76 +492,7 @@ namespace Library.Accounting.Accounts
                     , T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId,T.IsAsset, T.InventoryReceiveDetailId
 					
                    UNION
-				   SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId, NULL AS TaxCodeId
-						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
-						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
-						, T.ActivityId, T.ActivityCode, T.ActivityName
-						, T.Dr
-						
-						, T.Cr, T.Amount, T.IsAsset,T.InventoryReceiveDetailId
-					FROM (
-						SELECT  'Shortage' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId, NULL AS TaxCodeId,MM.FixedAssetMasterId
-
-							,GLGeneralInfoId =case WHEN MM.IsAsset=0 THEN MGGL.ShortageGLId  ELSE FAG.AssetUnderConstructionGLId END
-							,GLGeneralInfoCode =case WHEN MM.IsAsset=0 THEN GL.AccountCode  ELSE GLF.AccountCode END
-							,GLGeneralInfoName =case WHEN MM.IsAsset=0 THEN GL.UserName  ELSE GLF.UserName END
-							,BudgetMasterId =case WHEN MM.IsAsset=0 THEN MGGL.ShortageBudgetMasterId  ELSE FAG.AssetUnderConstructionBudgetMasterId END
-							,BudgetCode =case WHEN MM.IsAsset=0 THEN B.Code  ELSE BF.Code END
-							,BudgetName =case WHEN MM.IsAsset=0 THEN B.UserName  ELSE BF.UserName END
-							,ActivityId =case WHEN MM.IsAsset=0 THEN MGGL.ShortageActivityId  ELSE FAG.AssetUnderConstructionActivityId END
-							,ActivityCode =case WHEN MM.IsAsset=0 THEN A.Code  ELSE AF.Code END
-							,ActivityName =case WHEN MM.IsAsset=0 THEN A.UserName  ELSE AF.UserName END
-							
-							, SUM(IRD.ShortageValue) AS Dr, NULL Cr
-							, SUM(IRD.ShortageValue) AS Amount
-                            ,MM.IsAsset,IRD.Id AS  InventoryReceiveDetailId
-						FROM [TRN].[InventoryReceiveDetail] AS IRD
-						LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
-						LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
-						LEFT JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
-						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
-								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
-						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON MGGL.ShortageGLId=GL.Id
-						LEFT JOIN[MST].[BudgetMaster] AS BM ON MGGL.ShortageBudgetMasterId= BM.Id
-						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
-						LEFT JOIN [HKP].[Activity] AS A ON MGGL.ShortageActivityId= A.Id
-						LEFT JOIN (SELECT FAMBT.BudgetMasterId,FAMG.AssetUnderConstructionGLId ,FAMG.AssetUnderConstructionBudgetMasterId,FAMG.AssetUnderConstructionActivityId 
-						FROM HKP.FixedAssetMasterBudgetTag FAMBT LEFT JOIN HKP.FixedAssetMasterGL FAMG ON FAMBT.FixedAssetMasterId=FAMG.FixedAssetMasterId) AS FAG 
-						ON FAG.BudgetMasterId=MM.BudgetMasterId
-						LEFT JOIN[HKP].[GLGeneralInfo] AS GLF ON FAG.AssetUnderConstructionGLId=GLF.Id
-						LEFT JOIN[MST].[BudgetMaster] AS BMF ON FAG.AssetUnderConstructionBudgetMasterId= BMF.Id
-						LEFT JOIN [HKP].[Budget] AS BF ON BMF.BudgetId= BF.Id
-						LEFT JOIN [HKP].[Activity] AS AF ON FAG.AssetUnderConstructionActivityId= AF.Id
-						WHERE IRD.InventoryReceiveId=@receiveId
-						GROUP BY MM.MaterialGroupMasterId, MGGL.ShortageGLId, GL.AccountCode, GL.UserName, MGGL.ShortageBudgetMasterId, B.Code, B.UserName, MGGL.ShortageActivityId, A.Code, A.UserName
-					    ,MM.IsAsset,MM.FixedAssetMasterId,FAG.AssetUnderConstructionGLId,GLF.AccountCode,GLF.UserName
-						,FAG.AssetUnderConstructionBudgetMasterId,BF.Code,BF.UserName
-						,FAG.AssetUnderConstructionActivityId,AF.Code,AF.UserName,IRD.Id
-                    ) AS T
-					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId
-                    , T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId,T.IsAsset, T.InventoryReceiveDetailId
-
-                    --UNION
-					--SELECT  'Charge' AS OtherName, 'Dr' AS TrnType, MM.Id as ServiceMasterId, NULL AS TaxCategoryId
-					--		, MGGL.ExpenseGLId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
-					--		, MGGL.ExpenseBudgetMasterId AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
-					--		, MGGL.ExpenseActivityId AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
-					--		, SUM(IM.Amount) AS Dr, NULL Cr
-					--		, SUM(IM.Amount) AS Amount
-					--	FROM [TRN].[InventoryService] AS IM
-					--	LEFT JOIN [TRN].[InventoryReceive] AS IR ON IM.InventoryReceiveId=IR.Id
-					--	LEFT JOIN [HKP].[ServiceMaster] AS SM ON IM.ServiceMasterId=SM.Id
-					--	LEFT JOIN [HKP].[ServiceGroup] AS MM ON SM.ServiceGroupId=MM.Id
-					--	LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[ServiceGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
-					--			AS MGGL ON MM.Id = MGGL.ServiceGroupId
-					--	LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON MGGL.ExpenseGLId=GL.Id
-					--	LEFT JOIN[MST].[BudgetMaster] AS BM ON MGGL.ExpenseBudgetMasterId= BM.Id
-					--	LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
-					--	LEFT JOIN [HKP].[Activity] AS A ON MGGL.ExpenseActivityId= A.Id
-					--	WHERE IM.InventoryReceiveId=@receiveId
-					--	GROUP BY MM.Id, MGGL.ExpenseGLId, GL.AccountCode, GL.UserName, MGGL.ExpenseBudgetMasterId, B.Code, B.UserName, MGGL.ExpenseActivityId, A.Code, A.UserName
-                        
-                    UNION
+				   
 					SELECT 'Tax' AS OtherName, 'Dr' AS TrnType, NULL MaterialGroupMasterId, IRT.TaxCategoryId, NULL AS TaxCodeId
 						, TCGL.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
 						, TCGL.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
@@ -1668,7 +1599,7 @@ UNION
 								, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
 	                            , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId
 								, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-	                             , IRD.TransactionQty,IRD.ShortageQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount
+	                             , IRD.TransactionQty,IRD.ShortageQty,IRD.ShortageValue, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount
                                 , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName,PT.PaymentMode
 								, CP.TaxApplicable, IR.IsTaxApplicable, IR.ToCurrencyRate, IR.ToCurrencyRate CompanyCurrencyRate
 								,[Type]=CASE WHEN IR.EmployeeId<>'' THEN 'Employee' Else 'Vendor' END
@@ -1727,7 +1658,7 @@ UNION
 					LEFT JOIN TRN.PurchaseDocAcceptance PDA ON PDA.Id=GRNACC.PurchaseDocumentAcceptanceId
 					LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=PDA.PurchaseLCId
 					
-                     LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty,SUM(A.ShortageQty) AS ShortageQty, SUM(ROUND(A.TotalMaterialTranAmount,4)) AS TransactionAmount, SUM(ROUND(A.TotalMaterialBooksCurrencyAmount,0)) AS BaseAmount FROM [TRN].[InventoryReceiveDetail] AS A
+                     LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty,SUM(ISNULL(A.ShortageQty,0)) AS ShortageQty,SUM(ISNULL(A.ShortageValue,0)) AS ShortageValue, SUM(ROUND(A.TotalMaterialTranAmount,4)) AS TransactionAmount, SUM(ROUND(A.TotalMaterialBooksCurrencyAmount,0)) AS BaseAmount FROM [TRN].[InventoryReceiveDetail] AS A
 		                        JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id
 		                        WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
@@ -1849,7 +1780,42 @@ UNION
             }
         }
 
-        public IEnumerable<object> GetPurchaseOrderDiscount(string plantId, string grnId)
+		public IEnumerable<object> GetShortageQtyDetail(string grnId,string financingTypeId)
+		{
+			try
+			{
+				var sql = @"SELECT  GL.AccountCode+' - '+ GL.UserName GLName,BU.UserName BudgetName,A.UserName ActivityName,0 DrAmount,IRD.ShortageValue CrAmount
+                            ,IRD.PostDrGLGeneralInfoId GLGeneralInfoId,  IRD.PostDrBudgetMasterId BudgetMasterId, IRD.PostDrActivityId ActivityId,NULL TaxCategoryId,NULL TaxCodeId,'Cr' AType,'Cr' TrnType
+                            FROM TRN.InventoryReceive IR 
+                            JOIN (SELECT InventoryReceiveId,PostDrGLGeneralInfoId,PostDrBudgetMasterId,PostDrActivityId,SUM(ISNULL(ShortageValue,0)) ShortageValue
+									FROM TRN.InventoryReceiveDetail where ShortageQty>0 
+									group by InventoryReceiveId,PostDrGLGeneralInfoId,PostDrBudgetMasterId,PostDrActivityId) IRD ON IRD.InventoryreceiveId=IR.Id
+                            LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=IRD.PostDrGLGeneralInfoId
+                            LEFT JOIN MST.BudgetMaster BM ON BM.Id=IRD.PostDrBudgetMasterId
+                            LEFT JOIN HKP.Budget BU ON BU.Id=BM.BudgetId
+                            LEFT JOIN HKP.Activity A ON A.Id=IRD.PostDrActivityId
+							WHERE IR.Id='" + grnId + @"'
+
+                            UNION ALL
+							SELECT GL.AccountCode+' - '+ GL.UserName GLName,BU.UserName BudgetName,A.UserName ActivityName,0 DrAmount,0 CrAmount
+                            ,FGL.AssetGLId GLGeneralInfoId,  FGL.AssetBudgetMasterId BudgetMasterId, FGL.AssetActivityId ActivityId,NULL TaxCategoryId,NULL TaxCodeId,'Dr' AType,'Dr' TrnType
+							FROM HKP.FinancingTypeGL FGL
+							LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=FGL.AssetGLId
+                            LEFT JOIN MST.BudgetMaster BM ON BM.Id=FGL.AssetBudgetMasterId
+                            LEFT JOIN HKP.Budget BU ON BU.Id=BM.BudgetId
+                            LEFT JOIN HKP.Activity A ON A.Id=FGL.AssetActivityId
+							where FGL.FinancingTypeId='" + financingTypeId + "' ";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+		}
+
+		public IEnumerable<object> GetPurchaseOrderDiscount(string plantId, string grnId)
         {
             try
             {
