@@ -356,7 +356,6 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol - 1].BorderInside(ExcelLineStyle.Hair);
                 ROW++;
 
-
                 int CostingDetailStartRow = ROW; //row 20
                 for (int i = 0; i < dtCostingDetailInfo.Rows.Count; i++)
                 {
