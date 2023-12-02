@@ -1,5 +1,5 @@
 ﻿'use strict';
-PackingInvoiceController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller', 'accountService', 'bankService', '$window'];
+PackingInvoiceController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller', 'accountService', 'bankService','$window'];
 function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller, accountService, bankService, $window) {
     $rootScope.title = 'Packing Invoice';
     $scope.path = 'Productions/PackingInvoice/';
@@ -1409,9 +1409,9 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     };
 
     $scope.cancelMaterialRow = function (Id, index) {
-        angular.element(document.querySelector('#cancelPopUp')).modal('show');
-        $scope.mateId = Id;
-        $scope.mateIndex = index;
+            angular.element(document.querySelector('#cancelPopUp')).modal('show');
+            $scope.mateId = Id;
+            $scope.mateIndex = index;
     };
     $scope.CancelRemark = null;
     $scope.closeCancelMaterialRow = function () {
@@ -1502,7 +1502,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 };
-            }
+            } 
 
         } catch (e) {
             ShowResult(e, 'success');
@@ -1839,12 +1839,10 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                     $scope.ModelNew.PartyName = $scope.salesVM.PartyName;
                     $scope.ModelNew.Amount = $scope.salesVM.Amount;
 
-                    if (baseService.isUndefinedOrNull($scope.ModelNew.BankMasterId)) {
-                        if (baseService.arrayLength($scope.bankMasterList) > 0 && !baseService.isUndefinedOrNull($scope.salesVM.BenificiaryBankId)) {
-                            for (var i = 0; i < $scope.bankMasterList.length; i++) {
-                                if ($scope.bankMasterList[i].Id === $scope.salesVM.BenificiaryBankId) {
-                                    $scope.ModelNew.BankMasterId = $scope.bankMasterList[i].Id;
-                                }
+                    if (baseService.arrayLength($scope.bankMasterList) > 0 && !baseService.isUndefinedOrNull($scope.salesVM.BenificiaryBankId)) {
+                        for (var i = 0; i < $scope.bankMasterList.length; i++) {
+                            if ($scope.bankMasterList[i].Id === $scope.salesVM.BenificiaryBankId) {
+                                $scope.ModelNew.BankMasterId = $scope.bankMasterList[i].Id;
                             }
                         }
                     }
@@ -1868,7 +1866,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     });
 
     $scope.bankMasterList = [];
-    bankService.getNegotiatingBankMasterCboListByPlant(function (result) {
+    bankService.getBankMasterCboListByPlant(function (result) {
         $scope.bankMasterList = result;
 
     });
@@ -2153,7 +2151,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector('#vendorPopUp')).modal('hide');
     }
 
-
+   
 
     //#endregion PostInvoice
 
