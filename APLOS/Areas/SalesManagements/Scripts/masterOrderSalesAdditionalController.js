@@ -368,13 +368,13 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
                     $scope.ModelNew.PartyName = $scope.salesVM.PartyName;
                     $scope.ModelNew.Amount = $scope.salesVM.Amount;
                     $scope.getPartyPlant();
-                    if (baseService.arrayLength($scope.bankMasterList) > 0 && !baseService.isUndefinedOrNull($scope.salesVM.BenificiaryBankId)) {
-                        for (var i = 0; i < $scope.bankMasterList.length; i++) {
-                            if ($scope.bankMasterList[i].Id === $scope.salesVM.BenificiaryBankId) {
-                                $scope.ModelNew.BankMasterId = $scope.bankMasterList[i].Id;
-                            }
-                        }
-                    }
+                    //if (baseService.arrayLength($scope.bankMasterList) > 0 && !baseService.isUndefinedOrNull($scope.salesVM.BenificiaryBankId)) {
+                    //    for (var i = 0; i < $scope.bankMasterList.length; i++) {
+                    //        if ($scope.bankMasterList[i].Id === $scope.salesVM.BenificiaryBankId) {
+                    //            $scope.ModelNew.BankMasterId = $scope.bankMasterList[i].Id;
+                    //        }
+                    //    }
+                    //}
 
                 },
                 function errorCallback(response) {

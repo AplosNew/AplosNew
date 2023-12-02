@@ -2116,15 +2116,15 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
                     $scope.ModelNew.PartyName = $scope.salesVM.PartyName;
                     $scope.ModelNew.Amount = $scope.salesVM.Amount;
 
-                    if (baseService.isUndefinedOrNull($scope.ModelNew.BankMasterId)) {
-                        if (baseService.arrayLength($scope.bankMasterList) > 0 && !baseService.isUndefinedOrNull($scope.salesVM.BenificiaryBankId)) {
-                            for (var i = 0; i < $scope.bankMasterList.length; i++) {
-                                if ($scope.bankMasterList[i].Id === $scope.salesVM.BenificiaryBankId) {
-                                    $scope.ModelNew.BankMasterId = $scope.bankMasterList[i].Id;
-                                }
-                            }
-                        }
-                    }
+                    //if (baseService.isUndefinedOrNull($scope.ModelNew.BankMasterId)) {
+                    //    if (baseService.arrayLength($scope.bankMasterList) > 0 && !baseService.isUndefinedOrNull($scope.salesVM.BenificiaryBankId)) {
+                    //        for (var i = 0; i < $scope.bankMasterList.length; i++) {
+                    //            if ($scope.bankMasterList[i].Id === $scope.salesVM.BenificiaryBankId) {
+                    //                $scope.ModelNew.BankMasterId = $scope.bankMasterList[i].Id;
+                    //            }
+                    //        }
+                    //    }
+                    //}
 
                 },
                 function errorCallback(response) {
