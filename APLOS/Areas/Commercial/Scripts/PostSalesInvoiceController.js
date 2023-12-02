@@ -42,7 +42,7 @@ function PostSalesInvoiceController(cboService, commonMessage, $scope, $rootScop
     });
 
     $scope.bankMasterList = [];
-    bankService.getBankMasterCboListByPlant(function (result) {
+    bankService.GetNegotiatingBankMasterCboListByPlant(function (result) {
         $scope.bankMasterList = result;
 
     });

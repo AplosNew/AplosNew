@@ -2144,7 +2144,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
     });
 
     $scope.bankMasterList = [];
-    bankService.getNegotiatingBankMasterCboListByPlant(function (result) {
+    bankService.GetNegotiatingBankMasterCboListByPlant(function (result) {
         $scope.bankMasterList = result;
 
     });

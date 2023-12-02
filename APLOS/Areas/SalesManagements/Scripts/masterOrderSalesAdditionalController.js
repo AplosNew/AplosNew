@@ -395,7 +395,7 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
     });
 
     $scope.bankMasterList = [];
-    bankService.getBankMasterCboListByPlant(function (result) {
+    bankService.GetNegotiatingBankMasterCboListByPlant(function (result) {
         $scope.bankMasterList = result;
 
     });

@@ -67,7 +67,8 @@ function bankMasterController(cboService, commonMessage, $scope, $rootScope, bas
         Remarks: null,
         Description: null,
         Active: true,
-        AccountType: null
+        AccountType: null,
+        IsNegotiatingBank:false
     };
 
     $scope.contactMaster = {
