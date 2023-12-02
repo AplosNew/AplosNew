@@ -66,13 +66,13 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
             SalesId: null,
             PostCode: null,
             ShippingDate: null,
-            ShippingBill: null, 
+            ShippingBill: null,
             AddedBy: null,
             AddedDate: null,
             AddedFromIP: null,
             UpdatedBy: null,
             UpdatedDate: null,
-             UpdatedFromIP: null
+            UpdatedFromIP: null
         }
         $scope.modelNew = Object.assign({}, $scope.model);
         angular.element(document.querySelector('#detailpopup')).modal('hide');
@@ -346,11 +346,11 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
         IsPark: 1,
         IsAdditionalInfoApplicable: true,
         IsIncentiveApplicable: false,
-        InvoiceStatus:'Active'
+        InvoiceStatus: 'Active'
     };
 
     $scope.getPostSalesData = function () {
-        
+
         $http.get("Commercial/PostSalesInvoice/GetListBySalesId?SalesId=" + $scope.SalesId)
             .then(
                 function successCallback(response) {
@@ -368,10 +368,12 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
                     $scope.ModelNew.PartyName = $scope.salesVM.PartyName;
                     $scope.ModelNew.Amount = $scope.salesVM.Amount;
                     $scope.getPartyPlant();
-                    if (baseService.arrayLength($scope.bankMasterList) > 0 && !baseService.isUndefinedOrNull($scope.salesVM.BenificiaryBankId)) {
-                        for (var i = 0; i < $scope.bankMasterList.length; i++) {
-                            if ($scope.bankMasterList[i].Id === $scope.salesVM.BenificiaryBankId) {
-                                $scope.ModelNew.BankMasterId = $scope.bankMasterList[i].Id;
+                    if (baseService.isUndefinedOrNull($scope.ModelNew.BankMasterId)) {
+                        if (baseService.arrayLength($scope.bankMasterList) > 0 && !baseService.isUndefinedOrNull($scope.salesVM.BenificiaryBankId)) {
+                            for (var i = 0; i < $scope.bankMasterList.length; i++) {
+                                if ($scope.bankMasterList[i].Id === $scope.salesVM.BenificiaryBankId) {
+                                    $scope.ModelNew.BankMasterId = $scope.bankMasterList[i].Id;
+                                }
                             }
                         }
                     }
@@ -395,7 +397,7 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
     });
 
     $scope.bankMasterList = [];
-    bankService.getBankMasterCboListByPlant(function (result) {
+    bankService.getNegotiatingBankMasterCboListByPlant(function (result) {
         $scope.bankMasterList = result;
 
     });
@@ -856,16 +858,16 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
 
     console.log($scope.ModelInvoiceStatus);
     $scope.InvoiceStatusList = [
-        { Value: 'Active', Text:'Active'},
-        { Value: 'Closed', Text:'Closed'},
-        { Value: 'Pending', Text:'Pending'}
+        { Value: 'Active', Text: 'Active' },
+        { Value: 'Closed', Text: 'Closed' },
+        { Value: 'Pending', Text: 'Pending' }
     ]
-    
-  
+
+
 
     $scope.saveInvoiceStatusUrl = $scope.path + 'CreateInvoiceStatus';
     $scope.SaveInvoiceStatus = function () {
-        try {  
+        try {
             $http({
                 method: 'POST',
                 url: $scope.saveInvoiceStatusUrl,
@@ -876,14 +878,14 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    ShowResult(response.data.Message, 'success'); 
+                    ShowResult(response.data.Message, 'success');
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
-            } 
+            }
         } catch (e) {
             ShowResult(e, 'failure');
         }
     };
- 
+
 }
