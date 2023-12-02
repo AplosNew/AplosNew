@@ -119,5 +119,11 @@ function CommercialConfig($routeProvider) {
             templateUrl: 'Commercial/LCReports/btb',
             controller: 'BtbPerformanceController'
         })
+
+        .when("/invoice-status", {
+            templateUrl: "Commercial/PostSalesInvoice/InvoiceStatus",
+            controller: "InvoiceStatusController"
+        })
+
         ;
 }

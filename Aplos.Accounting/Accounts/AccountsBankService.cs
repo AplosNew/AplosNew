@@ -86,6 +86,22 @@ namespace Library.Accounting.Accounts
             }
         }
 
+        public List<Dictionary<string, object>> GetNegotiatingBankMasterCboListByPlant(string companyGroupId, string companyId, string plantId)
+        {
+            try
+            {
+                var sql = @"SELECT Id, AccountTitle, AccountNumber, CurrencyId, EntityId FROM [MST].[BankMaster]
+                            WHERE Archive=0 AND Active=1 AND IsNegotiatingBank=1 AND CompanyGroupId='" + companyGroupId + "' AND CompanyId='" + companyId + "' AND (PlantId='" + plantId + @"' OR PlantId IS NULL) ORDER BY 2 ASC";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Bank.ToString()));
+            }
+        }
+
         public List<Dictionary<string, object>> GetPartyBankCboListByParty(string partyId)
         {
             try

@@ -107,10 +107,7 @@ namespace Aplos.Areas.Products.Controllers
 			                            from TRN.POGGRNMap PG 
                                         LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
 			                            where PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                            ,POId= STUFF((select distinct ','+PG.POId
-			                            FROM TRN.POGGRNMap PG 
-                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
-			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                            ,RD.POId,RD.PODetailsId
                             FROM [TRN].[InventoryReceive] AS IR 
                             LEFT JOIN [TRN].[InventoryReceiveDetail] RD ON RD.InventoryReceiveId=IR.Id
                             LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
@@ -118,7 +115,7 @@ namespace Aplos.Areas.Products.Controllers
                             WHERE IR.PlantId='" + identity.PlantId + @"' AND ISNULL(IR.VoucherId,'')<>'' 
                             AND IR.[Status]='Posting' AND IR.IsApproved=1 AND  RD.POId IN (SELECT Id From TRN.PurchaseOrder Where PurchaseLCId='" + purchaseLCId + @"')
                             AND IR.Id IN (SELECT GRNId FROM [TRN].[GRNAcceptanceMap] WHERE PurchaseDocumentAcceptanceId IS NOT NULL)
-                            GROUP BY IR.Id,IR.DocRefNo,P.UserName,IR.DocDate,IR.GateEntryNo,C.Code";
+                            GROUP BY IR.Id,IR.DocRefNo,P.UserName,IR.DocDate,IR.GateEntryNo,C.Code,RD.POId,RD.PODetailsId";
                 return Json(_sqlRepository.GetDataCollection(Sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception)

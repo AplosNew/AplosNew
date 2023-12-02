@@ -41,6 +41,11 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             return View();
         }
+
+        public ActionResult InvoiceStatus()
+        {
+            return View();
+        }
         #endregion
 
         #region -- Operations
