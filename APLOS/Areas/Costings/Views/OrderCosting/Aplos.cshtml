@@ -30,13 +30,8 @@
                 <div class="col-xs-12 col-sm-12 col-md-10">
                     <h3 class="site-heading">
                         <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>  Product Information
-                    </h3>
-
-
-
-                    <div class="row">
-
-
+                    </h3> 
+                    <div class="row"> 
                         <div class="col-sm-2 ">
                             Product Master
                             <div class="select-style">
@@ -58,23 +53,19 @@
                             Cost.Type
                             <input type="text" name="User Name"
                                    disabled ng-model="ModelNew.CostingTypeName" class="form-control">
-                        </div>
-
+                        </div> 
                         <div class="col-sm-2">
                             Costing Id
                             <input type="text" name="Id" readonly ng-model="ModelNew.Id" class="form-control">
-                        </div>
-
+                        </div> 
                         <div class="col-sm-2">
                             Costing Stage
                             <div class="select-style">
                                 <select ng-disabled="true" class="form-control" ng-model="ModelNew.CostingStage"
                                         name="ProductMasterId" ng-options="item.value as item.name for item in CostingStageList">
                                 </select>
-                            </div>
-
-                        </div>
-
+                            </div> 
+                        </div> 
                     </div>
                     <h3 class="site-heading"></h3>
                     <div class="row">
@@ -176,12 +167,8 @@
                                                         <option value="SPT">SPT</option>
                                                         <option value="TARGET">Tgt/Hr</option>
                                                     </select>
-                                                </div>
-
-                                            </div>
-
-
-
+                                                </div> 
+                                            </div> 
                                         </div>
                                         <div class="col-xs-12 col-sm-2 col-md-2" style="padding-left:20px!important">
                                             @*Std Cost for WC / day<sup>*</sup>*@
@@ -244,11 +231,8 @@
                                                     <input type="text" name="No Of WS" ng-change="calculateSPT();" ng-model="ModelNew.NoOfWorkstation" class="form-control" autocomplete="off" required maxlength="10">
                                                 </div>
                                             </div>
-                                        </div>
-
-                                    </td>
-
-
+                                        </div> 
+                                    </td> 
                                 </tr>
                                 <tr>
                                     <td style="width:100%;text-align:left;">
@@ -322,7 +306,6 @@
                                 </div>
                                 <i>Max. 2MB, File name less than 50 char.</i>
                             </td>
-
                         </tr>
                     </table>
 
@@ -379,10 +362,7 @@
                                                             </select>
                                                         </div>
                                                     </div>
-                                                </div>
-
-
-
+                                                </div> 
                                                 <div class="col-xs-12 col-sm-6 col-md-6">
                                                     Packing Type
                                                 </div>
@@ -408,10 +388,8 @@
                                                         <div class=" show-message">
                                                             <input type="text" ng-change="CalculateProfit();SumNetProfitOfSelling();" name="Target Selling Price" autocomplete="off" n-decimals="2" ng-model="ModelNew.TargetSellingPrice" class="form-control text-right" required>
                                                         </div>
-                                                    </div>
-
-                                                </div>
-
+                                                    </div> 
+                                                </div> 
                                                 <div class="col-xs-12 col-sm-6 col-md-6">
                                                     Specific To<sup>*</sup>
                                                 </div>
@@ -526,8 +504,7 @@
                                                             <input type="text" name="Target CM" n-decimals="2" ng-model="ModelNew.TargetCM" class="form-control text-right" autocomplete="off" min="1" required>
                                                         </div>
                                                     </div>
-                                                </div>
-
+                                                </div> 
 
                                                 <div class="col-xs-12 col-sm-6 col-md-6">
                                                     Est.NoOf Pag List
@@ -545,8 +522,7 @@
                                                     Remarks
                                                 </div>
                                                 <div class="col-xs-12 col-sm-6 col-md-6">
-                                                    <div class="form-group">
-
+                                                    <div class="form-group"> 
                                                         <div class="">
                                                             <textarea class="form-control" rows="1" ng-model="ModelNew.Remarks" maxlength="250"></textarea>
                                                         </div>
@@ -952,13 +928,10 @@
                                                           e-enableAnimation="true" e-marker-dataLabel-enablecontrastcolor="true" e-datasource=OrderCostingDetailList e-xname="UserName" e-yname="TotalProcurementGrossAmount" e-labelPosition="outsideExtended" e-enablesmartlabels="true" e-startangle="145">
                                                 </e-series>
                                             </e-series>
-                                        </div>
-
-
+                                        </div> 
                                     </div>
                                 </div>
-                            </div>
-
+                            </div> 
                         </div>
                     </div>
 
@@ -1155,10 +1128,7 @@
         <div class="modal-content">
             <div class="modal-header">Costing Items for {{SelectedOrderCostingComponent.UserName}} <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body">
-                <div class="col-xs-12 col-sm-12 col-md-12">
-
-
-
+                <div class="col-xs-12 col-sm-12 col-md-12"> 
                     <div id="GridItemListForOperations" ej-grid e-datasource="CostingItemList" e-gridlines="vertical"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                          e-allowselection="true" e-filtersettings-filterType="excel">
@@ -1253,10 +1223,7 @@
                             </tbody>
                         </table>
 
-                    </div>
-
-
-
+                    </div> 
                 </div>
             </div>
             <div class="modal-footer common-btn">
@@ -1334,12 +1301,8 @@
 
                                 </tr>
                             </tbody>
-                        </table>
-
-                    </div>
-
-
-
+                        </table> 
+                    </div> 
                 </div>
             </div>
             <div class="modal-footer common-btn">
@@ -1718,8 +1681,7 @@
 </div>
 
 <ej-dialog id="InquiryItemPopUp" title="Inquiry Item List" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#costingMain"
-           e-close="onDialogClose" e-minwidth="1000" e-minheight="200" e-open="enableBtn">
-
+           e-close="onDialogClose" e-minwidth="1000" e-minheight="200" e-open="enableBtn"> 
     <div class="col-xs-12 col-sm-12 col-sm-12">
         <div class="content-container-fluid" style="color:black;">
             <div style="color: black;" id="InquiryItemGrid" ej-grid e-datasource="ModelListInquiryItem" e-gridlines="vertical"
@@ -1853,9 +1815,7 @@
                                 <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
                                 <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="140"></div>
                                 <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="140"></div>
-                                <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="140"></div>
-
-
+                                <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="140"></div> 
                             </div>
                         </div>
                         <script type="text/template" id="checkedSOItem">
@@ -1868,10 +1828,8 @@
                                         <button ng-click="SaveSalesOrder();" class="btn"><i class=""></i> Save</button>
                                         <button ng-click="closePopup('SalesOrderTagPopUp');" class="btn"><i class=""></i> Close</button>
                                     </li>
-                                </ul>
-
-                            </div>
-
+                                </ul> 
+                            </div> 
                         </div>
                     </div>
                 </div>
@@ -1918,9 +1876,7 @@
                                 <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="140"></div>
                                 <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="140"></div>
                                 <div e-column e-type="string" e-field="SalesOrder" e-headertext="Sales Order" e-width="80"></div>
-                                <div e-column e-field="DeliveryDate" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="Delivery Date" e-width="80"></div>
-
-
+                                <div e-column e-field="DeliveryDate" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="Delivery Date" e-width="80"></div> 
                             </div>
                         </div>
                         <script type="text/template" id="checkedSOItemAddNew">
@@ -1935,10 +1891,8 @@
                                         <button ng-click="CreateNewPopUpSO();" class="btn"><i class=""></i> Apply</button>
                                         <button ng-click="closePopup('SalesOrderTagPopUpAddNew');" class="btn"><i class=""></i> Cancel</button>
                                     </li>
-                                </ul>
-
-                            </div>
-
+                                </ul> 
+                            </div> 
                         </div>
                     </div>
                 </div>
@@ -1965,8 +1919,7 @@
                         @*<div e-column e-type="numeric" e-field="Version" e-headertext="Version" e-width="4"></div>*@
                     </div>
                 </div>
-
-
+                 
                 <div style="color:black;display:{{CopySource=='ORDER'?'inherit':'none'}};" id="GridCost" ej-grid e-datasource="ModelList2" e-gridlines="vertical"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                      e-allowselection="false" e-filtersettings-filterType="excel">
@@ -2168,9 +2121,7 @@
                 <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
                 <div e-column e-type="string" e-field="ShortName" e-headertext="ShortName" e-width="100"></div>
                 <div e-column e-type="string" e-field="StandardName" e-headertext="StandardName" e-width="80"></div>
-                <div e-column e-type="string" e-field="UserName" e-headertext="UserName" e-width="80"></div>
-
-
+                <div e-column e-type="string" e-field="UserName" e-headertext="UserName" e-width="80"></div> 
             </div>
         </div>
     </div>
