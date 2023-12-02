@@ -3428,14 +3428,14 @@ namespace Library.Accounting.Accounts
             //sheet[row, 5].ColumnWidth = 15;
             row++;
 
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor:");
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor/Customer");
             reportUtility.SetText(ref sheet, row, 2, header["Vendor"].ToString());
             reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Doc Ref");
             reportUtility.SetText(ref sheet, row, 5, header["DocRefNo"].ToString());
             //sheet[row, 5].ColumnWidth = 15;
             row++;
 
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor Plant");
+            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Vendor/Customer Plant");
             reportUtility.SetText(ref sheet, row, 2, header["VendorPlant"].ToString());
             reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");
             reportUtility.SetText(ref sheet, row, 5, header["Status"].ToString());
@@ -3662,12 +3662,16 @@ namespace Library.Accounting.Accounts
 							,PostedBy = case when up.FullName<>'' then up.FullName else v.PostedBy end
 							 , UPPER(V.Narration) AS Narration 
 					    	, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
-                            , P.UserName AS Vendor, PP.UserName AS VendorPlant, V.CurrencyId, C.Code AS CurrencyCode
+                            , ISNULL(P.UserName,PAN.UserName) AS Vendor, ISNULL(PP.UserName,PPAN.UserName) AS VendorPlant
+							, V.CurrencyId, C.Code AS CurrencyCode
                             FROM [TRN].[Voucher] AS V 
 							LEFT JOIN [TRN].[Invoice] AS BJ ON V.Id=BJ.VoucherId
+                            LEFT JOIN [TRN].[AdjustmentNote] AS AN ON V.Id=AN.VoucherId
                             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
 							LEFT JOIN [HKP].[Party] AS P ON P.Id=BJ.PartyId
 							LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=BJ.PartyPlantId
+							LEFT JOIN [HKP].[Party] AS PAN ON PAN.Id=AN.PartyId
+							LEFT JOIN [HKP].[PartyPlant] AS PPAN ON PPAN.Id=AN.PartyPlantId
 							LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
 							left join [sec].[User] U on U.UserId=v.AddedBy
 							left join sec.[User] up on up.UserId=v.PostedBy

@@ -1,6 +1,6 @@
 ﻿"use strict";
-creditNoteController.$inject = ["accountService", "cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller"];
-function creditNoteController(accountService, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
+creditNoteController.$inject = ["accountService", "cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller", '$window'];
+function creditNoteController(accountService, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, $window) {
     $rootScope.title = "Credit Note";
     $scope.Action = "Save";
     $scope.index = -1;
