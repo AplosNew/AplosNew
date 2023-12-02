@@ -657,44 +657,52 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
 
     $scope.SavePostSales = function () {
         try {
-            if (baseService.isUndefinedOrNull($scope.ModelNew.ExpDate)) {
-                if (new Date($scope.ModelNew.InvoiceDate) < new Date($scope.ModelNew.ExpDate)) {
-                    throw "Expected Date should greater than Invoice Date";
+          
+
+            if (!baseService.isUndefinedOrNull($scope.ModelNew.ShippingBillDate)) {
+                if (new Date($scope.ModelNew.InvoiceDate) > new Date($scope.ModelNew.ShippingBillDate)) {
+                    throw "Shipping Bill Date should greater than Invoice Date";
                 }
             }
 
-            if (baseService.isUndefinedOrNull($scope.ModelNew.ExpDate)) {
-                if (new Date($scope.ModelNew.InvoiceDate) < new Date($scope.ModelNew.ExFactoryDate)) {
+            if (!baseService.isUndefinedOrNull($scope.ModelNew.ShipmentDate)) {
+                if (new Date($scope.ModelNew.InvoiceDate) > new Date($scope.ModelNew.ShipmentDate)) {
+                    throw "Shipment Date should greater than Invoice Date";
+                }
+            }
+
+            if (!baseService.isUndefinedOrNull($scope.ModelNew.ExpDate)) {
+                if (new Date($scope.ModelNew.InvoiceDate) > new Date($scope.ModelNew.ExFactoryDate)) {
                     throw "ExFactory Date should greater than Invoice Date";
                 }
             }
 
-            if (baseService.isUndefinedOrNull($scope.ModelNew.CNFBLAWBDate)) {
-                if (new Date($scope.ModelNew.InvoiceDate) < new Date($scope.ModelNew.CNFBLAWBDate)) {
+            if (!baseService.isUndefinedOrNull($scope.ModelNew.CNFBLAWBDate)) {
+                if (new Date($scope.ModelNew.InvoiceDate) > new Date($scope.ModelNew.CNFBLAWBDate)) {
                     throw "BL Date should greater than Invoice Date";
                 }
             }
 
-            if (baseService.isUndefinedOrNull($scope.ModelNew.NegotiatingDate)) {
-                if (new Date($scope.ModelNew.CNFBLAWBDate) < new Date($scope.ModelNew.NegotiatingDate)) {
+            if (!baseService.isUndefinedOrNull($scope.ModelNew.NegotiatingDate)) {
+                if (new Date($scope.ModelNew.CNFBLAWBDate) > new Date($scope.ModelNew.NegotiatingDate)) {
                     throw "Bank Doc Date should greater than BL Date";
                 }
             }
 
-            if (baseService.isUndefinedOrNull($scope.ModelNew.ETA)) {
-                if (new Date($scope.ModelNew.CNFBLAWBDate) < new Date($scope.ModelNew.ETA)) {
+            if (!baseService.isUndefinedOrNull($scope.ModelNew.ETA)) {
+                if (new Date($scope.ModelNew.CNFBLAWBDate) > new Date($scope.ModelNew.ETA)) {
                     throw "ETA Date should greater than BL Date";
                 }
             }
 
-            if (baseService.isUndefinedOrNull($scope.ModelNew.TransportDocDate)) {
-                if (new Date($scope.ModelNew.InvoiceDate) < new Date($scope.ModelNew.TransportDocDate)) {
+            if (!baseService.isUndefinedOrNull($scope.ModelNew.TransportDocDate)) {
+                if (new Date($scope.ModelNew.InvoiceDate) > new Date($scope.ModelNew.TransportDocDate)) {
                     throw "Transport Doc Date should greater than Invoice Date";
                 }
             }
 
-            if (baseService.isUndefinedOrNull($scope.ModelNew.PreCarriageDocDate)) {
-                if (new Date($scope.ModelNew.InvoiceDate) < new Date($scope.ModelNew.PreCarriageDocDate)) {
+            if (!baseService.isUndefinedOrNull($scope.ModelNew.PreCarriageDocDate)) {
+                if (new Date($scope.ModelNew.InvoiceDate) > new Date($scope.ModelNew.PreCarriageDocDate)) {
                     throw "Pre-Carriage Doc Date should greater than Invoice Date";
                 }
             }
