@@ -11,10 +11,10 @@
 *.userosscache
 *.sln.docstates
 
-
+#Web.Config
 applicationhost.config
 .cache
-
+#/web.Config
 
 
 
