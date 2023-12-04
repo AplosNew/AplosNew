@@ -681,7 +681,7 @@
                         <button ng-disabled="data.AdditionalTaxId==null" ng-click="$parent.onClickadditionalTaxPop(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="TDS">
                             TDS
                         </button>
-                        <button ng-disabled="data.ShortageQty==null" ng-click="$parent.onClickshortageQtyPop(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="TDS">
+                        <button ng-disabled="data.ShortageQty==0" ng-click="$parent.onClickshortageQtyPop(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Shortage">
                             Shortage
                         </button>
                         <button ng-disabled="data.IsPark==false" ng-click="$parent.onClickDeletePopUp(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
