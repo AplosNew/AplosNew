@@ -686,6 +686,7 @@ upanelApp.controller('rawDataDownloadController', rawDataDownloadController);
 upanelApp.controller('RestTypeController', RestTypeController);
 upanelApp.controller('salaryCertificateReportController', salaryCertificateReportController);
 upanelApp.controller('salaryDisbursementController', salaryDisbursementController);
+upanelApp.controller('bonusDisbursementController', bonusDisbursementController);
 upanelApp.controller('salaryHeadWiseAmountSettingController', salaryHeadWiseAmountSettingController);
 upanelApp.controller('SalaryHeadWiseAmountTransactionController', SalaryHeadWiseAmountTransactionController);
 upanelApp.controller('salaryJournalController', salaryJournalController);
@@ -1233,7 +1234,6 @@ upanelApp.controller("DailyQualityStatusReportController", DailyQualityStatusRep
 upanelApp.controller("SalesChalanController", SalesChalanController)
 upanelApp.controller("ExpenseDistributionReportController", ExpenseDistributionReportController)
 upanelApp.controller("SubsequentInvestmentController", SubsequentInvestmentController)
-upanelApp.controller("BonusController", BonusController)
 upanelApp.controller("SalesChanlanCheckedController", SalesChanlanCheckedController)
 upanelApp.controller("SalesChanlanDispatchConfirmationController", SalesChanlanDispatchConfirmationController)
 upanelApp.controller("SQCMasterController", SQCMasterController)

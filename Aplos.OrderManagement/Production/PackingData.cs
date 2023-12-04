@@ -1117,7 +1117,7 @@ Select ISNULL(SUM(sc.NetWeight),0) Qty, ISNULL(SUM(PlanQty),0) PlanQty,PackingLi
 							Having ISNULL(SUM(sc.NetWeight),0)!=0
 )POLR ON POLR.PackingLineItemId=PLI.PackingLineItemId
                             ) A ON A.PackingId=pk.PackingId AND A.Qty<>0                               
-                            WHERE Pk.PackingId NOT IN (Select PackingId from dbo.SalesPacking)";
+                            WHERE Pk.PackingId NOT IN (Select PackingId from dbo.SalesPacking) and PK.InactiveDate >= Cast(GETDATE() as date)";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)

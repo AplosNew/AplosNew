@@ -490,7 +490,7 @@ namespace Library.MaterialManagement.Material
 									LEFT JOIN [TRN].[Voucher] AS V ON V.Id=m.VoucherId
 									WHERE m.PlantId = '" + PlantId + @"'
 										AND m.CompanyGroupId = '" + CompanyGroupId + @"'
-										AND m.companyId = '" + CompanyId + "' AND V.Archive=0 ";
+										AND m.companyId = '" + CompanyId + "' ";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)

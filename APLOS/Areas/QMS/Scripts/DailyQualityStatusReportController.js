@@ -342,7 +342,7 @@ function DailyQualityStatusReportController(cboService, commonMessage, $scope, $
                     $scope.ParameterListsNew.push(filtereddata[i]);
             }
 
-            if ($scope.ParameterListsNew.length > 50) {
+            if ($scope.ParameterListsNew.length > 500) {
                 throw "Maximum 50 'Job card' can be downloded at a time";
             }
             else {
