@@ -84,7 +84,7 @@ namespace Aplos.Areas.Accounts.Controllers
                                     , InvoiceId=CASE WHEN IR.EmployeeId<> '' THEN EP.Id ELSE IV.Id END
                                     , IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
 	                                , IR.InvoicingPartyPlantId, IR.InvoicingPartyPlantId PartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-	                                , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount
+	                                , IRD.TransactionQty,IRD.ShortageQty,IRD.ShortageValue, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount
                                     , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, IR.IsTaxApplicable
                                     , COUNT(*) OVER () AS TotalRows
 									,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
@@ -95,6 +95,7 @@ namespace Aplos.Areas.Accounts.Controllers
 									,PostingDate= CASE WHEN IR.EmployeeId <>'' THEN REPLACE(CONVERT(CHAR(11), VE.PostingDate, 106),' ','-') ELSE REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') END
                                     ,MS.UserName MaterialStorageName, IR.IsFOC, ISNULL(ADT.TaxAmount,0) TDSTax, ADT.VoucherId TDSTaxVoucherId, ADT.Id AdditionalTaxId
                                     ,IsTDSTaxPost=CASE WHEN ADT.VoucherId<>'' THEN 'TDSPosted' WHEN  ADT.InventoryReceiveId IS NULL THEN '' ELSE 'TDSParked' end
+                                    ,IsShortagePost=CASE WHEN AN.VoucherId<>'' THEN 'ShortagePosted' WHEN  AN.InventoryReceiveId IS NULL THEN '' ELSE 'ShortageParked' end
 									,VT.VoucherNo TDSVoucherNo,V.IsPark,IV.WrittenOffAmount
                                     ,IR.OtherPartyId,IR.OtherPartyPlantId
 						FROM [TRN].[InventoryReceive] AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
@@ -109,13 +110,14 @@ namespace Aplos.Areas.Accounts.Controllers
                         LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
                         LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
                         LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
-                        LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.MaterialTranAmount) AS TransactionAmount, SUM(A.TotalMaterialTranAmount) AS BaseAmount FROM [TRN].[InventoryReceiveDetail] AS A
+                        LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty,SUM(ISNULL(A.ShortageQty,0)) AS ShortageQty,SUM(ISNULL(A.ShortageValue,0)) AS ShortageValue, SUM(A.MaterialTranAmount) AS TransactionAmount, SUM(A.TotalMaterialTranAmount) AS BaseAmount FROM [TRN].[InventoryReceiveDetail] AS A
 		                            JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId=@plantId GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
                         LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id
 		                            WHERE B.PlantId=@plantId GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         --LEFT JOIN TRN.GRNAcceptanceMap IGD ON IGD.GRNId=IR.Id
                         LEFT JOIN TRN.Invoice IV ON IV.inventoryReceiveId=IR.Id
+                        LEFT JOIN TRN.Adjustmentnote AN ON AN.inventoryReceiveId=IR.Id
 						LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
 						LEFT JOIN TRN.EmployeePayable EP ON EP.InventoryReceiveId=IR.Id
 						LEFT JOIN TRN.Voucher VE ON VE.Id=EP.VoucherId
@@ -154,6 +156,13 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
             return Json(_accountsInventoryPayableService.GetAdditionalTaxDetail(additionalTaxId));
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult GetShortageQtyDetail(string grnId,string adjustmentNoteTypeId)
+        {
+            AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            return Json(_accountsInventoryPayableService.GetShortageQtyDetail(grnId, adjustmentNoteTypeId));
         }
 
         [HttpPost, Authorize]

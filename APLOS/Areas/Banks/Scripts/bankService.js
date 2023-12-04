@@ -13,6 +13,7 @@ function bankService($http) {
         , getCboVoucherTypeCashJournalList: getCboVoucherTypeCashJournalList
         , getCboVoucherTypeCashExpensesList: getCboVoucherTypeCashExpensesList
         , getBankMasterCboListByPlant: getBankMasterCboListByPlant
+        , GetNegotiatingBankMasterCboListByPlant: GetNegotiatingBankMasterCboListByPlant
     };
 
     function base(url, callback) {
@@ -26,6 +27,9 @@ function bankService($http) {
 
     function getBankMasterCboListByPlant(callback) {
         base("Banks/BankMaster/GetBankMasterCboListByPlant", callback);
+    }
+    function GetNegotiatingBankMasterCboListByPlant(callback) {
+        base("Banks/BankMaster/GetNegotiatingBankMasterCboListByPlant", callback);
     }
     function getBankMasterHouseBankCboList(callback) {
         base("Banks/BankMaster/GetBankMasterHouseBankCboList", callback);

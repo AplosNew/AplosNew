@@ -61,5 +61,6 @@ namespace Library.Service.Invoices
         void DeleteIssueJournal(string issueId, string voucherId);
         void DeleteIssueReturnJournal(string issueId, string voucherId);
         string InsertCreditNoteAdditionalTaxPost(VoucherViewModel voucherVM, string additionalTaxId);
+        string InsertShortageDebitNote(VoucherViewModel voucherVM, string grnId, IEnumerable<VoucherDetailViewModel> voucherDetailVMList);
     }
 }

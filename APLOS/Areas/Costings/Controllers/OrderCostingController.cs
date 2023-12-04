@@ -418,12 +418,29 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
         }
 
         [HttpGet, Authorize]
+        public ActionResult OrderBudgetReport(string OrderCostingId, string preCosting, string ProcurementCosting, string MOIId)
+        {
+            try
+            {
+                Library.OrderManagement.Costing.CostingReport Report = new Library.OrderManagement.Costing.CostingReport();
+                Report.OrderBudgetReport(OrderCostingId, preCosting, ProcurementCosting, MOIId);
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetOrderCostingReport(string OrderCostingId, string preCosting, string ProcurementCosting, string MOIId)
         {
             try
             {
                 Library.OrderManagement.Costing.CostingReport Report = new Library.OrderManagement.Costing.CostingReport();
-                Report.OrderCostingReport(OrderCostingId, preCosting, ProcurementCosting, MOIId);
+                Report.GetOrderCostingReport(OrderCostingId, preCosting, ProcurementCosting, MOIId);
 
                 return null;
             }

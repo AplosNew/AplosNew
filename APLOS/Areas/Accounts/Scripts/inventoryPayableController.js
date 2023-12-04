@@ -1,6 +1,6 @@
 ﻿'use strict';
-inventoryPayableController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', 'factoryService', '$window'];
-function inventoryPayableController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, factoryService, $window) {
+inventoryPayableController.$inject = ['accountService','cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', 'factoryService', '$window'];
+function inventoryPayableController(accountService,cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, factoryService, $window) {
     $rootScope.title = "Inventory Payable";
     $scope.Action = 'Save';
     $scope.index = -1;
@@ -299,6 +299,8 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         $scope.modelNew.InvoiceNo = data.data.DocRefNo;
         $scope.modelNew.InvoiceDate = data.data.DocDate;
         $scope.modelNew.IsFOC = data.data.IsFOC;
+        $scope.modelNew.ShortageQty = data.data.ShortageQty;
+        $scope.modelNew.ShortageValue = data.data.ShortageValue;
         $scope.modelNew.IsInvoice = true;
         $scope.TDSList = [];
         $scope.controlInvoicePaymentTerm();
@@ -1134,6 +1136,92 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         }
     }
 
+    $scope.shortageQtyPostUrl = 'Accounts/InvoicePost/InsertShortageDebitNote';
+    $scope.shortageQtyDetailList = [];
+    $scope.onClickshortageQtyPop = function (x) {
+        $scope.shortageQtyData = {};
+        var data = x;
+        data.VoucherTypeId = null;
+        data.VoucherTypeId = $scope.additionalTaxVoucherTypeId;
+        data.VoucherDate = new Date();
+        $scope.shortageQtyData = data;
+        $http({
+            method: 'POST',
+            url: 'Accounts/InventoryPayable/GetShortageQtyDetail?grnId=' + data.Id + '&adjustmentNoteTypeId=' + data.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.shortageValueJournalList = response.data;
+        });
+        $scope.getShortageVoucherType();
+        $scope.transactionTypeList();
+        angular.element(document.querySelector('#shortagePopUp')).modal('show');
+    };
+    $scope.closeShortageQtyPopUp = function () {
+        $scope.additionalTaxData = {};
+        angular.element(document.querySelector('#shortagePopUp')).modal('hide');
+
+    }
+    $scope.transactionTypeList = function () {
+        $scope.financingTypeList = [];
+        $scope.partyType = 'Vendor';
+        accountService.getCboDebitNoteTypeList($scope.partyType, function (result) {
+            $scope.financingTypeList = result;
+        });
+    };
+
+
+    $scope.getShortageValueJournal = function (grnId,adjustmentNoteTypeId) {
+        $scope.shortageValueJournalList = [];
+        $http({
+            method: 'POST',
+            url: 'Accounts/InventoryPayable/GetShortageQtyDetail?grnId=' + grnId + '&adjustmentNoteTypeId=' + adjustmentNoteTypeId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.shortageValueJournalList = response.data; 
+            for (var i = 0; i < $scope.shortageValueJournalList.length; i++) {
+                if ($scope.shortageValueJournalList[i].AType == 'Dr') {
+                    $scope.shortageValueJournalList[i].DrAmount = $scope.shortageQtyData.ShortageValue
+                }
+            }
+        });
+    }
+
+    $scope.shortageVoucherTypeList = [];
+    $scope.getShortageVoucherType = function () {
+        cboService.getCboVoucherTypeDebitNoteList(function (result) {
+            $scope.shortageVoucherTypeList = result;
+            if ($scope.shortageVoucherTypeList.length === 1) {
+                $scope.shortageQtyData.VoucherTypeId = $scope.shortageVoucherTypeList[0].Value;
+            }
+        });
+    }
+    $scope.postShortageDebitNote = function () {
+        if ($scope.shortageQtyData.VoucherTypeId == null)
+            ShowResult('Please select VoucherType', 'failure', 'shortagePopUp');
+
+        if ($scope.shortageQtyData != null && $scope.shortageQtyData.VoucherTypeId  != null) {
+            $http({
+                method: 'POST',
+                url: $scope.shortageQtyPostUrl,
+                data: {
+                     "voucherVM": $scope.shortageQtyData
+                    , "grnId": $scope.shortageQtyData.Id
+                    , "voucherDetailVMList": $scope.shortageValueJournalList
+                },
+                dataType: 'JSON'
+            }).then(function (response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getDataList();
+                }
+            }), function (response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+            angular.element(document.querySelector('#additionalTaxPopUp')).modal('hide');
+        }
+    }
 
 
     $scope.podiscountAmountCal = function (amount) {

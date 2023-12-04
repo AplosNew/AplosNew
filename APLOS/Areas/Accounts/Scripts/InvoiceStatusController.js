@@ -1,7 +1,7 @@
 ﻿"use strict";
-masterOrderSalesAdditionalController.$inject = ["cboService", "commonMessage", '$window', "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller", "accountService", "bankService"];
-function masterOrderSalesAdditionalController(cboService, commonMessage, $window, $scope, $rootScope, baseService, $http, $filter, $controller, accountService, bankService) {
-    $rootScope.title = "Invoice Info";
+InvoiceStatusController.$inject = ["cboService", "commonMessage", '$window', "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller", "accountService", "bankService"];
+function InvoiceStatusController(cboService, commonMessage, $window, $scope, $rootScope, baseService, $http, $filter, $controller, accountService, bankService) {
+    $rootScope.title = "Invoice Status";
     $scope.Action = "Save";
     $scope.invoiceList = [];
     $scope.postedSalesList = [];
@@ -29,6 +29,10 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
             , dataType: 'JSON'
         }).then(function (response) {
             $scope.MasterOrderSalesPostedList = response.data;
+            for (var i = 0; i < $scope.MasterOrderSalesPostedList.length; i++) {
+                if (baseService.isUndefinedOrNull($scope.MasterOrderSalesPostedList[i].InvoiceStatus))
+                    $scope.MasterOrderSalesPostedList[i].InvoiceStatus = 'Active';
+            }
         }), function (response) {
             ShowResult(response.data.Message, 'failure');
         };
@@ -368,13 +372,13 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
                     $scope.ModelNew.PartyName = $scope.salesVM.PartyName;
                     $scope.ModelNew.Amount = $scope.salesVM.Amount;
                     $scope.getPartyPlant();
-                    //if (baseService.arrayLength($scope.bankMasterList) > 0 && !baseService.isUndefinedOrNull($scope.salesVM.BenificiaryBankId)) {
-                    //    for (var i = 0; i < $scope.bankMasterList.length; i++) {
-                    //        if ($scope.bankMasterList[i].Id === $scope.salesVM.BenificiaryBankId) {
-                    //            $scope.ModelNew.BankMasterId = $scope.bankMasterList[i].Id;
-                    //        }
-                    //    }
-                    //}
+                    if (baseService.arrayLength($scope.bankMasterList) > 0 && !baseService.isUndefinedOrNull($scope.salesVM.BenificiaryBankId)) {
+                        for (var i = 0; i < $scope.bankMasterList.length; i++) {
+                            if ($scope.bankMasterList[i].Id === $scope.salesVM.BenificiaryBankId) {
+                                $scope.ModelNew.BankMasterId = $scope.bankMasterList[i].Id;
+                            }
+                        }
+                    }
 
                 },
                 function errorCallback(response) {
@@ -395,7 +399,7 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
     });
 
     $scope.bankMasterList = [];
-    bankService.GetNegotiatingBankMasterCboListByPlant(function (result) {
+    bankService.getBankMasterCboListByPlant(function (result) {
         $scope.bankMasterList = result;
 
     });
@@ -657,52 +661,44 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
 
     $scope.SavePostSales = function () {
         try {
-          
-
-            if (!baseService.isUndefinedOrNull($scope.ModelNew.ShippingBillDate)) {
-                if (new Date($scope.ModelNew.InvoiceDate) > new Date($scope.ModelNew.ShippingBillDate)) {
-                    throw "Shipping Bill Date should greater than Invoice Date";
+            if (baseService.isUndefinedOrNull($scope.ModelNew.ExpDate)) {
+                if (new Date($scope.ModelNew.InvoiceDate) < new Date($scope.ModelNew.ExpDate)) {
+                    throw "Expected Date should greater than Invoice Date";
                 }
             }
 
-            if (!baseService.isUndefinedOrNull($scope.ModelNew.ShipmentDate)) {
-                if (new Date($scope.ModelNew.InvoiceDate) > new Date($scope.ModelNew.ShipmentDate)) {
-                    throw "Shipment Date should greater than Invoice Date";
-                }
-            }
-
-            if (!baseService.isUndefinedOrNull($scope.ModelNew.ExpDate)) {
-                if (new Date($scope.ModelNew.InvoiceDate) > new Date($scope.ModelNew.ExFactoryDate)) {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.ExpDate)) {
+                if (new Date($scope.ModelNew.InvoiceDate) < new Date($scope.ModelNew.ExFactoryDate)) {
                     throw "ExFactory Date should greater than Invoice Date";
                 }
             }
 
-            if (!baseService.isUndefinedOrNull($scope.ModelNew.CNFBLAWBDate)) {
-                if (new Date($scope.ModelNew.InvoiceDate) > new Date($scope.ModelNew.CNFBLAWBDate)) {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.CNFBLAWBDate)) {
+                if (new Date($scope.ModelNew.InvoiceDate) < new Date($scope.ModelNew.CNFBLAWBDate)) {
                     throw "BL Date should greater than Invoice Date";
                 }
             }
 
-            if (!baseService.isUndefinedOrNull($scope.ModelNew.NegotiatingDate)) {
-                if (new Date($scope.ModelNew.CNFBLAWBDate) > new Date($scope.ModelNew.NegotiatingDate)) {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.NegotiatingDate)) {
+                if (new Date($scope.ModelNew.CNFBLAWBDate) < new Date($scope.ModelNew.NegotiatingDate)) {
                     throw "Bank Doc Date should greater than BL Date";
                 }
             }
 
-            if (!baseService.isUndefinedOrNull($scope.ModelNew.ETA)) {
-                if (new Date($scope.ModelNew.CNFBLAWBDate) > new Date($scope.ModelNew.ETA)) {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.ETA)) {
+                if (new Date($scope.ModelNew.CNFBLAWBDate) < new Date($scope.ModelNew.ETA)) {
                     throw "ETA Date should greater than BL Date";
                 }
             }
 
-            if (!baseService.isUndefinedOrNull($scope.ModelNew.TransportDocDate)) {
-                if (new Date($scope.ModelNew.InvoiceDate) > new Date($scope.ModelNew.TransportDocDate)) {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.TransportDocDate)) {
+                if (new Date($scope.ModelNew.InvoiceDate) < new Date($scope.ModelNew.TransportDocDate)) {
                     throw "Transport Doc Date should greater than Invoice Date";
                 }
             }
 
-            if (!baseService.isUndefinedOrNull($scope.ModelNew.PreCarriageDocDate)) {
-                if (new Date($scope.ModelNew.InvoiceDate) > new Date($scope.ModelNew.PreCarriageDocDate)) {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.PreCarriageDocDate)) {
+                if (new Date($scope.ModelNew.InvoiceDate) < new Date($scope.ModelNew.PreCarriageDocDate)) {
                     throw "Pre-Carriage Doc Date should greater than Invoice Date";
                 }
             }
@@ -872,12 +868,12 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
   
 
     $scope.saveInvoiceStatusUrl = $scope.path + 'CreateInvoiceStatus';
-    $scope.SaveInvoiceStatus = function () {
+    $scope.SaveInvoiceStatus = function (data) {
         try {  
             $http({
                 method: 'POST',
                 url: $scope.saveInvoiceStatusUrl,
-                data: { 'data': $scope.ModelInvoiceStatus },
+                data: { 'data': data },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

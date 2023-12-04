@@ -142,7 +142,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
         BooksCurrencyBaseRate: null,
         IsPark: 1,
         IsIncentiveApplicable: false,
-        InvoiceStatus:'Active'
+        InvoiceStatus: 'Active'
     };
     $scope.salesVM.TaxOptionAddiTax = 'Yes';
     $scope.materialMaster = {
@@ -406,8 +406,21 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
         }
     };
 
+    function containsSpecialChars(str) {
+        const specialChars = /[@!#$%^&*()_+\-=\[\]{};':"|,.<>\?`~]/;
+        return specialChars.test(str);
+    }
 
-
+    $scope.CheckSpecialCharecter = function () {
+        try {
+            if (containsSpecialChars($scope.salesVM.DocRefNo)) {
+                $scope.salesVM.DocRefNo = $scope.salesVM.DocRefNo.substring(0, $scope.salesVM.DocRefNo.length - 1);
+                throw "No special characters allowed for Doc Ref.";
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 
 
     $scope.dateMessage = "";
@@ -2103,13 +2116,15 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
                     $scope.ModelNew.PartyName = $scope.salesVM.PartyName;
                     $scope.ModelNew.Amount = $scope.salesVM.Amount;
 
-                    if (baseService.arrayLength($scope.bankMasterList) > 0 && !baseService.isUndefinedOrNull($scope.salesVM.BenificiaryBankId)) {
-                        for (var i = 0; i < $scope.bankMasterList.length; i++) {
-                            if ($scope.bankMasterList[i].Id === $scope.salesVM.BenificiaryBankId) {
-                                $scope.ModelNew.BankMasterId = $scope.bankMasterList[i].Id;
-                            }
-                        }
-                    }
+                    //if (baseService.isUndefinedOrNull($scope.ModelNew.BankMasterId)) {
+                    //    if (baseService.arrayLength($scope.bankMasterList) > 0 && !baseService.isUndefinedOrNull($scope.salesVM.BenificiaryBankId)) {
+                    //        for (var i = 0; i < $scope.bankMasterList.length; i++) {
+                    //            if ($scope.bankMasterList[i].Id === $scope.salesVM.BenificiaryBankId) {
+                    //                $scope.ModelNew.BankMasterId = $scope.bankMasterList[i].Id;
+                    //            }
+                    //        }
+                    //    }
+                    //}
 
                 },
                 function errorCallback(response) {
@@ -2129,7 +2144,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
     });
 
     $scope.bankMasterList = [];
-    bankService.getBankMasterCboListByPlant(function (result) {
+    bankService.GetNegotiatingBankMasterCboListByPlant(function (result) {
         $scope.bankMasterList = result;
 
     });
@@ -2412,7 +2427,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
     }
 
 
-  
+
     //#endregion PostInvoice
 
     // #region Payment Term

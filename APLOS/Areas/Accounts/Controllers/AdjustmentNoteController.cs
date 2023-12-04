@@ -53,7 +53,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult InsertCreditNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList, IEnumerable<InvoiceTaxViewModel> tdsTaxList)
+        public JsonResult InsertCreditNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList, IEnumerable<InvoiceTaxViewModel> tdsTaxList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -61,7 +61,7 @@ namespace Aplos.Areas.Accounts.Controllers
             voucherVM.PlantId = identity.PlantId;
             voucherVM.IsPark = true;
             voucherVM.SourceType = SourceType.CreditNote.ToString();
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _adjustmentNoteService.InsertCreditNote(voucherVM, voucherDetailVMList, invoiceTaxVMList, tdsTaxList)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _adjustmentNoteService.InsertCreditNote(voucherVM, voucherDetailVMList, invoiceTaxVMList, tdsTaxList, invoiceDetailChargesList)) });
         }
 
         public JsonResult UpdateCreditNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList)
@@ -187,7 +187,6 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_invoiceWriteOffService.GetNoteSetOff(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.DebitNoteSetOff), JsonRequestBehavior.AllowGet);
-
         }
 
         [HttpGet, Authorize]

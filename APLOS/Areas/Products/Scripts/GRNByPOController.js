@@ -2571,7 +2571,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                             $scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat($scope.inventoryMaterialListPO[i].BaseTaxAmount)) * $scope.productNew.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
                         }
                         else {
-                            $scope.inventoryMaterialListPO[i].TrnAmount = Math.round(($scope.inventoryMaterialListPO[i].NetQty * $scope.inventoryMaterialListPO[i].TransactionRate) * 100 + Number.EPSILON) / 100;
+                            $scope.inventoryMaterialListPO[i].TrnAmount = Math.round(($scope.inventoryMaterialListPO[i].TransactionQty * $scope.inventoryMaterialListPO[i].TransactionRate) * 100 + Number.EPSILON) / 100;
                             $scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = Math.round((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge)) * 100 + Number.EPSILON) / 100;
                             $scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge)) * $scope.productNew.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
                         }
@@ -2633,7 +2633,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                             $scope.inventoryMaterialListPO[i].NetQty = ($scope.inventoryMaterialListPO[i].TransactionQty - $scope.inventoryMaterialListPO[i].ShortageQty);
                         }
                         if ($scope.productNew.IsNonCreditable == 1) {
-                            $scope.inventoryMaterialListPO[i].TrnAmount = ($scope.inventoryMaterialListPO[i].NetQty * $scope.inventoryMaterialListPO[i].TransactionRate).toFixed(2);
+                            $scope.inventoryMaterialListPO[i].TrnAmount = ($scope.inventoryMaterialListPO[i].TransactionQty * $scope.inventoryMaterialListPO[i].TransactionRate).toFixed(2);
                             $scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = Math.round((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat(data.ServiceTax)) * 100 + Number.EPSILON) / 100;
                             $scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat(data.ServiceTax)) * $scope.productNew.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
                         }

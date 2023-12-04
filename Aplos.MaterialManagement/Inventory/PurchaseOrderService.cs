@@ -9317,7 +9317,7 @@ LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
 
                     for (int T = 0; T < dv.Count; T++)
                     {
-                        dvtax.RowFilter = "TaxCode='" + dv[T]["TaxCode"].ToString() + "' AND InventoryServiceId='" + dsServiceItems.Rows[i]["ServiceId"] + "'";
+                        dvtax.RowFilter = "TaxCode='" + dv[T]["TaxCode"].ToString() + "' AND InventoryServiceId='" + dsServiceItems.Rows[i]["ServiceMasterId"] + "'";
                         if (dvtax.Count > 0)
                         {
                             TROW.Cells[dicTaxes[dv[T]["TaxCode"].ToString()]].AddParagraph().AppendText(Convert.ToDouble(dvtax[0]["Percentage"].ToString()).ToString("F2"));
