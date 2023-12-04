@@ -35,7 +35,7 @@ namespace Library.OrderManagement.Costing
 
                 string CostingDetailsql = OrderCostingProductDetailSQL(OrderCostingId);
                 string CostingMOIsql = OrderCostingMOISQL(MOIId);
-                //String CostingComponentSql = OrderCostingComponentSQL(OrderCostingId,preCosting,ProcurementCosting);
+                //String CostingComponentSql = OrderCostingComponentSQL(OrderCostingId,preCosting,ProcurementCosting); 
 
                 ExcelEngine excelEngine = new ExcelEngine();
                 //Instantiate the Excel application object
@@ -47,15 +47,12 @@ namespace Library.OrderManagement.Costing
                 IWorksheet sheet = workbook.Worksheets[0];
 
                 if (preCosting == "1")
-                {
-
+                { 
                     sheet.Name = "Order Costing Report(Pre Costing)";
-
                 }
                 if (ProcurementCosting == "1")
                 {
                     sheet.Name = "Order Costing Report(Procurement Costing)";
-
                 }
 
                 DataTable dtOrderCostingProductInfo = _sqlRepository.GetDataTable(sql);
@@ -75,7 +72,7 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].RowHeight = 25;
                 sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, COL].CellStyle.Font.Size = 12;
-                sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
+                sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Dark_blue;
                 sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
                 ROW++;
 
@@ -180,7 +177,7 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, COL, ROW, COL + 5].Merge();
                 sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, COL].CellStyle.Font.Size = 12;
-                sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
+                sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Dark_blue;
                 sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
                 ROW++;
 
@@ -277,7 +274,7 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].RowHeight = 25;
                 sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, COL].CellStyle.Font.Size = 15;
-                sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
+                sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Dark_blue;
                 sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
                 sheet.Range[ROW, COL, ROW, COL + 5].Merge();
                 ROW++;
@@ -478,7 +475,7 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].RowHeight = 25;
                 sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, COL].CellStyle.Font.Size = 13;
-                sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
+                sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Dark_blue;
                 sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
                 sheet.Range[ROW, COL, ROW, COL + 6].Merge();
                 ROW++;
