@@ -1344,6 +1344,5 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
     };
     $scope.closeInvoiceSetOffDetailByInvoice = function () {
         angular.element(document.querySelector('#invoiceetOffByInvoicePopUp')).modal('hide');
-
     }
 }
