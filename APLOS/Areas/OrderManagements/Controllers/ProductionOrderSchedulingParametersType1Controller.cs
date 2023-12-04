@@ -905,6 +905,23 @@ SELECT ept.EntityId FROM hkp.EntityProcessTag AS ept WHERE ept.ProcessId IN (SEL
 
         }
 
+        [HttpPost, Authorize]
+        public JsonResult GetPlanStatus()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.General.Organization.OrganizationAuthorization orgAuth = new Library.General.Organization.OrganizationAuthorization();
+                return Json(orgAuth.GetPlanStatus(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetSampleReport()
         {
