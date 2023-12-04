@@ -259,6 +259,83 @@ ART.StandardName AS ArticleName,P.UserName AS Customer,MOI.BuyerReferenceNo,MOI.
             }
         }
 
+        [HttpPost]
+        public JsonResult CreateData(Dictionary<string, object> data, List<Dictionary<string, object>> DataList)
+        {
+            SaveCutPlanData(data, DataList, out string masterId);
+            data["Id"] = masterId;
+            return Json(new { Data = data, Message = AplosMessage.Insert });
+        }
+
+        public void SaveCutPlanData(Dictionary<string, object> data, List<Dictionary<string, object>> DataList, out string masterId)
+        {
+            try
+            {
+                DataSet dsMaster, dsDetail, dsId;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [MST].[CutPlan] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "CutPlan", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+
+                masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                con.OpenDataSetThroughAdapter("SELECT * FROM [MST].[CutPlanSODetails] WHERE CutPlanId ='" + masterId + "'", out dsDetail, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT COUNT(Id)Id FROM [MST].[CutPlanSODetails] WHERE CutPlanId ='" + masterId + "'", out dsId, false, "1");
+
+                int count = Convert.ToInt32(dsId.Tables[0].Rows[0]["Id"].ToString());
+
+
+                foreach (var item in DataList)
+                {
+
+                    DataView dv = new DataView(dsDetail.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        count++;
+
+                        item["Id"] = masterId + "-" + count;
+                        item["CutPlanId"] = masterId;
+
+                        AddNewRow(dsDetail.Tables[0], item);
+                    }
+                    else if (dv.Count > 0 && Convert.ToBoolean(item["Status"].ToString()) == false)
+                    {
+                        DataRow drpb = dv[0].Row;
+                        EditRow(drpb, item);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        EditRow(drmo, item);
+                    }
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsDetail);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

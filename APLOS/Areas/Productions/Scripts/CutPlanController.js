@@ -179,7 +179,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
         }
     };
 
-    $scope.SaveCutPlan = function () {
+    $scope.XSaveCutPlan = function () {
         try {
             $scope.SaveList = [];
             for (var i = 0; i < $scope.CutPlanListSelected.length; i++) {
@@ -189,7 +189,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
             }
             $http({
                 method: 'POST',
-                url: $scope.saveUrlCutPlan,
+                url: $scope.saveUrlCutPlan,               
                 data: {
                     'CutPlanData': $scope.cutplanNew,
                     'DataList': $scope.SaveList
@@ -209,6 +209,42 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
         }
         catch (ex) {
             ShowResult(ex, 'Info');
+        }
+    };
+
+    $scope.SaveCutPlan = function () {
+        try {
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.CutPlanListSelected.length; i++) {
+                if ($scope.CutPlanListSelected[i].Status == true || ($scope.CutPlanListSelected[i].Status == false && $scope.CutPlanListSelected[i].Id != null)) {
+                    $scope.SaveList.push($scope.CutPlanListSelected[i]);
+                }
+            }
+
+            $http({
+                method: "POST",
+                url: 'Productions/CutPlan/CreateData',
+                data: {
+                    'data': $scope.cutplanNew,
+                    'DataList': $scope.SaveList
+                },
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    $scope.LoadCutPlanList();
+
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, "failure");
+            });
+            return true;
+
+        } catch (e) {
+            ShowResult(e, "failure");
         }
     };
 
