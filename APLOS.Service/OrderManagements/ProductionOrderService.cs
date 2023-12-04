@@ -455,7 +455,7 @@ namespace Library.Service.OrderManagements
                        --LEFT JOIN hkp.CharacteristicsValue AS cv3 ON cv3.Id=tc.CharacteristicsValueId
                        --LEFT JOIN hkp.Characteristics AS c3 ON c3.Id=cv3.CharacteristicsId
 
-                        WHERE POD.ProductionOrderId = '" + productionOrderId + "'" +
+                      WHERE POD.ProductionOrderId = '" + productionOrderId + "'" +
                         "ORDER BY MOI.MATERIALMASTERID,MOI.ArticleID";
 
                 return _sqlRepository.GetDataCollection(_sql, null);
@@ -472,8 +472,6 @@ namespace Library.Service.OrderManagements
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.OrderManagement.ToString()));
             }
         }
-
-
         private void InsertUpdateOrDeleteGraph(string masterId, IEnumerable<ProductionOrderDetail> entities)
         {
             try

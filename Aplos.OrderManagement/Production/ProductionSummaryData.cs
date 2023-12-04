@@ -4133,7 +4133,8 @@ left join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 left join hkp.Process P on P.Id=PO.ProcessId
 left join ORG.Entity E on E.Id=PO.EntityId
 where PO.ProcessId is not null and E.Id in (select EntityId from MST.QualityManagementEntity where QMID=QMM.Id) 
-and QPC.QCID is null or (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' order by AddedDate desc) is not null
+and QPC.QCID is null 
+--or (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' order by AddedDate desc) is not null
 union
 Select distinct QPC.Id,PD.Id QPId,PO.Id POId,PO.EntryLevel,PO.LotNumber,PD.IssueId,QMM.UserName QPIssue,PO.ProcessId,P.UserName Process,PD.Legdays,
 PD.DependentDate DependentOn,E.UserName Entity,PO.EntityId,
@@ -4194,7 +4195,7 @@ LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POProcessFirstProdBookD
 LEFT JOIN (Select SUM(Quantity)ProQty,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) LBPPD ON LBPPD.ProductionOrderId=PO.Id
 LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=PO.Id
 where PS.UserName in ('Running','To Close')) PO
-left join MST.POQualityPlanDetails PD on PD.EntryLevel=PO.EntryLevel and PD.IsActive=1
+left join MST.POQualityPlanDetails PD on PD.EntryLevel=PO.EntryLevel and PD.IsActive=1 and PO.ProcessId=PD.ProcessId
 left Join MST.QualityManagementMaster QMM on QMM.Id=PD.IssueId
 left join [TRN].[QualityPlanControl] QPC on QPC.QPId=PD.Id and QPC.POId=PO.Id and QPC.LotNumber=PO.LotNumber and QPC.EntryLevel=PO.EntryLevel
 left join TRN.ProductionOrderDetail POD on POD.ProductionOrderId=PO.Id
@@ -4203,7 +4204,8 @@ left join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 left join hkp.Process P on P.Id=PO.ProcessId
 left join ORG.Entity E on E.Id=PO.EntityId
 where PO.ProcessId is null and E.Id in (select EntityId from MST.QualityManagementEntity where QMID=QMM.Id) 
-and QPC.QCID is null or (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' order by AddedDate desc) is not null
+and QPC.QCID is null 
+--or (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' order by AddedDate desc) is not null
 ) PO1
 where PO1.QualityPlanDate < = '" + POIssueDate + "'" + ResponsiblePerson + @" or PO1.QualityPlanDate is null order by PO1.QualityPlanDate";
              return _sqlRepository.GetDataCollection(sql);
