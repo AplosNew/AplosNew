@@ -510,13 +510,13 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
                 $scope.ModelNew.ContractNo = $scope.salesVM.ContractNo;
                 $scope.ModelNew.PartyName = $scope.salesVM.PartyName;
 
-                if (baseService.arrayLength($scope.bankMasterList) > 0) {
-                    for (var i = 0; i < $scope.bankMasterList.length; i++) {
-                        if ($scope.bankMasterList[i].Id === $scope.salesVM.BenificiaryBankId) {
-                            $scope.ModelNew.BankMasterId = $scope.bankMasterList[i].Id;
-                        }
-                    }
-                }
+                //if (baseService.arrayLength($scope.bankMasterList) > 0) {
+                //    for (var i = 0; i < $scope.bankMasterList.length; i++) {
+                //        if ($scope.bankMasterList[i].Id === $scope.salesVM.BenificiaryBankId) {
+                //            $scope.ModelNew.BankMasterId = $scope.bankMasterList[i].Id;
+                //        }
+                //    }
+                //}
 
 
             }
@@ -2706,7 +2706,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
     });
 
     $scope.bankMasterList = [];
-    bankService.getBankMasterCboListByPlant(function (result) {
+    bankService.GetNegotiatingBankMasterCboListByPlant(function (result) {
         $scope.bankMasterList = result;
 
     });

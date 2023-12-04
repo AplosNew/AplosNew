@@ -187,7 +187,6 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_invoiceWriteOffService.GetNoteSetOff(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.DebitNoteSetOff), JsonRequestBehavior.AllowGet);
-
         }
 
         [HttpGet, Authorize]

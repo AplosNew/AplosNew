@@ -77,6 +77,14 @@ namespace Aplos.Areas.Banks.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_accountsBankService.GetBankMasterCboListByPlant(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, BankACType.HouseBank), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet, Authorize]
+        public JsonResult GetNegotiatingBankMasterCboListByPlant()
+        {
+            AccountsBankService _accountsBankService = new AccountsBankService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsBankService.GetNegotiatingBankMasterCboListByPlant(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
         [HttpGet, Authorize]
         public JsonResult GetPartyBankCboListByParty(string partyId)
         {

@@ -10,6 +10,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.saveUrlCutPlan = $scope.path + 'createCutPlan';
 
     $scope.CalculateOn = 'Round';
     $scope.MarkerId = null;
@@ -32,10 +33,229 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
     }
     $scope.getAllEntities();
 
+    $scope.PlanStatusList = [];
+    $scope.getAllPlanStatus = function () {
+        $http({
+            method: 'POST',
+            url: "OrderManagements/productionOrderSchedulingParametersType1/GetPlanStatus"
+        }).then(function successCallback(response) {
+            $scope.PlanStatusList = response.data;
+            if (baseService.arrayLength(response.data) === 1) {
+                $scope.cutplanNew.PlanStatus = $scope.PlanStatusList[0].Value;
+            }
+        });
+    }
+    $scope.getAllPlanStatus();
+
     $scope.modelNew = {
         Id: null,
         ProductionEntityId: null,
-        ProductionOrderId: null
+        ProductionOrderId: null,
+        FromDate: null,
+        ToDate: null,
+    }
+
+    $scope.cutplan = {
+        Id: null
+        , PlanName: null
+        , UserId: $window.employeeId
+        , User: $window.employeeName
+        , PlanStatus: null
+        , ResponsiblePersonId: null
+        , ResponsiblePerson: null
+        , Remarks: null
+    };
+    $scope.cutplanNew = Object.assign({}, $scope.cutplan);
+
+    $scope.Employee = null;
+    $scope.ResponsiblePersonList = [];
+    $scope.selectResponsiblePerson = function (flag) {
+        $scope.Employee = flag;
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetUserName',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.ResponsiblePersonList = resp.data;
+        });
+        angular.element(document.querySelector('#ResponsiblePersonPopUp')).modal('show');
+    }
+
+    $scope.doubleResponsiblePerson = function (e) {
+        if ($scope.Employee === 'User') {
+            $scope.cutplanNew.UserId = e.data.SystemId;
+            $scope.cutplanNew.User = e.data.EmployeeName;
+        }
+        else {
+            $scope.cutplanNew.ResponsiblePersonId = e.data.SystemId;
+            $scope.cutplanNew.ResponsiblePerson = e.data.EmployeeName;
+        }
+        angular.element(document.querySelector('#ResponsiblePersonPopUp')).modal('hide');
+    }
+
+    $scope.closeResponsiblePersonPopUp = function () {
+        angular.element(document.querySelector('#ResponsiblePersonPopUp')).modal('hide');
+    }
+
+    $scope.CutPlanList = [];
+    $scope.LoadCutPlanList = function () {
+        $http({
+            method: 'Get',
+            url: 'Productions/CutPlan/LoadCutPlanList'
+        }).then(function successCallback(response) {
+            $scope.CutPlanList = response.data;
+            var gridObj = $("#GridCutPlan").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+        }
+        )
+    }
+    $scope.LoadCutPlanList();
+
+    $scope.GetCutPlanDetails = function (args) {
+        $scope.CutPlanId = args.data.Id;
+        $http({
+            method: 'Get',
+            url: 'Productions/CutPlan/LoadCutPlanEditData?CutPlanId=' + args.data.Id
+        }).then(function successCallback(response) {
+            $scope.cutplanNew = response.data.cutplan[0];
+            $scope.cutplanNew.ResponsiblePerson = response.data.cutplan[0].ResponsiblePerson;
+            $scope.cutplanNew.User = response.data.cutplan[0].UserName;
+            getCutPlanDetailsList();
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        }
+        )
+    }
+
+    $scope.View = function () {
+        getCutPlanDetailsList();
+    }
+
+    $scope.CutPlanListSelected = [];
+    function getCutPlanDetailsList() {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetCutPlanDetailsList?FromDate=' + $scope.modelNew.FromDate + '&ToDate=' + $scope.modelNew.ToDate + '&ProductionEntityId=' + $scope.modelNew.ProductionEntityId + '&PlanId=' + $scope.cutplanNew.Id,
+        }).then(function successCallback(response) {
+            $scope.CutPlanListSelected = response.data;
+        });
+    }
+
+    $scope.refreshTemplateCutPlan = function (args) {
+        $("#Cheadchk").ejCheckBox({ "change": CheckBoxSelectAllCutPlan });
+    };
+    function CheckBoxSelectAllCutPlan(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridSOItemSelected").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.CutPlanListSelected.length; i++) {
+                $scope.CutPlanListSelected[i].Status = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Status = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridSOItemSelected").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+    $scope.PlanPer = 0;
+    $scope.SOQty = 0;
+    $scope.SOPlanQtyCal = function (data) {
+        try {
+            $scope.PlanPer = 0;
+            $scope.SOQty = 0;
+            $scope.SOPlanQty = 0;
+            $scope.PlanPer = data.data.PlanPercentage;
+            $scope.SOQty = data.data.Qty;
+            data.data.SOPlanQty = $scope.SOQty + ($scope.PlanPer * $scope.SOQty / 100);
+            var gridObj = $("#GridSOItemSelected").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
+    $scope.XSaveCutPlan = function () {
+        try {
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.CutPlanListSelected.length; i++) {
+                if ($scope.CutPlanListSelected[i].Status == true || ($scope.CutPlanListSelected[i].Status == false && $scope.CutPlanListSelected[i].Id != null)) {
+                    $scope.SaveList.push($scope.CutPlanListSelected[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlCutPlan,               
+                data: {
+                    'CutPlanData': $scope.cutplanNew,
+                    'DataList': $scope.SaveList
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadCutPlanList();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+        catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
+    $scope.SaveCutPlan = function () {
+        try {
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.CutPlanListSelected.length; i++) {
+                if ($scope.CutPlanListSelected[i].Status == true || ($scope.CutPlanListSelected[i].Status == false && $scope.CutPlanListSelected[i].Id != null)) {
+                    $scope.SaveList.push($scope.CutPlanListSelected[i]);
+                }
+            }
+
+            $http({
+                method: "POST",
+                url: 'Productions/CutPlan/CreateData',
+                data: {
+                    'data': $scope.cutplanNew,
+                    'DataList': $scope.SaveList
+                },
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    $scope.LoadCutPlanList();
+
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, "failure");
+            });
+            return true;
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.ClearCutPlan = function () {
+        CutPlanClearFields();
+    };
+
+    function CutPlanClearFields() {
+        $scope.Action = "Save";
+        $scope.cutplanNew = Object.assign({}, $scope.cutplan);
+        $scope.CutPlanListSelected = [];
     }
 
 
@@ -84,6 +304,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
 
         });
     }
+
 
     //#region MarkerList
     $scope.MarkerList = [];
@@ -178,7 +399,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
     $scope.CalculatedSkuValueList = [];
     $scope.Clicked = false;
     $scope.ErrorThrow = true;
-    
+
     $scope.CalculatePly = function () {
         try {
             $scope.CalculatedSkuValueList = [];
@@ -204,7 +425,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
                         OptionBasedMinValue = parseFloat(Math.floor($scope.MinimumPlyValue)).toFixed(2);
                     }
 
-                    
+
 
                     $scope.Clicked = true;
                     $scope.SkuValueList[i].MinimumPlyActualValue = MiniValue;

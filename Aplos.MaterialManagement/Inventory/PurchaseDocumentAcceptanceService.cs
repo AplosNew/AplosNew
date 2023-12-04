@@ -88,7 +88,8 @@ namespace Library.MaterialManagement.Inventory
 		                     ,REPLACE(CONVERT(CHAR(11), PLC.ExpiryDate, 106),' ','-') AS LCExpiryDate							
 		                     ,BM.AccountTitle LCOpeningBank	
 							 ,PLC.VendorId PartyId
-							 ,PP.Id PartyPlantId, PP.UserName PartyPlant,PLC.LCRef,PLC.CurrencyId,CN.Code CurrencyName,PLC.Tenure,PLC.OpeningBankMasterId
+							 --,PP.Id PartyPlantId, PP.UserName PartyPlant
+,PLC.LCRef,PLC.CurrencyId,CN.Code CurrencyName,PLC.Tenure,PLC.OpeningBankMasterId
 							 ,BM.CurrencyId LCOBCurrencyId,BMC.Code OBCurrencyCode,ISNULL(C.ContractNo,'')ContractNo,AcceptanceFirst=CASE WHEN PLC.IsAccepptanceFirst=1 THEN 'Yes' ELSE 'No' END
 							  ,ISNULL(PT.UserName,'') CustomerName,ISNULL(C.UDNo,'') UDNo,ISNULL(MLC.LCRef,'')MasterLCRef,PLC.Amount LCAmount
                     FROM dbo.PurchaseLC PLC  
@@ -98,7 +99,7 @@ namespace Library.MaterialManagement.Inventory
                     LEFT JOIN [MST].[BankMaster] BM ON BM.Id=PLC.OpeningBankMasterId
                     LEFT JOIN [SCS].[Currency] BMC ON BMC.Id=BM.CurrencyId
                     JOIN [HKP].[Party] AS P ON PLC.VendorId=P.Id
-					JOIN HKP.PartyPlant PP ON PP.PartyId=P.Id
+					--JOIN HKP.PartyPlant PP ON PP.PartyId=P.Id
                     JOIN SCS.Currency CN ON CN.Id=PLC.CurrencyId
                     WHERE PLC.Status='Active' AND PLC.PlantId='" + plantId + "' ORDER BY PLC.AddedDate DESC";
                 return _sqlRepository.GetDataCollection(Sql);
@@ -180,17 +181,18 @@ namespace Library.MaterialManagement.Inventory
 			                                from TRN.POGGRNMap PG 
                                             LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
 			                                where PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                                ,POId= STUFF((select distinct ','+PG.POId
-			                                FROM TRN.POGGRNMap PG 
-                                            LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
-			                                WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                --,POId= STUFF((select distinct ','+PG.POId
+			                             --   FROM TRN.POGGRNMap PG 
+                                --            LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
+			                             --   WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+											,RD.POId,RD.PODetailsId
                                 FROM [TRN].[InventoryReceive] AS IR 
                                 LEFT JOIN [TRN].[InventoryReceiveDetail] RD ON RD.InventoryReceiveId=IR.Id
                                 LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                                 LEFT JOIN [SCS].[Currency] C ON C.Id=IR.CurrencyId
                                 WHERE IR.PlantId='" + plantId + @"' AND ISNULL(IR.VoucherId,'')<>'' 
                                 AND IR.[Status]='Posting' AND IR.IsApproved=1 AND  RD.POId IN (SELECT Id From TRN.PurchaseOrder Where PurchaseLCId='" + purchaseLCId + @"')
-                                GROUP BY IR.Id,IR.DocRefNo,P.UserName,IR.DocDate,IR.GateEntryNo,C.Code";
+                                GROUP BY IR.Id,IR.DocRefNo,P.UserName,IR.DocDate,IR.GateEntryNo,C.Code,RD.POId,RD.PODetailsId";
                 return _sqlRepository.GetDataCollection(Sql);
             }
             catch (Exception ex)

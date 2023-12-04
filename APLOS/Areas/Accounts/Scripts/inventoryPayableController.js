@@ -1221,7 +1221,6 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
             };
             angular.element(document.querySelector('#additionalTaxPopUp')).modal('hide');
         }
-
     }
 
 

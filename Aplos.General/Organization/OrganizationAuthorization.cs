@@ -56,6 +56,21 @@ namespace Library.General.Organization
 
         #endregion Entity Specific
 
+        public List<Dictionary<string, object>> GetPlanStatus()
+        {
+            try
+            {
+                string sql = @"";
+                sql = @"select * from HKP.ProductionStatus";
+                    return _sqlRepository.GetDataCollection(sql); 
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
         #region Process Specific
 
         public List<Dictionary<string, object>> GetEntityProcessCbo(bool IsSysAdmin, string userId, string entityId)

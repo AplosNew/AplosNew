@@ -350,7 +350,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Areas\Accounts\AccountsAreaRegistration.cs" />
-    <Compile Include="Areas\Accounts\Controllers\BonusController.cs" />
     <Compile Include="Areas\Accounts\Controllers\AccountStatusDashboardController.cs" />
     <Compile Include="Areas\Accounts\Controllers\ChartAccountSetupController.cs" />
     <Compile Include="Areas\Accounts\Controllers\BalanceSheetSchedulingController.cs" />
@@ -1818,7 +1817,7 @@
     <Compile Include="SqlServerTypes\Loader.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Areas\Accounts\Scripts\BonusController.js" />
+    <Content Include="Areas\Accounts\Scripts\bonusDisbursementController.js" />
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
     <Content Include="Areas\Accounts\Scripts\ExpenseDistributionReportController.js" />
     <Content Include="Areas\Accounts\Scripts\balanceSheetSchedulingController.js" />
@@ -4858,11 +4857,11 @@
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\Vehiclereport.cshtml" />
     <Content Include="Areas\Accounts\Views\EDReport.cshtml" />
     <Content Include="Areas\Accounts\Views\SubsequentInvestment.cshtml" />
-    <Content Include="Areas\Accounts\Views\Bonus\Aplos.cshtml" />
     <Content Include="Areas\SalesManagements\Views\SalesChalan\SalesChalanCheck.cshtml" />
     <Content Include="Areas\Accounts\Views\paymentadvice.cshtml" />
     <Content Include="Areas\Accounts\Views\_ShortageQtyPopUp.cshtml" />
     <Content Include="Areas\Commercial\Views\PostSalesInvoice\InvoiceStatus.cshtml" />
+    <Content Include="Areas\Accounts\Views\SalaryDisbursement\BonusDisbursement.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
