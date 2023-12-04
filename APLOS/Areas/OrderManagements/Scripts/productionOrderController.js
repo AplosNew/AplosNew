@@ -4272,7 +4272,22 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                 method: 'GET',
                 url: 'OrderManagements/ProductionOrder/GetPOLotControlSettingsData?poId=' + $scope.model.Id + '&entityId=' + $scope.model.EntityId + '&userLotNo=' + $scope.model.UserDefineLotNo
             }).then(function (response) {
-                $scope.lotControlList = response.data;
+
+                if (baseService.arrayLength($scope.lotControlList) > 0) {
+                    for (var i = 0; i < $scope.lotControlList.length; i++) {
+                        for (var j = 0; j < response.data.length; j++) {
+                            if (!baseService.isUndefinedOrNull($scope.lotControlList[i].Id) && $scope.lotControlList[i].ProcessId == response.data[j].ProcessId) {
+                                $scope.lotControlList[i].LotNo = response.data[j].LotNo;
+                                $scope.lotControlList[i].UserLotNo = response.data[j].UserLotNo;
+                            }
+                        }
+                    }
+                } else {
+                    $scope.lotControlList = response.data;
+                }
+                var gridObj = $("#GridLC").data("ejGrid");
+                gridObj.refreshContent();
+                gridObj.refreshTemplate();
             });
         } catch (e) {
             ShowResult(e, 'failure');
