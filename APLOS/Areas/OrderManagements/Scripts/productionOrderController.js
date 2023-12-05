@@ -4276,7 +4276,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                 if (baseService.arrayLength($scope.lotControlList) > 0) {
                     for (var i = 0; i < $scope.lotControlList.length; i++) {
                         for (var j = 0; j < response.data.length; j++) {
-                            if (!baseService.isUndefinedOrNull($scope.lotControlList[i].Id) && $scope.lotControlList[i].ProcessId == response.data[j].ProcessId) {
+                            if (!baseService.isUndefinedOrNull($scope.lotControlList[i].Id) && $scope.lotControlList[i].ProcessId == response.data[j].ProcessId && $scope.lotControlList[i].SeqNo == response.data[j].SeqNo) {
                                 $scope.lotControlList[i].LotNo = response.data[j].LotNo;
                                 $scope.lotControlList[i].UserLotNo = response.data[j].UserLotNo;
                             }

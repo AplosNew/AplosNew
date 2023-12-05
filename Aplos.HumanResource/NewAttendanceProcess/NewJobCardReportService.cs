@@ -1032,6 +1032,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             clsReport objRpt = null;
             ReportUtility oru = new ReportUtility();
             DataSet dsBioDvAC = null;
+            DataSet dsPO = null;
             DataTable dtBioDvAC = null;
             DataView dvBioDvAC = null;
             DataSet dsCmp = null;
@@ -1041,8 +1042,9 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             ExcelEngine excelEngine = null;
             IApplication application = null;
-            var workbook = oru.GetWorkbook(ref excelEngine, 1);
+            var workbook = oru.GetWorkbook(ref excelEngine,2);
             workbook.Version = ExcelVersion.Excel2013;
+            IWorksheet sheet = null;
             IWorksheet sheet1 = null;
 
             int xlsRow = 1, xlsCol = 1;
@@ -1056,6 +1058,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 objRpt = new clsReport();
                 GetOrderWiseParameterJobCardReport(fromDate, toDate, IssueId, ProductionOrderId, LotNumber, EntityId, QualityStatus, Date, plantId, out dsBioDvAC);
                 dtBioDvAC = dsBioDvAC.Tables[0];
+
+                GetProductionDatabyPOId(ProductionOrderId, out dsPO);
 
                 objRpt.SelectedPlantWiseCompany(plantId, out dsCmp);
                 objRpt.SelectedPlant(plantId, out dsFactory);
@@ -1074,7 +1078,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     }
                     excelEngine = new ExcelEngine();
                     application = excelEngine.Excel;
-                    workbook = application.Workbooks.Create(sEmpCodeColl.Count);
+                    workbook = application.Workbooks.Create(2);
                     for (int Ec = 0; Ec < sEmpCodeColl.Count; Ec++)
                     {
                         dvBioDvAC = new DataView();
@@ -1085,7 +1089,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         {
                             sheet1 = workbook.Worksheets[Ec];
                             sheet1.IsGridLinesVisible = true;
-                            xlsRow = 3;
+                            xlsRow = 5;
                             string strEmpCode = "";
                             int QPIssueName = 0;
                             int QPProcess = 0;
@@ -1436,13 +1440,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             xlsRow += 3;
 
                             xlsRow += 5;
-                            //sheet1.Range[xlsRow, iDate].Text = employeeName;
-                            //sheet1.Range[xlsRow, iDate, xlsRow, iShiftName].Merge();// = "Signature";
-                            //sheet1.Range[xlsRow, iDate, xlsRow, iShiftName].CellStyle.Font.Bold = true;
-                            //sheet1.Range[xlsRow, iDate, xlsRow, iShiftName].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thick;
-
-                            //sheet1.Range[xlsRow, iDate, xlsRow, endXlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //sheet1.Range[xlsRow, iDate, xlsRow, endXlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                          
 
                             sheet1.IsDisplayZeros = false;
 
@@ -1497,49 +1495,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
                             sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
-                            //xlsRow += 1;
-                            //if (dsFactory.Tables[0].Rows.Count > 0)
-                            //{
-                            //    FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
-                            //}
-                            //else
-                            //{
-                            //    FactoryName = "";
-                            //}
-                            //sheet1.Range[xlsRow, 3].Text = FactoryName;
-                            //sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                            //sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 14;
-                            //sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 25;
-                            //sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                            //sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                            //sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
-                            //xlsRow += 1;
-                            //if (dsFactory.Tables[0].Rows.Count > 0)
-                            //{
-                            //    FactoryAddress = dsFactory.Tables[0].Rows[0]["Address1"].ToString();
-                            //}
-                            //else
-                            //{
-                            //    FactoryAddress = "";
-                            //}
-                            //sheet1.Range[xlsRow, 3].Text = FactoryAddress;
-                            //sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                            //sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 12;
-                            //sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 15;
-                            //sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                            //sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                            //sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
-                            //xlsRow += 1;
-                            //sheet1.Range[xlsRow, 3].Text = "Order Wise Parameter Job Card Information From Date: " + fromDate + " To Date: " + toDate;
-                            //sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
-                            //sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 12;
-                            //sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
-                            //sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
-                            //sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                            //sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                            //sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                             #endregion ******************Report Header******************
 
@@ -1575,6 +1530,95 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                     }
 
+                    #region PO && Lot wise Qty
+                    sheet = workbook.Worksheets[1];
+                    int ROW = 6; int COL = 1;
+
+                    #region ColumnsHeader
+
+                    sheet[ROW, COL].Text = "PO No"; sheet[ROW, COL].ColumnWidth = 8; int colPONo = COL; COL++;
+                    sheet[ROW, COL].Text = "Production Date"; sheet[ROW, COL].ColumnWidth = 16; int colPD = COL; COL++;
+                    sheet[ROW, COL].Text = "Process Set Seq"; sheet[ROW, COL].ColumnWidth = 16; int colPSS = COL; COL++;
+                    sheet[ROW, COL].Text = "Process"; sheet[ROW, COL].ColumnWidth = 25; int colP = COL; COL++;
+                    sheet[ROW, COL].Text = "Lot No"; sheet[ROW, COL].ColumnWidth = 30; int colLN = COL; COL++;
+                    sheet[ROW, COL].Text = "Work Center"; sheet[ROW, COL].ColumnWidth = 14; int colWC = COL; COL++;
+                    sheet[ROW, COL].Text = "Qty"; sheet[ROW, COL].ColumnWidth = 10; int colQty = COL; COL++;
+                    sheet[ROW, COL].Text = "Responsible Person"; sheet[ROW, COL].ColumnWidth = 20; int colRP = COL; COL++;
+                    sheet[ROW, COL].Text = "Remark"; sheet[ROW, COL].ColumnWidth = 30; int colRemark = COL;
+
+                    int endCol = COL;
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.White;
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.Black;
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                    #endregion columns
+
+                    ROW++;
+                    int startRow = ROW;
+
+                    #region DataPlot
+                    for (int i = 0; i < dsPO.Tables[0].Rows.Count; i++)
+                    {
+                        sheet[ROW, colPONo].Text = dsPO.Tables[0].Rows[i]["PONo"].ToString();
+                        sheet[ROW, colPD].Text = dsPO.Tables[0].Rows[i]["ProductionDate"].ToString();
+                        sheet[ROW, colPSS].Text = dsPO.Tables[0].Rows[i]["ProcessSetSeq"].ToString();
+                        sheet[ROW, colP].Text = dsPO.Tables[0].Rows[i]["Process"].ToString();
+                        sheet[ROW, colLN].Text = dsPO.Tables[0].Rows[i]["LotNo"].ToString();
+                        sheet[ROW, colWC].Text = dsPO.Tables[0].Rows[i]["WorkCenterMaster"].ToString();
+
+                        sheet[ROW, colQty].Number = Library.Service.Extension.clsStaticInfo.dbl(dsPO.Tables[0].Rows[i]["Quantity"].ToString());
+                        sheet.Range[ROW, colQty].VerticalAlignment = ExcelVAlign.VAlignTop;
+                        sheet.Range[ROW, colQty].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        sheet[ROW, colRP].Text = dsPO.Tables[0].Rows[i]["ResponsiblePerson"].ToString();
+                        sheet[ROW, colRemark].Text = dsPO.Tables[0].Rows[i]["Remarks"].ToString();
+
+
+                        sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                        sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                        ROW++;
+                    }
+                    #endregion
+                    int edCRow = ROW;
+
+                    #region ReportHeader
+
+                    sheet.UsedRange.WrapText = true;
+                    sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    sheet["A" + startRow.ToString()].FreezePanes();
+                    
+                    ReportUtility reportUtility = new ReportUtility();
+                    reportUtility.PlantHeader(ref sheet, endCol, "PO && Lot Wise Qty Report", plantId);
+                    reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                    sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                    sheet.UsedRange.WrapText = true;
+                    sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet.IsGridLinesVisible = false;
+                    sheet.Name = "PO && Lot Wise Qty";
+                    sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                    sheet.PageSetup.TopMargin = 0.2;
+                    sheet.PageSetup.BottomMargin = 0.8;
+                    sheet.PageSetup.LeftMargin = 0.2;
+                    sheet.PageSetup.RightMargin = 0.2;
+                    sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                    sheet.PageSetup.FitToPagesTall = 0;
+                    sheet.PageSetup.FitToPagesWide = 1;
+                    sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                    sheet.PageSetup.CenterHorizontally = true;
+                    #endregion
+
+                    #endregion
+
+
                     return workbook;
                 }
                 else
@@ -1591,6 +1635,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             {
                 objRpt = null;
                 dsBioDvAC = null;
+                dsPO = null;
                 dvBioDvAC = null;
                 excelEngine = null;
                 application = null;
@@ -1608,7 +1653,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             clsReport objRpt = null;
             ReportUtility oru = new ReportUtility();
-            DataSet dsBioDvAC = null;
+            DataSet dsBioDvAC, dsPO = null;
             DataTable dtBioDvAC = null;
             DataView dvBioDvAC = null;
             DataSet dsCmp = null;
@@ -1618,9 +1663,10 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             ExcelEngine excelEngine = null;
             IApplication application = null;
-            var workbook = oru.GetWorkbook(ref excelEngine, 1);
+            var workbook = oru.GetWorkbook(ref excelEngine, 2);
             workbook.Version = ExcelVersion.Excel2013;
             IWorksheet sheet1 = null;
+            IWorksheet sheet = null;
 
             int xlsRow = 1, xlsCol = 1;
             int endXlsCol = 1;
@@ -1633,6 +1679,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 objRpt = new clsReport();
                 GetDailyQualityStatusParameterJobCardReport(fromDate, toDate, IssueId, ProductionOrderId, LotNumber, EntityId, QualityStatus, Date, plantId, out dsBioDvAC);
                 dtBioDvAC = dsBioDvAC.Tables[0];
+
+                GetProductionDatabyPOId(ProductionOrderId, out dsPO);
 
                 objRpt.SelectedPlantWiseCompany(plantId, out dsCmp);
                 objRpt.SelectedPlant(plantId, out dsFactory);
@@ -1651,7 +1699,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     }
                     excelEngine = new ExcelEngine();
                     application = excelEngine.Excel;
-                    workbook = application.Workbooks.Create(sEmpCodeColl.Count);
+                    workbook = application.Workbooks.Create(2);
                     for (int Ec = 0; Ec < sEmpCodeColl.Count; Ec++)
                     {
                         dvBioDvAC = new DataView();
@@ -2097,6 +2145,94 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                     }
 
+                    #region PO && Lot wise Qty
+                    sheet = workbook.Worksheets[1];
+                    int ROW = 6; int COL = 1;
+
+                    #region ColumnsHeader
+
+                    sheet[ROW, COL].Text = "PO No"; sheet[ROW, COL].ColumnWidth = 8; int colPONo = COL; COL++;
+                    sheet[ROW, COL].Text = "Production Date"; sheet[ROW, COL].ColumnWidth = 16; int colPD = COL; COL++;
+                    sheet[ROW, COL].Text = "Process Set Seq"; sheet[ROW, COL].ColumnWidth = 16; int colPSS = COL; COL++;
+                    sheet[ROW, COL].Text = "Process"; sheet[ROW, COL].ColumnWidth = 25; int colP = COL; COL++;
+                    sheet[ROW, COL].Text = "Lot No"; sheet[ROW, COL].ColumnWidth = 30; int colLN = COL; COL++;
+                    sheet[ROW, COL].Text = "Work Center"; sheet[ROW, COL].ColumnWidth = 14; int colWC = COL; COL++;
+                    sheet[ROW, COL].Text = "Qty"; sheet[ROW, COL].ColumnWidth = 10; int colQty = COL; COL++;
+                    sheet[ROW, COL].Text = "Responsible Person"; sheet[ROW, COL].ColumnWidth = 20; int colRP = COL; COL++;
+                    sheet[ROW, COL].Text = "Remark"; sheet[ROW, COL].ColumnWidth = 30; int colRemark = COL;
+
+                    int endCol = COL;
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.White;
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.Black;
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                    #endregion columns
+
+                    ROW++;
+                    int startRow = ROW;
+
+                    #region DataPlot
+                    for (int i = 0; i < dsPO.Tables[0].Rows.Count; i++)
+                    {
+                        sheet[ROW, colPONo].Text = dsPO.Tables[0].Rows[i]["PONo"].ToString();
+                        sheet[ROW, colPD].Text = dsPO.Tables[0].Rows[i]["ProductionDate"].ToString();
+                        sheet[ROW, colPSS].Text = dsPO.Tables[0].Rows[i]["ProcessSetSeq"].ToString();
+                        sheet[ROW, colP].Text = dsPO.Tables[0].Rows[i]["Process"].ToString();
+                        sheet[ROW, colLN].Text = dsPO.Tables[0].Rows[i]["LotNo"].ToString();
+                        sheet[ROW, colWC].Text = dsPO.Tables[0].Rows[i]["WorkCenterMaster"].ToString();
+
+                        sheet[ROW, colQty].Number = Library.Service.Extension.clsStaticInfo.dbl(dsPO.Tables[0].Rows[i]["Quantity"].ToString());
+                        sheet.Range[ROW, colQty].VerticalAlignment = ExcelVAlign.VAlignTop;
+                        sheet.Range[ROW, colQty].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        sheet[ROW, colRP].Text = dsPO.Tables[0].Rows[i]["ResponsiblePerson"].ToString();
+                        sheet[ROW, colRemark].Text = dsPO.Tables[0].Rows[i]["Remarks"].ToString();
+
+
+                        sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                        sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                        sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                        ROW++;
+                    }
+                    #endregion
+                    int edCRow = ROW;
+
+                    #region ReportHeader
+
+                    sheet.UsedRange.WrapText = true;
+                    sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    sheet["A" + startRow.ToString()].FreezePanes();
+
+                    ReportUtility reportUtility = new ReportUtility();
+                    reportUtility.PlantHeader(ref sheet, endCol, "PO && Lot Wise Qty Report", plantId);
+                    reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                    sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                    sheet.UsedRange.WrapText = true;
+                    sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet.IsGridLinesVisible = false;
+                    sheet.Name = "PO && Lot Wise Qty";
+                    sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                    sheet.PageSetup.TopMargin = 0.2;
+                    sheet.PageSetup.BottomMargin = 0.8;
+                    sheet.PageSetup.LeftMargin = 0.2;
+                    sheet.PageSetup.RightMargin = 0.2;
+                    sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                    sheet.PageSetup.FitToPagesTall = 0;
+                    sheet.PageSetup.FitToPagesWide = 1;
+                    sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                    sheet.PageSetup.CenterHorizontally = true;
+                    #endregion
+
+                    #endregion
+
                     return workbook;
                 }
                 else
@@ -2477,6 +2613,30 @@ where M.ProductionOrderId='" + ProductionOrderId + "' and M.LotNumber='" + LotNu
                 objCon = null;
             }
         }//End Function
+
+        public void GetProductionDatabyPOId(string POId,out DataSet dsPO)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                string sql = @"SELECT PS.Quantity,PS.ProductionOrderId PONo,FORMAT(PS.ProductionDate,'dd-MMM-yyyy')ProductionDate,P.UserName Process,POS.Sequence ProcessSetSeq,PS.LotNumber LotNo,WC.UserName WorkCenterMaster,EI.EmployeeName ResponsiblePerson,PS.Remarks
+ FROM TRN.ProductionSummary PS
+LEFT JOIN TRN.ProductionOrderProcessSet POS ON POS.ProductionOrderId=PS.ProductionOrderId
+LEFT JOIN HKP.Process P ON P.Id=POS.ProcessId
+LEFT JOIN SCS.WorkCenterMaster WC ON WC.Id=PS.WorkCenterMasterId
+LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=PS.ResponsiblePersonId
+where PS.ProductionOrderId='"+ POId + "' Order By PS.ProductionDate";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(sql, out dsPO);
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         //Daily Quality Status function
         public void GetDailyQualityStatusParameterJobCardReport(string FromDate, string ToDate, string IssueId, string ProductionOrderId, string LotNumber, string EntityId, string QualityStatus, string Date, string plantId, out DataSet dsRef)
