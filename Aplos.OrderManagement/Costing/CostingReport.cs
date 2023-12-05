@@ -1509,7 +1509,6 @@ namespace Library.OrderManagement.Costing
 
             sheet[ROW, COL].Text = "Amount";
             sheet[ROW, COL].ColumnWidth = 18;
-            
 
             ROW++;
 
