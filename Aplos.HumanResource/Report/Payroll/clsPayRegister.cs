@@ -8029,6 +8029,7 @@ where h.HeadCategory='GROSS'
                                                 totalOTHr = Math.Round((Convert.ToDouble(dtEmployees.Rows[i]["TotalOTHr"])) / 60, 2).ToString();//ru.cnDgt().ToString()), localLanguage);
 
                                                 salarySheetValue = Convert.ToDouble(totalOTHr) * otRate;
+                                                
                                                 OTAmountAdd = salarySheetValue;
                                                 getTotalAmount(xx.XLColIndex.ToString(), salarySheetValue, ref subTotalDictSalaryProcess);//SubTotal
                                                 getTotalAmount(xx.XLColIndex.ToString(), salarySheetValue, ref totalDictSalaryProcess);
@@ -12396,7 +12397,7 @@ where h.HeadCategory='GROSS'
 													) MW ON MW.SystemId = EmpBasic.EmpSystemId
                                     INNER JOIN
 		                                    (
-													SELECT EmpSystemID,MonthNo,YearNo, ISNULL(TotalProcDate,0) TotalProcDate,IsNULL(TotalPresent,0) TotalPresent,ISNULL(TotalLate,0) TotalLate,ISNULL(TotalAbsent,'') TotalAbsent
+													SELECT EmpSystemID,MonthNo,YearNo, ISNULL(TotalProcDate,0) TotalProcDate,IsNULL(TotalPresent,0) TotalPresent,ISNULL(TotalLate,0) TotalLate,ISNULL(TotalAbsent,0) TotalAbsent
 										,ISNULL(TotalLv,0) TotalLv,isnull(MMDSA.TotalPayDay,0) AS TotalPayDay
 										,ISNULL(TotalMLv,0) TotalMLv,ISNULL(TotalCompAssignLv,0) TotalCompAssignLv,ISNULL(TotalWeekOff,0) +  ISNULL(TotalWeekOffHoliDay,0) TotalWeekOff, ISNULL(TotalWeekOffHoliDay,0) TotalWeekOffHoliDay
 										,ISNULL(TotalOTHr,0) TotalOTHr,ISNULL(TotalNormalOTHr,0) TotalNormalOTHr,ISNULL(TotalExtraOTHr,0) TotalExtraOTHr,ISNULL(WeekOffOTHr,0) WeekOffOTHr
@@ -16685,7 +16686,8 @@ where h.HeadCategory='GROSS'
                                             ComplianceAttendanceSetting CAS ON CAS.CompanyGroupId = FOT.GroupID  AND CAS.PlantID = '" + plantId + @"'
 	                                        LEFT JOIN AttdnProcessData APD  ON APD.WorkDate = FOT.WorkDate and apd.EmpSystemID = FOT.EmpSystemID
 											LEFT JOIN DayType DT  ON DT.DayType = APD.DayStatus 
-                                             WHERE 1 = 1 AND APD.DayStatus='P'
+                                             WHERE 1 = 1 AND DT.OriginalDayType NOT IN('H','W','WL')
+                                                    --APD.DayStatus IN('P','L')
                                             ) dd
                                             WHERE WorkDate BETWEEN '" + fromDate + @"' and '" + toDate + @"' and PlantID = '" + plantId + @"'
                                             GROUP BY EmpSystemID,PlantID ) OT ON OT.EmpSystemID = MMDSA.EmpSystemID

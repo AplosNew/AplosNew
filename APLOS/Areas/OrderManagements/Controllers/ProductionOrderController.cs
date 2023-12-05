@@ -2511,6 +2511,11 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                 #region Entity 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionOrderLotControl where  ProductionOrderId='" + poId + "'", out dsEntity, false, "1");
+                //for (int i = 0; i < dsEntity.Tables[0].Rows.Count; i++)
+                //{
+                //    dsEntity.Tables[0].Rows[i].Delete();
+                //}
+
                 if (data != null)
                 {
                     //genid.GenID("ProductionOrderLotControl", out _Id);
@@ -2540,7 +2545,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.ArticleId";
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dsEntity);
 
-                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)

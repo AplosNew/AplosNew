@@ -1157,7 +1157,7 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
         angular.element(document.querySelector('#shortagePopUp')).modal('show');
     };
     $scope.closeShortageQtyPopUp = function () {
-        $scope.additionalTaxData = {};
+        $scope.shortageQtyData = {};
         angular.element(document.querySelector('#shortagePopUp')).modal('hide');
 
     }
@@ -1222,7 +1222,14 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
             angular.element(document.querySelector('#additionalTaxPopUp')).modal('hide');
         }
     }
-
+    $scope.ShortageDebitNotePrint = function () {
+        try {
+            var file_src = 'Accounts/AdjustmentNote/GetDebitNoteReport?reportFormat=' + 'Excel' + '&voucherId=' + $scope.shortageQtyData.DebitNoteVoucherId
+            $rootScope.report(file_src);
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 
     $scope.podiscountAmountCal = function (amount) {
         for (var i = 0; i < $scope.newList.length; i++) {
@@ -1337,6 +1344,5 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
     };
     $scope.closeInvoiceSetOffDetailByInvoice = function () {
         angular.element(document.querySelector('#invoiceetOffByInvoicePopUp')).modal('hide');
-
     }
 }

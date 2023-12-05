@@ -178,6 +178,7 @@ namespace Library.Service.SalesManagements
                     RowState = RowState.Parked.ToString(),
                     DeliveryByAddress = voucherVM.DeliveryByAddress,
                     InvoicingByAddress = voucherVM.InvoicingByAddress,
+                    InvoiceStatus = voucherVM.InvoiceStatus,
                     SourceType = "Sales",
                     ModelState = ModelState.Added,
                     Id = "S" + _pkGeneratorService.GetAutoNumber(nameof(Sales), PKGeneratorEnum.Yearly, null, DateTime.Now)
@@ -406,6 +407,7 @@ namespace Library.Service.SalesManagements
                     UpdatedDate = voucherVM.UpdatedDate,
                     UpdatedFromIP = voucherVM.UpdatedFromIP,
                     SourceType = "Sales",
+                    InvoiceStatus = voucherVM.InvoiceStatus,
                     ModelState = ModelState.Modified,
                     Id = voucherVM.Id,
                 };
@@ -1663,6 +1665,7 @@ namespace Library.Service.SalesManagements
                     ModelState = ModelState.Added,
                     BLNumber = voucherVM.BLNumber,
                     ItemDescription = voucherVM.ItemDescription,
+                    InvoiceStatus = voucherVM.InvoiceStatus,
                     BLDate = voucherVM.BLDate,
                     EXPDate = voucherVM.EXPDate,
                     EXPFromNo = voucherVM.EXPFromNo,
@@ -1930,6 +1933,7 @@ namespace Library.Service.SalesManagements
                 sales.BLDate = voucherVM.BLDate;
                 sales.EXPDate = voucherVM.EXPDate;
                 sales.EXPFromNo = voucherVM.EXPFromNo;
+                sales.InvoiceStatus = voucherVM.InvoiceStatus;
                 sales.IsAdditionalInfoApplicable = voucherVM.IsAdditionalInfoApplicable;
                 sales.UpdatedBy = voucherVM.UpdatedBy;
                 sales.UpdatedDate = voucherVM.UpdatedDate;
@@ -3107,6 +3111,7 @@ namespace Library.Service.SalesManagements
                     BLDate = voucherVM.BLDate,
                     EXPDate = voucherVM.EXPDate,
                     EXPFromNo = voucherVM.EXPFromNo,
+                    InvoiceStatus = voucherVM.InvoiceStatus,
                     ComercialInvoiceNo = voucherVM.ComercialInvoiceNo,
                     SourceType = "Packing",
                     Id = "MS" + _pkGeneratorService.GetAutoNumber(nameof(Sales), PKGeneratorEnum.Yearly, null, DateTime.Now),
@@ -3475,6 +3480,7 @@ namespace Library.Service.SalesManagements
                     BLNumber = voucherVM.BLNumber,
                     ItemDescription = voucherVM.ItemDescription,
                     BLDate = voucherVM.BLDate,
+                    InvoiceStatus = voucherVM.InvoiceStatus,
                     EXPDate = voucherVM.EXPDate,
                     EXPFromNo = voucherVM.EXPFromNo,
                     AddedBy = voucherVM.AddedBy,
