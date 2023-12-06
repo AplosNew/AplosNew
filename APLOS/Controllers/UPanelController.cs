@@ -177,12 +177,15 @@ namespace Aplos.Controllers
             }
         }
 
+        
+
         [HttpPost, AllowAnonymous]
         public JsonResult Login(string timezoneoffset, string userId, string password, string remember, string authToken, string groupId, string groupName, string companyId, string companyName, string plantId)
         {
             //var user = _userService.Query(t => t.UserId == userId).Select().FirstOrDefault();
             //if (user.SysAdmin||user.PowerUser) return null;
-           var macId= GetMACAddress();
+           var macId= GetLocalMacAddress();
+         //   PhysicalAddress macId = GetMacAddress();
             var http = System.Web.HttpContext.Current;
             var isRemember = !string.IsNullOrWhiteSpace(remember) && remember == "on";
             var ip = AccessInfo.GetWorkstationIP(http);
@@ -269,6 +272,97 @@ namespace Aplos.Controllers
             {
             }
             return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public static PhysicalAddress GetMacAddress()
+        {
+            var myInterfaceAddress = NetworkInterface.GetAllNetworkInterfaces()
+                .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+                .OrderByDescending(n => n.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
+                .Select(n => n.GetPhysicalAddress()).ElementAt(1);
+
+            return myInterfaceAddress;
+        }
+
+        public string Get_MACAddress()
+        {
+            NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
+            String sMacAddress = string.Empty;
+            foreach (NetworkInterface adapter in nics)
+            {
+                if (sMacAddress == String.Empty)// only return MAC Address from first card  
+                {
+                    IPInterfaceProperties properties = adapter.GetIPProperties();
+                    sMacAddress = adapter.GetPhysicalAddress().ToString();
+                }
+            }
+            return sMacAddress;
+        }
+
+        static string GetLocalMacAddress()
+        {
+            string mac_src = "";
+            try
+            {
+                
+                // Get the network interface for the local machine
+                var localInterface = NetworkInterface.GetAllNetworkInterfaces()
+                    .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+                    .OrderByDescending(n => n.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
+                     .Select(n => n.GetPhysicalAddress()).ElementAt(1);
+                mac_src = BitConverter.ToString(localInterface.GetAddressBytes()).Replace('-', '-');
+                
+                
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return mac_src;
+
+        }
+
+        static string XGetLocalMacAddress()
+        {
+            try
+            {
+                // Get the network interface for the local machine
+                NetworkInterface localInterface = NetworkInterface.GetAllNetworkInterfaces()
+                    .FirstOrDefault(nic => nic.NetworkInterfaceType != NetworkInterfaceType.Loopback && nic.NetworkInterfaceType != NetworkInterfaceType.Tunnel);
+
+                if (localInterface != null)
+                {
+                    return localInterface.GetPhysicalAddress().ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error getting MAC address: " + ex.Message);
+            }
+
+            return null;
+        }
+
+        static string GetWifiMacAddress()
+        {
+            try
+            {
+                // Get the network interface for Wi-Fi
+                NetworkInterface wifiInterface = NetworkInterface.GetAllNetworkInterfaces()
+                    .FirstOrDefault(nic => nic.NetworkInterfaceType == NetworkInterfaceType.Wireless80211);
+
+                if (wifiInterface != null)
+                {
+                    return wifiInterface.GetPhysicalAddress().ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error getting Wi-Fi MAC address: " + ex.Message);
+            }
+
+            return null;
         }
 
         public string GetMACAddress()
