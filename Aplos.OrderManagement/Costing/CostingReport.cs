@@ -741,7 +741,7 @@ namespace Library.OrderManagement.Costing
 
                 DataTable dtOrderInfo = _sqlRepository.GetDataTable(OrderInformationSQL(OrderCostingId));
                 int ROW = 5;
-                int COL = 7;
+                int COL = 8;
                 int COLFinal = COL;
 
                 #region Order Information
