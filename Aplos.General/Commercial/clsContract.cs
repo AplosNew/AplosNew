@@ -1213,6 +1213,26 @@ LEFT JOIN SCS.Country C ON C.Id=NB.CountryId";
                 throw ex;
             }
         }
+
+        public IEnumerable<object> GetRemarksControlList(string column, string value)
+        {
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"SELECT * FROM (SELECT NB.*,C.UserName Country FROM dbo.NegotiatingBank NB
+                            LEFT JOIN SCS.Country C ON C.Id=NB.CountryId) AS TEMP WHERE " + strkey + " ORDER BY TEMP.AddedDate DESC";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
     }
 }
 
