@@ -184,7 +184,7 @@ namespace Aplos.Controllers
         {
             //var user = _userService.Query(t => t.UserId == userId).Select().FirstOrDefault();
             //if (user.SysAdmin||user.PowerUser) return null;
-           var macId= GetLocalMacAddress();
+           //var macId= GetLocalMacAddress();
          //   PhysicalAddress macId = GetMacAddress();
             var http = System.Web.HttpContext.Current;
             var isRemember = !string.IsNullOrWhiteSpace(remember) && remember == "on";
