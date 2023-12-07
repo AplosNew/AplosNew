@@ -19,11 +19,6 @@ namespace Library.Model.OrderManagements
         public decimal Sequence { get; set; }
         public bool MasterPlanApplicable { get; set; }
 
-
-        public decimal MasterPlanApplicable { get; set; }
-
-
-
         #endregion Scalar Properties
 
         #region Audit Properties

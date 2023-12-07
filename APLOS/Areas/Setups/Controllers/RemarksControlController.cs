@@ -44,28 +44,19 @@ namespace Aplos.Areas.Setups.Controllers
         [Authorize, HttpGet]
         public JsonResult GetCbo()
         {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + ""), JsonRequestBehavior.AllowGet);
+            return Json(clsCon.GetRemarksControlCboList(), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
         public ActionResult GetList(string column, string value)
         {
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = column + " like '%" + value + "%'";
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey + " order by sequence";
-
-
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            return Json(clsCon.GetRemarksControlList(column, value), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
         public JsonResult GetAutoSequence()
         {
-            return Json(GetSequence(), JsonRequestBehavior.AllowGet);
+            return Json(clsCon.GetRemarksControlSequence(), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -107,7 +98,7 @@ namespace Aplos.Areas.Setups.Controllers
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
-                return Json(new { Error = false, Data= data, Sequence = GetSequence(), Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data= data, Sequence = clsCon.GetRemarksControlSequence(), Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
@@ -134,7 +125,7 @@ namespace Aplos.Areas.Setups.Controllers
                 con.executeQuery("delete from " + TableName + " where id='" + id + "'");
                 con.CommitTransaction();
 
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = false, Sequence = clsCon.GetRemarksControlSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
 
             }
             catch (Exception ex)
@@ -192,13 +183,6 @@ namespace Aplos.Areas.Setups.Controllers
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
-        private double GetSequence()
-        {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
-            if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-
-            return 1;
-        }
+       
     }
 }

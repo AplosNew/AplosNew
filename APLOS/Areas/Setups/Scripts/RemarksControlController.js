@@ -1,7 +1,7 @@
 ﻿'use strict';
-RemarksControlController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function RemarksControlController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Defect Type';
+RemarksControlController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$window'];
+function RemarksControlController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
+    $rootScope.title = 'Remarks Control';
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'Setups/RemarksControl/';
@@ -48,6 +48,79 @@ function RemarksControlController(cboService, commonMessage, $scope, $rootScope,
         });
     };
     $scope.GetSequence();
+
+    $scope.showEmployeeListPopUp = function (name) {
+        try {
+          
+            $scope.Name = name;
+            //$scope.employeeParameters.searchBy = 'EmployeeCode';
+            baseService.setCurrentPage('employeeList');
+            $scope.searchEmployeeByList = [];
+            $scope.getEmployeeData = function (pageno) {
+                $scope.employeeParameters.plantId = $window.PlantId;
+                $scope.employeeParameters.partyAccountGroupId = $scope.fileNew.PartyAccountGroupId;
+                $scope.employeeParameters.partyId = $scope.fileNew.PartyId;
+                baseService.paginationBase($scope.employeeUrl, pageno, $scope.employeeParameters)
+                    .then(function (result) {
+                        $scope.employeeList = result.Rows;
+                        $scope.employeeParameters.total_count = result.Total;
+
+                        if (baseService.arrayLength($scope.searchEmployeeByList) === 0)
+                            baseService.getDDLSearchColumn(result.Rows, $scope.searchEmployeeByList);
+                        //$scope.employeeParameters.searchBy = 'EmployeeCode';
+                    }, function () {
+                        ShowResult(commonMessage.NetworkError, 'failure');
+                    }).finally(function () {
+                    });
+            };
+            angular.element(document.querySelector('#employeePopUp')).modal('show');
+            $scope.getEmployeeData();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.selectEmployeePopUp = function (index, id) {
+        $scope.employeeIndex = index;
+        $scope.selectedEmployee = id;
+    };
+
+
+    $scope.closeEmployeePopUp = function () {
+        if ($scope.employeeIndex !== -1) {
+            var employee = $scope.employeeList[$scope.employeeIndex];
+            if ($scope.Name === 'mo') {
+                $scope.fileNew.ResponsiblePersonId = employee.SystemId;
+                $scope.fileNew.ResponsiblePersonName = employee.EmployeeName;
+            } else if ($scope.Name === 'so') {
+                $scope.soModel.ResponsiblePersonId = employee.SystemId;
+                $scope.soModel.ResponsiblePersonName = employee.EmployeeName;
+            }
+            else if ($scope.Name === 'Stock') {
+                $scope.soModel.StockResponsiblePersonId = employee.SystemId;
+                $scope.soModel.StockResponsiblePerson = employee.EmployeeName;
+            }
+            else if ($scope.Name === 'boq') {
+                $scope.qboqModel.ResponsiblePersonId = employee.SystemId;
+                $scope.qboqModel.ResponsiblePersonName = employee.EmployeeName;
+            }
+            else if ($scope.Name === 'pd') {
+                $scope.modelNewPD.ResponsiblePersonId = employee.SystemId;
+                $scope.modelNewPD.ResponsiblePerson = employee.EmployeeName;
+            }
+            else {
+                $scope.soSplitModel.ResponsiblePersonId = employee.SystemId;
+                $scope.soSplitModel.ResponsiblePersonName = employee.EmployeeName;
+
+            }
+        }
+        $scope.hideEmployeePopUp();
+    };
+
+    $scope.hideEmployeePopUp = function () {
+        angular.element(document.querySelector('#employeePopUp')).modal('hide');
+        $scope.employeeIndex = -1;
+        $scope.selectedEmployee = null;
 
     $scope.Get = function (args) {
 

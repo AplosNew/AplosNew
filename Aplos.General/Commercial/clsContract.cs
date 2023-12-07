@@ -1231,7 +1231,26 @@ LEFT JOIN SCS.Country C ON C.Id=NB.CountryId";
             }
         }
 
+        public IEnumerable<object> GetRemarksControlCboList()
+        {
+            try
+            {
+                return _sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM HKP.RemarksControl");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
+        public double GetRemarksControlSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM HKP.RemarksControl");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
 
     }
 }
