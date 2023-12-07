@@ -20,7 +20,7 @@ function RemarksControlController(cboService, commonMessage, $scope, $rootScope,
             url: $scope.path + "GetList",
             data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
-        }).then(function successCallback(response) {          
+        }).then(function successCallback(response) {
             $scope.ModelList = response.data;
             ClearFields(response.data.Sequence);
             $scope.GetSequence();
@@ -51,7 +51,7 @@ function RemarksControlController(cboService, commonMessage, $scope, $rootScope,
 
     $scope.showEmployeeListPopUp = function (name) {
         try {
-          
+
             $scope.Name = name;
             //$scope.employeeParameters.searchBy = 'EmployeeCode';
             baseService.setCurrentPage('employeeList');
@@ -122,70 +122,71 @@ function RemarksControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.employeeIndex = -1;
         $scope.selectedEmployee = null;
 
-    $scope.Get = function (args) {
+        $scope.Get = function (args) {
 
-        $scope.ModelNew = Object.assign({}, args.data);
-        $scope.Action = 'Update';
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
-    };
-
-    $scope.Save = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.ModelNewForm.$valid) {
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
-                    $scope.getData();
-
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
+            $scope.ModelNew = Object.assign({}, args.data);
+            $scope.Action = 'Update';
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
             }
+        };
 
-        }
-    };
+        $scope.Save = function () {
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.ModelNewForm.$valid) {
+                $http({
+                    method: 'POST',
+                    url: $scope.saveUrl,
+                    data: { 'data': $scope.ModelNew },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        ClearFields(response.data.Sequence);
+                        $scope.getData();
 
-    $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
-            $http({
-                method: 'POST',
-                url: $scope.deleteUrl + $scope.ModelNew.Id,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
+                    }
+                }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
-                    $scope.getData();
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
+
+            }
+        };
+
+        $scope.Delete = function () {
+            if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+                $http({
+                    method: 'POST',
+                    url: $scope.deleteUrl + $scope.ModelNew.Id,
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        ClearFields(response.data.Sequence);
+                        $scope.getData();
+                    }
+                    function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                });
+            }
+        };
+
+        $scope.Clear = function () {
+            ClearFields($scope.GetSequence());
+            return true;
+        };
+
+        function ClearFields(seq) {
+            $scope.Action = 'Save';
+            $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+            $scope.ModelNew.Sequence = seq;
         }
-    };
-
-    $scope.Clear = function () {
-        ClearFields($scope.GetSequence());
-        return true;
-    };
-
-    function ClearFields(seq) {
-        $scope.Action = 'Save';
-        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-        $scope.ModelNew.Sequence = seq;
     }
 }
