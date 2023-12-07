@@ -27,5 +27,6 @@ namespace Library.ViewModel.HR
         public bool IsExceptionAllowed { get; set; }
         public string FromDate { get; set; }
         public string ToDate { get; set; }
+        public decimal Rejected { get; set; }
     }
 }

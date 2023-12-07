@@ -142,7 +142,8 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
         BooksCurrencyBaseRate: null,
         IsPark: 1,
         IsIncentiveApplicable: false,
-        InvoiceStatus: 'Active'
+        InvoiceStatus: 'Active',
+        PaymentToReceiveBankId: null
     };
     $scope.salesVM.TaxOptionAddiTax = 'Yes';
     $scope.materialMaster = {
@@ -2146,6 +2147,12 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
     $scope.bankMasterList = [];
     bankService.GetNegotiatingBankMasterCboListByPlant(function (result) {
         $scope.bankMasterList = result;
+
+    });
+
+    $scope.PaymentToReceiveBankList = [];
+    bankService.getBankMasterCboListByPlant(function (result) {
+        $scope.PaymentToReceiveBankList = result;
 
     });
 
