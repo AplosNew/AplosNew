@@ -1717,7 +1717,8 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 data: {
                     "ps": $scope.productionSummaryNew,
                     "psd": $scope.ProductionSummaryDetail,
-                    "ProcessParaList": $scope.ProcessParaList
+                    "ProcessParaList": $scope.ProcessParaList,
+                    "ProcessId": $scope.productionSummaryNew.ProcessId
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -1976,7 +1977,8 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 method: 'POST',
                 url: $scope.saveUrlWC,
                 data: {
-                    "ps": $scope.productionSummaryNew
+                    "ps": $scope.productionSummaryNew,
+                    "ProcessId": $scope.productionSummaryNew.ProcessId
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {

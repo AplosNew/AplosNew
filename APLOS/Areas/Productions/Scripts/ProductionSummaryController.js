@@ -1161,7 +1161,8 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 data: {
                     "ps": $scope.productionSummaryNew,
                     "psd": $scope.ProductionSummaryDetail,
-                    "ProcessParaList": $scope.ProcessParaList
+                    "ProcessParaList": $scope.ProcessParaList,
+                    "ProcessId": $scope.productionSummaryNew.ProcessId
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {

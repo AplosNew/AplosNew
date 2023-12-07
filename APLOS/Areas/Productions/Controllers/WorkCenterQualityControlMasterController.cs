@@ -1034,81 +1034,81 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             }
         }
 
-        [HttpPost]
-        public JsonResult CreateWC(ProductionSummary ps)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ps.PlantId = identity.PlantId;
-            _ProductionSummaryService.SaveMasterWC(ps,identity.CompanyGroupId);
-            return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
-        }
-        [HttpPost]
-        public JsonResult UpdateWC(ProductionSummary ps)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ps.PlantId = identity.PlantId;
-            _ProductionSummaryService.SaveMasterWC(ps, identity.CompanyGroupId);
-            return Json(new { ProductionSummary = ps, Message = AplosMessage.Updated });
-        }
-        [HttpPost]
-        public JsonResult createDetentionWC(List<Dictionary<string, object>> DataList)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            _ProductionSummaryService.SaveDetentionWC(DataList);
-            return Json(new { Message = AplosMessage.Success });
-        }
-        public void SaveMasterOrderItemCostingRateData(List<Dictionary<string, object>> data, string masterId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            try
-            {
-                if (string.IsNullOrEmpty(masterId))
-                {
-                    throw new Exception("Select Line Item.");
-                }
-                #region FUND 
-                ConnectionManager.DAL.ConManager objCon;
-                DataSet dsMaster = null;
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionSummaryParameterValue where  ProductionSummaryId='" + masterId + "'", out dsMaster, false, "1");
-                int idc = 0;
-                if (data != null)
-                {
-                    foreach (var item in data)
-                    {
-                        idc++;
-                        DataView dv = new DataView(dsMaster.Tables[0]);
-                        dv.RowFilter = "Id='" + item["Id"] + "'";
+        //[HttpPost]
+        //public JsonResult CreateWC(ProductionSummary ps, string ProcessId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    ps.PlantId = identity.PlantId;
+        //    _ProductionSummaryService.SaveMasterWC(ps,identity.CompanyGroupId, ProcessId);
+        //    return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
+        //}
+        //[HttpPost]
+        //public JsonResult UpdateWC(ProductionSummary ps, string ProcessId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    ps.PlantId = identity.PlantId;
+        //    _ProductionSummaryService.SaveMasterWC(ps, identity.CompanyGroupId, ProcessId);
+        //    return Json(new { ProductionSummary = ps, Message = AplosMessage.Updated });
+        //}
+        //[HttpPost]
+        //public JsonResult createDetentionWC(List<Dictionary<string, object>> DataList)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    _ProductionSummaryService.SaveDetentionWC(DataList);
+        //    return Json(new { Message = AplosMessage.Success });
+        //}
+        //public void SaveMasterOrderItemCostingRateData(List<Dictionary<string, object>> data, string masterId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    try
+        //    {
+        //        if (string.IsNullOrEmpty(masterId))
+        //        {
+        //            throw new Exception("Select Line Item.");
+        //        }
+        //        #region FUND 
+        //        ConnectionManager.DAL.ConManager objCon;
+        //        DataSet dsMaster = null;
+        //        objCon = new ConnectionManager.DAL.ConManager("1");
+        //        objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionSummaryParameterValue where  ProductionSummaryId='" + masterId + "'", out dsMaster, false, "1");
+        //        int idc = 0;
+        //        if (data != null)
+        //        {
+        //            foreach (var item in data)
+        //            {
+        //                idc++;
+        //                DataView dv = new DataView(dsMaster.Tables[0]);
+        //                dv.RowFilter = "Id='" + item["Id"] + "'";
 
-                        if (dv.Count == 0)
-                        {
-                            string id = _pkGeneratorService.MakePK(masterId, idc, 3);
-                            item["Id"] = id;
-                            item["ProductionSummaryId"] = masterId;
+        //                if (dv.Count == 0)
+        //                {
+        //                    string id = _pkGeneratorService.MakePK(masterId, idc, 3);
+        //                    item["Id"] = id;
+        //                    item["ProductionSummaryId"] = masterId;
 
-                            AddNewRow(dsMaster.Tables[0], item);
-                        }
-                        else
-                        {
-                            DataRow drmo = dv[0].Row;
-                            item["ProductionSummaryId"] = masterId;
-                            EditRow(drmo, item);
-                        }
-                    }
-                }
+        //                    AddNewRow(dsMaster.Tables[0], item);
+        //                }
+        //                else
+        //                {
+        //                    DataRow drmo = dv[0].Row;
+        //                    item["ProductionSummaryId"] = masterId;
+        //                    EditRow(drmo, item);
+        //                }
+        //            }
+        //        }
 
-                #endregion
+        //        #endregion
 
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster);
+        //        clsStaticInfo obj = new clsStaticInfo();
+        //        obj.SaveDataSets(dsMaster);
 
 
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw (ex);
+        //    }
+        //}
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {

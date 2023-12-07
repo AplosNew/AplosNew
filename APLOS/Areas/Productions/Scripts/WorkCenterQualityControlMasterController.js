@@ -13,16 +13,7 @@ function WorkCenterQualityControlMasterController(cboService, commonMessage, $sc
     $scope.saveUrlReason = $scope.path + 'createReason';
     $scope.saveUrlTime = $scope.path + 'createTime';
     $scope.saveUrlPICValue = $scope.path + 'create';
-    //$scope.saveUrlReasonValue = $scope.path + 'createReasonValue';
-    //$scope.saveUrlDetentionWC = $scope.path + 'createDetentionWC';
-    //$scope.saveDetailUrl = $scope.path + 'createDetail';
-    //$scope.saveSecondDetailUrl = $scope.path + 'createSecondDetail';
-    //$scope.updateUrl = $scope.path + 'edit';
-    //$scope.deleteUrl = $scope.path + 'delete/';
-    //$scope.TotalSalesOrderQty = 0;
-    //$scope.TotalProductionBookingQty = 0;
-    //$scope.RemainQty = 0;
-    //$scope.DetentionSum = 0;
+   
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {

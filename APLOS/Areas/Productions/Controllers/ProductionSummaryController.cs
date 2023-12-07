@@ -789,11 +789,11 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         }
 
         [HttpPost]
-        public JsonResult Create(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, List<Dictionary<string, object>> ProcessParaList)
+        public JsonResult Create(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, List<Dictionary<string, object>> ProcessParaList, string ProcessId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ps.PlantId = identity.PlantId;
-            _ProductionSummaryService.SaveMaster(ps, psd, identity.CompanyGroupId);
+            _ProductionSummaryService.SaveMaster(ps, psd, identity.CompanyGroupId, ProcessId);
             if (ProcessParaList != null)
             {
                 SaveMasterOrderItemCostingRateData(ProcessParaList, ps.Id);
@@ -808,19 +808,19 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         //    return Json(new { Message = AplosMessage.Success });
         //}
         [HttpPost]
-        public JsonResult CreateWC(ProductionSummary ps)
+        public JsonResult CreateWC(ProductionSummary ps, string ProcessId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ps.PlantId = identity.PlantId;
-            _ProductionSummaryService.SaveMasterWC(ps,identity.CompanyGroupId);
+            _ProductionSummaryService.SaveMasterWC(ps,identity.CompanyGroupId, ProcessId);
             return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
         }
         [HttpPost]
-        public JsonResult UpdateWC(ProductionSummary ps)
+        public JsonResult UpdateWC(ProductionSummary ps, string ProcessId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ps.PlantId = identity.PlantId;
-            _ProductionSummaryService.SaveMasterWC(ps, identity.CompanyGroupId);
+            _ProductionSummaryService.SaveMasterWC(ps, identity.CompanyGroupId, ProcessId);
             return Json(new { ProductionSummary = ps, Message = AplosMessage.Updated });
         }
         [HttpPost]

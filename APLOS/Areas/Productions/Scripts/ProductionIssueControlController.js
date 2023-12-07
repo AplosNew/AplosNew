@@ -9,23 +9,11 @@ function ProductionIssueControlController(cboService, commonMessage, $scope, $ro
     $scope.PeriodCategoryList = [];
     $scope.path = 'Productions/ProductionIssueControl/';
     $scope.getListUrl = $scope.path + 'getlist';
-    //$scope.saveUrl = $scope.path + 'create';
-    //$scope.saveUrlWC = $scope.path + 'createWC';
-    //$scope.UpdateUrlWC = $scope.path + 'UpdateWC';
     $scope.saveUrlIssue = $scope.path + 'createIssue';
     $scope.saveUrlReason = $scope.path + 'createReason';
     $scope.saveUrlTime = $scope.path + 'createTime';
     $scope.saveUrlPICValue = $scope.path + 'create';
-    //$scope.saveUrlReasonValue = $scope.path + 'createReasonValue';
-    //$scope.saveUrlDetentionWC = $scope.path + 'createDetentionWC';
-    //$scope.saveDetailUrl = $scope.path + 'createDetail';
-    //$scope.saveSecondDetailUrl = $scope.path + 'createSecondDetail';
-    //$scope.updateUrl = $scope.path + 'edit';
-    //$scope.deleteUrl = $scope.path + 'delete/';
-    //$scope.TotalSalesOrderQty = 0;
-    //$scope.TotalProductionBookingQty = 0;
-    //$scope.RemainQty = 0;
-    //$scope.DetentionSum = 0;
+   
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
