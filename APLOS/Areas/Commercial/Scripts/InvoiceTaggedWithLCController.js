@@ -85,7 +85,8 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
     };
     $scope.getpurchaseLCListData();
 
-    $scope.getSavedData = function () {
+    $scope.getSavedData = function (index) {
+        $scope.lcIndex = index;
         angular.element(document.querySelector("#PurchaseLCPopUp")).modal("show");
     }
 
@@ -99,7 +100,11 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         }
         else {
             $scope.Calculate();
-            $scope.LcModel.LoanNo = $scope.LcModel.LCRef;
+            $scope.selectedInvoiceList[$scope.lcIndex].PurchaseLcId = $scope.LcModel.Id;
+            $scope.selectedInvoiceList[$scope.lcIndex].LCRef = $scope.LcModel.LCRef;
+            $scope.selectedInvoiceList[$scope.lcIndex].LCDate = $scope.LcModel.LCDate;
+            $scope.selectedInvoiceList[$scope.lcIndex].OpeningBank = $scope.LcModel.OpeningBank;
+            $scope.selectedInvoiceList[$scope.lcIndex].OpeningBankMasterId = $scope.LcModel.OpeningBankMasterId;
         }
        
         angular.element(document.querySelector("#PurchaseLCPopUp")).modal("hide");
@@ -111,16 +116,16 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
 
     $scope.Save = function () {
         try {
-            var SaveList = [];
-            for (var i = 0; i < $scope.AutoLoanAvailableDataList.length; i++) {
-                if ($scope.AutoLoanAvailableDataList[i].isSelected) {
-                    SaveList.push($scope.AutoLoanAvailableDataList[i]);
-                }
-            }
+            //var SaveList = [];
+            //for (var i = 0; i < $scope.AutoLoanAvailableDataList.length; i++) {
+            //    if ($scope.AutoLoanAvailableDataList[i].isSelected) {
+            //        SaveList.push($scope.AutoLoanAvailableDataList[i]);
+            //    }
+            //}
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'DataList': SaveList, 'LcData': $scope.LcModel},
+                data: { 'DataList': $scope.selectedInvoiceList, 'LcData': $scope.LcModel},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -158,15 +163,36 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
     //#endregion
 
     //#region Calculation
-
+    $scope.selectedInvoiceList = [];
     $scope.Calculate = function () {
         $scope.LcModel.LoanAmount = 0;
-        for (var i = 0; i < $scope.AutoLoanAvailableDataList.length; i++) {
-            if ($scope.AutoLoanAvailableDataList[i].isSelected) {
-                $scope.LcModel.LoanAmount += parseFloat($scope.AutoLoanAvailableDataList[i].Receivable);
+        angular.forEach($scope.AutoLoanAvailableDataList, function (data, i) {
+            if (data.isSelected === true) {
+                $scope.LcModel.LoanAmount += parseFloat(data.Balance);
             }
-        }
+        });
         parseFloat($scope.LcModel.LoanAmount).toFixed(2);
+    }
+
+    
+    $scope.AddSelectedInvoice = function () {
+        $scope.selectedInvoiceList = [];
+        angular.forEach($scope.AutoLoanAvailableDataList, function (data, i) {
+            if (data.isSelected === true) {
+                $scope.selectedInvoiceList.push(data);
+            }
+        });
+        parseFloat($scope.LcModel.LoanAmount).toFixed(2);
+    }
+
+    $scope.copyLCNo = function () {
+        for (var i = 0; i < $scope.selectedInvoiceList.length; i++) {
+            $scope.selectedInvoiceList[i].LCRef = $scope.LcModel.LCRef;
+            $scope.selectedInvoiceList[i].LCDate = $scope.LcModel.LCDate;
+            $scope.selectedInvoiceList[i].OpeningBank = $scope.LcModel.OpeningBank;
+            $scope.selectedInvoiceList[i].PurchaseLcId = $scope.LcModel.Id;
+            $scope.selectedInvoiceList[i].OpeningBankMasterId = $scope.LcModel.OpeningBankMasterId;
+        }
     }
 
 
