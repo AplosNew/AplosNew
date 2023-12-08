@@ -1221,8 +1221,9 @@ LEFT JOIN SCS.Country C ON C.Id=NB.CountryId";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
-                var sql = @"SELECT * FROM (SELECT NB.*,C.UserName Country FROM dbo.NegotiatingBank NB
-                            LEFT JOIN SCS.Country C ON C.Id=NB.CountryId) AS TEMP WHERE " + strkey + " ORDER BY TEMP.AddedDate DESC";
+                var sql = @"SELECT * FROM (SELECT RC.*,AEI.EmployeeName ApprovedBy,IEI.EmployeeName InformTo FROM HKP.RemarksControl RC
+LEFT JOIN dbo.EmployeeInformation AEI ON AEI.SystemId=RC.ApprovedById
+LEFT JOIN dbo.EmployeeInformation IEI ON IEI.SystemId=RC.InformToId) AS TEMP WHERE " + strkey + " ORDER BY TEMP.AddedDate DESC";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
