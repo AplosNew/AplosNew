@@ -127,12 +127,14 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         PaymentToReceiveBankId: null
     };
 
-    $http({
-        method: "GET",
-        url: "accounts/PaymentTerm/getcustomercbo"
-    }).then(function successCallback(response) {
-        $scope.paymentTermList = response.data;
-    });
+    //$http({
+    //    method: "GET",
+    //    url: "accounts/PaymentTerm/getcustomercbo"
+    //}).then(function successCallback(response) {
+    //    $scope.paymentTermList = response.data;
+    //});
+
+    $scope.paymentTermList = [];
 
     $scope.PackingList = [];
     $scope.GetPackingListPopUp = function () {
@@ -183,6 +185,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                 if (getRow.length == 0) {
                     if ($scope.PackingList[i].Active == true) {
                         var ob = {};
+                        var ObjPt = {};
                         ob.PackingId = $scope.PackingList[i].PackingId;
                         ob.PartyId = $scope.PackingList[i].CustomerId;
                         ob.EntityId = $scope.PackingList[i].EntityId;
@@ -205,6 +208,11 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                                 ob.DRespPerson = $scope.PackingList[i].DRespPerson;
                                 ob.AddedDate = $scope.PackingList[i].AddedDate;
                                 ob.InActiveDate = $scope.PackingList[i].InActiveDate;
+                                ObjPt.Value = $scope.PackingList[i].PaymentTermId;
+                                ObjPt.Text = $scope.PackingList[i].PaymentTermName;
+                                $scope.paymentTermList.push(ObjPt);
+
+                                ObjPt = {};
 
                                 $scope.getPartyPlant();
                                 $scope.selectedPackingList.push(ob);
