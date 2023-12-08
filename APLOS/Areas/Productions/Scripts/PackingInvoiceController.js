@@ -256,6 +256,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             $scope.salesOrderList = response.data;
             for (var i = 0; i < $scope.salesOrderList.length; i++) {
                 $scope.salesVM.InvoicingPartyPlantId = $scope.salesOrderList[i].InvoicingPartyPlantId;
+                $scope.salesVM.DeliveryPartyPlantId = $scope.salesOrderList[i].DeliveryPartyPlantId;
                 getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].SONo, $scope.salesOrderList[i].TransactionAmount);
             }
         });
@@ -386,7 +387,8 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     function getTaxCategoryList(hsnCodeId, soId, transactionAmount) {
         $http({
             method: 'GET',
-            url: 'SalesManagements/Sales/GetTaxCategoryList?receiveId=' + $scope.salesVM.InvoicingPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
+            //url: 'SalesManagements/Sales/GetTaxCategoryList?receiveId=' + $scope.salesVM.InvoicingPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
+            url: 'SalesManagements/Sales/GetTaxCategoryList?receiveId=' + $scope.salesVM.DeliveryPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
         }).then(function (response) {
             $scope.materialtaxCategoryList = response.data;
 
@@ -991,7 +993,8 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         $scope.taxCategoryList = [];
         $http({
             method: 'GET'
-            , url: 'SalesManagements/Sales/GetTaxCategoryList?receiveId=' + $scope.salesVM.InvoicingPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
+           // , url: 'SalesManagements/Sales/GetTaxCategoryList?receiveId=' + $scope.salesVM.InvoicingPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
+            , url: 'SalesManagements/Sales/GetTaxCategoryList?receiveId=' + $scope.salesVM.DeliveryPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
         }).then(function (response) {
             $scope.taxCategoryList = response.data;
             for (var i = 0; i < $scope.taxCategoryList.length; i++) {
