@@ -880,7 +880,9 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
             BooksCurrencyBaseRate: null,
             IsPark: 1,
             IsAdditionalInfoApplicable: true,
-            IsIncentiveApplicable: false
+            IsIncentiveApplicable: false,
+            InvoiceStatus: 'Active',
+            PaymentToReceiveBankId: null
         };
 
         $scope.materialMaster = {
