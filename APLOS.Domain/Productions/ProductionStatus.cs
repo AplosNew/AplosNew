@@ -18,6 +18,11 @@ namespace Library.Model.Productions
         public bool Active { get; set; }
 
         /// <summary>
+        /// MasterPlanApplicable
+        /// </summary>
+        public bool MasterPlanApplicable { get; set; }
+
+        /// <summary>
         /// This is used for Is delete active or not.
         /// </summary>
 

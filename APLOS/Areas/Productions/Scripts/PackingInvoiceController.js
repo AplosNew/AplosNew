@@ -123,15 +123,18 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         IsPark: 1,
         IsAdditionalInfoApplicable: true,
         IsIncentiveApplicable: false,
-        InvoiceStatus: 'Active'
+        InvoiceStatus: 'Active',
+        PaymentToReceiveBankId: null
     };
 
-    $http({
-        method: "GET",
-        url: "accounts/PaymentTerm/getcustomercbo"
-    }).then(function successCallback(response) {
-        $scope.paymentTermList = response.data;
-    });
+    //$http({
+    //    method: "GET",
+    //    url: "accounts/PaymentTerm/getcustomercbo"
+    //}).then(function successCallback(response) {
+    //    $scope.paymentTermList = response.data;
+    //});
+
+    $scope.paymentTermList = [];
 
     $scope.PackingList = [];
     $scope.GetPackingListPopUp = function () {
@@ -182,6 +185,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                 if (getRow.length == 0) {
                     if ($scope.PackingList[i].Active == true) {
                         var ob = {};
+                        var ObjPt = {};
                         ob.PackingId = $scope.PackingList[i].PackingId;
                         ob.PartyId = $scope.PackingList[i].CustomerId;
                         ob.EntityId = $scope.PackingList[i].EntityId;
@@ -204,6 +208,11 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                                 ob.DRespPerson = $scope.PackingList[i].DRespPerson;
                                 ob.AddedDate = $scope.PackingList[i].AddedDate;
                                 ob.InActiveDate = $scope.PackingList[i].InActiveDate;
+                                ObjPt.Value = $scope.PackingList[i].PaymentTermId;
+                                ObjPt.Text = $scope.PackingList[i].PaymentTermName;
+                                $scope.paymentTermList.push(ObjPt);
+
+                                ObjPt = {};
 
                                 $scope.getPartyPlant();
                                 $scope.selectedPackingList.push(ob);
@@ -255,6 +264,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             $scope.salesOrderList = response.data;
             for (var i = 0; i < $scope.salesOrderList.length; i++) {
                 $scope.salesVM.InvoicingPartyPlantId = $scope.salesOrderList[i].InvoicingPartyPlantId;
+                $scope.salesVM.DeliveryPartyPlantId = $scope.salesOrderList[i].DeliveryPartyPlantId;
                 getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].SONo, $scope.salesOrderList[i].TransactionAmount);
             }
         });
@@ -386,6 +396,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         $http({
             method: 'GET',
             url: 'SalesManagements/Sales/GetTaxCategoryList?receiveId=' + $scope.salesVM.InvoicingPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
+            //url: 'SalesManagements/Sales/GetTaxCategoryList?receiveId=' + $scope.salesVM.DeliveryPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
         }).then(function (response) {
             $scope.materialtaxCategoryList = response.data;
 
@@ -990,7 +1001,8 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         $scope.taxCategoryList = [];
         $http({
             method: 'GET'
-            , url: 'SalesManagements/Sales/GetTaxCategoryList?receiveId=' + $scope.salesVM.InvoicingPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
+           , url: 'SalesManagements/Sales/GetTaxCategoryList?receiveId=' + $scope.salesVM.InvoicingPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
+            //, url: 'SalesManagements/Sales/GetTaxCategoryList?receiveId=' + $scope.salesVM.DeliveryPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
         }).then(function (response) {
             $scope.taxCategoryList = response.data;
             for (var i = 0; i < $scope.taxCategoryList.length; i++) {
@@ -1839,13 +1851,13 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                     $scope.ModelNew.PartyName = $scope.salesVM.PartyName;
                     $scope.ModelNew.Amount = $scope.salesVM.Amount;
 
-                    if (baseService.arrayLength($scope.bankMasterList) > 0 && !baseService.isUndefinedOrNull($scope.salesVM.BenificiaryBankId)) {
-                        for (var i = 0; i < $scope.bankMasterList.length; i++) {
-                            if ($scope.bankMasterList[i].Id === $scope.salesVM.BenificiaryBankId) {
-                                $scope.ModelNew.BankMasterId = $scope.bankMasterList[i].Id;
-                            }
-                        }
-                    }
+                    //if (baseService.arrayLength($scope.bankMasterList) > 0 && !baseService.isUndefinedOrNull($scope.salesVM.BenificiaryBankId)) {
+                    //    for (var i = 0; i < $scope.bankMasterList.length; i++) {
+                    //        if ($scope.bankMasterList[i].Id === $scope.salesVM.BenificiaryBankId) {
+                    //            $scope.ModelNew.BankMasterId = $scope.bankMasterList[i].Id;
+                    //        }
+                    //    }
+                    //}
 
                 },
                 function errorCallback(response) {
@@ -1866,8 +1878,14 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     });
 
     $scope.bankMasterList = [];
-    bankService.getBankMasterCboListByPlant(function (result) {
+    bankService.GetNegotiatingBankMasterCboListByPlant(function (result) {
         $scope.bankMasterList = result;
+
+    });
+
+    $scope.PaymentToReceiveBankList = [];
+    bankService.getBankMasterCboListByPlant(function (result) {
+        $scope.PaymentToReceiveBankList = result;
 
     });
 

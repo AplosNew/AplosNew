@@ -68,12 +68,17 @@ function ProcessController(commonMessage, $scope, $rootScope, baseService, $rout
         , IsProcessRouting: false
         , IsLocked: false
         , IsChecked: false
-        , Active: true,
-        IsFirst: false,
-        IsLast: false,
-        IsCrossAllowed: false
+        , Active: true
+        , MasterPlanApplicable: false
+        , IsFirst: false
+        , IsLast: false
+        , IsCrossAllowed: false
+        , LineItem: false
+        , SKU1: false
+        , SKU2: false
     };
     $scope.processNew = Object.assign({}, $scope.process);
+
 
     $scope.materialTypeList = [];
     $http({

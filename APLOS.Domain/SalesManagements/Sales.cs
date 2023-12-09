@@ -34,6 +34,7 @@ namespace Library.Model.SalesManagements
         public bool IsAdditionalInfoApplicable { get; set; }
         public bool IsIncentiveApplicable { get; set; }
         public string InvoiceStatus { get; set; }
+        public string PaymentToReceiveBankId { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties

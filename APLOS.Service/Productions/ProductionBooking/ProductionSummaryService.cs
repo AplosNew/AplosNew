@@ -1333,16 +1333,16 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
             parameters.order = "X.StartTime";
             return _sqlRepository.GetGridData(parameters).Source;
         }
-        public void SaveMaster(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string companyGroupId)
+        public void SaveMaster(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string companyGroupId, string ProcessId)
         {
             var flag = false;
             try
             {
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
                 conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryLotNumberValidation, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  MasterOrderItemId='" + ps.MasterOrderItemId + "' and ProductionOrderId='" + ps.ProductionOrderId + "'", out DataSet dsProductionSummaryArticleValidation, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryPOLotNumberValidation, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "' and MasterOrderItemId='"+ps.MasterOrderItemId+"'", out DataSet dsProductionSummaryPOArticleValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  MasterOrderItemId='" + ps.MasterOrderItemId + "' and ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryArticleValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber = '" + ps.LotNumber + "' and ProcessId = '" + ProcessId + "'", out DataSet dsProductionSummaryPOLotNumberValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "' and MasterOrderItemId='"+ps.MasterOrderItemId+"' and ProcessId='"+ ProcessId +"'", out DataSet dsProductionSummaryPOArticleValidation, false, "1");
                 if (!string.IsNullOrEmpty(ps.LotNumber))
                 {
                     if (dsProductionSummaryLotNumberValidation.Tables[0].Rows.Count > 0)
@@ -1453,16 +1453,16 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
             }
         }
 
-        public void SaveMasterWC(ProductionSummary ps, string companyGroupId)
+        public void SaveMasterWC(ProductionSummary ps, string companyGroupId, string ProcessId)
         {
             var flag = false;
             try
             {
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
                 conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryLotNumberValidation, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  MasterOrderItemId='" + ps.MasterOrderItemId + "'", out DataSet dsProductionSummaryArticleValidation, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryPOLotNumberValidation, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "' and MasterOrderItemId='" + ps.MasterOrderItemId + "'", out DataSet dsProductionSummaryPOArticleValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  MasterOrderItemId='" + ps.MasterOrderItemId + "' and ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryArticleValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "' and ProcessId='" + ProcessId + "'", out DataSet dsProductionSummaryPOLotNumberValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "' and MasterOrderItemId='" + ps.MasterOrderItemId + "' and ProcessId='" + ProcessId + "'", out DataSet dsProductionSummaryPOArticleValidation, false, "1");
                 if (!string.IsNullOrEmpty(ps.LotNumber))
                 {
                     if (dsProductionSummaryLotNumberValidation.Tables[0].Rows.Count > 0)

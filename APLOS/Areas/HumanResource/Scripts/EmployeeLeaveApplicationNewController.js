@@ -92,7 +92,7 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
         $http.get('HumanResource/LeaveApplicationNew/GetEmpLeaveBalanceNew?EmpsystemId=' + $scope.leaveApplicationNew.EmpSystemID + '&calanderYearId=' + $scope.YearNo)
             .then(function (response) {
                 $scope.LeaveBalanceList = response.data;
-                //console.log($scope.LeaveBalanceList);
+               console.log($scope.LeaveBalanceList);
             });
     };
 
@@ -332,10 +332,10 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
                     ShowResult('Leave Duration is greater then balance.', 'failure');
                 }
 
-                if ($scope.LeaveBalanceList[i].LeaveDays - ($scope.LeaveBalanceList[i].Applied + diffDays) <0) {
+                if ($scope.LeaveBalanceList[i].LeaveDays - (($scope.LeaveBalanceList[i].Applied - $scope.LeaveBalanceList[i].Rejected) + diffDays) <0) {
                     throw 'Leave Duration is greater then balance.';
                 }
-                if ($scope.LeaveBalanceList[i].LeaveDays - ($scope.LeaveBalanceList[i].Applied + diffDays) >= $scope.LeaveBalanceList[i].Balance) {
+                if ($scope.LeaveBalanceList[i].LeaveDays - (($scope.LeaveBalanceList[i].Applied - $scope.LeaveBalanceList[i].Rejected) + diffDays) >= $scope.LeaveBalanceList[i].Balance) {
                     throw 'Leave Duration is greater then balance.';
                 }
             }

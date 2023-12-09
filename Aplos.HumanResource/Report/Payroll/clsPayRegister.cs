@@ -16687,7 +16687,7 @@ where h.HeadCategory='GROSS'
 	                                        LEFT JOIN AttdnProcessData APD  ON APD.WorkDate = FOT.WorkDate and apd.EmpSystemID = FOT.EmpSystemID
 											LEFT JOIN DayType DT  ON DT.DayType = APD.DayStatus 
                                              WHERE 1 = 1 AND DT.OriginalDayType NOT IN('H','W','WL')
-                                                    --APD.DayStatus IN('P','L')
+                                                   -- AND  APD.DayStatus IN('P')
                                             ) dd
                                             WHERE WorkDate BETWEEN '" + fromDate + @"' and '" + toDate + @"' and PlantID = '" + plantId + @"'
                                             GROUP BY EmpSystemID,PlantID ) OT ON OT.EmpSystemID = MMDSA.EmpSystemID

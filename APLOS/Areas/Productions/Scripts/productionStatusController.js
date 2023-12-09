@@ -32,7 +32,8 @@ function ProductionStatusController(commonMessage, $scope, $rootScope, baseServi
         UserName: null,
         Description: null,
         Remarks: null,
-        Active: true
+        Active: true,
+        MasterPlanApplicable: true
     };
     $scope.productionStatusNew = Object.assign({}, $scope.productionStatus);
 

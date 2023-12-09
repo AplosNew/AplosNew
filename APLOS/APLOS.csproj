@@ -1265,6 +1265,7 @@
     <Compile Include="Areas\Securities\Controllers\UserAppAuthenticationController.cs" />
     <Compile Include="Areas\Securities\Controllers\UserEntityController.cs" />
     <Compile Include="Areas\Commercial\Controllers\InvoiceBudgetChargesSettingController.cs" />
+    <Compile Include="Areas\Setups\Controllers\RemarksControlController.cs" />
     <Compile Include="Areas\Setups\Controllers\LabelListController.cs" />
     <Compile Include="Areas\Setups\Controllers\ReportingGroupController.cs" />
     <Compile Include="Areas\Setups\Controllers\NotificationSettingController.cs" />
@@ -2955,6 +2956,7 @@
     <Content Include="Areas\Securities\Scripts\employeeMobileAppsAuthorizationNewController.js" />
     <Content Include="Areas\Securities\Scripts\UserAccessAppRoleController.js" />
     <Content Include="Areas\Securities\Scripts\UserAppAuthenticationController.js" />
+    <Content Include="Areas\Setups\Scripts\RemarksControlController.js" />
     <Content Include="Areas\Setups\Scripts\defineEnumController.js" />
     <Content Include="Areas\Setups\Scripts\LabelListController.js" />
     <Content Include="Areas\Setups\Scripts\ReportingGroupController.js" />
@@ -5030,6 +5032,7 @@
     <Content Include="Areas\QMS\Views\DefineSQCIssue\AplosInOut.cshtml" />
     <Content Include="Areas\QMS\Views\DefineSQCIssue\AplosWC.cshtml" />
     <Content Include="Areas\QMS\Views\DefineSQCIssue\Report.cshtml" />
+    <Content Include="Areas\Setups\Views\RemarksControl\Aplos.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

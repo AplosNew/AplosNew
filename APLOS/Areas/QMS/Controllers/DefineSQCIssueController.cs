@@ -1874,131 +1874,131 @@ from [MST].[SQGeneralIssueDetails] GID where GID.Id='" + IssueId + @"'";
         }
 
 
-        [HttpPost]
-        public JsonResult create(Dictionary<string, object> ProcessQualityControlData)
-        {
-            try
-            {
+        //[HttpPost]
+        //public JsonResult create(Dictionary<string, object> ProcessQualityControlData)
+        //{
+        //    try
+        //    {
 
-                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+        //        ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
 
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                DataSet dsProcessQualityControlData;
+        //        DataSet dsProcessQualityControlData;
 
-                conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[ProcessQualityIssueControl] where Id='" + ProcessQualityControlData["Id"] + "'", out dsProcessQualityControlData, false, "1");
-                string _Id = "", Id = string.Empty;
+        //        conRack = new ConnectionManager.DAL.ConManager("1");
+        //        conRack.OpenDataSetThroughAdapter("select * from [TRN].[ProcessQualityIssueControl] where Id='" + ProcessQualityControlData["Id"] + "'", out dsProcessQualityControlData, false, "1");
+        //        string _Id = "", Id = string.Empty;
 
-                #region data update
-                if (dsProcessQualityControlData.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("[TRN].[ProcessQualityIssueControl]", out _Id);
-                    ProcessQualityControlData["Id"] = "QIC" + _Id;
-                    ProcessQualityControlData["PlantId"] = identity.PlantId;
-                    AddNewRow(dsProcessQualityControlData.Tables[0], ProcessQualityControlData);
+        //        #region data update
+        //        if (dsProcessQualityControlData.Tables[0].Rows.Count == 0)
+        //        {
+        //            bplib.clsGenID genid = new bplib.clsGenID();
+        //            genid.GenID("[TRN].[ProcessQualityIssueControl]", out _Id);
+        //            ProcessQualityControlData["Id"] = "QIC" + _Id;
+        //            ProcessQualityControlData["PlantId"] = identity.PlantId;
+        //            AddNewRow(dsProcessQualityControlData.Tables[0], ProcessQualityControlData);
 
-                }
-                else
-                {
-                    _Id = ProcessQualityControlData["Id"].ToString();
-                    ProcessQualityControlData["PlantId"] = identity.PlantId;
-                    EditRow(dsProcessQualityControlData.Tables[0].Rows[0], ProcessQualityControlData);
-                }
-                #endregion data update
-
-
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsProcessQualityControlData);
-
-                return Json(new { Error = false, Data = ProcessQualityControlData, Message = AplosMessage.Insert });
-
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message });
-
-            }
-        }
-
-        [HttpPost]
-        public JsonResult CreateWC(ProductionSummary ps)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ps.PlantId = identity.PlantId;
-            _ProductionSummaryService.SaveMasterWC(ps, identity.CompanyGroupId);
-            return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
-        }
-        [HttpPost]
-        public JsonResult UpdateWC(ProductionSummary ps)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ps.PlantId = identity.PlantId;
-            _ProductionSummaryService.SaveMasterWC(ps, identity.CompanyGroupId);
-            return Json(new { ProductionSummary = ps, Message = AplosMessage.Updated });
-        }
-        [HttpPost]
-        public JsonResult createDetentionWC(List<Dictionary<string, object>> DataList)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            _ProductionSummaryService.SaveDetentionWC(DataList);
-            return Json(new { Message = AplosMessage.Success });
-        }
-        public void SaveMasterOrderItemCostingRateData(List<Dictionary<string, object>> data, string masterId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            try
-            {
-                if (string.IsNullOrEmpty(masterId))
-                {
-                    throw new Exception("Select Line Item.");
-                }
-                #region FUND 
-                ConnectionManager.DAL.ConManager objCon;
-                DataSet dsMaster = null;
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionSummaryParameterValue where  ProductionSummaryId='" + masterId + "'", out dsMaster, false, "1");
-                int idc = 0;
-                if (data != null)
-                {
-                    foreach (var item in data)
-                    {
-                        idc++;
-                        DataView dv = new DataView(dsMaster.Tables[0]);
-                        dv.RowFilter = "Id='" + item["Id"] + "'";
-
-                        if (dv.Count == 0)
-                        {
-                            string id = _pkGeneratorService.MakePK(masterId, idc, 3);
-                            item["Id"] = id;
-                            item["ProductionSummaryId"] = masterId;
-
-                            AddNewRow(dsMaster.Tables[0], item);
-                        }
-                        else
-                        {
-                            DataRow drmo = dv[0].Row;
-                            item["ProductionSummaryId"] = masterId;
-                            EditRow(drmo, item);
-                        }
-                    }
-                }
-
-                #endregion
-
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster);
+        //        }
+        //        else
+        //        {
+        //            _Id = ProcessQualityControlData["Id"].ToString();
+        //            ProcessQualityControlData["PlantId"] = identity.PlantId;
+        //            EditRow(dsProcessQualityControlData.Tables[0].Rows[0], ProcessQualityControlData);
+        //        }
+        //        #endregion data update
 
 
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
+
+        //        clsStaticInfo _info = new clsStaticInfo();
+        //        _info.SaveDataSets(dsProcessQualityControlData);
+
+        //        return Json(new { Error = false, Data = ProcessQualityControlData, Message = AplosMessage.Insert });
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        return Json(new { Error = true, Message = ex.Message });
+
+        //    }
+        //}
+
+        //[HttpPost]
+        //public JsonResult CreateWC(ProductionSummary ps, string ProcessId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    ps.PlantId = identity.PlantId;
+        //    _ProductionSummaryService.SaveMasterWC(ps, identity.CompanyGroupId, ProcessId);
+        //    return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
+        //}
+        //[HttpPost]
+        //public JsonResult UpdateWC(ProductionSummary ps, string ProcessId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    ps.PlantId = identity.PlantId;
+        //    _ProductionSummaryService.SaveMasterWC(ps, identity.CompanyGroupId, ProcessId);
+        //    return Json(new { ProductionSummary = ps, Message = AplosMessage.Updated });
+        //}
+        //[HttpPost]
+        //public JsonResult createDetentionWC(List<Dictionary<string, object>> DataList)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    _ProductionSummaryService.SaveDetentionWC(DataList);
+        //    return Json(new { Message = AplosMessage.Success });
+        //}
+        //public void SaveMasterOrderItemCostingRateData(List<Dictionary<string, object>> data, string masterId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    try
+        //    {
+        //        if (string.IsNullOrEmpty(masterId))
+        //        {
+        //            throw new Exception("Select Line Item.");
+        //        }
+        //        #region FUND 
+        //        ConnectionManager.DAL.ConManager objCon;
+        //        DataSet dsMaster = null;
+        //        objCon = new ConnectionManager.DAL.ConManager("1");
+        //        objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionSummaryParameterValue where  ProductionSummaryId='" + masterId + "'", out dsMaster, false, "1");
+        //        int idc = 0;
+        //        if (data != null)
+        //        {
+        //            foreach (var item in data)
+        //            {
+        //                idc++;
+        //                DataView dv = new DataView(dsMaster.Tables[0]);
+        //                dv.RowFilter = "Id='" + item["Id"] + "'";
+
+        //                if (dv.Count == 0)
+        //                {
+        //                    string id = _pkGeneratorService.MakePK(masterId, idc, 3);
+        //                    item["Id"] = id;
+        //                    item["ProductionSummaryId"] = masterId;
+
+        //                    AddNewRow(dsMaster.Tables[0], item);
+        //                }
+        //                else
+        //                {
+        //                    DataRow drmo = dv[0].Row;
+        //                    item["ProductionSummaryId"] = masterId;
+        //                    EditRow(drmo, item);
+        //                }
+        //            }
+        //        }
+
+        //        #endregion
+
+        //        clsStaticInfo obj = new clsStaticInfo();
+        //        obj.SaveDataSets(dsMaster);
+
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw (ex);
+        //    }
+        //}
 
 
         [HttpPost]
