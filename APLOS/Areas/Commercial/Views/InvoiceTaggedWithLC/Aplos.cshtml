@@ -121,10 +121,10 @@
                                     {{x.LCRef}}
                                     <button ng-click="getSavedData($index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top"><i class="glyphicon glyphicon-search"></i></button>
                                 </td>
-                                <td>{{x.LCDate}}</td>
                                 <td>{{x.OpeningBank}}</td>
+                                <td>{{x.LCDate}}</td>
                                 <td class="text-right">
-                                    <button ng-click="removeAdvanceRow($index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                    <button ng-click="removeSelectedInvoiceRow($index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
                                 </td>
                             </tr>
                         </tbody>
@@ -133,6 +133,7 @@
                                 <td colspan="4"></td>
                                 <td><b> Total</b></td>
                                 <td class="text-right"><b>{{ selectedInvoiceList | sumByKey : 'Balance' }}</b></td>
+                                <td class="text-right"><b>{{ selectedInvoiceList | sumByKey : 'Amount' }}</b></td>
                                 <td colspan="4"></td>
                             </tr>
                         </tfoot>

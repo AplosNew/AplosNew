@@ -113,19 +113,23 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
     //#endregion
 
     //#region Save
+    $scope.validation = function () {
 
+        var tempBankMasterId = $scope.selectedInvoiceList[0].OpeningBankMasterId
+        for (var i = 0; i < $scope.selectedInvoiceList.length; i++) {
+            if ($scope.selectedInvoiceList[i].OpeningBankMasterId != tempBankMasterId) {
+                ShowResult("Opening Bank should same!", "failure");
+                return true;
+            }
+        }
+        return false;
+    };
     $scope.Save = function () {
-        try {
-            //var SaveList = [];
-            //for (var i = 0; i < $scope.AutoLoanAvailableDataList.length; i++) {
-            //    if ($scope.AutoLoanAvailableDataList[i].isSelected) {
-            //        SaveList.push($scope.AutoLoanAvailableDataList[i]);
-            //    }
-            //}
+        if (!$scope.validation()) {
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'DataList': $scope.selectedInvoiceList, 'LcData': $scope.LcModel},
+                data: { 'DataList': $scope.selectedInvoiceList, 'LcData': $scope.LcModel },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -140,8 +144,6 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-        } catch (e) {
-            ShowResult(e, "failure");
         }
     };
 
@@ -208,7 +210,9 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
 
         }
     };
-
+    $scope.removeSelectedInvoiceRow = function (index, data) {
+        $scope.selectedInvoiceList.splice(index, 1);
+    };
     //#endregion
 
 }
