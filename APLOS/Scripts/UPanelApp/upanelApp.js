@@ -1240,7 +1240,6 @@ upanelApp.controller("SQCMasterController", SQCMasterController)
 upanelApp.controller("PaymentAdviceController", PaymentAdviceController)
 upanelApp.controller("DefineSQCIssueController", DefineSQCIssueController)
 upanelApp.controller("InvoiceStatusController", InvoiceStatusController)
-upanelApp.controller("RemarksControlController", RemarksControlController)
           
 
 

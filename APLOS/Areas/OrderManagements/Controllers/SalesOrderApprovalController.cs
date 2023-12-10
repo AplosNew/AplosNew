@@ -106,6 +106,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         [HttpGet, Authorize]
         public ActionResult GetAllActiveEmpData()
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             JsonResult json = Json(clsSales.GetAllEmployeeData(), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
