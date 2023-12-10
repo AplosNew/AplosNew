@@ -379,11 +379,11 @@ namespace Aplos.Controllers
 
 
         [HttpPost]
-        public void SaveMaster([FromBody] ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string companyGroupId)
+        public void SaveMaster([FromBody] ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string companyGroupId, string ProcessId)
         {
             try
             {
-                _ProductionSummary.SaveMaster(ps, psd, companyGroupId);
+                _ProductionSummary.SaveMaster(ps, psd, companyGroupId, ProcessId);
             }
             catch (Exception)
             {

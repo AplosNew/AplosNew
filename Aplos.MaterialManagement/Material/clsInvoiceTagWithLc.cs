@@ -67,6 +67,7 @@ namespace Library.MaterialManagement.Material
 									,0 ExchangeAmount
 									,IVD.WrittenOffAmount AS Received
 									,IVD.Amount - IVD.WrittenOffAmount AS Balance
+									,IVD.Amount - IVD.WrittenOffAmount AS Amount
 									,IV.PartyPlantId
 									,PP.UserName AS PartyPlantName
 									,CC.CompanyCurrencyId
@@ -139,7 +140,7 @@ namespace Library.MaterialManagement.Material
 											WHERE XV.Id = V.Id
 											FOR XML path('')
 												,TYPE
-											).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+											).value('.', 'VARCHAR(MAX)'), 1, 1, ''), NULL PurchaseLcId, NULL LoanNo,NULL LCDate,NULL OpeningBank,NULL OpeningBankMasterId
 								FROM [TRN].[InvoiceDetail] AS IVD
 								LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId = IV.Id
 								LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id = IV.PartyPlantId
@@ -239,6 +240,7 @@ namespace Library.MaterialManagement.Material
 									,0 ExchangeAmount
 									,IVD.WrittenOffAmount AS Received
 									,IVD.NetAmount - IVD.WrittenOffAmount AS Balance
+									,IVD.NetAmount - IVD.WrittenOffAmount AS Amount
 									, IV.PartyPlantId
 									,PP.UserName AS PartyPlantName
 									,CC.CompanyCurrencyId
@@ -267,7 +269,7 @@ namespace Library.MaterialManagement.Material
 									, NULL LCRef
 									,NULL ContractNo
 									, NULL Customer
-									,NULL MasterLCNo
+									,NULL MasterLCNo, NULL PurchaseLcId, NULL LoanNo,NULL LCDate,NULL OpeningBank,NULL OpeningBankMasterId
 								FROM[TRN].[InvoiceDetail] AS IVD
 								LEFT JOIN[TRN].[Invoice] AS IV ON IVD.InvoiceId = IV.Id
 								LEFT JOIN[HKP].[PartyPlant] AS PP ON PP.Id = IV.PartyPlantId
@@ -412,6 +414,9 @@ namespace Library.MaterialManagement.Material
                         drSave["InvoiceTaggingWithLCMasterId"] = MasterId;
                         drSave["InvoiceId"] = item["InvoiceId"];
                         drSave["InvoiceDetailId"] = item["InvoiceDetailId"];
+                        drSave["Amount"] = item["Amount"];
+                        drSave["PurchaseLcId"] = item["PurchaseLcId"];
+                        drSave["OpeningBankMasterId"] = item["OpeningBankMasterId"];
                        
                         drSave["AddedBy"] = identity.Name;
                         drSave["AddedDate"] = DateTime.Now;

@@ -178,6 +178,8 @@ namespace Library.Service.SalesManagements
                     RowState = RowState.Parked.ToString(),
                     DeliveryByAddress = voucherVM.DeliveryByAddress,
                     InvoicingByAddress = voucherVM.InvoicingByAddress,
+                    InvoiceStatus = voucherVM.InvoiceStatus,
+                    PaymentToReceiveBankId = voucherVM.PaymentToReceiveBankId,
                     SourceType = "Sales",
                     ModelState = ModelState.Added,
                     Id = "S" + _pkGeneratorService.GetAutoNumber(nameof(Sales), PKGeneratorEnum.Yearly, null, DateTime.Now)
@@ -399,6 +401,7 @@ namespace Library.Service.SalesManagements
 
                     DeliveryByAddress = voucherVM.DeliveryByAddress,
                     InvoicingByAddress = voucherVM.InvoicingByAddress,
+                    PaymentToReceiveBankId = voucherVM.PaymentToReceiveBankId,
                     AddedBy = voucherVM.AddedBy,
                     AddedDate = voucherVM.AddedDate,
                     AddedFromIP = voucherVM.AddedFromIP,
@@ -406,6 +409,7 @@ namespace Library.Service.SalesManagements
                     UpdatedDate = voucherVM.UpdatedDate,
                     UpdatedFromIP = voucherVM.UpdatedFromIP,
                     SourceType = "Sales",
+                    InvoiceStatus = voucherVM.InvoiceStatus,
                     ModelState = ModelState.Modified,
                     Id = voucherVM.Id,
                 };
@@ -1436,7 +1440,7 @@ namespace Library.Service.SalesManagements
 									, S.ToCurrencyRate AS CompanyCurrencyRate, S.Narration, S.PartyType, S.VoucherId, AMP.StateId AS PlantStateId,S.BLNumber,S.ItemDescription,S.ComercialInvoiceNo,S.EXPFromNo,S.EXPDate,S.BLDate
                                     , CASE  WHEN S.RowState='Parked' THEN 1 ELSE 0 END AS IsPark,S.AddedDate,s.AddedBy,S.AddedFromIP,FORMAT(S.UpdatedDate,'dd-MMM-yyyy') UpdatedDate,s.UpdatedBy,S.UpdatedFromIP
                                     , CP.TaxApplicable,CP.PartyAccountGroupId,CP.IsPaymentTermChangeable
-                                    , V.VoucherNo
+                                    , V.VoucherNo,S.PaymentToReceiveBankId
 									FROM [TRN].[Sales] AS S
                                     LEFT JOIN [ORG].[Company] AS CO ON CO.Id=S.CompanyId
                                     JOIN [HKP].[Party] AS P ON P.Id=S.PartyId
@@ -1477,7 +1481,7 @@ namespace Library.Service.SalesManagements
 									, S.InvoiceNo, PPI.UserName AS BillTo, AM.StateId AS InvoicingStateId, ST.UserName AS InvoicingState, PPI.GSTIN AS InvoicingGSTIN
 									, PPD.UserName AS ShipTo, STD.UserName AS DeliveryState, PPD.GSTIN AS DeliveryGSTIN, S.InvoicingByAddress, S.DeliveryByAddress, S.MatureDate, S.ToCurrencyRate
 									, S.ToCurrencyRate AS CompanyCurrencyRate, S.Narration, S.PartyType, S.VoucherId, AMP.StateId AS PlantStateId,S.BLNumber,S.ItemDescription,S.ComercialInvoiceNo,S.EXPFromNo,S.EXPDate,S.BLDate
-                                    , CASE  WHEN S.RowState='Parked' THEN 1 ELSE 0 END AS IsPark,S.AddedDate,s.AddedBy,S.AddedFromIP,FORMAT(S.UpdatedDate,'dd-MMM-yyyy') UpdatedDate,s.UpdatedBy,S.UpdatedFromIP,S.IsAdditionalInfoApplicable
+                                    , CASE  WHEN S.RowState='Parked' THEN 1 ELSE 0 END AS IsPark,S.AddedDate,s.AddedBy,S.AddedFromIP,FORMAT(S.UpdatedDate,'dd-MMM-yyyy') UpdatedDate,s.UpdatedBy,S.UpdatedFromIP,S.IsAdditionalInfoApplicable,S.PaymentToReceiveBankId
 									FROM [TRN].[Sales] AS S
                                     LEFT JOIN [ORG].[Company] AS CO ON CO.Id=S.CompanyId
                                     JOIN [HKP].[Party] AS P ON P.Id=S.PartyId
@@ -1663,11 +1667,13 @@ namespace Library.Service.SalesManagements
                     ModelState = ModelState.Added,
                     BLNumber = voucherVM.BLNumber,
                     ItemDescription = voucherVM.ItemDescription,
+                    InvoiceStatus = voucherVM.InvoiceStatus,
                     BLDate = voucherVM.BLDate,
                     EXPDate = voucherVM.EXPDate,
                     EXPFromNo = voucherVM.EXPFromNo,
                     ComercialInvoiceNo = voucherVM.ComercialInvoiceNo,
                     IsAdditionalInfoApplicable = voucherVM.IsAdditionalInfoApplicable,
+                    PaymentToReceiveBankId = voucherVM.PaymentToReceiveBankId,
                     SourceType = "MasterOrderSales",
                     Id = "MS" + _pkGeneratorService.GetAutoNumber(nameof(Sales), PKGeneratorEnum.Yearly, null, DateTime.Now),
                 };
@@ -1930,7 +1936,9 @@ namespace Library.Service.SalesManagements
                 sales.BLDate = voucherVM.BLDate;
                 sales.EXPDate = voucherVM.EXPDate;
                 sales.EXPFromNo = voucherVM.EXPFromNo;
+                sales.InvoiceStatus = voucherVM.InvoiceStatus;
                 sales.IsAdditionalInfoApplicable = voucherVM.IsAdditionalInfoApplicable;
+                sales.PaymentToReceiveBankId = voucherVM.PaymentToReceiveBankId;
                 sales.UpdatedBy = voucherVM.UpdatedBy;
                 sales.UpdatedDate = voucherVM.UpdatedDate;
                 sales.UpdatedFromIP = voucherVM.UpdatedFromIP;
@@ -3107,7 +3115,9 @@ namespace Library.Service.SalesManagements
                     BLDate = voucherVM.BLDate,
                     EXPDate = voucherVM.EXPDate,
                     EXPFromNo = voucherVM.EXPFromNo,
+                    InvoiceStatus = voucherVM.InvoiceStatus,
                     ComercialInvoiceNo = voucherVM.ComercialInvoiceNo,
+                    PaymentToReceiveBankId = voucherVM.PaymentToReceiveBankId,
                     SourceType = "Packing",
                     Id = "MS" + _pkGeneratorService.GetAutoNumber(nameof(Sales), PKGeneratorEnum.Yearly, null, DateTime.Now),
                 };
@@ -3475,8 +3485,10 @@ namespace Library.Service.SalesManagements
                     BLNumber = voucherVM.BLNumber,
                     ItemDescription = voucherVM.ItemDescription,
                     BLDate = voucherVM.BLDate,
+                    InvoiceStatus = voucherVM.InvoiceStatus,
                     EXPDate = voucherVM.EXPDate,
                     EXPFromNo = voucherVM.EXPFromNo,
+                    PaymentToReceiveBankId = voucherVM.PaymentToReceiveBankId,
                     AddedBy = voucherVM.AddedBy,
                     AddedDate = voucherVM.AddedDate,
                     AddedFromIP = voucherVM.AddedFromIP,

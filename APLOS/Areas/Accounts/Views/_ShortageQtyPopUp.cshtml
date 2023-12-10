@@ -95,10 +95,10 @@
                 </div>
             </div>
             <div class="modal-footer common-btn">
-                <button type="button" class="btn btn-default" ng-disabled="shortageQtyData.TDSTaxVoucherId==null" ng-click="additionalTaxPrint();">Print</button>
-                <button type="button" class="btn btn-default" ng-disabled="shortageQtyData.TDSTaxVoucherId!=null" ng-click="postShortageDebitNote();">Post</button>
-                <button type="button" class="btn btn-default" ng-show="shortageQtyData.IsTDSTaxPost=='TDSParked' && shortageQtyData.TDSTaxVoucherId==null" ng-click="onClickTDSDeletePopUp(shortageQtyData);">TDS Delete</button>
-                <button type="button" class="btn btn-default" ng-show="shortageQtyData.IsTDSTaxPost=='TDSPosted' && shortageQtyData.TDSTaxVoucherId!=null" ng-click="onClickTDSPostDeletePopUp(shortageQtyData);">Post Delete</button>
+                <button type="button" class="btn btn-default" ng-disabled="shortageQtyData.DebitNoteVoucherId==null" ng-click="ShortageDebitNotePrint();">Print</button>
+                <button type="button" class="btn btn-default" ng-disabled="shortageQtyData.DebitNoteVoucherId!=null" ng-click="postShortageDebitNote();">Post</button>
+                <button type="button" class="btn btn-default" ng-show="shortageQtyData.IsShortagePost=='ShortageParked' && shortageQtyData.DebitNoteVoucherId==null" ng-click="onClickTDSDeletePopUp(shortageQtyData);">DN Delete</button>
+                <button type="button" class="btn btn-default" ng-show="shortageQtyData.IsShortagePost=='ShortagePosted' && shortageQtyData.DebitNoteVoucherId!=null" ng-click="onClickTDSPostDeletePopUp(shortageQtyData);">Post Delete</button>
                 <button type="button" class="btn btn-default" ng-click="closeShortageQtyPopUp();">Close</button>
             </div>
         </div>

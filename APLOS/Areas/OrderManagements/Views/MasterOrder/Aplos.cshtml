@@ -275,6 +275,16 @@
                                     <input type="text" only-numbers name="Days" ng-model="fileNew.PaymentTermDays" disabled class="form-control" tabindex="5">
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Payment Term Remarks</label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select tabindex="10" id="RemarksControlId" ng-disabled="fileNew.IsPaymentTermChangeable==false" class="form-control" name="Remarks Control" ng-model="fileNew.RemarksControlId">
+                                            <option ng-repeat="option in RemarksControlList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="form-group" ng-show="isBuyerApplicable">
                                 <label class="col-sm-4 control-label">Buyer Brand</label>
                                 <div class="col-sm-8">

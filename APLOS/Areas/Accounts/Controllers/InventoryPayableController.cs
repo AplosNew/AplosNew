@@ -96,6 +96,7 @@ namespace Aplos.Areas.Accounts.Controllers
                                     ,MS.UserName MaterialStorageName, IR.IsFOC, ISNULL(ADT.TaxAmount,0) TDSTax, ADT.VoucherId TDSTaxVoucherId, ADT.Id AdditionalTaxId
                                     ,IsTDSTaxPost=CASE WHEN ADT.VoucherId<>'' THEN 'TDSPosted' WHEN  ADT.InventoryReceiveId IS NULL THEN '' ELSE 'TDSParked' end
                                     ,IsShortagePost=CASE WHEN AN.VoucherId<>'' THEN 'ShortagePosted' WHEN  AN.InventoryReceiveId IS NULL THEN '' ELSE 'ShortageParked' end
+                                    ,AN.VoucherId DebitNoteVoucherId
 									,VT.VoucherNo TDSVoucherNo,V.IsPark,IV.WrittenOffAmount
                                     ,IR.OtherPartyId,IR.OtherPartyPlantId
 						FROM [TRN].[InventoryReceive] AS IR LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id

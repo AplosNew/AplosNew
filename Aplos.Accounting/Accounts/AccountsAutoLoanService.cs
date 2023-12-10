@@ -272,12 +272,10 @@ UNION ALL
 						,LAA.BankMasterId, BM.AccountTitle, XVD.LCRef  PurchaseLCNo,XVD.PINo
 						,(select TOP 1 I.CompanyCurrencyRate from  [dbo].[InvoiceTaggingWithLCDetail] ITWLD
 						INNER JOIN TRN.Invoice I ON I.Id=ITWLD.InvoiceId WHERE ITWLD.InvoiceTaggingWithLCMasterId=LAA.Id)CompanyCurrencyRate
-						,(select TOP 1 VDC.CrAmount from  [dbo].[InvoiceTaggingWithLCDetail] ITWLD
-							INNER JOIN TRN.Invoice I ON I.Id=ITWLD.InvoiceId 
-							INNER JOIN TRN.VoucherDetail VD ON VD.InvoiceDetailId=ITWLD.InvoiceDetailId
-							INNER JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
-							WHERE ITWLD.InvoiceTaggingWithLCMasterId=LAA.Id)BankBookAmount
+						,ITLD.Amount BankBookAmount
 						FROM InvoiceTaggingWithLCMaster LAA 
+						LEFT JOIN (SELECT SUM(Amount) Amount,InvoiceTaggingWithLCMasterId 
+						FROM [dbo].[InvoiceTaggingWithLCDetail] GROUP BY InvoiceTaggingWithLCMasterId ) ITLD ON LAA.Id=ITLD.InvoiceTaggingWithLCMasterId
 						LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
 						LEFT JOIN HKP.PartyPlant PP ON PP.Id=LAA.PartyPlantId
 						LEFT JOIN SCS.Currency CU ON CU.Id=LAA.CurrencyId
@@ -297,7 +295,7 @@ UNION ALL
 				sql = @"SELECT LAA.Id LoanAgainstAcceptanceId,LAA.CurrencyId, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
 						,IVD.GLGeneralInfoId,IVD.BudgetMasterId,IVD.ActivityId,IVD.InvoiceId,IVD.Id InvoiceDetailId,IV.Amount
 						,IV.CompanyCurrencyRate,BM.AccountTitle 
-						,PDA.AcceptanceNo,LAAD.BankMasterId
+						,PDA.AcceptanceNo,IV.DocDate InvoieDocDate,LAAD.BankMasterId
 						FROM LoanAgainstAcceptanceMaster LAA 
 						LEFT JOIN LoanAgainstAcceptanceDetail LAAD ON LAA.Id=LAAD.LoanAgainstAcceptanceMasterId
 						INNER JOIN TRN.PurchasedocAcceptance AS PDA ON PDA.Id=LAAD.PurchasedocAcceptanceId
@@ -313,7 +311,7 @@ UNION ALL
 						SELECT LAA.Id LoanAgainstAcceptanceId,LAA.CurrencyId, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
 						,IVD.GLGeneralInfoId,IVD.BudgetMasterId,IVD.ActivityId,IVD.InvoiceId,IVD.Id InvoiceDetailId,IV.Amount
 						,IV.CompanyCurrencyRate,BM.AccountTitle 
-						,IV.DocRefNo  AcceptanceNo,LAAD.BankMasterId
+						,IV.DocRefNo  AcceptanceNo,IV.DocDate InvoieDocDate,LAAD.BankMasterId
 						FROM LoanAgainstAcceptanceMaster LAA 
 						LEFT JOIN LoanAgainstAcceptanceDetail LAAD ON LAA.Id=LAAD.LoanAgainstAcceptanceMasterId
 						LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
@@ -328,14 +326,14 @@ UNION ALL
 			else
             {
 				sql = @"SELECT LAA.Id LoanAgainstAcceptanceId,LAA.CurrencyId, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
-						,IVD.GLGeneralInfoId,IVD.BudgetMasterId,IVD.ActivityId,IVD.InvoiceId,IVD.Id InvoiceDetailId,IV.Amount
+						,IVD.GLGeneralInfoId,IVD.BudgetMasterId,IVD.ActivityId,IVD.InvoiceId,IVD.Id InvoiceDetailId,LAAD.Amount
 						,IV.CompanyCurrencyRate,BM.AccountTitle 
-						,IV.DocRefNo  AcceptanceNo,LAA.BankMasterId
+						,IV.DocRefNo  AcceptanceNo,IV.DocDate InvoieDocDate,LAAD.OpeningBankMasterId BankMasterId
 						FROM InvoiceTaggingWithLCMaster LAA 
 						LEFT JOIN InvoiceTaggingWithLCDetail LAAD ON LAA.Id=LAAD.InvoiceTaggingWithLCMasterId
 						LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
 						LEFT JOIN HKP.PartyPlant PP ON PP.Id=LAA.PartyPlantId
-						LEFT JOIN MST.BankMaster BM ON BM.Id=LAA.BankMasterId
+						LEFT JOIN MST.BankMaster BM ON BM.Id=LAAD.OpeningBankMasterId
 						LEFT JOIN SCS.Currency CU ON CU.Id=LAA.CurrencyId
 						LEFT JOIN TRN.Invoice IV ON IV.Id=LAAD.InvoiceId
 						LEFT JOIN TRN.InvoiceDetail IVD ON IVD.InvoiceId=IV.Id

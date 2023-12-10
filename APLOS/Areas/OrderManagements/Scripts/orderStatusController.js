@@ -47,6 +47,7 @@ function OrderStatusController(commonMessage, $scope, $rootScope, baseService, $
         Id: null
         , Sequence: null
         , UserName: null
+        , MasterPlanApplicable: true
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 

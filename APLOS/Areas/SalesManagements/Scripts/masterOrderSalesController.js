@@ -149,7 +149,8 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
         IsPark: 1,
         IsAdditionalInfoApplicable: true,
         IsIncentiveApplicable: false,
-        InvoiceStatus: 'Active'
+        InvoiceStatus: 'Active',
+        PaymentToReceiveBankId:null
     };
     $scope.salesVM.TaxOptionAddiTax = 'Yes';
 
@@ -879,7 +880,9 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
             BooksCurrencyBaseRate: null,
             IsPark: 1,
             IsAdditionalInfoApplicable: true,
-            IsIncentiveApplicable: false
+            IsIncentiveApplicable: false,
+            InvoiceStatus: 'Active',
+            PaymentToReceiveBankId: null
         };
 
         $scope.materialMaster = {
@@ -2679,13 +2682,13 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
                     $scope.ModelNew.PartyName = $scope.salesVM.PartyName;
                     $scope.ModelNew.Amount = $scope.salesVM.Amount;
 
-                    if (baseService.arrayLength($scope.bankMasterList) > 0 && !baseService.isUndefinedOrNull($scope.salesVM.BenificiaryBankId)) {
-                        for (var i = 0; i < $scope.bankMasterList.length; i++) {
-                            if ($scope.bankMasterList[i].Id === $scope.salesVM.BenificiaryBankId) {
-                                $scope.ModelNew.BankMasterId = $scope.bankMasterList[i].Id;
-                            }
-                        }
-                    }
+                    //if (baseService.arrayLength($scope.bankMasterList) > 0 && !baseService.isUndefinedOrNull($scope.salesVM.BenificiaryBankId)) {
+                    //    for (var i = 0; i < $scope.bankMasterList.length; i++) {
+                    //        if ($scope.bankMasterList[i].Id === $scope.salesVM.BenificiaryBankId) {
+                    //            $scope.ModelNew.BankMasterId = $scope.bankMasterList[i].Id;
+                    //        }
+                    //    }
+                    //}
 
                 },
                 function errorCallback(response) {
@@ -2708,6 +2711,12 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
     $scope.bankMasterList = [];
     bankService.GetNegotiatingBankMasterCboListByPlant(function (result) {
         $scope.bankMasterList = result;
+
+    });
+
+    $scope.PaymentToReceiveBankList = [];
+    bankService.getBankMasterCboListByPlant(function (result) {
+        $scope.PaymentToReceiveBankList = result;
 
     });
 

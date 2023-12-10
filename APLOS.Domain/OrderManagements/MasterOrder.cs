@@ -89,6 +89,7 @@ namespace Library.Model.OrderManagements
         public string TaskTemplateMasterId { get; set; }
         public string ExceptionalProcessId { get; set; }
         public string ExceptionalSubProcessId { get; set; }
+        public string RemarksControlId { get; set; }
         #endregion Navigation Properties
     }
 }

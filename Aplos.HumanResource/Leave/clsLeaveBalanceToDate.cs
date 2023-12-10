@@ -1440,6 +1440,7 @@ DEPT.UserName AS Department,ct.UserName AS EmployeeCategory, lt.UserName LeaveNa
 																   else Isnull(els.DaysCanBeSanctioned,0) end)
 										   ,ISNULL(ltrn.ldays, 0)+isnull(CurrentYearAvailedOpeningBalance,0) AppliedDays
 										   ,ISNULL(tav.av, 0)+isnull(CurrentYearAvailedOpeningBalance,0) AvailedDays
+                                            ,ISNULL(R.Rejected,0)Rejected
 										 ,ClosingBalance=((CASE WHEN LT.LeaveType='Earn' THEN	
 												ISNULL(ALP.PBroughtForward, 
 												 CASE WHEN els.IsEncashed =1 THEN ISNULL(els.CarryForward, 0)+ISNULL(els.EncashedInbetween, 0) 
@@ -1484,6 +1485,10 @@ LEFT JOIN
                                         LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
 										  Where LY.FromDate between'" + _LFromDate + @"' and '" + _LToDate + @"' AND LY.ToDate between'" + _LFromDate + @"' and '" + _LToDate + @"' AND A.EmployeeId='" + EmployeeSystemId + @"'
 											)ALP ON ALP.EmployeeId=els.EmployeeId AND lt.Id=ALP.LeaveTypeId
+LEFT JOIN (Select Sum(LTD.LeaveDuration) Rejected,LT.EmpSystemID,LT.LTSystemID  from LeaveTransaction LT
+                                                            Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
+                                                            Where WorkDate between '" + _FromDate + @"' AND '" + _ToDate + @"' AND IsCancel=1
+                                                            group by LT.EmpSystemID,LT.LTSystemID)R ON R.EmpSystemID = els.EmployeeId  and R.LTSystemId = els.LeaveTypeId
 										 left outer join (
 															select sum(m.LeaveDays) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m
                             where  (FromDate between '" + _FromDate + @"' and '" + _ToDate + @"') and (ToDate between '" + _FromDate + @"' and '" + _ToDate + @"')

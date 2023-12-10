@@ -9140,10 +9140,13 @@ namespace Library.Service.Invoices
 
         public List<Dictionary<string, object>> GetGatePaymentAdviceData(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string BankMasterId)
         {
-            var sql = @"SELECT AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id, P.Code AS PartyCode, P.UserName AS PartyName,format(AW.PostingDate,'dd-MMM-yyyy') PostingDate,format(AW.DocDate,'dd-MMM-yyyy')DocDate
-                                    , AW.DocRefNo, C.Code AS CurrencyCode, SUM(IWD.Amount) AS Amount
-                                    , AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.IsPark, AW.BankJournalId,IWD.MultiplePaymentNo
+            var sql = @"SELECT co.UserName SendersName,bm.AccountNumber SendersACNumber,SUM(IWD.Amount) AS TransactionAmount,P.Code AS BeneficiaryCode, P.UserName AS BeneficiaryName
+									,PB.BankAccountNo BeneficiaryACNo,PB.IFSCCode ReceiverIFSC,aw.narration,AM.Email,0 ChequeNo,0 ChequeDate
+									,AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id,format(AW.PostingDate,'dd-MMM-yyyy') PostingDate
+									,format(AW.DocDate,'dd-MMM-yyyy')DocDate,AW.DocRefNo, C.Code AS CurrencyCode
+                                    ,AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.IsPark, AW.BankJournalId,IWD.MultiplePaymentNo
                                     ,Status=case when AW.IsPark=1 then 'Parked' else 'Posted' end,AW.BankMasterId
+									
                                     FROM [TRN].[InvoiceWriteOff] AS AW
 									LEFT JOIN (SELECT WD.Id,WD.InvoiceWriteOffId,MPD.MultiplePaymentId MultiplePaymentNo,SUM(WD.Amount) Amount 
 											FROM [TRN].[InvoiceWriteOffDetail] WD 
@@ -9155,11 +9158,16 @@ namespace Library.Service.Invoices
                                     LEFT JOIN [HKP].[Party] AS P ON P.Id=AW.PartyId
                                     LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AW.PartyPlantId
                                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=AW.CurrencyId 
+									LEFT JOIN ORG.Company CO ON CO.Id=V.CompanyId
+									left join mst.BankMaster bm on bm.Id=aw.BankMasterId
+									LEFT join HKP.PartyBank PB on PB.CompanyPartyId=P.Id
+									left join mst.AddressMaster AM on AM.Id=P.AddressMasterId
                                     WHERE AW.Archive=0 AND V.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + "' AND AW.PlantId='" + plantId +@"' 
                                     AND AW.BankMasterId = '" + BankMasterId + "' AND AW.PostingDate between '" + fromDate + "' AND '" + toDate + @"' AND AW.[SourceType]= 'VendorPayment'
 
-                                    Group BY AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id, P.Code , P.UserName, AW.PostingDate
-									, AW.DocDate, AW.DocRefNo, C.Code, AW.PartyPlantId, PP.UserName, AW.IsPark, AW.BankJournalId, IWD.MultiplePaymentNo,AW.BankMasterId";
+                                    Group BY co.UserName,AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id, P.Code , P.UserName, AW.PostingDate,aw.Narration,bm.AccountNumber
+									, AW.DocDate, AW.DocRefNo, C.Code, AW.PartyPlantId, PP.UserName, AW.IsPark, AW.BankJournalId, IWD.MultiplePaymentNo,AW.BankMasterId,PB.BankAccountNo
+									,PB.IFSCCode,AM.Email";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
