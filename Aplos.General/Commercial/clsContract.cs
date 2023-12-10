@@ -1236,7 +1236,7 @@ LEFT JOIN dbo.EmployeeInformation IEI ON IEI.SystemId=RC.InformToId) AS TEMP WHE
         {
             try
             {
-                return _sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM HKP.RemarksControl");
+                return _sqlRepository.GetDataCollection("SELECT Id as Value,Remarks AS Text FROM HKP.RemarksControl");
             }
             catch (Exception ex)
             {

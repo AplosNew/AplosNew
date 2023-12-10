@@ -30,6 +30,9 @@ function RemarksControlController(cboService, commonMessage, $scope, $rootScope,
 
     $scope.ModelTemp = {
         Id: null,
+        CompanyId:null,
+        CompanyId:null,
+        PlantId:null,
         Sequence: 0,
         Code: null,
         ShortName: null,
@@ -41,6 +44,26 @@ function RemarksControlController(cboService, commonMessage, $scope, $rootScope,
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
+    $scope.companyGroupList = [];
+
+    cboService.getCboCompanyGroup(function (result) {
+        $scope.companyGroupList = result;
+    });
+    $scope.companyList = [];
+    $scope.getCboCompanyByCompanyGroup = function (companyGroupId) {
+        cboService.getCboCompanyByCompanyGroup(companyGroupId, function (result) {
+            $scope.companyList = result;
+        });
+    };
+
+    $scope.PlantList = [];
+    $scope.getPlant = function () {
+        cboService.getCboPlantByCompany($scope.ModelNew.CompanyId, function (result) {
+            $scope.PlantList = result;
+        });
+    };
+
+
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
             $scope.ModelTemp.Sequence = data;
@@ -49,73 +72,54 @@ function RemarksControlController(cboService, commonMessage, $scope, $rootScope,
     };
     $scope.GetSequence();
 
-    $scope.employeeParameters = {
-        limit: 10,
-        offset: 0,
-        order: 'asc',
-        sort: 'EmployeeCode, FirstName, MiddleName, LastName ',
-        searchBy: 'EmployeeCode',
-        pageSize: 10,
-        total_count: 0,
-        search: null,
-        serverPagination: true
-    };
-    $scope.employeeUrl = 'OrderManagements/masterorder/GetEmployeeListResponsible';
+    $scope.employeeList = [];
     $scope.showEmployeeListPopUp = function (name) {
         try {
-
             $scope.Name = name;
-            //$scope.employeeParameters.searchBy = 'EmployeeCode';
-            baseService.setCurrentPage('employeeList');
-            $scope.searchEmployeeByList = [];
-            $scope.getEmployeeData = function (pageno) {
-                $scope.employeeParameters.plantId = $window.plantId;
-                baseService.paginationBase($scope.employeeUrl, pageno, $scope.employeeParameters)
-                    .then(function (result) {
-                        $scope.employeeList = result.Rows;
-                        $scope.employeeParameters.total_count = result.Total;
+            $scope.employeeList = [];
+            $http({
+                method: 'GET',
+                url: 'OrderManagements/SalesOrderApproval/GetAllActiveEmpData'
 
-                        if (baseService.arrayLength($scope.searchEmployeeByList) === 0)
-                            baseService.getDDLSearchColumn(result.Rows, $scope.searchEmployeeByList);
-                        //$scope.employeeParameters.searchBy = 'EmployeeCode';
-                    }, function () {
-                        ShowResult(commonMessage.NetworkError, 'failure');
-                    }).finally(function () {
-                    });
-            };
-            angular.element(document.querySelector('#employeePopUp')).modal('show');
-            $scope.getEmployeeData();
+            }).then(function successCallback(response) {
+                $scope.employeeList = response.data;
+            });
+
+            angular.element(document.querySelector('#EmppopUp')).modal('show');
+
         } catch (e) {
             ShowResult(e, 'failure');
         }
     };
 
-    $scope.selectEmployeePopUp = function (index, id) {
-        $scope.employeeIndex = index;
-        $scope.selectedEmployee = id;
-    };
-
-
-    $scope.closeEmployeePopUp = function () {
-        if ($scope.employeeIndex !== -1) {
-            var employee = $scope.employeeList[$scope.employeeIndex];
-            if ($scope.Name === 'approve') {
-                $scope.ModelNew.ApprovedById = employee.SystemId;
-                $scope.ModelNew.ApprovedBy = employee.EmployeeName;
-            }
-            else {
-                $scope.ModelNew.InformToId = employee.SystemId;
-                $scope.ModelNew.InformTo = employee.EmployeeName;
-
-            }
+    $scope.SelectEmployee = function (arg) {
+        if ($scope.Name === 'approve') {
+            $scope.ModelNew.ApprovedById = arg.data.SystemId;
+            $scope.ModelNew.ApprovedBy = arg.data.EmployeeName;
         }
-        $scope.hideEmployeePopUp();
-    };
+        else {
+            $scope.ModelNew.InformToId = arg.data.SystemId;
+            $scope.ModelNew.InformTo = arg.data.EmployeeName;
 
-    $scope.hideEmployeePopUp = function () {
-        angular.element(document.querySelector('#employeePopUp')).modal('hide');
-        $scope.employeeIndex = -1;
-        $scope.selectedEmployee = null;
+        }
+        $scope.closePopUp();
+    }
+
+
+    $scope.clearEmp = function (Name) {
+        if (Name === 'approve') {
+            $scope.ModelNew.ApprovedById = null;
+            $scope.ModelNew.ApprovedBy = null;
+        }
+        else {
+            $scope.ModelNew.InformToId = null;
+            $scope.ModelNew.InformTo = null;
+
+        }
+    }
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#EmppopUp')).modal('hide');
     }
     $scope.Get = function (args) {
 

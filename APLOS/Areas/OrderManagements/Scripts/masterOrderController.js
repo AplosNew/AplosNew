@@ -136,6 +136,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         , IsPaymentTermChangeable: null
         , ExceptionalProcessId: null
         , ExceptionalSubProcessId: null
+        , RemarksControlId: null
+        , DefaultPaymentTermId:null
     };
     $scope.fileNew = Object.assign({}, $scope.file);
     $scope.isBuyerApplicable = false;
@@ -148,6 +150,17 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         { Value: "OutSource", Text: "Out Source" },
         { Value: "Other", Text: "Other" }
     ];
+
+    $scope.RemarksControlList = [];
+    $scope.GetRemarksControlList = function () {
+        $http({
+            method: 'GET',
+            url: 'Setups/RemarksControl/GetCbo'
+        }).then(function successCallback(response) {
+            $scope.RemarksControlList = response.data;
+        });
+    };
+    $scope.GetRemarksControlList();
 
     $scope.ProductLibraryList = [];
     $scope.GetProductLibraryList = function (index) {
@@ -567,6 +580,12 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             }
         }
 
+        if (!baseService.isUndefinedOrNull($scope.fileNew.PaymentTermId) && !baseService.isUndefinedOrNull($scope.fileNew.DefaultPaymentTermId)) {
+            if (($scope.fileNew.PaymentTermId !== $scope.fileNew.DefaultPaymentTermId) && baseService.isUndefinedOrNull($scope.fileNew.RemarksControlId)) {
+                return ShowResult('Payment Term Remarks is required.', 'failure');
+            }
+        }
+
         if (parseFloat(baseService.isUndefinedOrNull($scope.fileNew.TotalQty) ? 0 : $scope.fileNew.TotalQty) === 0) return ShowResult('Please insert total qty.', 'failure');
 
         if (baseService.isUndefinedOrNull($scope.fileNew.TotalQtyUOMId)) {
@@ -929,6 +948,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.fileNew.PaymentTermDays = 0;
 
         $scope.fileNew.PaymentTermId = party.PaymentTermId;
+        $scope.fileNew.DefaultPaymentTermId = party.PaymentTermId;
         $scope.fileNew.IsPaymentTermChangeable = party.IsPaymentTermChangeable;
 
         $scope.changePaymentTerm($scope.fileNew.PaymentTermId);
