@@ -482,6 +482,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             for (var i = 0; i < $scope.prdProcessSetList.length; i++) {
                 if ($scope.prdProcessSetList[i].Sequence == 1) {
                     $scope.processId = $scope.prdProcessSetList[i].ProcessId;
+                    $scope.prdProcessSetList[i].IsProductionVerification = true;
                 }
                 UomCboByFGMaterialMaster($scope.prdProcessSetList[i].MaterialMasterId);
             }
@@ -1040,7 +1041,11 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             $scope.prdProcessSetList = response.data;
             for (var i = 0; i < $scope.prdProcessSetList.length; i++) {
                 UomCboByFGMaterialMaster($scope.prdProcessSetList[i].MaterialMasterId);
+                if ($scope.prdProcessSetList[i].Sequence == 1) {
+                    $scope.prdProcessSetList[i].IsProductionVerification = true;
+                }
             }
+            
         });
     }
 
@@ -1149,6 +1154,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                 , RelaySequence: data.RelaySequence
                 , ProductionBookingLevel: data.ProductionBookingLevel
                 , IsInventory: data.IsInventory
+                , IsProductionVerification: false
             });
             UomCboByFGMaterialMaster(data.MaterialMasterId);
         }
@@ -1189,6 +1195,19 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         }
     };
 
+    $scope.setIsProductionVerification = function (event, index) {
+        for (var i = 0; i <= $scope.prdProcessSetList.length - 1; i++) {
+            if (i < index) {
+                $scope.prdProcessSetList[i].IsProductionVerification = false;
+            }
+            else if (i > index) {
+                $scope.prdProcessSetList[i].IsProductionVerification = false;
+            }
+            else if (i === index) {
+                $scope.prdProcessSetList[i].IsProductionVerification = true;
+            }
+        }
+    };
 
     $scope.clearEntityOrVendor = function (list, index) {
         list[index].EntityIdWithinCompany = null;

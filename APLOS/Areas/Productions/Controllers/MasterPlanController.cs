@@ -17,7 +17,7 @@ using Newtonsoft.Json;
 using Library.Service.Helpers;
 using System.IO;
 using Library.Core;
-using Library.MaterialManagement.CutPlan;
+//using Library.MaterialManagement.MasterPlan;
 using Library.Service.OrderManagements;
 using System.Linq;
 
@@ -25,13 +25,13 @@ using System.Linq;
 
 namespace Aplos.Areas.Productions.Controllers
 {
-    public class CutPlanController : BaseController
+    public class MasterPlanController : BaseController
     {
         #region Constructor
         private readonly IProductionOrderService _productionOrderService;
-        clsCutPlan cp = new clsCutPlan();
+        //clsMasterPlan cp = new clsMasterPlan();
         private readonly ISqlRepository _sqlRepository;
-        public CutPlanController(ISqlRepository R, IProductionOrderService productionOrderService)
+        public MasterPlanController(ISqlRepository R, IProductionOrderService productionOrderService)
         {
             _productionOrderService = productionOrderService;
             _sqlRepository = R;
@@ -101,27 +101,27 @@ where EPT.ProcessId='" + ProcessId + "'";
         }
 
         [Authorize, HttpGet]
-        public ActionResult LoadCutPlanList()
+        public ActionResult LoadMasterPlanList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @" SELECT * ,(select E.EmployeeName from EmployeeInformation E where E.SystemId=CP.UserId) as UserName,(select EI.EmployeeName from EmployeeInformation EI where EI.SystemId=CP.ResponsiblePersonId) as ResponsiblePerson,
-                            (select UserName from hkp.Process where id=Cp.ProcessId) as Process,(select UserName from org.entity where id=Cp.EntityId) as Entity FROM [MST].[CutPlan] CP";
+                            (select UserName from hkp.Process where id=Cp.ProcessId) as Process,(select UserName from org.entity where id=Cp.EntityId) as Entity FROM [MST].[MasterPlan] CP";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public ActionResult LoadCutPlanEditData(string CutPlanId)
+        public ActionResult LoadMasterPlanEditData(string MasterPlanId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             string sql = @"SELECT * ,(select E.EmployeeName from EmployeeInformation E where E.SystemId=CP.UserId) as UserName,(select EI.EmployeeName from EmployeeInformation EI where EI.SystemId=CP.ResponsiblePersonId) as ResponsiblePerson,
-                           (select UserName from hkp.Process where id=Cp.ProcessId) as Process,(select UserName from org.entity where id=Cp.EntityId) as Entity FROM [MST].[CutPlan] CP where CP.Id='" + CutPlanId + @"'";
-            return Json(new { cutplan = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+                           (select UserName from hkp.Process where id=Cp.ProcessId) as Process,(select UserName from org.entity where id=Cp.EntityId) as Entity FROM [MST].[MasterPlan] CP where CP.Id='" + MasterPlanId + @"'";
+            return Json(new { MasterPlan = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
 
 
         [HttpGet, Authorize]
-        public ActionResult GetCutPlanDetailsList(string ProcessId, string PlanId)
+        public ActionResult GetMasterPlanDetailsList(string ProcessId, string PlanId)
         {
             try
             {
@@ -134,20 +134,20 @@ where EPT.ProcessId='" + ProcessId + "'";
                     string FilterPlan = string.Empty;
                     if (PlanId != "null" && PlanId != "undefined")
                     {
-                        FilterPlan = " and SO.Id in (select SalesOrderId from [MST].[CutPlanSODetails] where MasterPlanId='"+ PlanId + @"')";
+                        FilterPlan = " and SO.Id in (select SalesOrderId from [MST].[MasterPlanSODetails] where MasterPlanId='"+ PlanId + @"')";
                     }
                     else
                     {
-                        FilterPlan = " and SO.Id Not in (select SalesOrderId from [MST].[CutPlanSODetails])";
+                        FilterPlan = " and SO.Id Not in (select SalesOrderId from [MST].[MasterPlanSODetails])";
                     }
                     string sql = @"select isnull(MOI.ProductionGrouping,'') AS ProductionGrouping,MOI.OwnReferenceNo, isnull(PO.Id,'') AS PONumber,
-PS.UserName ProductionStatus,OS.UserName AS OrderStatusName,SO.Id SONo,SO.Qty,isnull((select PlanPercentage from [MST].[CutPlanSODetails] where SalesOrderId=SO.Id),
-MO.ExtraOrderPercentage) PlanPercentage,isnull((select SOPlanQty from [MST].[CutPlanSODetails] where SalesOrderId=SO.Id),SO.Qty + (MO.ExtraOrderPercentage*SO.Qty / 100)) as SOPlanQty,
-(select PlanStatus from MST.CutPlan where id=(select MasterPlanId from [MST].[CutPlanSODetails] where SalesOrderId=SO.Id)) as MasterPlanStatus,
-(case when (select MasterPlanId from [MST].[CutPlanSODetails] where SalesOrderId=SO.Id) is null then 0 else 1 end) IsMasterPlan,
-(select MasterPlanId from [MST].[CutPlanSODetails] where SalesOrderId=SO.Id) as MasterPlanId,
-(select Id from [MST].[CutPlanSODetails] where SalesOrderId=SO.Id) as Id,
-(select Status from [MST].[CutPlanSODetails] where SalesOrderId=SO.Id) as Status,
+PS.UserName ProductionStatus,OS.UserName AS OrderStatusName,SO.Id SONo,SO.Qty,isnull((select PlanPercentage from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id),
+MO.ExtraOrderPercentage) PlanPercentage,isnull((select SOPlanQty from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id),SO.Qty + (MO.ExtraOrderPercentage*SO.Qty / 100)) as SOPlanQty,
+(select PlanStatus from MST.MasterPlan where id=(select MasterPlanId from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id)) as MasterPlanStatus,
+(case when (select MasterPlanId from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id) is null then 0 else 1 end) IsMasterPlan,
+(select MasterPlanId from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id) as MasterPlanId,
+(select Id from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id) as Id,
+(select Status from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id) as Status,
 MOI.MaterialMasterId, MM.UserName AS MaterialMasterName, MOI.ArticleId, 
 ART.StandardName AS ArticleName,P.UserName AS Customer,MOI.BuyerReferenceNo,MOI.Id LineItemNo,SO.Id AS SalesOrderId,MO.MasterOrderNo,
 E.UserName POEntity,PPS.JobWorkApplicable IsJW,PPS.JobWorkType JWType,(Case when PPS.JobWorkType='EntityWithinCompany' then (select UserName from ORG.Entity where Id=PPS.EntityIdWithinCompany) 
@@ -166,7 +166,7 @@ left join [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
 left join [TRN].[CustomerPO] AS CP ON SO.CustomerPOId = CP.Id
 left join [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
 left join [ORG].[Entity]  AS E ON E.Id=PO.EntityId
-LEFT JOIN [MST].[CutPlanSODetails] CPD on CPD.SalesOrderId=SO.Id and CPD.MasterPlanId='" + PlanId + @"'
+LEFT JOIN [MST].[MasterPlanSODetails] CPD on CPD.SalesOrderId=SO.Id and CPD.MasterPlanId='" + PlanId + @"'
 and SO.OrderStatusId in (select Id from HKP.OrderStatus OS where OS. MasterPlanApplicable=1)
 where PPS.ProcessId = '" + ProcessId + @"'  " + FilterPlan + @"
 and PO.ProductionStatusId in (select Id from HKP.ProductionStatus where MasterPlanApplicable=1)
@@ -184,32 +184,32 @@ ORDER BY MOI.ProductionGrouping,MOI.OwnReferenceNo";
         [HttpPost]
         public JsonResult CreateData(Dictionary<string, object> data, List<Dictionary<string, object>> DataList)
         {
-            SaveCutPlanData(data, DataList, out string masterId);
+            SaveMasterPlanData(data, DataList, out string masterId);
             data["Id"] = masterId;
             return Json(new { Data = data, Message = AplosMessage.Insert });
         }
 
-        public void SaveCutPlanData(Dictionary<string, object> data, List<Dictionary<string, object>> DataList, out string masterId)
+        public void SaveMasterPlanData(Dictionary<string, object> data, List<Dictionary<string, object>> DataList, out string masterId)
         {
             try
             {
                 DataSet dsMaster, dsDetail, dsId;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from [MST].[CutPlan] where PlanName='" + data["PlanName"] + "'", out DataSet dsCutPlanNameValidation, false, "1");
-                con.OpenDataSetThroughAdapter("SELECT * FROM [MST].[CutPlan] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [MST].[MasterPlan] where PlanName='" + data["PlanName"] + "'", out DataSet dsMasterPlanNameValidation, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [MST].[MasterPlan] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    if (dsCutPlanNameValidation.Tables[0].Rows.Count > 0)
+                    if (dsMasterPlanNameValidation.Tables[0].Rows.Count > 0)
                     {
                         throw new Exception("Plan Name Already Exist.");
                     }
                     else
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "CutPlan", out _Id);
+                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MasterPlan", out _Id);
 
                         data["Id"] = _Id;
                         AddNewRow(dsMaster.Tables[0], data);
@@ -223,8 +223,8 @@ ORDER BY MOI.ProductionGrouping,MOI.OwnReferenceNo";
 
                 masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
-                con.OpenDataSetThroughAdapter("SELECT * FROM [MST].[CutPlanSODetails] WHERE MasterPlanId ='" + masterId + "'", out dsDetail, false, "1");
-                con.OpenDataSetThroughAdapter("SELECT COUNT(Id)Id FROM [MST].[CutPlanSODetails] WHERE MasterPlanId ='" + masterId + "'", out dsId, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [MST].[MasterPlanSODetails] WHERE MasterPlanId ='" + masterId + "'", out dsDetail, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT COUNT(Id)Id FROM [MST].[MasterPlanSODetails] WHERE MasterPlanId ='" + masterId + "'", out dsId, false, "1");
 
                 int count = Convert.ToInt32(dsId.Tables[0].Rows[0]["Id"].ToString());
 

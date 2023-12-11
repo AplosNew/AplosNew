@@ -1193,12 +1193,12 @@ namespace Aplos.Areas.Products.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_purchaseOrderService.GetLCContractList(isProcurementOnBom, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
-        [Authorize, HttpGet]
-        public JsonResult GetLCContractListByPartyId(bool isProcurementOnBom, string partyId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_purchaseOrderService.GetLCContractListByPartyId(isProcurementOnBom, identity.PlantId, partyId), JsonRequestBehavior.AllowGet);
-        }
+        //[Authorize, HttpGet]
+        //public JsonResult GetLCContractListByPartyId(bool isProcurementOnBom, string partyId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    return Json(_purchaseOrderService.GetLCContractListByPartyId(isProcurementOnBom, identity.PlantId, partyId), JsonRequestBehavior.AllowGet);
+        //}
 
 
         [Authorize, HttpGet]

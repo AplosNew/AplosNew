@@ -964,7 +964,7 @@ upanelApp.controller("partyPaymentStatusReportController", partyPaymentStatusRep
 upanelApp.controller("OTManualNewController", OTManualNewController);
 upanelApp.controller("ManualOTUploadNewController", ManualOTUploadNewController);
 upanelApp.controller("ManualOTReportNewController", ManualOTReportNewController);
-upanelApp.controller("CutPlanController", CutPlanController);
+upanelApp.controller("MasterPlanController", MasterPlanController);
 upanelApp.controller("FinishGoodsBookingPostController", FinishGoodsBookingPostController);
 upanelApp.controller("PackingInvoiceController", PackingInvoiceController);
 upanelApp.controller("CompanyWiseExternalDataUploadFromExcelController", CompanyWiseExternalDataUploadFromExcelController);
@@ -1241,6 +1241,7 @@ upanelApp.controller("SQCMasterController", SQCMasterController)
 upanelApp.controller("PaymentAdviceController", PaymentAdviceController)
 upanelApp.controller("DefineSQCIssueController", DefineSQCIssueController)
 upanelApp.controller("InvoiceStatusController", InvoiceStatusController)
+upanelApp.controller("MasterPlanDetailsController", MasterPlanDetailsController)
           
 
 

@@ -527,6 +527,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("DesignationSetupController", DesignationSetupController)
     .controller("AdditionalInfoController", AdditionalInfoController)
     .controller("ProductionOrderEntitySetupController", ProductionOrderEntitySetupController)
+    .controller("MasterPlanSetUpController", MasterPlanSetUpController)
     
 
 
