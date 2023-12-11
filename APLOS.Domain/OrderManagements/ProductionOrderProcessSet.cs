@@ -24,6 +24,8 @@ namespace Library.Model.OrderManagements
         public string ProductionBookingLevel { get; set; }
         public decimal RelaySequence { get; set; }
         public bool IsInventory { get; set; }
+
+        public bool IsProductionVerification { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties

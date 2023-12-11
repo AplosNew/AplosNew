@@ -1,0 +1,177 @@
+﻿@model APLOS.VM.OrderManagements.OrderStatusViewModel
+@using UIHtmlHelper;
+@{
+    ViewBag.Title = "Edit";
+}
+<div class="breadcrumbs ace-save-state" id="breadcrumbs">
+    <ul class="breadcrumb">
+        <li>
+            <i class="ace-icon fa fa-home home-icon"></i>
+            <a href="/Setups/Currency">Home</a>
+        </li>
+        <li class="#">OrderManagements</li>
+        <li class="#">OrderStatus</li>
+        <li class="active">Edit</li>
+    </ul>
+</div>
+<div class="main-content">
+    <div class="page-content">
+
+        <div class="page-header">
+            <h1>OrderStatus</h1>
+        </div><!-- /.page-header -->
+        <div class="row">
+            <div class="col-xs-12">
+                <!-- PAGE CONTENT BEGINS -->
+                @using (Ajax.BeginForm("Edit", "OrderStatus", null, new AjaxOptions { HttpMethod = "POST" }))
+                {
+                    <div class="form-horizontal">
+
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true)
+                        @Html.HiddenFor(model => model.Id)
+
+
+                        <div class="form-group col-sm-6">
+                            <label id="A7IF36F7" class="col-sm-4 control-label " for="form-field-1">A7IF36F7</label>
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(model => model.Sequence, new { @class = " col-sm-9 form-control" })
+                                @Html.ValidationMessageFor(model => model.Sequence)
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-6">
+                            <label id="A7IF36F6" class=" col-sm-4 control-label " for=" form-field-1">A7IF36F6</label>
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(model => model.Code, new { @class = " col-sm-9 form-control" })
+                                @Html.ValidationMessageFor(model => model.Code)
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-6">
+                            <label id="A7IF36F2" class="col-sm-4 control-label " for="form-field-1">A7IF36F2</label>
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(model => model.StandardName, new { @class = " col-sm-9 form-control" })
+                                @Html.ValidationMessageFor(model => model.StandardName)
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-6">
+                            <label id="A7IF36F4" class="col-sm-4 control-label " for="form-field-1">A7IF36F4</label>
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(model => model.ShortName, new { @class = " col-sm-9 form-control" })
+                                @Html.ValidationMessageFor(model => model.ShortName)
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label id="A7IF36F5" class="col-sm-4 control-label " for="form-field-1">A7IF36F5</label>
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(model => model.UserName, new { @class = " col-sm-9 form-control" })
+                                @Html.ValidationMessageFor(model => model.UserName)
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-6">
+                            <label id="A7IF36F3" class="col-sm-4 control-label " for="form-field-1">A7IF36F3</label>
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(model => model.Description, new { @class = " col-sm-9 form-control" })
+                                @Html.ValidationMessageFor(model => model.Description)
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label id="A7IF36F11" class="col-sm-4 control-label " for="form-field-1">A7T36C11</label>
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(model => model.A7T36C11, new { @class = " col-sm-9 form-control" })
+                                @Html.ValidationMessageFor(model => model.A7T36C11)
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-6">
+                            <label id="A7IF36F12" class="col-sm-4 control-label " for="form-field-1">A7T36C12</label>
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(model => model.A7T36C12, new { @class = " col-sm-9 form-control" })
+                                @Html.ValidationMessageFor(model => model.A7T36C12)
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-6">
+                            <label id="A7IF36F8" class="col-sm-4 control-label " for="form-field-1">A7IF36F8</label>
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(model => model.Remarks, new { @class = " col-sm-9 form-control" })
+                                @Html.ValidationMessageFor(model => model.Remarks)
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label id="A7IF36F9" class="col-sm-4 control-label " for="form-field-1">A7IF36F9</label>
+                            <div class="col-sm-8">
+                                @Html.CheckBoxFor(model => model.IsActive)
+                                @Html.ValidationMessageFor(model => model.IsActive)
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-6">
+                            <label class="col-sm-4 control-label" for="form-field-1">CompanyName</label>
+                            <div class="col-sm-8">
+                                @Html.SimpleDropDownFor(model => model.CompanyId, "/Organizations/Company/GetCompanyList/", new { @class = "col-sm-9 form-control" })
+                                @Html.ValidationMessageFor(model => model.CompanyId)
+                            </div>
+                        </div>
+
+                        <div class="form-group  col-sm-6">
+                            <div class="col-sm-4">
+                            </div>
+                            <div class="col-sm-6">
+                                <button class="btn btn btn-success" type="submit" id="btnSave">
+                                    <i class="ace-icon fa fa-floppy-o"></i>
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script type="text/javascript">
+        $(function () {
+            var interfaceName = "";
+            var html = ""
+            var count;
+            $.ajax({
+                type: "GET",
+                url: "/Menus/MenuMaster/GetInterFaceLableName?interfaceCode=IF36",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                cache: false,
+                success: function (data) {
+                    $.each(data, function (i, item) {
+                        $('#' + item.FieldCode).html(item.Name);
+                    });
+                    //alert(item.interfaceName);
+                    $("#ifName").html(interfaceName);
+                },
+                failure: function (response) {
+                    alert(response.d);
+                }
+            });
+
+            $("#btnSave").on('click', function () {
+                //alert("OK");
+                var employeeIds = [];
+                for (var i = 0; i < $(".companyIds").length; i++) {
+                    if ($($(".companyIds")[i]).is(":checked")) {
+                        employeeIds.push($($(".companyIds")[i]).val());
+                    }
+                }
+                $("#companyId").val(JSON.stringify(employeeIds));
+                $("#frm-fld").submit();
+                return true;
+            });
+        });
+    </script>
+}
+
+
