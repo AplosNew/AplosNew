@@ -85,6 +85,10 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return View("~/Areas/Accounts/Views/SalaryDisbursement/BonusDisbursement.cshtml");
         }
+        public ActionResult BonusDisbursementPost()
+        {
+            return View("~/Areas/Accounts/Views/SalaryDisbursement/BonusDisbursementPost.cshtml");
+        }
 
         [Authorize, HttpGet]
         public JsonResult GetSalaryLockDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
