@@ -831,7 +831,7 @@ namespace Aplos.Areas.Parties.Controllers
             var entity = GetAuthorizeByEmployee(identity.EmployeeId);
             if (entity == null || !entity.Any())
             throw new CustomException("You are not authorize person to approve.");
-            return Json(_partyService.Query(parameters, identity.CompanyGroupId, PartyType.Party), JsonRequestBehavior.AllowGet);
+            return Json(_partyService.GetUnApproveParty(parameters, identity.CompanyGroupId, PartyType.Party), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -1299,13 +1299,14 @@ namespace Aplos.Areas.Parties.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from HKP.Party where Id='" + PartyId + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM HKP.Party WHERE Id='" + PartyId + "'", out dsMaster, false, "1");
 
                 DataView dv = new DataView(dsMaster.Tables[0]);
                 dv.RowFilter = "Id='" + PartyId + "'";
                 if (dv.Count > 0) 
                 {
                     DataRow drmo = dv[0].Row;
+                    data["Active"] = true;
                     data["IsApproved"] = data["IsApproved"].ToString();
                     data["ApprovedBy"] = identity.EmployeeId;
                     data["ApprovedDate"] = data["ApprovedDate"].ToString();
