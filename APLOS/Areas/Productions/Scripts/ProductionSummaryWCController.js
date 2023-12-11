@@ -1680,6 +1680,9 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 }
             }
             else {
+                if ($scope.NewObject.ProductionVerification != true) {
+                    throw "You cannot booked more than Verified Process...";
+                }
                 if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.NewObject.ProcessPlanQty) {
                     throw "You cannot booked greater than Process Plan Qty.";
                 }
