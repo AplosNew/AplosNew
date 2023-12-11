@@ -12,11 +12,8 @@ function bonusDisbursementPostController(cboService, commonMessage, $scope, $roo
     $scope.transactionTypeList = [];
     $scope.salaryPayables = [];
     $scope.path = "accounts/salarydisbursement/";
-    $scope.getListUrl = $scope.path + "GetSalaryPayableDisbursementVoucherList";
-    $scope.saveUrl = $scope.path + "ParkSalaryPayableDisbursement";
-    $scope.updateUrl = $scope.path + "UpdateEmployeePayable";
-    $scope.deleteUrl = $scope.path + "delete/";
-    $scope.postUrl = $scope.path + "PostEmployeePayable";
+    $scope.getListUrl = $scope.path + "GetBonusDisbursementVoucherList";
+    $scope.saveUrl = $scope.path + "SaveBonusDisbursementPosting";
     $scope.hideSource = true;
     $scope.isWriteOff = true;
     $controller("currencyBaseController", { $scope: $scope, $http: $http });
@@ -757,7 +754,7 @@ function bonusDisbursementPostController(cboService, commonMessage, $scope, $roo
     $scope.masterList = [];
     $scope.getMasterData = function () {
         $scope.masterList = [];
-        $http.get("Accounts/SalaryDisbursement/GetDisbursementAdviceData")
+        $http.get("Accounts/SalaryDisbursement/GetBonusDisbursementAdviceData")
             .then(
                 function successCallback(response) {
                     $scope.masterList = response.data;
