@@ -41,6 +41,7 @@
                                 <th>Received</th>
                                 <th>Set-off</th>
                                 <th>Balance</th>
+                                <th>Contract No</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -56,6 +57,7 @@
                                 <td class="text-right">{{x.Receivable | number:2}}</td>
                                 <td class="text-right">{{x.Received | number:2}}</td>
                                 <td class="text-right">{{x.Balance | number:2}}</td>
+                                <td>{{x.ContractNo}}</td>
                             </tr>
                         </tbody>
                     </table>

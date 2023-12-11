@@ -185,24 +185,41 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
         }
     });
 
+    $scope.searchBy = "ContractNo"; $scope.search = "";
+    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'ContractNo', name: "ContractNo" }, { value: 'CustomerName', name: "Customer" }];
+
     $scope.contractList = [];
-    $scope.IsTradingPO = true;
     $scope.GetPopUpContract = function () {
         $scope.contractList = [];
-        $http.get("Products/PurchaseOrder/GetLCContractListByPartyId?isProcurementOnBom=" + $scope.IsTradingPO + "&partyId=" + $scope.advance.PartyId)
-            .then(
-                function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.contractList = response.data;
-                    }
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
+        $http({
+            method: 'POST',
+            url: "Commercial/contract/GetList",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.contractList = response.data;
+        });
         angular.element(document.querySelector('#ContractPopUp')).modal('show');
     };
+
+    //$scope.contractList = [];
+    //$scope.IsTradingPO = true;
+    //$scope.GetPopUpContract = function () {
+    //    $scope.contractList = [];
+    //    $http.get("Products/PurchaseOrder/GetLCContractListByPartyId?isProcurementOnBom=" + $scope.IsTradingPO + "&partyId=" + $scope.advance.PartyId)
+    //        .then(
+    //            function successCallback(response) {
+    //                if (baseService.arrayLength(response.data) > 0) {
+    //                    $scope.contractList = response.data;
+    //                }
+    //            },
+    //            function errorCallback(response) {
+    //                ShowResult(response, 'failure');
+    //            });
+    //    angular.element(document.querySelector('#ContractPopUp')).modal('show');
+    //};
     $scope.SelectedContract = function (obj) {
-        $scope.advance.ContractId = obj.data.ContractId;
+        $scope.advance.ContractId = obj.data.Id;
         $scope.advance.ContractNo = obj.data.ContractNo;
         angular.element(document.querySelector('#ContractPopUp')).modal('hide');
     }
