@@ -281,15 +281,24 @@
                     <thead>
                         <tr>
                             <th>Acceptance / Invoice No.</th>
+                            <th>Invoie DocDate</th>
                             <th>Amount</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr ng-repeat="x in AutoLoanPostableDetailDataList">
                             <td>{{x.AcceptanceNo}}</td>
+                            <td>{{x.InvoieDocDate}}</td>
                             <td class="text-right">{{x.Amount | number:2}}</td>
                         </tr>
                     </tbody>
+                    <tfoot ng-show="AutoLoanPostableDetailDataList.length">
+                        <tr>
+                            <td></td>
+                            <td><b> Total</b></td>
+                            <td class="text-right"><b>{{ AutoLoanPostableDetailDataList | sumByKey : 'Amount' }}</b></td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </fieldset>

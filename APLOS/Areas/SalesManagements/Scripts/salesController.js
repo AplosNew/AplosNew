@@ -621,7 +621,11 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
             BooksCurrencyTransactionAmount: null,
             BooksCurrencyTaxAmount: null,
             BooksCurrencyBaseRate: null,
-            IsPark: 1
+            IsPark: 1,
+            IsAdditionalInfoApplicable: true,
+            IsIncentiveApplicable: false,
+            InvoiceStatus: 'Active',
+            PaymentToReceiveBankId: null
         };
 
         $scope.materialMaster = {

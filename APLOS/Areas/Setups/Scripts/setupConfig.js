@@ -230,6 +230,9 @@ function SetupConfig($routeProvider, $locationProvider) {
             templateUrl: 'setups/LabelList/aplos',
             controller: 'LabelListController'
         })
-    
+        .when('/remarks-control', {
+            templateUrl: 'setups/RemarksControl/aplos',
+            controller: 'RemarksControlController'
+        })
         ;
 }

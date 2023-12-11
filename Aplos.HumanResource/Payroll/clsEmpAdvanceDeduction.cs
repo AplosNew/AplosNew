@@ -414,14 +414,21 @@ namespace Library.HumanResource.Payroll
                                     if (item.SalaryHead == Advance)
                                     {
                                         drMWESAChd["SalaryHeadID"] = bplib.clsWebLib.RetValidLen(Advance, 50);
-
                                     }
                                     else
                                     {
                                         drMWESAChd["SalaryHeadID"] = bplib.clsWebLib.RetValidLen(Interest, 50);
                                     }
-                                    drMWESAChd["CurrencyRuleSystemID"] = dvEmpInfo[0]["CurrencyRuleSystemID"].ToString().Trim();
-                                    drMWESAChd["EntryCurrencyID"] = dvEmpInfo[0]["EntryCurrencyID"].ToString().Trim();
+                                    if (!string.IsNullOrEmpty(dvEmpInfo[0]["CurrencyRuleSystemID"].ToString().Trim()))
+                                    {
+                                        drMWESAChd["CurrencyRuleSystemID"] = dvEmpInfo[0]["CurrencyRuleSystemID"].ToString().Trim();
+                                        drMWESAChd["EntryCurrencyID"] = dvEmpInfo[0]["EntryCurrencyID"].ToString().Trim();
+                                    }
+                                    else
+                                    {
+                                       throw new  Exception("Salary Information is not found for EmployeeId '"+ data[i].EmployeeId + "'");
+                                    }
+                                  
                                     if (item.SalaryHead == Advance)
                                     {
                                         drMWESAChd["EntryAmount"] = total;
@@ -507,8 +514,8 @@ namespace Library.HumanResource.Payroll
 		                            DefinitionCurrencyID, CR.AmtDisbusmentCurrency 
 		                            AmtDefinationCurrencyID
                             FROM dbo.EmployeeInformation E
-		                            INNER JOIN dbo.SalaryRuleMaster SR ON E.SalaryRuleMasterSystemID = SR.SystemID
-		                            INNER JOIN dbo.CurrencyRuleChild CR ON SR.CurrencyRuleSystemID = CR.MstSystemID AND CR.SalaryHeadID in (" + strSalaryHdID + @")
+		                            LEFT JOIN dbo.SalaryRuleMaster SR ON E.SalaryRuleMasterSystemID = SR.SystemID
+		                            LEFT JOIN dbo.CurrencyRuleChild CR ON SR.CurrencyRuleSystemID = CR.MstSystemID AND CR.SalaryHeadID in (" + strSalaryHdID + @")
 		                            LEFT JOIN dbo.SalaryHead SD ON CR.SalaryHeadID = SD.SalaryHeadID
 		                            --LEFT JOIN dbo.MonthWiseExtraSalaryAmtMaster MWESMat ON E.SystemID = MWESMat.EmpInfoSystemID 
 															                            ---AND MWESMat.MonthNo = '" + MonthNo + @"' 

@@ -59,8 +59,8 @@
                         <div e-column e-type="date" e-field="ActualDueDate" e-headertext="DueDate" e-format="{0:dd-MMM-yyyy}" e-width="100"></div>
                         <div e-column e-type="string" e-field="BaseNoOfDays" e-headertext="NoOfDays" e-width="80"></div>
                         <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
-                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Receivable" e-headertext="Receivable" e-textalign="right" e-width="80"></div>
-                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Received" e-headertext="Received" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Receivable" e-headertext="Payable" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Received" e-headertext="SetOff" e-textalign="right" e-width="80"></div>
                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Balance" e-headertext="Balance" e-textalign="right" e-width="80"></div>
                         <div e-column e-type="string" e-field="SourceType" e-headertext="Source Type" e-width="100"></div>
                     </div>
@@ -71,15 +71,75 @@
 
                 <div class="common-btn">
                     <ul class="list-inline text-left">
-                        @*<li><button ng-click="getReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>*@
-                        <li><button ng-click="InvoiceTaggedWithLCReportExcel();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                        <li>
+                            <button ng-click="AddSelectedInvoice();" class="btn"> <i class="glyphicon glyphicon-search"></i>Add To List</button>
+                            <button ng-click="InvoiceTaggedWithLCReportExcel();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button>
+                        </li>
                     </ul>
                 </div>
             </div>
-
         </div>
         <br />
         <div class="row">
+            <div class="row form-elements">
+                <div class="col-xs-12 col-sm-12 col-md-12 modal-table" ng-show="selectedInvoiceList.length">
+                    <table class="table table-responsive table-striped">
+                        <thead>
+                            <tr>
+                                <th>VoucherNo</th>
+                                <th>Posting Date</th>
+                                <th>Doc RefNo</th>
+                                <th>Payable</th>
+                                <th>SetOff</th>
+                                <th>Balance</th>
+                                <th>Amount</th>
+                                <th>
+                                    LC Ref No
+                                    <div class="common-btn">
+                                        <button ng-click="copyLCNo();" class="btn" tabindex="5"><i class="glyphicon"></i> Copy</button>
+                                    </div>
+                                </th>
+                                <th>LC Opening Bank</th>
+                                <th>LC Open Date</th>
+                                <th class="text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in selectedInvoiceList" ng-show="selectedInvoiceList.length">
+                                <td>{{x.VoucherNo}}</td>
+                                <td>{{x.PostingDate}}</td>
+                                <td>{{x.DocRefNo}}</td>
+                                <td>{{x.Receivable}}</td>
+                                <td>{{x.Received}}</td>
+                                <td>{{x.Balance}}</td>
+                                <td>
+                                    <div class="show-message">
+                                        <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.Amount">
+                                    </div>
+                                </td>
+                                <td>
+                                    {{x.LCRef}}
+                                    <button ng-click="getSavedData($index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top"><i class="glyphicon glyphicon-search"></i></button>
+                                </td>
+                                <td>{{x.OpeningBank}}</td>
+                                <td>{{x.LCDate}}</td>
+                                <td class="text-right">
+                                    <button ng-click="removeSelectedInvoiceRow($index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot ng-show="selectedInvoiceList.length">
+                            <tr>
+                                <td colspan="4"></td>
+                                <td><b> Total</b></td>
+                                <td class="text-right"><b>{{ selectedInvoiceList | sumByKey : 'Balance' }}</b></td>
+                                <td class="text-right"><b>{{ selectedInvoiceList | sumByKey : 'Amount' }}</b></td>
+                                <td colspan="4"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
             <div class="col-xs-12 col-sm-3 col-md-3">
                 <div class="form-group">
                     <div class="col-sm-12 radio">
@@ -98,30 +158,9 @@
             <div class="col-md-12">
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label class="col-sm-4 control-label">Purchase LC</label>
-                        <div class="col-sm-8">
-                            <div class="common-btn">
-                                <button ng-click="getSavedData();" class="btn"> <i class="glyphicon glyphicon-search"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-8">
-                </div>
-            </div>
-            <div class="clearfix"></div>
-            <div class="col-md-12">
-                <div class="col-md-4">
-                    <div class="form-group">
                         <label class="col-sm-4 control-label">LC No</label>
                         <div class="col-sm-8">
                             <input type="text" ng-disabled="true" ng-model="LcModel.LCRef" class="form-control" maxlength="100" tabindex="2">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Opening Date</label>
-                        <div class="col-sm-8">
-                            <input type="text" ng-disabled="true" ng-model="LcModel.LCDate" class="form-control" maxlength="100" tabindex="2">
                         </div>
                     </div>
                     <div class="form-group" ng-show="LcModel.IsLoan=='true'">
@@ -136,12 +175,6 @@
                         <label class="col-sm-4 control-label">Vendor</label>
                         <div class="col-sm-8">
                             <input type="text" ng-disabled="true" ng-model="LcModel.PartyName" class="form-control" maxlength="100" tabindex="2">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Opening Bank</label>
-                        <div class="col-sm-8">
-                            <input type="text" ng-disabled="true" ng-model="LcModel.OpeningBank" class="form-control" maxlength="100" tabindex="2">
                         </div>
                     </div>
                     <div class="form-group" ng-show="LcModel.IsLoan=='true'">
@@ -178,7 +211,7 @@
                     </ul>
                 </div>
             </div>
-            
+
         </div>
     </div>
 
@@ -200,15 +233,15 @@
                 <div class="common-btn">
                     <ul class="common-btn list-inline text-center">
                         @*<li>
-                        <button ng-click="$parent.getReportPdf(data);" class="btn btn-action" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="pdf">
-                            <i class="fa fa-file-pdf-o" style="color:orangered;"></i>
-                        </button>
+                                <button ng-click="$parent.getReportPdf(data);" class="btn btn-action" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="pdf">
+                                    <i class="fa fa-file-pdf-o" style="color:orangered;"></i>
+                                </button>
 
-                        <button ng-click="$parent.getReport(data);" class="btn btn-action" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="excel">
-                            <i class="fa fa-file-excel-o" style="color:orangered;"></i>
-                        </button>
+                                <button ng-click="$parent.getReport(data);" class="btn btn-action" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="excel">
+                                    <i class="fa fa-file-excel-o" style="color:orangered;"></i>
+                                </button>
 
-                    </li>*@
+                            </li>*@
                         <li><a class="btn btn-action" href="Commercial/InvoiceTaggedWithLC/GetInvoiceTaggedWithLCReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&LCId={{data.Id}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                         <li><a class="btn btn-action" href="Commercial/InvoiceTaggedWithLC/GetInvoiceTaggedWithLCReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&LCId={{data.Id}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
                     </ul>

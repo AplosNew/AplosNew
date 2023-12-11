@@ -299,7 +299,7 @@ namespace Aplos.Controllers
             return sMacAddress;
         }
 
-        static string GetLocalMacAddress()
+        static string Get_LocalMacAddress()
         {
             string mac_src = "";
             try
@@ -322,7 +322,40 @@ namespace Aplos.Controllers
             return mac_src;
 
         }
+        public static string GetLocalMacAddress()
+        {
+            try
+            {
+                // Get all network interfaces on the machine
+                NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
 
+                foreach (NetworkInterface nic in networkInterfaces)
+                {
+                    // Make sure the network interface is up and not a loopback or tunnel interface
+                    if (nic.OperationalStatus == OperationalStatus.Up &&
+                        nic.NetworkInterfaceType != NetworkInterfaceType.Loopback &&
+                        nic.NetworkInterfaceType != NetworkInterfaceType.Tunnel)
+                    {
+                        // Get the physical address (MAC address) of the network interface
+                        PhysicalAddress physicalAddress = nic.GetPhysicalAddress();
+                        byte[] bytes = physicalAddress.GetAddressBytes();
+
+                        // Format the MAC address as a string (e.g., "00-1A-2B-3C-4D-5E")
+                        string macAddress = string.Join("-", bytes.Select(b => b.ToString("X2")));
+
+                        return macAddress;
+                    }
+                }
+
+                // No valid network interface found
+                return "No valid network interface found.";
+            }
+            catch (Exception ex)
+            {
+                // Handle any exceptions that might occur during the process
+                return $"Error: {ex.Message}";
+            }
+        }
         static string XGetLocalMacAddress()
         {
             try
