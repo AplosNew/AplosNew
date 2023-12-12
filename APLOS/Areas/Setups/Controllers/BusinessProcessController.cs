@@ -452,7 +452,6 @@ namespace Aplos.Areas.Setups.Controllers
             }
             catch (Exception ex)
             {
-                2
                 return Json(new { Error = true, Message = ex.Message });
 
             }
