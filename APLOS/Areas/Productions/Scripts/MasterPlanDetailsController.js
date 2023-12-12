@@ -3,7 +3,24 @@ MasterPlanDetailsController.$inject = ['commonMessage', '$scope', '$rootScope', 
 function MasterPlanDetailsController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, cboService, $controller, $window) {
     $rootScope.title = 'Master Plan Details';
     $scope.Action = 'Save';
+    $scope.RoundUpLists = [];
     $scope.path = 'Productions/MasterPlanDetails/';
+    $scope.saveUrlMasterPlanQty = $scope.path + 'createMasterPlanQty';
+
+    $scope.RoundUpLists = [
+        {
+            'Value': '0',
+            'Text': '0'
+        },
+        {
+            'Value': '1',
+            'Text': '1'
+        },
+        {
+            'Value': '3',
+            'Text': '3'
+        }
+    ];
 
     $scope.processList = [];
     $scope.GetProcessList = function () {
@@ -55,6 +72,8 @@ function MasterPlanDetailsController(commonMessage, $scope, $rootScope, baseServ
         , SKU2TotalQty: null
         , MinQty: null
         , PlanPercentage: null
+        , RoundUpApplicable: false
+        , RoundUp: null
 
     };
     $scope.cutplanNew = Object.assign({}, $scope.cutplan);
@@ -63,14 +82,14 @@ function MasterPlanDetailsController(commonMessage, $scope, $rootScope, baseServ
     $scope.LoadMasterPlanList = function () {
         $http({
             method: 'Get',
-            url: 'Productions/MasterPlanDetails/GetMasterPlanList?ProcessId='+ $scope.MasterPlanDetailsNew.ProcessId
+            url: 'Productions/MasterPlanDetails/GetMasterPlanList?ProcessId=' + $scope.MasterPlanDetailsNew.ProcessId
         }).then(function successCallback(response) {
             $scope.MasterPlanList = response.data;
             var gridObj = $("#GridMasterPlan").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         }
         )
     }
-  
+
     $scope.View = function () {
         $scope.LoadMasterPlanList();
     }
@@ -179,15 +198,47 @@ function MasterPlanDetailsController(commonMessage, $scope, $rootScope, baseServ
             $scope.MPQQty = data.data.Qty;
             $scope.MPQAdjQty = data.data.AdjustmentQty;
             if (($scope.MPQPlanPer * $scope.MPQQty / 100) < $scope.MPQMinQty) {
-                data.data.MasterPlanQty = $scope.MPQQty + $scope.MPQMinQty;
-                data.data.FinalQty = data.data.MasterPlanQty - $scope.MPQAdjQty;
+                if ($scope.cutplanNew.RoundUp === "0") {
+                    data.data.MasterPlanQty = Math.round($scope.MPQQty + $scope.MPQMinQty);
+                    data.data.FinalQty = Math.round(data.data.MasterPlanQty - $scope.MPQAdjQty);
+                }
+                else if ($scope.cutplanNew.RoundUp === "1") {
+                    data.data.MasterPlanQty = Math.round(($scope.MPQQty + $scope.MPQMinQty) * 10) / 10;
+                    data.data.FinalQty = Math.round((data.data.MasterPlanQty - $scope.MPQAdjQty) * 10) / 10;
+                }
+                else if ($scope.cutplanNew.RoundUp === "3") {
+                    data.data.MasterPlanQty = Math.round(($scope.MPQQty + $scope.MPQMinQty) * 1000) / 1000;
+                    data.data.FinalQty = Math.round((data.data.MasterPlanQty - $scope.MPQAdjQty) * 1000) / 1000;
+                }
+                else
+                {
+                    data.data.MasterPlanQty = Math.round($scope.MPQQty + $scope.MPQMinQty);
+                    data.data.FinalQty = Math.round(data.data.MasterPlanQty - $scope.MPQAdjQty);
+                }
+                
             }
-            else
-            {
-                data.data.MasterPlanQty = $scope.MPQQty + ($scope.MPQPlanPer * $scope.MPQQty / 100);
-                data.data.FinalQty = data.data.MasterPlanQty - $scope.MPQAdjQty;
+            else {
+                if ($scope.cutplanNew.RoundUp === "0") {
+                    data.data.MasterPlanQty = Math.round($scope.MPQQty + ($scope.MPQPlanPer * $scope.MPQQty / 100));
+                    data.data.FinalQty = Math.round(data.data.MasterPlanQty - $scope.MPQAdjQty);
+                }
+                else if ($scope.cutplanNew.RoundUp === "1") {
+                    data.data.MasterPlanQty = Math.round(($scope.MPQQty + ($scope.MPQPlanPer * $scope.MPQQty / 100)) * 10) / 10;
+                    data.data.FinalQty = Math.round((data.data.MasterPlanQty - $scope.MPQAdjQty) * 10) / 10;
+                }
+                else if ($scope.cutplanNew.RoundUp === "3") {
+                    data.data.MasterPlanQty = Math.round(($scope.MPQQty + ($scope.MPQPlanPer * $scope.MPQQty / 100)) * 1000) / 1000;
+                    data.data.FinalQty = Math.round((data.data.MasterPlanQty - $scope.MPQAdjQty) * 1000) / 1000;
+                }
+                else
+                {
+                    data.data.MasterPlanQty = Math.round($scope.MPQQty + ($scope.MPQPlanPer * $scope.MPQQty / 100));
+                    data.data.FinalQty = Math.round(data.data.MasterPlanQty - $scope.MPQAdjQty);
+                }
             }
-            var gridObj = $("#GridMasterPlaQty").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            var gridObj = $("#GridMasterPlanLineItemQty").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            var gridObj = $("#GridMasterPlanSKU1Qty").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            var gridObj = $("#GridMasterPlanSKU2Qty").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         } catch (ex) {
             ShowResult(ex, 'Info');
         }
@@ -202,10 +253,22 @@ function MasterPlanDetailsController(commonMessage, $scope, $rootScope, baseServ
             $scope.MPAdjQty = 0;
             $scope.MPQty = data.data.MasterPlanQty;
             $scope.MPAdjQty = data.data.AdjustmentQty;
-
-            data.data.FinalQty = $scope.MPQty - ($scope.MPAdjQty);
-           
-            var gridObj = $("#GridMasterPlaQty").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            if ($scope.cutplanNew.RoundUp === "0") {
+                data.data.FinalQty = Math.round($scope.MPQty - ($scope.MPAdjQty));
+            }
+            else if ($scope.cutplanNew.RoundUp === "1") {
+                data.data.FinalQty = Math.round((($scope.MPQty - ($scope.MPAdjQty)) * 10 ) / 10);
+            }
+            else if ($scope.cutplanNew.RoundUp === "3") {
+                data.data.FinalQty = Math.round((($scope.MPQty - ($scope.MPAdjQty)) * 1000) / 1000);
+            }
+            else
+            { 
+                data.data.FinalQty = Math.round($scope.MPQty - ($scope.MPAdjQty));
+            }
+            var gridObj = $("#GridMasterPlanLineItemQty").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            var gridObj = $("#GridMasterPlanSKU1Qty").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            var gridObj = $("#GridMasterPlanSKU2Qty").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         } catch (ex) {
             ShowResult(ex, 'Info');
         }
@@ -263,15 +326,71 @@ function MasterPlanDetailsController(commonMessage, $scope, $rootScope, baseServ
     $scope.LoadMasterPlanQtyList = function () {
         $http({
             method: 'Get',
-            url: 'Productions/MasterPlanDetails/GetMasterPlanQtyList?MasterPlanId=' + $scope.cutplanNew.Id + '&MinQty=' + $scope.cutplanNew.MinQty + '&PlanPercentage=' + $scope.cutplanNew.PlanPercentage
+            url: 'Productions/MasterPlanDetails/GetMasterPlanQtyList?MasterPlanId=' + $scope.cutplanNew.Id + '&MinQty=' + $scope.cutplanNew.MinQty + '&PlanPercentage=' + $scope.cutplanNew.PlanPercentage + '&LineItem=' + $scope.LineItem + '&SKU1=' + $scope.SKU1 + '&SKU2=' + $scope.SKU2
         }).then(function successCallback(response) {
             $scope.MasterPlanQtyList = response.data;
-            var gridObj = $("#GridMasterPlanQty").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            var gridObj = $("#GridMasterPlanLineItemQty").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            var gridObj = $("#GridMasterPlanSKU1Qty").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            var gridObj = $("#GridMasterPlanSKU2Qty").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         }
         )
     }
 
     $scope.ViewMasterPlanQty = function () {
-        $scope.LoadMasterPlanQtyList();
+        try {
+            if ($scope.LineItem == true || $scope.SKU1 === false || $scope.SKU2 === false) {
+                $scope.LoadMasterPlanQtyList();
+            }
+            if ($scope.LineItem === true || $scope.SKU1 === true || $scope.SKU2 === false) {
+                if ($scope.LineItemTotalQty !== $scope.SKU1TotalQty) {
+                    throw "LineItem and SKU1 Total is not matching please correct it and proceed...";
+                }
+                else {
+                    $scope.LoadMasterPlanQtyList();
+                }
+            }
+            if ($scope.LineItem === true || $scope.SKU1 === true || $scope.SKU2 === true) {
+                if ($scope.LineItemTotalQty !== $scope.SKU1TotalQty && $scope.LineItemTotalQty !== $scope.SKU2TotalQty && $scope.SKU1TotalQty !== $scope.SKU2TotalQty) {
+                    throw "LineItem,SKU1 and SKU2 Totals are not matching please correct it and proceed...";
+                }
+                else {
+                    $scope.LoadMasterPlanQtyList();
+                }
+            }
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
     }
+
+    $scope.SaveMasterPlanQty = function () {
+        try {
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.MasterPlanQtyList.length; i++) {
+                $scope.SaveList.push($scope.MasterPlanQtyList[i]);
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlMasterPlanQty,
+                data: {
+                    "DataList": $scope.SaveList
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadMasterPlanList();
+                    angular.element(document.querySelector('#MasterPlanDetailsPopUp')).modal('hide');
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
 }
