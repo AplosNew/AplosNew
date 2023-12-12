@@ -137,7 +137,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         , ExceptionalProcessId: null
         , ExceptionalSubProcessId: null
         , RemarksControlId: null
-        , DefaultPaymentTermId:null
+        , DefaultPaymentTermId: null
+        ,IsPaymentTermChangeable: false
     };
     $scope.fileNew = Object.assign({}, $scope.file);
     $scope.isBuyerApplicable = false;
@@ -151,16 +152,30 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         { Value: "Other", Text: "Other" }
     ];
 
+    $scope.searchRCBy = "Process"; $scope.searchRC = "";
+    $scope.searchByRCList = [{ value: 'Id', name: "Id" }, { value: 'Process', name: "Process" }];
+
+
+    $scope.RemarksControlmodel = {};
     $scope.RemarksControlList = [];
     $scope.GetRemarksControlList = function () {
         $http({
-            method: 'GET',
-            url: 'Setups/RemarksControl/GetCbo'
+            method: 'POST',
+            url: "Setups/RemarksControl/GetList",
+            data: { column: $scope.searchRCBy, value: $scope.searchRC },
+            dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.RemarksControlList = response.data;
+            angular.element(document.querySelector('#RemarksControlPopUp')).modal('show');
         });
-    };
-    $scope.GetRemarksControlList();
+    }
+    $scope.SelectRemarksControl = function (data) {
+        $scope.RemarksControlmodel.MasterOrderId = $scope.fileNew.Id;
+        $scope.RemarksControlmodel.RemarksControlId = data.data.Id;
+        $scope.RemarksControlmodel.RemarksControl = data.data.Process;
+        angular.element(document.querySelector('#RemarksControlPopUp')).modal('hide');
+    }
+
 
     $scope.ProductLibraryList = [];
     $scope.GetProductLibraryList = function (index) {
@@ -580,11 +595,11 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             }
         }
 
-        if (!baseService.isUndefinedOrNull($scope.fileNew.PaymentTermId) && !baseService.isUndefinedOrNull($scope.fileNew.DefaultPaymentTermId)) {
-            if (($scope.fileNew.PaymentTermId !== $scope.fileNew.DefaultPaymentTermId) && baseService.isUndefinedOrNull($scope.fileNew.RemarksControlId)) {
-                return ShowResult('Payment Term Remarks is required.', 'failure');
-            }
-        }
+        //if (!baseService.isUndefinedOrNull($scope.fileNew.PaymentTermId) && !baseService.isUndefinedOrNull($scope.fileNew.DefaultPaymentTermId)) {
+        //    if (($scope.fileNew.PaymentTermId !== $scope.fileNew.DefaultPaymentTermId) && baseService.isUndefinedOrNull($scope.fileNew.RemarksControlId)) {
+        //        return ShowResult('Payment Term Remarks is required.', 'failure');
+        //    }
+        //}
 
         if (parseFloat(baseService.isUndefinedOrNull($scope.fileNew.TotalQty) ? 0 : $scope.fileNew.TotalQty) === 0) return ShowResult('Please insert total qty.', 'failure');
 
@@ -971,6 +986,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         if (!baseService.isUndefinedOrNull($scope.fileNew.PaymentTermId)) {
             var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.fileNew.PaymentTermId; })[0];
             $scope.fileNew.PaymentTermDays = paymentTerm.NoOfDay;
+            
         }
     };
 

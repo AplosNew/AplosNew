@@ -1023,6 +1023,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         $scope.NewObject.Article = $event.data.Article;
         $scope.NewObject.IsPreDefineLotApplicable = $event.data.IsPreDefineLotApplicable;
         $scope.NewObject.LotProcessPlanQty = $event.data.LotProcessPlanQty;
+        $scope.NewObject.ProductionVerification = $event.data.ProductionVerification;
         //$scope.NewObject.RemainingQty = $event.data.RemainingQty;
         $scope.GetTotalProductionBookingQty();
         //$scope.getArticle($scope.NewObject.ProductionOrderId);
@@ -1679,6 +1680,9 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 }
             }
             else {
+                if ($scope.NewObject.ProductionVerification != true) {
+                    throw "You cannot booked more than Verified Process...";
+                }
                 if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.NewObject.ProcessPlanQty) {
                     throw "You cannot booked greater than Process Plan Qty.";
                 }
@@ -1888,7 +1892,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             //    }
             //}
 
-            if ($scope.NewObject.POProcessSequence != 1) {
+            if ($scope.NewObject.POProcessSequence != "1") {
                 if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.NewObject.POFirstProcessProductionQty) {
                     throw "Produced qty cannot more than the first process qty.";
                 }
@@ -1914,6 +1918,10 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 }
             }
             else {
+                if ($scope.NewObject.ProductionVerification != true)
+                {
+                    throw "You cannot booked more than Verified Process...";
+                }
                 if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.NewObject.ProcessPlanQty) {
                     throw "You cannot booked greater than Process Plan Qty.";
                 }

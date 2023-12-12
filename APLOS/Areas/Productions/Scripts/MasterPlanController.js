@@ -1,15 +1,15 @@
 ﻿'use strict';
-CutPlanController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'toaster', 'cboService', '$controller', '$window'];
-function CutPlanController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, cboService, $controller, $window) {
+MasterPlanController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'toaster', 'cboService', '$controller', '$window'];
+function MasterPlanController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, toaster, cboService, $controller, $window) {
     $rootScope.title = 'Master Plan';
     $scope.Action = 'Save';
-    $scope.path = 'Productions/CutPlan/';
+    $scope.path = 'Productions/MasterPlan/';
 
     $scope.processList = [];
     $scope.GetProcessList = function () {
         $http({
             method: 'GET',
-            url: 'Productions/CutPlan/GetProcessList'
+            url: 'Productions/MasterPlan/GetProcessList'
         }).then(function successCallback(response) {
             $scope.processList = response.data;
         });
@@ -20,7 +20,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
     $scope.GetEntityList = function (PId) {
         $http({
             method: 'GET',
-            url: 'Productions/CutPlan/GetEntityList?ProcessId=' + PId
+            url: 'Productions/MasterPlan/GetEntityList?ProcessId=' + PId
         }).then(function successCallback(response) {
             $scope.entityList = response.data;
         });
@@ -37,7 +37,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
     }
     $scope.getAllPlanStatus();
 
-    $scope.cutplan = {
+    $scope.MasterPlan = {
         Id: null
         , ProcessId: null
         , EntityId: null
@@ -52,17 +52,17 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
         , SKU1: false
         , SKU2: false
     };
-    $scope.cutplanNew = Object.assign({}, $scope.cutplan);
+    $scope.MasterPlanNew = Object.assign({}, $scope.MasterPlan);
 
 
     $scope.GetMasterPlanFieldStatusList = function (PId) {
         $http({
             method: 'GET',
-            url: 'Productions/CutPlan/GetMasterPlanFieldStatusList?ProcessId=' + PId
+            url: 'Productions/MasterPlan/GetMasterPlanFieldStatusList?ProcessId=' + PId
         }).then(function successCallback(response) {
-            $scope.cutplanNew.LineItem = response.data[0].LineItem;
-            $scope.cutplanNew.SKU1 = response.data[0].SKU1;
-            $scope.cutplanNew.SKU2 = response.data[0].SKU2;
+            $scope.MasterPlanNew.LineItem = response.data[0].LineItem;
+            $scope.MasterPlanNew.SKU1 = response.data[0].SKU1;
+            $scope.MasterPlanNew.SKU2 = response.data[0].SKU2;
         });
     }
 
@@ -82,12 +82,12 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
 
     $scope.doubleResponsiblePerson = function (e) {
         if ($scope.Employee === 'User') {
-            $scope.cutplanNew.UserId = e.data.SystemId;
-            $scope.cutplanNew.User = e.data.EmployeeName;
+            $scope.MasterPlanNew.UserId = e.data.SystemId;
+            $scope.MasterPlanNew.User = e.data.EmployeeName;
         }
         else {
-            $scope.cutplanNew.ResponsiblePersonId = e.data.SystemId;
-            $scope.cutplanNew.ResponsiblePerson = e.data.EmployeeName;
+            $scope.MasterPlanNew.ResponsiblePersonId = e.data.SystemId;
+            $scope.MasterPlanNew.ResponsiblePerson = e.data.EmployeeName;
         }
         angular.element(document.querySelector('#ResponsiblePersonPopUp')).modal('hide');
     }
@@ -96,18 +96,18 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
         angular.element(document.querySelector('#ResponsiblePersonPopUp')).modal('hide');
     }
 
-    $scope.CutPlanList = [];
-    $scope.LoadCutPlanList = function () {
+    $scope.MasterPlanList = [];
+    $scope.LoadMasterPlanList = function () {
         $http({
             method: 'Get',
-            url: 'Productions/CutPlan/LoadCutPlanList'
+            url: 'Productions/MasterPlan/LoadMasterPlanList'
         }).then(function successCallback(response) {
-            $scope.CutPlanList = response.data;
-            var gridObj = $("#GridCutPlan").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            $scope.MasterPlanList = response.data;
+            var gridObj = $("#GridMasterPlan").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         }
         )
     }
-    $scope.LoadCutPlanList();
+    $scope.LoadMasterPlanList();
 
     $scope.MaterialID = "";
     $scope.isAlternative = -1;
@@ -122,18 +122,18 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
             e.row.css("background-color", '##013220');
     }
 
-    $scope.GetCutPlanDetails = function (args) {
-        $scope.CutPlanId = args.data.Id;
+    $scope.GetMasterPlanDetails = function (args) {
+        $scope.MasterPlanId = args.data.Id;
         $http({
             method: 'Get',
-            url: 'Productions/CutPlan/LoadCutPlanEditData?CutPlanId=' + args.data.Id
+            url: 'Productions/MasterPlan/LoadMasterPlanEditData?MasterPlanId=' + args.data.Id
         }).then(function successCallback(response) {
-            $scope.cutplanNew = response.data.cutplan[0];
-            $scope.cutplanNew.ResponsiblePerson = response.data.cutplan[0].ResponsiblePerson;
-            $scope.cutplanNew.User = response.data.cutplan[0].UserName;
-            getCutPlanDetailsList();
+            $scope.MasterPlanNew = response.data.MasterPlan[0];
+            $scope.MasterPlanNew.ResponsiblePerson = response.data.MasterPlan[0].ResponsiblePerson;
+            $scope.MasterPlanNew.User = response.data.MasterPlan[0].UserName;
+            getMasterPlanDetailsList();
             $scope.GetProcessList();
-            $scope.GetEntityList($scope.cutplanNew.ProcessId);
+            $scope.GetEntityList($scope.MasterPlanNew.ProcessId);
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
@@ -142,24 +142,24 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
     }
 
     $scope.View = function () {
-        getCutPlanDetailsList();
+        getMasterPlanDetailsList();
     }
 
-    $scope.CutPlanListSelected = [];
-    function getCutPlanDetailsList() {
+    $scope.MasterPlanListSelected = [];
+    function getMasterPlanDetailsList() {
         $http({
             method: 'GET',
-            url: $scope.path + 'GetCutPlanDetailsList?ProcessId=' + $scope.cutplanNew.ProcessId + '&PlanId=' + $scope.cutplanNew.Id,
+            url: $scope.path + 'GetMasterPlanDetailsList?ProcessId=' + $scope.MasterPlanNew.ProcessId + '&PlanId=' + $scope.MasterPlanNew.Id,
         }).then(function successCallback(response) {
-            $scope.CutPlanListSelected = response.data;
+            $scope.MasterPlanListSelected = response.data;
             var gridObj = $("#GridSOItemSelected").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         });
     }
 
-    $scope.refreshTemplateCutPlan = function (args) {
-        $("#Cheadchk").ejCheckBox({ "change": CheckBoxSelectAllCutPlan });
+    $scope.refreshTemplateMasterPlan = function (args) {
+        $("#Cheadchk").ejCheckBox({ "change": CheckBoxSelectAllMasterPlan });
     };
-    function CheckBoxSelectAllCutPlan(e) {
+    function CheckBoxSelectAllMasterPlan(e) {
         var ChkOrUnchk = false;
         if (e.model.checkState === "check") {
             ChkOrUnchk = true;
@@ -167,8 +167,8 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
 
         var filtered = $("#GridSOItemSelected").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.CutPlanListSelected.length; i++) {
-                $scope.CutPlanListSelected[i].Status = ChkOrUnchk;
+            for (var i = 0; i < $scope.MasterPlanListSelected.length; i++) {
+                $scope.MasterPlanListSelected[i].Status = ChkOrUnchk;
             }
         }
         else {
@@ -194,15 +194,15 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
         }
     };
     $scope.PG = null;
-    $scope.SaveCutPlan = function () {
+    $scope.SaveMasterPlan = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
             try {
                 $scope.SaveList = [];
                 $scope.TempList = [];
-                for (var i = 0; i < $scope.CutPlanListSelected.length; i++) {
-                    if ($scope.CutPlanListSelected[i].Status == true || ($scope.CutPlanListSelected[i].Status == false && $scope.CutPlanListSelected[i].Id != null)) {
-                        $scope.TempList.push($scope.CutPlanListSelected[i]);
+                for (var i = 0; i < $scope.MasterPlanListSelected.length; i++) {
+                    if ($scope.MasterPlanListSelected[i].Status == true || ($scope.MasterPlanListSelected[i].Status == false && $scope.MasterPlanListSelected[i].Id != null)) {
+                        $scope.TempList.push($scope.MasterPlanListSelected[i]);
                     }
                 }
                 for (var j = 0; j < $scope.TempList.length; j++) {
@@ -223,9 +223,9 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
 
                 $http({
                     method: "POST",
-                    url: 'Productions/CutPlan/CreateData',
+                    url: 'Productions/MasterPlan/CreateData',
                     data: {
-                        'data': $scope.cutplanNew,
+                        'data': $scope.MasterPlanNew,
                         'DataList': $scope.SaveList
                     },
                     dataType: "JSON"
@@ -235,12 +235,12 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
                     }
                     else {
                         ShowResult(response.data.Message, "success");
-                        $scope.LoadCutPlanList();
-                        CutPlanClearFields();
+                        $scope.LoadMasterPlanList();
+                        MasterPlanClearFields();
                         if ($rootScope.isCollapsed) {
                             $rootScope.toggle();
                         }
-                        /*getCutPlanDetailsList()*/;
+                        /*getMasterPlanDetailsList()*/;
                     }
                 }, function errorCallback(response) {
                     ShowResult(response.status.Message, "failure");
@@ -253,13 +253,13 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
         }
     };
 
-    $scope.ClearCutPlan = function () {
-        CutPlanClearFields();
+    $scope.ClearMasterPlan = function () {
+        MasterPlanClearFields();
     };
 
-    function CutPlanClearFields() {
+    function MasterPlanClearFields() {
         $scope.Action = "Save";
-        $scope.cutplanNew = Object.assign({}, $scope.cutplan);
-        $scope.CutPlanListSelected = [];
+        $scope.MasterPlanNew = Object.assign({}, $scope.MasterPlan);
+        $scope.MasterPlanListSelected = [];
     }
 }

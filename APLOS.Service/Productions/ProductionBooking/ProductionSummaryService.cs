@@ -479,7 +479,7 @@ namespace Library.Service.Productions
                             Case when isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId= '" + entityId + "' and ProcessId = '" + ProcessId + @"')) = 'ProductionOrder' then POQ.POQty else 0 end POQty,
                               Case when isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId= '" + entityId + "' and ProcessId = '" + ProcessId + @"')) = 'ProductionOrder' then isnull(PQ.Qty,POQ.POQty)/POQ.POQty*SOP.OrderQty*PPS.Qty/100 else 0 end ProcessPlanQty,
 isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty,
-        isnull(PQ.Qty, POQ.POQty) as ActualPlannedQty,PPS.Qty ProcessPlanPercentage, RM.TargetProductionFP,isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId = '" + entityId + "' and ProcessId = '" + ProcessId + @"')) as BookingLevel,pw.SalesOrderId,pw.MasterOrderItemId,'' as ReasonId,'' as ReasonName,PPS.Sequence POProcessSequence,isnull(FPP.FirstProductionQty,0) POFirstProcessProductionQty,
+        isnull(PQ.Qty, POQ.POQty) as ActualPlannedQty,PPS.Qty ProcessPlanPercentage, RM.TargetProductionFP,isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId = '" + entityId + "' and ProcessId = '" + ProcessId + @"')) as BookingLevel,pw.SalesOrderId,pw.MasterOrderItemId,'' as ReasonId,'' as ReasonName,PPS.Sequence POProcessSequence,PPS.IsProductionVerification ProductionVerification,isnull(FPP.FirstProductionQty,0) POFirstProcessProductionQty,
 (select MA.StandardName from trn.salesorder SO
 left outer join trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId
 left outer join [MST].[MaterialMasterArticle] MA ON ma.Id = moi.ArticleId
@@ -546,17 +546,17 @@ where MOI.Id = pw.MasterOrderItemId) as ProductCodeArticle,
                         LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id
 LEFT JOIN (select SUM(PP.Quantity)TotalProductionQty, PP.ProductionOrderId from [TRN].[ProductionSummary] PP where PP.ProcessId = 
 (select ProcessId from TRN.ProductionOrderProcessSet B where B.ProductionOrderId=PP.ProductionOrderId  and B.Sequence =
-(select top 1 Sequence=Sequence - 1  from TRN.ProductionOrderProcessSet A where A.ProductionOrderId=PP.ProductionOrderId and A.ProcessId='" + ProcessId + @"')) GROUP BY PP.ProductionOrderId
+(select top 1 Sequence=Sequence - 1  from TRN.ProductionOrderProcessSet A where A.ProductionOrderId=PP.ProductionOrderId and A.IsProductionVerification=1 and A.ProcessId='" + ProcessId + @"')) GROUP BY PP.ProductionOrderId
  ) AS PPP ON PPP.ProductionOrderId = PO.Id
 LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId from [TRN].[ProductionSummary] FP where FP.ProcessId = 
 (select ProcessId from TRN.ProductionOrderProcessSet B where B.ProductionOrderId=FP.ProductionOrderId  and B.Sequence = 
-(select top 1 Sequence from TRN.ProductionOrderProcessSet A where A.ProductionOrderId=FP.ProductionOrderId)) GROUP BY FP.ProductionOrderId
+(select top 1 Sequence from TRN.ProductionOrderProcessSet A where A.ProductionOrderId=FP.ProductionOrderId and A.IsProductionVerification=1)) GROUP BY FP.ProductionOrderId
  ) AS FPP ON FPP.ProductionOrderId = PO.Id
                           LEFT JOIN
                             (SELECT SUM(SO.Qty) OrderQty, PD.ProductionOrderId
                             FROM TRN.SalesOrder SO
 
-                            left join TRN.ProductionOrderDetail PD ON PD.SalesOrderId= SO.Id
+                            left join TRN.ProductionOrderDetail PD ON PD.SalesOrderId= SO.Id 
 
                             where SO.OrderStatusId<>'Cancelled' GROUP BY PD.ProductionOrderId
                             ) AS SOP ON SOP.ProductionOrderId = PO.Id
@@ -1339,8 +1339,8 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
             try
             {
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryLotNumberValidation, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  MasterOrderItemId='" + ps.MasterOrderItemId + "' and ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryArticleValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  LotNumber='" + ps.LotNumber + "' and ProcessId = '" + ProcessId + "'", out DataSet dsProductionSummaryLotNumberValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  MasterOrderItemId='" + ps.MasterOrderItemId + "' and ProductionOrderId='" + ps.ProductionOrderId + "' and ProcessId='" + ProcessId + "'", out DataSet dsProductionSummaryArticleValidation, false, "1");
                 conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber = '" + ps.LotNumber + "' and ProcessId = '" + ProcessId + "'", out DataSet dsProductionSummaryPOLotNumberValidation, false, "1");
                 conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "' and MasterOrderItemId='"+ps.MasterOrderItemId+"' and ProcessId='"+ ProcessId +"'", out DataSet dsProductionSummaryPOArticleValidation, false, "1");
                 if (!string.IsNullOrEmpty(ps.LotNumber))
@@ -1459,8 +1459,8 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
             try
             {
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryLotNumberValidation, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  MasterOrderItemId='" + ps.MasterOrderItemId + "' and ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "'", out DataSet dsProductionSummaryArticleValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  LotNumber='" + ps.LotNumber + "' and ProcessId = '" + ProcessId + "'", out DataSet dsProductionSummaryLotNumberValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where  MasterOrderItemId='" + ps.MasterOrderItemId + "' and ProductionOrderId='" + ps.ProductionOrderId + "' and ProcessId='" + ProcessId + "'", out DataSet dsProductionSummaryArticleValidation, false, "1");
                 conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "' and ProcessId='" + ProcessId + "'", out DataSet dsProductionSummaryPOLotNumberValidation, false, "1");
                 conRack.OpenDataSetThroughAdapter("select * from TRN.ProductionSummary where ProductionOrderId='" + ps.ProductionOrderId + "' and LotNumber='" + ps.LotNumber + "' and MasterOrderItemId='" + ps.MasterOrderItemId + "' and ProcessId='" + ProcessId + "'", out DataSet dsProductionSummaryPOArticleValidation, false, "1");
                 if (!string.IsNullOrEmpty(ps.LotNumber))

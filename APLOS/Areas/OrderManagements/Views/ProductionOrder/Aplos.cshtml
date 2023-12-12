@@ -231,6 +231,7 @@
                                 <th style="width: 10px">Job Work Applicable</th>
                                 <th style="width: 170px;">Job Work Type</th>
                                 <th>Entity/Vendor</th>
+                                <th style="width: 74px;">Production Verification</th>
                                 <th>Delete</th>
                             </tr>
                         </thead>
@@ -254,7 +255,7 @@
                                 <td class="text-center">
                                     <div class="radio">
                                         <label>
-                                            <input type="radio" name="IsInventory" ng-checked="x.IsInventory" ng-click="setIsInventory($event,$index)"  value="" />
+                                            <input type="radio" name="IsInventory" ng-checked="x.IsInventory" ng-click="setIsInventory($event,$index)" value="" />
                                             <span class="cr"><i class="cr-icon"></i></span>
                                         </label>
                                     </div>
@@ -322,6 +323,14 @@
                                             <button style="height: 27px;margin-top: 2px;margin-left: 0px" class="btn" ng-click="popUp($index)" ng-disabled="!x.JobWorkApplicable"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                             <button style="height: 27px;margin-top: 2px;margin-left: 0px" class="btn" ng-click="clearEntityOrVendor(prdProcessSetList, $index);" ng-disabled="!x.JobWorkApplicable"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
                                         </span>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="IsProductionVerification" ng-checked="x.IsProductionVerification"  ng-click="setIsProductionVerification($event,$index)" value="" />
+                                            <span class="cr"><i class="cr-icon"></i></span>
+                                        </label>
                                     </div>
                                 </td>
                                 <td>

@@ -187,9 +187,9 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/ProductionTargetReport/Aplos',
             controller: 'ProductionTargetReportController'
         })
-        .when('/cut-plan', {
-            templateUrl: 'Productions/CutPlan/Aplos',
-            controller: 'CutPlanController'
+        .when('/master-plan', {
+            templateUrl: 'Productions/MasterPlan/Aplos',
+            controller: 'MasterPlanController'
         })
         .when('/packing-invoice', {
             templateUrl: 'Productions/PackingInvoice/Aplos',
@@ -389,6 +389,14 @@ function ProductionsConfig($routeProvider, $locationProvider) {
         .when('/lot-control', {
             templateUrl: 'Productions/LotControl/Aplos',
             controller: 'LotControlController'
+        })
+        .when('/master-plan-setup', {
+            templateUrl: 'Productions/MasterPlanSetUp/Aplos',
+            controller: 'MasterPlanSetUpController'
+        })
+        .when('/master-plan-details', {
+            templateUrl: 'Productions/MasterPlanDetails/Aplos',
+            controller: 'MasterPlanDetailsController'
         })
         ;
 }

@@ -1127,6 +1127,198 @@ namespace Library.Service.SalaryDisbursement
                     _unitOfWork.Rollback();
             }
         }
+        public string SaveBonusDisbursementPosting(VoucherViewModel voucherVM, string yearNo, string monthNo, string monthName, string pMode, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, string empSystemIds)
+        {
+            var flag = false;
+            try
+            {
+                _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _companyFiscalYearService.CheckingFiscalYearPeriod(voucherVM);
+                _companyTaxYearService.CheckingTaxYearPeriod(voucherVM);
+                var directVoucherId = "";
+                voucherVM.DocDate = voucherVM.PostingDate;
+                voucherVM.CurrencyId = companyCurrencyId;
+                voucherVM.CompanyCurrencyRate = 1;
+                var totalAmountDr = 0.0M;
+                var totalAmountCr = 0.0M;
+
+                //**************Insert Direct Bonus JV****************
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                if (directJVList != null)
+                {
+                    voucherVM.DocRefNo = yearNo + '-' + monthNo;
+                    voucherVM.Narration = "Bonus disbursement for the month of " + monthName + " " + yearNo;
+                    var voucher = _voucherService.InsertVoucher(voucherVM);
+                    directVoucherId = voucher.Id;
+                    var currentVoucherDetailId = 0;
+
+                    foreach (var voucherDetailVM in directJVList)
+                    {
+                        currentVoucherDetailId++;
+                        var voucherDetailDr = _voucherService.InsertVoucherDetail(voucher, new VoucherDetail
+                        {
+                            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                            BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                            ActivityId = voucherDetailVM.ActivityId,
+                            DrAmount = voucherDetailVM.CrAmount,
+                        }, currentVoucherDetailId);
+
+                        totalAmountDr += voucherDetailDr.DrAmount;
+
+                        // INSERT INTO VoucherDetailCurrency
+                        _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailDr, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = voucherDetailDr.CurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                            DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailDr.DrAmount,
+                        });
+                    }
+
+                    if (voucherVM.PaymentSource == PaymentSource.Bank.ToString() || voucherVM.PaymentSource == PaymentSource.Cash.ToString())
+                    {
+                        // INSERT INTO VoucherDetail (Bank or cash side Dr)
+                        var voucherDetailCr = new VoucherDetail
+                        {
+                            Narration = voucher.Narration,
+                            CrAmount = directJVList.Sum(r => r.CrAmount),
+                            PaymentSource = voucherVM.PaymentSource
+                        };
+
+                        totalAmountCr += voucherDetailCr.CrAmount;
+
+                        var glTransactionDetail = new GLTransactionDetail
+                        {
+                            SourceType = voucherDetailCr.PaymentSource,
+                            BankMasterId = voucherVM.BankMasterId,
+                            CashMasterId = voucherVM.CashMasterId
+                        };
+
+                        if (!string.IsNullOrEmpty(voucherVM.BankMasterId))
+                        {
+                            var bankMaster = _bankMasterRepository.Find(voucherVM.BankMasterId);
+                            voucherDetailCr.GLGeneralInfoId = bankMaster.GLGeneralInfoId;
+                            voucherDetailCr.BudgetMasterId = bankMaster.BudgetMasterId;
+                            voucherDetailCr.ActivityId = bankMaster.ActivityId;
+                            voucherDetailCr.BankMasterId = bankMaster.Id;
+                            voucherDetailCr.PartyType = PartyType.Bank.ToString();
+                            if (bankMaster.CurrencyId == voucherVM.CurrencyId)
+                                glTransactionDetail.CrAmount = voucherDetailCr.CrAmount;
+                            else
+                                glTransactionDetail.CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailCr.CrAmount;
+                        }
+                        else if (!string.IsNullOrEmpty(voucherVM.CashMasterId))
+                        {
+                            var cashMaster = _cashMasterRepository.Find(voucherVM.CashMasterId);
+                            voucherDetailCr.GLGeneralInfoId = cashMaster.GLGeneralInfoId;
+                            voucherDetailCr.BudgetMasterId = cashMaster.BudgetMasterId;
+                            voucherDetailCr.ActivityId = cashMaster.ActivityId;
+                            voucherDetailCr.CashMasterId = cashMaster.Id;
+                            voucherDetailCr.PartyType = PartyType.Cash.ToString();
+                            if (cashMaster.CurrencyId == voucherVM.CurrencyId)
+                                glTransactionDetail.CrAmount = voucherDetailCr.CrAmount;
+                            else
+                                glTransactionDetail.CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailCr.CrAmount;
+                        }
+                        else
+                            throw new CustomException("Bank or Cash Id not found!");
+                        // INSRT INTO GLTransactionDetail
+
+                        currentVoucherDetailId++;
+                        _voucherService.InsertVoucherDetail(voucher, voucherDetailCr, currentVoucherDetailId);
+                        _voucherService.InsertGLTransactionDetail(voucherDetailCr, glTransactionDetail);
+
+                        //glTransactionDetail.CrAmount = totalCurrencyAmountDr voucherVM.CompanyCurrencyRate * voucherDetailCr.CrAmount;
+
+                        // INSERT INTO VoucherDetailCurrency
+                        var voucherDetailCurrencyCr = new VoucherDetailCurrency();
+                        voucherDetailCurrencyCr.ParallelCurrencyId = companyCurrencyId;
+                        voucherDetailCurrencyCr.FromCurrencyId = voucherDetailCr.CurrencyId;
+                        voucherDetailCurrencyCr.ToCurrencyId = companyCurrencyId;
+                        voucherDetailCurrencyCr.ToCurrencyRate = voucherVM.CompanyCurrencyRate;
+                        voucherDetailCurrencyCr.ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate);
+                        voucherDetailCurrencyCr.CrAmount = (voucherDetailCr.CrAmount * voucherVM.CompanyCurrencyRate);
+
+                        _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailCr, voucherDetailCurrencyCr);
+                    }
+
+                }
+
+                if (totalAmountDr != totalAmountCr)
+                    throw new CustomException("Dr and Cr amount is not equal.");
+
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+                //**************update salary lock VoucherPayableId Direct and InDirect Salary ****************
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                if (directVoucherId != null)
+                {
+                    var direct = new System.Text.StringBuilder();
+                    var directsql = "";
+                    directsql = @"update [dbo].[SalaryLock] set DisbursementVoucherId='" + directVoucherId + @"' where Id in (
+                        select sl.Id
+                        from [dbo].[SalaryLock] sl 
+                        left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
+                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
+                        left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+						left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+						left join hkp.Designation d on d.Id=spd.DesignationId
+						left join hkp.Bank b on spd.BankSystemID=b.Id
+						left join trn.Voucher v on v.Id=sl.PayableVoucherId
+                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL and sl.IsDisbursed=1 
+                        and sl.EmpSystemId IN (" + empSystemIds + @") and sl.DisbursementAdviceId='" + disbursementAdviceId + @"'
+                        and spc.DisbusmentAmount!=0  
+						and ISNULL(sh.SalaryHead, '')  in ('Net Pay'))";
+                    direct.Append(directsql);
+                    directsql = @"
+                        UPDATE  [dbo].[DisbursementAdvice] SET Status=CASE WHEN (select COUNT(sl.Id)Id
+                        from [dbo].[SalaryLock] sl 
+                        left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
+                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
+                        left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+						left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+						left join hkp.Designation d on d.Id=spd.DesignationId
+						left join hkp.Bank b on spd.BankSystemID=b.Id
+						left join trn.Voucher v on v.Id=sl.PayableVoucherId
+                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL and sl.IsDisbursed=1 
+                        and sl.DisbursementAdviceId='" + disbursementAdviceId + @"'
+                        and spc.DisbusmentAmount!=0 and ISNULL(sh.SalaryHead, '')  in ('Net Pay'))>0
+                        THEN 'InProgress' ELSE 'Close' END WHERE Id='" + disbursementAdviceId + @"'";
+                    direct.Append(directsql);
+                    _sqlRepository.ExecuteSqlCommand(direct.ToString());
+
+                }
+                flag = false;
+                _unitOfWork.Commit();
+                return "Save Successful";
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
 
         public void DeleteSalaryPayable(string plantId, string voucherId, string monthNo, string yearNo)
         {

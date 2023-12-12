@@ -89,7 +89,7 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
         CreditLimit: 0,
         Description: null,
         Remarks: null,
-        Active: true,
+        Active: false,
         AddedBy: null,
         AddedDate: new Date(),
         AddedFromIP: null,

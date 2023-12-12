@@ -556,6 +556,7 @@
     <Compile Include="Areas\Processes\Controllers\ProcessManagementController.cs" />
     <Compile Include="Areas\Processes\Controllers\ProcessManagementRecepieController.cs" />
     <Compile Include="Areas\Processes\Controllers\ProcessTemplateController.cs" />
+    <Compile Include="Areas\Productions\Controllers\MasterPlanDetailsController.cs" />
     <Compile Include="Areas\Productions\Controllers\DailyPlanningAndProductionReportController.cs" />
     <Compile Include="Areas\Employees\Controllers\TransportGroupController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmpActiveInActiveNewController.cs" />
@@ -638,6 +639,7 @@
     <Compile Include="Areas\HumanResource\Controllers\OTRegionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ResidenceStatusAllocationController.cs" />
     <Compile Include="Areas\Materials\Controllers\InputConfirmationController.cs" />
+    <Compile Include="Areas\Productions\Controllers\MasterPlanSetUpController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionOrderEntitySetupController.cs" />
     <Compile Include="Areas\Productions\Controllers\QualityActionConfirmationController.cs" />
     <Compile Include="Areas\Productions\Controllers\QualityActionUpdateReportController.cs" />
@@ -1056,7 +1058,7 @@
     <Compile Include="Areas\PerformanceManagement\Controllers\JobEvaluationMasterController.cs" />
     <Compile Include="Areas\PerformanceManagement\Controllers\JobEvaluationReportController.cs" />
     <Compile Include="Areas\PerformanceManagement\PerformanceManagementAreaRegistration.cs" />
-    <Compile Include="Areas\Productions\Controllers\CutPlanController.cs" />
+    <Compile Include="Areas\Productions\Controllers\MasterPlanController.cs" />
     <Compile Include="Areas\Productions\Controllers\MachineLayoutReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionOrderProcessWithRateController.cs" />
     <Compile Include="Areas\Productions\Controllers\MarkerController.cs" />
@@ -1826,6 +1828,7 @@
     <Content Include="Areas\Accounts\Scripts\InvoiceStatusController.js" />
     <Content Include="Areas\Accounts\Scripts\PaymentAdviceController.js" />
     <Content Include="Areas\Accounts\Scripts\InvestmentSettelmentController.js" />
+    <Content Include="Areas\Accounts\Scripts\bonusDisbursementPostController.js" />
     <Content Include="Areas\Accounts\Scripts\SubsequentInvestmentController.js" />
     <Content Include="Areas\Accounts\Scripts\PaymentAdviseReportController.js" />
     <Content Include="Areas\Accounts\Scripts\ChartAccountSetupController.js" />
@@ -1918,6 +1921,8 @@
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
     <Content Include="Areas\Accounts\Scripts\fiscalYearCloseController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractApprovedController.js" />
+    <Content Include="Areas\Productions\Scripts\MasterPlanDetailsController.js" />
+    <Content Include="Areas\Productions\Scripts\MasterPlanSetUpController.js" />
     <Content Include="Areas\QMS\Scripts\DefineSQCIssueController.js" />
     <Content Include="Areas\SalesManagements\Scripts\SalesChanlanDispatchConfirmationController.js" />
     <Content Include="Areas\SalesManagements\Scripts\SalesChanlanCheckedController.js" />
@@ -2775,7 +2780,7 @@
     <Content Include="Areas\PerformanceManagement\Scripts\PerformanceManagementConfig.js" />
     <Content Include="Areas\Productions\Scripts\MachineLayoutReportController.js" />
     <Content Include="Areas\Productions\Scripts\FinishGoodsBookingPostController.js" />
-    <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
+    <Content Include="Areas\Productions\Scripts\MasterPlanController.js" />
     <Content Include="Areas\Productions\Scripts\finishGoodsInventoryRegisterController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionOrderProcessWithRateController.js" />
     <Content Include="Areas\Productions\Scripts\MarkerController.js" />
@@ -4331,7 +4336,7 @@
     <Content Include="Areas\Attendances\Views\OTManualNew\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\ManualOTUploadNew\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\ManualOTReportNew\Aplos.cshtml" />
-    <Content Include="Areas\Productions\Views\CutPlan\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\MasterPlan\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\FinishGoodsBooking\FGInventoryPost.cshtml" />
     <Content Include="Areas\Productions\Views\PackingInvoice\Aplos.cshtml" />
     <Content Include="Areas\Payrolls\Views\CompanyWiseExternalDataUploadFromExcel\Aplos.cshtml" />
@@ -4864,6 +4869,9 @@
     <Content Include="Areas\Accounts\Views\_ShortageQtyPopUp.cshtml" />
     <Content Include="Areas\Commercial\Views\PostSalesInvoice\InvoiceStatus.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\BonusDisbursement.cshtml" />
+    <Content Include="Areas\Accounts\Views\SalaryDisbursement\BonusDisbursementPost.cshtml" />
+    <Content Include="Areas\Productions\Views\MasterPlanSetUp\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\MasterPlanDetails\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

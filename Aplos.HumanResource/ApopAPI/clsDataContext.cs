@@ -8624,7 +8624,7 @@ where BM.BankCategoryId = '" + categoryId + "' and BM.BankSubCategoryId = '" + s
 								from [dbo].[SalesChalan] SC
 								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
 								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
-								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
+								LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId 
 								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
 								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
 								where SC.CheckedStatus='To Be Check' AND SC.CheckById='" + UserId + "'";
