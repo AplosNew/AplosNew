@@ -266,7 +266,7 @@
                                 <label class="col-sm-4 control-label">Payment Term<sup>*</sup></label>
                                 <div class="col-sm-5 show-message">
                                     <div class="select-style">
-                                        <select tabindex="10" id="paymentTermId" ng-disabled="fileNew.IsPaymentTermChangeable==false" class="form-control" name="Payment Term" ng-model="fileNew.PaymentTermId" ng-change="changePaymentTerm(fileNew.PaymentTermId);" required>
+                                        <select tabindex="10" id="paymentTermId" ng-disabled="fileNew.IsPaymentTermChangeable==false" class="form-control" name="Payment Term" ng-model="fileNew.PaymentTermId" ng-change="changePaymentTerm(fileNew.PaymentTermId);GetRemarksControlList();" required>
                                             <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
                                         </select>
                                     </div>
@@ -281,7 +281,7 @@
                                     <div class="input-group">
                                         <input type="text" name="Responsible Person" ng-model="RemarksControlmodel.RemarksControl" class="form-control" readonly>
                                         <span class="input-group-btn">
-                                            <button ng-click="GetRemarksControlList();" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                                            <button ng-click="GetRemarksControlList();"ng-disabled="fileNew.IsPaymentTermChangeable==false"  class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
                                         </span>
                                     </div>
                                     @*<div class="select-style">

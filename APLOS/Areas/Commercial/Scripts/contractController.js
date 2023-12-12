@@ -42,7 +42,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         DeliveryByAddress: null,
         Remarks: null,
         PlantId: $window.plantId,
-        BankId:null
+        BankId: null
     };
     $scope.modelNew = Object.assign({}, $scope.model);
 
@@ -199,11 +199,31 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         gridObj.refreshContent();
     };
 
-    function MakeSOData() {
+    function checkSamePaymentTerm(list, PaymentTermId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].PaymentTermId !== PaymentTermId) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    $scope.CloseSOPopUp = function () {
         try {
             for (var i = 0; i < $scope.SalesOrderList.length; i++) {
                 if ($scope.SalesOrderList[i].Flags == true) {
-                    $scope.SelectedSalesOrderList.push($scope.SalesOrderList[i]);
+                    if (checkSamePaymentTerm($scope.SelectedSalesOrderList, $scope.SalesOrderList[i].PaymentTermId)) {
+                        $scope.SelectedSalesOrderList.push($scope.SalesOrderList[i]);
+                    }
+                    else {
+                        for (var j = 0; j < $scope.SelectedSalesOrderList.length; j++) {
+                            if (baseService.isUndefinedOrNull($scope.SelectedSalesOrderList[j].ContractId)) {
+                                $scope.SelectedSalesOrderList.splice(j, 1);
+                            }
+                        }
+
+                        throw "Select same Payment Term.";
+                    }
 
                 }
             }
@@ -219,14 +239,10 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
             $scope.modelNew.TotalQty = tq;
             $scope.modelNew.Amount = amt;
             $scope.modelNew.SOQty = qt;
+            angular.element(document.querySelector('#salesOrderPopUp')).modal('hide');
         } catch (e) {
             ShowResult(e, 'failure', 'salesOrderPopUp');
         }
-    }
-
-    $scope.CloseSOPopUp = function () {
-        MakeSOData();
-        angular.element(document.querySelector('#salesOrderPopUp')).modal('hide');
     };
 
 
@@ -381,7 +397,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
 
             }
         }
-       
+
         for (var i = 0; i < $scope.masterOrderCustomerList.length; i++) {
             tq += $scope.masterOrderCustomerList[i].TotalQty;
             amt += $scope.masterOrderCustomerList[i].Amount;
@@ -523,7 +539,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         $scope.modelNew = obj.data;
         $scope.modelNew.Currency = null;
         $scope.GetContractFundData($scope.modelNew.Id);
-      
+
         if (!baseService.isUndefinedOrNull($scope.modelNew.MasterOrderId)) {
             $scope.msg = "As this contract saved from Master Order, so no change is possible from here.";
         } else {
@@ -813,8 +829,8 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
                         $scope.modelNew.Id = response.data.Id;
                         $scope.contractList = [];
                         $scope.getSavedData();
-                        
-                     
+
+
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -1548,7 +1564,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.GetReport = function (reportType) {
         try {
-            
+
             $http({
                 method: 'POST',
                 url: $scope.path + 'GetContarctReport',
