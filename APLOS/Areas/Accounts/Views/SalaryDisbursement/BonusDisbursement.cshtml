@@ -6,7 +6,6 @@
             <div class="col-md-12">
                 <div class="col-sm-2">
                     <div class="form-group" id="div_FromDate">
-                        @*<label class="col-sm-3 control-label">From<sup>*</sup></label>*@
                         <div class="col-sm-12">
                             <input type="text" name="Form Date" ng-model="disbursementAdvice.FromDate" datepicker tabindex="2" class="form-control">
                         </div>
@@ -14,7 +13,6 @@
                 </div>
                 <div class="col-sm-2">
                     <div class="form-group" id="div_ToDate">
-                        @*<label class="col-sm-3 control-label">To<sup>*</sup></label>*@
                         <div class="col-sm-12">
                             <input type="text" name="To Date" ng-model="disbursementAdvice.ToDate" datepicker tabindex="3" class="form-control">
                         </div>
@@ -103,16 +101,6 @@
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                 <div class="row">
-                    <div class="col-sm-12">
-                        <div class="inputBtnSection common-btn">
-                            <label class="fileUpload col-sm-4 ">
-                                <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
-                            </label>
-                            <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportData()" />
-                        </div>
-                    </div>
-
-                    <div class="clearfix"></div>
                     <div class="col-md-12">
                         <div id="empInfoGridSalaryUnDisbursed" ng-init="chkinit()" ej-grid e-datasource="BonusUnDisburseList" e-recorddoubleclick="Get" e-allowscrolling="true" e-pageSettings-pageSize="15"
                              e-actioncomplete="actionCompleteSelected" e-templaterefresh="refreshTemplateSalaryUnDisbursed"
@@ -164,6 +152,8 @@
 
 
                     </div>
+                    <div class="clearfix"></div>
+                    <br />
                     <div class="col-sm-12">
                         <div class="common-btn left">
                             <ul class="list-inline text-left">
@@ -179,7 +169,7 @@
             </div>
 
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                <div class="">
+                <div class="row">
                     <div class="col-md-12">
                         <div id="empInfoGrid" ej-grid e-datasource="EmployeeListTemp" e-recorddoubleclick="Get" e-allowscrolling="true" e-pageSettings-pageSize="15"
                              e-actioncomplete="actionCompleteSelected" e-templaterefresh="refreshTemplateemployee"
@@ -216,6 +206,8 @@
                             </div>
                         </div>
                     </div>
+                    <div class="clearfix"></div>
+                    <br />
                     <div class="col-sm-12">
                         <div class="col-sm-6">
                             <div class="common-btn">

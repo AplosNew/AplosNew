@@ -1968,6 +1968,75 @@ Where HeadCategory='Net Payable' ";
             }
         }
 
+        [HttpGet, Authorize]
+        public JsonResult GetBonusDisbursementAdviceData()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"SELECT  [Id], [YearNo], [MonthNo], [Status], [Remarks], [PaymentMode]
+                          ,CASE WHEN [MonthNo]=1 THEN 'January'
+			                    WHEN [MonthNo]=2 THEN 'February'
+			                    WHEN [MonthNo]=3 THEN 'March'
+			                    WHEN [MonthNo]=4 THEN 'April'
+			                    WHEN [MonthNo]=5 THEN 'May'
+			                    WHEN [MonthNo]=6 THEN 'June'
+			                    WHEN [MonthNo]=7 THEN 'July'
+			                    WHEN [MonthNo]=8 THEN 'August'
+			                    WHEN [MonthNo]=9 THEN 'September'
+			                    WHEN [MonthNo]=10 THEN 'October'
+			                    WHEN [MonthNo]=11 THEN 'November'
+			                    WHEN [MonthNo]=12 THEN 'December'
+			                    ELSE '' END MonthName
+                        FROM [dbo].[BonusDisbursementAdvice]  WHERE Status<>'Close' ";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetBonusDisbursementVoucherList(GridParameter parameters)
+        {
+            AccountsSalaryPayableService accountsSalaryPayableService = new AccountsSalaryPayableService(_sqlRepository);
+            return Json(accountsSalaryPayableService.GetBonusDisbursementVoucherList(parameters), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public JsonResult SaveBonusDisbursementPosting(VoucherViewModel voucherVM, string yearNo, string monthNo, string monthName, string pMode, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, List<SalaryLock> employeeListNew)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.IsPark = false;
+            int year = Int32.Parse(yearNo);
+            int month = Int32.Parse(monthNo);
+
+            int monthdays = System.DateTime.DaysInMonth(year, month);
+            DateTime dt = new DateTime(year, month, 1);
+            dt = dt.AddDays(monthdays - 1);
+            if (voucherVM.PostingDate > dt)
+                throw new CustomException("Posting Date must in the selected month of " + monthName);
+            voucherVM.Amount = directJVList.Sum(r => r.CrAmount);
+            voucherVM.SourceType = SourceType.SalaryDisbursement.ToString();
+
+            string empSystemIds = "";
+            if (employeeListNew != null)
+            {
+                foreach (var item in employeeListNew)
+                {
+                    if (empSystemIds == "")
+                    {
+                        empSystemIds = "'" + item.EmpSystemId + "'"; ;
+                    }
+                    else
+                    {
+                        empSystemIds += ",'" + item.EmpSystemId + "'";
+
+                    }
+                }
+            }
+
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.SaveBonusDisbursementPosting(voucherVM, yearNo, monthNo, monthName, pMode, directJVList, disbursementAdviceId, empSystemIds)) });
+        }
+
+
         #endregion
 
         #region Import File

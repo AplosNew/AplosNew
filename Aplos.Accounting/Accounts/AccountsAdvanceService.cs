@@ -428,7 +428,7 @@ namespace Library.Accounting.Accounts
 								, AD.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName, AD.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, V.VoucherNo, Replace(CONVERT(VARCHAR(11), AM.DocDate, 106), ' ', '-') AS DocDate
                                 , Replace(CONVERT(VARCHAR(11), AM.PostingDate, 106), ' ', '-') AS PostingDate, AM.DocRefNo, AM.Narration, AD.Amount AS Receivable, AD.WrittenOffAmount AS Received
                                 , AD.Amount-AD.WrittenOffAmount AS Balance, CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, CC.CompanyCurrencyConversion, GC.CompanyGroupCurrencyId
-                                , GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion, HC.HardCurrencyId, HC.HardFromCurrencyId, HC.HardCurrencyRate, HC.HardCurrencyConversion
+                                , GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion, HC.HardCurrencyId, HC.HardFromCurrencyId, HC.HardCurrencyRate, HC.HardCurrencyConversion,CON.Id ContractId,CON.ContractNo
                                 FROM [TRN].[AdvanceDetail] AS AD
                                 LEFT JOIN [TRN].[Advance] AS AM ON AD.AdvanceId=AM.Id
                                 LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdvanceDetailId=AD.Id
@@ -441,6 +441,7 @@ namespace Library.Accounting.Accounts
                                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=AM.EntityId
 								LEFT JOIN [HKP].[Party] AS P ON P.Id=AM.PartyId
                                 LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AM.PartyPlantId
+								LEFT JOIN dbo.Contract CON on CON.Id=AM.ContractId
 								LEFT JOIN (
 								    SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
 								    VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.CrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
