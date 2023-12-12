@@ -63,6 +63,8 @@ function RemarksControlController(cboService, commonMessage, $scope, $rootScope,
         });
     };
 
+    $scope.ProcessList=[];
+
 
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {

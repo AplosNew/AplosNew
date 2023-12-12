@@ -1090,26 +1090,25 @@ order by pk.Date  DESC";
             try
             {
                 var str = @"SELECT distinct pk.PackingId,Convert(bit,0) Active, format(pk.Date,'dd-MMM-yyyy') as AddedDate, format(pk.InactiveDate,'dd-MMM-yyyy') as InActiveDate, p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
-                            ei.Employeename as DRespPerson, en.UserName as Entity, pk.Remarks,pk.CustomerId,pk.EntityId,CP.CurrencyId,C.Code AS Currency 
-                            ,ISNULL(A.PaymentTermId,CP.PaymentTermId)PaymentTermId,ISNULL(A.Code,PT.Code) AS PaymentTermCode,ISNULL(A.UserName,PT.UserName) AS PaymentTermName,ISNULL(A.IsPaymentTermChangeable,CP.IsPaymentTermChangeable) IsPaymentTermChangeable
-                            FROM TRN.Packing pk
+                            ei.Employeename as DRespPerson, en.UserName as Entity, pk.Remarks,pk.CustomerId,pk.EntityId,A.CurrencyId,A.Currency 
+                           ,A.PaymentTermId,A.Code PaymentTermCode,A.UserName PaymentTermName
+						   FROM TRN.Packing pk
                             LEFT JOIN hkp.Party p on p.Id = pk.CustomerId
                             LEFT JOIN dbo.EmployeeInformation e on e.SystemId = pk.ByWhom
                             LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId = pk.DispatchResponsiblePersonId
                             LEFT JOIN hkp.MaterialStorage ms on ms.Id = pk.StorageLocId
-                            LEFT JOIN org.Entity en on en.Id = pk.EntityId                            
-                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
-                            LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=CP.PaymentTermId
-                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
+                            LEFT JOIN org.Entity en on en.Id = pk.EntityId                             
                              JOIN
-                            (SELECT PLI.PackingId,CP.PaymentTermId,PT.Code,PT.UserName,CP.IsPaymentTermChangeable,POLR.Qty
+                            (
+							SELECT DISTINCT PLI.PackingId,MCP.PaymentTermId,PT.Code,PT.UserName,MCP.IsPaymentTermChangeable,POLR.Qty,C.Code AS Currency,MO.CurrencyId
                                FROM  trn.PackingLineItem PLI 
                             LEFT JOIN TRN.SalesOrder SO ON SO.Id=PLI.SOId
                             LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
                             LEFT JOIN TRN.MasterOrder MO ON MO.Id=MOI.MasterOrderId
-                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=MO.PartyId AND CP.PartyType='Customer'
                             LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=MO.PaymentTermId
-LEFT JOIN 
+                            LEFT JOIN [HKP].[CompanyParty] AS MCP ON  MCP.PartyType='Customer' AND PT.Id=MCP.PaymentTermId
+							LEFT JOIN [SCS].[Currency] AS C ON C.Id=MO.CurrencyId
+ JOIN 
 (							
 Select ISNULL(SUM(sc.NetWeight),0) Qty, ISNULL(SUM(PlanQty),0) PlanQty,PackingLineItemId from trn.POLotReference po
 							left join dbo.ItemScanChild sc on sc.PackingId = po.Id AND Booked = 1
