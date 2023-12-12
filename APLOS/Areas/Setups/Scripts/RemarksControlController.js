@@ -64,7 +64,12 @@ function RemarksControlController(cboService, commonMessage, $scope, $rootScope,
     };
 
     $scope.ProcessList=[];
-
+    $http({
+        method: 'GET',
+        url: 'Setups/RemarksControl/GetPaymentTermEnum/'
+    }).then(function successCallback(response) {
+        $scope.ProcessList = response.data;
+    });
 
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {

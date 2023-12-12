@@ -151,16 +151,30 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         { Value: "Other", Text: "Other" }
     ];
 
+    $scope.searchRCBy = "Process"; $scope.searchRC = "";
+    $scope.searchByRCList = [{ value: 'Id', name: "Id" }, { value: 'Process', name: "Process" }];
+
+
+    $scope.RemarksControlmodel = {};
     $scope.RemarksControlList = [];
     $scope.GetRemarksControlList = function () {
         $http({
-            method: 'GET',
-            url: 'Setups/RemarksControl/GetCbo'
+            method: 'POST',
+            url: $scope.path + "GetList",
+            data: { column: $scope.searchRCBy, value: $scope.searchRC },
+            dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.RemarksControlList = response.data;
+            angular.element(document.querySelector('#RemarksControlPopUp')).modal('show');
         });
-    };
-    $scope.GetRemarksControlList();
+    }
+    $scope.SelectRemarksControl = function (data) {
+        $scope.RemarksControlmodel.MasterOrderId = $scope.fileNew.Id;
+        $scope.RemarksControlmodel.RemarksControlId = data.data.Id;
+        $scope.RemarksControlmodel.RemarksControl = data.data.Process;
+        angular.element(document.querySelector('#RemarksControlPopUp')).modal('hide');
+    }
+
 
     $scope.ProductLibraryList = [];
     $scope.GetProductLibraryList = function (index) {
@@ -971,6 +985,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         if (!baseService.isUndefinedOrNull($scope.fileNew.PaymentTermId)) {
             var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.fileNew.PaymentTermId; })[0];
             $scope.fileNew.PaymentTermDays = paymentTerm.NoOfDay;
+            GetRemarksControlList();
         }
     };
 

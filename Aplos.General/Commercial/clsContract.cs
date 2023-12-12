@@ -1254,6 +1254,20 @@ LEFT JOIN dbo.EmployeeInformation IEI ON IEI.SystemId=RC.InformToId) AS TEMP WHE
             return 1;
         }
 
+        public IEnumerable<object> GetPaymentTermEnum()
+        {
+            try
+            {
+                var str = @"Select EnumName Value, UserName Text  from dbo.DefineEnum where Category='PaymentTerm'";
+
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }
 
