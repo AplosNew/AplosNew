@@ -279,7 +279,7 @@ namespace Library.Service.OrderManagements
 															INNER JOIN trn.SalesOrder XSO  ON XSO.ContractId=CNT.Id	  
 															INNER JOIN trn.MasterOrderItem XMOI  ON XMOI.Id=XSO.MasterOrderItemId
 															LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId	  
-							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),CP.PaymentTermId DefaultPaymentTermId,A.RemarksControlId
+							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),CP.PaymentTermId DefaultPaymentTermId,RC.Process RemarksControl,URC.RemarkControlId
                             FROM [TRN].[MasterOrder] AS A
                             JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
                             LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
@@ -298,6 +298,8 @@ namespace Library.Service.OrderManagements
 									from TRN.MasterOrderItem moi
 									LEFT JOIN TRN.SalesOrder so on so.MasterOrderItemId=moi.Id
 									Group By moi.MasterOrderId) MS ON MS.MasterOrderId=A.Id
+                            LEFT JOIN TRN.UserRemarksControl URC ON URC.MasterOrderId=A.Id
+							LEFT JOIN [HKP].[RemarksControl] RC ON RC.Id=URC.RemarkControlId
                             WHERE A.CompanyId='" + companyId + "') AS TEMP WHERE " + strkey + " ORDER BY AddedDate Desc";
 
             return _sqlRepository.GetDataCollection(sql, null);
