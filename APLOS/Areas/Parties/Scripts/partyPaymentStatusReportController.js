@@ -187,6 +187,40 @@ function partyPaymentStatusReportController(commonMessage, $scope, $rootScope, b
         }
     };
 
+    $scope.getShortReport = function () {
+        if (baseService.isUndefinedOrNull($scope.report.PartyType)) {
+            manualValidation('div_PartyType', true, "Party Type is required.");
+        }
+        else if (baseService.isUndefinedOrNull($scope.report.PartyId)) {
+            manualValidation('div_Party', true, "Party is required.");
+        }
+        else if (baseService.isUndefinedOrNull($scope.report.FromDate)) {
+            manualValidation('div_FromDate', true, "From Date is required.");
+        }
+        else if (baseService.isUndefinedOrNull($scope.report.ToDate)) {
+            manualValidation('div_ToDate', true, "To Date is required.");
+        }
+        else if (new Date($scope.report.FromDate) > new Date($scope.report.ToDate)) {
+            manualValidation('div_FromDate', true, "From date must be below or equal to To Date");
+        }
+        else if (new Date($scope.report.ToDate) < new Date($scope.report.FromDate)) {
+            manualValidation('div_ToDate', true, "To date must be above or equal to From Date.");
+        }
+        else {
+            var url = 'Parties/PartyReport/GetShortPartyPaymentStatusReport?reportFormat=' + $scope.report.ReportFormat + '&partyType=' + $scope.report.PartyType + '&partyId=' + $scope.report.PartyId + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&active=' + $scope.report.Active;
+            if (!baseService.isUndefinedOrNull($scope.report.PartyPlantId)) {
+                url += '&partyPlantId=' + $scope.report.PartyPlantId;
+            }
+            if (!baseService.isUndefinedOrNull($scope.report.GLGeneralInfoId)) {
+                url += '&glId=' + $scope.report.GLGeneralInfoId;
+            }
+            if (!baseService.isUndefinedOrNull($scope.report.GSTIN)) {
+                url += '&gSTINId=' + $scope.report.GSTIN;
+            }
+            $window.open(url, '_blank');
+        }
+    };
+
     $scope.closePartyPopUp = function myfunction(x) {
             var data = x.data;
             if ($scope.report.PartyType === 'Customer') {
