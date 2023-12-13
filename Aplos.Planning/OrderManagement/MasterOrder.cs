@@ -1710,42 +1710,6 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
         }
 
 
-        public void SaveUserRemarksControl(string TransactionId, Dictionary<string, object> data)
-        {
-            DataSet dsMaster;
-            string TableName = "TRN.UserRemarksControl";
-            try
-            {
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where MasterOrderId='" + TransactionId + "'", out dsMaster, false, "1");
-
-                string _Id = "";
-
-                #region data update
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("UserRemarksControl", out _Id);
-
-                    data["Id"] =  _Id;
-                    data["MasterOrderId"] = TransactionId;
-                    AddNewRow(dsMaster.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-                #endregion data update
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
+   
     }
 }

@@ -155,7 +155,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.searchByRCList = [{ value: 'Id', name: "Id" }, { value: 'Process', name: "Process" }];
 
 
-    $scope.RemarksControlmodel = {};
+    $scope.RemarksControlmodel = { MasterOrderId: null, RemarkControlId: null, RemarksControl: null, UserRemarks:null};
     $scope.RemarksControlList = [];
     $scope.GetRemarksControlList = function () {
         $http({

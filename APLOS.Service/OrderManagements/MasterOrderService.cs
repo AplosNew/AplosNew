@@ -1266,7 +1266,9 @@ namespace Library.Service.OrderManagements
             }
         }
 
-        public void Insert(MasterOrder entity, List<MasterOrderTNA> taskList)
+     
+
+        public void Insert(MasterOrder entity, List<MasterOrderTNA> taskList, Dictionary<string, object> UserRemarksControl)
         {
             try
             {
@@ -1306,6 +1308,10 @@ namespace Library.Service.OrderManagements
 
                 TaskScheduler.TaskScheduler schedule = new TaskScheduler.TaskScheduler(_sqlRepository);
                 schedule.CopyTaskTemplate(entity.Id);
+                if (UserRemarksControl["RemarkControlId"] != null)
+                {
+                    SaveUserRemarksControl(entity, UserRemarksControl);
+                }
                 //List<MasterOrderItem> itemList = new List<MasterOrderItem>();
 
                 //for (int i = 0; i < entity.NoOfLineItem; i++)
@@ -1504,7 +1510,90 @@ WHERE MOI.MasterOrderId='" + id + "'";
             }
         }
 
-        public void Update(MasterOrder entity, string masterId, IEnumerable<MasterOrderResPerson> personList, IEnumerable<MasterOrderItem> itemList)
+        public void SaveUserRemarksControl(MasterOrder entity, Dictionary<string, object> data)
+        {
+            DataSet dsMaster;
+            string TableName = "TRN.UserRemarksControl";
+            try
+            {
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where MasterOrderId='" + entity.Id + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("UserRemarksControl", out _Id);
+
+                    data["Id"] = _Id;
+                    data["MasterOrderId"] = entity.Id;
+                    AddNewRow(dsMaster.Tables[0], data, entity);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data, entity);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData, MasterOrder entity)
+        {
+           
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["AddedBy"] = entity.AddedBy;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = entity.AddedFromIP;
+          
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData, MasterOrder entity)
+        {
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["UpdatedBy"] = entity.UpdatedBy;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = entity.UpdatedFromIP;
+            dr.EndEdit();
+        }
+
+
+        public void Update(MasterOrder entity, string masterId, IEnumerable<MasterOrderResPerson> personList, IEnumerable<MasterOrderItem> itemList,  Dictionary<string, object> UserRemarksControl)
         {
             var flag = false;
             try
@@ -1732,6 +1821,11 @@ WHERE MOI.MasterOrderId='" + id + "'";
                             }
                         }
                     }
+                }
+
+                if (UserRemarksControl["RemarkControlId"] != null)
+                {
+                   SaveUserRemarksControl(entity, UserRemarksControl);
                 }
 
                 _unitOfWork.SaveChanges();
