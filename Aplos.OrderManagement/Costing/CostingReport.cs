@@ -739,7 +739,8 @@ namespace Library.OrderManagement.Costing
                 DataTable dtMOICostingInfo = _sqlRepository.GetDataTable(CostingMOIsql);
                 //string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
 
-                DataTable dtOrderInfo = _sqlRepository.GetDataTable(OrderInformationSQL(OrderCostingId));
+                string sqlOrderInfo = OrderInformationSQL(OrderCostingId);
+                DataTable dtOrderInfo = _sqlRepository.GetDataTable(sqlOrderInfo);
                 int ROW = 5;
                 int COL = 8;
                 int COLFinal = COL;

@@ -92,9 +92,53 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetMasterPlanQtyList(string MasterPlanId, string MinQty, string PlanPercentage)
+        public ActionResult GetMasterPlanQtyList(string MasterPlanId, string MinQty, string PlanPercentage, bool LineItem, bool SKU1, bool SKU2 )
         {
-            return Json(_productionSummaryData.GetMasterPlanQtyList(MasterPlanId, MinQty, PlanPercentage), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetMasterPlanQtyList(MasterPlanId, MinQty, PlanPercentage, LineItem, SKU1, SKU2), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult createMasterPlanQty(List<Dictionary<string, object>> DataList)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[MST].[MasterPlanQuantity]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MasterPlanQuantity", out _Id);
+                            item["Id"] = _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
         }
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)

@@ -429,6 +429,10 @@ namespace Aplos.Areas.Setups.Controllers
             , SKU1
             , SKU2
             , SKU1SKU2
+            , Advance 
+            , PaymentTerm 
+            , DeleteEntry 
+            , Modify 
         }
 
         [HttpGet, Authorize]
@@ -448,7 +452,6 @@ namespace Aplos.Areas.Setups.Controllers
             }
             catch (Exception ex)
             {
-
                 return Json(new { Error = true, Message = ex.Message });
 
             }
