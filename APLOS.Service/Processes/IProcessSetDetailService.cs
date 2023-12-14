@@ -12,7 +12,7 @@ namespace Library.Service.Processes
     {
         IEnumerable<object> Query(string processSetId);
 
-		IEnumerable<object> GetProcessSetList(string processSetId);
+		IEnumerable<object> GetProcessSetList(string processSetId,string entityId);
 
 		void InsertGraph(string processSetId, IEnumerable<ProcessSetDetail> processSetDetail);
 

@@ -1032,7 +1032,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         $scope.prdProcessSetList = [];
         $http({
             method: 'GET',
-            url: 'Processes/processset/GetProcessSetList?processSetId=' + id
+            url: 'Processes/processset/GetProcessSetList?processSetId=' + id + '&entityId=' + $scope.model.EntityId
         }).then(function successCallback(response) {
             for (var i = 0; i < response.data.length; i++) {
                 if (response.data[i].Days < 0)
