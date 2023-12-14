@@ -1243,6 +1243,7 @@ function partyApprovalController(addressService, commonMessage, $scope, $rootSco
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.getData();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

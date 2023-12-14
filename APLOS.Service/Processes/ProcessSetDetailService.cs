@@ -79,11 +79,11 @@ namespace Library.Service.Processes
         /// </summary>
         /// <param name="processSetId"></param>
         /// <returns></returns>
-        public IEnumerable<object> GetProcessSetList(string processSetId)
+        public IEnumerable<object> GetProcessSetList(string processSetId,string entityId)
         {
             try
             {
-                string _sql = @"SELECT  PSD.ProcessSetId
+                string _sql = @"SELECT DISTINCT PSD.ProcessSetId
 										, PSD.ProcessId, p.UserName AS ProcessName
 										, PSD.[Sequence], PSD.IsBaseProcess, PSD.[Days], PSD.Symbol
 										, PSD.ProductionCycleTime, PSD.JobWorkApplicable, PSD.JobWorkType
@@ -93,7 +93,9 @@ namespace Library.Service.Processes
 													WHEN PSD.PartyId<>'' THEN PRT.UserName
 													ELSE PRT.UserName END
 										, PSD.Archive, PSD.MaterialMasterId, MM.UserName AS MaterialMasterName
-	                                    , PSD.ArticleId, ART.StandardName AS ArticleName,PSD.Qty,PSD.UOMId
+	                                    , PSD.ArticleId, ART.StandardName AS ArticleName,Qty=CASE WHEN PSD.Qty=0 THEN 100 ELSE PSD.Qty END,PSD.UOMId
+										, P.IsProductionProcess,TG.ProductionBookingLevel
+										,IsInventory=CAST(CASE WHEN M.Id IS NOT NULL THEN 1 ELSE 0 END AS BIT)
 								FROM HKP.ProcessSetDetail AS PSD
 								LEFT JOIN HKP.ProcessSet AS PS ON PSD.ProcessSetId=PS.Id
 								LEFT JOIN HKP.Process AS P ON PSD.ProcessId=P.Id
@@ -103,6 +105,8 @@ namespace Library.Service.Processes
                                 LEFT JOIN MST.MaterialMaster AS MM ON PSD.MaterialMasterId=MM.Id
                                 LEFT JOIN MST.MaterialMasterArticle AS ART ON PSD.ArticleId=ART.Id
 								LEFT OUTER JOIN [SCS].[UnitOfMeasurement] UOM ON uom.Id=PSD.UOMId
+								LEFT JOIN [HKP].[EntityProcessTag] TG ON TG.ProcessId=P.Id AND TG.EntityId='" + entityId + @"' 
+							    LEFT JOIN [dbo].[EntityConfig] M ON M.ConsumptionProcessId=P.Id AND M.EntityId='"+ entityId + @"' 
                                 WHERE PSD.ProcessSetId='" + processSetId + "' ORDER BY PSD.[Sequence]";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
