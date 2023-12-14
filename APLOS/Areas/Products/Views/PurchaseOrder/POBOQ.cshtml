@@ -475,7 +475,7 @@
                 </script>
                 <script type="text/template" id="UOM">
                     <div class="select-style">
-                        <select name="Entity" ng-model="data.TransactionUoMId" class="form-control" ng-change="$parent.ConvertedDataRow(data.uoMList,data.TransactionUoMId)"
+                        <select name="Entity" ng-model="data.TransactionUoMId" class="form-control" ng-change="$parent.ConvertedDataRow(data,data.uoMList,data.TransactionUoMId)"
                                 ng-options="item.Value as item.Text for item in data.uoMList"></select>
                     </div>
 
