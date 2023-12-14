@@ -38,10 +38,14 @@
                     <input ng-click="clearCashPopUp()" type="radio" name="source" ng-model="advance.PaymentSource" value="@Library.Model.Payments.PaymentSource.Cash.ToString()">
                     <span class="cr" tabindex="9"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Cash.ToString()
                 </label>
+                <label>
+                    <input ng-click="clearCashPopUp()" type="radio" name="source" ng-model="advance.PaymentSource" value="MultiBank">
+                    <span class="cr" tabindex="9"><i class="cr-icon"></i></span>MultiBank
+                </label>
                 @*<label>
-                    <input ng-click="clearCashPopUp()" type="radio" name="source" ng-model="advance.PaymentSource" value="@Library.Model.Payments.PaymentSource.Journal.ToString()">
-                    <span class="cr" tabindex="10"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Journal.ToString()
-                </label>*@
+                        <input ng-click="clearCashPopUp()" type="radio" name="source" ng-model="advance.PaymentSource" value="@Library.Model.Payments.PaymentSource.Journal.ToString()">
+                        <span class="cr" tabindex="10"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Journal.ToString()
+                    </label>*@
             </div>
         </div>
         <div class="form-group" ng-show="advance.PaymentSource=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">
@@ -62,6 +66,16 @@
                     <input type="text" name="CashName" ng-model="advance.CashName" class="form-control" readonly>
                     <span class="input-group-btn">
                         <button ng-click="showCashPopUp(null, advance.EntityId);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" ng-show="advance.PaymentSource=='MultiBank'">
+            <label class="col-sm-4 control-label">Select Bank<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <button ng-click="showMultiBankPopUp(advance.EntityId);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
             </div>
@@ -112,9 +126,9 @@
             </div>
         </div>
         <div class="form-group" id="div_qty">
-            <label class="col-sm-4 control-label">Amount<sup>*</sup></label>
-            <div class="col-sm-5 show-message" style="padding-right:0px;">
-                <input ng-disabled="advance.JournalId" tabindex="11" ng-model="advance.Amount" type="text" n-decimals="2" class="form-control text-right">
+            <label class="col-sm-4 control-label" >Amount<sup>*</sup></label>
+            <div class="col-sm-5 show-message" style="padding-right:0px;" >
+                <input ng-disabled="advance.JournalId ||advance.PaymentSource=='MultiBank'" tabindex="11"  ng-model="advance.Amount" type="text" n-decimals="2" class="form-control text-right">
             </div>
             <div class="col-sm-3 show-message" style="padding-left:0px;">
                 <div class="select-style">
@@ -223,6 +237,57 @@
             </div>
         </div>
 
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12">
+
+        <div class="table-responsive modal-table" ng-show="bankDetailList.length">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Account Title</th>
+                        <th>Bank Name</th>
+                        <th class="text-right">Amount</th>
+                        <th>Bank Currency</th>
+                        <th>Rate</th>
+                        <th>Bank Amount</th>
+                        <th>Books Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="x in bankDetailList">
+                        <td>{{x.AccountTitle}}</td>
+                        <td>{{x.BankName}}</td>
+                        <td>
+                            <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" autocomplete="off" ng-model="x.Amount" ng-keyup="calbankAmount(x)">
+                        </td>
+                        <td>{{x.BankCurrencyCode}}</td>
+                        <td>{{x.CompanyCurrencyRate}}</td>
+                        <td>
+                            <input type="text" n-decimals="2" ng-disabled="x.BankCurrencyId==voucher.CurrencyId" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="BankAmount" autocomplete="off" ng-model="x.BankAmount" ng-keyup="calbankCurrecyAmount(x)">
+                        </td>
+                        <td>
+                            <input type="text" n-decimals="2" ng-disabled="x.BankCurrencyId!=voucher.CurrencyId" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="BaseDrAmount" autocomplete="off" ng-model="x.BaseDrAmount" ng-keyup="calBaseAmount()">
+                        </td>
+                        <td class="text-right">
+                            <button ng-click="removeBankRow($index,x)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2" class="text-right">Total</td>
+                        <td class="text-right"><b>{{ (bankDetailList) | sumByKey:'Amount' }}</b></td>
+                        <td></td>
+                        <td class="text-right"><b>{{ (bankDetailList) | sumByKey:'BankAmount' }}</b></td>
+                        <td class="text-right"><b>{{ (bankDetailList) | sumByKey:'BaseDrAmount' }}</b></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
     </div>
     <div class="col-xs-12 col-sm-4 col-md-4">
 
@@ -434,3 +499,65 @@
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmUnPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="unPost(advanceId)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(advanceId,voucherId)"></confirm-archive-generic>
+
+<div class="modal fade site-modal in" id="multibankPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" ng-form name="bankForm">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Bank List</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="bankParameters.searchBy">
+                                            <option ng-repeat="option in bankSearchByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="bankParameters.search" ng-enter="getBankList()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getBankList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Bank</th>
+                                <th>Bank Branch</th>
+                                <th>Account Title</th>
+                                <th>Account Number</th>
+                                <th ng-show="bankACType=='HouseBank'">GL</th>
+                                <th>Currency</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in bankList |itemsPerPage:bankParameters.pageSize" pagination-id="metaData.name + 'bankList'" total-items="bankParameters.total_count" ng-click="selectBankPopUp($index, x.Id)" ng-dblclick="closeMultiBankPopUp()">
+                                <td>{{x.BankName}}</td>
+                                <td>{{x.BankBranchName}}</td>
+                                <td>{{x.AccountTitle}}</td>
+                                <td>{{x.AccountNumber}}</td>
+                                <td ng-show="bankACType=='HouseBank'">{{x.GLGeneralInfoCode}} - {{x.GLGeneralInfoName}}</td>
+                                <td>{{x.CurrencyCode}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'bankList'" direction-links="true" boundary-links="true" on-page-change="getBankList(newPageNumber)"></dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn btn-default" ng-click="closemultiBankPopUp()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
