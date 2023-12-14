@@ -1091,7 +1091,7 @@ order by pk.Date  DESC";
             {
                 var str = @"SELECT distinct pk.PackingId,Convert(bit,0) Active, format(pk.Date,'dd-MMM-yyyy') as AddedDate, format(pk.InactiveDate,'dd-MMM-yyyy') as InActiveDate, p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
                             ei.Employeename as DRespPerson, en.UserName as Entity, pk.Remarks,pk.CustomerId,pk.EntityId,A.CurrencyId,A.Currency 
-                           ,A.PaymentTermId,A.Code PaymentTermCode,A.UserName PaymentTermName
+                           ,A.PaymentTermId,A.Code PaymentTermCode,A.UserName PaymentTermName, A.BaseLineDate, A.NoOfDay,A.PaymentMode
 						   FROM TRN.Packing pk
                             LEFT JOIN hkp.Party p on p.Id = pk.CustomerId
                             LEFT JOIN dbo.EmployeeInformation e on e.SystemId = pk.ByWhom
@@ -1100,13 +1100,18 @@ order by pk.Date  DESC";
                             LEFT JOIN org.Entity en on en.Id = pk.EntityId                             
                              JOIN
                             (
-							SELECT DISTINCT PLI.PackingId,MCP.PaymentTermId,PT.Code,PT.UserName,MCP.IsPaymentTermChangeable,POLR.Qty,C.Code AS Currency,MO.CurrencyId
+							SELECT DISTINCT PLI.PackingId,PT.PaymentTermId,PT.Code,PT.UserName,PT.IsPaymentTermChangeable
+							, PT.BaseLineDate, PT.NoOfDay, PT.Code [PaymentTermCode],PT.PaymentMode,POLR.Qty
+							,C.Code AS Currency,MO.CurrencyId
                                FROM  trn.PackingLineItem PLI 
                             LEFT JOIN TRN.SalesOrder SO ON SO.Id=PLI.SOId
                             LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
                             LEFT JOIN TRN.MasterOrder MO ON MO.Id=MOI.MasterOrderId
-                            LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=MO.PaymentTermId
+                            LEFT JOIN(
+							Select PT.Id PaymentTermId,PT.Code,PT.UserName,PT.BaseLineDate, PTD.NoOfDay, PT.Code [PaymentTermCode],PT.PaymentMode,MCP.IsPaymentTermChangeable from [MST].[PaymentTerm] AS PT 
                             LEFT JOIN [HKP].[CompanyParty] AS MCP ON  MCP.PartyType='Customer' AND PT.Id=MCP.PaymentTermId
+							LEFT JOIN [MST].[PaymentTermDetail] PTD ON PTD.PaymentTermId=PT.Id
+                            WHERE PTD.[Sequence]='3' AND PT.Active=1 AND PT.Archive=0 AND PT.IsCustomer=1)PT ON PT.PaymentTermId=MO.PaymentTermId
 							LEFT JOIN [SCS].[Currency] AS C ON C.Id=MO.CurrencyId
  JOIN 
 (							
