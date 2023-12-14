@@ -5437,7 +5437,7 @@ union
                             WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + @"' 
 							AND V.PlantId='" + plantId + "' AND VD.PartyId='" + partyId + "' AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"'
                             AND V.SourceType<>'OpeningBalance' 
-                            AND V.Id NOT IN(SELECT VoucherId FROM TRN.InvoiceWriteOff  WHERE SourceType IN('VendorAdvanceWriteOff','CustomerAdvanceWriteOff'))
+                            AND V.Id NOT IN(SELECT VoucherId FROM TRN.InvoiceWriteOff  WHERE SourceType IN('VendorAdvanceWriteOff','CustomerAdvanceWriteOff','CreditNoteSetOff'))
                             --AND V.SourceType NOT IN ('OpeningBalance','VendorAdvanceWriteOff')
                             
                                 ";
