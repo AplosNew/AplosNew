@@ -1709,5 +1709,7 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
                        K.ThirdCharacteristics, K.ThirdCharacteristicsValue, K.Quantity");
         }
 
+
+   
     }
 }

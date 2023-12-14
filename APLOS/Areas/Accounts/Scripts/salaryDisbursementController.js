@@ -269,8 +269,8 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
                 }
                 else {
 
-                    for (var i = 0; i < $scope.EmployeeListTemp.length; i++) {
-                        $scope.EmployeeListTemp[i].CheckBoxSelect = getActive(response.data, $scope.EmployeeListTemp[i].EmployeeCode);
+                    for (var i = 0; i < $scope.SalaryUnDisburseList.length; i++) {
+                        $scope.SalaryUnDisburseList[i].CheckBoxSelect = getActive(response.data, $scope.SalaryUnDisburseList[i].EmployeeCode);
                     }
                     $scope.ShowSaveBtn = true;
                 }

@@ -179,6 +179,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
 
     $scope.selectedPackingList = [];
     function MakeData() {
+        $scope.paymentTermList = [];
         try {
             for (var i = 0; i < $scope.PackingList.length; i++) {
                 var getRow = $filter("filter")($scope.selectedPackingList, { "selectedPackingList": $scope.PackingList[i].PackingId });
@@ -210,6 +211,10 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                                 ob.InActiveDate = $scope.PackingList[i].InActiveDate;
                                 ObjPt.Value = $scope.PackingList[i].PaymentTermId;
                                 ObjPt.Text = $scope.PackingList[i].PaymentTermName;
+                                ObjPt.PaymentTermCode = $scope.PackingList[i].PaymentTermCode;
+                                ObjPt.NoOfDay = $scope.PackingList[i].NoOfDay;
+                                ObjPt.BaseLineDate = $scope.PackingList[i].BaseLineDate;                             
+
                                 $scope.paymentTermList.push(ObjPt);
 
                                 ObjPt = {};
@@ -1224,7 +1229,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         $scope.salesVM.AddedDate = $filter('dateFiltering')(new Date($scope.salesVM.AddedDate), 'dd-MM-yyyy');
         $scope.ModelNew.Amount = data.Amount;
         getPartyPlantEditList($scope.salesVM.InvoicingPartyPlantId, $scope.salesVM.InvoicingByAddress, $scope.salesVM.DeliveryPartyPlantId, $scope.salesVM.DeliveryByAddress, $scope.salesVM.DeliveryState, $scope.salesVM.DeliveryGSTIN);
-        $scope.GetSalesMaterialData($scope.salesVM.Id);
+        
         $scope.GetSalesPackingData($scope.salesVM.Id);
         $scope.getPostSalesData();
 
@@ -1239,12 +1244,22 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
 
     $scope.GetSalesPackingData = function (salesId) {
         $scope.selectedPackingList = [];
+        $scope.paymentTermList = [];
+        var ObjPt = {};
         $http({
             method: 'GET',
             url: "Productions/PackingInvoice/GetSalesPackingData?salesId=" + salesId
         }).then(function (response) {
             $scope.selectedPackingList = response.data;
-
+            for (var i = 0; i < $scope.selectedPackingList.length; i++) {
+                ObjPt.Value = $scope.selectedPackingList[i].PaymentTermId;
+                ObjPt.Text = $scope.selectedPackingList[i].PaymentTermName;
+                ObjPt.PaymentTermCode = $scope.selectedPackingList[i].PaymentTermCode;
+                ObjPt.NoOfDay = $scope.selectedPackingList[i].NoOfDay;
+                ObjPt.BaseLineDate = $scope.selectedPackingList[i].BaseLineDate;
+                $scope.paymentTermList.push(ObjPt);
+                ObjPt = {};
+            }
             if ($scope.selectedPackingList.length > 0) {
                 var uniquePackingId = removeDuplicates($scope.selectedPackingList, 'PackingId');
                 var wcPackingId = "";
@@ -1254,6 +1269,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                 }
                 $scope.sqlInStatement = wcPackingId;
             }
+            $scope.GetSalesMaterialData($scope.salesVM.Id);
         });
     }
 

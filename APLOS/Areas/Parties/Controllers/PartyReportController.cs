@@ -299,7 +299,42 @@ namespace Aplos.Areas.Parties.Controllers
 
 
         }
+        [HttpGet, Authorize]
+        public ActionResult GetShortPartyPaymentStatusReport(ReportFormat reportFormat, PartyType partyType, string partyId, string partyPlantId, string gSTINId, string fromDate, string toDate, string glId, bool active)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            //var workbook = "";  
 
+            if (active)
+            {
+                var workbook = _partyReportService.GetShortPartyPaymentStatusLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + " Party Payment Status Report";
+                if (reportFormat == ReportFormat.Pdf)
+                {
+                    return RenderReportAsPdf(workbook, reportFileName);
+                }
+                else
+                {
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                }
+            }
+            else
+            {
+                var workbook = _partyReportService.GetShortPartyPaymentStatusLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + " Party Payment Status Report";
+                if (reportFormat == ReportFormat.Pdf)
+                {
+                    return RenderReportAsPdf(workbook, reportFileName);
+                }
+                else
+                {
+                    return RenderReportAsExcel(workbook, reportFileName);
+                }
+            }
+
+
+        }
 
         #endregion party payment status report
 

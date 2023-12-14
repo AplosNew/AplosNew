@@ -708,14 +708,15 @@ namespace Aplos.Areas.OrderManagements.Controllers
         //    return Json(_masterOrderService.GetDepartmentPersonCbo(plantId, partyAccountGroupId, partyId), JsonRequestBehavior.AllowGet);
         //}
         [HttpPost]
-        public JsonResult Create(MasterOrder entity, List<MasterOrderTNA> taskList, List<Dictionary<string, object>> CurrencyData)
+        public JsonResult Create(MasterOrder entity, List<MasterOrderTNA> taskList, List<Dictionary<string, object>> CurrencyData, Dictionary<string, object>UserRemarksControl)
         {
-            _masterOrderService.Insert(entity, taskList);
+            _masterOrderService.Insert(entity, taskList, UserRemarksControl);
             Library.Planning.OrderManagement.MasterOrder mo = new Library.Planning.OrderManagement.MasterOrder();
             mo.GenerateLogForTnA(entity.Id, Library.Service.Enums.TaskAppliedOnEnum.MasterOrder);
 
             Library.General.Conversions.CurrencyConversions con = new Library.General.Conversions.CurrencyConversions(ExchangeRateTableName);
             con.SaveConversion(entity.Id, CurrencyData);
+            
             return Json(new { MasterOrder = entity, Message = AplosMessage.Success });
         }
         [HttpPost]
@@ -726,15 +727,15 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpPost]
-        public JsonResult Edit(MasterOrder entity, string masterId, IEnumerable<MasterOrderResPerson> personList, IEnumerable<MasterOrderItem> itemList, List<Dictionary<string, object>> CurrencyData)
+        public JsonResult Edit(MasterOrder entity, string masterId, IEnumerable<MasterOrderResPerson> personList, IEnumerable<MasterOrderItem> itemList, List<Dictionary<string, object>> CurrencyData, Dictionary<string, object>UserRemarksControl)
         {
-            _masterOrderService.Update(entity, masterId, personList, itemList);
+            _masterOrderService.Update(entity, masterId, personList, itemList, UserRemarksControl);
             Library.Planning.OrderManagement.MasterOrder mo = new Library.Planning.OrderManagement.MasterOrder();
             mo.GenerateLogForTnA(masterId, Library.Service.Enums.TaskAppliedOnEnum.MasterOrder);
 
             Library.General.Conversions.CurrencyConversions con = new Library.General.Conversions.CurrencyConversions(ExchangeRateTableName);
             con.SaveConversion(entity.Id, CurrencyData);
-
+            
             return Json(new { Message = AplosMessage.Updated });
         }
 

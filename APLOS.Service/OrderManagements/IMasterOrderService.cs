@@ -21,7 +21,7 @@ namespace Library.Service.OrderManagements
         object GetOrderDateSetting(string shipmentModeId, string buyerId);
         GridModel QueryIdependent(GridParameter parameters, string companyId);
         void InsertOrUpdate(MasterOrder entity);
-        void Insert(MasterOrder entity, List<MasterOrderTNA> taskList);
+        void Insert(MasterOrder entity, List<MasterOrderTNA> taskList, Dictionary<string, object> UserRemarksControl);
         IEnumerable<object> GetTaskList(string buyerId, string buyerDepartmentId, string buyerDivisionId, string moId);
         void InsertOrUpdateSplitSOGraph(string masterItemId, SalesOrderMaster salesOrderMaster);
         IEnumerable<object> GetSpecialTaxList(string plantId);
@@ -71,7 +71,7 @@ namespace Library.Service.OrderManagements
 
         GridModel GetEmployeeListResponsible(GridParameter parameters, string companyId, string plantId, string partyAccountGroupId, string partyId);
         GridModel GetPreparedEmployeeList(GridParameter parameters, string plantId, string employeeId);
-        void Update(MasterOrder entity, string masterId, IEnumerable<MasterOrderResPerson> personList, IEnumerable<MasterOrderItem> itemList);
+        void Update(MasterOrder entity, string masterId, IEnumerable<MasterOrderResPerson> personList, IEnumerable<MasterOrderItem> itemList, Dictionary<string, object> UserRemarksControl);
 
         void InsertOrUpdateGraph(string masterItemId, IEnumerable<MasterOrderAttributeValue> attributeValueList);
 
