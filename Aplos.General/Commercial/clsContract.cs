@@ -120,13 +120,28 @@ where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1
         {
             try
             {
-                string sql = @"SELECT Active=CAST (0 AS bit),C.*, P.UserName AS CustomerName , PT.UserName PaymentTerm , A.PaymentTermId
+                string sql = @"SELECT Active=CAST (0 AS bit),C.*, P.UserName AS CustomerName
+,PaymentTerm=isnull(STUFF((select distinct ','+PT.UserName from MST.PaymentTerm AS PT
+Left join TRN.MasterOrder XMOI on PT.Id = XMOI.PaymentTermId
+INNER JOIN TRN.MasterOrderItem I ON I.MasterOrderId=XMOI.Id
+INNER JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=I.Id	  
+where so.ContractId=C.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+,PaymentTermId=isnull(STUFF((select distinct ','+PT.Id from MST.PaymentTerm AS PT
+Left join TRN.MasterOrder XMOI on PT.Id = XMOI.PaymentTermId
+INNER JOIN TRN.MasterOrderItem I ON I.MasterOrderId=XMOI.Id
+INNER JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=I.Id	  
+where so.ContractId=C.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+,[Buyer]=isnull(STUFF((select distinct ','+B.UserName from 
+TRN.MasterOrder XMOI
+INNER JOIN TRN.MasterOrderItem I ON I.MasterOrderId=XMOI.Id
+INNER JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=I.Id
+LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId	  
+where so.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+,ItemNo=isnull(STUFF((select distinct ','+I.Id from TRN.MasterOrderItem I 
+INNER JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=I.Id
+where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
                             FROM [dbo].[Contract] C
-                            JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id 
-							left join trn.salesorder so on so.ContractId = c.Id
-							INNER JOIN [TRN].[MasterOrderItem] AS I ON I.Id=SO.MasterOrderItemId
-							INNER JOIN [TRN].[MasterOrder] AS A ON A.Id=I.MasterOrderId
-                            Left join MST.PaymentTerm AS PT on PT.Id = A.PaymentTermId
+                            JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id
                             WHERE C.MasterLCId IS NULL AND C.CustomerId='" + customerId + "' ORDER BY C.CustomerId";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -139,6 +154,25 @@ where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1
         public IEnumerable<object> GetSavedContractList(string masterLCId)
         {
             string sql = @"SELECT C.*, P.UserName AS CustomerName
+,PaymentTerm=isnull(STUFF((select distinct ','+PT.UserName from MST.PaymentTerm AS PT
+Left join TRN.MasterOrder XMOI on PT.Id = XMOI.PaymentTermId
+INNER JOIN TRN.MasterOrderItem I ON I.MasterOrderId=XMOI.Id
+INNER JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=I.Id	  
+where so.ContractId=C.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+,PaymentTermId=isnull(STUFF((select distinct ','+PT.Id from MST.PaymentTerm AS PT
+Left join TRN.MasterOrder XMOI on PT.Id = XMOI.PaymentTermId
+INNER JOIN TRN.MasterOrderItem I ON I.MasterOrderId=XMOI.Id
+INNER JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=I.Id	  
+where so.ContractId=C.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+,[Buyer]=isnull(STUFF((select distinct ','+B.UserName from 
+TRN.MasterOrder XMOI
+INNER JOIN TRN.MasterOrderItem I ON I.MasterOrderId=XMOI.Id
+INNER JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=I.Id
+LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId	  
+where so.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+,ItemNo=isnull(STUFF((select distinct ','+I.Id from TRN.MasterOrderItem I 
+INNER JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=I.Id
+where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
                             FROM [dbo].[Contract] C
                             JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id 
                             Where C.MasterLCId='" + masterLCId + "' ORDER BY C.CustomerId";

@@ -130,43 +130,61 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
 
     $scope.SaveList = [];
     $scope.SaveContract = function () {
-        $scope.SaveList = [];
-        for (var i = 0; i < $scope.contractList.length; i++) {
-            if ($scope.contractList[i].Active) {
-               
+        try {
+            $scope.SaveList = [];
+            if (baseService.arrayLength($scope.savedcontractList)>0) {
+                for (var i = 0; i < $scope.contractList.length; i++) {
+                    if ($scope.contractList[i].Active) {
+                        if (checkSamePaymentTerm($scope.savedcontractList, $scope.contractList[i].PaymentTermId)) {
+                            $scope.SaveList.push($scope.contractList[i]);
+                        }
+                        else {
 
-                if (checkSamePaymentTerm($scope.SaveList, $scope.contractList[i].PaymentTermId)) {
-                    $scope.SaveList.push($scope.contractList[i]);
-                }
-                else {
-                    
-                    throw "Select same Payment Term.";
+                            throw "Select same Payment Term.";
+                        }
+                    }
                 }
             }
-        }
+            else {
+                for (var i = 0; i < $scope.contractList.length; i++) {
+                    if ($scope.contractList[i].Active) {
+                        if (checkSamePaymentTerm($scope.SaveList, $scope.contractList[i].PaymentTermId)) {
+                            $scope.SaveList.push($scope.contractList[i]);
+                        }
+                        else {
 
-        if (baseService.arrayLength($scope.SaveList) > 0) {
-            $http({
-                method: 'POST',
-                url: 'Commercial/Contract/CreateContractWithMasterLC',
-                data: {
-                    models: $scope.SaveList, masterLcId: $scope.masterLC.Id
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true)
-                    ShowResult(response.data.Message, 'failure');
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.GetSavedContract($scope.masterLC.Id);
+                            throw "Select same Payment Term.";
+                        }
+                    }
                 }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            };
-            angular.element(document.querySelector('#ContractPopUp')).modal('hide');
-        }
-        else {
-            ShowResult('Select Contract.', 'failure', 'ContractPopUp');
+            }
+            
+
+            if (baseService.arrayLength($scope.SaveList) > 0) {
+                $http({
+                    method: 'POST',
+                    url: 'Commercial/Contract/CreateContractWithMasterLC',
+                    data: {
+                        models: $scope.SaveList, masterLcId: $scope.masterLC.Id
+                    },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true)
+                        ShowResult(response.data.Message, 'failure');
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.GetSavedContract($scope.masterLC.Id);
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                };
+                angular.element(document.querySelector('#ContractPopUp')).modal('hide');
+            }
+            else {
+                throw 'Select Contract.';
+            }
+        } catch (e) {
+            ShowResult(e, 'failure', 'ContractPopUp');
         }
     }
 
