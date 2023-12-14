@@ -239,12 +239,26 @@
                             <div style="color:black;" id="GridCon" ej-grid e-datasource="savedcontractList" e-gridlines="vertical" e-allowfiltering="true"
                                  e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
                                 <div e-columns>
-                                    <div e-column e-field="Id" e-headertext="Contract No" e-width="80"></div>
-                                    <div e-column e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
-                                    <div e-column e-field="MasterLCId" e-headertext="MasterLC No" e-width="80"></div>
-                                    <div e-column e-headertext="Actions" e-width="20">
+                                    <div e-column e-headertext="Actions" e-width="30">
                                         <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.deleteModal($event);" style="margin: -6px;"></i></button>
                                     </div>
+                                    <div e-column e-field="Id" e-headertext="Contract No" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="FileNo" e-headertext="File No" e-width="120"></div>
+                                    <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
+                                    <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
+                                    <div e-column e-field="PaymentTerm" e-headertext="PaymentTerm" e-width="150"></div>
+                                    <div e-column e-type="string" e-field="TotalQty" e-headertext="Quantity" e-width="100"></div>
+                                    <div e-column e-type="string" e-field="Amount" e-headertext="Value" e-width="100"></div>
+                                    <div e-column e-type="string" e-field="Bank" e-headertext="Bank" e-width="150"></div>
+                                    <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="CreationDate" e-headertext="Creation Date" e-width="100"></div>
+                                    <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="150"></div>
+                                    <div e-column e-type="string" e-field="ItemNo" e-headertext="ItemNo" e-width="180"></div>
+                                    <div e-column e-type="string" e-field="Id" e-headertext="ContractId" e-width="90"></div>
+                                    <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLC RefNo" e-width="100"></div>
+                                    <div e-column e-type="string" e-field="UDNo" e-headertext="UD No" e-width="100"></div>
+                                    <div e-column e-field="IsLC" e-headertext="IsLC" e-width="70"></div>
+                                    <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
+
                                 </div>
                             </div>
                         </div>
@@ -462,7 +476,7 @@
 <confirm-modal></confirm-modal>
 
 <div class="modal fade site-modal in" id="ContractPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-md">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -476,11 +490,23 @@
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                             <div e-columns>
                                 <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplatePO" e-textalign="center" e-width="30"></div>
-                                <div e-column e-field="Id" e-headertext="Contract Id" e-width="40"></div>
-                                <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="80"></div>
-                                <div e-column e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
+                                <div e-column e-field="Id" e-headertext="Contract Id" e-width="50"></div>
+                                <div e-column e-type="string" e-field="FileNo" e-headertext="File No" e-width="120"></div>
+                                <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
+                                <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
                                 <div e-column e-field="PaymentTerm" e-headertext="PaymentTerm" e-width="150"></div>
-                                <div e-column e-field="Buyer" e-headertext="Buyer" e-width="150"></div>
+                                <div e-column e-type="string" e-field="TotalQty" e-headertext="Quantity" e-width="100"></div>
+                                <div e-column e-type="string" e-field="Amount" e-headertext="Value" e-width="100"></div>
+                                <div e-column e-type="string" e-field="Bank" e-headertext="Bank" e-width="150"></div>
+                                <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="CreationDate" e-headertext="Creation Date" e-width="100"></div>
+                                <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="150"></div>
+                                <div e-column e-type="string" e-field="ItemNo" e-headertext="ItemNo" e-width="180"></div>
+                                <div e-column e-type="string" e-field="Id" e-headertext="ContractId" e-width="90"></div>
+                                <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLC RefNo" e-width="100"></div>
+                                <div e-column e-type="string" e-field="UDNo" e-headertext="UD No" e-width="100"></div>
+                                <div e-column e-field="IsLC" e-headertext="IsLC" e-width="70"></div>
+                                <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
+
                             </div>
                         </div>
                     </div>
