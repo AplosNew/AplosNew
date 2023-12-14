@@ -119,12 +119,29 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         angular.element(document.querySelector('#ContractPopUp')).modal('show');
     };
 
+    function checkSamePaymentTerm(list, PaymentTermId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].PaymentTermId !== PaymentTermId) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     $scope.SaveList = [];
     $scope.SaveContract = function () {
         $scope.SaveList = [];
         for (var i = 0; i < $scope.contractList.length; i++) {
             if ($scope.contractList[i].Active) {
-                $scope.SaveList.push($scope.contractList[i]);
+               
+
+                if (checkSamePaymentTerm($scope.SaveList, $scope.contractList[i].PaymentTermId)) {
+                    $scope.SaveList.push($scope.contractList[i]);
+                }
+                else {
+                    
+                    throw "Select same Payment Term.";
+                }
             }
         }
 
