@@ -136,7 +136,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         , IsPaymentTermChangeable: null
         , ExceptionalProcessId: null
         , ExceptionalSubProcessId: null
-        , RemarksControlId: null
         , DefaultPaymentTermId: null
         ,IsPaymentTermChangeable: false
     };
@@ -156,7 +155,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.searchByRCList = [{ value: 'Id', name: "Id" }, { value: 'Process', name: "Process" }];
 
 
-    $scope.RemarksControlmodel = {};
+    $scope.RemarksControlmodel = { MasterOrderId: null, RemarkControlId: null, RemarksControl: null, UserRemarks:null};
     $scope.RemarksControlList = [];
     $scope.GetRemarksControlList = function () {
         $http({
@@ -171,8 +170,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     }
     $scope.SelectRemarksControl = function (data) {
         $scope.RemarksControlmodel.MasterOrderId = $scope.fileNew.Id;
-        $scope.RemarksControlmodel.RemarksControlId = data.data.Id;
+        $scope.RemarksControlmodel.RemarkControlId = data.data.Id;
         $scope.RemarksControlmodel.RemarksControl = data.data.Process;
+        $scope.RemarksControlmodel.UserRemarks = data.data.UserRemarks;
         angular.element(document.querySelector('#RemarksControlPopUp')).modal('hide');
     }
 
@@ -512,6 +512,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.file.IsExtraOrderPercentage = $scope.file.ExtraOrderPercentage > 0;
         angular.copy($scope.file, $scope.fileNew);
         $scope.fileNew.OrderYear = parseInt($scope.fileNew.OrderYear);
+        $scope.RemarksControlmodel.MasterOrderId = $scope.fileNew.Id;
+        $scope.RemarksControlmodel.RemarkControlId = $scope.fileNew.RemarkControlId;
+        $scope.RemarksControlmodel.RemarksControl = $scope.fileNew.RemarksControl;
         $scope.Action = 'Update';
         getPartyPlantList();
         //$scope.GetResponsiblePersonList();
@@ -595,11 +598,11 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             }
         }
 
-        //if (!baseService.isUndefinedOrNull($scope.fileNew.PaymentTermId) && !baseService.isUndefinedOrNull($scope.fileNew.DefaultPaymentTermId)) {
-        //    if (($scope.fileNew.PaymentTermId !== $scope.fileNew.DefaultPaymentTermId) && baseService.isUndefinedOrNull($scope.fileNew.RemarksControlId)) {
-        //        return ShowResult('Payment Term Remarks is required.', 'failure');
-        //    }
-        //}
+        if (!baseService.isUndefinedOrNull($scope.fileNew.PaymentTermId) && !baseService.isUndefinedOrNull($scope.fileNew.DefaultPaymentTermId)) {
+            if (($scope.fileNew.PaymentTermId !== $scope.fileNew.DefaultPaymentTermId) && baseService.isUndefinedOrNull($scope.RemarksControlmodel.RemarkControlId)) {
+                return ShowResult('Payment Term Remarks is required.', 'failure');
+            }
+        }
 
         if (parseFloat(baseService.isUndefinedOrNull($scope.fileNew.TotalQty) ? 0 : $scope.fileNew.TotalQty) === 0) return ShowResult('Please insert total qty.', 'failure');
 
@@ -639,7 +642,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     method: 'POST'
                     , url: $scope.saveUrl
                     , data: {
-                        'entity': $scope.file, 'taskList': $scope.taskList, 'CurrencyData': $scope.ExchangeDisplayCurrency
+                        'entity': $scope.file, 'taskList': $scope.taskList, 'CurrencyData': $scope.ExchangeDisplayCurrency, 'UserRemarksControl': $scope.RemarksControlmodel
                     }
                     , dataType: 'JSON'
                 }).then(function successCallback(response) {
@@ -703,6 +706,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         , 'personList': $scope.personList
                         , 'itemList': $scope.itemList
                         , 'CurrencyData': $scope.ExchangeDisplayCurrency
+                        , 'UserRemarksControl': $scope.RemarksControlmodel
                     }
                     , dataType: 'JSON'
                 }).then(function successCallback(response) {

@@ -5378,6 +5378,293 @@ union
             }
         }
 
+        private DataTable GetShortPartyPaymentStatuPlantLedger(string companyGroupId, string companyId, string plantId, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId)
+        {
+            var cmdText = @"--Modify query
+
+                            DECLARE @companyId VARCHAR(10)='" + companyId + @"';
+                            SELECT REPLACE(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') AS PostingDate
+							, V.VoucherNo
+							, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                            , V.DocRefNo
+							, REPLACE(CONVERT(VARCHAR(11), v.DocDate, 106), ' ', '-') AS DocDate
+							, V.Narration
+							, SUM(ISNULL(VD.DrAmount,0)) AS DrAmount
+							, SUM(ISNULL(VD.CrAmount,0)) AS CrAmount
+                            , CC.CompanyCurrencyId
+							, SUM(ISNULL(CC.CompanyCurrencyDrAmount, 0)) AS CompanyCurrencyDrAmount
+							, SUM(ISNULL(CC.CompanyCurrencyCrAmount, 0)) AS CompanyCurrencyCrAmount
+
+							, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, PP.GSTIN
+                            , VD.GLGeneralInfoId,GLGI.UserName AS GLGeneralInfoName
+							, BGM.RefNo, BG.UserName AS BudgetName,V.CurrencyId, A.UserName AS ActivityName
+							, P.Code AS PartyCode, P.UserName AS PartyName, PP.UserName AS PartyPlantName
+
+                             ,Particular =concat( STUFF((select distinct ','+xpA.UserName+ ' '+'('+ xp.UserName+')' from
+														TRN.VoucherDetail XVD JOIN [HKP].[Party] AS XP ON XP.Id=XVD.PartyId
+                                                        JOIN HKP.Activity AS XPA ON XPA.Id=XVD.ActivityId
+													    where	XVD.VoucherId=V.Id AND XVD.PartyId<>'' AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+												,STUFF((select distinct ','+xp.AccountTitle from
+														TRN.VoucherDetail XVD JOIN MST.BankMaster AS XP ON XP.Id=XVD.BankMasterId
+													where	XVD.VoucherId=V.Id AND XVD.BankMasterId<>'' AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+												 , STUFF((select distinct ','+xp.UserName from
+														TRN.VoucherDetail XVD JOIN MST.CashMaster AS XP ON XP.Id=XVD.CashMasterId
+													where	XVD.VoucherId=V.Id AND XVD.CashMasterId<>'' AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+												 ,STUFF((select distinct ','+xp.EmployeeName from
+														TRN.VoucherDetail XVD JOIN [dbo].[EmployeeInformation] AS XP ON XP.SystemId=XVD.EmployeeId
+													where	XVD.VoucherId=V.Id AND XVD.EmployeeId<>'' AND VD.ActivityId!=XVD.ActivityId  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                                , STUFF((select distinct ','+xp.UserName from
+														TRN.VoucherDetail XVD JOIN HKP.Activity AS XP ON XP.Id=XVD.ActivityId
+													where	XVD.VoucherId=V.Id AND XVD.PartyId is null AND XVD.CashMasterId IS NULL AND XVD.BankMasterId IS NULL AND XVD.EmployeeId IS NULL
+													 AND VD.ActivityId!=XVD.ActivityId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''))
+                                       
+                            FROM [TRN].[VoucherDetail] AS VD
+                            LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+                            LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
+                            LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=VD.PartyPlantId AND P.Id=VD.PartyId
+
+                            LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                            FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                            JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                            WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                            ) AS CC ON CC.VoucherDetailId=VD.Id
+
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + @"' 
+							AND V.PlantId='" + plantId + "' AND VD.PartyId='" + partyId + "' AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"'
+                            AND V.SourceType<>'OpeningBalance' 
+                            AND V.Id NOT IN(SELECT VoucherId FROM TRN.InvoiceWriteOff  WHERE SourceType IN('VendorAdvanceWriteOff','CustomerAdvanceWriteOff'))
+                            --AND V.SourceType NOT IN ('OpeningBalance','VendorAdvanceWriteOff')
+                            
+                                ";
+
+            if (!string.IsNullOrEmpty(partyPlantId))
+                cmdText += " AND VD.PartyPlantId='" + partyPlantId + "'";
+            if (!string.IsNullOrEmpty(gSTINId))
+                cmdText += " AND PP.GSTIN='" + gSTINId + "'";
+            if (active)
+                cmdText += @" GROUP BY V.PostingDate, V.VoucherNo, V.VoucherDate
+                            , V.DocRefNo, V.DocDate, V.Narration
+                            , CC.CompanyCurrencyId, C.Code, GLGI.AccountCode, PP.GSTIN,V.Id,VD.ActivityId
+                            , VD.GLGeneralInfoId,GLGI.UserName, BGM.RefNo, BG.UserName,V.CurrencyId, A.UserName, P.Code , P.UserName , PP.UserName ORDER BY VD.GLGeneralInfoId, V.PostingDate, V.VoucherNo ASC";
+            else
+                cmdText += @"					 GROUP BY V.PostingDate, V.VoucherNo, V.VoucherDate
+                            , V.DocRefNo, V.DocDate, V.Narration
+                            , CC.CompanyCurrencyId, C.Code, GLGI.AccountCode, PP.GSTIN,V.Id,VD.ActivityId
+                            , VD.GLGeneralInfoId,GLGI.UserName, BGM.RefNo, BG.UserName,V.CurrencyId, A.UserName, P.Code , P.UserName , PP.UserName ORDER BY V.PostingDate, V.VoucherNo ASC";
+
+            return _sqlRepository.GetDataTable(cmdText);
+        }
+
+        public IWorkbook GetShortPartyPaymentStatusLedgerReport(string companyGroupId, string companyId, string plantId, string plantName, PartyType partyType, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId)
+        {
+            try
+            {
+                var row = 6;
+                var excelEngine = new ExcelEngine();
+                var reportUtility = new ReportUtility();
+                var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
+                workbook.Version = ExcelVersion.Excel2016;
+                var sheet = workbook.Worksheets[0];
+                sheet.Name = "Ledger";
+                var colLast = 6;
+                var colLast1 = 6;
+                var col = 1;
+                var StartRow = 9;
+
+                //sheet = null;
+
+                // Get Party Master
+                var partyMaster = _partyService.Find(partyType, companyId, plantId, partyId);
+                // Set Header
+                reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Party");
+                sheet.Range[row, 1, row, 2].Merge();
+                reportUtility.SetMiddleAlignmentText(ref sheet, row, 3, partyMaster["PartyCode"] + " - " + partyMaster["PartyName"]);
+                sheet.Range[row, 3, row, 5].Merge();
+                // sheet.Range[row, 3, row, 5].RowHeight = 30;
+                int colAccountGroup = 7;
+                reportUtility.SetMasterHeaderText(ref sheet, row, 7, "Account Group");
+                sheet.Range[row, colAccountGroup, row, colAccountGroup + 1].Merge();
+                reportUtility.SetMiddleAlignmentText(ref sheet, row, colAccountGroup + 2, partyMaster["PartyAccountGroupName"].ToString());
+                sheet.Range[row, colAccountGroup + 2, row, colAccountGroup + 4].Merge();
+
+                row++;
+                if (!string.IsNullOrEmpty(partyPlantId))
+                {
+                    var partyPlant = _partyPlantRepository.Find(partyPlantId);
+                    reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Party Plant");
+                    sheet.Range[row, 1, row, 2].Merge();
+                    reportUtility.SetMiddleAlignmentText(ref sheet, row, 3, partyPlant?.UserName);
+                    sheet.Range[row, 3, row, 5].Merge();
+
+                    colLast = colLast - 1;
+                    colLast1 = colLast;
+                }
+                if (!string.IsNullOrEmpty(gSTINId))
+                {
+                    reportUtility.SetMasterHeaderText(ref sheet, row, 7, "Party GSTIN");
+                    sheet.Range[row, 7, row, 8].Merge();
+                    reportUtility.SetMiddleAlignmentText(ref sheet, row, 9, gSTINId);
+                    sheet.Range[row, 9, row, 11].Merge();
+                }
+
+                row++;
+                _companyParallelCurrencyService.GetParallelCurrency(companyId, out string companyCurrencyId, out string companyCurrencyCode);
+                if (companyCurrencyId != partyMaster["CurrencyId"].ToString())
+                {
+                    reportUtility.SetHeaderText(ref sheet, row, colLast + 1, "Transaction", ExcelHAlign.HAlignCenter);
+                    sheet.Range[row, colLast + 1, row, colLast + 2].Merge();
+                    sheet.Range[row, colLast + 1, row, colLast + 2].BorderAround(ExcelLineStyle.Thin);
+
+                    colLast = colLast + 3;
+                }
+                reportUtility.SetHeaderText(ref sheet, row, colLast + 1, companyCurrencyCode, ExcelHAlign.HAlignCenter);
+                sheet.Range[row, colLast + 1, row, colLast + 3].Merge();
+                sheet.Range[row, colLast + 1, row, colLast + 3].BorderAround();
+                // Set Row Header
+                row++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "GL", 15); col++;
+                if (string.IsNullOrEmpty(partyPlantId))
+                {
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Party Plant", 10); col++;
+                }
+                reportUtility.SetHeaderText(ref sheet, row, col, "Voucher No", 15); col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Posting Date", 15); col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Narration", 15); col++;
+
+                sheet.Range[row, col].WrapText = true;
+
+                if (companyCurrencyId != partyMaster["CurrencyId"].ToString())
+                {
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Currency", 8, ExcelHAlign.HAlignLeft); col++;
+
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 12, ExcelHAlign.HAlignRight); col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 12, ExcelHAlign.HAlignRight); col++;
+                }
+                reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 12, ExcelHAlign.HAlignRight); col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 12, ExcelHAlign.HAlignRight); col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Balance", 12, ExcelHAlign.HAlignRight); col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Dr/Cr", 4, ExcelHAlign.HAlignRight);
+                //sheet[row, 1, row, col].RowHeight = 70;
+                //  sheet[row, 1, row, col].WrapText = true;
+
+                row++;
+                reportUtility.SetText(ref sheet, row, 1, "Opening Balance", true);
+                sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].Merge();
+                sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].RowHeight = 30;
+                // Get party opening balance data.
+                var obVal = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, partyType.ToString());
+                if (obVal.Count > 0)
+                {
+                    // Set Opening Balance
+                    if (!string.IsNullOrEmpty(companyCurrencyId))
+                        reportUtility.SetText(ref sheet, row, col - 1, Convert.ToDouble(obVal[0]["CompanyCurrencyOB"]), true);
+
+                    sheet.Range[row, col].Formula = "IF(" + reportUtility.GetColumnNameForXls(col - 1) + row + ">= 0, \"Dr\", \"Cr\")";
+                    sheet.Range[row, col].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                    sheet.Range[row, col - 1].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo(); col++;
+
+                }
+
+                var ledgerData = GetShortPartyPaymentStatuPlantLedger(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
+                row++;
+                int sumStrRow = 0;
+                // Get bank transaction data.
+                if (ledgerData.Rows.Count > 0)
+                {
+                    sumStrRow = row;
+                    col = 1;
+                    for (int i = 0; i < ledgerData.Rows.Count; i++)
+                    {
+                        //sumStrRow = row;
+                        col = 1;
+                        reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["GLGeneralInfoCode"] + " - " + ledgerData.Rows[i]["GLGeneralInfoName"]); col++;
+                        if (string.IsNullOrEmpty(partyPlantId))
+                        {
+                            reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["PartyPlantName"].ToString()); col++;
+                        }
+                        reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["VoucherNo"].ToString(), ExcelHAlign.HAlignLeft); col++;
+                        reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["PostingDate"].ToString(), ExcelHAlign.HAlignLeft); col++;
+
+                        //reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["VoucherDate"].ToString(), ExcelHAlign.HAlignLeft); col++;
+                        ////reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["DocRefNo"].ToString(), 9, ExcelHAlign.HAlignLeft); col++;
+                        ////reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["DocDate"].ToString(), 9, ExcelHAlign.HAlignLeft); col++;
+                        //sheet[row, col].ColumnWidth = 50;
+                        sheet.Range[row, col].WrapText = true;
+                        reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["Narration"].ToString()); col++;
+
+                        sheet.Range[row, col].WrapText = true;
+                        if (companyCurrencyId != partyMaster["CurrencyId"].ToString())
+                        {
+                            reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["CurrencyCode"].ToString()); col++;
+                            reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(ledgerData.Rows[i]["DrAmount"].ToString())); col++;
+                            reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(ledgerData.Rows[i]["CrAmount"].ToString())); col++;
+                        }
+                        // Base currency checking
+                        reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(ledgerData.Rows[i]["CompanyCurrencyDrAmount"].ToString())); col++;
+                        // sheet.Range[row, col].NumberFormat = reportUtility.NumberFormatDecimalTwo(); col++;
+
+                        reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(ledgerData.Rows[i]["CompanyCurrencyCrAmount"].ToString()));
+                        sheet.Range[row, col].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo(); col++;
+                        sheet.Range[row, col].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(col) + (row - 1) + "+" + reportUtility.GetColumnNameForXls(col - 2) + row + "-" + reportUtility.GetColumnNameForXls(col - 1) + row + ")";
+
+                        sheet.Range[row, col].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo(); col++;
+                        sheet.Range[row, col].Formula = "IF(" + reportUtility.GetColumnNameForXls(col - 1) + row + ">= 0, \"Dr\", \"Cr\")";
+                        sheet.Range[row, col].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                        row++;
+                    }
+                }
+
+                reportUtility.SetText(ref sheet, row, 1, "Closing Balance", true);
+                //sheet[row, col].RowHeight = 30;
+                //sheet[row, 7].Formula = "=SUM(" + clsStaticInfo.GetxlsCol(7) + (row - 1) + ":" + clsStaticInfo.GetxlsCol(7) + row + ")";
+                sheet.Range[row, col - 3].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(col - 3) + (sumStrRow) + ":" + reportUtility.GetColumnNameForXls(col - 3) + (row - 1) + ")";
+                sheet.Range[row, col - 3].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
+                // sheet.Range[row, col - 3].CellStyle.Font.Bold = true;
+                sheet.Range[row, col - 3].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet.Range[row, col - 2].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(col - 2) + (sumStrRow) + ":" + reportUtility.GetColumnNameForXls(col - 2) + (row - 1) + ")";
+                sheet.Range[row, col - 2].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
+                //sheet.Range[row, col - 2].CellStyle.Font.Bold = true;
+                sheet.Range[row, col - 2].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1 - 1) + row].Merge();
+                sheet.Range[row, col - 1].Formula = "=" + reportUtility.GetColumnNameForXls(col - 1) + (row - 1);
+                sheet.Range[row, col - 1].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
+                //sheet.Range[row, col - 1].CellStyle.Font.Bold = true;
+                sheet.Range[row, col].Formula = "IF(" + reportUtility.GetColumnNameForXls(col - 1) + row + ">= 0, \"Dr\", \"Cr\")";
+                sheet.Range[row, col].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                var endCol = col;
+                sheet.UsedRange.CellStyle.Font.Size = 8;
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                //sheet.Range[StartRow, 1, row, endCol].CellStyle.Font.Size = 27;
+
+                //reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Portrait);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Portrait);
+
+                sheet[row, col].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[StartRow, 1, row, endCol].BorderInside(ExcelLineStyle.Thin);
+                sheet.Range[StartRow, 1, row, endCol].BorderAround(ExcelLineStyle.Thin);
+
+                reportUtility.CompanyPlantHeader(ref sheet, col, "Party Ledger", companyId, plantId, plantName, "From " + fromDate + " To " + toDate + "");
+                sheet.Range[reportUtility.GetColumnNameForXls(1) + 5 + ":" + reportUtility.GetColumnNameForXls(col) + 5].Merge();
+
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion party payment staus report
     }
 }
