@@ -598,11 +598,11 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             }
         }
 
-        if (!baseService.isUndefinedOrNull($scope.fileNew.PaymentTermId) && !baseService.isUndefinedOrNull($scope.fileNew.DefaultPaymentTermId)) {
-            if (($scope.fileNew.PaymentTermId !== $scope.fileNew.DefaultPaymentTermId) && baseService.isUndefinedOrNull($scope.RemarksControlmodel.RemarkControlId)) {
-                return ShowResult('Payment Term Remarks is required.', 'failure');
-            }
-        }
+        //if (!baseService.isUndefinedOrNull($scope.fileNew.PaymentTermId) && !baseService.isUndefinedOrNull($scope.fileNew.DefaultPaymentTermId)) {
+        //    if (($scope.fileNew.PaymentTermId !== $scope.fileNew.DefaultPaymentTermId) && baseService.isUndefinedOrNull($scope.RemarksControlmodel.RemarkControlId)) {
+        //        return ShowResult('Payment Term Remarks is required.', 'failure');
+        //    }
+        //}
 
         if (parseFloat(baseService.isUndefinedOrNull($scope.fileNew.TotalQty) ? 0 : $scope.fileNew.TotalQty) === 0) return ShowResult('Please insert total qty.', 'failure');
 
