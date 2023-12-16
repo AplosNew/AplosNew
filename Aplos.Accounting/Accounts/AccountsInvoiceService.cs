@@ -729,9 +729,12 @@ namespace Library.Accounting.Accounts
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
-                var sql = @"select top 100 * from (SELECT  distinct P.Code,P.Id PartyId,P.UserName,P.PartyNature,PC.UserName PartyCategory,PSC.UserName PartySubCategory
+                var sql = @"SELECT * FROM (SELECT  count(IVD.Id) NoOfPendingInvoice,SUM(IVD.Amount-IVD.WrittenOffAmount) Balance, P.Code,P.Id PartyId,P.UserName,P.PartyNature,PC.UserName PartyCategory,PSC.UserName PartySubCategory
 										,ppc.PartyAccountGroupCode,ppc.PartyAccountGroupName,ppc.CurrencyId,ppc.CurrencyCode
 										,ppc.CurrencyName,CO.Code AS CountryCode,CO.UserName AS CountryName,S.Code AS StateCode,S.UserName AS StateName
+										,CASE WHEN (SELECT COUNT(Id) FROM HKP.CompanyParty WHERE PartyId=P.Id AND PartyType='Customer')>0 THEN 'Yes' ELSE 'No' END IsCustomer
+										,CASE WHEN (SELECT COUNT(Id) FROM HKP.CompanyParty WHERE PartyId=P.Id AND PartyType='Vendor')>0 THEN 'Yes' ELSE 'No' END IsVendor
+										,Advance=SUM(Ad.Amount-Ad.WrittenOffAmount)
                                         FROM [TRN].[InvoiceDetail] AS IVD
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id 
                                         LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
@@ -745,9 +748,12 @@ namespace Library.Accounting.Accounts
 										LEFT JOIN [SCS].[State] AS S ON S.Id=AM.StateId
 										LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
 										LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId 
- 
+										Left Join trn.Advance AD ON AD.PartyId=IV.PartyId AND AD.PartyType='Vendor' AND AD.Amount-AD.WrittenOffAmount>0
                                     WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','InventoryPayable') AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'  AND (IV.EntityId='" + entityId + @"' OR IV.EntityId IS NULL)  AND ppc.PartyType IN ('Vendor')
-                                    ) AS TEMP WHERE " + strkey + "";
+                                    GROUP BY P.Code,P.Id,P.UserName,P.PartyNature,PC.UserName ,PSC.UserName 
+										,ppc.PartyAccountGroupCode,ppc.PartyAccountGroupName,ppc.CurrencyId,ppc.CurrencyCode
+										,ppc.CurrencyName,CO.Code,CO.UserName,S.Code,S.UserName
+                    ) AS TEMP WHERE " + strkey + "";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
