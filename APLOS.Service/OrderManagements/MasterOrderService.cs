@@ -1514,6 +1514,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
         {
             DataSet dsMaster;
             string TableName = "TRN.UserRemarksControl";
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -1552,7 +1553,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
         {
            
             DataRow dr = dt.NewRow();
-
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             foreach (var item in sourceData.Keys)
             {
                 try
@@ -1564,9 +1565,9 @@ WHERE MOI.MasterOrderId='" + id + "'";
                 }
             }
 
-            dr["AddedBy"] = entity.AddedBy;
+            dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = System.DateTime.Now.ToString();
-            dr["AddedFromIP"] = entity.AddedFromIP;
+            dr["AddedFromIP"] = identity.IPAddress;
           
 
             dt.Rows.Add(dr);
@@ -1574,7 +1575,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData, MasterOrder entity)
         {
             dr.BeginEdit();
-
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             foreach (var item in sourceData.Keys)
             {
                 try
@@ -1586,9 +1587,9 @@ WHERE MOI.MasterOrderId='" + id + "'";
                 }
             }
 
-            dr["UpdatedBy"] = entity.UpdatedBy;
+            dr["UpdatedBy"] = identity.Name;
             dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = entity.UpdatedFromIP;
+            dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
 
