@@ -734,7 +734,7 @@ namespace Library.Accounting.Accounts
 										,ppc.CurrencyName,CO.Code AS CountryCode,CO.UserName AS CountryName,S.Code AS StateCode,S.UserName AS StateName
 										,CASE WHEN (SELECT COUNT(Id) FROM HKP.CompanyParty WHERE PartyId=P.Id AND PartyType='Customer')>0 THEN 'Yes' ELSE 'No' END IsCustomer
 										,CASE WHEN (SELECT COUNT(Id) FROM HKP.CompanyParty WHERE PartyId=P.Id AND PartyType='Vendor')>0 THEN 'Yes' ELSE 'No' END IsVendor
-										,Advance=SUM(Ad.Amount-Ad.WrittenOffAmount)
+										,Advance=SUM(Ad.Amount-Ad.WrittenOffAmount),PendingReceivable=ISNULL(SUM(RI.Amount-RI.WrittenOffAmount),0)
                                         FROM [TRN].[InvoiceDetail] AS IVD
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id 
                                         LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
@@ -749,6 +749,7 @@ namespace Library.Accounting.Accounts
 										LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
 										LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId 
 										Left Join trn.Advance AD ON AD.PartyId=IV.PartyId AND AD.PartyType='Vendor' AND AD.Amount-AD.WrittenOffAmount>0
+                                        Left Join trn.Invoice RI ON RI.PartyId=IV.PartyId AND RI.PartyType='Customer' AND RI.Amount-RI.WrittenOffAmount>0
                                     WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','InventoryPayable') AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'  AND (IV.EntityId='" + entityId + @"' OR IV.EntityId IS NULL)  AND ppc.PartyType IN ('Vendor')
                                     GROUP BY P.Code,P.Id,P.UserName,P.PartyNature,PC.UserName ,PSC.UserName 
 										,ppc.PartyAccountGroupCode,ppc.PartyAccountGroupName,ppc.CurrencyId,ppc.CurrencyCode
