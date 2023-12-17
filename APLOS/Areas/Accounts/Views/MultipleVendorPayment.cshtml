@@ -56,12 +56,22 @@
                                             <tr>
                                                 <th>Code</th>
                                                 <th>{{partyType}}</th>
+                                                <th>No of Invoice</th>
+                                                <th>Payment Pending Amount</th>
+                                                <th>Is Customer</th>
+                                                <th>Receivable Pending Amount</th>
+                                                <th>Advance</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr ng-repeat="x in partyDataListNew">
                                                 <td>{{x.Code}}</td>
-                                                <td ng-show="partyType=='Vendor'">{{x.UserName}}</td>
+                                                <td>{{x.UserName}}</td>
+                                                <td>{{x.NoOfPendingInvoice}}</td>
+                                                <td>{{x.Balance}}</td>
+                                                <td>{{x.IsCustomer}}</td>
+                                                <td>{{x.PendingReceivable}}</td>
+                                                <td>{{x.Advance}}</td>
                                             </tr>
                                         </tbody>
                                     </table>
