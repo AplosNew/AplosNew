@@ -120,7 +120,8 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
         DueUpToDate: $filter('dateFiltering')(Date.now()),
         TentativeDate: $filter('dateFiltering')(Date.now()),
         BankMasterId: null,
-        IsFifo: false
+        IsFifo: false,
+        ApprovedBy:null
     };
     $scope.multiplePaymentDetail = [];
 
@@ -756,4 +757,16 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
     }
 
     //Vendor Section End
+
+    $scope.approvedByList = [];
+    $scope.GetapprovedByListCboList = function () {
+        $http({
+            method: 'GET',
+            url: 'SalesManagements/SalesChalan/GetSalesChalanApproveByCboList'
+        }).then(function successCallback(response) {
+            $scope.approvedByList = response.data;
+        });
+    }
+    $scope.GetapprovedByListCboList();
+
 }

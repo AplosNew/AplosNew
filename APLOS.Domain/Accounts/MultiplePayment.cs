@@ -11,7 +11,7 @@ namespace Library.Model.Accounts
 
         public bool IsFifo { get; set; }
         public bool IsPark { get; set; }
-        public string ApprovedBy { get; set; }
+        public string ApprovedBy { get; set; } 
         public DateTime? ApprovedDate { get; set; }
         public DateTime? DueUpToDate { get; set; }
         public DateTime TentativeDate { get; set; }
