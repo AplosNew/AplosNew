@@ -155,7 +155,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.searchByRCList = [{ value: 'Id', name: "Id" }, { value: 'Process', name: "Process" }];
 
 
-    $scope.RemarksControlmodel = { MasterOrderId: null, RemarkControlId: null, RemarksControl: null, UserRemarks:null};
+    $scope.RemarksControlmodel = { Id:null,MasterOrderId: null, RemarkControlId: null, RemarksControl: null, UserRemarks:null};
     $scope.RemarksControlList = [];
     $scope.GetRemarksControlList = function () {
         $http({
@@ -512,6 +512,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.file.IsExtraOrderPercentage = $scope.file.ExtraOrderPercentage > 0;
         angular.copy($scope.file, $scope.fileNew);
         $scope.fileNew.OrderYear = parseInt($scope.fileNew.OrderYear);
+        $scope.RemarksControlmodel.Id = $scope.fileNew.UserRemarksControlId;
         $scope.RemarksControlmodel.MasterOrderId = $scope.fileNew.Id;
         $scope.RemarksControlmodel.RemarkControlId = $scope.fileNew.RemarkControlId;
         $scope.RemarksControlmodel.RemarksControl = $scope.fileNew.RemarksControl;
@@ -642,7 +643,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     method: 'POST'
                     , url: $scope.saveUrl
                     , data: {
-                        'entity': $scope.file, 'taskList': $scope.taskList, 'CurrencyData': $scope.ExchangeDisplayCurrency, 'UserRemarksControl': $scope.RemarksControlmodel
+                        'entity': $scope.file, 'taskList': $scope.taskList, 'CurrencyData': $scope.ExchangeDisplayCurrency, 'userRemarksControl': $scope.RemarksControlmodel
                     }
                     , dataType: 'JSON'
                 }).then(function successCallback(response) {
@@ -706,7 +707,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         , 'personList': $scope.personList
                         , 'itemList': $scope.itemList
                         , 'CurrencyData': $scope.ExchangeDisplayCurrency
-                        , 'UserRemarksControl': $scope.RemarksControlmodel
+                        , 'userRemarksControl': $scope.RemarksControlmodel
                     }
                     , dataType: 'JSON'
                 }).then(function successCallback(response) {
@@ -828,6 +829,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.enableJobOrOutSource = true;
         $scope.modelNew = Object.assign({}, $scope.model);
         $scope.btndisable = false;
+        $scope.RemarksControlmodel = { Id: null, MasterOrderId: null, RemarkControlId: null, RemarksControl: null, UserRemarks: null };
     }
 
     // #region

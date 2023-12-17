@@ -47,6 +47,7 @@ namespace Library.Service.OrderManagements
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPKGeneratorService _pkGeneratorService;
         private readonly IRepositoryAsync<MasterOrderResPerson> _personRepository;
+        private readonly IRepositoryAsync<UserRemarksControl> _UserRemarksControlRepository;
         private readonly IRepositoryAsync<MasterOrderItem> _itemRepository;
         private readonly IRepositoryAsync<MasterOrderAttributeValue> _itemAttributeValueRepository;
         // private readonly IRepositoryAsync<CustomerDivision> _customerDivisionRepository;
@@ -66,6 +67,7 @@ namespace Library.Service.OrderManagements
         public MasterOrderService(
             IRepositoryAsync<MasterOrder> baseRepository
             , IRepositoryAsync<MasterOrderResPerson> personRepository
+            , IRepositoryAsync<UserRemarksControl> UserRemarksControlRepository
             , IRepositoryAsync<MasterOrderItem> itemRepository
             , IRepositoryAsync<MasterOrderAttributeValue> itemAttributeValueRepository
             , IPKGeneratorService pkGeneratorService
@@ -93,6 +95,7 @@ namespace Library.Service.OrderManagements
             _salesOrderTaxRepository = salesOrderTaxRepository;
             _customerPORepository = customerPORepository;
             _personRepository = personRepository;
+            _UserRemarksControlRepository = UserRemarksControlRepository;
             _itemRepository = itemRepository;
             _itemAttributeValueRepository = itemAttributeValueRepository;
 
@@ -282,7 +285,7 @@ namespace Library.Service.OrderManagements
 							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),CP.PaymentTermId DefaultPaymentTermId,RC.Process RemarksControl,URC.RemarkControlId
                             FROM [TRN].[MasterOrder] AS A
                             JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
-                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=A.PartyId AND CP.PartyType='Customer'  AND CP.PlantId=A.PlantId
                             LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
                             LEFT JOIN [HKP].[PartyPlant] AS InvPP ON A.InvoicingPartyPlantId=InvPP.Id
                             LEFT JOIN [HKP].[PartyPlant] AS DeliPP ON A.DeliveryPartyPlantId=DeliPP.Id
@@ -1266,9 +1269,9 @@ namespace Library.Service.OrderManagements
             }
         }
 
-     
 
-        public void Insert(MasterOrder entity, List<MasterOrderTNA> taskList, Dictionary<string, object> UserRemarksControl)
+
+        public void Insert(MasterOrder entity, List<MasterOrderTNA> taskList, UserRemarksControl userRemarksControl)
         {
             try
             {
@@ -1308,10 +1311,21 @@ namespace Library.Service.OrderManagements
 
                 TaskScheduler.TaskScheduler schedule = new TaskScheduler.TaskScheduler(_sqlRepository);
                 schedule.CopyTaskTemplate(entity.Id);
-                if (UserRemarksControl["RemarkControlId"] != null)
+                if (userRemarksControl.RemarkControlId != null)
                 {
-                    SaveUserRemarksControl(entity, UserRemarksControl);
+                    userRemarksControl.Id = entity.Id;
+                    userRemarksControl.MasterOrderId = entity.Id;
+                    userRemarksControl.AddedBy = entity.AddedBy;
+                    userRemarksControl.AddedFromIP = entity.AddedFromIP;
+                    userRemarksControl.AddedDate = entity.AddedDate;
+                    AuditService.AddedLog(userRemarksControl);
+                    userRemarksControl.ModelState = ModelState.Added;
+                    _UserRemarksControlRepository.Insert(userRemarksControl);
                 }
+                //if (UserRemarksControl["RemarkControlId"] != null)
+                //{
+                //    SaveUserRemarksControl(entity, UserRemarksControl);
+                //}
                 //List<MasterOrderItem> itemList = new List<MasterOrderItem>();
 
                 //for (int i = 0; i < entity.NoOfLineItem; i++)
@@ -1551,7 +1565,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData, MasterOrder entity)
         {
-           
+
             DataRow dr = dt.NewRow();
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             foreach (var item in sourceData.Keys)
@@ -1568,7 +1582,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = System.DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
-          
+
 
             dt.Rows.Add(dr);
         }
@@ -1594,7 +1608,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
         }
 
 
-        public void Update(MasterOrder entity, string masterId, IEnumerable<MasterOrderResPerson> personList, IEnumerable<MasterOrderItem> itemList,  Dictionary<string, object> UserRemarksControl)
+        public void Update(MasterOrder entity, string masterId, IEnumerable<MasterOrderResPerson> personList, IEnumerable<MasterOrderItem> itemList, UserRemarksControl userRemarksControl)
         {
             var flag = false;
             try
@@ -1824,9 +1838,35 @@ WHERE MOI.MasterOrderId='" + id + "'";
                     }
                 }
 
-                if (UserRemarksControl["RemarkControlId"] != null)
+                //if (UserRemarksControl["RemarkControlId"] != null)
+                //{
+                //   SaveUserRemarksControl(entity, UserRemarksControl);
+                //}
+
+                if (userRemarksControl.RemarkControlId != null)
                 {
-                   SaveUserRemarksControl(entity, UserRemarksControl);
+                    if (userRemarksControl.Id == null)
+                    {
+                        userRemarksControl.Id = entity.Id;
+                        userRemarksControl.MasterOrderId = entity.Id;
+                        userRemarksControl.AddedBy = entity.AddedBy;
+                        userRemarksControl.AddedFromIP = entity.AddedFromIP;
+                        userRemarksControl.AddedDate = entity.AddedDate;
+                        userRemarksControl.ModelState = ModelState.Added;
+                        AuditService.AddedLog(userRemarksControl);
+                        _UserRemarksControlRepository.Insert(userRemarksControl);
+                    }
+                    else
+                    {
+
+                        userRemarksControl.UpdatedBy = entity.UpdatedBy;
+                        userRemarksControl.UpdatedFromIP = entity.UpdatedFromIP;
+                        userRemarksControl.UpdatedDate = entity.UpdatedDate;
+                        userRemarksControl.ModelState = ModelState.Modified;
+                        AuditService.UpdatedLog(userRemarksControl);
+                        _UserRemarksControlRepository.Update(userRemarksControl);
+                    }
+
                 }
 
                 _unitOfWork.SaveChanges();
@@ -1860,7 +1900,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
                 ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
-                objCon.ExecuteNonQueryWrapper(@"DELETE FROM dbo.MasterOrderItemCostingRate WHERE MasterOrderItemId='"+itemId+"'", true, "1");
+                objCon.ExecuteNonQueryWrapper(@"DELETE FROM dbo.MasterOrderItemCostingRate WHERE MasterOrderItemId='" + itemId + "'", true, "1");
                 objCon.CommitTransaction();
             }
             catch (Exception ex)
@@ -4638,6 +4678,6 @@ WHERE MOI.MasterOrderId='" + id + "'";
 
     }
 
-  
+
 
 }
