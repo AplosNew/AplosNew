@@ -708,9 +708,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
         //    return Json(_masterOrderService.GetDepartmentPersonCbo(plantId, partyAccountGroupId, partyId), JsonRequestBehavior.AllowGet);
         //}
         [HttpPost]
-        public JsonResult Create(MasterOrder entity, List<MasterOrderTNA> taskList, List<Dictionary<string, object>> CurrencyData, Dictionary<string, object>UserRemarksControl)
+        public JsonResult Create(MasterOrder entity, List<MasterOrderTNA> taskList, List<Dictionary<string, object>> CurrencyData, UserRemarksControl userRemarksControl)
         {
-            _masterOrderService.Insert(entity, taskList, UserRemarksControl);
+            _masterOrderService.Insert(entity, taskList, userRemarksControl);
             Library.Planning.OrderManagement.MasterOrder mo = new Library.Planning.OrderManagement.MasterOrder();
             mo.GenerateLogForTnA(entity.Id, Library.Service.Enums.TaskAppliedOnEnum.MasterOrder);
 
@@ -727,9 +727,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpPost]
-        public JsonResult Edit(MasterOrder entity, string masterId, IEnumerable<MasterOrderResPerson> personList, IEnumerable<MasterOrderItem> itemList, List<Dictionary<string, object>> CurrencyData, Dictionary<string, object>UserRemarksControl)
+        public JsonResult Edit(MasterOrder entity, string masterId, IEnumerable<MasterOrderResPerson> personList, IEnumerable<MasterOrderItem> itemList, List<Dictionary<string, object>> CurrencyData,  UserRemarksControl userRemarksControl)
         {
-            _masterOrderService.Update(entity, masterId, personList, itemList, UserRemarksControl);
+            _masterOrderService.Update(entity, masterId, personList, itemList, userRemarksControl);
             Library.Planning.OrderManagement.MasterOrder mo = new Library.Planning.OrderManagement.MasterOrder();
             mo.GenerateLogForTnA(masterId, Library.Service.Enums.TaskAppliedOnEnum.MasterOrder);
 
