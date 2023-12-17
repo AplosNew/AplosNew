@@ -1784,7 +1784,7 @@ UNION
 		{
 			try
 			{
-				var sql = @"SELECT  GL.AccountCode+' - '+ GL.UserName GLName,BU.UserName BudgetName,A.UserName ActivityName,0 DrAmount,IRD.ShortageValue CrAmount
+				var sql = @"Select * from (SELECT  'Material' AS OtherName,GL.AccountCode+' - '+ GL.UserName GLName,BU.UserName BudgetName,A.UserName ActivityName,0 DrAmount,IRD.ShortageValue CrAmount,IRD.ShortageValue Amount
                             ,IRD.PostDrGLGeneralInfoId GLGeneralInfoId,  IRD.PostDrBudgetMasterId BudgetMasterId, IRD.PostDrActivityId ActivityId,NULL TaxCategoryId,NULL TaxCodeId,'Cr' AType,'Cr' TrnType
                             FROM TRN.InventoryReceive IR 
                             JOIN (SELECT InventoryReceiveId,PostDrGLGeneralInfoId,PostDrBudgetMasterId,PostDrActivityId,SUM(ISNULL(ShortageValue,0)) ShortageValue
@@ -1797,14 +1797,34 @@ UNION
 							WHERE IR.Id='" + grnId + @"'
 
                             UNION ALL
-							SELECT GL.AccountCode+' - '+ GL.UserName GLName,BU.UserName BudgetName,A.UserName ActivityName,0 DrAmount,0 CrAmount
+							SELECT 'DebitNote' AS OtherName,GL.AccountCode+' - '+ GL.UserName GLName,BU.UserName BudgetName,A.UserName ActivityName,0 DrAmount,0 CrAmount,0 Amount
                             ,FGL.AssetGLId GLGeneralInfoId,  FGL.AssetBudgetMasterId BudgetMasterId, FGL.AssetActivityId ActivityId,NULL TaxCategoryId,NULL TaxCodeId,'Dr' AType,'Dr' TrnType
 							FROM HKP.FinancingTypeGL FGL
 							LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=FGL.AssetGLId
                             LEFT JOIN MST.BudgetMaster BM ON BM.Id=FGL.AssetBudgetMasterId
                             LEFT JOIN HKP.Budget BU ON BU.Id=BM.BudgetId
                             LEFT JOIN HKP.Activity A ON A.Id=FGL.AssetActivityId
-							where FGL.FinancingTypeId='" + financingTypeId + "' ";
+							WHERE FGL.FinancingTypeId='" + financingTypeId + @"' 
+
+							UNION ALL
+							SELECT 'Tax' AS OtherName, GL.AccountCode+' - '+GL.UserName AS GLName, B.UserName AS BudgetName, A.UserName AS ActivityName
+						,  0 DrAmount , SUM((IRT.TaxAmount*ird.ShortageQty)/ird.TransactionQty) AS  CrAmount,SUM((IRT.TaxAmount*ird.ShortageQty)/ird.TransactionQty) Amount, VD.GLGeneralInfoId AS GLGeneralInfoId, VD.BudgetMasterId, VD.ActivityId
+						, IRT.TaxCategoryId,IT.TaxCodeId, 'Cr' AS AType, 'Cr' AS TrnType
+                       
+					FROM [TRN].[InventoryReceiveDetail] AS IRD
+					LEFT JOIN [TRN].[InventoryReceiveTax] AS IRT ON IRT.InventoryReceiveDetailId=IRD.Id  
+					LEFT JOIN TRN.[InventoryReceive] AS IR ON IR.Id=IRD.InventoryReceiveId
+					LEFT JOIN TRN.InvoiceTax IT ON IT.VoucherId=IR.VoucherId and IRT.TaxCategoryId=IT.TaxCategoryId
+					LEFT JOIN TRN.InvoiceTaxDetail ITD ON ITD.InvoiceTaxId=IT.Id 
+					LEFT JOIN TRN.[VoucherDetail] VD ON VD.Id=IRT.DrVoucherDetailId
+					LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON VD.GLGeneralInfoId=GL.Id
+					LEFT JOIN [MST].[BudgetMaster] AS BM ON VD.BudgetMasterId= BM.Id
+					LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+					LEFT JOIN [HKP].[Activity] AS A ON VD.ActivityId= A.Id
+					WHERE IRD.InventoryReceiveId='" + grnId + @"'  AND IRT.InventoryReceiveDetailId<>''  AND IRD.ShortageQty>0
+					GROUP BY  IRT.TaxCategoryId, VD.GLGeneralInfoId, GL.AccountCode, GL.UserName, VD.BudgetMasterId, B.Code, B.UserName,IT.TaxCodeId
+					, VD.ActivityId, A.Code, A.UserName
+					) x order by x.TrnType desc,x.OtherName ";
 				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)

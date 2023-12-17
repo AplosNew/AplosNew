@@ -1145,6 +1145,7 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
         data.VoucherTypeId = $scope.additionalTaxVoucherTypeId;
         data.VoucherDate = new Date();
         $scope.shortageQtyData = data;
+        $scope.shortageQtyData.DocRefNo = 'SH-' + $scope.shortageQtyData.DocRefNo;
         $http({
             method: 'POST',
             url: 'Accounts/InventoryPayable/GetShortageQtyDetail?grnId=' + data.Id + '&adjustmentNoteTypeId=' + data.Id,
@@ -1171,16 +1172,22 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
 
 
     $scope.getShortageValueJournal = function (grnId,adjustmentNoteTypeId) {
+        $scope.tempshortageValueJournalList = [];
         $scope.shortageValueJournalList = [];
         $http({
             method: 'POST',
             url: 'Accounts/InventoryPayable/GetShortageQtyDetail?grnId=' + grnId + '&adjustmentNoteTypeId=' + adjustmentNoteTypeId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.shortageValueJournalList = response.data; 
-            for (var i = 0; i < $scope.shortageValueJournalList.length; i++) {
-                if ($scope.shortageValueJournalList[i].AType == 'Dr') {
-                    $scope.shortageValueJournalList[i].DrAmount = $scope.shortageQtyData.ShortageValue
+            $scope.tempshortageValueJournalList = response.data;
+            var tempshortageValue = Math.round($filter("sumByKey")($filter("filter")($scope.tempshortageValueJournalList, { TrnType: 'Cr' }), "CrAmount") * 100 + Number.EPSILON) / 100;
+            for (var i = 0; i < $scope.tempshortageValueJournalList.length; i++) {
+                if ($scope.tempshortageValueJournalList[i].AType == 'Dr') {
+                    $scope.tempshortageValueJournalList[i].DrAmount = tempshortageValue
+                    $scope.tempshortageValueJournalList[i].Amount = tempshortageValue
+                }
+                if ($scope.tempshortageValueJournalList[i].Amount > 0) {
+                    $scope.shortageValueJournalList.push($scope.tempshortageValueJournalList[i])
                 }
             }
         });
