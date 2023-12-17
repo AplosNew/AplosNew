@@ -816,9 +816,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.fileNew = {
             Id: null
             , EntityId: $scope.fileNew.EntityId
-            , PlantId: null
+            , PlantId: $scope.fileNew.PlantId
             , OrderType: 'ExternalOrder'
-            , PartyId: $scope.fileNew.PartyId
+            , PartyId: null
             , CompanyId: $scope.fileNew.CompanyId
         };
         $scope.getPlantConfigByPlant();

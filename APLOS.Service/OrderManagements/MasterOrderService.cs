@@ -1273,9 +1273,11 @@ namespace Library.Service.OrderManagements
 
         public void Insert(MasterOrder entity, List<MasterOrderTNA> taskList, UserRemarksControl userRemarksControl)
         {
+            var flag = false;
             try
             {
-
+                _unitOfWork.BeginTransaction();
+                flag = true;
                 CheckUnique(entity);
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if (!string.IsNullOrEmpty(entity.BuyerId))
@@ -1304,13 +1306,7 @@ namespace Library.Service.OrderManagements
                 }
                 base.Insert(entity);
 
-                if (taskList != null)
-                {
-                    SaveData(taskList, entity.Id);
-                }
-
-                TaskScheduler.TaskScheduler schedule = new TaskScheduler.TaskScheduler(_sqlRepository);
-                schedule.CopyTaskTemplate(entity.Id);
+                
                 if (userRemarksControl.RemarkControlId != null)
                 {
                     userRemarksControl.Id = entity.Id;
@@ -1322,6 +1318,18 @@ namespace Library.Service.OrderManagements
                     userRemarksControl.ModelState = ModelState.Added;
                     _UserRemarksControlRepository.Insert(userRemarksControl);
                 }
+
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+
+                if (taskList != null)
+                {
+                    SaveData(taskList, entity.Id);
+                }
+
+                TaskScheduler.TaskScheduler schedule = new TaskScheduler.TaskScheduler(_sqlRepository);
+                schedule.CopyTaskTemplate(entity.Id);
                 //if (UserRemarksControl["RemarkControlId"] != null)
                 //{
                 //    SaveUserRemarksControl(entity, UserRemarksControl);
@@ -1364,6 +1372,11 @@ namespace Library.Service.OrderManagements
                 throw new CustomException(ex.Message, ex,
                     Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.OrderManagement.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
             }
         }
 
@@ -1845,7 +1858,8 @@ WHERE MOI.MasterOrderId='" + id + "'";
 
                 if (userRemarksControl.RemarkControlId != null)
                 {
-                    if (userRemarksControl.Id == null)
+                    var data = _UserRemarksControlRepository.Find(userRemarksControl.MasterOrderId);
+                    if (data.Id == null)
                     {
                         userRemarksControl.Id = entity.Id;
                         userRemarksControl.MasterOrderId = entity.Id;
@@ -1859,12 +1873,14 @@ WHERE MOI.MasterOrderId='" + id + "'";
                     else
                     {
 
-                        userRemarksControl.UpdatedBy = entity.UpdatedBy;
-                        userRemarksControl.UpdatedFromIP = entity.UpdatedFromIP;
-                        userRemarksControl.UpdatedDate = entity.UpdatedDate;
-                        userRemarksControl.ModelState = ModelState.Modified;
-                        AuditService.UpdatedLog(userRemarksControl);
-                        _UserRemarksControlRepository.Update(userRemarksControl);
+                        data.RemarkControlId = userRemarksControl.RemarkControlId;
+                        data.UserRemarks = userRemarksControl.UserRemarks;
+                        data.UpdatedBy = entity.UpdatedBy;
+                        data.UpdatedFromIP = entity.UpdatedFromIP;
+                        data.UpdatedDate = entity.UpdatedDate;
+                        data.ModelState = ModelState.Modified;
+                        AuditService.UpdatedLog(data);
+                        _UserRemarksControlRepository.Update(data);
                     }
 
                 }
@@ -2044,6 +2060,7 @@ WHERE MOI.MasterOrderId='" + id + "'";
                 objCon.ExecuteNonQueryWrapper(@"DELETE FROM TNATasks Where TaskTemplateId IN(select Id from dbo.MasterOrderTaskTemplate Where MasterOrderId='" + id + @"')", true, "1");
                 objCon.ExecuteNonQueryWrapper(@"DELETE FROM dbo.MasterOrderTaskTemplate WHERE MasterOrderId='" + id + @"'", true, "1");
                 objCon.ExecuteNonQueryWrapper(@"DELETE FROM dbo.TNAMaster WHERE MasterOrderId='" + id + @"'", true, "1");
+                objCon.ExecuteNonQueryWrapper(@"DELETE FROM TRN.UserRemarksControl  WHERE MasterOrderId='" + id + @"'", true, "1");
                 objCon.ExecuteNonQueryWrapper(@"DELETE FROM trn.MasterOrder WHERE Id='" + id + @"'", true, "1");
 
                 objCon.CommitTransaction();
