@@ -288,6 +288,11 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
         $scope.getemployeeProfileData = function (pageno) {
             baseService.paginationBase($scope.employeeProfileUrl, pageno, $scope.employeeProfileParameters)
                 .then(function (result) {
+                    for (var i = 0; i < result.Rows.length; i++) {
+                        if (result.Rows[i].Code == $scope.manPowerbudgetmasterNew.Code) {
+                            result.Rows[i].splice(i, 1);
+                        }
+                    }
                     $scope.employeeProfileDataList = result.Rows;
                     $scope.employeeProfileParameters.total_count = result.Total;
                     if (baseService.arrayLength($scope.employeeProfileList) === 0) {
