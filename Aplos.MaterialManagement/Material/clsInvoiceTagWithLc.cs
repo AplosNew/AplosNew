@@ -482,13 +482,14 @@ namespace Library.MaterialManagement.Material
 										,FORMAT(m.LoanDate, 'dd-MMM-yyyy') LoanDate
 										,m.LoanNo
 										,c.Code Currency
-										,m.Amount
+										,ITLC.Amount
 										,CASE 
 											WHEN ISNULL(m.VoucherId, '') = ''
 												THEN 'Park'
 											ELSE 'Post'
 											END [Status]
 									FROM InvoiceTaggingWithLCMaster m
+									LEFT JOIN (SELECT InvoiceTaggingWithLCMasterId,SUM(Amount)Amount FROM InvoiceTaggingWithLCDetail Group By InvoiceTaggingWithLCMasterId) ITLC ON m.Id=ITLC.InvoiceTaggingWithLCMasterId
 									LEFT JOIN SCS.Currency AS c ON c.Id = m.CurrencyId
 									LEFT JOIN HKP.Party AS p ON p.Id = m.PartyID
 									LEFT JOIN PurchaseLC AS pl ON pl.Id = m.PurchaseLcId
