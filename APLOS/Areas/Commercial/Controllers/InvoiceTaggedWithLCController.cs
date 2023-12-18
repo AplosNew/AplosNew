@@ -79,10 +79,8 @@ namespace Aplos.Areas.Commercial.Controllers
             {
                 case ReportFormat.Pdf:
                     return RenderReportAsPdf(workbook, reportFileName);
-
                 case ReportFormat.Excel:
                     return RenderReportAsExcel(workbook, reportFileName);
-
                 default:
                     return RenderReportAsExcel(workbook, reportFileName);
             }
