@@ -806,26 +806,26 @@
     </div>
     <div class="aplos-grid-toggle">
         @*<div class="row text-right">
-                <div class="col-xs-12 col-sm-12 col-sm-12">
-                    <div class="search-form">
-                        <div class="row">
-                            <div class="col-xs-12 col-sm-3 col-md-3">
-                                <div class="select-style">
-                                    <select ng-model="$root.parameters.searchBy">
-                                        <option ng-repeat="option in searchMasterFilterList" value="{{option.Value}}">{{option.Text}}</option>
-                                    </select>
-                                </div>
+            <div class="col-xs-12 col-sm-12 col-sm-12">
+                <div class="search-form">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="select-style">
+                                <select ng-model="$root.parameters.searchBy">
+                                    <option ng-repeat="option in searchMasterFilterList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
                             </div>
-                            <div class="col-xs-12 col-sm-7 col-md-7">
-                                <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="loadMasterData()">
-                            </div>
-                            <div class="col-xs-12 col-sm-2 col-md-2">
-                                <button type="button" ng-click="loadMasterData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-7 col-md-7">
+                            <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="loadMasterData()">
+                        </div>
+                        <div class="col-xs-12 col-sm-2 col-md-2">
+                            <button type="button" ng-click="loadMasterData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                         </div>
                     </div>
                 </div>
-            </div>*@
+            </div>
+        </div>*@
         <div class="row text-right">
             <div class="col-xs-12 col-sm-12 col-sm-12">
                 <div class="search-form">
@@ -847,10 +847,10 @@
                 </div>
             </div>
         </div>
-        <div class="table-responsive modal-table">
-
+        @*<div class="table-responsive modal-table">*@
+        <div class="table-responsive aplos-grid-toggle">
             <div style="color:black;" id="Grid" ej-grid e-datasource="files" e-recorddoubleclick="Get"
-                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-gridlines="vertical"
                  e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                 <div e-columns>
                     <div e-column e-headertext="Print" e-template="#Print" e-width="40"></div>
@@ -892,80 +892,80 @@
             </script>
         </div>
         @*<div class="table-responsive modal-table">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Creation Date</th>
-                            <th>Master Order No</th>
-                            <th>Plant</th>
-                            <th>Order Year</th>
-                            <th>Buyer Ord#</th>
-                            <th>Own Ord#</th>
-                            <th>Total Quantity</th>
-                            <th>Order Type</th>
-                            <th>Order Status</th>
-                            <th>Customer</th>
-                            <th>Buyer</th>
-                            <th>Line Item No</th>
-                            <th>Order Category</th>
-                            <th>Responsible Person</th>
-                            <th>Bill To</th>
-                            <th>Ship To</th>
-                            <th>Buyer Ref. No-Item</th>
-                            <th>Own Item#</th>
-                            <th>ContractNo</th>
-                            <th>Master LCNo</th>
-                            <th>Created By</th>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Creation Date</th>
+                        <th>Master Order No</th>
+                        <th>Plant</th>
+                        <th>Order Year</th>
+                        <th>Buyer Ord#</th>
+                        <th>Own Ord#</th>
+                        <th>Total Quantity</th>
+                        <th>Order Type</th>
+                        <th>Order Status</th>
+                        <th>Customer</th>
+                        <th>Buyer</th>
+                        <th>Line Item No</th>
+                        <th>Order Category</th>
+                        <th>Responsible Person</th>
+                        <th>Bill To</th>
+                        <th>Ship To</th>
+                        <th>Buyer Ref. No-Item</th>
+                        <th>Own Item#</th>
+                        <th>ContractNo</th>
+                        <th>Master LCNo</th>
+                        <th>Created By</th>
 
-                            <th>Print</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr dir-paginate="x in files |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get($index);"
-                            pagination-id="metaData.name + 'files'">
-                            <td>{{x.AddedDate | dateFiltering}}</td>
-                            <td>{{x.MasterOrderNo}}</td>
-                            <td>{{x.UserName}}</td>
-                            <td>{{x.OrderYear}}</td>
-                            <td>{{x.BuyerReferenceNo}}</td>
-                            <td>{{x.OwnReferenceNo}}</td>
-                            <td>{{x.TotalQty}}</td>
-                            <td>{{x.OrderType}}</td>
-                            <td>{{x.OrderStatusId}}</td>
-                            <td>{{x.CustomerName}}</td>
-                            <td>{{x.Buyer}}</td>
-                            <td>{{x.NoOfLineItem}}</td>
-                            <td>{{x.OrderCategory}}</td>
-                            <td>{{x.ResponsiblePersonName}}</td>
-                            <td>{{x.InvoicingPartyPlant}}</td>
-                            <td>{{x.DeliveryPartyPlant}}</td>
+                        <th>Print</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr dir-paginate="x in files |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get($index);"
+                        pagination-id="metaData.name + 'files'">
+                        <td>{{x.AddedDate | dateFiltering}}</td>
+                        <td>{{x.MasterOrderNo}}</td>
+                        <td>{{x.UserName}}</td>
+                        <td>{{x.OrderYear}}</td>
+                        <td>{{x.BuyerReferenceNo}}</td>
+                        <td>{{x.OwnReferenceNo}}</td>
+                        <td>{{x.TotalQty}}</td>
+                        <td>{{x.OrderType}}</td>
+                        <td>{{x.OrderStatusId}}</td>
+                        <td>{{x.CustomerName}}</td>
+                        <td>{{x.Buyer}}</td>
+                        <td>{{x.NoOfLineItem}}</td>
+                        <td>{{x.OrderCategory}}</td>
+                        <td>{{x.ResponsiblePersonName}}</td>
+                        <td>{{x.InvoicingPartyPlant}}</td>
+                        <td>{{x.DeliveryPartyPlant}}</td>
 
-                            <td>{{x.BuyerReferenceNoItem}}</td>
-                            <td>{{x.OwnItem}}</td>
-                            <td>{{x.ContractNo}}</td>
-                            <td>{{x.MasterLCNo}}</td>
-                            <td>{{x.AddedBy}}</td>
+                        <td>{{x.BuyerReferenceNoItem}}</td>
+                        <td>{{x.OwnItem}}</td>
+                        <td>{{x.ContractNo}}</td>
+                        <td>{{x.MasterLCNo}}</td>
+                        <td>{{x.AddedBy}}</td>
 
 
-                            <td>
-                                <div class="common-btn">
-                                    <ul class="list-inline text-right">
-                                        <li>
-                                            <a class="btn btn-action" href="OrderManagements/MasterOrder/GetMasterOrderReport?masterOrderId={{x.Id}}" target="_blank"><i class="glyphicon glyphicon-print"></i></a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <dir-pagination-controls max-size="10"
-                                     pagination-id="metaData.name + 'files'"
-                                     direction-links="true"
-                                     boundary-links="true"
-                                     on-page-change="loadMasterData(newPageNumber)">
-            </dir-pagination-controls>*@
+                        <td>
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li>
+                                        <a class="btn btn-action" href="OrderManagements/MasterOrder/GetMasterOrderReport?masterOrderId={{x.Id}}" target="_blank"><i class="glyphicon glyphicon-print"></i></a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <dir-pagination-controls max-size="10"
+                                 pagination-id="metaData.name + 'files'"
+                                 direction-links="true"
+                                 boundary-links="true"
+                                 on-page-change="loadMasterData(newPageNumber)">
+        </dir-pagination-controls>*@
     </div>
 </div>
 <ej-dialog id="dialogExchangeCurrency" title="Exchange Rate" e-enablemodal="true" e-position-y="0" e-target="#AplosCurrencyContainer" e-showoninit="false" e-close="onDialogClose" e-minwidth="400px" e-open="enableBtn">
