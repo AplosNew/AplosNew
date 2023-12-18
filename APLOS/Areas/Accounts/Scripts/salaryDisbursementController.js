@@ -150,14 +150,10 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
     $scope.selectedPaymentMode = $("#paymentMode option:selected").text();
     $scope.selectedEmployeeCategory = $("#employeeCategoryId option:selected").text();
     $scope.payGroupListSelected = [];
-    $scope.EmployeeList = [];
-    $scope.EmployeeListDefault = [];
     $scope.EmployeeListTemp = [];
     $scope.EmpNetPayment = [];
 
     $scope.GetEmployeeInformation = function () {
-        $scope.EmployeeList = [];
-        $scope.EmployeeListDefault = [];
         $scope.EmployeeListTemp = [];
         var monthName = $scope.monthList.filter(function (mnth) {
             return mnth.Value == $scope.month;
@@ -187,12 +183,7 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
                 data: parameters
             }).then(function successCallback(response) {
                 if (response.data.empdata.length > 0) {
-                    $scope.empGrid = true;
-                    $scope.EmployeeListDefault = response.data.empdata.filter(d => d.isSelect == true);
-                    $scope.EmployeeList = $scope.EmployeeListDefault;
-                    $scope.EmployeeListTemp = $scope.EmployeeListDefault;
-                    $scope.EmployeeListTemp = response.data.empdata
-
+                    $scope.EmployeeListTemp = response.data.empdata;
                 }
                 
                 $scope.GetSalaryUnDisbursed();
@@ -378,15 +369,13 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
                 data: parameters
             }).then(function successCallback(response) {
                 if (response.data.length > 0) {
-                    // $scope.empGrid = true;
+                    $scope.empGrid = true;
                     $scope.SalaryUnDisburseList = response.data;
-                    $scope.EmployeeList = $scope.EmployeeListDefault;
-                    $scope.EmployeeListTemp = $scope.EmployeeListDefault;
                     $scope.saveBtnDisable = false;
                 }
                 else {
                     ShowResult("No Data Found", 'failure');
-                    //$scope.empGrid = false;
+                    $scope.empGrid = false;
                 }
                 var gridObj = $("#empInfoGrid").data("ejGrid");
                 gridObj.windowonresize();

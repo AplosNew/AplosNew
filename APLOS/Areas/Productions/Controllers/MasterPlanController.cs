@@ -17,7 +17,6 @@ using Newtonsoft.Json;
 using Library.Service.Helpers;
 using System.IO;
 using Library.Core;
-//using Library.MaterialManagement.MasterPlan;
 using Library.Service.OrderManagements;
 using System.Linq;
 
@@ -28,12 +27,10 @@ namespace Aplos.Areas.Productions.Controllers
     public class MasterPlanController : BaseController
     {
         #region Constructor
-        private readonly IProductionOrderService _productionOrderService;
-        //clsMasterPlan cp = new clsMasterPlan();
+       
         private readonly ISqlRepository _sqlRepository;
-        public MasterPlanController(ISqlRepository R, IProductionOrderService productionOrderService)
+        public MasterPlanController(ISqlRepository R)
         {
-            _productionOrderService = productionOrderService;
             _sqlRepository = R;
         }
 
@@ -167,8 +164,8 @@ left join [TRN].[CustomerPO] AS CP ON SO.CustomerPOId = CP.Id
 left join [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
 left join [ORG].[Entity]  AS E ON E.Id=PO.EntityId
 LEFT JOIN [MST].[MasterPlanSODetails] CPD on CPD.SalesOrderId=SO.Id and CPD.MasterPlanId='" + PlanId + @"'
-and SO.OrderStatusId in (select Id from HKP.OrderStatus OS where OS. MasterPlanApplicable=1)
 where PPS.ProcessId = '" + ProcessId + @"'  " + FilterPlan + @"
+and SO.OrderStatusId in (select Id from HKP.OrderStatus OS where OS. MasterPlanApplicable=1)
 and PO.ProductionStatusId in (select Id from HKP.ProductionStatus where MasterPlanApplicable=1)
 ORDER BY MOI.ProductionGrouping,MOI.OwnReferenceNo";
 

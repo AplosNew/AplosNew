@@ -54,6 +54,7 @@ namespace Library.Service.Productions
 		                                            ,SC.Remarks
 		                                            ,SC.Active
 		                                            ,SC.Id
+                                                    ,SC.MasterPlanApplicable
                                             FROM [" + DbSchema.HKP + @"].[" + DbTable.CompanyGroupProductionStatus + @"] AS CGSC
                                             INNER JOIN [" + DbSchema.HKP + @"].[" + DbTable.ProductionStatus + @"] AS SC ON SC.Id=CGSC.ProductionStatusId
                                             WHERE CGSC.CompanyGroupId='" + identity.CompanyGroupId + "'";

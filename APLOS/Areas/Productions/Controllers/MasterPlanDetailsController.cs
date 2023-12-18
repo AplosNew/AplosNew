@@ -17,7 +17,6 @@ using Newtonsoft.Json;
 using Library.Service.Helpers;
 using System.IO;
 using Library.Core;
-using Library.MaterialManagement.CutPlan;
 using Library.Service.OrderManagements;
 using System.Linq;
 
@@ -28,13 +27,11 @@ namespace Aplos.Areas.Productions.Controllers
     public class MasterPlanDetailsController : BaseController
     {
         #region Constructor
-        private readonly IProductionOrderService _productionOrderService;
+        
         ProductionSummaryData _productionSummaryData = new ProductionSummaryData();
-        clsCutPlan cp = new clsCutPlan();
         private readonly ISqlRepository _sqlRepository;
-        public MasterPlanDetailsController(ISqlRepository R, IProductionOrderService productionOrderService)
+        public MasterPlanDetailsController(ISqlRepository R)
         {
-            _productionOrderService = productionOrderService;
             _sqlRepository = R;
         }
 
@@ -98,16 +95,19 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost]
-        public ActionResult createMasterPlanQty(List<Dictionary<string, object>> DataList)
+        public ActionResult createMasterPlanQty(List<Dictionary<string, object>> DataList, string MasterPlanId)
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsProdBooked;
-            string TableName = "[MST].[MasterPlanQuantity]";
+            string TableName = "[MST].[MasterPlanChild]";
             string contId = string.Empty;
             string _Id, Id = string.Empty;
+            DataSet dsChildId;
             try
             {
                 objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("select count(Id) + 1 as MPQId from [MST].[MasterPlanChild] where MasterPlanId='" + MasterPlanId + "'", out dsChildId, false, "1");
+                int MPQId = Convert.ToInt32(dsChildId.Tables[0].Rows[0]["MPQId"].ToString());
 
                 if (DataList != null)
                 {
@@ -119,8 +119,8 @@ namespace Aplos.Areas.Productions.Controllers
                         if (dv.Count == 0)
                         {
                             bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MasterPlanQuantity", out _Id);
-                            item["Id"] = _Id;
+                            //genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MasterPlanChild", out _Id);
+                            item["Id"] = MasterPlanId + '-'+ MPQId++;
                             AddNewRow(dsProdBooked.Tables[0], item);
                         }
                         else
