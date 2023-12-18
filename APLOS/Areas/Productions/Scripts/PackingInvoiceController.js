@@ -1,5 +1,5 @@
 ﻿'use strict';
-PackingInvoiceController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller', 'accountService', 'bankService','$window'];
+PackingInvoiceController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller', 'accountService', 'bankService', '$window'];
 function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller, accountService, bankService, $window) {
     $rootScope.title = 'Packing Invoice';
     $scope.path = 'Productions/PackingInvoice/';
@@ -177,6 +177,15 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         });
     }
 
+    function checkExistPTList(list, PTId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].Value === PTId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     $scope.selectedPackingList = [];
     function MakeData() {
         $scope.paymentTermList = [];
@@ -186,7 +195,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                 if (getRow.length == 0) {
                     if ($scope.PackingList[i].Active == true) {
                         var ob = {};
-                        var ObjPt = {};
+                        var ObjPt = { Value: null, Text: null, BaseLineDate: null, NoOfDay: 0, PaymentTermCode: null };
                         ob.PackingId = $scope.PackingList[i].PackingId;
                         ob.PartyId = $scope.PackingList[i].CustomerId;
                         ob.EntityId = $scope.PackingList[i].EntityId;
@@ -203,7 +212,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                                 ob.CustomerId = $scope.PackingList[i].CustomerId;
                                 $scope.salesVM.PartyName = $scope.PackingList[i].Customer;
                                 $scope.salesVM.PartyId = $scope.PackingList[i].CustomerId;
-                                $scope.salesVM.PaymentTermId = $scope.PackingList[i].PaymentTermId;
+                                
                                 ob.StorageLoc = $scope.PackingList[i].StorageLoc;
                                 ob.ByWhom = $scope.PackingList[i].ByWhom;
                                 ob.DRespPerson = $scope.PackingList[i].DRespPerson;
@@ -213,12 +222,14 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                                 ObjPt.Text = $scope.PackingList[i].PaymentTermName;
                                 ObjPt.PaymentTermCode = $scope.PackingList[i].PaymentTermCode;
                                 ObjPt.NoOfDay = $scope.PackingList[i].NoOfDay;
-                                ObjPt.BaseLineDate = $scope.PackingList[i].BaseLineDate;                             
+                                ObjPt.BaseLineDate = $scope.PackingList[i].BaseLineDate;
 
-                                $scope.paymentTermList.push(ObjPt);
+                                if (checkExistPTList($scope.paymentTermList, ObjPt.Value) === false) {
+                                    $scope.paymentTermList.push(ObjPt);
+                                }
 
-                                ObjPt = {};
-
+                                ObjPt = { Value: null, Text: null, BaseLineDate: null, NoOfDay: 0, PaymentTermCode: null };
+                                
                                 $scope.getPartyPlant();
                                 $scope.selectedPackingList.push(ob);
 
@@ -230,7 +241,11 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                     }
                 }
             }
-            $scope.changePaymentTerm($scope.salesVM.PaymentTermId);
+            if (baseService.arrayLength($scope.paymentTermList)==1) {
+                $scope.salesVM.PaymentTermId = $scope.paymentTermList[0].Value;
+                $scope.changePaymentTerm($scope.salesVM.PaymentTermId);
+            }
+           
             $scope.GetCurrencyExchangeRateList();
         } catch (e) {
             ShowResult(e, 'failure', 'PackingListPopUp');
@@ -1009,7 +1024,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         $scope.taxCategoryList = [];
         $http({
             method: 'GET'
-           //, url: 'SalesManagements/Sales/GetTaxCategoryList?receiveId=' + $scope.salesVM.InvoicingPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
+            //, url: 'SalesManagements/Sales/GetTaxCategoryList?receiveId=' + $scope.salesVM.InvoicingPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
             , url: 'SalesManagements/Sales/GetTaxCategoryList?receiveId=' + $scope.salesVM.DeliveryPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
         }).then(function (response) {
             $scope.taxCategoryList = response.data;
@@ -1229,7 +1244,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         $scope.salesVM.AddedDate = $filter('dateFiltering')(new Date($scope.salesVM.AddedDate), 'dd-MM-yyyy');
         $scope.ModelNew.Amount = data.Amount;
         getPartyPlantEditList($scope.salesVM.InvoicingPartyPlantId, $scope.salesVM.InvoicingByAddress, $scope.salesVM.DeliveryPartyPlantId, $scope.salesVM.DeliveryByAddress, $scope.salesVM.DeliveryState, $scope.salesVM.DeliveryGSTIN);
-        
+
         $scope.GetSalesPackingData($scope.salesVM.Id);
         $scope.getPostSalesData();
 
@@ -1440,9 +1455,9 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     };
 
     $scope.cancelMaterialRow = function (Id, index) {
-            angular.element(document.querySelector('#cancelPopUp')).modal('show');
-            $scope.mateId = Id;
-            $scope.mateIndex = index;
+        angular.element(document.querySelector('#cancelPopUp')).modal('show');
+        $scope.mateId = Id;
+        $scope.mateIndex = index;
     };
     $scope.CancelRemark = null;
     $scope.closeCancelMaterialRow = function () {
@@ -1533,7 +1548,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 };
-            } 
+            }
 
         } catch (e) {
             ShowResult(e, 'success');
@@ -2188,7 +2203,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector('#vendorPopUp')).modal('hide');
     }
 
-   
+
 
     //#endregion PostInvoice
 

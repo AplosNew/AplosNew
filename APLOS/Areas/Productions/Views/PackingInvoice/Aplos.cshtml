@@ -192,8 +192,11 @@
                                     <label class="col-sm-2 control-label">Payment Term<sup>*</sup></label>
                                     <div class="col-sm-2 show-message">
                                         <div class="select-style">
-                                            <select tabindex="10" id="paymentTermId" class="form-control" name="Payment Term" ng-model="salesVM.PaymentTermId" ng-change="changePaymentTerm(salesVM.PaymentTermId);">
+                                            @*<select tabindex="10" id="paymentTermId" class="form-control" name="Payment Term" ng-model="salesVM.PaymentTermId" ng-change="changePaymentTerm(salesVM.PaymentTermId);">
                                                 <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
+                                            </select>*@
+                                            <select name="Payment Term" id="paymentTermId" class="form-control" ng-model="salesVM.PaymentTermId" ng-options="item.Value as item.Text for item in paymentTermList"  ng-change="changePaymentTerm(salesVM.PaymentTermId);">
+                                                <option value="">--Select--</option>
                                             </select>
                                         </div>
                                     </div>
