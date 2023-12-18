@@ -323,12 +323,12 @@
                                                         <div e-column e-type="string" e-field="ArticleName" e-headertext="Article" e-width="150"></div>
                                                         <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="100"></div>
                                                         <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="100"></div>
-                                                        <div e-column e-type="string" e-template="#MinQty" e-headertext="Minimum Qty" e-width="100"></div>
+                                                        <div e-column e-type="string" e-template="#MinQty" e-headertext="Minimum Extra Qty" e-width="100"></div>
                                                         <div e-column e-type="string" e-template="#PlanPercentage" e-headertext="Plan Percentage" e-width="100"></div>
                                                         <div e-column e-type="string" e-field="MasterPlanQty" e-headertext="Master Plan Qty" e-width="100"></div>
                                                         <div e-column e-type="string" e-template="#AdjustmentQty" e-headertext="Adjustment Qty" e-width="100"></div>
                                                         <div e-column e-type="string" e-field="FinalQty" e-headertext="FinalQty" e-width="100"></div>
-                                                        <div e-column e-type="string" e-field="Remark" e-headertext="Remarks" e-width="120"></div>
+                                                        <div e-column e-type="string" e-template="#Remarks" e-headertext="Remarks" e-width="120"></div>
                                                     </div>
                                                     <script type="text/template" id="MinQty">
                                                         <div class="col-sm-12" style="padding:0px;">
@@ -343,6 +343,11 @@
                                                     <script type="text/template" id="AdjustmentQty">
                                                         <div class="col-sm-12" style="padding:0px;">
                                                             <input type="number" name="Adjustment Qty" ng-change="$parent.FinalQtyCal(this);" ng-model="data.AdjustmentQty" ng-click="" class="form-control">
+                                                        </div>
+                                                    </script>
+                                                    <script type="text/template" id="Remarks">
+                                                        <div class="col-sm-10" style="padding:0px;">
+                                                            <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
                                                         </div>
                                                     </script>
                                                 </div>
@@ -360,12 +365,12 @@
                                                         <div e-column e-type="string" e-field="SKU1Name" e-headertext="SKU1 Name" e-width="120"></div>
                                                         <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="100"></div>
                                                         <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="100"></div>
-                                                        <div e-column e-type="string" e-template="#MinQty" e-headertext="Minimum Qty" e-width="100"></div>
+                                                        <div e-column e-type="string" e-template="#MinQty" e-headertext="Minimum Extra Qty" e-width="100"></div>
                                                         <div e-column e-type="string" e-template="#PlanPercentage" e-headertext="Plan Percentage" e-width="100"></div>
                                                         <div e-column e-type="string" e-field="MasterPlanQty" e-headertext="Master Plan Qty" e-width="100"></div>
                                                         <div e-column e-type="string" e-template="#AdjustmentQty" e-headertext="Adjustment Qty" e-width="100"></div>
                                                         <div e-column e-type="string" e-field="FinalQty" e-headertext="FinalQty" e-width="100"></div>
-                                                        <div e-column e-type="string" e-field="Remark" e-headertext="Remarks" e-width="120"></div>
+                                                        <div e-column e-type="string" e-template="#Remarks" e-headertext="Remarks" e-width="120"></div>
                                                     </div>
                                                     <script type="text/template" id="MinQty">
                                                         <div class="col-sm-12" style="padding:0px;">
@@ -380,6 +385,11 @@
                                                     <script type="text/template" id="AdjustmentQty">
                                                         <div class="col-sm-12" style="padding:0px;">
                                                             <input type="number" name="Adjustment Qty" ng-change="$parent.FinalQtyCal(this);" ng-model="data.AdjustmentQty" ng-click="" class="form-control">
+                                                        </div>
+                                                    </script>
+                                                    <script type="text/template" id="Remarks">
+                                                        <div class="col-sm-10" style="padding:0px;">
+                                                            <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
                                                         </div>
                                                     </script>
                                                 </div>
@@ -398,12 +408,12 @@
                                                         <div e-column e-type="string" e-field="SKU2Name" e-headertext="SKU2 Name" e-width="120"></div>
                                                         <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="100"></div>
                                                         <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="100"></div>
-                                                        <div e-column e-type="string" e-template="#MinQty" e-headertext="Minimum Qty" e-width="100"></div>
+                                                        <div e-column e-type="string" e-template="#MinQty" e-headertext="Minimum Extra Qty" e-width="100"></div>
                                                         <div e-column e-type="string" e-template="#PlanPercentage" e-headertext="Plan Percentage" e-width="100"></div>
                                                         <div e-column e-type="string" e-field="MasterPlanQty" e-headertext="Master Plan Qty" e-width="100"></div>
                                                         <div e-column e-type="string" e-template="#AdjustmentQty" e-headertext="Adjustment Qty" e-width="100"></div>
                                                         <div e-column e-type="string" e-field="FinalQty" e-headertext="FinalQty" e-width="100"></div>
-                                                        <div e-column e-type="string" e-field="Remark" e-headertext="Remarks" e-width="120"></div>
+                                                        <div e-column e-type="string" e-template="#Remarks" e-headertext="Remarks" e-width="120"></div>
                                                     </div>
                                                     <script type="text/template" id="MinQty">
                                                         <div class="col-sm-12" style="padding:0px;">
@@ -418,6 +428,11 @@
                                                     <script type="text/template" id="AdjustmentQty">
                                                         <div class="col-sm-12" style="padding:0px;">
                                                             <input type="number" name="Adjustment Qty" ng-change="$parent.FinalQtyCal(this);" ng-model="data.AdjustmentQty" ng-click="" class="form-control">
+                                                        </div>
+                                                    </script>
+                                                    <script type="text/template" id="Remarks">
+                                                        <div class="col-sm-10" style="padding:0px;">
+                                                            <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
                                                         </div>
                                                     </script>
                                                 </div>

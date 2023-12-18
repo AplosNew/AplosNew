@@ -28,6 +28,7 @@ using Library.MaterialManagement.Material;
 using Library.Service.Systems;
 using System.Web;
 using Aplos.Helpers;
+using Library.OrderManagement.Production;
 
 #endregion using
 
@@ -38,6 +39,7 @@ namespace Aplos.Areas.Materials.Controllers
         #region -- Constructor
 
         private readonly IFabricRollMasterService _fabricRollMasterService;
+        ProductionSummaryData _productionSummaryData = new ProductionSummaryData();
         private SqlRepository _sqlRepository = new SqlRepository();
         FabricRollClass clsFabric = new FabricRollClass();
         public FabricRollController(IFabricRollMasterService fabricRollMasterService)
@@ -76,6 +78,18 @@ namespace Aplos.Areas.Materials.Controllers
         {
             CustomIdentity identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_fabricRollMasterService.Query(parameters, identity.CompanyGroupId, paidHours, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetSummaryList(string GRNId, string parameters)
+        {
+            return Json(_productionSummaryData.GetSummaryList(GRNId, parameters), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetFilterList(string GRNId)
+        {
+            return Json(_productionSummaryData.GetFilterList(GRNId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -445,7 +459,7 @@ namespace Aplos.Areas.Materials.Controllers
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRNRowId");colGRNRowId = xlsCol;xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Color"); colColor = xlsCol;xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LotNo");colLotNo = xlsCol;xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShadeGroup"); colShadeGroup = xlsCol;xlsCol += 1;
+                //ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShadeGroup"); colShadeGroup = xlsCol;xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FabricType"); colFabricType = xlsCol;xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FabricQuality"); colFabricQuality = xlsCol;xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SupplierRollNo"); colSupplierRollNo = xlsCol; xlsCol += 1;
@@ -461,21 +475,21 @@ namespace Aplos.Areas.Materials.Controllers
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shade"); colShade = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageLengthWise",16); colShrinkageLength = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageWidthWise"); colShrinkagewidth = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageGroup"); colShrinkageGroup = xlsCol; xlsCol += 1;
+                //ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageGroup"); colShrinkageGroup = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Dia"); colDia = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SupplierQualityGrade",14); colSupplierQualityGrade = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "QualityStatus"); colQualityStatus = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FTPReportNo"); colFTPReportNo = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FTPReceiveDate"); colFTPReceiveDate = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FTPStatus"); colFTPStatus = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DimensionalChange3rdWash",11); colDimensionalChange3rdWash = xlsCol; xlsCol += 1;                
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Spirality3rdWash",16); colSpirality3rdWash = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PillingResistance",16); colPillingResistance = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BurstingStrength",16); colBurstingStrength = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Absorbency"); colAbsorbency = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "pHValue"); colpHValue = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sewablity"); colSewablity = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Handfeel"); colHandfeel = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FTPStatus"); colFTPStatus = xlsCol;
+                //ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DimensionalChange3rdWash",11); colDimensionalChange3rdWash = xlsCol; xlsCol += 1;                
+                //ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Spirality3rdWash",16); colSpirality3rdWash = xlsCol; xlsCol += 1;
+                //ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PillingResistance",16); colPillingResistance = xlsCol; xlsCol += 1;
+                //ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BurstingStrength",16); colBurstingStrength = xlsCol; xlsCol += 1;
+                //ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Absorbency"); colAbsorbency = xlsCol; xlsCol += 1;
+                //ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "pHValue"); colpHValue = xlsCol; xlsCol += 1;
+                //ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sewablity"); colSewablity = xlsCol; xlsCol += 1;
+                //ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Handfeel"); colHandfeel = xlsCol; xlsCol += 1;
 
                 endXlsCol = xlsCol;
 
@@ -548,7 +562,7 @@ namespace Aplos.Areas.Materials.Controllers
 
                             sheet1.Range[xlsRow, colColor, xlsRow, colColor].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colLotNo, xlsRow, colLotNo].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colShadeGroup, xlsRow, colShadeGroup].CellStyle.Locked = false;
+                            //sheet1.Range[xlsRow, colShadeGroup, xlsRow, colShadeGroup].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colFabricType, xlsRow, colFabricType].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colFabricQuality, xlsRow, colFabricQuality].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colSupplierRollNo, xlsRow, colSupplierRollNo].CellStyle.Locked = false;
@@ -564,7 +578,7 @@ namespace Aplos.Areas.Materials.Controllers
                             sheet1.Range[xlsRow, colShade, xlsRow, colShade].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colShrinkageLength, xlsRow, colShrinkageLength].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colShrinkagewidth, xlsRow, colShrinkagewidth].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colShrinkageGroup, xlsRow, colShrinkageGroup].CellStyle.Locked = false;
+                            //sheet1.Range[xlsRow, colShrinkageGroup, xlsRow, colShrinkageGroup].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colDia, xlsRow, colDia].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colSupplierQualityGrade, xlsRow, colSupplierQualityGrade].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colQualityStatus, xlsRow, colQualityStatus].CellStyle.Locked = false;
@@ -572,13 +586,13 @@ namespace Aplos.Areas.Materials.Controllers
                             sheet1.Range[xlsRow, colFTPReceiveDate, xlsRow, colFTPReceiveDate].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colFTPStatus, xlsRow, colFTPStatus].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colDimensionalChange3rdWash, xlsRow, colDimensionalChange3rdWash].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colSpirality3rdWash, xlsRow, colSpirality3rdWash].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colPillingResistance, xlsRow, colPillingResistance].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colBurstingStrength, xlsRow, colBurstingStrength].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colAbsorbency, xlsRow, colAbsorbency].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colpHValue, xlsRow, colpHValue].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colSewablity, xlsRow, colSewablity].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colHandfeel, xlsRow, colHandfeel].CellStyle.Locked = false;
+                            //sheet1.Range[xlsRow, colSpirality3rdWash, xlsRow, colSpirality3rdWash].CellStyle.Locked = false;
+                            //sheet1.Range[xlsRow, colPillingResistance, xlsRow, colPillingResistance].CellStyle.Locked = false;
+                            //sheet1.Range[xlsRow, colBurstingStrength, xlsRow, colBurstingStrength].CellStyle.Locked = false;
+                            //sheet1.Range[xlsRow, colAbsorbency, xlsRow, colAbsorbency].CellStyle.Locked = false;
+                            //sheet1.Range[xlsRow, colpHValue, xlsRow, colpHValue].CellStyle.Locked = false;
+                            //sheet1.Range[xlsRow, colSewablity, xlsRow, colSewablity].CellStyle.Locked = false;
+                            //sheet1.Range[xlsRow, colHandfeel, xlsRow, colHandfeel].CellStyle.Locked = false;
 
                             xlsRow++;
 
@@ -641,7 +655,7 @@ namespace Aplos.Areas.Materials.Controllers
 
                             sheet1.Range[xlsRow, colColor, xlsRow, colColor].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colLotNo, xlsRow, colLotNo].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colShadeGroup, xlsRow, colShadeGroup].CellStyle.Locked = false;
+                            //sheet1.Range[xlsRow, colShadeGroup, xlsRow, colShadeGroup].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colFabricType, xlsRow, colFabricType].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colFabricQuality, xlsRow, colFabricQuality].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colSupplierRollNo, xlsRow, colSupplierRollNo].CellStyle.Locked = false;
@@ -657,21 +671,21 @@ namespace Aplos.Areas.Materials.Controllers
                             sheet1.Range[xlsRow, colShade, xlsRow, colShade].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colShrinkageLength, xlsRow, colShrinkageLength].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colShrinkagewidth, xlsRow, colShrinkagewidth].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colShrinkageGroup, xlsRow, colShrinkageGroup].CellStyle.Locked = false;
+                            //sheet1.Range[xlsRow, colShrinkageGroup, xlsRow, colShrinkageGroup].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colDia, xlsRow, colDia].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colSupplierQualityGrade, xlsRow, colSupplierQualityGrade].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colQualityStatus, xlsRow, colQualityStatus].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colFTPReportNo, xlsRow, colFTPReportNo].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colFTPReceiveDate, xlsRow, colFTPReceiveDate].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colFTPStatus, xlsRow, colFTPStatus].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colDimensionalChange3rdWash, xlsRow, colDimensionalChange3rdWash].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colSpirality3rdWash, xlsRow, colSpirality3rdWash].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colPillingResistance, xlsRow, colPillingResistance].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colBurstingStrength, xlsRow, colBurstingStrength].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colAbsorbency, xlsRow, colAbsorbency].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colpHValue, xlsRow, colpHValue].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colSewablity, xlsRow, colSewablity].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colHandfeel, xlsRow, colHandfeel].CellStyle.Locked = false;
+                            //sheet1.Range[xlsRow, colDimensionalChange3rdWash, xlsRow, colDimensionalChange3rdWash].CellStyle.Locked = false;
+                            //sheet1.Range[xlsRow, colSpirality3rdWash, xlsRow, colSpirality3rdWash].CellStyle.Locked = false;
+                            //sheet1.Range[xlsRow, colPillingResistance, xlsRow, colPillingResistance].CellStyle.Locked = false;
+                            //sheet1.Range[xlsRow, colBurstingStrength, xlsRow, colBurstingStrength].CellStyle.Locked = false;
+                            //sheet1.Range[xlsRow, colAbsorbency, xlsRow, colAbsorbency].CellStyle.Locked = false;
+                            //sheet1.Range[xlsRow, colpHValue, xlsRow, colpHValue].CellStyle.Locked = false;
+                            //sheet1.Range[xlsRow, colSewablity, xlsRow, colSewablity].CellStyle.Locked = false;
+                            //sheet1.Range[xlsRow, colHandfeel, xlsRow, colHandfeel].CellStyle.Locked = false;
 
                             xlsRow++;
                         }
@@ -845,7 +859,7 @@ namespace Aplos.Areas.Materials.Controllers
                 application = excelEngine.Excel;
                 workbook = excelEngine.Excel.Workbooks.Open(path);
                 //DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
-                DataTable dt = workbook.Worksheets[0].ExportDataTable(6, 1, 5000, 35, ExcelExportDataTableOptions.ColumnNames);
+                DataTable dt = workbook.Worksheets[0].ExportDataTable(6, 1, 5000, 25, ExcelExportDataTableOptions.ColumnNames);
                 dt.DefaultView.RowFilter = "isnull(Sequence,'')<>''";
                 dt = dt.DefaultView.ToTable();
                 //var pquom = "";
@@ -925,7 +939,84 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(new { Data = data, Message = AplosMessage.Insert });
         }
 
-       
+        [HttpPost]
+        public ActionResult UpdateFabricDetails(List<Dictionary<string, object>> DataList)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("select * from BPDT.FabricRollManagementChild where CutableWidth = '" + item["CutableWidth"] + "' and ShrinkageWidthWise = '" + item["ShrinkageWidthWise"] + "' and ShrinkageLengthWise = '" + item["ShrinkageLengthWise"] + "' and Shade = '" + item["Shade"] + "'", out dsProdBooked, false, "1");
+                        //DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dsProdBooked.Tables[0].Rows.Count > 0)
+                        {
+                            for (int j = 0; j < dsProdBooked.Tables[0].Rows.Count; j++)
+                            {
+                                dsProdBooked.Tables[0].DefaultView.RowFilter = "Id='" + dsProdBooked.Tables[0].Rows[j]["Id"].ToString() + "'";
+
+                                if (dsProdBooked.Tables[0].DefaultView.Count > 0)
+                                {
+                                    //edit
+                                    DataRow dr = dsProdBooked.Tables[0].DefaultView[0].Row;
+                                    dr.BeginEdit();
+
+                                    dr["Status"] = 1;
+                                    if(item["CutableWidthGroup"] == null)
+                                    {
+                                        dr["CutableWidthGroup"] = DBNull.Value;
+                                    }
+                                    else
+                                    {
+                                        dr["CutableWidthGroup"] = item["CutableWidthGroup"];
+                                    }
+                                    dr["MarkerGroup"] = item["MarkerGroup"];
+                                    dr["FabricGroup"] = item["FabricGroup"];
+                                    if (item["ShrinkageGroup"] == null)
+                                    {
+                                        dr["ShrinkageGroup"] = DBNull.Value;
+                                    }
+                                    else
+                                    {
+                                        dr["ShrinkageGroup"] = item["ShrinkageGroup"];
+                                    }
+                                    if (item["ShadeGroup"] == null)
+                                    {
+                                        dr["ShadeGroup"] = DBNull.Value;
+                                    }
+                                    else
+                                    {
+                                        dr["ShadeGroup"] = item["ShadeGroup"];
+                                    }
+                                    dr["Remarks"] = item["Remarks"];
+                                    dr["UpdatedBy"] = identity.Name;
+                                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                                    dr.EndEdit();
+                                }
+                            }
+                        }
+
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
@@ -1079,7 +1170,7 @@ namespace Aplos.Areas.Materials.Controllers
         public string GRNRowId { get; set; }
         public string LotNo { get; set; }
         public string Color { get; set; }
-        public string ShadeGroup { get; set; }
+        //public string ShadeGroup { get; set; }
         public string FabricType { get; set; }
         public string FabricQuality { get; set; }
         public string SupplierRollNo { get; set; }
@@ -1095,21 +1186,21 @@ namespace Aplos.Areas.Materials.Controllers
         public string Shade { get; set; }
         public string ShrinkageLengthWise { get; set; }
         public string ShrinkageWidthWise { get; set; }
-        public string ShrinkageGroup { get; set; }
+        //public string ShrinkageGroup { get; set; }
         public string Dia { get; set; }
         public string SupplierQualityGrade { get; set; }
         public string QualityStatus { get; set; }
         public string FTPReportNo { get; set; }
         public string FTPReceiveDate { get; set; }
         public string FTPStatus { get; set; }
-        public string DimensionalChange3rdWash { get; set; }
-        public string Spirality3rdWash { get; set; }
-        public string PillingResistance { get; set; }
-        public string BurstingStrength { get; set; }
-        public string Absorbency { get; set; }
-        public string pHValue { get; set; }
-        public string Sewablity { get; set; }
-        public string Handfeel { get; set; }
+        //public string DimensionalChange3rdWash { get; set; }
+        //public string Spirality3rdWash { get; set; }
+        //public string PillingResistance { get; set; }
+        //public string BurstingStrength { get; set; }
+        //public string Absorbency { get; set; }
+        //public string pHValue { get; set; }
+        //public string Sewablity { get; set; }
+        //public string Handfeel { get; set; }
 
     }
 }

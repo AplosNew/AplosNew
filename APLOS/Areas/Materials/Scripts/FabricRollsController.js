@@ -8,6 +8,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.path = 'Materials/FabricRoll/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
+    $scope.updateUrlFabricDetails = $scope.path + 'UpdateFabricDetails';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.showfromto = true;
     $scope.showgrndiv = false;
@@ -52,6 +53,16 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         VendorWidth: null
     }
     $scope.fabricRollMasterNew = Object.assign({}, $scope.fabricRollMaster);
+
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
 
     //#region Fabric Roll Pop Up
     $scope.selectedGRNRow = {};
@@ -183,6 +194,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         $scope.getSaveMaster($scope.fabricRollMaster.GRNNo);
     }
 
+ 
 
     $scope.getSaveMaster = function (GRNNo) {
         $http({
@@ -257,8 +269,113 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         angular.element(document.querySelector('#grnPopUp')).modal('show');
     };
 
+    $scope.SummaryData = function () {
+        $scope.getFiltersData();
+        angular.element(document.querySelector('#grnSummaryListPopUp')).modal('show');
+    }
+
+    $scope.grnSummaryList = [];
+    $scope.GetSummaryList = function () {
+        $scope.grnSummaryList = [];
+        $scope.filterComplete();
+        $http({
+            //method: 'POST',
+            //url: 'Materials/FabricRoll/GetSummaryList?GRNId=' + $scope.fabricRollMaster.GRNNo + '&GRNRowId=' + $scope.parameters
+            method: 'POST',
+            url: $scope.path + "GetSummaryList",
+            data: { 'parameters': $scope.parameters[0].Value, 'GRNId': $scope.fabricRollMaster.GRNNo },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.grnSummaryList = response.data;
+        });
+        var gridObj = $("#GridFabricSummary").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    }
+    //$scope.GetSummaryList();
 
 
+    $scope.closeGRNSummaryPopUp = function () {
+        angular.element(document.querySelector('#grnSummaryListPopUp')).modal('hide');
+    }
+
+    $scope.filters = [];
+    $scope.getFiltersData = function () {
+        try {
+            $http({
+                method: 'GET',
+                url: 'Materials/FabricRoll/GetFilterList?GRNId='+ $scope.fabricRollMaster.GRNNo,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.filters = response.data;
+                var columnList = [
+                    { field: 'GRNRowId', width: 20, headerText: "GRNRowId", type: "string" },
+                    { field: 'Article', width: 20, headerText: "Article", type: "string" },
+                    { field: 'Material', width: 20, headerText: "Material", type: "string" },
+                    { field: 'Qty', width: 20, headerText: "Qty", type: "string" },
+                    { field: 'NoOfRoll', width: 20, headerText: "NoOfRoll", type: "string" },
+                    { field: 'NoOfPackage', width: 20, headerText: "NoOfPackage", type: "string" }
+                ];
+                $("#filters").ejGrid({
+                    dataSource: $scope.filters,
+                    minWidth: 450, minHeight: 400,
+                    allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+                    filterSettings: { filterType: "excel" },
+                    columns: columnList
+                });
+
+                var gridObj = $("#filters").data("ejGrid");
+                gridObj.refreshContent(true);
+                gridObj.refreshTemplate();
+                $("#filters").children('.e-pager.e-js.e-pager').hide();
+                $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
+                $("#filters").children('.e-gridcontent').hide();
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    $scope.parameters = [];
+    $scope.filterComplete = function () {
+
+        var g = $("#filters").data("ejGrid");
+        var fl = g.getFilteredRecords();
+        if (fl.length == 0) {
+            fl = $scope.filters;
+        }
+
+
+        var parameters = [];
+        parameters.push({ "Key": "GRNRowId", "Value": getString(fl, "GRNRowId") });
+        $scope.parameters = parameters;
+    }
+
+    var getString = function (data, column) {
+        var string = "''";
+        var collection = [];
+
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i][column]) == false) {
+                string += ",'" + data[i][column] + "'";
+                collection.push(data[i][column]);
+            }
+        }
+        return string;
+    }
+
+    $scope.MarkerGrpValue = "";
+    $scope.ShadeGrpValue = "";
+    $scope.FabricGroupChange = function (data) {
+        try {
+            $scope.MarkerGrpValue = "";
+            $scope.ShadeGrpValue = "";
+            $scope.MarkerGrpValue = data.data.MarkerGroup;
+            $scope.ShadeGrpValue = data.data.ShadeGroup;
+            data.data.FabricGroup = $scope.MarkerGrpValue + '-' + $scope.ShadeGrpValue;
+            var gridObj = $("#GridFabricSummary").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+   
     $scope.MaterialsearchBy = "Material Master";
     $scope.Materialsearch = "";
     $scope.MaterialGridList = [];
@@ -1110,6 +1227,44 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
 
     //#endregion Meeting Points Picture upload
 
+    $scope.UpdateFabricDetails = function () {
+        try {
+
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.grnSummaryList.length; i++) {
+                if ($scope.grnSummaryList[i].MarkerGroup !== null && $scope.grnSummaryList[i].FabricGroup !== null && $scope.grnSummaryList[i].ShadeGroup !== null) {
+                    $scope.SaveList.push($scope.grnSummaryList[i]);
+                }
+                else
+                {
+                    throw "Please Update MarkerGroup,FabricGroup and ShadeGroup then proceed....";
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.updateUrlFabricDetails,
+                data: {
+                    "DataList": $scope.SaveList
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'updated');
+                    $scope.GetSummaryList();
+                    $scope.Action = 'Update';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
 
 
 }

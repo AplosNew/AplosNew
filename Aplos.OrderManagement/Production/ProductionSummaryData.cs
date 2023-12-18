@@ -7025,7 +7025,7 @@ Order by PV.ProductionSummaryId,PB.Sequence";
         public IEnumerable<object> GetMasterPlanList(string ProcessId)
         {
             string sql = @" SELECT * ,(select E.EmployeeName from EmployeeInformation E where E.SystemId=CP.UserId) as UserName,(select EI.EmployeeName from EmployeeInformation EI where EI.SystemId=CP.ResponsiblePersonId) as ResponsiblePerson,
-                            (select UserName from hkp.Process where id=Cp.ProcessId) as Process,(select UserName from org.entity where id=Cp.EntityId) as Entity FROM [MST].[MasterPlan] CP where CP.ProcessId='" + ProcessId + "' and CP.Id not in (select MasterPlanId from [MST].[MasterPlanQuantity])";
+                            (select UserName from hkp.Process where id=Cp.ProcessId) as Process,(select UserName from org.entity where id=Cp.EntityId) as Entity FROM [MST].[MasterPlan] CP where CP.ProcessId='" + ProcessId + "' and CP.Id not in (select MasterPlanId from [MST].[MasterPlanChild])";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
@@ -7059,8 +7059,8 @@ left join [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
 left join [ORG].[Entity]  AS E ON E.Id=PO.EntityId
 LEFT JOIN [MST].[MasterPlanSODetails] CPD on CPD.SalesOrderId=SO.Id and CPD.MasterPlanId='" + MasterPlanId + @"'
 where PPS.ProcessId = '" + ProcessId + @"'  and CPD.MasterPlanId = '" + MasterPlanId + @"'
-and PO.ProductionStatusId in (select Id from HKP.ProductionStatus where MasterPlanApplicable=1)
-ORDER BY MOI.ProductionGrouping,MOI.OwnReferenceNo";
+and PO.ProductionStatusId in (select Id from HKP.ProductionStatus where MasterPlanApplicable=1) and
+SO.OrderStatusId in (select Id from HKP.OrderStatus OS where OS. MasterPlanApplicable=1) and SO.Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + "' and Status=1) ORDER BY MOI.ProductionGrouping,MOI.OwnReferenceNo";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
@@ -7071,16 +7071,16 @@ MM.UserName  MaterialMasterName, MOI.ArticleId,
 ART.StandardName  ArticleName,MOI.BuyerReferenceNo,MOI.UOMId,UM.UserName UOM,SO.Qty,MOI.Remark,
 (select SUM(Qty) from TRN.FirstCharacteristics  where SalesOrderId=SO.Id) as SKU1,
 (select SUM(Qty) from TRN.SecondCharacteristics  where SalesOrderId=SO.Id) as SKU2,
-(select Sum(Qty) from TRN.SalesOrder where Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + @"')) as LineItemTotalQty,
-(select SUM(Qty) from TRN.FirstCharacteristics  where SalesOrderId in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + @"')) as SKU1TotalQty,
-(select SUM(Qty) from TRN.SecondCharacteristics  where SalesOrderId in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + @"')) as SKU2TotalQty,
+(select Sum(Qty) from TRN.SalesOrder where Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + @"' and Status=1)) as LineItemTotalQty,
+(select SUM(Qty) from TRN.FirstCharacteristics  where SalesOrderId in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + @"' and Status=1)) as SKU1TotalQty,
+(select SUM(Qty) from TRN.SecondCharacteristics  where SalesOrderId in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + @"' and Status=1)) as SKU2TotalQty,
 SO.CostingBOQMasterId BOQId,MOI.OrderCostingMasterTemplateId CostingId
 from TRN.MasterOrderItem MOI
 left join TRN.SalesOrder SO ON SO.MasterOrderItemId=MOI.Id
 left join [MST].[MaterialMaster]  MM ON MOI.MaterialMasterId = MM.Id 
 left join [MST].[MaterialMasterArticle]  ART ON MOI.ArticleId = ART.Id
 left join [SCS].UnitOfMeasurement UM  ON UM.Id=MOI.UOMId
-where SO.Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + "')";
+where SO.OrderStatusId in (select Id from HKP.OrderStatus OS where OS. MasterPlanApplicable=1) and SO.Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + "' and Status=1)";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
@@ -7098,7 +7098,7 @@ left join [SCS].UnitOfMeasurement UM  ON UM.Id=MOI.UOMId
 left join TRN.FirstCharacteristics FC ON FC.SalesOrderId=SO.Id
 left join HKP.Characteristics C ON C.Id=FC.CharacteristicsId
 left Join HKP.CharacteristicsValue CV on CV.Id=FC.CharacteristicsValueId
-where SO.Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + "')";
+where SO.OrderStatusId in (select Id from HKP.OrderStatus OS where OS. MasterPlanApplicable=1) and SO.Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + "' and Status=1)";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
@@ -7118,7 +7118,7 @@ left join TRN.SecondCharacteristics SC ON SC.SalesOrderId=SO.Id and SC.FirstChar
 left join HKP.Characteristics C ON C.Id=SC.CharacteristicsId
 left Join HKP.CharacteristicsValue CV on CV.Id=SC.CharacteristicsValueId
 left Join HKP.CharacteristicsValue FCV on CV.Id=FC.CharacteristicsValueId
-where SO.Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + "')";
+where SO.OrderStatusId in (select Id from HKP.OrderStatus OS where OS. MasterPlanApplicable=1) and SO.Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + "' and Status=1)";
             return _sqlRepository.GetDataCollection(sql, null);
         }
          
@@ -7128,34 +7128,34 @@ where SO.Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPla
             if(LineItem == true && SKU1 == false && SKU2 == false)
             {
                 sql = @"select MPQ.Id,'" + MasterPlanId + @"' MasterPlanId,MOI.ProductionGrouping,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,MOI.ArticleId,
-ART.StandardName  ArticleName,MOI.UOMId,UM.UserName UOM,Sum(SO.Qty) Qty,isnull(MPQ.MinQty,'" + MinQty + "') MinQty,isnull(MPQ.PlanPercentage,'" + PlanPercentage + @"') PlanPercentage,
-(case when (Sum(SO.Qty) * isnull(MPQ.PlanPercentage,'" + PlanPercentage + @"'))/100 < isnull(MPQ.MinQty,'" + MinQty + "')  then (Sum(SO.Qty) + isnull(MPQ.MinQty,'" + MinQty + "')) else CEILING(((Sum(SO.Qty) * isnull(MPQ.PlanPercentage,'" + PlanPercentage + @"'))/100 + Sum(SO.Qty))) end)  MasterPlanQty,
-isnull(MPQ.Adjustmentqty,0) AdjustmentQty,(case when (Sum(SO.Qty) * isnull(MPQ.PlanPercentage,'" + PlanPercentage + @"'))/100 < isnull(MPQ.MinQty,'" + MinQty + "')  then ((Sum(SO.Qty) + isnull(MPQ.MinQty,'" + MinQty + "')) - (isnull(MPQ.Adjustmentqty,0))) else (CEILING(((Sum(SO.Qty) * isnull(MPQ.PlanPercentage,'" + PlanPercentage + @"'))/100 + Sum(SO.Qty))) - (isnull(MPQ.Adjustmentqty,0))) end) FinalQty,
-MOI.Remark
+ART.StandardName  ArticleName,MOI.UOMId,UM.UserName UOM,Sum(SO.Qty) Qty,isnull(MPQ.MinQty,isnull(" + MinQty + ",0)) MinQty,isnull(MPQ.PlanPercentage,isnull(" + PlanPercentage + @",0)) PlanPercentage,
+(case when (Sum(SO.Qty) * isnull(MPQ.PlanPercentage,isnull(" + PlanPercentage + @",0))/100 < isnull(MPQ.MinQty,isnull(" + MinQty + ",0)))  then (Sum(SO.Qty) + isnull(MPQ.MinQty,isnull(" + MinQty + ",0))) else CEILING(((Sum(SO.Qty) * isnull(MPQ.PlanPercentage,isnull(" + PlanPercentage + @",0)))/100 + Sum(SO.Qty))) end)  MasterPlanQty,
+isnull(MPQ.Adjustmentqty,0) AdjustmentQty,(case when (Sum(SO.Qty) * isnull(MPQ.PlanPercentage,isnull(" + PlanPercentage + @",0)))/100 < isnull(MPQ.MinQty,isnull(" + MinQty + ",0))  then ((Sum(SO.Qty) + isnull(MPQ.MinQty,isnull(" + MinQty + ",0))) - (isnull(MPQ.Adjustmentqty,0))) else (CEILING(((Sum(SO.Qty) * isnull(MPQ.PlanPercentage,isnull(" + PlanPercentage + @",0)))/100 + Sum(SO.Qty))) - (isnull(MPQ.Adjustmentqty,0))) end) FinalQty,
+MPQ.Remarks
 from TRN.MasterOrderItem MOI 
 left join TRN.SalesOrder SO ON SO.MasterOrderItemId=MOI.Id
 left join [MST].[MaterialMaster]  MM ON MOI.MaterialMasterId = MM.Id 
 left join [MST].[MaterialMasterArticle]  ART ON MOI.ArticleId = ART.Id
 left join [SCS].UnitOfMeasurement UM  ON UM.Id=MOI.UOMId
-left join [MST].[MasterPlanQuantity] MPQ ON MPQ.MasterPlanId='" + MasterPlanId + @"' 
-where SO.Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + "') Group By MOI.Id,MOI.ArticleId,MPQ.Id,MOI.ProductionGrouping,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,ART.StandardName,MOI.UOMId,UM.UserName,MPQ.MinQty,MPQ.PlanPercentage,MPQ.Adjustmentqty,MOI.Remark";
+left join [MST].[MasterPlanChild] MPQ ON MPQ.MasterPlanId='" + MasterPlanId + @"' 
+where SO.OrderStatusId in (select Id from HKP.OrderStatus OS where OS. MasterPlanApplicable=1) and SO.Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + "' and Status=1) Group By MOI.Id,MOI.ArticleId,MPQ.Id,MOI.ProductionGrouping,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,ART.StandardName,MOI.UOMId,UM.UserName,MPQ.MinQty,MPQ.PlanPercentage,MPQ.Adjustmentqty,MPQ.Remarks";
             }
             if(LineItem == true && SKU1 == true && SKU2 == false)
             {
                 sql = @"select MPQ.Id,'" + MasterPlanId + @"' MasterPlanId,MOI.ProductionGrouping,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,MOI.ArticleId,
 ART.StandardName  ArticleName,FC.CharacteristicsValueId as SKU1NameId,(select UserName from HKP.CharacteristicsValue where Id=FC.CharacteristicsValueId) SKU1Name
-,MOI.UOMId,UM.UserName UOM,SUM(FC.Qty) Qty,isnull(MPQ.MinQty,'" + MinQty + "') MinQty,isnull(MPQ.PlanPercentage,'" + PlanPercentage + @"') PlanPercentage,
-(case when (SUM(FC.Qty) * isnull(MPQ.PlanPercentage,'" + PlanPercentage + @"'))/100 < isnull(MPQ.MinQty,'" + MinQty + "')  then (SUM(FC.Qty) + isnull(MPQ.MinQty,'" + MinQty + "')) else CEILING(((SUM(FC.Qty) * isnull(MPQ.PlanPercentage,'" + PlanPercentage + @"'))/100 + SUM(FC.Qty))) end)  MasterPlanQty,
-isnull(MPQ.Adjustmentqty,0) AdjustmentQty,(case when (SUM(FC.Qty) * isnull(MPQ.PlanPercentage,'" + PlanPercentage + @"'))/100 < isnull(MPQ.MinQty,'" + MinQty + "')  then ((SUM(FC.Qty) + isnull(MPQ.MinQty,'" + MinQty + "')) - (isnull(MPQ.Adjustmentqty,0))) else (CEILING(((SUM(FC.Qty) * isnull(MPQ.PlanPercentage,'" + PlanPercentage + @"'))/100 + SUM(FC.Qty))) - (isnull(MPQ.Adjustmentqty,0))) end) FinalQty,
-MOI.Remark
+,MOI.UOMId,UM.UserName UOM,SUM(FC.Qty) Qty,isnull(MPQ.MinQty,isnull(" + MinQty + ",0)) MinQty,isnull(MPQ.PlanPercentage,isnull(" + PlanPercentage + @",0)) PlanPercentage,
+(case when (Sum(FC.Qty) * isnull(MPQ.PlanPercentage,isnull(" + PlanPercentage + @",0))/100 < isnull(MPQ.MinQty,isnull(" + MinQty + ",0)))  then (Sum(FC.Qty) + isnull(MPQ.MinQty,isnull(" + MinQty + ",0))) else CEILING(((Sum(FC.Qty) * isnull(MPQ.PlanPercentage,isnull(" + PlanPercentage + @",0)))/100 + Sum(FC.Qty))) end)  MasterPlanQty,
+isnull(MPQ.Adjustmentqty,0) AdjustmentQty,(case when (Sum(FC.Qty) * isnull(MPQ.PlanPercentage,isnull(" + PlanPercentage + @",0)))/100 < isnull(MPQ.MinQty,isnull(" + MinQty + ",0))  then ((Sum(FC.Qty) + isnull(MPQ.MinQty,isnull(" + MinQty + ",0))) - (isnull(MPQ.Adjustmentqty,0))) else (CEILING(((Sum(FC.Qty) * isnull(MPQ.PlanPercentage,isnull(" + PlanPercentage + @",0)))/100 + Sum(FC.Qty))) - (isnull(MPQ.Adjustmentqty,0))) end) FinalQty,
+MPQ.Remarks
 from TRN.MasterOrderItem MOI
 left join TRN.SalesOrder SO ON SO.MasterOrderItemId=MOI.Id
 left join [MST].[MaterialMaster]  MM ON MOI.MaterialMasterId = MM.Id 
 left join [MST].[MaterialMasterArticle]  ART ON MOI.ArticleId = ART.Id
 left join [SCS].UnitOfMeasurement UM  ON UM.Id=MOI.UOMId
 left join TRN.FirstCharacteristics FC ON FC.SalesOrderId=SO.Id
-left join [MST].[MasterPlanQuantity] MPQ ON MPQ.MasterPlanId='" + MasterPlanId + @"' 
-where SO.Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + "') Group By MOI.Id,MOI.ArticleId,FC.CharacteristicsValueId,MPQ.Id,MOI.ProductionGrouping,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,ART.StandardName,MOI.UOMId,UM.UserName,MPQ.MinQty,MPQ.PlanPercentage,MPQ.Adjustmentqty,MOI.Remark";
+left join [MST].[MasterPlanChild] MPQ ON MPQ.MasterPlanId='" + MasterPlanId + @"' 
+where SO.OrderStatusId in (select Id from HKP.OrderStatus OS where OS. MasterPlanApplicable=1) and SO.Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + "' and Status=1) Group By MOI.Id,MOI.ArticleId,FC.CharacteristicsValueId,MPQ.Id,MOI.ProductionGrouping,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,ART.StandardName,MOI.UOMId,UM.UserName,MPQ.MinQty,MPQ.PlanPercentage,MPQ.Adjustmentqty,MPQ.Remarks";
             }
             if(LineItem == true && SKU1 == true && SKU2 == true)
             { 
@@ -7163,10 +7163,10 @@ where SO.Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPla
 ART.StandardName  ArticleName,FC.CharacteristicsValueId as SKU1NameId,SC.CharacteristicsValueId as SKU2NameId,
 (select UserName from HKP.CharacteristicsValue where Id=FC.CharacteristicsValueId) SKU1Name,
 (select UserName from HKP.CharacteristicsValue where Id=SC.CharacteristicsValueId) as SKU2Name
-,MOI.UOMId,UM.UserName UOM,Sum(SC.Qty) Qty,isnull(MPQ.MinQty,'" + MinQty + "') MinQty,isnull(MPQ.PlanPercentage,'" + PlanPercentage + @"') PlanPercentage,
-(case when (Sum(SC.Qty) * isnull(MPQ.PlanPercentage,'" + PlanPercentage + @"'))/100 < isnull(MPQ.MinQty,'" + MinQty + "')  then (Sum(SC.Qty) + isnull(MPQ.MinQty,'" + MinQty + "')) else CEILING(((Sum(SC.Qty) * isnull(MPQ.PlanPercentage,'" + PlanPercentage + @"'))/100 + Sum(SC.Qty))) end)  MasterPlanQty,
-isnull(MPQ.Adjustmentqty,0) AdjustmentQty,(case when (Sum(SC.Qty) * isnull(MPQ.PlanPercentage,'" + PlanPercentage + @"'))/100 < isnull(MPQ.MinQty,'" + MinQty + "')  then ((Sum(SC.Qty) + isnull(MPQ.MinQty,'" + MinQty + "')) - (isnull(MPQ.Adjustmentqty,0))) else (CEILING(((Sum(SC.Qty) * isnull(MPQ.PlanPercentage,'" + PlanPercentage + @"'))/100 + Sum(SC.Qty))) - (isnull(MPQ.Adjustmentqty,0))) end) FinalQty,
-MOI.Remark
+,MOI.UOMId,UM.UserName UOM,Sum(SC.Qty) Qty,isnull(MPQ.MinQty,isnull(" + MinQty + ",0)) MinQty,isnull(MPQ.PlanPercentage,isnull(" + PlanPercentage + @",0)) PlanPercentage,
+(case when (Sum(SC.Qty) * isnull(MPQ.PlanPercentage,isnull(" + PlanPercentage + @",0))/100 < isnull(MPQ.MinQty,isnull(" + MinQty + ",0)))  then (Sum(SC.Qty) + isnull(MPQ.MinQty,isnull(" + MinQty + ",0))) else CEILING(((Sum(SC.Qty) * isnull(MPQ.PlanPercentage,isnull(" + PlanPercentage + @",0)))/100 + Sum(SC.Qty))) end)  MasterPlanQty,
+isnull(MPQ.Adjustmentqty,0) AdjustmentQty,(case when (Sum(SC.Qty) * isnull(MPQ.PlanPercentage,isnull(" + PlanPercentage + @",0)))/100 < isnull(MPQ.MinQty,isnull(" + MinQty + ",0))  then ((Sum(SC.Qty) + isnull(MPQ.MinQty,isnull(" + MinQty + ",0))) - (isnull(MPQ.Adjustmentqty,0))) else (CEILING(((Sum(SC.Qty) * isnull(MPQ.PlanPercentage,isnull(" + PlanPercentage + @",0)))/100 + Sum(SC.Qty))) - (isnull(MPQ.Adjustmentqty,0))) end) FinalQty,
+MPQ.Remarks
 from TRN.MasterOrderItem MOI
 left join TRN.SalesOrder SO ON SO.MasterOrderItemId=MOI.Id
 left join [MST].[MaterialMaster]  MM ON MOI.MaterialMasterId = MM.Id 
@@ -7174,13 +7174,162 @@ left join [MST].[MaterialMasterArticle]  ART ON MOI.ArticleId = ART.Id
 left join [SCS].UnitOfMeasurement UM  ON UM.Id=MOI.UOMId
 left join TRN.FirstCharacteristics FC ON FC.SalesOrderId=SO.Id
 left join TRN.SecondCharacteristics SC ON SC.SalesOrderId=SO.Id and SC.FirstCharacteristicsId=FC.Id
-left join [MST].[MasterPlanQuantity] MPQ ON MPQ.MasterPlanId='" + MasterPlanId + @"' 
-where SO.Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + "') Group By MOI.Id,MOI.ArticleId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,MPQ.Id,MOI.ProductionGrouping,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,ART.StandardName,MOI.UOMId,UM.UserName,MPQ.MinQty,MPQ.PlanPercentage,MPQ.Adjustmentqty,MOI.Remark";
+left join [MST].[MasterPlanChild] MPQ ON MPQ.MasterPlanId='" + MasterPlanId + @"' 
+where SO.OrderStatusId in (select Id from HKP.OrderStatus OS where OS. MasterPlanApplicable=1) and SO.Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + "' and Status=1)  Group By MOI.Id,MOI.ArticleId,FC.CharacteristicsValueId,SC.CharacteristicsValueId,MPQ.Id,MOI.ProductionGrouping,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,ART.StandardName,MOI.UOMId,UM.UserName,MPQ.MinQty,MPQ.PlanPercentage,MPQ.Adjustmentqty,MPQ.Remarks";
             }
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
         #endregion Master Plan Details
+
+        #region Cut Plan
+
+        public IEnumerable<object> GetMasterPlanListForCutPlan(string ProcessId)
+        {
+            string sql = @" SELECT * ,(select E.EmployeeName from EmployeeInformation E where E.SystemId=CP.UserId) as UserName,(select EI.EmployeeName from EmployeeInformation EI where EI.SystemId=CP.ResponsiblePersonId) as ResponsiblePerson,
+                            (select UserName from hkp.Process where id=Cp.ProcessId) as Process,(select UserName from org.entity where id=Cp.EntityId) as Entity FROM [MST].[MasterPlan] CP where CP.ProcessId='" + ProcessId + "' and CP.Id in (select MasterPlanId from [MST].[MasterPlanChild])";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public IEnumerable<object> GetCutPlanList(string ProcessId, string MasterPlanId)
+        {
+            string sql = @"select isnull(MOI.ProductionGrouping,'') AS ProductionGrouping,MOI.OwnReferenceNo, isnull(PO.Id,'') AS PONumber,
+PS.UserName ProductionStatus,OS.UserName AS OrderStatusName,SO.Id SONo,SO.Qty,isnull((select PlanPercentage from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id),
+MO.ExtraOrderPercentage) SOPlanPercentage,isnull((select SOPlanQty from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id),SO.Qty + (MO.ExtraOrderPercentage*SO.Qty / 100)) as SOPlanQty,
+(select PlanStatus from MST.MasterPlan where id=(select MasterPlanId from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id)) as MasterPlanStatus,
+(case when (select MasterPlanId from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id) is null then 0 else 1 end) IsMasterPlan,
+(select MasterPlanId from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id) as MasterPlanId,
+(select Id from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id) as Id,
+(select Status from [MST].[MasterPlanSODetails] where SalesOrderId=SO.Id) as Status,
+MOI.MaterialMasterId, MM.UserName AS MaterialMasterName, MOI.ArticleId, 
+ART.StandardName AS ArticleName,P.UserName AS Customer,MOI.BuyerReferenceNo,MOI.Id LineItemNo,SO.Id AS SalesOrderId,MO.MasterOrderNo,
+E.UserName POEntity,PPS.JobWorkApplicable IsJW,PPS.JobWorkType JWType,(Case when PPS.JobWorkType='EntityWithinCompany' then (select UserName from ORG.Entity where Id=PPS.EntityIdWithinCompany) 
+when PPS.JobWorkType='EntityWithinGroup' then (select UserName from ORG.Entity where Id=PPS.EntityIdWithinCompany)
+when PPS.JobWorkType='Party' then (select UserName from hkp.Party where Id=PPS.PartyId) end ) EntityVendor
+from TRN.ProductionOrder PO
+left join TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderId=PO.Id
+left join TRN.ProductionOrderDetail POD ON POD.ProductionOrderId=PO.Id
+left join TRN.SalesOrder SO ON SO.Id=POD.SalesOrderId
+left join [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+left join [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
+left join [HKP].[Party] AS P ON MO.PartyId = P.Id
+left join [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
+left join [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id
+left join [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
+left join [TRN].[CustomerPO] AS CP ON SO.CustomerPOId = CP.Id
+left join [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
+left join [ORG].[Entity]  AS E ON E.Id=PO.EntityId
+LEFT JOIN [MST].[MasterPlanSODetails] CPD on CPD.SalesOrderId=SO.Id and CPD.MasterPlanId='" + MasterPlanId + @"'
+where PPS.ProcessId = '" + ProcessId + @"'  and CPD.MasterPlanId = '" + MasterPlanId + @"'
+and PO.ProductionStatusId in (select Id from HKP.ProductionStatus where MasterPlanApplicable=1)
+and SO.OrderStatusId in (select Id from HKP.OrderStatus OS where OS. MasterPlanApplicable=1)
+and SO.Id in (select SalesOrderId from MST.MasterPlanSODetails where MasterPlanId='" + MasterPlanId + "' and Status=1) ORDER BY MOI.ProductionGrouping,MOI.OwnReferenceNo";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public IEnumerable<object> GetCutPlanQtyList(string MasterPlanId, bool LineItem, bool SKU1, bool SKU2, string MinQty, string SKU1ColorId)
+        {
+            string sql = "";
+            string MinQtyChk = string.Empty;
+
+            if (MinQty != "0" && MinQty != "undefined")
+            {
+                MinQtyChk = ""+ MinQty +"";
+            }
+            else
+            {
+                MinQtyChk = "(select min(FinalQty) from[MST].[MasterPlanChild] where MasterPlanId = '" + MasterPlanId + @"')";
+            }
+
+            if (LineItem == true && SKU1 == false && SKU2 == false)
+            {
+                sql = @"select null Id,null AllotedHeaderId,MPQ.Id MasterPlanChildId,MasterPlanId,ProductionGrouping,BuyerReferenceNo,OwnReferenceNo,MPQ.ArticleId,
+ART.StandardName  ArticleName,MPQ.UOMId,UM.UserName UOM,MPQ.Qty,MPQ.FinalQty,MPQ.AllotedQty,MPQ.FinalQty-MPQ.AllotedQty BalanceQty,
+Floor((MPQ.FinalQty-MPQ.AllotedQty) / " + MinQtyChk + @" ) Ratio, 
+Floor((MPQ.FinalQty-MPQ.AllotedQty) / " + MinQtyChk + @" ) * " + MinQtyChk + @" CurrentAllotedQty,
+MPQ.Remarks,CAST(1 AS BIT) Status
+from [MST].[MasterPlanChild] MPQ 
+left join [MST].[MaterialMasterArticle]  ART ON MPQ.ArticleId = ART.Id
+left join [SCS].UnitOfMeasurement UM  ON UM.Id=MPQ.UOMId
+where MPQ.MasterPlanId='" + MasterPlanId + @"'";
+            }
+            if (LineItem == true && SKU1 == true && SKU2 == false)
+            {
+                sql = @"select null Id,null AllotedHeaderId,MPQ.Id MasterPlanChildId,MasterPlanId,ProductionGrouping,BuyerReferenceNo,OwnReferenceNo,MPQ.ArticleId,
+ART.StandardName  ArticleName,MPQ.SKU1NameId,(select UserName from HKP.CharacteristicsValue where Id=MPQ.SKU1NameId) SKU1Name,
+MPQ.UOMId,UM.UserName UOM,MPQ.Qty,MPQ.FinalQty,MPQ.AllotedQty,MPQ.FinalQty-MPQ.AllotedQty BalanceQty,
+Floor((MPQ.FinalQty-MPQ.AllotedQty) / " + MinQtyChk + @" ) Ratio,  
+Floor((MPQ.FinalQty-MPQ.AllotedQty) / " + MinQtyChk + @" ) * " + MinQtyChk + @" CurrentAllotedQty,
+MPQ.Remarks,CAST(1 AS BIT)  Status
+from [MST].[MasterPlanChild] MPQ 
+left join [MST].[MaterialMasterArticle]  ART ON MPQ.ArticleId = ART.Id
+left join [SCS].UnitOfMeasurement UM  ON UM.Id=MPQ.UOMId
+where MPQ.MasterPlanId='" + MasterPlanId + @"'";
+            }
+            if (LineItem == true && SKU1 == true && SKU2 == true)
+            {
+                sql = @"select null Id,null AllotedHeaderId,MPQ.Id MasterPlanChildId,MasterPlanId,ProductionGrouping,BuyerReferenceNo,OwnReferenceNo,MPQ.ArticleId,
+ART.StandardName  ArticleName,MPQ.SKU1NameId,(select UserName from HKP.CharacteristicsValue where Id=MPQ.SKU1NameId) SKU1Name,
+MPQ.SKU2NameId,(select UserName from HKP.CharacteristicsValue where Id=MPQ.SKU2NameId) SKU2Name,
+MPQ.UOMId,UM.UserName UOM,MPQ.Qty,MPQ.FinalQty,MPQ.AllotedQty,MPQ.FinalQty-MPQ.AllotedQty BalanceQty,
+Floor((MPQ.FinalQty-MPQ.AllotedQty) / " + MinQtyChk + @") Ratio, 
+Floor((MPQ.FinalQty-MPQ.AllotedQty) / " + MinQtyChk + @") * " + MinQtyChk + @" CurrentAllotedQty,
+MPQ.Remarks,CAST(1 AS BIT)  Status
+from [MST].[MasterPlanChild] MPQ 
+left join [MST].[MaterialMasterArticle]  ART ON MPQ.ArticleId = ART.Id
+left join [SCS].UnitOfMeasurement UM  ON UM.Id=MPQ.UOMId
+where MPQ.MasterPlanId='" + MasterPlanId + @"' and SKU1NameId='"+ SKU1ColorId + "'";
+            }
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public IEnumerable<object> GetPackingTypeLists()
+        {
+            string sql = @"select PT.Id as Value,PT.UserName as Text from HKP.PackingType PT";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+        public IEnumerable<object> GetSKU1ColorLists(string MasterPlanId)
+        {
+            string sql = @"select distinct CV.Id as Value,CV.UserName as Text from MST.MasterPlan MP
+left join MST.MasterPlanChild MPC ON MPC.MasterPlanId=MP.Id
+left join HKP.CharacteristicsValue CV ON CV.Id=MPC.SKU1NameId
+where MPC.MasterPlanId='" + MasterPlanId + "' and MPC.Id not in (select MasterPlanChildId from MST.AllotedChild where AllotedHeaderId in (select Id from MST.AllotedHeader where MasterPlanId='" + MasterPlanId + "'))";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        #endregion Cut Plan
+
+        #region fabric Roll
+
+        public IEnumerable<object> GetSummaryList(string GRNId, string parameters)
+        {
+            string GRNRowIdFilter = string.Empty;
+            if (parameters != "null")
+            {
+                GRNRowIdFilter = " and FRC.GRNRowId in (" + parameters + ")";
+            }
+            string sql = @"select FRC.FabricType,FRC.CutableWidth,FRC.ShrinkageWidthWise,FRC.ShrinkageLengthWise,FRC.Shade,COUNT(FRC.Id) NoOfRoll,Sum(FRC.SupplierQty) Qty,
+FRC.CutableWidthGroup,FRC.MarkerGroup,FRC.ShadeGroup,FRC.FabricGroup,FRC.Remarks,FRC.ShrinkageGroup
+ from BPDT.FabricRollManagementChild FRC
+where FRC.FabricRollManagementMasterId in (select Id from BPDT.FabricRollManagementMaster where GRNId='" + GRNId + @"')" + GRNRowIdFilter + @"
+Group By CutableWidth,ShrinkageWidthWise,ShrinkageLengthWise,Shade,
+CutableWidthGroup,MarkerGroup,ShadeGroup,FabricGroup,Remarks,ShrinkageGroup,FabricType";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public IEnumerable<object> GetFilterList(string GRNId)
+        {
+            string sql = @"select  FRC.GRNRowId,MMA.Id ArticleId,MMA.StandardName Article,MM.Id MaterialId,MM.UserName Material,SUM(FRC.SupplierQty) Qty,Count(FRC.Id) NoOfRoll,Sum(FRC.Status) NoOfPackage from BPDT.FabricRollManagementChild FRC
+left join TRN.InventoryReceiveDetail IRD on IRD.Id=FRC.GRNRowId
+Left Join TRN.InventoryMaterial IM on IM.Id=IRD.InventoryMaterialId
+left join MST.MaterialMasterArticle MMA on MMA.Id=IM.ArticleId
+left join MST.MaterialMaster MM on MM.Id=IM.MaterialMasterId
+where FRC.FabricRollManagementMasterId in (select Id from BPDT.FabricRollManagementMaster where GRNId='" + GRNId + @"')
+Group By FRC.GRNRowId,MMA.StandardName,MMA.Id,MM.Id,MM.UserName";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        #endregion
 
     }
 }

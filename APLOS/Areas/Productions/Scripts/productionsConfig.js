@@ -398,5 +398,9 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/MasterPlanDetails/Aplos',
             controller: 'MasterPlanDetailsController'
         })
+        .when('/cut-plan', {
+            templateUrl: 'Productions/CutPlan/Aplos',
+            controller: 'CutPlanController'
+        })
         ;
 }

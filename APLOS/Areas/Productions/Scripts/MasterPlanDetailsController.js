@@ -70,8 +70,8 @@ function MasterPlanDetailsController(commonMessage, $scope, $rootScope, baseServ
         , LineItemTotalQty: null
         , SKU1TotalQty: null
         , SKU2TotalQty: null
-        , MinQty: null
-        , PlanPercentage: null
+        , MinQty: 0
+        , PlanPercentage: 0
         , RoundUpApplicable: false
         , RoundUp: null
 
@@ -106,7 +106,7 @@ function MasterPlanDetailsController(commonMessage, $scope, $rootScope, baseServ
         else
             e.row.css("background-color", '##013220');
     }
-
+    $scope.MasterPlanId = null;
     $scope.GetMasterPlanDetails = function (args) {
         $scope.MasterPlanId = args.data.Id;
         $scope.LineItem = args.data.LineItem;
@@ -317,7 +317,7 @@ function MasterPlanDetailsController(commonMessage, $scope, $rootScope, baseServ
             url: 'Productions/MasterPlanDetails/GetMPDSKU2List?MasterPlanId=' + $scope.cutplanNew.Id
         }).then(function successCallback(response) {
             $scope.MPDSKU2List = response.data;
-            var gridObj = $("#GridMPDSKU1").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            var gridObj = $("#GridMPDSKU2").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         }
         )
     }
@@ -338,18 +338,7 @@ function MasterPlanDetailsController(commonMessage, $scope, $rootScope, baseServ
 
     $scope.ViewMasterPlanQty = function () {
         try {
-            if ($scope.LineItem == true || $scope.SKU1 === false || $scope.SKU2 === false) {
-                $scope.LoadMasterPlanQtyList();
-            }
-            if ($scope.LineItem === true || $scope.SKU1 === true || $scope.SKU2 === false) {
-                if ($scope.LineItemTotalQty !== $scope.SKU1TotalQty) {
-                    throw "LineItem and SKU1 Total is not matching please correct it and proceed...";
-                }
-                else {
-                    $scope.LoadMasterPlanQtyList();
-                }
-            }
-            if ($scope.LineItem === true || $scope.SKU1 === true || $scope.SKU2 === true) {
+            if ($scope.LineItem === true && $scope.SKU1 === true && $scope.SKU2 === true) {
                 if ($scope.LineItemTotalQty !== $scope.SKU1TotalQty && $scope.LineItemTotalQty !== $scope.SKU2TotalQty && $scope.SKU1TotalQty !== $scope.SKU2TotalQty) {
                     throw "LineItem,SKU1 and SKU2 Totals are not matching please correct it and proceed...";
                 }
@@ -357,6 +346,18 @@ function MasterPlanDetailsController(commonMessage, $scope, $rootScope, baseServ
                     $scope.LoadMasterPlanQtyList();
                 }
             }
+            else if ($scope.LineItem === true && $scope.SKU1 === true && $scope.SKU2 === false) {
+                if ($scope.LineItemTotalQty !== $scope.SKU1TotalQty) {
+                    throw "LineItem and SKU1 Total is not matching please correct it and proceed...";
+                }
+                else {
+                    $scope.LoadMasterPlanQtyList();
+                }
+            }
+            else
+                $scope.LoadMasterPlanQtyList();
+           
+           
         } catch (ex) {
             ShowResult(ex, 'Info');
         }
@@ -372,7 +373,8 @@ function MasterPlanDetailsController(commonMessage, $scope, $rootScope, baseServ
                 method: 'POST',
                 url: $scope.saveUrlMasterPlanQty,
                 data: {
-                    "DataList": $scope.SaveList
+                    "DataList": $scope.SaveList,
+                    "MasterPlanId": $scope.cutplanNew.Id
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {

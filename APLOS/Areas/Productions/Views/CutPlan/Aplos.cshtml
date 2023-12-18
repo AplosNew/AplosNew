@@ -1,0 +1,575 @@
+﻿<style>
+    .modellgModify {
+        width: 1500px;
+    }
+</style>
+<div class="form-horizontal" ng-form name="ModelNewForm">
+    <div class="row">
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="CutPlanHeaderNew.ProcessId" name="Process" ng-options="item.Value as item.Text for item in processList" ng-change="GetUserNameList(CutPlanHeaderNew.ProcessId)" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="CutPlanHeaderNew.UserName" name="UserName" ng-options="item.Text as item.Text for item in UserNameList" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li> <button ng-click="View();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> Go </button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div id="GridMasterPlanForCutPlan" ej-grid e-datasource="MasterPlanList" e-recorddoubleclick="GetCutPlan"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Master Plan No" e-width="100"></div>
+                <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
+                <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                <div e-column e-field="PlanName" e-headertext="Plan Name" e-width="100"></div>
+                <div e-column e-field="UserName" e-headertext="User Name" e-width="100"></div>
+                <div e-column e-field="PlanStatus" e-headertext="Plan Status" e-width="100"></div>
+                <div e-column e-field="ResponsiblePerson" e-headertext="Resonsible Person" e-width="100"></div>
+                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="modal fade site-modal in" id="CutPlanPopUp" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg modellgModify">
+            <div class="modal-content">
+                <div class="modal-header">Master Plan Details<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal" style="padding-left:10px;">
+                            <div class="form-group" style="margin-bottom: 0px;">
+                                <label class="col-sm-1 control-label">PlanName</label>
+                                <label class="col-sm-1 control-label">PlanStaus</label>
+                                <label class="col-sm-2 control-label">UserName</label>
+                                <label class="col-sm-2 control-label">ResponsiblePerson</label>
+                                <label class="col-sm-1 control-label">Process</label>
+                                <label class="col-sm-1 control-label">Entity</label>
+                                <label class="col-sm-1 control-label">LineItem</label>
+                                <label class="col-sm-1 control-label">SKU1</label>
+                                <label class="col-sm-1 control-label">SKU2</label>
+                                <label class="col-sm-1 control-label">Remark</label>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal" style="padding-left:10px;">
+                            <div class="form-group">
+                                <div class="col-sm-1">
+                                    <input type="text" name="Plan Name" ng-model="cutplanNew.PlanName" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                                </div>
+                                <div class="col-sm-1">
+                                    <input type="text" name="Plan Name" ng-model="cutplanNew.PlanStatus" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                                </div>
+                                <div class="col-sm-2">
+                                    <input type="text" name="Plan Name" ng-model="cutplanNew.UserName" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                                </div>
+                                <div class="col-sm-2">
+                                    <input type="text" name="Plan Name" ng-model="cutplanNew.ResponsiblePerson" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                                </div>
+                                <div class="col-sm-1">
+                                    <input type="text" name="Plan Name" ng-model="cutplanNew.Process" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                                </div>
+                                <div class="col-sm-1">
+                                    <input type="text" name="Plan Name" ng-model="cutplanNew.Entity" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                                </div>
+                                <div class="col-sm-1">
+                                    <div class="checkbox-site">
+                                        <label class="control-label">
+                                            <input type="checkbox" ng-disabled="true" ng-model="cutplanNew.LineItem">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-1">
+                                    <div class="checkbox-site">
+                                        <label class="control-label">
+                                            <input type="checkbox" ng-disabled="true" ng-model="cutplanNew.SKU1">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-1">
+                                    <div class="checkbox-site">
+                                        <label class="control-label">
+                                            <input type="checkbox" ng-disabled="true" ng-model="cutplanNew.SKU2">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-1">
+                                    <input type="text" name="Plan Name" ng-model="cutplanNew.Remarks" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="col-xs-12 " style="padding-left:20px;">
+                            <div class="content-container-fluid" style="color:black;overflow:scroll">
+                                <div id="GridSOItemSelectedForCutPlan" ng-init="chkinit()" ng-show="MasterPlanList.length>0" ej-grid e-datasource="CutPlanListSelected"
+                                     e-allowscrolling="true" e-actioncomplete="actionCompleteSelected" e-rowdatabound="rowDataBound"
+                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                     e-showsummary="true" e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateCutPlan">
+                                    <div e-columns>
+                                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplateCutPlan" e-template="#checkboxTemplateCutPlan" e-textalign="center" e-width="30"></div>
+                                        <div e-column e-field="ProductionGrouping" e-headertext="Product Grouping" e-width="120" e></div>
+                                        <div e-column e-field="OwnReferenceNo" e-headertext="Own Reference#" e-width="100"></div>
+                                        <div e-column e-field="POEntity" e-headertext="PO Entity" e-width="80"></div>
+                                        <div e-column e-field="IsJW" e-headertext="IsJW" e-width="80"></div>
+                                        <div e-column e-field="JWType" e-headertext="JWType" e-width="80"></div>
+                                        <div e-column e-field="EntityVendor" e-headertext="Entity/Vendor" e-width="80"></div>
+                                        <div e-column e-field="PONumber" e-headertext="PO No" e-width="80"></div>
+                                        <div e-column e-field="ProductionStatus" e-headertext="PO Status" e-width="80"></div>
+                                        <div e-column e-field="SONo" e-headertext="SO No" e-width="120"></div>
+                                        <div e-column e-field="OrderStatusName" e-headertext="SO Status" e-width="80"></div>
+                                        <div e-column e-field="Qty" e-headertext="SO Qty" e-width="80" e-textalign="right"></div>
+                                        <div e-column e-template="#SOPlanPercentage" e-headertext="Plan Percentage" e-width="100"></div>
+                                        <div e-column e-field="SOPlanQty" e-headertext="SO Plan Qty" e-width="100"></div>
+                                        <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="180" e></div>
+                                        <div e-column e-field="ArticleName" e-headertext="Article" e-width="180"></div>
+                                        <div e-column e-field="Customer" e-headertext="Customer" e-width="180"></div>
+                                        <div e-column e-field="BuyerReferenceNo" e-headertext="Customer Reference#" e-width="100"></div>
+                                        <div e-column e-field="LineItemNo" e-headertext="LineItemNo" e-width="120"></div>
+                                        <div e-column e-field="MasterOrderNo" e-headertext="MO No" e-width="120"></div>
+                                        <div e-column e-field="MasterPlanId" e-headertext="Master Plan Id" e-width="120"></div>
+                                        <div e-column e-field="MasterPlanStatus" e-headertext="Master Plan Status" e-width="120"></div>
+                                        <div e-column e-field="IsMasterPlan" e-headertext="IsMasterPlan" e-width="120"></div>
+                                    </div>
+                                </div>
+                                <script type="text/template" id="checkboxTemplateCutPlan">
+                                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Status" />
+                                </script>
+                                <script type="text/x-jsrender" id="headerTemplateCutPlan">
+                                    <input type="checkbox" id="Cheadchk" />
+                                </script>
+                                <script type="text/template" id="SOPlanPercentage">
+                                    <div class="col-sm-10" style="padding:0px;">
+                                        <input type="number" name="SOPlanPercentage" ng-model="data.SOPlanPercentage" ng-change="$parent.SOPlanQtyCal(this);" ng-click="" class="form-control" maxlength="200">
+                                    </div>
+                                </script>
+                                <div class="clearfix"></div>
+                                <div class="site-tab">
+                                    <ul class="nav nav-tabs" role="tablist">
+                                        <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" ng-show="LineItem===true" href="" aria-controls="doc" role="tab" data-toggle="tab">LineItem</a></li>
+                                        <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" ng-show="SKU1===true" href="" aria-controls="doc" role="tab" data-toggle="tab">SKU1</a></li>
+                                        <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" ng-show="SKU2===true" href="" aria-controls="doc" role="tab" data-toggle="tab">SKU2</a></li>
+                                        <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="doc" role="tab" data-toggle="tab">Cut Plan</a></li>
+                                    </ul>
+                                </div>
+                                <div class="tab-content">
+                                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                                        <div class="form-element-ctrl form-horizontal row" ng-form="modelForm1">
+                                            <div class="col-xs-12">
+                                                <div id="GridCutPlanLineItem" ej-grid e-datasource="MPDLineItemList"
+                                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                                     e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true"
+                                                     e-rowdatabound="" e-recorddoubleclick="">
+                                                    <div e-columns>
+                                                        <div e-column e-type="string" e-field="ProductionGrouping" e-headertext="Production Grouping" e-width="120"></div>
+                                                        <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Own Reference No" e-width="130"></div>
+                                                        <div e-column e-type="string" e-field="SONo" e-headertext="SO No" e-width="120"></div>
+                                                        <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="Material" e-width="120"></div>
+                                                        <div e-column e-type="string" e-field="ArticleName" e-headertext="Article" e-width="150"></div>
+                                                        <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="Buyer Reference No" e-width="130"></div>
+                                                        <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="100"></div>
+                                                        <div e-column e-type="string" e-field="Qty" e-headertext="SO Qty" e-width="100"></div>
+                                                        <div e-column e-type="string" e-field="Remark" e-headertext="Remarks" e-width="120"></div>
+                                                        <div e-column e-type="string" e-field="BOQId" e-headertext="BOQ Id" e-width="100"></div>
+                                                        <div e-column e-type="string" e-field="OrderCostingMasterTemplateId" e-headertext="Costing Id" e-width="100"></div>
+                                                        <div e-column e-type="string" e-field="SKU1" e-headertext="SKU1 Qty" e-width="100"></div>
+                                                        <div e-column e-type="string" e-field="SKU2" e-headertext="SKU2 Qty" e-width="100"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                                        <div class="form-element-ctrl form-horizontal row" ng-form="modelForm2">
+                                            <div class="col-xs-12">
+                                                <div id="GridCutPlanSKU1" ej-grid e-datasource="MPDSKU1List"
+                                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                                     e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true"
+                                                     e-rowdatabound="" e-recorddoubleclick="">
+                                                    <div e-columns>
+                                                        <div e-column e-type="string" e-field="ProductionGrouping" e-headertext="Production Grouping" e-width="120"></div>
+                                                        <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Own Reference No" e-width="120"></div>
+                                                        <div e-column e-type="string" e-field="SONo" e-headertext="SO No" e-width="120"></div>
+                                                        <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="Material" e-width="120"></div>
+                                                        <div e-column e-type="string" e-field="ArticleName" e-headertext="Article" e-width="150"></div>
+                                                        <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="Buyer Reference No" e-width="120"></div>
+                                                        <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="100"></div>
+                                                        <div e-column e-type="string" e-field="Qty" e-headertext="SO Qty" e-width="100"></div>
+                                                        <div e-column e-type="string" e-field="Remark" e-headertext="Remarks" e-width="120"></div>
+                                                        <div e-column e-type="string" e-field="BOQId" e-headertext="BOQ Id" e-width="100"></div>
+                                                        <div e-column e-type="string" e-field="OrderCostingMasterTemplateId" e-headertext="Costing Id" e-width="100"></div>
+                                                        <div e-column e-type="string" e-field="SKU1Name" e-headertext="SKU1 Name" e-width="120"></div>
+                                                        <div e-column e-type="string" e-field="SKU1Qty" e-headertext="SKU1 Qty" e-width="100"></div>
+                                                        <div e-column e-type="string" e-field="SKU1Remark" e-headertext="SKU1 Remark" e-width="120"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                                        <div class="form-element-ctrl form-horizontal row" ng-form="modelForm3">
+                                            <div class="col-xs-12">
+                                                <div id="GridCutPlanSKU2" ej-grid e-datasource="MPDSKU2List"
+                                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                                     e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true"
+                                                     e-rowdatabound="" e-recorddoubleclick="">
+                                                    <div e-columns>
+                                                        <div e-column e-type="string" e-field="ProductionGrouping" e-headertext="Production Grouping" e-width="120"></div>
+                                                        <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Own Reference No" e-width="120"></div>
+                                                        <div e-column e-type="string" e-field="SONo" e-headertext="SO No" e-width="120"></div>
+                                                        <div e-column e-type="string" e-field="MaterialMasterName" e-headertext="Material" e-width="120"></div>
+                                                        <div e-column e-type="string" e-field="ArticleName" e-headertext="Article" e-width="150"></div>
+                                                        <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="Buyer Reference No" e-width="120"></div>
+                                                        <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="100"></div>
+                                                        <div e-column e-type="string" e-field="Qty" e-headertext="SO Qty" e-width="100"></div>
+                                                        <div e-column e-type="string" e-field="Remark" e-headertext="Remarks" e-width="120"></div>
+                                                        <div e-column e-type="string" e-field="BOQId" e-headertext="BOQ Id" e-width="100"></div>
+                                                        <div e-column e-type="string" e-field="OrderCostingMasterTemplateId" e-headertext="Costing Id" e-width="100"></div>
+                                                        <div e-column e-type="string" e-field="SKU1Name" e-headertext="SKU1 Name" e-width="120"></div>
+                                                        <div e-column e-type="string" e-field="SKU2Name" e-headertext="SKU2 Name" e-width="120"></div>
+                                                        <div e-column e-type="string" e-field="SKU2Qty" e-headertext="SKU2 Qty" e-width="100"></div>
+                                                        <div e-column e-type="string" e-field="SKU2Remark" e-headertext="SKU2 Remark" e-width="120"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                                        <div class="form-element-ctrl form-horizontal row" ng-form="modelForm4">
+                                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal" style="padding-left:10px;">
+                                                    <div class="form-group" style="margin-bottom: 0px;">
+                                                        <label class="col-sm-1 control-label"> Select Color : </label>
+                                                        <div class="col-sm-2">
+                                                            <div class="select-style">
+                                                                <select class="form-control" ng-model="allotedheaderNew.SKU1ColorId" name="SKU1Color" ng-options="item.Value as item.Text for item in SKU1ColorLists">
+                                                                    <option value=""></option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-1">
+                                                            <div class="common-btn">
+                                                                <ul class="list-inline text-left">
+                                                                    <li>
+                                                                        <button ng-click="LoadCutPlanList();" class="btn"><i class=""></i> Go </button>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal" style="padding-left:10px;">
+                                                    <div class="form-group" style="margin-bottom: 0px;">
+                                                        <label class="col-sm-1 control-label">Packing Type</label>
+                                                        <div class="col-sm-2">
+                                                            <div class="select-style">
+                                                                <select class="form-control" ng-model="allotedheaderNew.PackingTypeId" name="PackingTypeId" ng-options="item.Value as item.Text for item in PackingTypeLists">
+                                                                    <option value=""></option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <label class="col-sm-1 control-label">User Name</label>
+                                                        <div class="col-sm-1"><input type="text" ng-model="allotedheaderNew.UserName" class="form-control" maxlength="100" autocomplete="off"></div>
+                                                        <label class="col-sm-1 control-label">Marker</label>
+                                                        <div class="col-sm-1">
+                                                            <div class="select-style">
+                                                                <select class="form-control" ng-model="allotedheaderNew.MarkerId" name="PackingTypeId" ng-options="item.Value as item.Text for item in PackingTypeLists">
+                                                                    <option value=""></option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <label class="col-sm-1 control-label">Remarks</label>
+                                                        <div class="col-sm-1">
+                                                            <input type="text" ng-model="allotedheaderNew.Remarks" class="form-control" maxlength="100" autocomplete="off">
+                                                        </div>
+                                                        <label class="col-sm-1 control-label">Minimum Qty</label>
+                                                        <div class="col-sm-1">
+                                                            <input type="number" ng-model="allotedheaderNew.NoOfPly" ng-change="MinQtyChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+                                                        </div>
+                                                        <div class="col-sm-1">
+                                                            <div class="common-btn">
+                                                                <ul class="list-inline text-right">
+                                                                    <li>
+                                                                        <button ng-click="SaveAllotedInfo();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12" ng-show="LineItem===true && SKU1===false && SKU2===false">
+                                                    <div id="GridCutPlanLineItemQty" ej-grid e-datasource="CutPlanList"
+                                                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                                         e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true"
+                                                         e-rowdatabound="" e-recorddoubleclick="" e-templaterefresh="refreshTemplateCPLineItem">
+                                                        <div e-columns>
+                                                            <div e-column e-type="string" e-field="ProductionGrouping" e-headertext="Production Grouping" e-width="120"></div>
+                                                            <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Own Reference No" e-width="120"></div>
+                                                            <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="Buyer Reference No" e-width="120"></div>
+                                                            <div e-column e-type="string" e-field="ArticleName" e-headertext="Article" e-width="150"></div>
+                                                            <div e-column e-headertext="All" e-headertemplateid="#headerTemplateCPLineItem" e-template="#checkboxTemplateCPLineItem" e-textalign="center" e-width="30"></div>
+                                                            <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="100"></div>
+                                                            <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="100"></div>
+                                                            <div e-column e-type="string" e-field="FinalQty" e-headertext="FinalQty" e-width="100"></div>
+                                                            <div e-column e-type="string" e-field="AllotedQty" e-headertext="Alloted Qty" e-width="100"></div>
+                                                            <div e-column e-type="string" e-field="BalanceQty" e-headertext="Balance To Be Alloted" e-width="100"></div>
+                                                            <div e-column e-template="#LIRatio" e-headertext="Ratio" e-width="80"></div>
+                                                            <div e-column e-type="string" e-field="CurrentAllotedQty" e-headertext="Current Alloted Qty" e-width="100"></div>
+                                                            <div e-column e-type="string" e-template="#CPLIRemark" e-headertext="Remarks" e-width="120"></div>
+
+                                                        </div>
+                                                    </div>
+                                                    <script type="text/template" id="checkboxTemplateCPLineItem">
+                                                        @* <input type="checkbox" ej-checkbox class="rowCheckbox"  e-change="$parent.MinQtyChange" e-checked="data.Status" />*@
+
+                                                        <div class="col-sm-2" style="padding:0px;">
+                                                            <div class="checkbox-site">
+                                                                <label class="control-label">
+                                                                    <input type="checkbox" ng-model="data.Status" ng-disabled="data.BalanceQty==0">
+                                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </script>
+                                                    <script type="text/x-jsrender" id="headerTemplateCPLineItem">
+                                                        <input type="checkbox" id="Lheadchk" />
+                                                    </script>
+                                                    <script type="text/template" id="LIRatio">
+                                                        <div class="col-sm-10" style="padding:0px;">
+                                                            <input type="number" name="Ratio" ng-model="data.Ratio" ng-click="" class="form-control" maxlength="100">
+                                                        </div>
+                                                    </script>
+                                                    <script type="text/template" id="CPLIRemark">
+                                                        <div class="col-sm-10" style="padding:0px;">
+                                                            <input type="text" name="Remarks" ng-model="data.Remarks" ng-change="$parent.RatioChange(this);" ng-click="" class="form-control" maxlength="100">
+                                                        </div>
+                                                    </script>
+                                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                                        <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal" style="padding-left:10px;">
+                                                            <div class="form-group" style="margin-bottom: 0px;">
+                                                                <label class="col-sm-1 control-label"></label>
+                                                                <label class="col-sm-1 control-label"></label>
+                                                                <label class="col-sm-1 control-label"></label>
+                                                                <label class="col-sm-1 control-label"></label>
+                                                                <label class="col-sm-1 control-label">Total Final Qty : </label>
+                                                                <div class="col-sm-1">
+                                                                    <input type="text" ng-model="cutplanNew.TotalFinalQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                                                                </div>
+                                                                <label class="col-sm-1 control-label"> Total Ratio : </label>
+                                                                <div class="col-sm-1">
+                                                                    <input type="text" ng-model="cutplanNew.TotalRatio" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                                                                </div>
+                                                                <label class="col-sm-1 control-label">Total CA Qty : </label>
+                                                                <div class="col-sm-1">
+                                                                    <input type="text" ng-model="cutplanNew.TotalCAQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12" ng-show="LineItem===true && SKU1===true && SKU2===false">
+                                                    <div id="GridCutPlanSKU1Qty" ej-grid e-datasource="CutPlanList"
+                                                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                                         e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true"
+                                                         e-rowdatabound="" e-recorddoubleclick="" e-templaterefresh="refreshTemplateCPSKU1">
+                                                        <div e-columns>
+                                                            <div e-column e-type="string" e-field="ProductionGrouping" e-headertext="Production Grouping" e-width="120"></div>
+                                                            <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Own Reference No" e-width="120"></div>
+                                                            <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="Buyer Reference No" e-width="120"></div>
+                                                            <div e-column e-type="string" e-field="ArticleName" e-headertext="Article" e-width="150"></div>
+                                                            <div e-column e-type="string" e-field="SKU1Name" e-headertext="SKU1 Name" e-width="120"></div>
+                                                            <div e-column e-headertext="All" e-headertemplateid="#headerTemplateCPSKU1" e-template="#checkboxTemplateCPSKU1" e-textalign="center" e-width="30"></div>
+                                                            <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="100"></div>
+                                                            <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="100"></div>
+                                                            <div e-column e-type="string" e-field="FinalQty" e-headertext="FinalQty" e-width="100"></div>
+                                                            <div e-column e-type="string" e-field="AllotedQty" e-headertext="Alloted Qty" e-width="100"></div>
+                                                            <div e-column e-type="string" e-field="BalanceQty" e-headertext="Balance To Be Alloted" e-width="100"></div>
+                                                            <div e-column e-template="#S1Ratio" e-headertext="Ratio" e-width="50"></div>
+                                                            <div e-column e-type="string" e-field="CurrentAllotedQty" e-headertext="Current Alloted Qty" e-width="100"></div>
+                                                            <div e-column e-type="string" e-template="#CPS1Remark" e-headertext="Remarks" e-width="120"></div>
+                                                        </div>
+                                                    </div>
+                                                    <script type="text/template" id="checkboxTemplateCPSKU1">
+                                                        @*<input type="checkbox" ej-checkbox class="rowCheckbox"  e-change="$parent.MinQtyChange" e-checked="data.Status" />*@
+                                                        <div class="col-sm-2" style="padding:0px;">
+                                                            <div class="checkbox-site">
+                                                                <label class="control-label">
+                                                                    <input type="checkbox" ng-model="data.Status" ng-disabled="data.BalanceQty==0">
+                                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </script>
+                                                    <script type="text/x-jsrender" id="headerTemplateCPSKU1">
+                                                        <input type="checkbox" id="S1headchk" />
+                                                    </script>
+                                                    <script type="text/template" id="S1Ratio">
+                                                        <div class="col-sm-10" style="padding:0px;">
+                                                            <input type="number" name="S1Ratio" ng-model="data.Ratio" ng-change="$parent.RatioChange(this);" ng-click="" class="form-control" maxlength="200">
+                                                        </div>
+                                                    </script>
+                                                    <script type="text/template" id="CPS1Remark">
+                                                        <div class="col-sm-10" style="padding:0px;">
+                                                            <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="100">
+                                                        </div>
+                                                    </script>
+                                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                                        <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal" style="padding-left:10px;">
+                                                            <div class="form-group" style="margin-bottom: 0px;">
+                                                                <label class="col-sm-1 control-label"></label>
+                                                                <label class="col-sm-1 control-label"></label>
+                                                                <label class="col-sm-1 control-label"></label>
+                                                                <label class="col-sm-1 control-label"></label>
+                                                                <label class="col-sm-1 control-label">Total Final Qty : </label>
+                                                                <div class="col-sm-1">
+                                                                    <input type="text" ng-model="cutplanNew.TotalFinalQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                                                                </div>
+                                                                <label class="col-sm-1 control-label"> Total Ratio : </label>
+                                                                <div class="col-sm-1">
+                                                                    <input type="text" ng-model="cutplanNew.TotalRatio" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                                                                </div>
+                                                                <label class="col-sm-1 control-label">Total CA Qty : </label>
+                                                                <div class="col-sm-1">
+                                                                    <input type="text" ng-model="cutplanNew.TotalCAQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12" ng-show="LineItem===true && SKU1===true && SKU2===true">
+                                                    <div id="GridCutPlanSKU2Qty" ej-grid e-datasource="CutPlanList"
+                                                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                                         e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true"
+                                                         e-rowdatabound="" e-recorddoubleclick="" e-templaterefresh="refreshTemplateCPSKU2">
+                                                        <div e-columns>
+                                                            <div e-column e-type="string" e-field="ProductionGrouping" e-headertext="Production Grouping" e-width="120"></div>
+                                                            <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Own Reference No" e-width="120"></div>
+                                                            <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="Buyer Reference No" e-width="120"></div>
+                                                            <div e-column e-type="string" e-field="ArticleName" e-headertext="Article" e-width="150"></div>
+                                                            <div e-column e-type="string" e-field="SKU1Name" e-headertext="SKU1 Name" e-width="120"></div>
+                                                            <div e-column e-type="string" e-field="SKU2Name" e-headertext="SKU2 Name" e-width="120"></div>
+                                                            <div e-column e-headertext="All" e-headertemplateid="#headerTemplateCPSKU2" e-template="#checkboxTemplateCPSKU2" e-textalign="center" e-width="30"></div>
+                                                            <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="100"></div>
+                                                            <div e-column e-type="string" e-field="Qty" e-headertext="Qty" e-width="100"></div>
+                                                            <div e-column e-type="string" e-field="FinalQty" e-headertext="FinalQty" e-width="100"></div>
+                                                            <div e-column e-type="string" e-field="AllotedQty" e-headertext="Alloted Qty" e-width="100"></div>
+                                                            <div e-column e-type="string" e-field="BalanceQty" e-headertext="Balance To Be Alloted" e-width="100"></div>
+                                                            <div e-column e-template="#S2Ratio" e-headertext="Ratio" e-width="80"></div>
+                                                            <div e-column e-type="string" e-field="CurrentAllotedQty" e-headertext="Current Alloted Qty" e-width="100"></div>
+                                                            <div e-column e-type="string" e-template="#CPS2Remark" e-headertext="Remarks" e-width="120"></div>
+                                                        </div>
+                                                    </div>
+                                                    <script type="text/template" id="checkboxTemplateCPSKU2">
+                                                        @* <input type="checkbox" ej-checkbox class="rowCheckbox" e-change="$parent.MinQtyChange" e-checked="data.Status" />*@
+                                                        <div class="col-sm-2" style="padding:0px;">
+                                                            <div class="checkbox-site">
+                                                                <label class="control-label">
+                                                                    <input type="checkbox" ng-model="data.Status" ng-disabled="data.BalanceQty==0">
+                                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </script>
+                                                    <script type="text/x-jsrender" id="headerTemplateCPSKU2">
+                                                        <input type="checkbox" id="S2headchk" />
+                                                    </script>
+                                                    <script type="text/template" id="S2Ratio">
+                                                        <div class="col-sm-10" style="padding:0px;">
+                                                            <input type="number" name="S2Ratio" ng-model="data.Ratio" ng-change="$parent.RatioChange(this);" ng-class="" class="form-control" maxlength="100">
+                                                        </div>
+                                                    </script>
+                                                    <script type="text/template" id="CPS2Remark">
+                                                        <div class="col-sm-10" style="padding:0px;">
+                                                            <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="100">
+                                                        </div>
+                                                    </script>
+                                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                                        <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal" style="padding-left:10px;">
+                                                            <div class="form-group" style="margin-bottom: 0px;">
+                                                                <label class="col-sm-1 control-label"></label>
+                                                                <label class="col-sm-1 control-label"></label>
+                                                                <label class="col-sm-1 control-label"></label>
+                                                                <label class="col-sm-1 control-label"></label>
+                                                                <label class="col-sm-1 control-label"></label>
+                                                                <label class="col-sm-1 control-label"></label>
+                                                                <label class="col-sm-1 control-label">Total Final Qty : </label>
+                                                                <div class="col-sm-1">
+                                                                    <input type="text" ng-model="cutplanNew.TotalFinalQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                                                                </div>
+                                                                <label class="col-sm-1 control-label"> Total Ratio : </label>
+                                                                <div class="col-sm-1">
+                                                                    <input type="text" ng-model="cutplanNew.TotalRatio" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                                                                </div>
+                                                                <label class="col-sm-1 control-label">Total CA Qty : </label>
+                                                                <div class="col-sm-1">
+                                                                    <input type="text" ng-model="cutplanNew.TotalCAQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal" style="padding-left:10px;">
+                                            <div class="form-group" style="margin-bottom: 0px;">
+                                                <label class="col-sm-1 control-label" ng-show="LineItem===true">Line Item Total Qty : </label>
+                                                <div class="col-sm-1">
+                                                    <input type="text" ng-show="LineItem===true" ng-model="cutplanNew.LineItemTotalQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                                                </div>
+                                                <label class="col-sm-1 control-label" ng-show="SKU1===true">SKU1 Total Qty : </label>
+                                                <div class="col-sm-1">
+                                                    <input type="text" ng-show="SKU1===true" ng-model="cutplanNew.SKU1TotalQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                                                </div>
+                                                <label class="col-sm-1 control-label" ng-show="SKU2===true">SKU2 Total Qty : </label>
+                                                <div class="col-sm-1">
+                                                    <input type="text" ng-show="SKU2===true" ng-model="cutplanNew.SKU2TotalQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-right">
+                                            <li>
+                                                <button ng-click="closeCutPlanPopUp();" class="btn"><i class=""></i> Close</button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
