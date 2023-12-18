@@ -1145,7 +1145,6 @@ function inventoryPayableController(accountService,cboService, commonMessage, $s
         data.VoucherTypeId = $scope.additionalTaxVoucherTypeId;
         data.VoucherDate = new Date();
         $scope.shortageQtyData = data;
-        $scope.shortageQtyData.DocRefNo = 'SH-' + $scope.shortageQtyData.DocRefNo;
         $http({
             method: 'POST',
             url: 'Accounts/InventoryPayable/GetShortageQtyDetail?grnId=' + data.Id + '&adjustmentNoteTypeId=' + data.Id,
