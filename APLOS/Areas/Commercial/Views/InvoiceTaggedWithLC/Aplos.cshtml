@@ -101,6 +101,7 @@
                                 </th>
                                 <th>LC Opening Bank</th>
                                 <th>LC Open Date</th>
+                                <th>LC Balance Amount</th>
                                 <th class="text-right">Action</th>
                             </tr>
                         </thead>
@@ -123,6 +124,7 @@
                                 </td>
                                 <td>{{x.OpeningBank}}</td>
                                 <td>{{x.LCDate}}</td>
+                                <td>{{x.BalanceLCAmount}}</td>
                                 <td class="text-right">
                                     <button ng-click="removeSelectedInvoiceRow($index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
                                 </td>
@@ -189,12 +191,6 @@
                         <label class="col-sm-4 control-label">Currency</label>
                         <div class="col-sm-8">
                             <input type="text" ng-disabled="true" ng-model="LcModel.Currency" class="form-control" maxlength="100" tabindex="2">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Opening Value</label>
-                        <div class="col-sm-8">
-                            <input type="text" ng-disabled="true" ng-model="LcModel.Amount" class="form-control" maxlength="100" tabindex="2">
                         </div>
                     </div>
                     <div class="form-group" ng-show="LcModel.IsLoan=='true'">

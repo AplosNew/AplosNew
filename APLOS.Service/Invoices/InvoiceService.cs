@@ -3875,7 +3875,7 @@ namespace Library.Service.Invoices
                     BankMasterId = entity.BankMasterId,
                     ApprovalStatus = entity.ApprovalStatus,
                     SourceType = entity.SourceType,
-                    ApprovedBy = null,
+                    ApprovedBy = entity.ApprovedBy,
                     TentativeDate = entity.TentativeDate,
                     DueUpToDate = entity.DueUpToDate,
                     IsPark = true

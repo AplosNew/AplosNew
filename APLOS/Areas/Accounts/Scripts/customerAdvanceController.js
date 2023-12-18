@@ -462,11 +462,11 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
                 ShowResult("Please select Customer!", "failure");
                 return true;
             }
-            if (parseFloat($scope.advance.Amount) === 0) {
+            if ($scope.advance.PaymentSource != 'MultiBank' && parseFloat($scope.advance.Amount) === 0) {
                 ShowResult("Advance Amount must greater than 0!", "failure");
                 return true;
             }
-            if (baseService.isUndefinedOrNull($scope.advance.GLGeneralInfoId)) {
+            if ($scope.advance.PaymentSource !='MultiBank' && baseService.isUndefinedOrNull($scope.advance.GLGeneralInfoId)) {
                 ShowResult("Please select Cash or Bank!", "failure");
                 return true;
             }
@@ -478,16 +478,6 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
         else if ($scope.partyType === "Vendor") {
             if ($scope.advance.PartyId === null) {
                 ShowResult("Please select Vendor!", "failure");
-                return true;
-            }
-            if ($scope.advance.GLGeneralInfoId === null) {
-                ShowResult("Please select Cash or Bank!", "failure");
-                return true;
-            }
-        }
-        else if ($scope.partyType === "Employee") {
-            if ($scope.advance.EmployeeId === null) {
-                ShowResult("Please select Employee!", "failure");
                 return true;
             }
             if ($scope.advance.GLGeneralInfoId === null) {
@@ -736,6 +726,7 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
         $scope.advance.ActivityId = null;
         $scope.advance.ActivityCode = null;
         $scope.advance.ActivityName = null;
+        $scope.advance.Amount = 0;
         for (var i = 0; i < $scope.voucherDetailCurrencyList.length; i++) {
             if ($scope.voucherDetailCurrencyList[i].TrnType === "Dr") {
                 $scope.voucherDetailCurrencyList.splice(i, 1);
@@ -894,7 +885,8 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
                     url: $scope.parkUrl,
                     data: {
                         "advanceVM": $scope.advance,
-                        "advanceDetailVMList": $scope.advanceDetailList
+                        "advanceDetailVMList": $scope.advanceDetailList,
+                        "banksDetailVMList": $scope.bankDetailList
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -1191,5 +1183,102 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
         $scope.voucherId = voucherId;
         $scope.message_delete_confirmation = "Are you sure to Delete?";
         angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
+    };
+
+
+    $scope.showMultiBankPopUp = function (entityId) {
+        if (entityId === undefined || entityId === "undefined") {
+            entityId = null;
+        }
+        $scope.getBankList = function (pageno) {
+            if ($scope.bankACType === "HouseBank") {
+                $scope.url = "Banks/BankMaster/GetBankMasterList?bankACType=HouseBank&&entityId=" + entityId;
+            }
+            else if ($scope.bankACType === "Loan") {
+                $scope.url = "Banks/BankMaster/GetBankMasterList?bankACType=Loan&&entityId=" + entityId;
+            }
+            else if ($scope.bankACType === "Investment") {
+                $scope.url = "Banks/BankMaster/GetBankMasterList?bankACType=Investment&&entityId=" + entityId;
+            }
+            else if ($scope.bankACType === "Security") {
+                $scope.url = "Banks/BankMaster/GetBankMasterList?bankACType=Security&&entityId=" + entityId;
+            }
+            else {
+                $scope.url = "Banks/BankMaster/GetBankMasterList?bankACType=HouseBank&&entityId=" + entityId;
+            }
+            baseService.paginationBase($scope.url, pageno, $scope.bankParameters)
+                .then(function (result) {
+                    $scope.bankList = result.Rows;
+                    $scope.bankParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, "failure");
+                }).finally(function () {
+                });
+        };
+        $scope.getBankList();
+        angular.element(document.querySelector("#multibankPopUp")).modal("show");
+    };
+
+    $scope.bankDetailList = [];
+    $scope.closeMultiBankPopUp = function () {
+        if (baseService.isUndefinedOrNull($scope.advance.CurrencyId)) {
+            ShowResult("Please Select Currency !", "failure", "multibankPopUp");
+            return;
+        }
+        if ($scope.bankIndex !== -1) {
+            var bank = $scope.bankList[$scope.bankIndex];
+            if (baseService.isUndefinedOrNull(bank.GLGeneralInfoId)) {
+                ShowResult("Bank GL not found!", "failure", "multibankPopUp");
+                return;
+            }
+            else if ($scope.companyConfig.IsVoucherFromBudget && baseService.isUndefinedOrNull(bank.BudgetMasterId)) {
+                ShowResult("Bank Budget not found!", "failure", "multibankPopUp");
+                return;
+            }
+            else if (baseService.isUndefinedOrNull(bank.CurrencyId)) {
+                ShowResult("Bank Transaction Currency not found!", "failure", "multibankPopUp");
+                return;
+            }
+            else {
+                var getRow = null;
+                getRow = $filter("filter")($scope.bankDetailList, { "BankMasterId": bank.BankMasterId });
+                if (getRow.length === 0) {
+                    $scope.bankDetail = {};
+                    $scope.bankDetail.SourceType = "Bank";
+                    $scope.bankDetail.AccountTitle = bank.AccountTitle;
+                    $scope.bankDetail.BankName = bank.BankCode + " - " + bank.BankName + " - " + bank.AccountTitle + " - " + bank.AccountNumber;
+                    $scope.bankDetail.BankMasterId = bank.BankMasterId;
+                    $scope.bankDetail.BankCurrencyId = bank.CurrencyId;
+
+                    $scope.bankDetail.GLGeneralInfoId = bank.GLGeneralInfoId;
+                    $scope.bankDetail.GLGeneralInfoName = bank.GLGeneralInfoName;
+                    $scope.bankDetail.BudgetMasterId = bank.BudgetMasterId;
+                    $scope.bankDetail.BudgetName = bank.BudgetName;
+                    $scope.bankDetail.ActivityId = bank.ActivityId;
+                    $scope.bankDetail.ActivityName = bank.ActivityName;
+                    $scope.bankDetail.BankCurrencyId = bank.CurrencyId;
+                    $scope.bankDetail.CurrencyCode = $scope.advance.CurrencyCode;
+                    $scope.bankDetail.BankCurrencyCode = bank.CurrencyCode;
+                    $scope.bankDetail.FinancingId = "";
+                    $scope.bankDetail.FinancingDetailId = "";
+                    $scope.bankDetail.FinancingTypeId = "";
+                    $scope.bankDetail.Balance = 0;
+                    $scope.bankDetail.Amount = null;
+                    $scope.bankDetail.BaseDrAmount = null;
+                    $scope.bankDetailList.push($scope.bankDetail);
+                    $scope.checkBankAmount();
+                    $scope.hideMultiBankPopUp();
+                }
+                else {
+                    ShowResult(bank.AccountTitle + " already  Exist", "failure", "multibankPopUp");
+                }
+            }
+        }
+    };
+
+    $scope.hideMultiBankPopUp = function () {
+        angular.element(document.querySelector("#multibankPopUp")).modal("hide");
+        $scope.bankIndex = -1;
+        $scope.bankSelected = null;
     };
 }

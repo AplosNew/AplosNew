@@ -247,10 +247,12 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                 });
     }
 
-    $scope.ConvertedDataRow = function (list, trnuomId) {
+    $scope.ConvertedDataRow = function (data,list, trnuomId) {
         var BaseUOMFactortemp = $.grep(list, function (item) {
             return item.Value === trnuomId;
         })[0].BaseUOMFactor;
+        data.TransactionRate = data.TransactionRate * BaseUOMFactortemp;
+        //data.TransactionQty = data.TransactionQty / BaseUOMFactortemp;
     }
 
 

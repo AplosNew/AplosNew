@@ -121,8 +121,27 @@ where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1
             try
             {
                 string sql = @"SELECT Active=CAST (0 AS bit),C.*, P.UserName AS CustomerName
+,PaymentTerm=isnull(STUFF((select distinct ','+PT.UserName from MST.PaymentTerm AS PT
+Left join TRN.MasterOrder XMOI on PT.Id = XMOI.PaymentTermId
+INNER JOIN TRN.MasterOrderItem I ON I.MasterOrderId=XMOI.Id
+INNER JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=I.Id	  
+where so.ContractId=C.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+,PaymentTermId=isnull(STUFF((select distinct ','+PT.Id from MST.PaymentTerm AS PT
+Left join TRN.MasterOrder XMOI on PT.Id = XMOI.PaymentTermId
+INNER JOIN TRN.MasterOrderItem I ON I.MasterOrderId=XMOI.Id
+INNER JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=I.Id	  
+where so.ContractId=C.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+,[Buyer]=isnull(STUFF((select distinct ','+B.UserName from 
+TRN.MasterOrder XMOI
+INNER JOIN TRN.MasterOrderItem I ON I.MasterOrderId=XMOI.Id
+INNER JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=I.Id
+LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId	  
+where so.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+,ItemNo=isnull(STUFF((select distinct ','+I.Id from TRN.MasterOrderItem I 
+INNER JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=I.Id
+where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
                             FROM [dbo].[Contract] C
-                            JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id 
+                            JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id
                             WHERE C.MasterLCId IS NULL AND C.CustomerId='" + customerId + "' ORDER BY C.CustomerId";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -135,6 +154,25 @@ where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1
         public IEnumerable<object> GetSavedContractList(string masterLCId)
         {
             string sql = @"SELECT C.*, P.UserName AS CustomerName
+,PaymentTerm=isnull(STUFF((select distinct ','+PT.UserName from MST.PaymentTerm AS PT
+Left join TRN.MasterOrder XMOI on PT.Id = XMOI.PaymentTermId
+INNER JOIN TRN.MasterOrderItem I ON I.MasterOrderId=XMOI.Id
+INNER JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=I.Id	  
+where so.ContractId=C.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+,PaymentTermId=isnull(STUFF((select distinct ','+PT.Id from MST.PaymentTerm AS PT
+Left join TRN.MasterOrder XMOI on PT.Id = XMOI.PaymentTermId
+INNER JOIN TRN.MasterOrderItem I ON I.MasterOrderId=XMOI.Id
+INNER JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=I.Id	  
+where so.ContractId=C.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+,[Buyer]=isnull(STUFF((select distinct ','+B.UserName from 
+TRN.MasterOrder XMOI
+INNER JOIN TRN.MasterOrderItem I ON I.MasterOrderId=XMOI.Id
+INNER JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=I.Id
+LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId	  
+where so.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+,ItemNo=isnull(STUFF((select distinct ','+I.Id from TRN.MasterOrderItem I 
+INNER JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=I.Id
+where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
                             FROM [dbo].[Contract] C
                             JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id 
                             Where C.MasterLCId='" + masterLCId + "' ORDER BY C.CustomerId";
@@ -541,12 +579,13 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
             {
 
                 var sql = @"SELECT Flags=CAST(CASE WHEN SO.ContractId IS NULL THEN 0 ELSE 1 END AS BIT),SO.Id SalesOrderId,SO.ContractId,A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SO.Qty TotalQty	
-                            ,A.TotalQtyUOMId,PL.UserName,C.Code Currency,B.UserName Buyer, (SO.Qty*SO.Rate)Amount,SO.Qty,ISNULL(A.BuyerReferenceNo,'') BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'') OwnReferenceNo,ISNULL(I.BuyerReferenceNo,'') BuyerItem,ISNULL(I.OwnReferenceNo,'') OwnItem
+                            ,A.TotalQtyUOMId,PL.UserName,C.Code Currency,B.UserName Buyer, (SO.Qty*SO.Rate)Amount,SO.Qty,ISNULL(A.BuyerReferenceNo,'') BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'') OwnReferenceNo,ISNULL(I.BuyerReferenceNo,'') BuyerItem,ISNULL(I.OwnReferenceNo,'') OwnItem , PT.UserName PaymentTerm,A.PaymentTermId
                             ,MM.UserName MaterialMaster,MMA.ShortName Article,po.PONumber
                             FROM TRN.SalesOrder SO
 							INNER JOIN [TRN].[MasterOrderItem] AS I ON I.Id=SO.MasterOrderItemId
 							INNER JOIN [TRN].[MasterOrder] AS A ON A.Id=I.MasterOrderId
                             INNER JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
+							Left join MST.PaymentTerm AS PT on PT.Id = A.PaymentTermId
                             LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
                             LEFT JOIN TRN.CustomerPO PO ON PO.Id=SO.CustomerPOId
                             LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
@@ -569,11 +608,12 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
 
                 var sql = @"SELECT * FROM(SELECT Flags=CAST(CASE WHEN SO.ContractId IS NULL THEN 0 ELSE 1 END AS BIT),SO.Id SalesOrderId,SO.ContractId,A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SO.Qty TotalQty	
                             ,A.TotalQtyUOMId,PL.UserName,C.Code Currency,B.UserName Buyer, (SO.Qty*SO.Rate)Amount,SO.Qty,ISNULL(A.BuyerReferenceNo,'') BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'') OwnReferenceNo,ISNULL(I.BuyerReferenceNo,'') BuyerItem,ISNULL(I.OwnReferenceNo,'') OwnItem
-                            ,MM.UserName MaterialMaster,MMA.ShortName Article,po.PONumber
+                            ,MM.UserName MaterialMaster,MMA.ShortName Article,po.PONumber,PT.UserName PaymentTerm,A.PaymentTermId
                             FROM TRN.SalesOrder SO
 								INNER JOIN [TRN].[MasterOrderItem] AS I ON I.Id=SO.MasterOrderItemId
 							INNER JOIN [TRN].[MasterOrder] AS A ON A.Id=I.MasterOrderId
                             INNER JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
+                            Left join MST.PaymentTerm AS PT on PT.Id = A.PaymentTermId
                             LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
                             LEFT JOIN TRN.CustomerPO PO ON PO.Id=SO.CustomerPOId
                             LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
@@ -1251,6 +1291,20 @@ LEFT JOIN dbo.EmployeeInformation IEI ON IEI.SystemId=RC.InformToId) AS TEMP WHE
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
             return 1;
+        }
+
+        public IEnumerable<object> GetPaymentTermEnum()
+        {
+            try
+            {
+                var str = @"Select EnumName Value, UserName Text  from dbo.DefineEnum where Category='PaymentTerm'";
+
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
     }

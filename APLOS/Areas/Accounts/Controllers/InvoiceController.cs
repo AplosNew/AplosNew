@@ -1228,12 +1228,25 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetMultipleVendorAvailableInvoiceList(GridParameter parameters, string doctate,string docType,string entityId)
+        public JsonResult GetMultipleVendorAvailableInvoiceList(GridParameter parameters, string doctate,string docType,string entityId,string partyId)
         {
             AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_accountsInvoiceService.GetMultipleVendorAvailableInvoiceList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, doctate, docType, entityId), JsonRequestBehavior.AllowGet);
+            return Json(_accountsInvoiceService.GetMultipleVendorAvailableInvoiceList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, doctate, docType, entityId, partyId), JsonRequestBehavior.AllowGet);
         }
+        
+        [HttpPost, Authorize]
+        public JsonResult GetMultipleVendorList(string column, string value, GridParameter parameters, string docdate, string docType, string entityId)
+        {
+            AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var res = _accountsInvoiceService.GetMultipleVendorListQuery(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value, parameters, docdate, docType, entityId);
+            var jsondata = Json(res, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+
 
         [HttpPost]
         public JsonResult InsertMultipleVendorPayment(MultiplePayment multiplePayment, IEnumerable<MultiplePaymentDetail> multiplePaymentDetailList)

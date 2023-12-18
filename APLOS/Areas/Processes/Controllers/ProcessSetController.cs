@@ -80,9 +80,9 @@ namespace Aplos.Areas.Processes.Controllers
 		/// <param name="processSetId"></param>
 		/// <returns></returns>
 		[HttpGet, Authorize]
-		public JsonResult GetProcessSetList(string processSetId)
+		public JsonResult GetProcessSetList(string processSetId,string entityId)
 		{
-			return Json(_processSetDetailService.GetProcessSetList(processSetId), JsonRequestBehavior.AllowGet);
+			return Json(_processSetDetailService.GetProcessSetList(processSetId, entityId), JsonRequestBehavior.AllowGet);
 		}
 
 		[HttpPost]

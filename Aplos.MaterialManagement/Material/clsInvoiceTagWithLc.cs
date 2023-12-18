@@ -206,7 +206,7 @@ namespace Library.MaterialManagement.Material
 									AND IV.CompanyGroupId = '" + companyGroupId + @"'
 									AND IV.CompanyId = '" + companyId + @"'
 									" + DatewiseData + @"
-								AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLCDetail)
+								--AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLCDetail)
 								AND ISNULL(IV.PurchaseLCId,'')=''
 								UNION ALL
 								
@@ -331,7 +331,7 @@ namespace Library.MaterialManagement.Material
 									AND IV.CompanyId = '" + companyId + @"'
 									AND IR.PurchaseDocumentAcceptanceId IS NULL
 									" + DatewiseData + @"
-								AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLCDetail)
+								--AND IV.Id NOT IN (SELECT InvoiceId FROM InvoiceTaggingWithLCDetail)
 								AND ISNULL(IV.PurchaseLCId,'')=''";
                 return _sqlRepository.GetDataCollection(strSQL);
             }

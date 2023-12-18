@@ -2065,7 +2065,7 @@ namespace Library.Service.Invoices
                             AdjustmentNoteId = adjustmentNote.Id,
                             InvoiceId = voucherDetailVM.InvoiceId,
                             InvoiceDetailId = voucherDetailVM.Id,
-                            Amount = voucherVM.Amount,
+                            Amount = voucherDetailVM.DrAmount,
                             AddedBy = adjustmentNote.AddedBy,
                             AddedDate = adjustmentNote.AddedDate,
                             AddedFromIP = adjustmentNote.AddedFromIP,
@@ -2080,7 +2080,7 @@ namespace Library.Service.Invoices
                             BudgetMasterId = voucherDetailVM.BudgetMasterId,
                             ActivityId = voucherDetailVM.ActivityId,
                             EntityId = voucherVM.EntityId,
-                            DrAmount = voucherVM.Amount,
+                            DrAmount = voucherDetailVM.DrAmount,
                             DocDate = voucherVM.DocDate,
                             DocRefNo = voucherVM.DocRefNo,
                             Narration = voucherVM.Narration,
@@ -2107,7 +2107,7 @@ namespace Library.Service.Invoices
                         totalCurrencyAmountDr += voucherVM.ToCurrencyRate * voucherDetailDr.DrAmount;
 
                     }
-                    else if (voucherDetailVM.TrnType == "Cr")
+                    else if (voucherDetailVM.TrnType == "Cr" && voucherDetailVM.OtherName=="Material")
                     {
                       
                         var voucherDetailCr = new VoucherDetail
@@ -2116,13 +2116,10 @@ namespace Library.Service.Invoices
                             BudgetMasterId = voucherDetailVM.BudgetMasterId,
                             ActivityId = voucherDetailVM.ActivityId,
                             EntityId = voucherVM.EntityId,
-                            CrAmount = voucherVM.Amount,
+                            CrAmount = voucherDetailVM.CrAmount,
                             DocDate = voucherVM.DocDate,
                             DocRefNo = voucherVM.DocRefNo,
                             Narration = voucherVM.Narration,
-                            PartyId = adjustmentNote.PartyId,
-                            PartyPlantId = voucherVM.PartyPlantId,
-                            PartyType = adjustmentNote.PartyType,
                         };
                         currentVoucherDetailId++;
                         _voucherService.InsertVoucherDetail(voucher, voucherDetailCr, currentVoucherDetailId);
@@ -2139,7 +2136,40 @@ namespace Library.Service.Invoices
                         });
 
                         totalAmountCr += voucherDetailCr.CrAmount;
-                        totalCurrencyAmountDr += voucherVM.ToCurrencyRate * voucherDetailCr.CrAmount;
+                        totalCurrencyAmountCr += voucherVM.ToCurrencyRate * voucherDetailCr.CrAmount;
+
+                    }
+                    else if (voucherDetailVM.TrnType == "Cr" && voucherDetailVM.OtherName == "Tax")
+                    {
+
+                        var voucherDetailCr = new VoucherDetail
+                        {
+                            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                            BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                            ActivityId = voucherDetailVM.ActivityId,
+                            EntityId = voucherVM.EntityId,
+                            CrAmount = voucherDetailVM.CrAmount,
+                            DocDate = voucherVM.DocDate,
+                            DocRefNo = voucherVM.DocRefNo,
+                            Narration = voucherVM.Narration,
+                            PaymentSource="Tax"
+                        };
+                        currentVoucherDetailId++;
+                        _voucherService.InsertVoucherDetail(voucher, voucherDetailCr, currentVoucherDetailId);
+
+                        // INSERT INTO VoucherDetailCurrency
+                        var voucherDetailCurrencyDr = _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailCr, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = voucherDetailCr.CurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.ToCurrencyRate,
+                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherVM.ToCurrencyRate),
+                            CrAmount = voucherVM.ToCurrencyRate * voucherDetailCr.CrAmount
+                        });
+
+                        totalAmountCr += voucherDetailCr.CrAmount;
+                        totalCurrencyAmountCr += voucherVM.ToCurrencyRate * voucherDetailCr.CrAmount;
 
                     }
                 }
@@ -2200,7 +2230,6 @@ namespace Library.Service.Invoices
                 //}
 
                 totalCurrencyAmountCr = totalCurrencyAmountDr;
-                totalAmountCr += taxDrAmount;
                 if (totalAmountDr != totalAmountCr)
                     throw new CustomException("Dr and Cr amount is not equal.");
 

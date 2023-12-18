@@ -648,7 +648,7 @@ namespace Library.Accounting.Accounts
             }
         }
 
-        public GridModel GetMultipleVendorAvailableInvoiceList(GridParameter parameters, string companyGroupId, string companyId, string plantId, string maturatedate, string docType, string entityId)
+        public GridModel GetMultipleVendorAvailableInvoiceList(GridParameter parameters, string companyGroupId, string companyId, string plantId, string maturatedate, string docType, string entityId, string partyId)
         {
             try
             {
@@ -698,7 +698,7 @@ namespace Library.Accounting.Accounts
 									) AS GC ON GC.VoucherDetailId=VD.Id
 									
                                         WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','InventoryPayable')
-                                        AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'  AND (IV.EntityId='" + entityId + @"' OR IV.EntityId IS NULL)
+                                        AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'  AND (IV.EntityId='" + entityId + @"' OR IV.EntityId IS NULL) and P.Id " + partyId + @"
                                         AND MPD.InvoiceId IS NULL" + temp;
 
                 return _sqlRepository.GetGridData(parameters);
@@ -711,6 +711,59 @@ namespace Library.Accounting.Accounts
             }
         }
 
+        public List<Dictionary<string, object>> GetMultipleVendorListQuery(string companyGroupId, string companyId, string plantId, string column, string value, GridParameter parameters, string maturatedate, string docType, string entityId)
+        {
+            try
+            {
+                string tem = null;
+
+                if (docType == "DueUpToDate")
+                {
+                    tem = " AND IV.ActualDueDate <='" + maturatedate + @"'";
+                }
+                if (docType == "DocDate")
+                {
+                    tem = " AND IV.DocDate <='" + maturatedate + @"'";
+                }
+
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"SELECT * FROM (SELECT  count(IVD.Id) NoOfPendingInvoice,SUM(IVD.Amount-IVD.WrittenOffAmount) Balance, P.Code,P.Id PartyId,P.UserName,P.PartyNature,PC.UserName PartyCategory,PSC.UserName PartySubCategory
+										,ppc.PartyAccountGroupCode,ppc.PartyAccountGroupName,ppc.CurrencyId,ppc.CurrencyCode
+										,ppc.CurrencyName,CO.Code AS CountryCode,CO.UserName AS CountryName,S.Code AS StateCode,S.UserName AS StateName
+										,CASE WHEN (SELECT COUNT(Id) FROM HKP.CompanyParty WHERE PartyId=P.Id AND PartyType='Customer')>0 THEN 'Yes' ELSE 'No' END IsCustomer
+										,CASE WHEN (SELECT COUNT(Id) FROM HKP.CompanyParty WHERE PartyId=P.Id AND PartyType='Vendor')>0 THEN 'Yes' ELSE 'No' END IsVendor
+										,Advance=SUM(Ad.Amount-Ad.WrittenOffAmount),PendingReceivable=ISNULL(SUM(RI.Amount-RI.WrittenOffAmount),0)
+                                        FROM [TRN].[InvoiceDetail] AS IVD
+                                        LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id 
+                                        LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+										LEFT JOIN(select distinct CP.PartyId,PAG.Code AS PartyAccountGroupCode,PAG.UserName AS PartyAccountGroupName ,CP.CurrencyId
+										,C.Code AS CurrencyCode,C.[Name] AS CurrencyName,CP.PartyType
+										from [HKP].[CompanyParty] AS CP 
+										LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=CP.PartyAccountGroupId
+										LEFT JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId) ppc on ppc.PartyId=P.Id
+										LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=P.AddressMasterId
+										LEFT JOIN [SCS].[Country] AS CO ON CO.Id=AM.CountryId
+										LEFT JOIN [SCS].[State] AS S ON S.Id=AM.StateId
+										LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+										LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId 
+										Left Join trn.Advance AD ON AD.PartyId=IV.PartyId AND AD.PartyType='Vendor' AND AD.Amount-AD.WrittenOffAmount>0
+                                        Left Join trn.Invoice RI ON RI.PartyId=IV.PartyId AND RI.PartyType='Customer' AND RI.Amount-RI.WrittenOffAmount>0
+                                    WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','InventoryPayable') AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'  AND (IV.EntityId='" + entityId + @"' OR IV.EntityId IS NULL)  AND ppc.PartyType IN ('Vendor')
+                                    GROUP BY P.Code,P.Id,P.UserName,P.PartyNature,PC.UserName ,PSC.UserName 
+										,ppc.PartyAccountGroupCode,ppc.PartyAccountGroupName,ppc.CurrencyId,ppc.CurrencyCode
+										,ppc.CurrencyName,CO.Code,CO.UserName,S.Code,S.UserName
+                    ) AS TEMP WHERE " + strkey + "";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
+            }
+        }
         public List<Dictionary<string, object>> GetMultipleVendorAvailableInvoiceListNew(string companyGroupId, string companyId, string plantId, string maturatedate)
         {
             try
@@ -1814,7 +1867,7 @@ namespace Library.Accounting.Accounts
                 parameters.searchBy = wc;
                 parameters.search = wcc;
             }
-           else if (parameters.searchBy == "Status" && parameters.search.ToUpper() == "PARKED")
+            else if (parameters.searchBy == "Status" && parameters.search.ToUpper() == "PARKED")
             {
                 wc = "(case when TAB.IsPark = 1 then 'Parked' else 'Posted' end)";
                 wcc = "Parked";
@@ -1824,7 +1877,7 @@ namespace Library.Accounting.Accounts
             }
             else
             {
-                   
+
             }
 
             parameters.CmdText = @"SELECT AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id, P.Code AS PartyCode, P.UserName AS PartyName, AW.PostingDate, AW.DocDate, AW.DocRefNo, C.Code AS CurrencyCode, SUM(IWD.Amount) AS Amount

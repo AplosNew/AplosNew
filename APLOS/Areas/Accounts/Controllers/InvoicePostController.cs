@@ -129,6 +129,7 @@ namespace Aplos.Areas.Accounts.Controllers
             voucherVM.PlantId = identity.PlantId;
             voucherVM.SourceType = SourceType.DebitNote.ToString();
             voucherVM.PartyType = "Vendor";
+            voucherVM.DocRefNo = "DN-" + voucherVM.DocRefNo;
             _inventoryPayableService.InsertShortageDebitNote(voucherVM, grnId, voucherDetailVMList);
             return Json(new { Message = AplosMessage.Insert });
         }

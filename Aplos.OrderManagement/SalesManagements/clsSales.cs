@@ -515,7 +515,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
             try
             {
                 string str = @"SELECT SP.Id,SP.PackingId, format(Date,'dd-MMM-yyyy') as AddedDate, format(InactiveDate,'dd-MMM-yyyy') as InActiveDate, p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
-                            ei.Employeename as DRespPerson, en.UserName as Entity, pk.Remarks,pk.CustomerId,pk.EntityId,CP.CurrencyId,C.Code AS Currency 
+                            ei.Employeename as DRespPerson, en.UserName as Entity, pk.Remarks,pk.CustomerId,pk.EntityId,CP.CurrencyId,C.Code AS Currency,A.PaymentTermId,A.Code PaymentTermCode,A.UserName PaymentTermName,A.BaseLineDate, A.NoOfDay,A.PaymentMode 
                             FROM dbo.SalesPacking SP
 							LEFT JOIN TRN.Packing pk ON pk.PackingId=SP.PackingId
                             LEFT JOIN hkp.Party p on p.Id = pk.CustomerId
@@ -525,6 +525,17 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                             LEFT JOIN org.Entity en on en.Id = pk.EntityId
                             LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
                             LEFT JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
+							LEFT JOIN(
+							SELECT DISTINCT PLI.PackingId,MCP.PaymentTermId,PT.Code,PT.UserName,PT.BaseLineDate, PT.NoOfDay,PT.PaymentMode
+                               FROM  trn.PackingLineItem PLI 
+                            LEFT JOIN TRN.SalesOrder SO ON SO.Id=PLI.SOId
+                            LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
+                            LEFT JOIN TRN.MasterOrder MO ON MO.Id=MOI.MasterOrderId
+                            LEFT JOIN (SELECT PT.Id PaymentTermId, PT.UserName , PT.BaseLineDate, PTD.NoOfDay, PT.Code,PT.PaymentMode
+                            FROM [MST].[PaymentTerm] PT
+                            LEFT JOIN [MST].[PaymentTermDetail] PTD ON PTD.PaymentTermId=PT.Id
+                            WHERE PTD.[Sequence]='3' AND PT.Active=1 AND PT.Archive=0 AND PT.IsCustomer=1) AS PT ON PT.PaymentTermId=MO.PaymentTermId
+                            LEFT JOIN [HKP].[CompanyParty] AS MCP ON  MCP.PartyType='Customer' AND PT.PaymentTermId=MCP.PaymentTermId)A ON A.PackingId=pk.PackingId
 							Where SP.SalesId='" + salesId + "'";
                 return _sqlRepository.GetDataCollection(str);
             }

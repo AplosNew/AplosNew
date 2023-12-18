@@ -237,11 +237,9 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
         $http({
             method: 'POST',
             url: $scope.path + 'GetWorkcenter',
-            data: {
-                'entityid': $scope.ModelNew.EntityId,
+            data: {'entityid': $scope.ModelNew.EntityId,
                 'processid': $scope.ModelNew.ProcessId,
-                'headerid': $scope.ModelNew.Id
-
+                'headerid': $scope.ModelNew.Id 
             },
             dataType: 'JSON'
         }).then(function succ(resp) {
@@ -342,13 +340,10 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
         gridObj.refreshTemplate();
     };
 
+    $scope.Save = function () { 
     $scope.CheckedDetentionWorkList = [];
-    $scope.Save = function () {
-       
-
             if ($scope.ModelNewForm.$valid) {
-                for (var i = 0; i < $scope.WorkcenterList.length; i++) {
-                   
+                for (var i = 0; i < $scope.WorkcenterList.length; i++) { 
                     if ($scope.WorkcenterList[i].isSelected) {
                         $scope.CheckedDetentionWorkList.push($scope.WorkcenterList[i]);
                         for (var j = 0; j < $scope.CheckedDetentionWorkList.length; j++) {
@@ -362,34 +357,25 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
                             $scope.CheckedDetentionWorkList[j].CalculatedTime = $scope.ModelNew.CalculatedTime;
                             $scope.CheckedDetentionWorkList[j].ResponsiblePersonId = $scope.ModelNew.ResponsiblePersonId;
                             $scope.CheckedDetentionWorkList[j].Remark = $scope.ModelNew.Remark;                            
-                        }
-                        
+                        } 
                     }
                 }
                 $http({
                     method: 'POST',
                     url: $scope.saveUrl,
-                    data: {
-                       
-                        'data': $scope.CheckedDetentionWorkList
-                    },
+                    data: {'data': $scope.CheckedDetentionWorkList},
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
                         ShowResult(response.data.Message, 'failure');
                     }
                     else {
-                        ShowResult(response.data.Message, 'success');
-
-                       
+                        ShowResult(response.data.Message, 'success'); 
                     }
                 }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-
+                    ShowResult(response.data.Message, 'failure'); 
                 }
-            }
-       
-
+            } 
         };
 
     // #endregion Save

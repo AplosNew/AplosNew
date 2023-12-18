@@ -120,7 +120,8 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
         DueUpToDate: $filter('dateFiltering')(Date.now()),
         TentativeDate: $filter('dateFiltering')(Date.now()),
         BankMasterId: null,
-        IsFifo: false
+        IsFifo: false,
+        ApprovedBy:null
     };
     $scope.multiplePaymentDetail = [];
 
@@ -177,10 +178,29 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
         }
         return false;
     }
+
+    
+    function removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+        });
+    }
+     
+    $scope.sqlInStatement = null;
     $scope.getPopupVendorPayableList = function () {
+        if ($scope.partyDataListNew.length > 0) {
+            var uniquePartyId = removeDuplicates($scope.partyDataListNew, 'PartyId');
+            var wcEmpCode = "";
+            if (uniquePartyId.length > 0) {
+                wcEmpCode = "IN(";
+                wcEmpCode += Array.prototype.map.call(uniquePartyId, function (item) { return "'" + item.PartyId + "'"; }).join(",") + ")";
+            }
+            $scope.sqlInStatement = wcEmpCode;
+        }
+
         $scope.tempList = [];
-        $scope.customerreceivableGLData = function (pageno) {
-            $scope.customerReceivableGLUrl1 = 'accounts/Invoice/GetMultipleVendorAvailableInvoiceList?doctate=' + $filter("date")($scope.multiplePayment.DueUpToDate, "dd-MMM-yyyy") + '&docType=' + $scope.multiplePayment.DateType + '&entityId=' + $scope.multiplePayment.EntityId;
+        $scope.customerreceivableGLData = function (pageno) { 
+            $scope.customerReceivableGLUrl1 = 'accounts/Invoice/GetMultipleVendorAvailableInvoiceList?doctate=' + $filter("date")($scope.multiplePayment.DueUpToDate, "dd-MMM-yyyy") + '&docType=' + $scope.multiplePayment.DateType + '&entityId=' + $scope.multiplePayment.EntityId + '&partyId=' + $scope.sqlInStatement;
             baseService.paginationBase($scope.customerReceivableGLUrl1, pageno, $scope.popUpParameters)
                 .then(function (result) {
                     try {
@@ -676,5 +696,77 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
     //    }
 
     //}
+
+
+    //Vendor Section Start
+
+    $scope.searchByParty = "UserName"; $scope.searchParty = "";
+    $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+     
+    $scope.partyList = [];
+    $scope.getPopupVendorList = function () {
+        if ($scope.partyType === 'Vendor') {
+            //$scope.partyUrl = 'accounts/Invoice/GetMultipleVendorList?partyType=' + $scope.partyType;
+            $scope.partyUrl = 'accounts/Invoice/GetMultipleVendorList?docdate=' + $filter("date")($scope.multiplePayment.DueUpToDate, "dd-MMM-yyyy") + '&docType=' + $scope.multiplePayment.DateType + '&entityId=' + $scope.multiplePayment.EntityId;
+
+        }
+        $http({
+            method: 'POST',
+            url: $scope.partyUrl,
+            data: { column: $scope.searchByParty, value: $scope.searchParty },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.partyList = response.data;
+        });
+        angular.element(document.querySelector('#partyPopUp')).modal('show');
+    };
+
+    $scope.closePartyPopUpNew = function () {
+        angular.element(document.querySelector('#partyPopUp')).modal('hide');
+    };
+
+    $scope.hidePartyPopUp = function () {
+        angular.element(document.querySelector('#partyPopUp')).modal('hide');
+        $scope.partyIndex = -1;
+        $scope.partySelected = null;
+    };
+     
+    $scope.partyDataListNew = [];
+    $scope.ViewParty = function () {
+        try { 
+            for (var i = 0; i < $scope.partyList.length; i++) {
+                if ($scope.partyList[i].CheckBoxSelect == true) {
+                    if (checkDoublePartyInformation($scope.partyDataListNew, $scope.partyList[i].PartyId) === false) {
+                        $scope.partyDataListNew.push($scope.partyList[i]);
+                    }
+                }
+            }
+            angular.element(document.querySelector('#partyPopUp')).modal('hide');
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    function checkDoublePartyInformation(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].PartyId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //Vendor Section End
+
+    $scope.approvedByList = [];
+    $scope.GetapprovedByListCboList = function () {
+        $http({
+            method: 'GET',
+            url: 'SalesManagements/SalesChalan/GetSalesChalanApproveByCboList'
+        }).then(function successCallback(response) {
+            $scope.approvedByList = response.data;
+        });
+    }
+    $scope.GetapprovedByListCboList();
 
 }

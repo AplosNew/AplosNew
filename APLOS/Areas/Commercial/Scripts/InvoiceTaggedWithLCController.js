@@ -105,6 +105,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
             $scope.selectedInvoiceList[$scope.lcIndex].LCDate = $scope.LcModel.LCDate;
             $scope.selectedInvoiceList[$scope.lcIndex].OpeningBank = $scope.LcModel.OpeningBank;
             $scope.selectedInvoiceList[$scope.lcIndex].OpeningBankMasterId = $scope.LcModel.OpeningBankMasterId;
+            $scope.selectedInvoiceList[$scope.lcIndex].BalanceLCAmount = $scope.LcModel.BalanceLCAmount;
         }
        
         angular.element(document.querySelector("#PurchaseLCPopUp")).modal("hide");
@@ -116,10 +117,20 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
     $scope.validation = function () {
 
         var tempBankMasterId = $scope.selectedInvoiceList[0].OpeningBankMasterId
-        for (var i = 0; i < $scope.selectedInvoiceList.length; i++) {
-            if ($scope.selectedInvoiceList[i].OpeningBankMasterId != tempBankMasterId) {
-                ShowResult("Opening Bank should same!", "failure");
-                return true;
+        if (tempBankMasterId != null) {
+            for (var i = 0; i < $scope.selectedInvoiceList.length; i++) {
+                if ($scope.selectedInvoiceList[i].OpeningBankMasterId != tempBankMasterId) {
+                    ShowResult("Opening Bank should same!", "failure");
+                    return true;
+                }
+                if ($scope.selectedInvoiceList[i].PurchaseLcId != null) {
+                    $scope.TotalAmountAgainstLC = Math.round($filter("sumByKey")($filter("filter")($scope.selectedInvoiceList, { PurchaseLcId: $scope.selectedInvoiceList[i].PurchaseLcId }), "Amount") * 1000 + Number.EPSILON) / 1000;
+
+                    if ($scope.selectedInvoiceList[i].BalanceLCAmount < $scope.TotalAmountAgainstLC) {
+                        ShowResult("Setoff Amount Can't Exceed LC Amount where LCRef No " + $scope.selectedInvoiceList[i].LCRef, "failure");
+                        return true;
+                    }
+                }
             }
         }
         return false;
@@ -194,6 +205,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
             $scope.selectedInvoiceList[i].OpeningBank = $scope.LcModel.OpeningBank;
             $scope.selectedInvoiceList[i].PurchaseLcId = $scope.LcModel.Id;
             $scope.selectedInvoiceList[i].OpeningBankMasterId = $scope.LcModel.OpeningBankMasterId;
+            $scope.selectedInvoiceList[$scope.lcIndex].BalanceLCAmount = $scope.LcModel.BalanceLCAmount;
         }
     }
 

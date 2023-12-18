@@ -58,7 +58,11 @@ namespace Aplos.Areas.Setups.Controllers
         {
             return Json(clsCon.GetRemarksControlSequence(), JsonRequestBehavior.AllowGet);
         }
-
+        [HttpGet, Authorize]
+        public JsonResult GetPaymentTermEnum()
+        {
+            return Json(clsCon.GetPaymentTermEnum(), JsonRequestBehavior.AllowGet);
+        }
         [HttpPost]
         public JsonResult Create(Dictionary<string, object> data)
         {
