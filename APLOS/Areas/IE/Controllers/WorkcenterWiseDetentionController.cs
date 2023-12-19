@@ -73,19 +73,10 @@ WHERE WorkCenterMasterId IN(SELECT Id FROM SCS.WorkCenterMaster AS wcm WHERE wcm
             {
                 sqlCondition = $"where MMT.Id = '{headerid}'";
             }
-            string str = @"SELECT distinct WCM.Id WorkcenterId, WCM.StandardName,MMT.Id 
-                            ,E.Id EntityId,E.UserName Entity,DM.Id DetentionId,DM.DetentionUserName Detention,MMT.FromTime,MMT.ToTime
-                            ,MMT.Date [Date],P.Id ProcessId,P.UserName Process,SD.SystemID ShiftId,SD.UserName ShiftId,MMT.Minute [Minute]
-                            ,EI.SystemId ResponsiblePersonId,EI.EmployeeName ResponsiblePerson,MMT.Remark
-                            FROM  SCS.WorkCenterMaster WCM   
-                            left join MachineMasterTransaction MMT on MMT.WorkCenterId = WCM.Id
-                            left join org.Entity E on E.Id=MMT.EntityId
-                            left join DetentionMaster DM on DM.Id=MMT.DetentionId
-                            left join hkp.Process P on P.Id=MMT.ProcessId
-                            left join dbo.ShiftDefination SD on SD.SystemID=MMT.ShiftId
-                            left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
-                            " + sqlCondition + " " +
-                            "order by WCM.StandardName";
+            string str = @"SELECT distinct WCM.Id WorkcenterId, WCM.StandardName, '' Id ,'' EntityId, '' DetentionId,  '' FromTime, '' ToTime, '' [Date] , '' ProcessId, '' ShiftId ,'' Minute, '' Detention , ''ResponsiblePersonId,'' Remark FROM  SCS.WorkCenterMaster WCM  
+
+--left join SCS.WorkCenterMaster WCM on MMT.WorkCenterId = WCM.Id
+" + sqlCondition + " order by WCM.StandardName";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
