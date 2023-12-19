@@ -268,7 +268,7 @@ UNION ALL
 						LEFT JOIN SEC.[USER] U ON U.UserId=LAA.AddedBy
 						WHERE LAA.IsPark=1  AND LAA.VoucherId IS NULL
 						UNION ALL
-						SELECT 'Invoice' SourceType, LAA.Id LoanAgainstAcceptanceId,LAA.Id, LAA.CompanyGroupId, LAA.CompanyId, LAA.PlantId, LAA.EntityId, LAA.CurrencyId, LAA.VoucherId, 'Vendor' PartyType,LAA.PartyId, LAA.PartyPlantId,'LoanTaken' TransactionType,'Bank' PaymentSource , LAA.LoanDate, LAA.LoanNo, LAA.Amount, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
+						SELECT 'Invoice' SourceType, LAA.Id LoanAgainstAcceptanceId,LAA.Id, LAA.CompanyGroupId, LAA.CompanyId, LAA.PlantId, LAA.EntityId, LAA.CurrencyId, LAA.VoucherId, 'Vendor' PartyType,LAA.PartyId, LAA.PartyPlantId,'LoanTaken' TransactionType,'Bank' PaymentSource , LAA.LoanDate, LAA.LoanNo,  ITLD.Amount, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
 						,LAA.BankMasterId, BM.AccountTitle, XVD.LCRef  PurchaseLCNo,XVD.PINo
 						,(select TOP 1 I.CompanyCurrencyRate from  [dbo].[InvoiceTaggingWithLCDetail] ITWLD
 						INNER JOIN TRN.Invoice I ON I.Id=ITWLD.InvoiceId WHERE ITWLD.InvoiceTaggingWithLCMasterId=LAA.Id)CompanyCurrencyRate

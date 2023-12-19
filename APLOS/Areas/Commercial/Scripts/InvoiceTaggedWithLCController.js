@@ -61,6 +61,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
             ToDate: $filter('dateFiltering')(Date.now()),
             DateRange: "false",
         };
+        $scope.selectedInvoiceList = [];
         $scope.AutoLoanAvailableDataList = [];
         $scope.fromDateTitle = "As On Date";
         $scope.LcModel = { LoanAmount: 0, IsLoan: 'true'};
