@@ -1130,6 +1130,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
 
     $scope.selectedMasterOrderItemTempList = [];
     $scope.GetSalesMaterialData = function (salesId) {
+        var ObjPt = { Value: null, Text: null, BaseLineDate: null, NoOfDay: 0, PaymentTermCode: null };
         $scope.salesOrderList = [];
         $scope.salesMaterialList = [];
         $scope.selectedMasterOrderItemTempList = [];
@@ -1139,6 +1140,15 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             url: "Productions/PackingInvoice/GetMasterOrderSalesMaterialData?salesId=" + salesId
         }).then(function (response) {
             $scope.salesMaterialList = response.data;
+            for (var i = 0; i < $scope.salesMaterialList.length; i++) {
+                ObjPt.Value = $scope.salesMaterialList[i].PaymentTermId;
+                ObjPt.Text = $scope.salesMaterialList[i].PaymentTermName;
+                ObjPt.PaymentTermCode = $scope.salesMaterialList[i].PaymentTermCode;
+                ObjPt.NoOfDay = $scope.salesMaterialList[i].NoOfDay;
+                ObjPt.BaseLineDate = $scope.salesMaterialList[i].BaseLineDate;
+                $scope.paymentTermList.push(ObjPt);
+                ObjPt = { Value: null, Text: null, BaseLineDate: null, NoOfDay: 0, PaymentTermCode: null };
+            }
 
             $scope.salesOrderList = response.data;
 
@@ -1260,21 +1270,13 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     $scope.GetSalesPackingData = function (salesId) {
         $scope.selectedPackingList = [];
         $scope.paymentTermList = [];
-        var ObjPt = {};
+       
         $http({
             method: 'GET',
             url: "Productions/PackingInvoice/GetSalesPackingData?salesId=" + salesId
         }).then(function (response) {
             $scope.selectedPackingList = response.data;
-            for (var i = 0; i < $scope.selectedPackingList.length; i++) {
-                ObjPt.Value = $scope.selectedPackingList[i].PaymentTermId;
-                ObjPt.Text = $scope.selectedPackingList[i].PaymentTermName;
-                ObjPt.PaymentTermCode = $scope.selectedPackingList[i].PaymentTermCode;
-                ObjPt.NoOfDay = $scope.selectedPackingList[i].NoOfDay;
-                ObjPt.BaseLineDate = $scope.selectedPackingList[i].BaseLineDate;
-                $scope.paymentTermList.push(ObjPt);
-                ObjPt = {};
-            }
+            
             if ($scope.selectedPackingList.length > 0) {
                 var uniquePackingId = removeDuplicates($scope.selectedPackingList, 'PackingId');
                 var wcPackingId = "";

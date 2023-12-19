@@ -856,7 +856,7 @@ namespace Aplos.Areas.Commercial.Controllers
 						LEFT JOIN MST.BankMaster BM ON BM.Id=LAA.BankMasterId
 						LEFT JOIN dbo.PurchaseLC XVD ON XVD.Id=LAA.PurchaseLCId
 						WHERE LAA.IsLoan=1 AND  
-						LAA.VoucherId IS NULL and
+						--LAA.VoucherId IS NULL and
 						LAA.PlantId='" + identity.PlantId + @"' 
 						and LAA.Id='" + Id + "'";
 				return _sqlRepository.GetData(strSQL);
@@ -886,7 +886,9 @@ namespace Aplos.Areas.Commercial.Controllers
 						LEFT JOIN TRN.Voucher V on V.Id=IV.VoucherId
 						LEFT JOIN TRN.InvoiceDetail IVD ON IVD.InvoiceId=IV.Id
 						LEFT JOIN SEC.[USER] U ON U.UserId=LAA.AddedBy
-						WHERE LAA.PlantId='" + identity.PlantId + @"' AND LAAD.InvoiceTaggingWithLCMasterId='" + LoanAgainstAcceptanceMasterId + @"'  AND LAA.VoucherId IS NULL";
+						WHERE LAA.PlantId='" + identity.PlantId + @"' AND LAAD.InvoiceTaggingWithLCMasterId='" + LoanAgainstAcceptanceMasterId + @"'  
+						--AND LAA.VoucherId IS NULL
+						";
 
 			return _sqlRepository.GetDataTable(sql);
 		}

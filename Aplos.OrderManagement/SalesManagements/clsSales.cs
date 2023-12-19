@@ -471,6 +471,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                 ,SM.TransactionQty 
                 ,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
 	           ,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount,ISNULL(MM.HSNCodeId,ART.HSNCodeId)HSNCodeId,ISNULL(HM.Code,HA.Code)HSNCode
+			,A.PaymentTermId,A.Code PaymentTermCode,A.UserName PaymentTermName,A.BaseLineDate, A.NoOfDay,A.PaymentMode 
             FROM TRN.SalesMaterial AS SM 
             LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
             LEFT JOIN [TRN].[SalesOrder] AS SO ON SM.SalesOrderId=SO.Id
@@ -499,6 +500,11 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
             LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
             JOIN [SCS].[UnitOfMeasurement] AS BUoM ON SM.BaseUOMId=BUoM.Id
             JOIN [SCS].[UnitOfMeasurement] AS TUoM ON SM.TransactionUoMId=TUoM.Id
+			LEFT JOIN (SELECT PT.Id PaymentTermId, PT.UserName , PT.BaseLineDate, PTD.NoOfDay, PT.Code,PT.PaymentMode
+                            FROM [MST].[PaymentTerm] PT
+                            LEFT JOIN [MST].[PaymentTermDetail] PTD ON PTD.PaymentTermId=PT.Id
+                            WHERE PTD.[Sequence]='3' AND PT.Active=1 AND PT.Archive=0 AND PT.IsCustomer=1) AS A ON A.PaymentTermId=MO.PaymentTermId
+
             WHERE SA.CompanyGroupId='" + companyGroupId + "' AND SA.CompanyId='" + companyId + "' AND SA.PlantId='" + plantId + "' AND SA.Id='" + salesId + "'";
 
                 return _sqlRepository.GetDataCollection(cmdText);
@@ -514,8 +520,8 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
         {
             try
             {
-                string str = @"SELECT SP.Id,SP.PackingId, format(Date,'dd-MMM-yyyy') as AddedDate, format(InactiveDate,'dd-MMM-yyyy') as InActiveDate, p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
-                            ei.Employeename as DRespPerson, en.UserName as Entity, pk.Remarks,pk.CustomerId,pk.EntityId,CP.CurrencyId,C.Code AS Currency,A.PaymentTermId,A.Code PaymentTermCode,A.UserName PaymentTermName,A.BaseLineDate, A.NoOfDay,A.PaymentMode 
+                string str = @"SELECT SP.PackingId, SP.Id, format(Date,'dd-MMM-yyyy') as AddedDate, format(InactiveDate,'dd-MMM-yyyy') as InActiveDate, p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
+                            ei.Employeename as DRespPerson, en.UserName as Entity, pk.Remarks,pk.CustomerId,pk.EntityId,CP.CurrencyId,C.Code AS Currency
                             FROM dbo.SalesPacking SP
 							LEFT JOIN TRN.Packing pk ON pk.PackingId=SP.PackingId
                             LEFT JOIN hkp.Party p on p.Id = pk.CustomerId
@@ -524,18 +530,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                             LEFT JOIN hkp.MaterialStorage ms on ms.Id = pk.StorageLocId
                             LEFT JOIN org.Entity en on en.Id = pk.EntityId
                             LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
-                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
-							LEFT JOIN(
-							SELECT DISTINCT PLI.PackingId,MCP.PaymentTermId,PT.Code,PT.UserName,PT.BaseLineDate, PT.NoOfDay,PT.PaymentMode
-                               FROM  trn.PackingLineItem PLI 
-                            LEFT JOIN TRN.SalesOrder SO ON SO.Id=PLI.SOId
-                            LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
-                            LEFT JOIN TRN.MasterOrder MO ON MO.Id=MOI.MasterOrderId
-                            LEFT JOIN (SELECT PT.Id PaymentTermId, PT.UserName , PT.BaseLineDate, PTD.NoOfDay, PT.Code,PT.PaymentMode
-                            FROM [MST].[PaymentTerm] PT
-                            LEFT JOIN [MST].[PaymentTermDetail] PTD ON PTD.PaymentTermId=PT.Id
-                            WHERE PTD.[Sequence]='3' AND PT.Active=1 AND PT.Archive=0 AND PT.IsCustomer=1) AS PT ON PT.PaymentTermId=MO.PaymentTermId
-                            LEFT JOIN [HKP].[CompanyParty] AS MCP ON  MCP.PartyType='Customer' AND PT.PaymentTermId=MCP.PaymentTermId)A ON A.PackingId=pk.PackingId
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId							
 							Where SP.SalesId='" + salesId + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
