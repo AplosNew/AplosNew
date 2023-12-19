@@ -8,8 +8,7 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
     $scope.saveUrl = $scope.path + 'Create';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.Action = 'Save';
-    $scope.employeeUrl = $scope.path + 'GetEmployeeListByWhom';
-    $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.employeeUrl = $scope.path + 'GetEmployeeListByWhom'; 
     $scope.year = new Date().getFullYear().toString();
 
     // #region TAB CHANGE
@@ -29,16 +28,16 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
         Entity: null,
         DetentionId: null,
         FromTime: null,
-        ToTime:null,
+        ToTime: null,
         Date: null,
         ResponsiblePersonId: null,
         ResponsiblePerson: null,
         ProcessId: null,
-        Process: null,        
+        Process: null,
         ShiftId: null,
         Shift: null,
         //IfAssetApplicable: false,
-       
+
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTransaction);
 
@@ -46,7 +45,7 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.GetWorkcenter();
         $scope.getMinute();
-        
+
         //$scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -66,7 +65,7 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
                 'processid': processid,
                 'date': date,
                 'shiftid': shiftid,
-                'minute':minute
+                'minute': minute
             }
         }).then(function successCallback(response) {
             $scope.MachineMasterDateForUpdate = response.data;
@@ -122,7 +121,7 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
     $scope.selectEntity = function () {
         $http({
             method: 'POST',
-            
+
             url: "OrderManagements/productionOrderSchedulingParametersType1/GetEntity",
             dataType: 'JSON'
         }).then(function succ(resp) {
@@ -134,7 +133,7 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
     $scope.doubleEntity = function (e) {
         $scope.ModelNew.EntityId = e.data.Id;
         $scope.ModelNew.Entity = e.data.UserName;
-       // $scope.GetworkcenterData();
+        // $scope.GetworkcenterData();
         angular.element(document.querySelector('#EntityPop')).modal('hide');
     }
 
@@ -154,7 +153,7 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
         $http({
             method: 'POST',
             url: $scope.path + 'getProcess',
-           // data: { 'machineMasterId': $scope.ModelNew.MachineMasterId },
+            // data: { 'machineMasterId': $scope.ModelNew.MachineMasterId },
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.ProcessList = resp.data;
@@ -186,7 +185,7 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
             $scope.DetentionList = resp.data;
 
         });
-        
+
     }
     $scope.GetDetention();
 
@@ -197,11 +196,11 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
                     $scope.WorkcenterList[i].Detention = $scope.DetentionList[j].Text;
                 }
             }
-           // $scope.WorkcenterList[i].Detention = $scope.ModelNew.DetentionId;
+            // $scope.WorkcenterList[i].Detention = $scope.ModelNew.DetentionId;
         }
     }
 
-    
+
 
     // #endregion Detention
 
@@ -216,11 +215,11 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
                     data: { 'data': $scope.ModelNew },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
-                    
+
                     for (var i = 0; i < $scope.WorkcenterList.length; i++) {
                         $scope.WorkcenterList[i].Minute = response.data;
                     }
-                    
+
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 }
@@ -237,14 +236,15 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
         $http({
             method: 'POST',
             url: $scope.path + 'GetWorkcenter',
-            data: {'entityid': $scope.ModelNew.EntityId,
+            data: {
+                'entityid': $scope.ModelNew.EntityId,
                 'processid': $scope.ModelNew.ProcessId,
-                'headerid': $scope.ModelNew.Id 
+                'headerid': $scope.ModelNew.Id
             },
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.WorkcenterList = resp.data;
-            
+
         });
     }
     //$scope.GetWorkcenter();
@@ -340,43 +340,43 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
         gridObj.refreshTemplate();
     };
 
-    $scope.Save = function () { 
-    $scope.CheckedDetentionWorkList = [];
-            if ($scope.ModelNewForm.$valid) {
-                for (var i = 0; i < $scope.WorkcenterList.length; i++) { 
-                    if ($scope.WorkcenterList[i].isSelected) {
-                        $scope.CheckedDetentionWorkList.push($scope.WorkcenterList[i]);
-                        for (var j = 0; j < $scope.CheckedDetentionWorkList.length; j++) {
-                            $scope.CheckedDetentionWorkList[j].EntityId = $scope.ModelNew.EntityId;
-                            $scope.CheckedDetentionWorkList[j].DetentionId = $scope.ModelNew.DetentionId;
-                            $scope.CheckedDetentionWorkList[j].FromTime = $scope.ModelNew.FromTime;
-                            $scope.CheckedDetentionWorkList[j].ToTime = $scope.ModelNew.ToTime;                            
-                            $scope.CheckedDetentionWorkList[j].Date = $scope.ModelNew.Date;
-                            $scope.CheckedDetentionWorkList[j].ProcessId = $scope.ModelNew.ProcessId;
-                            $scope.CheckedDetentionWorkList[j].ShiftId = $scope.ModelNew.ShiftId;                            
-                            $scope.CheckedDetentionWorkList[j].CalculatedTime = $scope.ModelNew.CalculatedTime;
-                            $scope.CheckedDetentionWorkList[j].ResponsiblePersonId = $scope.ModelNew.ResponsiblePersonId;
-                            $scope.CheckedDetentionWorkList[j].Remark = $scope.ModelNew.Remark;                            
-                        } 
+    $scope.Save = function () {
+        $scope.CheckedDetentionWorkList = [];
+        if ($scope.ModelNewForm.$valid) {
+            for (var i = 0; i < $scope.WorkcenterList.length; i++) {
+                if ($scope.WorkcenterList[i].isSelected) {
+                    $scope.CheckedDetentionWorkList.push($scope.WorkcenterList[i]);
+                    for (var j = 0; j < $scope.CheckedDetentionWorkList.length; j++) {
+                        $scope.CheckedDetentionWorkList[j].EntityId = $scope.ModelNew.EntityId;
+                        $scope.CheckedDetentionWorkList[j].DetentionId = $scope.ModelNew.DetentionId;
+                        $scope.CheckedDetentionWorkList[j].FromTime = $scope.ModelNew.FromTime;
+                        $scope.CheckedDetentionWorkList[j].ToTime = $scope.ModelNew.ToTime;
+                        $scope.CheckedDetentionWorkList[j].Date = $scope.ModelNew.Date;
+                        $scope.CheckedDetentionWorkList[j].ProcessId = $scope.ModelNew.ProcessId;
+                        $scope.CheckedDetentionWorkList[j].ShiftId = $scope.ModelNew.ShiftId;
+                        $scope.CheckedDetentionWorkList[j].CalculatedTime = $scope.ModelNew.CalculatedTime;
+                        $scope.CheckedDetentionWorkList[j].ResponsiblePersonId = $scope.ModelNew.ResponsiblePersonId;
+                        $scope.CheckedDetentionWorkList[j].Remark = $scope.ModelNew.Remark;
                     }
                 }
-                $http({
-                    method: 'POST',
-                    url: $scope.saveUrl,
-                    data: {'data': $scope.CheckedDetentionWorkList},
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success'); 
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure'); 
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'data': $scope.CheckedDetentionWorkList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
                 }
-            } 
-        };
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+    };
 
     // #endregion Save
 
@@ -401,24 +401,24 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
 
         //    }
         //}
-            $http({
-                method: 'POST',
-                url: $scope.deleteUrl,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.getData();
-                    $scope.Clear();
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
-      
+        $http({
+            method: 'POST',
+            url: $scope.deleteUrl,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getData();
+                $scope.Clear();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+
     };
     // #endregion Delete
 
@@ -446,7 +446,7 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
         };
         $scope.ModelNew = Object.assign({}, $scope.ModelTransaction);
         $scope.WorkcenterList = [];
-
+        $scope.MachineMasterDateForUpdate = [];
     }
 
     $scope.DateValidation = function (ProductionDate) {
@@ -466,4 +466,45 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
             ShowResult(ex, 'failure');
         }
     };
+
+    $scope.DeleteUpdateWorkCenter = function (obj) {
+        $scope.tempId = obj.data.Id;
+        if (baseService.isUndefinedOrNull(obj.data.DetentionUserName))
+            $scope.message_confirmation = 'Are you sure want to delete this data....';
+        else
+            $scope.message_confirmation = 'Are you sure want to delete [ ' + obj.data.DetentionUserName + ' ]';
+        angular.element(document.querySelector('#confirmgenericPopUp')).modal('show');
+    };
+
+    $scope.DeleteRow = function () {
+        $scope.Id = $scope.tempId;
+        if ($scope.Id == null) {
+            var tempData = $scope.MachineMasterDateForUpdate;
+            for (var i = 0; i < tempData.length; i++) {
+                if (tempData[i].Id === $scope.Id) {
+                    $scope.MachineMasterDateForUpdate.splice(i, 1);
+                }
+            }
+        }
+        else {
+            $http({
+                method: 'POST',
+                url: 'IE/WorkcenterWiseDetention/UpdateWorkCenterDelete',
+                data: { 'Id': $scope.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetSavedWorkCenterForUpdate($scope.ModelNew.EntityId, $scope.ModelNew.DetentionId, $scope.ModelNew.ProcessId, $scope.ModelNew.Date, $scope.ModelNew.ShiftId, $scope.ModelNew.Minute);
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
 }

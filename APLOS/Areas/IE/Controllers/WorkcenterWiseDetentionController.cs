@@ -133,12 +133,13 @@ where DetentionMasterId='" + detentionId + "'";
 
         public JsonResult GetSavedWorkCenterForUpdate(string entityid, string detentionid, string processid, string date, string shiftid, string minute)
         {
-            string sql = @"	select MMT.Id, WCM.Id WorkcenterId, WCM.StandardName, MMT.Minute, MMT.DetentionId, DM.DetentionUserName from MachineMasterTransaction MMT
-	left join SCS.WorkCenterMaster WCM  on WCM.Id = MMT.WorkCenterId
-	left join DetentionMaster DM on DM.Id=MMT.DetentionId  
-	left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
-	 where MMT.addedby in ('nitesh', 'talwinders') and  MMT.EntityId = '" + entityid + @"' and MMT.DetentionId = '" + detentionid + @"' and MMT.ProcessId = '" + processid + @"' and format(MMT.Date, 'dd-MMM-yyyy') = '" + date + @"' and MMT.ShiftId = '" + shiftid + @"' and MMT.Minute = '" + minute + @"'
-	 order by FORMAT(MMT.AddedDate, 'dd-MMM-yyyy') DESC";
+            string sql = @"	select MMT.Id, WCM.Id WorkcenterId, WCM.StandardName, MMT.Minute, MMT.DetentionId, DM.DetentionUserName 
+                            from MachineMasterTransaction MMT
+	                        left join SCS.WorkCenterMaster WCM  on WCM.Id = MMT.WorkCenterId
+	                        left join DetentionMaster DM on DM.Id=MMT.DetentionId  
+	                        left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
+	                         where MMT.addedby in ('nitesh', 'talwinders') and  MMT.EntityId = '" + entityid + @"' and MMT.DetentionId = '" + detentionid + @"' and MMT.ProcessId = '" + processid + @"' and format(MMT.Date, 'dd-MMM-yyyy') = '" + date + @"' and MMT.ShiftId = '" + shiftid + @"' and MMT.Minute = '" + minute + @"'
+	                         order by FORMAT(MMT.AddedDate, 'dd-MMM-yyyy') DESC";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -363,5 +364,23 @@ where DetentionMasterId='" + detentionId + "'";
                 objCon = null;
             }
         }
+
+        [Authorize, HttpPost]
+        public ActionResult UpdateWorkCenterDelete(string Id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from MachineMasterTransaction where Id ='" + Id + "'"); 
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            { 
+                throw ex; 
+            }
+        } 
     }
 }

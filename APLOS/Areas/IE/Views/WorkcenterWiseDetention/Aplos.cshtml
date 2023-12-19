@@ -80,8 +80,8 @@
                 <div class="mb-3 form-group" style="margin-right:4px" show-errors>
                     <label class="control-label">From Time<sup>*</sup></label>
                     @*<div class="show-message">
-                <input id="timepicker1" e-value="ModelNew.FromTime" width="328" ej-timepicker e-change="getMinute()" name="Time" tabindex="4" required />
-            </div>*@
+                            <input id="timepicker1" e-value="ModelNew.FromTime" width="328" ej-timepicker e-change="getMinute()" name="Time" tabindex="4" required />
+                        </div>*@
                     <div class="input-group bootstrap-timepicker timepicker">
                         <input id="FromTime" type="text" class="form-control" ng-model="ModelNew.FromTime" ng-change="getMinute();" e-width="100" tabindex="7">
                         <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
@@ -179,13 +179,19 @@
                             <div e-column e-headertext="DetentionUserName" e-template="#Detention" e-textalign="center" e-width="100"></div>
                             <div e-column e-headertext="Responsible Person" e-template="#Responsibleperson" e-textalign="center" e-width="100"></div>
                             <div e-column e-headertext="Calculated Minute" e-template="#calculatedTime" e-textalign="center" e-width="100"></div>
+                            <div e-column e-headertext="Remove" e-template="#deleteTemplate" e-textalign="center" e-width="60"></div>
                         </div>
-                        <div class="common-btn">
+                        @*<div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button data-toggle="modal" ng-click="Delete();" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                             </ul>
-                        </div>
+                        </div>*@
                     </div>
+                    <script type="text/template" id="deleteTemplate">
+                        <button ng-click="$parent.DeleteUpdateWorkCenter(this)" class="btn-action tooltip-here" data-placement="top" title="Remove" tabindex="1011">
+                            <i class="glyphicon glyphicon-remove"></i>
+                        </button>
+                    </script>
                     <script type="text/template" id="checkboxUpdateTemplate">
                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" ng-model="data.Active" />
                     </script>
@@ -195,6 +201,8 @@
     </div>
 
 </div>
+
+<confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteRow()"></confirm-archive-generic>
 
 <div class="table-responsive aplos-grid-toggle">
     <div id="GridEdit" ej-grid e-recorddoubleclick="Get" e-load="loadGridEdit" e-datasource="GriddataMachineMasterData"
