@@ -1118,12 +1118,12 @@ Where HeadCategory='Net Payable' ";
                 //int ColMonthName = COL;
                 //COL++;
 
-                sheet[ROW, COL].Text = "Employee Code";
+                sheet[ROW, COL].Text = "EmployeeCode";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColEC = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Employee Name";
+                sheet[ROW, COL].Text = "EmployeeName";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColEN = COL;
                 COL++;
@@ -1140,7 +1140,7 @@ Where HeadCategory='Net Payable' ";
                 int ColDOS = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Employee Category";
+                sheet[ROW, COL].Text = "EmployeeCategory";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColEcg = COL;
@@ -1158,7 +1158,7 @@ Where HeadCategory='Net Payable' ";
                 int ColSec = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Sub Section";
+                sheet[ROW, COL].Text = "SubSection";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColSS = COL;
@@ -1170,7 +1170,7 @@ Where HeadCategory='Net Payable' ";
                 int ColDesg = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Payable Voucher No";
+                sheet[ROW, COL].Text = "PayableVoucherNo";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColPblVhrNo = COL;
@@ -1182,7 +1182,7 @@ Where HeadCategory='Net Payable' ";
                 int ColLock = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Disbursement Voucher No";
+                sheet[ROW, COL].Text = "DisbursementVoucherNo";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColDVNo = COL;
@@ -1194,20 +1194,20 @@ Where HeadCategory='Net Payable' ";
                 int ColDisbursed = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Pay Roll Group";
+                sheet[ROW, COL].Text = "PayRollGroup";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColPayRollGrp = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Job Location";
+                sheet[ROW, COL].Text = "JobLocation";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColJobLocation = COL;
                 COL++;
 
 
-                sheet[ROW, COL].Text = "Payment Mode";
+                sheet[ROW, COL].Text = "PaymentMode";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColPM = COL;
@@ -2129,7 +2129,7 @@ Where HeadCategory='Net Payable' ";
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = excelEngine.Excel.Workbooks.Open(path);
-                DataTable dt = workbook.Worksheets[0].ExportDataTable(5, 1, 5000, 28, ExcelExportDataTableOptions.ColumnNames);
+                DataTable dt = workbook.Worksheets[0].ExportDataTable(6, 1, 5000, 28, ExcelExportDataTableOptions.ColumnNames);
                 dt.DefaultView.RowFilter = "isnull(EmployeeCode,'')<>''";
                 dt = dt.DefaultView.ToTable();
 
@@ -2359,29 +2359,29 @@ Where HeadCategory='Net Payable' ";
     {
         public string EmployeeCode { get; set; }
         public string EmployeeName { get; set; }
-        public string Designation { get; set; }
-        public string Department { get; set; }
-        public string Division { get; set; }
-        public string EmployeeCategory { get; set; }
-        public string Plant { get; set; }
-        public string Section { get; set; }
-        public string SubSection { get; set; }
-        public string Unit { get; set; }
-        public string DOJ { get; set; }
-        public string DOS { get; set; }
-        public string CurrentMonthEmployeeStatus { get; set; }
-        public string EmployeeStatus { get; set; }
-        public string SalaryProcFlag { get; set; }
-        public string PayRollGroup { get; set; }
-        public string JobLocation { get; set; }
-        public string PaymentMode { get; set; }
-        public string BankName { get; set; }
-        public string VoucherNo { get; set; }
-        public string PayableVoucherNo { get; set; }
-        public string DisbursementVoucherNo { get; set; }
-        public string IsLock { get; set; }
-        public string IsDisburse { get; set; }
-        public string NetPayment { get; set; }
+        //public string Designation { get; set; }
+        //public string Department { get; set; }
+        //public string Division { get; set; }
+        //public string EmployeeCategory { get; set; }
+        //public string Plant { get; set; }
+        //public string Section { get; set; }
+        //public string SubSection { get; set; }
+        //public string Unit { get; set; }
+        //public string DOJ { get; set; }
+        //public string DOS { get; set; }
+        //public string CurrentMonthEmployeeStatus { get; set; }
+        //public string EmployeeStatus { get; set; }
+        //public string SalaryProcFlag { get; set; }
+        //public string PayRollGroup { get; set; }
+        //public string JobLocation { get; set; }
+        //public string PaymentMode { get; set; }
+        //public string BankName { get; set; }
+        //public string VoucherNo { get; set; }
+        //public string PayableVoucherNo { get; set; }
+        //public string DisbursementVoucherNo { get; set; }
+        //public string IsLock { get; set; }
+        //public string IsDisburse { get; set; }
+        //public string NetPayment { get; set; }
         
     }
 }
