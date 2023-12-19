@@ -65,8 +65,8 @@ namespace Library.MaterialManagement.Material
 									,IVD.Amount AS Receivable
 									,V.ExchangeType
 									,0 ExchangeAmount
-									,IVD.WrittenOffAmount AS Received
-									,IVD.Amount - IVD.WrittenOffAmount AS Balance
+									,IVD.WrittenOffAmount+ISNULL(ITLC.TaggedAmount,0) AS Received
+									,IVD.NetAmount - (ISNULL(IVD.WrittenOffAmount,0)+ISNULL(ITLC.TaggedAmount,0)) AS Balance
 									,IVD.Amount - IVD.WrittenOffAmount AS Amount
 									,IV.PartyPlantId
 									,PP.UserName AS PartyPlantName
@@ -152,6 +152,10 @@ namespace Library.MaterialManagement.Material
 								LEFT JOIN [HKP].[Activity] AS A ON A.Id = IVD.ActivityId
 								LEFT JOIN [SCS].[Currency] AS C ON C.Id = IV.CurrencyId
 								LEFT JOIN [ORG].[Entity] AS EN ON EN.Id = IV.EntityId
+								LEFT JOIN (SELECT invoiceDetailId,SUM(ITLD.Amount) TaggedAmount FROM InvoiceTaggingWithLCDetail ITLD 
+								join InvoiceTaggingWithLCMaster ITM ON ITM.Id=ITLD.InvoiceTaggingWithLCMasterId
+										WHERE ITM.VoucherId IS NULL
+										Group By invoiceDetailId) ITLC ON IVD.Id=ITLC.invoiceDetailId
 								LEFT JOIN (
 									SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId
 										,VDC.FromCurrencyId AS CompanyFromCurrencyId
@@ -238,8 +242,8 @@ namespace Library.MaterialManagement.Material
 									,IVD.NetAmount AS Receivable
 									,V.ExchangeType
 									,0 ExchangeAmount
-									,IVD.WrittenOffAmount AS Received
-									,IVD.NetAmount - IVD.WrittenOffAmount AS Balance
+									,IVD.WrittenOffAmount+ISNULL(ITLC.TaggedAmount,0) AS Received
+									,IVD.NetAmount - (ISNULL(IVD.WrittenOffAmount,0)+ISNULL(ITLC.TaggedAmount,0)) AS Balance
 									,IVD.NetAmount - IVD.WrittenOffAmount AS Amount
 									, IV.PartyPlantId
 									,PP.UserName AS PartyPlantName
@@ -282,6 +286,10 @@ namespace Library.MaterialManagement.Material
 								LEFT JOIN[SCS].[Currency] AS C ON C.Id = IV.CurrencyId
 								LEFT JOIN[ORG].[Entity] AS EN ON EN.Id = IV.EntityId
 								LEFT JOIN TRN.InventoryReceive IR ON IR.Id = IV.InventoryReceiveId
+								LEFT JOIN (SELECT invoiceDetailId,SUM(ITLD.Amount) TaggedAmount FROM InvoiceTaggingWithLCDetail ITLD 
+								join InvoiceTaggingWithLCMaster ITM ON ITM.Id=ITLD.InvoiceTaggingWithLCMasterId
+										WHERE ITM.VoucherId IS NULL
+										Group By invoiceDetailId) ITLC ON IVD.Id=ITLC.invoiceDetailId
 								LEFT JOIN(
 									SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId
 										, VDC.FromCurrencyId AS CompanyFromCurrencyId
@@ -482,13 +490,14 @@ namespace Library.MaterialManagement.Material
 										,FORMAT(m.LoanDate, 'dd-MMM-yyyy') LoanDate
 										,m.LoanNo
 										,c.Code Currency
-										,m.Amount
+										,ITLC.Amount
 										,CASE 
 											WHEN ISNULL(m.VoucherId, '') = ''
 												THEN 'Park'
 											ELSE 'Post'
 											END [Status]
 									FROM InvoiceTaggingWithLCMaster m
+									LEFT JOIN (SELECT InvoiceTaggingWithLCMasterId,SUM(Amount)Amount FROM InvoiceTaggingWithLCDetail Group By InvoiceTaggingWithLCMasterId) ITLC ON m.Id=ITLC.InvoiceTaggingWithLCMasterId
 									LEFT JOIN SCS.Currency AS c ON c.Id = m.CurrencyId
 									LEFT JOIN HKP.Party AS p ON p.Id = m.PartyID
 									LEFT JOIN PurchaseLC AS pl ON pl.Id = m.PurchaseLcId

@@ -79,10 +79,8 @@ namespace Aplos.Areas.Commercial.Controllers
             {
                 case ReportFormat.Pdf:
                     return RenderReportAsPdf(workbook, reportFileName);
-
                 case ReportFormat.Excel:
                     return RenderReportAsExcel(workbook, reportFileName);
-
                 default:
                     return RenderReportAsExcel(workbook, reportFileName);
             }
@@ -640,7 +638,7 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }
 
-
+		[HttpGet, Authorize]
 		public ActionResult GetInvoiceTaggedWithLCReport(ReportFormat reportFormat, string LCId)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -846,10 +844,11 @@ namespace Aplos.Areas.Commercial.Controllers
 				strSQL = @"SELECT 'Invoice' SourceType, LAA.Id LoanAgainstAcceptanceId,LAA.Id, LAA.CompanyGroupId, LAA.CompanyId, 
 						LAA.PlantId, LAA.EntityId, LAA.CurrencyId, LAA.VoucherId, 'Vendor' PartyType,LAA.PartyId, 
 						LAA.PartyPlantId,'LoanTaken' TransactionType,'Bank' PaymentSource , LAA.LoanDate, LAA.LoanNo, 
-						LAA.Amount, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,
+						ITLC.Amount, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,
 						CU.Code CurrencyCode,U.FullName UserName
 						,LAA.BankMasterId, BM.AccountTitle, XVD.LCRef,XVD.PINo,LAA.AddedBy
 						FROM InvoiceTaggingWithLCMaster LAA 
+						LEFT JOIN (SELECT InvoiceTaggingWithLCMasterId,SUM(Amount)Amount FROM InvoiceTaggingWithLCDetail Group By InvoiceTaggingWithLCMasterId) ITLC ON LAA.Id=ITLC.InvoiceTaggingWithLCMasterId
 						LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
 						LEFT JOIN HKP.PartyPlant PP ON PP.Id=LAA.PartyPlantId
 						LEFT JOIN SCS.Currency CU ON CU.Id=LAA.CurrencyId
@@ -874,7 +873,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
 
 			var sql = @"SELECT LAA.Id LoanAgainstAcceptanceId,LAA.CurrencyId, format(LAA.LoanDate,'dd-MMM-yyyy') NewLoanDate,P.UserName PartyName,PP.UserName PartyPlantName ,CU.Code CurrencyCode,U.FullName UserName
-						,IVD.GLGeneralInfoId,IVD.BudgetMasterId,IVD.ActivityId,IVD.InvoiceId,IVD.Id InvoiceDetailId,IV.Amount
+						,IVD.GLGeneralInfoId,IVD.BudgetMasterId,IVD.ActivityId,IVD.InvoiceId,IVD.Id InvoiceDetailId,LAAD.Amount
 						,IV.CompanyCurrencyRate,BM.AccountTitle,IV.DocRefNo  AcceptanceNo,FORMAT(V.PostingDate,'dd-MMM-yyyy') AcceptanceDate
 						,V.VoucherNo,LAA.BankMasterId,isnull( Format( V.PostingDate,'dd-MMM-yyyy'),'') as PostingDate
 						FROM InvoiceTaggingWithLCMaster LAA 
