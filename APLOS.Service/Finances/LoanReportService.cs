@@ -315,12 +315,13 @@ namespace Library.Service.Finances
 		                 JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
 
                         LEFT JOIN TRN.InvoiceWriteOffDetail AS IVWD ON IVWD.Id=VD.InvoiceWriteOffDetailId
+                        LEFT JOIN TRN.InvoiceWriteOff AS IVW ON IVW.Id=IVWD.InvoiceWriteOffId
 						LEFT JOIN TRN.Invoice AS IV ON IV.Id=IVWD.InvoiceId
                         LEFT JOIN TRN.FinancingDetail AS VID ON VID.Id=VD.FinancingDetailId
                         LEFT JOIN TRN.Financing AS VI ON VI.Id=VID.FinancingId
                         LEFT JOIN HKP.FinancingType AS FT ON FT.Id=VI.FinancingTypeId
 						LEFT JOIN (select Id,PartyId,VoucherId from TRN.VoucherDetail where ISNULL(PartyId,'')<>''  ) AS PD ON PD.VoucherId=V.Id AND PD.Id=VDC.VoucherDetailId
-		                LEFT JOIN HKP.Party AS P ON P.Id=PD.PartyId
+		                LEFT JOIN HKP.Party AS P ON P.Id=IVW.PartyId
 		                LEFT JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
 						 LEFT JOIN TRN.FinancingSubsequentTransaction F ON F.VoucherDetailId=VD.Id
 						 LEFT JOIN TRN.Financing FS ON FS.Id=F.SetOffFinancingId

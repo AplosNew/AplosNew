@@ -72,12 +72,15 @@
         </div>
         <div class="form-group" ng-show="advance.PaymentSource=='MultiBank'">
             <label class="col-sm-4 control-label">Select Bank<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
+            <div class="col-sm-2 show-message">
                 <div class="input-group">
                     <span class="input-group-btn">
-                        <button ng-click="showMultiBankPopUp(advance.EntityId);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="showMultiBankPopUp(advance.EntityId);" class="btn single-small-btn"><i class="glyphicon glyphicon-plus"></i></button>
                     </span>
                 </div>
+            </div>
+            <div class="col-sm-4">
+                <button class="btn single-btn" ng-click="showloanPopUp()" tabindex="10"><i class="glyphicon glyphicon-plus"></i> Select Loan</button>
             </div>
         </div>
         <div class="form-group" ng-show="isBankAmount">
@@ -126,9 +129,9 @@
             </div>
         </div>
         <div class="form-group" id="div_qty">
-            <label class="col-sm-4 control-label" >Amount<sup>*</sup></label>
-            <div class="col-sm-5 show-message" style="padding-right:0px;" >
-                <input ng-disabled="advance.JournalId ||advance.PaymentSource=='MultiBank'" tabindex="11"  ng-model="advance.Amount" type="text" n-decimals="2" class="form-control text-right">
+            <label class="col-sm-4 control-label">Amount<sup>*</sup></label>
+            <div class="col-sm-5 show-message" style="padding-right:0px;">
+                <input ng-disabled="advance.JournalId ||advance.PaymentSource=='MultiBank'" tabindex="11" ng-model="advance.Amount" type="text" n-decimals="2" class="form-control text-right">
             </div>
             <div class="col-sm-3 show-message" style="padding-left:0px;">
                 <div class="select-style">
@@ -280,7 +283,7 @@
                     <tr>
                         <td colspan="2" class="text-right">Total</td>
                         <td class="text-right"><b>{{ (bankDetailList) | sumByKey:'Amount' }}</b></td>
-                        <td></td>
+                        <td colspan="2"></td>
                         <td class="text-right"><b>{{ (bankDetailList) | sumByKey:'BankAmount' }}</b></td>
                         <td class="text-right"><b>{{ (bankDetailList) | sumByKey:'BaseDrAmount' }}</b></td>
                         <td></td>
@@ -452,8 +455,8 @@
                             <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
                             @*<li ng-hide="x.IsWrittenOff || !x.IsPosted"><a href="{{bootPoint}}customer-advance-write-off/{{x.Id}}" class="btn btn-action tooltip-here">Set-off</a></li>*@
                             @*<li ng-hide="x.IsWrittenOff || !x.IsPosted"><a ng-click="confirmUnPost(x.Id);" href="" class="btn btn-action tooltip-here">UnPost</a></li>*@
-                            <li><a class="btn btn-action" href="Accounts/Advance/ReportCustomerAdvance?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
-                            <li><a class="btn btn-action" href="Accounts/Advance/ReportCustomerAdvance?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                            <li><a class="btn btn-action" href="Accounts/Advance/ReportCustomerAdvance?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}&advanceGroupNo={{x.AdvanceGroupNo}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                            <li><a class="btn btn-action" href="Accounts/Advance/ReportCustomerAdvance?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}&advanceGroupNo={{x.AdvanceGroupNo}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                         </ul>
                     </td>
                 </tr>
@@ -496,6 +499,7 @@
 @Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_AdvanceJournalPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_MasterOrderPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/Loan/_LoanListPopUp.cshtml")
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmUnPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="unPost(advanceId)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(advanceId,voucherId)"></confirm-archive-generic>

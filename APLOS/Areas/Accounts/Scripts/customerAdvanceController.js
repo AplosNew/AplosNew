@@ -1218,7 +1218,25 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
         $scope.getBankList();
         angular.element(document.querySelector("#multibankPopUp")).modal("show");
     };
-
+    $scope.GetCurrencyParallel = function () {
+        $http({
+            method: "GET",
+            url: "currencies/CompanyParallelCurrency/CurrencyParallel"
+        }).then(function successCallback(response) {
+            $scope.CurrencyParallel = response.data;
+            console.log($scope.CurrencyParallel);
+            if ($scope.CurrencyParallel.length === 0) {
+                $scope.pop("error", "Company Parallel Currency is not set!");
+                $scope.showform = false;
+            }
+            else {
+                $scope.showform = true;
+            }
+            $scope.BaseCurrencyCode = $scope.CurrencyParallel[0].Code;
+            $scope.BaseCurrencyId = $scope.CurrencyParallel[0].CurrencyId;
+        });
+    };
+    $scope.GetCurrencyParallel();
     $scope.bankDetailList = [];
     $scope.closeMultiBankPopUp = function () {
         if (baseService.isUndefinedOrNull($scope.advance.CurrencyId)) {
@@ -1259,6 +1277,13 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
                     $scope.bankDetail.BankCurrencyId = bank.CurrencyId;
                     $scope.bankDetail.CurrencyCode = $scope.advance.CurrencyCode;
                     $scope.bankDetail.BankCurrencyCode = bank.CurrencyCode;
+                    if (bank.CurrencyId == $scope.BaseCurrencyId) {
+                        $scope.bankDetail.CompanyCurrencyRate = 1;
+                    }
+                    else if (bank.CurrencyId == $scope.advance.CurrencyId) {
+                        $scope.bankDetail.CompanyCurrencyRate = $scope.advance.CompanyCurrencyRate;
+                    }
+                    $scope.bankDetail.BankCurrencyCode = bank.CurrencyCode;
                     $scope.bankDetail.FinancingId = "";
                     $scope.bankDetail.FinancingDetailId = "";
                     $scope.bankDetail.FinancingTypeId = "";
@@ -1281,4 +1306,98 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
         $scope.bankIndex = -1;
         $scope.bankSelected = null;
     };
+
+    $scope.loanDataList = [];
+    $scope.getPopUpData = function () {
+        $http({
+            method: 'GET',
+            url: 'Accounts/Loan/GetLoanPopUpListForSalesRealization?transactionType=' + "LoanTaken"
+        }).then(function successCallback(response) {
+            $scope.loanDataList = response.data;
+            for (var i = 0; i < $scope.loanDataList.length; i++) {
+                response.data[i].PostingDateNew = new Date($scope.loanDataList[i].PostingDateNew);
+                response.data[i].DocDate = new Date($scope.loanDataList[i].DocDate);
+            }
+        });
+    };
+    $scope.showloanPopUp = function () {
+        $scope.getPopUpData();
+        angular.element(document.querySelector('#loanPopUp')).modal('show');
+    };
+    $scope.closeloanPopUp = function () {
+        angular.element(document.querySelector("#loanPopUp")).modal("hide");
+    };
+   
+    $scope.closeloanPopUpSelected = function (x) {
+        var bank = x.data;
+        if (baseService.isUndefinedOrNull($scope.advance.CurrencyId)) {
+            ShowResult("Please Select Currency !", "failure", "loanPopUp");
+            return;
+        }
+        if (baseService.isUndefinedOrNull(bank.GLGeneralInfoId)) {
+            ShowResult("Bank GL not found!", "failure", "loanPopUp");
+            return;
+        }
+        else if ($scope.companyConfig.IsVoucherFromBudget && baseService.isUndefinedOrNull(bank.BudgetMasterId)) {
+            ShowResult("Bank Budget not found!", "failure", "loanPopUp");
+            return;
+        }
+        else if (baseService.isUndefinedOrNull(bank.CurrencyId)) {
+            ShowResult("Bank Transaction Currency not found!", "failure", "loanPopUp");
+            return;
+        }
+
+        else {
+            var getRow = null;
+            getRow = $filter("filter")($scope.bankDetailList, { "BankMasterId": bank.BankMasterId });
+            if (getRow.length === 0) {
+                $scope.bankDetail = {};
+                $scope.bankDetail.SourceType = "Loan";
+                $scope.bankDetail.AccountTitle = bank.AccountTitle;
+                $scope.bankDetail.BankName = bank.BankCode + " - " + bank.BankName + " - " + bank.AccountTitle + " - " + bank.AccountNumber;
+                $scope.bankDetail.BankMasterId = bank.BankMasterId;
+                $scope.bankDetail.BankCurrencyId = bank.CurrencyId;
+
+                $scope.bankDetail.GLGeneralInfoId = bank.GLGeneralInfoId;
+                $scope.bankDetail.GLGeneralInfoName = "";
+                $scope.bankDetail.BudgetMasterId = bank.BudgetMasterId;
+                $scope.bankDetail.BudgetName = "";
+                $scope.bankDetail.ActivityId = bank.ActivityId;
+                $scope.bankDetail.ActivityName = "";
+                $scope.bankDetail.BankCurrencyId = bank.CurrencyId;
+                $scope.bankDetail.CurrencyCode = $scope.advance.CurrencyCode;
+                $scope.bankDetail.BankCurrencyCode = bank.CurrencyCode;
+                $scope.bankDetail.FinancingId = bank.FinancingId;
+                $scope.bankDetail.FinancingDetailId = bank.FinancingDetailId;
+                $scope.bankDetail.FinancingTypeId = bank.FinancingTypeId;
+                $scope.bankDetail.CompanyCurrencyRate = bank.CompanyCurrencyRate;
+                $scope.bankDetail.Balance = bank.Balance;
+                $scope.bankDetail.Amount = null;
+                $scope.bankDetail.BaseDrAmount = null;
+                $scope.bankDetailList.push($scope.bankDetail);
+               
+
+            }
+            else {
+                ShowResult(bank.AccountTitle + " already  Exist", "failure", "loanPopUp");
+            }
+        }
+    }
+
+    $scope.calbankAmount = function (data) {
+        if ($scope.advance.CurrencyId == data.BankCurrencyId == $scope.BaseCurrencyId) {
+            data.BankAmount = data.Amount;
+            data.BaseDrAmount = data.Amount;
+        }
+        else if ($scope.advance.CurrencyId == data.BankCurrencyId) {
+            data.BankAmount = data.Amount;
+            data.BaseDrAmount = Math.abs(data.Amount * $scope.advance.CompanyCurrencyRate).toFixed(2);
+        }
+        else if ($scope.advance.CurrencyId != data.BankCurrencyId && data.BankCurrencyId == $scope.BaseCurrencyId) {
+            data.BankAmount = Math.abs(data.Amount * $scope.advance.CompanyCurrencyRate).toFixed(2);
+            data.BaseDrAmount = Math.abs(data.Amount * $scope.advance.CompanyCurrencyRate).toFixed(2);
+        }
+        else
+            data.BankAmount = '';
+    }
 }
