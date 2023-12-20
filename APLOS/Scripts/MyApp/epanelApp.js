@@ -62,6 +62,7 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("myappEmployeeLedgerReportController", myappEmployeeLedgerReportController)
     .controller("VehicleMovementRequisitionController", VehicleMovementRequisitionController)
     .controller("CapitalizeAssetRegisterApprovalController", CapitalizeAssetRegisterApprovalController)
+    .controller("multipleVPController", multipleVPController)
     //#endregion
 
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function ($routeProvider, $locationProvider, $httpProvider) {
@@ -350,6 +351,10 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
             .when('/capitalize-asset-register-approval', {
                 templateUrl: 'FixedAssets/FixedAssetRegister/CARApproval',
                 controller: 'CapitalizeAssetRegisterApprovalController'
+            }) 
+            .when("/multiple-vendor-payment", {
+                templateUrl: "Accounts/Invoice/multipleVP",
+                controller: "multipleVPController"
             })
             //#endregion
 

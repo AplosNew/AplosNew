@@ -86,6 +86,11 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return View("~/Areas/Accounts/Views/paymentadvice.cshtml");
         }
+        [AllowAnonymous]
+        public ActionResult multipleVP()
+        {
+            return View("~/Areas/Accounts/Views/multipleVP.cshtml");
+        }
 
 
         [HttpGet, Authorize]
@@ -196,7 +201,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_accountsInvoiceService.GetInvoicePurchasesAvailable(voucherId), JsonRequestBehavior.AllowGet);
         }
 
-       
+
         [HttpPost]
         public JsonResult InsertCustomerInvoice(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList, OtherInvoice otherInvoiceVM)
         {
@@ -244,7 +249,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult InsertOtherInvoiceJournal(string otherInvoiceId, VoucherViewModel voucherVM,IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        public JsonResult InsertOtherInvoiceJournal(string otherInvoiceId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -286,7 +291,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_accountsInvoiceService.GetFiscalInvoiceTotalAmountByParty( identity.PlantId, partyId, postingDate), JsonRequestBehavior.AllowGet);
+            return Json(_accountsInvoiceService.GetFiscalInvoiceTotalAmountByParty(identity.PlantId, partyId, postingDate), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -297,7 +302,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_accountsInvoiceService.InvoiceQuery(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.VendorInvoice), JsonRequestBehavior.AllowGet);
         }
 
-        
+
 
         [HttpGet, Authorize]
         public JsonResult GetInvoiceGLBudgetActivityDetail(string voucherId)
@@ -317,7 +322,7 @@ namespace Aplos.Areas.Accounts.Controllers
         public JsonResult InsertVendorInvoice(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
             , IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList, IEnumerable<VoucherViewModel> existingLoanList)
         {
-            
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
@@ -334,17 +339,17 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             if (voucherVM.PaymentSource == PaymentSource.Loan.ToString())
             {
-                if(voucherVM.CurrencyId == existingLoanList.FirstOrDefault().CurrencyId)
+                if (voucherVM.CurrencyId == existingLoanList.FirstOrDefault().CurrencyId)
                 {
                     if (voucherVM.IsExcludingTax == false && voucherVM.Amount != existingLoanList.Sum(r => r.LoanSetOffAmount))
                         throw new CustomException("Total Amount and Loan SetOff Amount not match!");
                 }
                 else
                 {
-                    if (voucherVM.IsExcludingTax == false && (Math.Round((voucherVM.Amount* voucherVM.CompanyCurrencyRate), 2) != existingLoanList.Sum(r => r.LoanSetOffAmount)))
+                    if (voucherVM.IsExcludingTax == false && (Math.Round((voucherVM.Amount * voucherVM.CompanyCurrencyRate), 2) != existingLoanList.Sum(r => r.LoanSetOffAmount)))
                         throw new CustomException("Total Amount and Loan SetOff Amount not match!");
                 }
-                
+
             }
 
             if (voucherVM.PaymentSource == PaymentSource.Cash.ToString() && voucherVM.CashMasterId == null)
@@ -357,9 +362,9 @@ namespace Aplos.Areas.Accounts.Controllers
             else
                 return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceService.InsertVendorInvoiceBeneficiaryEmployee(voucherVM, voucherDetailVMList, taxDetailVMList, tdsVMList)) });
 
-        } 
+        }
         [HttpPost, Authorize]
-        public JsonResult InsertIncentiveReceivableInvoice(VoucherViewModel voucherVM,IEnumerable<IncentiveReceivableMap> incentiveReceivableMapList)
+        public JsonResult InsertIncentiveReceivableInvoice(VoucherViewModel voucherVM, IEnumerable<IncentiveReceivableMap> incentiveReceivableMapList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -370,7 +375,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 throw new CustomException("Rate can not Empty!");
             voucherVM.SourceType = SourceType.ReceivableFromOthers.ToString();
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceService.InsertIncentiveReceivableInvoice(voucherVM, incentiveReceivableMapList)) });
-            
+
         }
 
         [HttpPost, Authorize]
@@ -413,10 +418,10 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public ActionResult PostVendorInvoice(string invoiceId,string type)
+        public ActionResult PostVendorInvoice(string invoiceId, string type)
         {
-            if(type==NewBeneficiaryType.Vendor.ToString())
-            _invoiceService.Post(invoiceId);
+            if (type == NewBeneficiaryType.Vendor.ToString())
+                _invoiceService.Post(invoiceId);
             if (type == NewBeneficiaryType.Employee.ToString())
                 _employeePayableService.Post(invoiceId);
             return Json(new { Message = AplosMessage.Posted });
@@ -429,7 +434,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public ActionResult DeleteVendorInvoice(string invoiceId, string voucherId, string type, string tDSVoucherId, string tDSVoucherNo,string deletedRemarks)
+        public ActionResult DeleteVendorInvoice(string invoiceId, string voucherId, string type, string tDSVoucherId, string tDSVoucherNo, string deletedRemarks)
         {
             if (tDSVoucherId != null)
                 throw new CustomException("TDS voucher no  " + tDSVoucherNo + "need to delete first!");
@@ -505,12 +510,12 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public ActionResult DeleteInventoryPayable(string grnId, string voucherId, string invoiceId,string type, string tDSTaxVoucherId, string tDSVoucherNo, string deletedRemarks)
+        public ActionResult DeleteInventoryPayable(string grnId, string voucherId, string invoiceId, string type, string tDSTaxVoucherId, string tDSVoucherNo, string deletedRemarks)
         {
             if (deletedRemarks == null || deletedRemarks == "")
                 throw new CustomException("Deleted Remarks is required!");
             if (tDSTaxVoucherId != null)
-                throw new CustomException("TDS voucher no  "+ tDSVoucherNo + "need to delete first!");
+                throw new CustomException("TDS voucher no  " + tDSVoucherNo + "need to delete first!");
 
             if (type == NewBeneficiaryType.Vendor.ToString())
                 _invoiceService.DeleteInventoryPayable(grnId, invoiceId, voucherId, deletedRemarks);
@@ -533,9 +538,9 @@ namespace Aplos.Areas.Accounts.Controllers
                 throw new CustomException("TDS voucher no  " + tDSVoucherNo + "need to delete first!");
 
             //if (type == NewBeneficiaryType.Vendor.ToString())
-                _invoiceService.DeleteServicePayable(serviceAckId, invoiceId, voucherId);
+            _invoiceService.DeleteServicePayable(serviceAckId, invoiceId, voucherId);
             //if (type == NewBeneficiaryType.Employee.ToString())
-               // _employeePayableService.DeleteServiceBeneficiaryEmployee(serviceAckId, invoiceId, voucherId);
+            // _employeePayableService.DeleteServiceBeneficiaryEmployee(serviceAckId, invoiceId, voucherId);
             return Json(new { Message = AplosMessage.Deleted });
         }
 
@@ -545,7 +550,7 @@ namespace Aplos.Areas.Accounts.Controllers
         #region Auto Mail
 
         [HttpGet, Authorize]
-        public ActionResult GetAutoMailReport()   
+        public ActionResult GetAutoMailReport()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsInvoiceReportService accountsInvoiceReportService = new AccountsInvoiceReportService(_sqlRepository);
@@ -555,7 +560,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 ExcelEngine excelEngine = new ExcelEngine();
 
                 //IWorkbook workbook = IssueReportList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, checkbox);
-               // IWorkbook workbook = OperationReportList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+                // IWorkbook workbook = OperationReportList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
                 IWorkbook workbook = accountsInvoiceReportService.GetAutoMailReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
 
 
@@ -571,7 +576,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return null;
         }
 
-       
+
         [HttpGet, Authorize]
         public ActionResult GetAutoMailVPaymentReport()
         {
@@ -805,7 +810,7 @@ namespace Aplos.Areas.Accounts.Controllers
             {
                 return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertVendorPayment(voucherVM, voucherDetailVMList, bankChargeDetailVMList, purchaseLCChargesVMList, taxDetailVMList, glVMList, existingLoanList)) });
             }
-                
+
         }
 
         [Authorize, HttpGet]
@@ -815,7 +820,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_invoiceWriteOffService.Query(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.InvoiceToAcceptance), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public JsonResult InsertInvoiceToAcceptancePost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
            , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<VoucherDetailViewModel> glVMList)
         {
@@ -1030,7 +1035,7 @@ namespace Aplos.Areas.Accounts.Controllers
             if (voucherVM.CompanyCurrencyRate <= 0)
                 throw new CustomException("Please Input Rate.");
             var bankamount = banksDetailVMList.Sum(r => r.Amount);
-            var bankChargeamount = bankChargeDetailVMList==null?0: bankChargeDetailVMList.Sum(r => r.Amount);
+            var bankChargeamount = bankChargeDetailVMList == null ? 0 : bankChargeDetailVMList.Sum(r => r.Amount);
 
             var Totalbankamount = bankamount + bankChargeamount;
             if (bankChargeDetailVMList != null && voucherDetailVMList.Sum(r => r.Amount) != banksDetailVMList.Sum(r => r.Amount) + bankChargeDetailVMList.Sum(r => r.Amount))
@@ -1092,7 +1097,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             try
             {
-                
+
                 AccountsInvoiceReportService _accInvoiceReportService = new AccountsInvoiceReportService(_sqlRepository);
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var workbook = _accInvoiceReportService.GetCustomerInvoiceReceiptBanksReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, invoiceWriteOffGroupNo, SourceType.CustomerBanksReceipt.ToString());
@@ -1228,13 +1233,13 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetMultipleVendorAvailableInvoiceList(GridParameter parameters, string doctate,string docType,string entityId,string partyId)
+        public JsonResult GetMultipleVendorAvailableInvoiceList(GridParameter parameters, string doctate, string docType, string entityId, string partyId)
         {
             AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_accountsInvoiceService.GetMultipleVendorAvailableInvoiceList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, doctate, docType, entityId, partyId), JsonRequestBehavior.AllowGet);
         }
-        
+
         [HttpPost, Authorize]
         public JsonResult GetMultipleVendorList(string column, string value, GridParameter parameters, string docdate, string docType, string entityId)
         {
@@ -1283,7 +1288,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult DeleteMultipleVendorRow(IEnumerable<MultiplePayment> multiplePaymentlist, IEnumerable<MultiplePaymentDetail> multiplePaymentDetailList )
+        public JsonResult DeleteMultipleVendorRow(IEnumerable<MultiplePayment> multiplePaymentlist, IEnumerable<MultiplePaymentDetail> multiplePaymentDetailList)
         {
             return Json(new { Message = string.Format(AplosMessage.Deleted, _invoiceWriteOffService.DeleteMultipleVendorRow(multiplePaymentlist, multiplePaymentDetailList)) });
         }
@@ -1413,7 +1418,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
 
-       
+
 
         [Authorize, HttpGet]
         public JsonResult GetVoucherWriteOffList(string voucherWriteOffId)
@@ -1429,7 +1434,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_invoiceWriteOffService.GetVoucherWriteOffDetailList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, voucherWriteOffId), JsonRequestBehavior.AllowGet);
         }
 
-       
+
 
         [HttpPost]
         public JsonResult InsertPartyReconciliation(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
@@ -1528,7 +1533,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #region Invoice Overehead
 
-        [HttpGet,Authorize]
+        [HttpGet, Authorize]
         public ActionResult GetInvoiceOvereheadList()
         {
             AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
@@ -1842,7 +1847,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #region Payment Advice
         [Authorize, HttpGet]
-         public JsonResult GatePaymentAdviceData(string fromDate, string toDate, string BankMasterId)
+        public JsonResult GatePaymentAdviceData(string fromDate, string toDate, string BankMasterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -1867,5 +1872,80 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         #endregion Payment Advice
+
+        #region Multiple Vendor Payment Start
+        [HttpGet, Authorize]
+        public JsonResult GetMultiplePaymentMyAppData(string tabType)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = "";
+            if (tabType == "UnApprovedList")
+            {
+                sql = @"SELECT MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,Replace(CONVERT(VARCHAR(11), MP.DueUpToDate, 106), ' ', '-') DueUpToDate
+                            ,Replace(CONVERT(VARCHAR(11), MP.TentativeDate, 106), ' ', '-') TentativeDate
+                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle, 0 flag ,P.UserName PartyName,MPD.PartyId,SUM(MPD.Amount) Amount
+							,ParkStatus=case when MP.IsPark=1 then 'Parked' else 'Posted' end
+                            FROM TRN.MultiplePaymentDetail MPD 
+							LEFT JOIN TRN.MultiplePayment MP ON MP.Id=MPD.MultiplePaymentId
+							LEFT JOIN HKP.Party P ON P.Id=MPD.PartyId
+							LEFT JOIN MST.BankMaster BM ON BM.Id=MP.BankMasterId
+							where  MP.PlantId='" + identity.PlantId + @"' 
+							group by MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,MP.DueUpToDate
+                            , MP.TentativeDate,MPD.MultiplePaymentId
+                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle,P.UserName,MPD.PartyId ";
+
+            }
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+         
+        [HttpPost, Authorize]
+        public JsonResult CreateApproveBy(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from TRN.MultiplePayment where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    data["ApprovalStatus"] = "Approved";
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update 
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster); 
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated }); 
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }); 
+            }
+        }
+
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit(); 
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            } 
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress; 
+            dr.EndEdit();
+        }
+
+        #endregion Multiple Vendor Payment End
     }
 }
