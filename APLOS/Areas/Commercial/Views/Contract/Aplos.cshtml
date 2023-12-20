@@ -423,51 +423,75 @@
                                 <label class="col-sm-4 control-label">Benificiary Bank<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select name="Benificiary Bank" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" class="form-control" ng-model="lcMasterNew.BenificiaryBankId" ng-options="item.Id as item.AccountTitle for item in bankMasterList" required tabindex="1">
+                                        <select name="Benificiary Bank" class="form-control" ng-model="lcMasterNew.BenificiaryBankId" ng-options="item.Id as item.AccountTitle for item in bankMasterList" required tabindex="1">
                                             <option value="">--Select--</option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
+                            @*<div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Opening Bank<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+
+                        <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="NegotiatingBankList" e-value="masterLC.OpeningBankId" e-fields-value="Id" e-fields-text="BankName" e-width="100%" />
+                    </div>
+
+                </div>
+            </div>*@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Opening Bank<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    @*<div class="select-style">
-                                            <select name="Opening Bank" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" class="form-control" ng-model="lcMasterNew.OpeningBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="3">
-                                                <option value="">--Select--</option>
-                                            </select>
-                                        </div>*@
-                                    @*<input type="text" name="Opening Bank" ng-model="lcMasterNew.OpeningBank" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" class="form-control" required tabindex="3" maxlength="50">*@
-                                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="NegotiatingBankList" e-value="masterLC.OpeningBankId" e-fields-value="Id" e-enable="modelNew.IsLC===false && modelNew.UpdatedBy===null" e-fields-text="BankName" e-width="100%" />
+                                    <div class="input-group">
+                                        <input type="text" name="Opening Bank" ng-model="lcMasterNew.OpeningBank" class="form-control" readonly required>
+                                        <span class="input-group-btn">
+                                            <button ng-click="ShowNBPopUp();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Advising Bank</label>
                                 <div class="col-sm-8">
                                     @*<div class="select-style">
-                                            <select name="Lein Bank" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" class="form-control" ng-model="lcMasterNew.LeinBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="5">
-                                                <option value="">--Select--</option>
-                                            </select>
-                                        </div>*@
-                                    <input type="text" name="Advising Bank" ng-model="lcMasterNew.LeinBank" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" class="form-control" tabindex="5" maxlength="50">
+                        <select name="Lein Bank" class="form-control" ng-model="masterLC.LeinBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="5">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>*@
+                                    <input type="text" name="Advising Bank" ng-model="lcMasterNew.LeinBank" class="form-control" tabindex="5" maxlength="50">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Master Lc No<sup>*</sup></label>
+                                <label class="col-sm-4 control-label">Master LC No<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="LCRef" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" ng-model="lcMasterNew.LCRef" class="form-control" maxlength="50" required tabindex="7">
+                                    <input type="text" name="LCRef" ng-model="lcMasterNew.LCRef" class="form-control" maxlength="50" required tabindex="7">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Expiry Date<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="LC Date" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" ng-model="lcMasterNew.ExpiryDate" datepicker class="form-control" required tabindex="9">
+                                    <input type="text" name="LC Date" ng-model="lcMasterNew.ExpiryDate" datepicker class="form-control" required tabindex="9">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">LC Shipment Date<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="LC Shipment Date" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" ng-model="lcMasterNew.LCShipmentDate" datepicker class="form-control" required tabindex="9">
+                                    <input type="text" name="LC Shipment Date" ng-model="lcMasterNew.LCShipmentDate" datepicker class="form-control" required tabindex="9">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Amount<sup>*</sup></label>
+                                <div class="col-sm-3 show-message">
+                                    <input type="text" n-decimals="2" name="Amount" ng-model="lcMasterNew.Amount" class="form-control" maxlength="15" required tabindex="12">
+                                </div>
+                                <label class="col-sm-2 control-label" style="margin-left:-25px">Currency<sup>*</sup></label>
+                                <div class="col-sm-3 show-message" style="padding-right: 0px; width: 69px;">
+                                    <div class="select-style">
+                                        <select id="currencyId" class="form-control" tabindex="15" name="Currency" ng-model="lcMasterNew.CurrencyId" required>
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in currencyList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
 
@@ -475,8 +499,71 @@
                                 <label class="col-sm-4 control-label">Final Destination<sup>*</sup></label>
                                 <div class="col-sm-8">
                                     <div class="select-style">
-                                        <select name="Destination" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" class="form-control" ng-model="lcMasterNew.FinalDestinationId" ng-options="item.Value as item.Text for item in destinationList" tabindex="13">
+                                        <select name="Destination" class="form-control" ng-model="lcMasterNew.FinalDestinationId" ng-options="item.Value as item.Text for item in destinationList" tabindex="13">
                                             <option value=""></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Port <span style="text-transform:lowercase">Of</span> Loading<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select name="Port Of Loading" class="form-control" ng-model="lcMasterNew.PortOfLoadingId" ng-options="item.Value as item.Text for item in portList" tabindex="14">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Description Of Goods And/Or Services</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="2" ng-model="lcMasterNew.DescriptionOfGoodsAndOrServices" maxlength="500" tabindex="7"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Opening Bank Description</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="2" ng-model="lcMasterNew.OpeningDescription" tabindex="2" maxlength="250"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Advising Bank Description</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="2" ng-model="lcMasterNew.LeinDescription" tabindex="4" maxlength="250"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">LC Date<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="LC Date" ng-model="lcMasterNew.LCDate" datepicker class="form-control" required tabindex="6">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Type<sup>*</sup></label>
+                                <div class="col-sm-4 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="lcMasterNew.Type" name="Type" ng-change="changeType();" required tabindex="10">
+                                            <option value="">--Select--</option>
+                                            <option value="Usance">Usance</option>
+                                            <option value="AtSight">At Sight</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <input type="text" name="Tenure" ng-disabled="lcMasterNew.Type==='AtSight'" ng-model="lcMasterNew.Tenure" class="form-control" n-decimals="2" tabindex="12">
+                                </div>
+                                <label class="col-sm-2 control-label"><span style="text-transform:lowercase">day(s)</span> </label>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Shipment Mode<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select name="Shipment Mode" class="form-control" ng-model="lcMasterNew.ShipmentModeId" ng-options="item.Value as item.Text for item in shipmentModeList" ng-change="SetOtherDates();" required tabindex="108">
+                                            <option value="">--Select--</option>
                                         </select>
                                     </div>
                                 </div>
@@ -491,78 +578,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-xs-12 col-sm-6 col-md-6">
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Opening Bank Description</label>
-                                <div class="col-sm-8">
-                                    <textarea class="form-control" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" rows="2" ng-model="lcMasterNew.OpeningDescription" tabindex="2" maxlength="250"></textarea>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Advising Bank Description</label>
-                                <div class="col-sm-8">
-                                    <textarea class="form-control" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" rows="2" ng-model="lcMasterNew.LeinDescription" tabindex="4" maxlength="250"></textarea>
-                                </div>
-                            </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">LC Date<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <input type="text" name="LC Date" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" ng-model="lcMasterNew.LCDate" datepicker class="form-control" required tabindex="6">
-                                </div>
-                            </div>
-
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Amount<sup>*</sup></label>
-                                <div class="col-sm-3 show-message">
-                                    <input type="text" n-decimals="2" name="Amount" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" ng-model="lcMasterNew.Amount" class="form-control" maxlength="15" required tabindex="12">
-                                </div>
-                                <label class="col-sm-2 control-label" style="margin-left:-25px">Currency<sup>*</sup></label>
-                                <div class="col-sm-3 show-message" style="padding-right: 0px; width: 69px;">
-                                    <div class="select-style">
-                                        <select id="currencyId" class="form-control" tabindex="15" name="Currency" ng-model="lcMasterNew.CurrencyId" required>
-                                            <option value="">--Select--</option>
-                                            <option ng-repeat="option in currencyList" value="{{option.Value}}">{{option.Text}}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Type<sup>*</sup></label>
-                                <div class="col-sm-4 show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" ng-model="lcMasterNew.Type" name="Type" ng-change="changeType();" tabindex="10">
-                                            <option value="">--Select--</option>
-                                            <option value="Usance">Usance</option>
-                                            <option value="AtSight">At Sight</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-sm-2">
-                                    <input type="text" name="Tenure" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null || lcMasterNew.Type==='AtSight'" ng-model="lcMasterNew.Tenure" class="form-control" n-decimals="2" tabindex="12">
-                                </div>
-                                <label class="col-sm-2 control-label"><span style="text-transform:lowercase">day(s)</span> </label>
-                            </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Shipment Mode<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <div class="select-style">
-                                        <select name="Shipment Mode" class="form-control" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" ng-model="lcMasterNew.ShipmentModeId" ng-options="item.Value as item.Text for item in shipmentModeList" ng-change="SetOtherDates();" required tabindex="108">
-                                            <option value="">--Select--</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Port <span style="text-transform:lowercase">Of</span> Landing<sup>*</sup></label>
-                                <div class="col-sm-8">
-                                    <div class="select-style">
-                                        <select name="Port Of Landing" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" class="form-control" ng-model="lcMasterNew.PortOfLandingId" ng-options="item.Value as item.Text for item in portList" tabindex="14">
-                                            <option value=""></option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">IsClose</label>
                                 <div class="col-sm-8">
@@ -572,6 +587,12 @@
                                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                         </label>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remarks</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="2" ng-model="lcMasterNew.Remarks" maxlength="250" tabindex="7"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -903,6 +924,60 @@
                 <div class="common-btn" style="padding-right: 15px;">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="CloseSOPopUp();" class="btn">Apply</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="NBPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Opening Bank</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByNB">
+                                            <option ng-repeat="option in searchByNBList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchNB" ng-enter="ShowNBPopUp()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="ShowNBPopUp()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div style="color:black;" id="GridNBPOP" ej-grid e-datasource="NegotiatingBankDataList" e-recorddoubleclick="SetNBData"
+                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="20" e-visible="false"></div>
+                            <div e-column e-type="string" e-field="BankName" e-headertext="Bank Name" e-width="50"></div>
+                            <div e-column e-type="string" e-field="AccountNo" e-headertext="AccountNo" e-width="40"></div>
+                            <div e-column e-type="string" e-field="BankCategory" e-headertext="BankCategory" e-width="50"></div>
+                            <div e-column e-type="string" e-field="UserName" e-headertext="UserName" e-width="50"></div>
+                            <div e-column e-type="string" e-field="SWIFTCode" e-headertext="SWIFTCode" e-width="20"></div>
+                            <div e-column e-type="string" e-field="Country" e-headertext="Country" e-width="30" e-textalign="right"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseNB();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
                     </ul>
                 </div>
             </div>

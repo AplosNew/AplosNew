@@ -33,7 +33,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web;
 using static Library.Service.Helpers.ReportUtility;
-
+using Library.Model.Parties;
 
 namespace Library.General.Commercial
 {
@@ -731,7 +731,7 @@ Order by B.UserName";
 
             report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 12, ExcelHAlign.HAlignLeft);
             int ColR = COL;
-            
+
 
 
             endCol = COL;
@@ -773,7 +773,7 @@ Order by B.UserName";
                 sheet[ROW, ColBQ].Text = data.Rows[i]["BalanceQty"].ToString();
                 sheet[ROW, ColBLV].Text = data.Rows[i]["BalanceLienValue"].ToString();
                 sheet[ROW, ColR].Text = data.Rows[i]["Remarks"].ToString();
-               
+
                 ROW++;
 
             }
@@ -784,7 +784,7 @@ Order by B.UserName";
             endRow = ROW - 1;
             #endregion sheet1
 
-       
+
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
 
@@ -799,7 +799,7 @@ Order by B.UserName";
             public string GroupKey { get; set; } = "";
             public int Row { get; set; } = 0;
         }
-        public IWorkbook GetContarctWorkbookExcel(string companyGroupId, string companyId,string PlantId)
+        public IWorkbook GetContarctWorkbookExcel(string companyGroupId, string companyId, string PlantId)
         {
             try
             {
@@ -815,7 +815,7 @@ Order by B.UserName";
                 //clsReport objRpt = null;
                 var objRpt = new clsReport();
 
-               
+
                 int xlsRow = 1, xlsCol = 1; int endXlsCol = 1;
 
                 #endregion Variable
@@ -837,22 +837,22 @@ Order by B.UserName";
                 xlsRow = 5;
 
                 #region ColumnHeaderVariables              
-                int cFileNo = 0; int cTQ = 0; int cA = 0; int cSV; int cSQ; int cBQ = 0; int cBLV = 0; int cR = 0;  int cBN = 0; int cSSD = 0; int cCN = 0; int cSED = 0;
+                int cFileNo = 0; int cTQ = 0; int cA = 0; int cSV; int cSQ; int cBQ = 0; int cBLV = 0; int cR = 0; int cBN = 0; int cSSD = 0; int cCN = 0; int cSED = 0;
                 #endregion
                 #region ColumnHeaders
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bank Name", 14,ExcelHAlign.HAlignCenter); cBN = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FileNo",8, ExcelHAlign.HAlignCenter); cFileNo = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShipmentStartDate", 20,ExcelHAlign.HAlignCenter); cSSD = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShipmentEndDate", 20,ExcelHAlign.HAlignCenter); cSED = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ContractNo", 25,ExcelHAlign.HAlignCenter); cCN = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "TotalQty", 8,ExcelHAlign.HAlignCenter); cTQ = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Amount",12, ExcelHAlign.HAlignCenter); cA = xlsCol; xlsCol++;                
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bank Name", 14, ExcelHAlign.HAlignCenter); cBN = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FileNo", 8, ExcelHAlign.HAlignCenter); cFileNo = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShipmentStartDate", 20, ExcelHAlign.HAlignCenter); cSSD = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShipmentEndDate", 20, ExcelHAlign.HAlignCenter); cSED = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ContractNo", 25, ExcelHAlign.HAlignCenter); cCN = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "TotalQty", 8, ExcelHAlign.HAlignCenter); cTQ = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Amount", 12, ExcelHAlign.HAlignCenter); cA = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShipmentQty", 14, ExcelHAlign.HAlignCenter); cSQ = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShippedValue", 14, ExcelHAlign.HAlignCenter); cSV = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BalanceQty", 12, ExcelHAlign.HAlignCenter); cBQ = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BalanceLienValue", 14, ExcelHAlign.HAlignCenter); cBLV = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks", 14, ExcelHAlign.HAlignCenter); cR = xlsCol; xlsCol++;
-               
+
 
                 var orgCollist = xlsCol;
                 xlsRow++;
@@ -889,7 +889,7 @@ Order by B.UserName";
 
                     Dictionary<string, Combination> dicGroup = new Dictionary<string, Combination>();
 
-                    string strGroupBankName =  dtManPBSummary.Rows[0]["BankName"].ToString();
+                    string strGroupBankName = dtManPBSummary.Rows[0]["BankName"].ToString();
 
                     dicGroup.Add("BankName", new Combination { GroupKey = strGroupBankName, Row = xlsRow });
 
@@ -898,9 +898,9 @@ Order by B.UserName";
                     for (int i = 0; i < dtManPBSummary.Rows.Count; i++)
                     {
                         var catLRow = xlsRow;
-                       
-                        strGroupBankName =dtManPBSummary.Rows[i]["BankName"].ToString();
-                      
+
+                        strGroupBankName = dtManPBSummary.Rows[i]["BankName"].ToString();
+
 
                         if (dicGroup["BankName"].GroupKey != strGroupBankName)
                         {
@@ -923,7 +923,7 @@ Order by B.UserName";
 
                             sheet1.Range[xlsRow, cBLV].Formula = "=SUM(" + oRU.GetColumnNameForXls(cBLV) + catFRow + ":" + oRU.GetColumnNameForXls(cBLV) + (xlsRow - 1) + ")";
                             sheet1.Range[xlsRow, cBLV].BorderAround(ExcelLineStyle.Hair);
-                           
+
 
                             sheet1.Range[xlsRow, cTQ, xlsRow, cBLV].CellStyle.Font.Bold = true;
 
@@ -949,7 +949,7 @@ Order by B.UserName";
                         sheet1.Range[xlsRow, cBN].Text = dtManPBSummary.Rows[i]["BankName"].ToString();
                         oRU.SetTextBorder(ref sheet1, xlsRow, cFileNo, dtManPBSummary.Rows[i]["FileNo"].ToString());
                         oRU.SetTextBorder(ref sheet1, xlsRow, cSSD, dtManPBSummary.Rows[i]["ShipmentStartDate"].ToString());
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cSED,dtManPBSummary.Rows[i]["ShipmentEndDate"].ToString());
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cSED, dtManPBSummary.Rows[i]["ShipmentEndDate"].ToString());
                         oRU.SetTextBorder(ref sheet1, xlsRow, cCN, dtManPBSummary.Rows[i]["ContractNo"].ToString());
                         oRU.SetTextBorder(ref sheet1, xlsRow, cTQ, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["TotalQty"].ToString()));//
                         oRU.SetTextBorder(ref sheet1, xlsRow, cA, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Amount"].ToString()));//
@@ -1029,7 +1029,7 @@ Order by B.UserName";
                     sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
                     sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                   
+
                     sheet1.Range[xlsRow, 1, xlsRow, Convert.ToInt32(endXlsCol)].Merge();
                     sheet1.Range[xlsRow, 1].RowHeight = 30;
 
@@ -1044,7 +1044,7 @@ Order by B.UserName";
                     {
                         FactoryAddress = "";
                     }
-                   
+
                     #endregion
                     xlsRow += 1;
                     sheet1.Range[xlsRow, xlsCol].Text = "BANK LIEN REPORT";
@@ -1053,7 +1053,7 @@ Order by B.UserName";
                     sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
                     sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                   
+
                     sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 24;
 
 
@@ -1320,6 +1320,84 @@ LEFT JOIN dbo.EmployeeInformation IEI ON IEI.SystemId=RC.InformToId) AS TEMP WHE
                 var str = @"Select EnumName Value, UserName Text  from dbo.DefineEnum where Category='PaymentTerm'";
 
                 return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<Dictionary<string, object>> GetCompanyPartyListNew(string companyGroupId, string companyId, string plantId, string column, string value, string customerVendor)
+        {
+            try
+            {
+                string temp = null;
+                temp = customerVendor;
+
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var sql = @"select  * from (SELECT CheckState=CAST(0 AS bit),P.Id AS PartyId, P.Code AS PartyCode, P.UserName AS PartyName, P.Id, P.Code, P.UserName, CP.PartyType, CP.PartyAccountGroupId, PAG.Code AS PartyAccountGroupCode, PAG.UserName AS PartyAccountGroupName, CP.CurrencyId, C.Code AS CurrencyCode, C.[Name] AS CurrencyName
+                                    , CP.PaymentTermId, PT.Code AS PaymentTermCode, PT.UserName AS PaymentTermName, CP.IsPaymentTermChangeable
+                                    , NULL AS InvoicingPartyPlantId, NULL AS DeliveryPartyPlantId, CO.Code AS CountryCode, CO.UserName AS CountryName, S.Code AS StateCode, S.UserName AS StateName
+                                    , RGL.ReconciliationGLId, RGL.ReconciliationGLCode, RGL.ReconciliationGLName
+                                    , RGL.ReconciliationBudgetId, RGL.ReconciliationBudgetCode, RGL.ReconciliationBudgetName
+                                    , RGL.ReconciliationActivityId, RGL.ReconciliationActivityCode, RGL.ReconciliationActivityName
+                                    , DGL.DownPaymentGLId, DGL.DownPaymentGLCode, DGL.DownPaymentGLName
+                                    , DGL.DownPaymentBudgetId, DGL.DownPaymentBudgetCode, DGL.DownPaymentBudgetName
+                                    , DGL.DownPaymentActivityId, DGL.DownPaymentActivityCode, DGL.DownPaymentActivityName
+                                    , SGL.SuspenseGLId, SGL.SuspenseGLCode, SGL.SuspenseGLName
+                                    , SGL.SuspenseBudgetId, SGL.SuspenseBudgetCode, SGL.SuspenseBudgetName
+                                    , SGL.SuspenseActivityId, SGL.SuspenseActivityCode, SGL.SuspenseActivityName
+                                    , CP.TaxApplicable, CP.IsTaxApplicableChangeable
+									, (SELECT COUNT(Id) FROM [HKP].[PartyPlant] WHERE PartyId=P.Id) AS TotalPartyPlant
+                                    FROM [HKP].[Party] AS P
+                                    LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id
+                                    LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=CP.PartyAccountGroupId
+                                    LEFT JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
+                                    LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=CP.PaymentTermId
+                                    LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=P.AddressMasterId
+									LEFT JOIN [SCS].[Country] AS CO ON CO.Id=AM.CountryId
+									LEFT JOIN [SCS].[State] AS S ON S.Id=AM.StateId
+                                    LEFT JOIN(
+                                    SELECT CPGL.CompanyPartyId, CPGL.GLGeneralInfoId AS ReconciliationGLId, GL.AccountCode AS ReconciliationGLCode, GL.UserName AS ReconciliationGLName
+                                    , CPGL.BudgetMasterId AS ReconciliationBudgetId, B.Code AS ReconciliationBudgetCode, B.UserName AS ReconciliationBudgetName
+                                    , CPGL.ActivityId AS ReconciliationActivityId, A.Code AS ReconciliationActivityCode, A.UserName AS ReconciliationActivityName
+                                    FROM [HKP].[CompanyPartyGL] AS CPGL
+                                    LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON GL.Id=CPGL.GLGeneralInfoId
+                                    LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=CPGL.BudgetMasterId
+                                    LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                    LEFT JOIN [HKP].[Activity] AS A ON A.Id=CPGL.ActivityId
+                                    WHERE CPGL.PartyGLType='" + PartyGLType.ReconciliationGL + @"'
+                                    ) AS RGL ON RGL.CompanyPartyId=CP.Id
+                                    LEFT JOIN(
+                                    SELECT CPGL.CompanyPartyId, CPGL.GLGeneralInfoId AS DownPaymentGLId, GL.AccountCode AS DownPaymentGLCode, GL.UserName AS DownPaymentGLName
+                                    , CPGL.BudgetMasterId AS DownPaymentBudgetId, B.Code AS DownPaymentBudgetCode, B.UserName AS DownPaymentBudgetName
+                                    , CPGL.ActivityId AS DownPaymentActivityId, A.Code AS DownPaymentActivityCode, A.UserName AS DownPaymentActivityName
+                                    FROM [HKP].[CompanyPartyGL] AS CPGL
+                                    LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON GL.Id=CPGL.GLGeneralInfoId
+                                    LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=CPGL.BudgetMasterId
+                                    LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                    LEFT JOIN [HKP].[Activity] AS A ON A.Id=CPGL.ActivityId
+                                    WHERE CPGL.PartyGLType='" + PartyGLType.DownPaymentGL + @"'
+                                    ) AS DGL ON DGL.CompanyPartyId=CP.Id
+                                    LEFT JOIN(
+										SELECT CPGL.CompanyPartyId, CPGL.GLGeneralInfoId AS SuspenseGLId, GL.AccountCode AS SuspenseGLCode, GL.UserName AS SuspenseGLName
+										, CPGL.BudgetMasterId AS SuspenseBudgetId, B.Code AS SuspenseBudgetCode, B.UserName AS SuspenseBudgetName
+										, CPGL.ActivityId AS SuspenseActivityId, A.Code AS SuspenseActivityCode, A.UserName AS SuspenseActivityName
+										FROM [HKP].[CompanyPartyGL] AS CPGL
+										LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON GL.Id=CPGL.GLGeneralInfoId
+										LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=CPGL.BudgetMasterId
+										LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+										LEFT JOIN [HKP].[Activity] AS A ON A.Id=CPGL.ActivityId
+										WHERE CPGL.PartyGLType='" + PartyGLType.SuspenseGL + @"'
+                                    ) AS SGL ON SGL.CompanyPartyId=CP.Id
+                                    WHERE P.Archive=0 AND P.Active=1 AND P.CompanyGroupId='" + companyGroupId + "' AND CP.PartyType IN ('" + temp + "') AND CP.CompanyId='" + companyId + "' AND CP.PlantId='" + plantId + @"'
+                                    AND P.Id IN(Select DISTINCT M.PartyId from TRN.MasterOrder M
+                                    LEFT JOIN TRN.MasterOrderItem I ON I.MasterOrderId=M.Id
+                                    LEFT JOIN TRN.SalesOrder S ON S.MasterOrderItemId=I.Id where S.OrderStatusId NOT IN('Closed','Cancelled'))
+                                    ) AS TEMP WHERE " + strkey + " order by Code ";
+                return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
             {
