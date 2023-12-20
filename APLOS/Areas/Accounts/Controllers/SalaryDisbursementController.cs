@@ -471,7 +471,12 @@ namespace Aplos.Areas.Accounts.Controllers
 			                    WHEN [MonthNo]=11 THEN 'November'
 			                    WHEN [MonthNo]=12 THEN 'December'
 			                    ELSE '' END MonthName
-                        FROM [dbo].[DisbursementAdvice]  WHERE Status<>'Close' ";
+                         ,(SELECT SUM(spc.DisbusmentAmount)DisbursementAmount from [dbo].[SalaryLock] sl 
+                            left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
+                            left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+						    left join dbo.SalaryHead sh on sh.SalaryHeadID = spc.SalaryHeadID
+						    WHERE sl.DisbursementAdviceId=DA.Id and ISNULL(sh.SalaryHead, '')  in ('Net Pay') and spc.DisbusmentAmount != 0)DisbursementAmount
+                        FROM [dbo].[DisbursementAdvice] DA WHERE DA.Status<>'Close' ";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 
         }
@@ -494,10 +499,10 @@ namespace Aplos.Areas.Accounts.Controllers
             int month = Int32.Parse(monthNo);
 
             int monthdays = System.DateTime.DaysInMonth(year, month);
-            DateTime dt = new DateTime(year, month, 1);
-            dt = dt.AddDays(monthdays - 1);
-            if (voucherVM.PostingDate > dt)
-                throw new CustomException("Posting Date must in the selected month of " + monthName);
+            //DateTime dt = new DateTime(year, month, 1);
+            //dt = dt.AddDays(monthdays - 1);
+            //if (voucherVM.PostingDate > dt)
+            //    throw new CustomException("Posting Date must in the selected month of " + monthName);
             voucherVM.Amount = directJVList.Sum(r => r.CrAmount);
             voucherVM.SourceType = SourceType.SalaryDisbursement.ToString();
             
