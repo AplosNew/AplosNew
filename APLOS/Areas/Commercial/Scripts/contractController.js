@@ -127,7 +127,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
     $scope.bankList = [];
     $http({
         method: "GET",
-        url: "banks/bank/getbanklistcbo"
+        url: "Commercial/contract/GetNegotiatingContractBankList"
     }).then(function successCallback(response) {
         $scope.bankList = response.data;
     });

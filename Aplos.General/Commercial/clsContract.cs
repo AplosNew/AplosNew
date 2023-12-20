@@ -370,7 +370,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                                 ,so.Rate,So.UpCharge
 								,so.Qty
 								,(so.Rate*so.Qty) as Amount
-,mm.UserName MaterialDescription,mma.StandardName as Article,h.Code as HSNCode
+                                ,mm.UserName MaterialDescription,mma.StandardName as Article,h.Code as HSNCode
                                 ,c.description as Reference,
                                 pc.UserName as CustomerName,u.UserName as UoM,
                                 pbt.UserName as ConsigneeBilltoName,
@@ -381,6 +381,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                                 c.InvoicingByAddress as ConsigneeBillToAddress,c.DeliveryByAddress as ConsigneeShipToAddress,cu.Code as CurrencyName,cu.Id CurrencyId,
                                 p.UserName as MarketingCommissioningAgent,c.ContractNo,FORMAT(c.AddedDate,'dd-MMM-yyyy') AddedDate,PT.UserName PaymentTerm
                                 ,SO.Id SONo,CONVERT(varchar,SO.DeliveryDate,5) DeliveryDate,DS.UserName Destination,moi.BuyerReferenceNo,C.AddedBy CreatedBy
+                                ,B.UserName Bank,BM.AccountNumber,BB.UserName AS BankBranch,BB.IFSCCode
                                 from dbo.[Contract] C
                                 left join  TRN.SalesOrder as so on C.Id=SO.ContractId
                                 left join TRN.MasterOrderItem as moi on moi.Id=SO.MasterOrderItemId
@@ -396,6 +397,9 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                                 left join SCS.UnitOfMeasurement as u on u.Id=mo.TotalQtyUOMId
                                 left join scs.Currency as cu on cu.Id=mo.CurrencyId
                                 left join MSt.PaymentTerm PT ON PT.Id=MO.PaymentTermId
+                                LEFT JOIN HKP.Bank B ON B.Id=C.BankId
+								LEFT JOIN MST.BankMaster BM ON BM.BankId=B.Id
+								LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId AND BB.Id = BM.BankBranchId
                                 where c.Id='" + ContractId + "'";
 
                 return _sqlRepository.GetDataTable(strSQL);
@@ -1229,6 +1233,22 @@ LEFT JOIN HKP.TermsAndConditions TC ON TC.Id=CT.TermsAndConditionsId
 
                 var sql = @"SELECT NB.*,C.userName Country FROM dbo.NegotiatingBank NB
 LEFT JOIN SCS.Country C ON C.Id=NB.CountryId";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetNegotiatingContractBankList()
+        {
+            try
+            {
+
+                var sql = @"Select B.UserName Text,B.Id Value  from MST.BankMaster BM
+LEFT JOIN HKP.Bank B ON B.Id=BM.BankId
+Where BM.IsNegotiatingBank=1";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
