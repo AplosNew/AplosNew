@@ -1915,7 +1915,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion data update 
-
+                 
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dsMaster); 
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Updated }); 
