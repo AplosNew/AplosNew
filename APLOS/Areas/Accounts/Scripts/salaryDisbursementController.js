@@ -259,11 +259,11 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
                     ShowResult(response.data.Message, "failure");
                 }
                 else {
-
+                    $scope.saveBtnDisable = true;
                     for (var i = 0; i < $scope.SalaryUnDisburseList.length; i++) {
                         $scope.SalaryUnDisburseList[i].CheckBoxSelect = getActive(response.data, $scope.SalaryUnDisburseList[i].EmployeeCode);
                     }
-                    $scope.ShowSaveBtn = true;
+                    $scope.saveBtnDisable = false;
                 }
             }, function errorCallback(response) {
 
