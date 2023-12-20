@@ -866,7 +866,7 @@ Where HeadCategory='Net Payable' ";
             string sql = @"select [isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'),* FROM (  SELECT   dISTINCT   
                                      isnull(e.SystemId,'') EmpSystemId
 									,ISNULL(e.EmployeeId,'')  EmployeeId 
-	                                ,sl.Id,CheckBoxSelect=case when  sl.Id is null then  CONVERT(bit,0) when sl.IsDisbursed <> 1  then CONVERT(bit,0) else  CONVERT(bit,1) end   
+	                                ,sl.Id,CheckBoxSelect=CONVERT(bit,0)   
 									,SPM.MonthNo,SPM.YearNo ,sl.IsLocked AS Lock
                                     ,ISNULL(e.EmployeeCode,'') EmployeeCode
                                     ,ISNULL(e.EmployeeName,'') EmployeeName								
@@ -1035,7 +1035,8 @@ Where HeadCategory='Net Payable' ";
                                     ,ISNULL(vl.VoucherNo,'') as DisbursementVoucherNo
                                     ,sl.IsDisbursed
                                     ,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
-                                  ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end 
+                                    ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end 
+                                    ,CAST(SPCD.NetPayment AS DECIMAL(18,2))NetPayment
                                     from SalaryProcessLogDetail s
                                     JOIN SalaryProcMaster SPM ON SPM.SystemID = s.SalaryProcessId and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
                                     left join EmployeeInformation e on e.SystemId= s.EmpSystemId
@@ -1222,6 +1223,12 @@ Where HeadCategory='Net Payable' ";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColBank = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "NetPayable";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColNetPay = COL;
 
 
                 //sheet[ROW, COL].Text = "Bank Account No";
@@ -1236,12 +1243,6 @@ Where HeadCategory='Net Payable' ";
                 //int ColIFSC = COL;
                 //COL++;
 
-                //sheet[ROW, COL].Text = "Net Payable";
-                //sheet[ROW, COL].ColumnWidth = 16;
-                //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int ColNetPay = COL;
-
-                // COL++;
                 #endregion Columns
 
                 int endCol = COL;
@@ -1279,7 +1280,7 @@ Where HeadCategory='Net Payable' ";
                     sheet[ROW, ColBank].Text = data.Rows[i]["BankName"].ToString();
                     //sheet[ROW, ColBAN].Text = data.Rows[i]["BankAccNo"].ToString();
                     //sheet[ROW, ColIFSC].Text = data.Rows[i]["IFSCCode"].ToString();
-                    //sheet[ROW, ColNetPay].Text = data.Rows[i]["NetPayable"].ToString();
+                    sheet[ROW, ColNetPay].Text = data.Rows[i]["NetPayment"].ToString();
 
 
                     ROW++;
