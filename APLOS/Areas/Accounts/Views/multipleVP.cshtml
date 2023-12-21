@@ -1,0 +1,231 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>Multiple Vendor Payment</h3>
+
+<div class="form-elements form-horizontal" ng-form="modelNewForm">
+    <div class="row">
+        <div class="tab-design" id="tab_show">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSetMVPList(1) }"><a ng-click="setTabMultipleVPUnApprovedList(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Un Approved List</a></li>
+                    <li role="presentation" ng-class="{ active: isSetGatePassHoldRejectApprovedList(2) }"><a ng-click="setTabGatePassHoldRejectApprovedList(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Hold / Reject List</a></li>
+                    <li role="presentation" ng-class="{ active: isSetGatePassApprovedList(3) }"><a ng-click="setTabGatePassApprovedList(3)" href="" aria-controls="address" role="tab" data-toggle="tab">Approved List</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetMVPList(1), active: isSetMVPList(1) }">
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+                        <div class="content-container-fluid" style="color:black;" id="MVPUnApprovedList">
+                            <div style="color:black;" id="GatePassUnApprovedList" ej-grid e-datasource="CheckedApprovedData"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                                 e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel"
+                                 e-enabletouch="true" e-allowselection="true" @*e-detailstemplate="detailTemppurchaseReturn"*@
+                                 @*e-detailsdatabound="detailgridpurchaseReturn"*@
+                                 e-scrollsettings="scroll">
+                                <div e-columns>
+
+                                    <div e-column e-headertext="Actions" e-width="80">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Approved" ng-click="$parent.SaveApproveData(this);" style="margin: -6px;"></i></button>
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GatePassUnApprovedList');" style="margin: -6px;"></i></button>
+                                    </div>
+                                    @*<div e-column e-template="#ApprovedHoldRejectReason" e-headertext="Hold / Reject Reason" e-width="250" style="height: 20px; padding-top:-15px;"></div>
+                                        <div e-column e-template="#ApprovedByStatus" e-headertext="Approved Status" e-width="150"></div>*@
+
+
+                                    <div e-column e-field="Id" e-headertext="Payment No" e-width="120" e-filter="false"></div>
+                                    <div e-column e-field="PartyName" e-headertext="Party" e-width="120" e-filter="false"></div>
+                                    <div e-column e-field="AccountTitle" e-headertext="Bank" e-width="100"></div>
+                                    <div e-column e-field="DueUpToDate" e-headertext="DueUpToDate" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                                    <div e-column e-field="TentativeDate" e-headertext="TentativeDate" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                                    <div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
+                                    <div e-column e-field="ParkStatus" e-headertext="ParkStatus" e-width="80" textAlign='Center'></div>
+
+                                </div>
+
+                            </div>
+                            <script id="tabGridpurchaseContents" type="text/x-jsrender">
+                                <div class="tabcontrol" id="Test">
+                                    <ul>
+                                        <li><a href="#gridTab{{:Id}}">Purchase Return Details</a></li>
+                                        <li><a href="#gridTab2{{:Id}}">Purchase Return  Status</a></li>
+                                    </ul>
+                                    <div id="gridTab{{:Id}}">
+                                        <div id="detailGridPR"></div>
+                                    </div>
+                                    <div id="gridTab2{{:Id}}">
+                                        <div>
+                                            <div class='employee-details'>
+                                                <ul>
+                                                    <li><label style="color:maroon;">Checked By:</label><span style="padding-left:8px">{{:CheckedBy}}</span></li>
+                                                    <li><label style="color:maroon;">Checked By Status:</label><span style="padding-left:8px">{{:CheckedByStatus}}</span></li>
+                                                    <li><label style="color:maroon;">Approved By:</label><span style="padding-left:8px">{{:ApprovedBy}}</span></li>
+                                                    <li><label style="color:maroon;">Approved By Status:</label><span style="padding-left:8px">{{:ApprovedByStatus}}</span></li>
+                                                    <li><label style="color:maroon;">Approved (Hold/Reject) Reason:</label><span style="padding-left:8px">{{:ApprovedHoldRejectReason}}</span></li>
+
+
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </script>
+                        </div>
+                        <script type="text/template" id="ToBeSecurityApprovedBy">
+                            <div class="">
+                                <div id="control">
+                                    <input ej-dropdownlist e-datasource="$parent.ApprovedBySecurityList" e-value="data.SenderSecurityEmployeeId" e-fields-text="Text" e-fields-value="Value" e-width="100%" />
+                                </div>
+                            </div>
+                        </script>
+                        @*<script type="text/template" id="ApprovedByStatus">
+                                <div class="">
+                                    <div id="control1">
+                                        <input id="combo-default" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.approvalStatusList" e-value="data.ApprovedByStatus" e-width="100%" />
+                                    </div>
+                                </div>
+                            </script>*@
+                        @*<script type="text/template" id="ApprovedHoldRejectReason">
+                                <input type="text" ng-model="data.ApprovedHoldRejectReason" style="color:black;" class="form-control" />
+                            </script>*@
+                         
+                    </fieldset>
+                </div>
+
+
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetGatePassHoldRejectApprovedList(2), active: isSetGatePassHoldRejectApprovedList(2) }">
+                    <!--<fieldset class="scheduler-border">
+                        <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+                        <div class="content-container-fluid" style="color:black;" id="GatePassHoldRejectList1">-->
+                    @*e-allowselection="true"*@
+                    <!--<div style="color:black;" id="GatePassHoldRejectList"
+                         ej-grid e-datasource="CheckedApproved"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                         e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel"
+                         e-enabletouch="true" e-allowselection="true"
+                         e-detailstemplate="detailTemppurchaseReturn"
+                         e-detailsdatabound="detailgridpurchaseReturn"
+                         e-scrollsettings="scroll"
+                         e-actioncomplete="ScrollGatePassHoldRejectList">
+
+                        <div e-columns>
+
+                            <div e-column e-headertext="Actions" e-width="80">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Checked/H/R" ng-click="$parent.onClickGatePassChecked('GatePassHoldRejectList');" style="margin: -6px;"></i></button>
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GatePassHoldRejectList');" style="margin: -6px;"></i></button>
+                            </div>
+                            <div e-column e-template="#ApprovedHoldRejectReason1" e-headertext="Hold / Reject Reason" e-width="250" style="height: 20px; padding-top:-15px;"></div>
+                            <div e-column e-template="#ApprovedByStatus1" e-headertext="Approved Status" e-width="150"></div>
+                            <div e-column e-field="PartyName" e-headertext="Vendor Name" e-width="80"></div>
+                            <div e-column e-field="PartyCode" e-headertext="Vendor Code" e-width="80"></div>
+
+                            <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="80"></div>
+                            <div e-column e-field="Id" e-headertext="PR Number" e-width="80"></div>
+                            <div e-column e-field="POReturnDate" e-headertext="Purchase Return Date " e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                            <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="80"></div>
+                            <div e-column e-field="DocDate" e-headertext="Vendor Doc Date" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>-->
+                    @*<div e-column e-field="TransactionAmount" e-headertext="Amount(TRN)" e-width="80"></div>*@
+                    <!--<div e-column e-field="TransactionQty" e-headertext="TransactionQty" e-width="80"></div>
+                                    <div e-column e-field="BaseAmount" e-headertext="Total Amount" e-width="80"></div>
+                                    <div e-column e-field="AddedBy" e-headertext="Prepared By" e-width="120"></div>
+                                    <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="120"></div>
+                                    <div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="100"></div>
+                                    <div e-column e-field="ApprovedByStatus" e-headertext="Approved Status" e-width="120"></div>
+                                    <div e-column e-field="ApprovedHoldRejectReason" e-headertext="Hold / Reject Reason" e-width="100"></div>
+
+
+
+                                </div>
+
+                            </div>
+                            <script id="tabGridpurchaseContents" type="text/x-jsrender">
+                                <div class="tabcontrol" id="Test">
+                                    <ul>
+                                        <li><a href="#gridTab{{:Id}}">Purchase Return Details</a></li>
+                                    </ul>
+                                    <div id="gridTab{{:Id}}">
+                                        <div id="detailGridPR"></div>
+                                    </div>
+                                </div>
+                            </script>
+                        </div>
+                        <script type="text/template" id="ToBeSecurityApprovedBy1">
+                            <div class="">
+                                <div id="control">
+                                    <input ej-dropdownlist e-datasource="$parent.ApprovedBySecurityList" e-value="data.SenderSecurityEmployeeId" e-fields-text="Text" e-fields-value="Value" e-width="100%" />
+                                </div>
+                            </div>
+                        </script>
+                        <script type="text/template" id="ApprovedByStatus1">
+                            <div class="">
+                                <div id="control1">
+                                    <input id="combo-default1" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.approvalStatusList" e-value="data.ApprovedByStatus" e-width="100%" />
+                                </div>
+                            </div>
+                        </script>
+                        <script type="text/template" id="ApprovedHoldRejectReason1">
+                            <input type="text" ng-model="data.ApprovedHoldRejectReason" style="color:black;" class="form-control" />
+                        </script>
+                    </fieldset>-->
+                </div>
+
+
+
+                <div ng-hide="false" role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetGatePassApprovedList(3), active: isSetGatePassApprovedList(3) }">
+                    <!--<fieldset class="scheduler-border">
+                        <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+                        <div class="content-container-fluid" style="color:black;" id="GatePassCheckedList1">-->
+                    @*e-allowselection="true"*@
+                    <!--<div style="color:black;" id="GatePassApproved" ej-grid e-datasource="CheckedApproved"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                         e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                         e-detailstemplate="detailTemppurchaseReturn"
+                         e-detailsdatabound="detailgridpurchaseReturn"
+                         e-scrollsettings="scroll">-->
+                    @*e-actioncomplete="ScrollForPendingRequisition"*@
+                    <!--<div e-columns>
+                        <div e-column e-headertext="Actions" e-width="70">
+                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('GatePassApproved');" style="margin: -6px;"></i></button>
+                        </div>
+                        <div e-column e-field="PartyName" e-headertext="Vendor Name" e-width="80"></div>
+                        <div e-column e-field="PartyCode" e-headertext="Vendor Code" e-width="80"></div>
+
+                        <div e-column e-field="Id" e-headertext="PR Number" e-width="80"></div>
+                        <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="80"></div>
+                        <div e-column e-field="POReturnDate" e-headertext="Purchase Return Date" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                        <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="80"></div>
+                        <div e-column e-field="DocDate" e-headertext="Vendor Doc Date" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>-->
+                    @*<div e-column e-field="TransactionAmount" e-headertext="Amount(TRN)" e-width="80"></div>*@
+                    <!--<div e-column e-field="TransactionQty" e-headertext="TransactionQty" e-width="80"></div>
+                                    <div e-column e-field="BaseAmount" e-headertext="Total Amount" e-width="80"></div>
+                                    <div e-column e-field="AddedBy" e-headertext="Prepared By" e-width="120"></div>
+                                    <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="120"></div>
+                                    <div e-column e-field="CheckedByStatus" e-headertext="Checked Status" e-width="100"></div>
+                                    <div e-column e-field="ApprovedBy" e-headertext="Approved By" e-width="120"></div>
+
+                                </div>
+
+                            </div>
+                            <script id="tabGridpurchaseContents" type="text/x-jsrender">
+                                <div class="tabcontrol" id="Test">
+                                    <ul>
+                                        <li><a href="#gridTab{{:Id}}">Purchase Return Details</a></li>
+                                    </ul>
+                                    <div id="gridTab{{:Id}}">
+                                        <div id="detailGridPR"></div>
+                                    </div>
+                                </div>
+                            </script>
+                        </div>
+
+                    </fieldset>-->
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<confirm-archive-generic modalid="GatePassCheckApprovedAlert" title="Confirmation" message={{message}} data-ng-click-right-button="GatePassCheckApproved();"></confirm-archive-generic>
+<confirm-archive-generic modalid="poapprovalalert1" title="Confirmation" message={{message}} data-ng-click-right-button="poApp1();"></confirm-archive-generic>
+
+
+

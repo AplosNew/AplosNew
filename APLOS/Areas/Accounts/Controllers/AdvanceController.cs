@@ -171,21 +171,39 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult ReportCustomerAdvance(ReportFormat reportFormat, string voucherId)
+        public ActionResult ReportCustomerAdvance(ReportFormat reportFormat, string voucherId,string advanceGroupNo)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var workbook = _advanceReportService.GetAdvanceReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, SourceType.CustomerAdvance);
-            switch (reportFormat)
+            if (string.IsNullOrEmpty(advanceGroupNo))
             {
-                case ReportFormat.Pdf:
-                    return RenderReportAsPdf(workbook, reportFileName);
+                var workbook = _advanceReportService.GetAdvanceReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, SourceType.CustomerAdvance);
+                switch (reportFormat)
+                {
+                    case ReportFormat.Pdf:
+                        return RenderReportAsPdf(workbook, reportFileName);
 
-                case ReportFormat.Excel:
-                    return RenderReportAsExcel(workbook, reportFileName);
+                    case ReportFormat.Excel:
+                        return RenderReportAsExcel(workbook, reportFileName);
 
-                default:
-                    return View();
+                    default:
+                        return View();
+                }
             }
+            else
+            {
+                AccountsInvoiceReportService _accInvoiceReportService = new AccountsInvoiceReportService(_sqlRepository);
+                var workbook = _accInvoiceReportService.GetCustomerAdvanceGroupReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, advanceGroupNo, SourceType.CustomerAdvance.ToString());
+                switch (reportFormat)
+                {
+                    case ReportFormat.Excel:
+                        return RenderReportAsExcel(workbook, reportFileName);
+                    case ReportFormat.Pdf:
+                        return RenderReportAsExcel(workbook, reportFileName);
+                    default:
+                        return View();
+                }
+            }
+
         }
 
         [Authorize, HttpGet]

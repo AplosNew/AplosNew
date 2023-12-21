@@ -47,7 +47,7 @@ namespace Aplos.Areas.Setups.Controllers
             return Json(clsCon.GetRemarksControlCboList(), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {
             return Json(clsCon.GetRemarksControlList(column, value), JsonRequestBehavior.AllowGet);

@@ -68,6 +68,16 @@ namespace Aplos.Areas.Commercial.Controllers
         #region -- Operations
 
         [HttpPost, Authorize]
+        public JsonResult GetCompanyPartyDataListNew(string column, string value, string partyType)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var res = clsCon.GetCompanyPartyListNew(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value, partyType);
+            var jsondata = Json(res, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -3323,6 +3333,12 @@ namespace Aplos.Areas.Commercial.Controllers
         public ActionResult GetNegotiatingBankList()
         {
             return Json(clsCon.GetNegotiatingBankList(), JsonRequestBehavior.AllowGet);
+        }
+
+         [HttpGet, Authorize]
+        public ActionResult GetNegotiatingContractBankList()
+        {
+            return Json(clsCon.GetNegotiatingContractBankList(), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]

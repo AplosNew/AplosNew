@@ -471,7 +471,12 @@ namespace Aplos.Areas.Accounts.Controllers
 			                    WHEN [MonthNo]=11 THEN 'November'
 			                    WHEN [MonthNo]=12 THEN 'December'
 			                    ELSE '' END MonthName
-                        FROM [dbo].[DisbursementAdvice]  WHERE Status<>'Close' ";
+                         ,(SELECT SUM(spc.DisbusmentAmount)DisbursementAmount from [dbo].[SalaryLock] sl 
+                            left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
+                            left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+						    left join dbo.SalaryHead sh on sh.SalaryHeadID = spc.SalaryHeadID
+						    WHERE sl.DisbursementAdviceId=DA.Id and ISNULL(sh.SalaryHead, '')  in ('Net Pay') and spc.DisbusmentAmount != 0)DisbursementAmount
+                        FROM [dbo].[DisbursementAdvice] DA WHERE DA.Status<>'Close' ";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 
         }
@@ -494,10 +499,10 @@ namespace Aplos.Areas.Accounts.Controllers
             int month = Int32.Parse(monthNo);
 
             int monthdays = System.DateTime.DaysInMonth(year, month);
-            DateTime dt = new DateTime(year, month, 1);
-            dt = dt.AddDays(monthdays - 1);
-            if (voucherVM.PostingDate > dt)
-                throw new CustomException("Posting Date must in the selected month of " + monthName);
+            //DateTime dt = new DateTime(year, month, 1);
+            //dt = dt.AddDays(monthdays - 1);
+            //if (voucherVM.PostingDate > dt)
+            //    throw new CustomException("Posting Date must in the selected month of " + monthName);
             voucherVM.Amount = directJVList.Sum(r => r.CrAmount);
             voucherVM.SourceType = SourceType.SalaryDisbursement.ToString();
             
@@ -861,7 +866,7 @@ Where HeadCategory='Net Payable' ";
             string sql = @"select [isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'),* FROM (  SELECT   dISTINCT   
                                      isnull(e.SystemId,'') EmpSystemId
 									,ISNULL(e.EmployeeId,'')  EmployeeId 
-	                                ,sl.Id,CheckBoxSelect=case when  sl.Id is null then  CONVERT(bit,0) when sl.IsDisbursed <> 1  then CONVERT(bit,0) else  CONVERT(bit,1) end   
+	                                ,sl.Id,CheckBoxSelect=CONVERT(bit,0)   
 									,SPM.MonthNo,SPM.YearNo ,sl.IsLocked AS Lock
                                     ,ISNULL(e.EmployeeCode,'') EmployeeCode
                                     ,ISNULL(e.EmployeeName,'') EmployeeName								
@@ -1030,7 +1035,8 @@ Where HeadCategory='Net Payable' ";
                                     ,ISNULL(vl.VoucherNo,'') as DisbursementVoucherNo
                                     ,sl.IsDisbursed
                                     ,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
-                                  ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end 
+                                    ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end 
+                                    ,CAST(SPCD.NetPayment AS DECIMAL(18,2))NetPayment
                                     from SalaryProcessLogDetail s
                                     JOIN SalaryProcMaster SPM ON SPM.SystemID = s.SalaryProcessId and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
                                     left join EmployeeInformation e on e.SystemId= s.EmpSystemId
@@ -1118,12 +1124,12 @@ Where HeadCategory='Net Payable' ";
                 //int ColMonthName = COL;
                 //COL++;
 
-                sheet[ROW, COL].Text = "Employee Code";
+                sheet[ROW, COL].Text = "EmployeeCode";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColEC = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Employee Name";
+                sheet[ROW, COL].Text = "EmployeeName";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColEN = COL;
                 COL++;
@@ -1140,7 +1146,7 @@ Where HeadCategory='Net Payable' ";
                 int ColDOS = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Employee Category";
+                sheet[ROW, COL].Text = "EmployeeCategory";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColEcg = COL;
@@ -1158,7 +1164,7 @@ Where HeadCategory='Net Payable' ";
                 int ColSec = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Sub Section";
+                sheet[ROW, COL].Text = "SubSection";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColSS = COL;
@@ -1170,7 +1176,7 @@ Where HeadCategory='Net Payable' ";
                 int ColDesg = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Payable Voucher No";
+                sheet[ROW, COL].Text = "PayableVoucherNo";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColPblVhrNo = COL;
@@ -1182,7 +1188,7 @@ Where HeadCategory='Net Payable' ";
                 int ColLock = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Disbursement Voucher No";
+                sheet[ROW, COL].Text = "DisbursementVoucherNo";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColDVNo = COL;
@@ -1194,20 +1200,20 @@ Where HeadCategory='Net Payable' ";
                 int ColDisbursed = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Pay Roll Group";
+                sheet[ROW, COL].Text = "PayRollGroup";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColPayRollGrp = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Job Location";
+                sheet[ROW, COL].Text = "JobLocation";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColJobLocation = COL;
                 COL++;
 
 
-                sheet[ROW, COL].Text = "Payment Mode";
+                sheet[ROW, COL].Text = "PaymentMode";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColPM = COL;
@@ -1217,6 +1223,12 @@ Where HeadCategory='Net Payable' ";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColBank = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "NetPayable";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColNetPay = COL;
 
 
                 //sheet[ROW, COL].Text = "Bank Account No";
@@ -1231,12 +1243,6 @@ Where HeadCategory='Net Payable' ";
                 //int ColIFSC = COL;
                 //COL++;
 
-                //sheet[ROW, COL].Text = "Net Payable";
-                //sheet[ROW, COL].ColumnWidth = 16;
-                //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int ColNetPay = COL;
-
-                // COL++;
                 #endregion Columns
 
                 int endCol = COL;
@@ -1274,7 +1280,7 @@ Where HeadCategory='Net Payable' ";
                     sheet[ROW, ColBank].Text = data.Rows[i]["BankName"].ToString();
                     //sheet[ROW, ColBAN].Text = data.Rows[i]["BankAccNo"].ToString();
                     //sheet[ROW, ColIFSC].Text = data.Rows[i]["IFSCCode"].ToString();
-                    //sheet[ROW, ColNetPay].Text = data.Rows[i]["NetPayable"].ToString();
+                    sheet[ROW, ColNetPay].Text = data.Rows[i]["NetPayment"].ToString();
 
 
                     ROW++;
@@ -2129,7 +2135,7 @@ Where HeadCategory='Net Payable' ";
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = excelEngine.Excel.Workbooks.Open(path);
-                DataTable dt = workbook.Worksheets[0].ExportDataTable(5, 1, 5000, 28, ExcelExportDataTableOptions.ColumnNames);
+                DataTable dt = workbook.Worksheets[0].ExportDataTable(6, 1, 5000, 28, ExcelExportDataTableOptions.ColumnNames);
                 dt.DefaultView.RowFilter = "isnull(EmployeeCode,'')<>''";
                 dt = dt.DefaultView.ToTable();
 
@@ -2359,29 +2365,29 @@ Where HeadCategory='Net Payable' ";
     {
         public string EmployeeCode { get; set; }
         public string EmployeeName { get; set; }
-        public string Designation { get; set; }
-        public string Department { get; set; }
-        public string Division { get; set; }
-        public string EmployeeCategory { get; set; }
-        public string Plant { get; set; }
-        public string Section { get; set; }
-        public string SubSection { get; set; }
-        public string Unit { get; set; }
-        public string DOJ { get; set; }
-        public string DOS { get; set; }
-        public string CurrentMonthEmployeeStatus { get; set; }
-        public string EmployeeStatus { get; set; }
-        public string SalaryProcFlag { get; set; }
-        public string PayRollGroup { get; set; }
-        public string JobLocation { get; set; }
-        public string PaymentMode { get; set; }
-        public string BankName { get; set; }
-        public string VoucherNo { get; set; }
-        public string PayableVoucherNo { get; set; }
-        public string DisbursementVoucherNo { get; set; }
-        public string IsLock { get; set; }
-        public string IsDisburse { get; set; }
-        public string NetPayment { get; set; }
+        //public string Designation { get; set; }
+        //public string Department { get; set; }
+        //public string Division { get; set; }
+        //public string EmployeeCategory { get; set; }
+        //public string Plant { get; set; }
+        //public string Section { get; set; }
+        //public string SubSection { get; set; }
+        //public string Unit { get; set; }
+        //public string DOJ { get; set; }
+        //public string DOS { get; set; }
+        //public string CurrentMonthEmployeeStatus { get; set; }
+        //public string EmployeeStatus { get; set; }
+        //public string SalaryProcFlag { get; set; }
+        //public string PayRollGroup { get; set; }
+        //public string JobLocation { get; set; }
+        //public string PaymentMode { get; set; }
+        //public string BankName { get; set; }
+        //public string VoucherNo { get; set; }
+        //public string PayableVoucherNo { get; set; }
+        //public string DisbursementVoucherNo { get; set; }
+        //public string IsLock { get; set; }
+        //public string IsDisburse { get; set; }
+        //public string NetPayment { get; set; }
         
     }
 }

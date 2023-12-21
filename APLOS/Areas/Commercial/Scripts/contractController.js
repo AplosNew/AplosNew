@@ -74,7 +74,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         $scope.partyType = "Customer";
         $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
 
-        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + $scope.partyType + '&CompanyId=' + $window.companyId + '&PlantId=' + $window.plantId;
+        $scope.partyUrl = 'Commercial/contract/GetCompanyPartyDataListNew?partyType=' + $scope.partyType + '&CompanyId=' + $window.companyId + '&PlantId=' + $window.plantId;
 
         $http({
             method: 'POST',
@@ -127,7 +127,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
     $scope.bankList = [];
     $http({
         method: "GET",
-        url: "banks/bank/getbanklistcbo"
+        url: "Commercial/contract/GetNegotiatingContractBankList"
     }).then(function successCallback(response) {
         $scope.bankList = response.data;
     });
@@ -538,7 +538,8 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
     $scope.selectContract = function (obj) {
         $scope.modelNew = obj.data;
         $scope.modelNew.Currency = null;
-        $scope.GetContractFundData($scope.modelNew.Id);
+        $scope.GetEditSalesOrderList();
+        
 
         if (!baseService.isUndefinedOrNull($scope.modelNew.MasterOrderId)) {
             $scope.msg = "As this contract saved from Master Order, so no change is possible from here.";
@@ -623,6 +624,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
             url: 'Commercial/Contract/GetContractTermsAndConditionsList?ContractId=' + $scope.modelNew.Id
         }).then(function successCallback(response) {
             $scope.TermsAndConditionsList = response.data;
+            $scope.GetContractFundData($scope.modelNew.Id);
         });
     }
 
@@ -873,16 +875,16 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         });
     }
 
-    $scope.bankList = [];
-    $scope.getBank = function () {
-        $http({
-            method: 'GET',
-            url: "Commercial/Contract/GetBankCbo"
-        }).then(function (response) {
-            $scope.bankList = response.data;
-        });
-    }
-    $scope.getBank();
+    //$scope.bankList = [];
+    //$scope.getBank = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: "Commercial/Contract/GetBankCbo"
+    //    }).then(function (response) {
+    //        $scope.bankList = response.data;
+    //    });
+    //}
+    //$scope.getBank();
 
     $scope.NegotiatingBankList = [];
     $scope.GetNegotiatingBankList = function () {
@@ -975,6 +977,44 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
             $scope.lcMasterNew.Tenure = 0;
         }
     }
+
+    $scope.searchByNB = "UserName"; $scope.searchNB = "";
+
+    $scope.NegotiatingBankList = [];
+    $scope.GetNegotiatingBankList = function () {
+        $http({
+            method: 'GET',
+            url: 'Commercial/Contract/GetNegotiatingBankList'
+        }).then(function successCallback(response) {
+            $scope.NegotiatingBankList = response.data;
+        });
+    }
+    $scope.GetNegotiatingBankList();
+
+    $scope.NegotiatingBankDataList = [];
+    $scope.searchByNBList = [{ value: 'BankName', name: "Bank Name" }, { value: 'UserName', name: "User Name" }, { value: 'AccountNo', name: "AccountNo" }, { value: 'Country', name: "Country" }];
+    $scope.ShowNBPopUp = function () {
+        $http({
+            method: 'POST',
+            url: 'Commercial/Contract/GetNegotiatingBankDataList',
+            data: { column: $scope.searchByNB, value: $scope.searchNB },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.NegotiatingBankDataList = response.data;
+            angular.element(document.querySelector('#NBPopUp')).modal('show');
+        });
+    }
+
+    $scope.SetNBData = function (obj) {
+        $scope.lcMasterNew.OpeningBankId = obj.data.Id;
+        $scope.lcMasterNew.OpeningBank = obj.data.BankName;
+        angular.element(document.querySelector('#NBPopUp')).modal('hide');
+    }
+
+    $scope.CloseNB = function () {
+        angular.element(document.querySelector('#NBPopUp')).modal('hide');
+    }
+
 
     $scope.SaveMasterLC = function () {
         try {
@@ -1213,63 +1253,63 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         , serverPagination: true
     };
     $scope.flag = null;
-    $scope.partyType = 'Vendor';
-    $scope.showPartyPopUp = function () {
+    //$scope.partyType = 'Vendor';
+    //$scope.showPartyPopUp = function () {
 
-        baseService.setCurrentPage('partyList');
-        $scope.getPartyList = function (pageno) {
-            if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
-                $scope.partyUrl = 'Parties/party/GetCompanyPartyDataList?partyType=' + $scope.partyType;
-            }
-            else if ($scope.partyType === 'Party') {
-                $scope.partyUrl = 'Parties/party/GetCompanyPartyDataList';
-            }
-            else if ($scope.partyType === 'Director') {
-                $scope.partyUrl = 'Parties/party/GetCompanyDirectorDataList';
-            }
-            else if ($scope.partyType === 'Other') {
-                $scope.partyUrl = 'Parties/party/GetCompanyOtherDataList';
-            }
-            baseService.paginationBase($scope.partyUrl, pageno, $scope.partyParameters)
-                .then(function (result) {
-                    $scope.partyList = result.Rows;
-                    $scope.partyParameters.total_count = result.Total;
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, 'failure');
-                }).finally(function () {
-                });
-        };
-        angular.element(document.querySelector('#partyPopUp')).modal('show');
-        $scope.getPartyList();
-    };
+    //    baseService.setCurrentPage('partyList');
+    //    $scope.getPartyList = function (pageno) {
+    //        if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
+    //            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataList?partyType=' + $scope.partyType;
+    //        }
+    //        else if ($scope.partyType === 'Party') {
+    //            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataList';
+    //        }
+    //        else if ($scope.partyType === 'Director') {
+    //            $scope.partyUrl = 'Parties/party/GetCompanyDirectorDataList';
+    //        }
+    //        else if ($scope.partyType === 'Other') {
+    //            $scope.partyUrl = 'Parties/party/GetCompanyOtherDataList';
+    //        }
+    //        baseService.paginationBase($scope.partyUrl, pageno, $scope.partyParameters)
+    //            .then(function (result) {
+    //                $scope.partyList = result.Rows;
+    //                $scope.partyParameters.total_count = result.Total;
+    //            }, function () {
+    //                ShowResult(commonMessage.NetworkError, 'failure');
+    //            }).finally(function () {
+    //            });
+    //    };
+    //    angular.element(document.querySelector('#partyPopUp')).modal('show');
+    //    $scope.getPartyList();
+    //};
 
-    $scope.selectPartyPopUpRow = function (index, id) {
-        $scope.partyIndex = index;
-        $scope.selectedParty = id;
-    };
+    //$scope.selectPartyPopUpRow = function (index, id) {
+    //    $scope.partyIndex = index;
+    //    $scope.selectedParty = id;
+    //};
 
-    $scope.selectCustomerPopUp = function (index, id) {
-        $scope.partyIndex = index;
-        $scope.selectedCustomer = id;
-    };
+    //$scope.selectCustomerPopUp = function (index, id) {
+    //    $scope.partyIndex = index;
+    //    $scope.selectedCustomer = id;
+    //};
 
-    $scope.hidePartyPopUp = function () {
-        angular.element(document.querySelector('#partyPopUp')).modal('hide');
-        $scope.partyIndex = -1;
-        $scope.partySelected = null;
-    };
+    //$scope.hidePartyPopUp = function () {
+    //    angular.element(document.querySelector('#partyPopUp')).modal('hide');
+    //    $scope.partyIndex = -1;
+    //    $scope.partySelected = null;
+    //};
 
-    $scope.closePartyPopUp = function (x) {
-        var party = x.data;
+    //$scope.closePartyPopUp = function (x) {
+    //    var party = x.data;
 
-        $scope.modelNew.MarketingCommisssion = party.UserName;
-        $scope.modelNew.MarketingCommisssionId = party.Id;
-        $scope.modelNew.PaymentTermId = party.PaymentTermId;
-        $scope.modelNew.CurrencyId = party.CurrencyId;
+    //    $scope.modelNew.MarketingCommisssion = party.UserName;
+    //    $scope.modelNew.MarketingCommisssionId = party.Id;
+    //    $scope.modelNew.PaymentTermId = party.PaymentTermId;
+    //    $scope.modelNew.CurrencyId = party.CurrencyId;
 
 
-        $scope.hidePartyPopUp();
-    };
+    //    $scope.hidePartyPopUp();
+    //};
 
     $scope.getPartyPlant = function () {
         $scope.getCboPartyPlantList($scope.modelNew.CustomerId, function (result) {
@@ -1311,7 +1351,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
             });
 
         });
-        $scope.GetEditSalesOrderList();
+       
     }
 
     $scope.invoicingPartyPopUp = function () {
