@@ -1902,7 +1902,7 @@ namespace Library.Service.Advances
         {
             return base.GetAutoNumber("FinancingSubsequentTransaction", PKGeneratorEnum.Auto, null, DateTime.Now);
         }
-        public string InsertMultiBankCustomerAdvance(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherDetailViewModel> banksDetailVMList)
+        public string InsertMultiBankCustomerAdvance(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherDetailViewModel> banksDetailVMList, IEnumerable<BankChargeViewModel> bankChargeDetailVMList)
         {
             var flag = false;
             try
@@ -1930,10 +1930,37 @@ namespace Library.Service.Advances
                 var currencyAmountDr = 0.0M;
                 string voucherDetailTempId = null;
                 string displayVoucherNo = null;
+                var bankchargeNewList = new List<BankChargeViewModel>();
+                int len = banksDetailVMList.Count();
+                decimal chargesAmount = 0;
+                decimal chargesBooksAmount = 0;
+                decimal totalchargesAmount = 0;
+                decimal totalbookchargesAmount = 0;
+                int count = 0;
+                decimal chargesCountAmount = 0;
+                decimal chargesBooksCountAmount = 0;
                 foreach (var item in banksDetailVMList)
                 {
+                    count++;
+                    if (bankChargeDetailVMList != null)
+                    {
+                        totalchargesAmount = Math.Round(bankChargeDetailVMList.Sum(r => r.Amount), 2);
+                        totalbookchargesAmount = Math.Round(bankChargeDetailVMList.Sum(r => r.CompanyCurrencyAmount), 2);
+                        if (len > count)
+                        {
+                            chargesAmount = Math.Round((bankChargeDetailVMList.Sum(r => r.Amount) * item.Amount / banksDetailVMList.Sum(r => r.Amount)), 2);
+                            chargesCountAmount += chargesAmount;
+                            chargesBooksAmount = Math.Round((bankChargeDetailVMList.Sum(r => r.CompanyCurrencyAmount) * item.BaseDrAmount / banksDetailVMList.Sum(r => r.BaseDrAmount)), 2);
+                            chargesBooksCountAmount += chargesBooksAmount;
+                        }
+                        else if (len == count)
+                        {
+                            chargesAmount = Math.Round(totalchargesAmount - chargesCountAmount, 2);
+                            chargesBooksAmount = Math.Round(totalbookchargesAmount - chargesBooksCountAmount, 2);
+                        }
+                    }
                     // INSERT INTO Advance
-                    voucherVM.Amount = item.Amount;
+                    voucherVM.Amount = item.Amount+ chargesAmount;
                     voucherVM.AdvanceGroupNo = _advanceGroupNo;
                     var advance = InsertAdvance(voucherVM);
                     // INSERT INTO Voucher
@@ -1942,14 +1969,21 @@ namespace Library.Service.Advances
                     // Set to Advance
                     advance.VoucherId = voucher.Id;
                     advance.AdvanceNo = voucher.VoucherNo;
-                     displayVoucherNo = voucher.VoucherNo;
+                    displayVoucherNo = voucher.VoucherNo;
 
-                    
+
                     foreach (var voucherDetailVM in voucherDetailVMList)
                     {
                         currentAdvanceDetaiId++;
-                        // INSERT INTO AdvanceDetail
-                        voucherDetailVM.Amount = item.Amount;
+
+                        if (null != bankChargeDetailVMList && bankChargeDetailVMList.Count() > 0)
+                        {
+                            voucherDetailVM.Amount = item.Amount + chargesAmount;
+                        }
+                        else
+                        {
+                            voucherDetailVM.Amount = item.Amount;
+                        }
                         var advanceDetail = InsertAdvanceDetail(advance, currentAdvanceDetaiId, voucherDetailVM);
 
                         // INSERT INTO VoucherDetail Party side
@@ -1976,7 +2010,8 @@ namespace Library.Service.Advances
                             ToCurrencyId = companyCurrencyId,
                             ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                             ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetail.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                            CrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetail.CrAmount), 2, MidpointRounding.AwayFromZero),
+                            CrAmount = null != bankChargeDetailVMList && bankChargeDetailVMList.Count() > 0? Math.Round((voucherVM.CompanyCurrencyRate * item.Amount), 2, MidpointRounding.AwayFromZero)+ chargesBooksAmount
+                                        : Math.Round((voucherVM.CompanyCurrencyRate * voucherDetail.CrAmount), 2, MidpointRounding.AwayFromZero),
                         });
 
                         totalAmountCr += voucherDetail.CrAmount;
@@ -1985,7 +2020,8 @@ namespace Library.Service.Advances
                         totalCurrencyAmountDr += Math.Round((voucherVM.CompanyCurrencyRate * voucherDetail.DrAmount), 2, MidpointRounding.AwayFromZero);
                     }
 
-                    if(item.SourceType == "Loan") {
+                    if (item.SourceType == "Loan")
+                    {
                         if (voucherVM.PaymentSource == "MultiBank")
                         {
                             // INSERT INTO VoucherDetail (Bank or cash side Dr)
@@ -2166,15 +2202,15 @@ namespace Library.Service.Advances
                                 AuditService.AddedLog(financingSubsequentTransaction);
                                 _loanInterestPayableRepository.Insert(financingSubsequentTransaction);
 
-                                //if(companyCurrencyId != item.BankCurrencyId)
-                                //{
-                                //    currencyAmountDr =  Math.Round(item.Amount * item.CompanyCurrencyRate, 2);
-                                //}
-                                //else
-                                //{
-                                //    currencyAmountDr = item.BaseDrAmount;
-                                //}
-                                currencyAmountDr = item.Amount*item.CompanyCurrencyRate;
+                                if (companyCurrencyId != item.BankCurrencyId)
+                                {
+                                    currencyAmountDr = Math.Round(item.Amount * item.CompanyCurrencyRate, 2);
+                                }
+                                else
+                                {
+                                    currencyAmountDr = item.BaseDrAmount;
+                                }
+
                             }
                             var voucherDetailCurrencyDr = _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailDr, new VoucherDetailCurrency
                             {
@@ -2260,7 +2296,8 @@ namespace Library.Service.Advances
                         }
                         #endregion
                     }
-                    else {
+                    else
+                    {
 
                         // INSERT INTO VoucherDetail
                         var bankVoucherDetail = new VoucherDetail
@@ -2319,7 +2356,77 @@ namespace Library.Service.Advances
                         }
                     }
 
-                    
+                    if (null != bankChargeDetailVMList && bankChargeDetailVMList.Count() > 0)
+                    {
+                        var currentBankChargeDetailId = 0;
+                        foreach (var bankChargeDetailVM in bankChargeDetailVMList)
+                        {
+                            currentBankChargeDetailId++;
+
+
+                            var bankCharge = _bankChargeService.InsertBankCharge(new BankCharge
+                            {
+                                AdvanceId = advance.Id,
+                                BankMasterId = advance.BankMasterId,
+                                CashMasterId = advance.CashMasterId,
+                                FinancingTypeId = bankChargeDetailVM.FinancingTypeId,
+                                SourceType = advance.SourceType,
+                                Narration = voucher.Narration,
+                                Archive = advance.Archive,
+                                //Amount = Math.Round(bankChargeDetailVM.Amount * item.Amount / banksDetailVMList.Sum(r => r.Amount), 2),
+                                AddedBy = advance.AddedBy,
+                                AddedDate = advance.AddedDate,
+                                AddedFromIP = advance.AddedFromIP
+                            }, currentBankChargeDetailId);
+                            decimal chargecurrencyAmount = 0;
+                            if (len > count)
+                            {
+                                bankCharge.Amount = Math.Round(bankChargeDetailVM.Amount * item.Amount / banksDetailVMList.Sum(r => r.Amount), 2);
+                                chargecurrencyAmount = Math.Round(bankChargeDetailVM.CompanyCurrencyAmount * item.BaseDrAmount / banksDetailVMList.Sum(r => r.BaseDrAmount), 2);
+                                var bkCharge = new BankChargeViewModel
+                                {
+                                    FinancingTypeId = bankChargeDetailVM.FinancingTypeId,
+                                    Amount = bankCharge.Amount,
+                                    CompanyCurrencyAmount = chargecurrencyAmount
+                                };
+                                bankchargeNewList.Add(bkCharge);
+                            }
+
+                            else if (len == count)
+                            {
+                                bankCharge.Amount = Math.Round(bankChargeDetailVMList.Where(r => r.FinancingTypeId == bankChargeDetailVM.FinancingTypeId).Sum(r => r.Amount) - bankchargeNewList.Where(r => r.FinancingTypeId == bankChargeDetailVM.FinancingTypeId).Sum(r => r.Amount), 2);
+                                chargecurrencyAmount = Math.Round(bankChargeDetailVMList.Where(r => r.FinancingTypeId == bankChargeDetailVM.FinancingTypeId).Sum(r => r.CompanyCurrencyAmount) - bankchargeNewList.Where(r => r.FinancingTypeId == bankChargeDetailVM.FinancingTypeId).Sum(r => r.CompanyCurrencyAmount), 2);
+                            }
+
+                            // Get Expense GL
+                            var expenseGL = _bankChargeService.GetExpensesGL(voucher.CompanyId, bankChargeDetailVM.FinancingTypeId);
+                            if (string.IsNullOrEmpty(expenseGL.ExpensesActivityId))
+                                throw new CustomException("ActivityId is not found.");
+                            // Insert Bank charges Debit
+                            currentVoucherDetailId++;
+                            var voucherDetailChargeDr = _voucherService.InsertVoucherDetail(voucher, new VoucherDetail
+                            {
+                                BankChargeId = bankCharge.Id,
+                                DrAmount = bankCharge.Amount,
+                                Narration = bankCharge.Narration,
+                                GLGeneralInfoId = expenseGL.ExpensesGLId,
+                                BudgetMasterId = expenseGL.ExpensesBudgetMasterId,
+                                ActivityId = expenseGL.ExpensesActivityId
+                            }, currentVoucherDetailId);
+                            totalAmountDr += bankCharge.Amount;
+
+                            _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailChargeDr, new VoucherDetailCurrency
+                            {
+                                ParallelCurrencyId = companyCurrencyId,
+                                FromCurrencyId = voucherDetailChargeDr.CurrencyId,
+                                ToCurrencyId = companyCurrencyId,
+                                ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                                ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailChargeDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                                DrAmount = chargecurrencyAmount
+                            });
+                            totalCurrencyAmountDr += chargecurrencyAmount;
+                        }
+                    }
 
                 }
 

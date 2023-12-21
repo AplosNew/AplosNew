@@ -1,6 +1,6 @@
 ﻿"use strict";
-customerAdvanceController.$inject = ["cboService", "baseService", "factoryService", "commonMessage", "$scope", "$rootScope", "$http", "$filter", "$controller", "$routeParams"];
-function customerAdvanceController(cboService, baseService, factoryService, commonMessage, $scope, $rootScope, $http, $filter, $controller, $routeParams) {
+customerAdvanceController.$inject = ["cboService", "bankService", "baseService", "factoryService", "commonMessage", "$scope", "$rootScope", "$http", "$filter", "$controller", "$routeParams"];
+function customerAdvanceController(cboService, bankService, baseService, factoryService, commonMessage, $scope, $rootScope, $http, $filter, $controller, $routeParams) {
     $rootScope.title = "Customer Advance";
     $scope.Action = "Save";
     $scope.voucherDetailCurrency = [];
@@ -797,6 +797,7 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
         $scope.currencyExchangeRate = [];
         $scope.advanceDetailList = [];
         $scope.voucherDetailCurrencyList = [];
+        $scope.bankDetailList = [];
         $scope.clearPartyPopUp();
         $scope.clearBankPopUp();
         $scope.clearCashPopUp();
@@ -886,7 +887,8 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
                     data: {
                         "advanceVM": $scope.advance,
                         "advanceDetailVMList": $scope.advanceDetailList,
-                        "banksDetailVMList": $scope.bankDetailList
+                        "banksDetailVMList": $scope.bankDetailList,
+                        "bankChargeDetailVMList": $scope.bankChargesList
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -1327,7 +1329,7 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
     $scope.closeloanPopUp = function () {
         angular.element(document.querySelector("#loanPopUp")).modal("hide");
     };
-   
+    
     $scope.closeloanPopUpSelected = function (x) {
         var bank = x.data;
         if (baseService.isUndefinedOrNull($scope.advance.CurrencyId)) {
@@ -1400,4 +1402,50 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
         else
             data.BankAmount = '';
     }
+
+    $scope.bankCharge = {
+        FinancingTypeId: null,
+        FinancingTypeName: null,
+        Amount: null,
+        CompanyCurrencyAmount: null
+    };
+
+    $scope.bankChargesList = [];
+    $scope.addCharge = function () {
+        if (manualValidation("td_FinancingType", baseService.isUndefinedOrNull($scope.bankCharge.FinancingTypeId), "Charges Type is required.")) {
+            $scope.invalidRow = true;
+        }
+        else if (manualValidation("td_FinancingTypeAmount", baseService.isUndefinedOrNull($scope.bankCharge.Amount), "Amount is required.")) {
+            $scope.invalidRow = true;
+        }
+        else if (manualValidation("td_FinancingTypeCompanyCurrencyAmount", baseService.isUndefinedOrNull($scope.bankCharge.CompanyCurrencyAmount), $scope.companyCurrencyCode + " is required.")) {
+            $scope.invalidRow = true;
+        }
+        else {
+            $scope.bankCharge.FinancingTypeName = $.grep($scope.bankChargeTypeList, function (item) {
+                return item.FinancingTypeId === $scope.bankCharge.FinancingTypeId;
+            })[0].ExpensesUserName;
+            $scope.bankChargesList.push($scope.bankCharge);
+            $scope.bankCharge = {};
+            $scope.calBaseAmount();
+        }
+    };
+
+    $scope.copyChargesAmount = function () {
+        if ($scope.advance.CurrencyId === $scope.companyCurrencyId) {
+            $scope.bankCharge.CompanyCurrencyAmount = $scope.bankCharge.Amount;
+        }
+        else {
+            $scope.bankCharge.CompanyCurrencyAmount = ($scope.bankCharge.Amount * $scope.advance.CompanyCurrencyRate).toFixed(2);
+        }
+    };
+
+    bankService.getCboBankChargeTypeList(function (result) {
+        $scope.bankChargeTypeList = result;
+    });
+
+    $scope.removeChargesRow = function (index) {
+        $scope.bankChargesList.splice(index, 1);
+        $scope.calBaseAmount();
+    };
 }
