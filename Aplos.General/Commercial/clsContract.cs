@@ -69,12 +69,12 @@ LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId
 where so.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 ,ItemNo=isnull(STUFF((select distinct ','+I.Id from TRN.MasterOrderItem I 
 INNER JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=I.Id
-where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),''),B.UserName Bank,C.LCRequiredDaysfromShipment
+where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),''),B.AccountTitle Bank,C.LCRequiredDaysfromShipment
                             FROM [dbo].[Contract] C
                             JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id 
 							LEFT JOIN dbo.MasterLC LC ON LC.Id = C.MasterLCId
 							LEFT JOIN [HKP].[Party] AS PM ON C.MarketingCommisssionId=PM.Id
-                            LEFT JOIN HKP.Bank B ON B.Id=C.BankId
+                            LEFT JOIN MST.BankMaster B ON B.Id=C.BankId
                             WHERE C.PlantId='" + PlantId + "') AS TEMP WHERE " + strkey + " ORDER BY TEMP.AddedDate desc";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -381,7 +381,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                                 c.InvoicingByAddress as ConsigneeBillToAddress,c.DeliveryByAddress as ConsigneeShipToAddress,cu.Code as CurrencyName,cu.Id CurrencyId,
                                 p.UserName as MarketingCommissioningAgent,c.ContractNo,FORMAT(c.AddedDate,'dd-MMM-yyyy') AddedDate,PT.UserName PaymentTerm
                                 ,SO.Id SONo,CONVERT(varchar,SO.DeliveryDate,5) DeliveryDate,DS.UserName Destination,moi.BuyerReferenceNo,C.AddedBy CreatedBy
-                                ,B.UserName Bank,BM.AccountNumber,BB.UserName AS BankBranch,BB.IFSCCode , BB.SWIFTCode , AM.Address1 Addresss
+                                ,BM.AccountTitle Bank,BM.AccountNumber,BB.UserName AS BankBranch,BB.IFSCCode , BB.SWIFTCode , AM.Address1 Addresss
                                 from dbo.[Contract] C
                                 left join  TRN.SalesOrder as so on C.Id=SO.ContractId
                                 left join TRN.MasterOrderItem as moi on moi.Id=SO.MasterOrderItemId
@@ -397,9 +397,8 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                                 left join SCS.UnitOfMeasurement as u on u.Id=mo.TotalQtyUOMId
                                 left join scs.Currency as cu on cu.Id=mo.CurrencyId
                                 left join MSt.PaymentTerm PT ON PT.Id=MO.PaymentTermId
-                                LEFT JOIN HKP.Bank B ON B.Id=C.BankId
-								LEFT JOIN MST.BankMaster BM ON BM.BankId=B.Id
-								LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId AND BB.Id = BM.BankBranchId
+								LEFT JOIN MST.BankMaster BM ON BM.Id=C.BankId
+                                LEFT JOIN HKP.BankBranch BB ON BB.Id = BM.BankBranchId
 								left join mst.AddressMaster AM on AM.Id = BB.AddressMasterId 
                                 where c.Id='" + ContractId + "'";
 
