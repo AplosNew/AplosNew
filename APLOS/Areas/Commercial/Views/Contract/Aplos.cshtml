@@ -309,24 +309,26 @@
                             </div>
                         </div>
                         <div class="col-sm-12">
-                            <div class="common-btn">
-                                <ul class="list-inline text-left">
-                                    <li><button style="margin-left: 5px;" ng-click="GetSalesOrderList();" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i>Sales Order</button></li>
-                                </ul>
-                            </div>
                             <div class="row">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button style="margin-left: 5px;" ng-click="GetSalesOrderList();" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i>Sales Order</button></li>
+                                    </ul>
+                                </div>
                                 <div id="GridSelectedSO" ej-grid e-datasource="SelectedSalesOrderList" e-showsummary="true" e-summaryrows="summaryRows"
                                      e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="false"
                                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-allowResizing="true">
 
                                     <div e-columns>
                                         <div e-column e-headertext="Actions" e-template="#ShowActionBtn" e-width="40"></div>
+                                        <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="DeliveryDate" e-headertext="Delivery Date" e-width="120"></div>
                                         <div e-column e-field="SalesOrderId" e-headertext="SO NO" e-width="80"></div>
+                                        <div e-column e-field="PaymentTerm" e-headertext="PaymentTerm" e-width="150"></div>
                                         <div e-column e-field="MasterOrderNo" e-headertext="MasterOrderNo" e-width="80"></div>
                                         <div e-column e-field="MasterOrderItemId" e-headertext="Item No" e-width="80"></div>
                                         <div e-column e-field="ContractId" e-headertext="ContractId" e-width="80"></div>
+                                        <div e-column e-field="ContractNo" e-headertext="ContractNo" e-width="80"></div>
                                         <div e-column e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
-                                        <div e-column e-field="PaymentTerm" e-headertext="PaymentTerm" e-width="150"></div>
                                         <div e-column e-field="Buyer" e-headertext="Buyer" e-headertext-color="black" e-textalign="left" e-width="75"></div>
                                         <div e-column e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
                                         <div e-column e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
@@ -430,15 +432,15 @@
                                 </div>
                             </div>
                             @*<div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Opening Bank<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
+                                    <label class="col-sm-4 control-label">Opening Bank<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
 
-                        <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="NegotiatingBankList" e-value="masterLC.OpeningBankId" e-fields-value="Id" e-fields-text="BankName" e-width="100%" />
-                    </div>
+                                            <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="NegotiatingBankList" e-value="masterLC.OpeningBankId" e-fields-value="Id" e-fields-text="BankName" e-width="100%" />
+                                        </div>
 
-                </div>
-            </div>*@
+                                    </div>
+                                </div>*@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Opening Bank<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
@@ -454,10 +456,10 @@
                                 <label class="col-sm-4 control-label">Advising Bank</label>
                                 <div class="col-sm-8">
                                     @*<div class="select-style">
-                        <select name="Lein Bank" class="form-control" ng-model="masterLC.LeinBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="5">
-                            <option value="">--Select--</option>
-                        </select>
-                    </div>*@
+                                            <select name="Lein Bank" class="form-control" ng-model="masterLC.LeinBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="5">
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>*@
                                     <input type="text" name="Advising Bank" ng-model="lcMasterNew.LeinBank" class="form-control" tabindex="5" maxlength="50">
                                 </div>
                             </div>
@@ -523,7 +525,7 @@
                             </div>
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
-                            
+
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Opening Bank Description</label>
                                 <div class="col-sm-8">
@@ -894,12 +896,14 @@
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-allowResizing="true">
                         <div e-columns>
                             <div e-column e-headertext="" e-headertemplateid="#soheaderTemplate" e-template="#socheckboxTemplate" e-textalign="center" e-width="30"></div>
+                            <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="DeliveryDate" e-headertext="Delivery Date" e-width="120"></div>
                             <div e-column e-field="SalesOrderId" e-headertext="SO NO" e-width="80"></div>
+                            <div e-column e-field="PaymentTerm" e-headertext="PaymentTerm" e-width="150"></div>
                             <div e-column e-field="MasterOrderNo" e-headertext="MasterOrderNo" e-width="80"></div>
                             <div e-column e-field="MasterOrderItemId" e-headertext="Item No" e-width="80"></div>
                             <div e-column e-field="ContractId" e-headertext="ContractId" e-width="80"></div>
+                            <div e-column e-field="ContractNo" e-headertext="ContractNo" e-width="80"></div>
                             <div e-column e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
-                            <div e-column e-field="PaymentTerm" e-headertext="PaymentTerm" e-width="150"></div>
                             <div e-column e-field="Buyer" e-headertext="Buyer" e-headertext-color="black" e-textalign="left" e-width="75"></div>
                             <div e-column e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
                             <div e-column e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>

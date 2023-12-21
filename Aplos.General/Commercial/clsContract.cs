@@ -584,8 +584,9 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
 
                 var sql = @"SELECT Flags=CAST(CASE WHEN SO.ContractId IS NULL THEN 0 ELSE 1 END AS BIT),SO.Id SalesOrderId,SO.ContractId,A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SO.Qty TotalQty	
                             ,A.TotalQtyUOMId,PL.UserName,C.Code Currency,B.UserName Buyer, (SO.Qty*SO.Rate)Amount,SO.Qty,ISNULL(A.BuyerReferenceNo,'') BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'') OwnReferenceNo,ISNULL(I.BuyerReferenceNo,'') BuyerItem,ISNULL(I.OwnReferenceNo,'') OwnItem , PT.UserName PaymentTerm,A.PaymentTermId
-                            ,MM.UserName MaterialMaster,MMA.ShortName Article,po.PONumber
+                            ,MM.UserName MaterialMaster,MMA.ShortName Article,po.PONumber,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,CNT.ContractNo
                             FROM TRN.SalesOrder SO
+                            INNER JOIN dbo.Contract CNT ON CNT.Id=SO.ContractId
 							INNER JOIN [TRN].[MasterOrderItem] AS I ON I.Id=SO.MasterOrderItemId
 							INNER JOIN [TRN].[MasterOrder] AS A ON A.Id=I.MasterOrderId
                             INNER JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
@@ -612,9 +613,10 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
 
                 var sql = @"SELECT * FROM(SELECT Flags=CAST(CASE WHEN SO.ContractId IS NULL THEN 0 ELSE 1 END AS BIT),SO.Id SalesOrderId,SO.ContractId,A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SO.Qty TotalQty	
                             ,A.TotalQtyUOMId,PL.UserName,C.Code Currency,B.UserName Buyer, (SO.Qty*SO.Rate)Amount,SO.Qty,ISNULL(A.BuyerReferenceNo,'') BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'') OwnReferenceNo,ISNULL(I.BuyerReferenceNo,'') BuyerItem,ISNULL(I.OwnReferenceNo,'') OwnItem
-                            ,MM.UserName MaterialMaster,MMA.ShortName Article,po.PONumber,PT.UserName PaymentTerm,A.PaymentTermId
+                            ,MM.UserName MaterialMaster,MMA.ShortName Article,po.PONumber,PT.UserName PaymentTerm,A.PaymentTermId,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,CNT.ContractNo
                             FROM TRN.SalesOrder SO
-								INNER JOIN [TRN].[MasterOrderItem] AS I ON I.Id=SO.MasterOrderItemId
+                            INNER JOIN dbo.Contract CNT ON CNT.Id=SO.ContractId
+							INNER JOIN [TRN].[MasterOrderItem] AS I ON I.Id=SO.MasterOrderItemId
 							INNER JOIN [TRN].[MasterOrder] AS A ON A.Id=I.MasterOrderId
                             INNER JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
                             Left join MST.PaymentTerm AS PT on PT.Id = A.PaymentTermId

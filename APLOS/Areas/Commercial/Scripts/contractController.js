@@ -538,7 +538,8 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
     $scope.selectContract = function (obj) {
         $scope.modelNew = obj.data;
         $scope.modelNew.Currency = null;
-        $scope.GetContractFundData($scope.modelNew.Id);
+        $scope.GetEditSalesOrderList();
+        
 
         if (!baseService.isUndefinedOrNull($scope.modelNew.MasterOrderId)) {
             $scope.msg = "As this contract saved from Master Order, so no change is possible from here.";
@@ -623,6 +624,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
             url: 'Commercial/Contract/GetContractTermsAndConditionsList?ContractId=' + $scope.modelNew.Id
         }).then(function successCallback(response) {
             $scope.TermsAndConditionsList = response.data;
+            $scope.GetContractFundData($scope.modelNew.Id);
         });
     }
 
@@ -1349,7 +1351,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
             });
 
         });
-        $scope.GetEditSalesOrderList();
+       
     }
 
     $scope.invoicingPartyPopUp = function () {
