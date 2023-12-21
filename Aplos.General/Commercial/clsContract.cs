@@ -1249,7 +1249,7 @@ LEFT JOIN SCS.Country C ON C.Id=NB.CountryId";
             try
             {
 
-                var sql = @"Select B.UserName Text,B.Id Value  from MST.BankMaster BM
+                var sql = @"Select BM.AccountTitle Text,B.Id Value  from MST.BankMaster BM
 LEFT JOIN HKP.Bank B ON B.Id=BM.BankId
 Where BM.IsNegotiatingBank=1";
                 return _sqlRepository.GetDataCollection(sql);
