@@ -3579,7 +3579,8 @@ namespace Aplos.Areas.JobWork.Controllers
 	                            , Flag = CAST(0 AS BIT),SO.DestinationDescription
 								,CN.ContractNo,MLC.LCRef MasterLCNo, Uom.UserName as MasterOrderUoM
 								,owr.OrderType, owr.ParticularSpecification,owr.PlanQuantity as OWPlanQuantity, owr.Remarks as OWRemarks, owr.Id
-                       FROM dbo.JWTransformationPOMasterOrderItem owr left join [TRN].[SalesOrder] AS SO on owr.SalesOrderId=SO.Id 
+                       FROM dbo.JWTransformationPOMasterOrderItem owr 
+                        left join [TRN].[SalesOrder] AS SO on owr.SalesOrderId=SO.Id 
                         left outer join [TRN].[ProductionOrderDetail] POD on POD.SalesOrderId=SO.Id 
                        JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
                        JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
@@ -3594,7 +3595,7 @@ namespace Aplos.Areas.JobWork.Controllers
                        LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
                        LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
                        LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
-                       LEFT JOIN dbo.[Contract] AS CN ON CN.Id=MOI.ContractId
+                       LEFT JOIN dbo.[Contract] AS CN ON CN.Id=SO.ContractId
                        LEFT JOIN dbo.MasterLC AS MLC ON MLC.Id=CN.MasterLCId
 					   left join SCS.UnitOfMeasurement Uom on Uom.Id=MO.TotalQtyUOMId
 					   left join dbo.JWTransformationPODetail mp on mp.Id=owr.JWTransformationPODetailId
