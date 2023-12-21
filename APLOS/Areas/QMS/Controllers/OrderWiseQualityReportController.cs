@@ -73,7 +73,8 @@ left join ORG.Entity E on E.Id=EntityId)EI order by EI.Text";
             }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string
-                sql = @"select (case when sum(Convert(Int,Z.RejectValue)) > 0  then 'Reject'
+                sql = @"select (select isnull(day(Min(AddedDate)),0) from TRN.ProductionSummary where ProductionOrderId=Z.PONo and LotNumber = Z.LotNumber) - day(getdate()) Days,
+(case when sum(Convert(Int,Z.RejectValue)) > 0  then 'Reject'
 when sum(Convert(Int,Z.FailValue)) > 0  then 'Fail'
 when sum(Z.EntryMissing) > 0  then 'Pending'
 else 'Pass' end) QualityStatus,
@@ -168,7 +169,7 @@ and QCData.LotNumber=M.LotNumber)Z
  order by  (Case when sum(Convert(Int,Z.RejectValue)) > 0  then 'A'
 when sum(Convert(Int,Z.FailValue)) > 0  then 'B'
 when sum(Z.EntryMissing) > 0  then 'C'
-else 'D' end) 
+else 'D' end) , (select isnull(day(Min(AddedDate)),0) from TRN.ProductionSummary where ProductionOrderId=Z.PONo and LotNumber = Z.LotNumber) - day(getdate())
 ";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -181,9 +182,11 @@ else 'D' end)
                 sql = @"select Z.*,(case when Z.RejectValue > 0  then 'Reject'
 when Z.FailValue > 0  then 'Fail'
 when Z.EntryMissing > 0  then 'Pending'
-else 'Pass' end) ParameterGradeStatus from (select distinct QCData.QCDate,M.MOLineItemNo,M.POStatus,M.ProductionOrderId PONo,isnull(QCData.LotNumber,M.LotNumber) LotNumber,M.Article,M.Customer,M.PartyNature, 
+else 'Pass' end) ParameterGradeStatus
+from (select distinct QCData.QCDate,M.MOLineItemNo,M.POStatus,M.ProductionOrderId PONo,isnull(QCData.LotNumber,M.LotNumber) LotNumber,M.Article,M.Customer,M.PartyNature, 
 M.IssueId,M.IssueName,M.ParameterSequence,M.ParameterId,M.ParameterName,M.UOM,QCData.Value,QCData.GradeName,QCData.ParameterRemark,QCData.ActionToBeTakenName,QCData.ResponsiblePerson,QCData.PassValue,QCData.FailValue,QCData.RejectValue,QCData.ToClose,QCData.ToConfirm,
-QCData.HeaderId,QCData.ChildId,QCData.QCDDate,QCData.QCDTime,(Case When (QCData.Value is null or QCData.Value = '0') then 1 else 0 end) EntryMissing,M.Process,M.Entity,M.EntityId,Reverse(stuff(Reverse((select OWC.Grade +', ' from MST.OrderWiseQualityComment OWC																			
+QCData.HeaderId,QCData.ChildId,QCData.QCDDate,QCData.QCDTime,(Case When (QCData.Value is null or QCData.Value = '0') then 1 else 0 end) EntryMissing,M.Process,M.Days,
+M.Entity,M.EntityId,Reverse(stuff(Reverse((select OWC.Grade +', ' from MST.OrderWiseQualityComment OWC																			
 where OWC.MOLineItemNo=M.MOLineItemNo and OWC.PONo=M.ProductionOrderId and OWC.LotNo=M.LotNumber for xml PATH(''))),1,2,'')) Grade,
 Reverse(stuff(Reverse((select format(OWC.AddedDate,'dd-MMM-yyyy') + '-' + OWC.Comment +', ' from MST.OrderWiseQualityComment OWC																			
 where OWC.MOLineItemNo=M.MOLineItemNo and OWC.PONo=M.ProductionOrderId and OWC.LotNo=M.LotNumber for xml PATH(''))),1,2,'')) CommentDetails,
@@ -191,7 +194,9 @@ Reverse(stuff(Reverse((select isnull(RD.MinRequirement,'') + '/' + isnull(RD.Max
 where RD.ParameterId=QCData.ChildId for xml PATH(''))),1,2,'')) MinMaxRequirement,
 Reverse(stuff(Reverse((select isnull(SD.MinStandard,'') + '/' + isnull(SD.MaxStandard,'') +', ' from TRN.UCPMaxMinStandardDetails SD																			
 where SD.ParameterId=QCData.ChildId for xml PATH(''))),1,2,'')) MinMaxStandard,
-QCData.ActionTaken,QCData.ActionBy,QCData.ConfirmRemarks,QCData.QAURemarks,QCData.ReasonName from (Select  P.*,CP.IssueName,CP.IssueId,CP.ParameterId,CP.ParameterName,CP.UOM,CP.ParameterSequence,CP.Process from (select Distinct PS.ProductionOrderId,PS.LotNumber,E.UserName Entity,PS.EntityId,
+QCData.ActionTaken,QCData.ActionBy,QCData.ConfirmRemarks,QCData.QAURemarks,QCData.ReasonName from (Select  P.*,CP.IssueName,CP.IssueId,CP.ParameterId,CP.ParameterName,CP.UOM,CP.ParameterSequence,CP.Process,
+(select isnull(day(Min(AddedDate)),0) from TRN.ProductionSummary where ProductionOrderId=P.ProductionOrderId and LotNumber = P.LotNumber and ProcessId=CP.ProcessId) - day(getdate()) Days
+from (select Distinct PS.ProductionOrderId,PS.LotNumber,E.UserName Entity,PS.EntityId,
 MOLineItemNo= STUFF((select distinct ','+ XMOI.Id from trn.SalesOrder XSO 
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
@@ -248,7 +253,7 @@ QCData.IssueId=M.IssueId and
 QCData.ParameterId=M.ParameterId
  and QCData.ProductionOrderId=M.ProductionOrderId
 and QCData.LotNumber=M.LotNumber)Z  
-where Z.PONo='" + ProductionOrderId+"' and Z.LotNumber='"+LotNumber+"' and Z.EntityId='"+ EntityId + "' order by Z.ParameterSequence,Z.QCDDate,Z.QCDTime";
+where Z.PONo='" + ProductionOrderId + "' and Z.LotNumber='" + LotNumber + "' and Z.EntityId='" + EntityId + "' order by Z.Days,Z.ParameterSequence,Z.QCDDate,Z.QCDTime";
                         return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
  

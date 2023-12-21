@@ -47,7 +47,24 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         , InvoiceNo: null
         , LCDate: null
         , OpeningBank: null
+        , UserName: null
     };
+
+    function containsSpecialChars(str) {
+        const specialChars = /[`!@#$%^&*()_+\=\[\]{};':"\\|,.<>\/?~]/;
+        return specialChars.test(str);
+    }
+
+    $scope.CheckSpecialCharecter = function () {
+        try {
+            if (containsSpecialChars($scope.fabricRollMaster.UserName)) {
+                $scope.fabricRollMaster.UserName = $scope.fabricRollMaster.UserName.substring(0, $scope.fabricRollMaster.UserName.length - 1);
+                throw "No special characters allowed for User Name.";
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 
     $scope.fabricRollSplitOb = {
         VendorWidth: null
@@ -274,6 +291,25 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         angular.element(document.querySelector('#grnSummaryListPopUp')).modal('show');
     }
 
+    $scope.CustomerData = function () {
+        $scope.getCustomerData();
+        angular.element(document.querySelector('#grnCustomerDataListPopUp')).modal('show');
+    }
+
+    $scope.grnCustomerDataList = [];
+    $scope.GetCustomerDataList = function () {
+        $scope.grnSummaryList = [];
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetCustomerDataList",
+            data: { 'parameters': $scope.parameters[0].Value, 'GRNId': $scope.fabricRollMaster.GRNNo },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.grnCustomerDataList = response.data;
+        });
+        var gridObj = $("#GridFabricSummary").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    }
+
     $scope.grnSummaryList = [];
     $scope.GetSummaryList = function () {
         $scope.grnSummaryList = [];
@@ -290,10 +326,12 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         });
         var gridObj = $("#GridFabricSummary").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     }
-    //$scope.GetSummaryList();
+ 
 
 
     $scope.closeGRNSummaryPopUp = function () {
+        $scope.grnSummaryList = [];
+        $scope.filters = [];
         angular.element(document.querySelector('#grnSummaryListPopUp')).modal('hide');
     }
 

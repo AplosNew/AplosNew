@@ -356,20 +356,26 @@ function DailyQualityStatusReportController(cboService, commonMessage, $scope, $
 
     $scope.rowDataBound = function rowDataBound(e) {
 
-        if (e.data.QualityStatus == 'Pending') {
-            e.row.css("background-color", '#FFFDD0');
-        }
-        else if (e.data.QualityStatus == 'Pass') {
+        //if (e.data.QualityStatus == 'Pending') {
+        //    e.row.css("background-color", '#FFFDD0');
+        //}
+        //else if (e.data.QualityStatus == 'Pass') {
 
-            e.row.css("background-color", '#90EE90');
-        }
-        else if (e.data.QualityStatus == 'Fail') {
+        //    e.row.css("background-color", '#90EE90');
+        //}
+        //else if (e.data.QualityStatus == 'Fail') {
 
-            e.row.css("background-color", '#ffb38a');
+        //    e.row.css("background-color", '#ffb38a');
+        //}
+        //else {
+        //    e.row.css("background-color", '#F62817');
+
+        //}
+        if (e.data.Days == 0) {
+            e.row.css("background-color", '#FFFFE0');
         }
         else {
-            e.row.css("background-color", '#F62817');
-
+            e.row.css("background-color", '#FFD580');
         }
     }
 

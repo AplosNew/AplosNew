@@ -1977,6 +1977,7 @@ Where F.GRNId='" + GRNId + "'"; ;
             {
                 DataSet dsMaster, dsDetail, dsGRNDetail, dsId;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [BPDT].[FabricRollManagementMaster] where UserName='" + data["UserName"] + "'", out DataSet dsFabricRollManagementMasterUserNameValidation, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM [BPDT].[FabricRollManagementMaster] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id, _detailId = "";
@@ -1984,12 +1985,19 @@ Where F.GRNId='" + GRNId + "'"; ;
 
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "FabricRollManagementMaster", out _Id);
+                    if (dsFabricRollManagementMasterUserNameValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("User Name Already Exist.");
+                    }
+                    else
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "FabricRollManagementMaster", out _Id);
 
-                    data["Id"] = _Id;
-                    data["PlantId"] = identity.PlantId;
-                    AddNewRow(dsMaster.Tables[0], data);
+                        data["Id"] = _Id;
+                        data["PlantId"] = identity.PlantId;
+                        AddNewRow(dsMaster.Tables[0], data);
+                    }
                 }
                 else
                 {

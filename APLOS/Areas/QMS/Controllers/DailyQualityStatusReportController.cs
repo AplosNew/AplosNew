@@ -73,11 +73,11 @@ left join ORG.Entity E on E.Id=EntityId)EI order by EI.Text";
             }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string
-                sql = @"select (case when sum(Convert(Int,Y.RejectValue)) > 0  then 'Reject'
+                sql = @"select (select isnull(day(Min(AddedDate)),0) from TRN.ProductionSummary where ProductionOrderId=Y.PONo and LotNumber = Y.LotNumber) - day(getdate()) Days,(case when sum(Convert(Int,Y.RejectValue)) > 0  then 'Reject'
 when sum(Convert(Int,Y.FailValue)) > 0  then 'Fail'
 when sum(Y.EntryMissing) > 0  then 'Pending'
 else 'Pass' end) QualityStatus,
-Date=(select format(Min(AddedDate),'dd-MMM-yyyy')  from TRN.ProductionSummary where ProductionOrderId=Y.PONo and LotNumber=Y.LotNumber and AddedDate between '"+ FromDate +"' and '"+ ToDate + @"'),
+Date=(select format(Min(AddedDate),'dd-MMM-yyyy')  from TRN.ProductionSummary where ProductionOrderId=Y.PONo and LotNumber=Y.LotNumber and AddedDate between '" + FromDate +"' and '"+ ToDate + @"'),
 MOLineItemNo = STUFF((select distinct ','+ XMOI.Id from trn.SalesOrder XSO 
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
@@ -160,7 +160,7 @@ and QCData.EntryLevel=PELP.EntryLevel
  order by (Case when sum(Convert(Int,Y.RejectValue)) > 0  then 'A'
 when sum(Convert(Int,Y.FailValue)) > 0  then 'B'
 when sum(Y.EntryMissing) > 0  then 'C'
-else 'D' end)
+else 'D' end) , (select isnull(day(Min(AddedDate)),0) from TRN.ProductionSummary where ProductionOrderId=Y.PONo and LotNumber = Y.LotNumber) - day(getdate())
 ";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -173,9 +173,11 @@ else 'D' end)
                 sql = @"select Y.*,(case when Y.RejectValue > 0  then 'Reject'
 when Y.FailValue > 0  then 'Fail'
 when Y.EntryMissing > 0  then 'Pending'
-else 'Pass' end) ParameterGradeStatus from (select distinct QCData.QCDate,PELP.PONo,isnull(QCData.LotNumber,PELP.LotNumber) LotNumber,PELP.Entity,PELP.EntityId,PELP.PartyNature, 
+else 'Pass' end) ParameterGradeStatus from (select distinct QCData.QCDate,PELP.PONo,isnull(QCData.LotNumber,PELP.LotNumber) LotNumber,PELP.Entity,PELP.EntityId,PELP.PartyNature,PELP.Days, 
 PELP.IssueId,PELP.Issue IssueName,PELP.Process,PELP.ParameterId,PELP.Parameter ParameterName,PELP.UOM,QCData.Value,QCData.GradeName,QCData.ParameterRemark,QCData.ActionToBeTakenName,QCData.ResponsiblePerson,QCData.PassValue,QCData.FailValue,QCData.RejectValue,QCData.FailGrade,QCData.ToClose,QCData.ToConfirm,
-QCData.HeaderId,QCData.ChildId,QCData.QCDDate,QCData.QCDTime, (Case When (QCData.Value is null or QCData.Value = '0') then 1 else 0 end) EntryMissing from (select  Z.PONo,Z.LotNumber,Z.EntryLevel,Z.ApplicableLot,Z.Entity,Z.EntityId,Z.PartyNature,ELP.Process,ELP.Issue,ELP.IssueId,ELP.Parameter,ELP.ParameterId,ELP.UOM from (select P.PONo,P.LotNumber,
+QCData.HeaderId,QCData.ChildId,QCData.QCDDate,QCData.QCDTime, (Case When (QCData.Value is null or QCData.Value = '0') then 1 else 0 end) EntryMissing from (select  Z.PONo,Z.LotNumber,Z.EntryLevel,Z.ApplicableLot,Z.Entity,Z.EntityId,Z.PartyNature,ELP.Process,ELP.Issue,ELP.IssueId,ELP.Parameter,ELP.ParameterId,ELP.UOM 
+,(select isnull(day(Min(AddedDate)),0) from TRN.ProductionSummary where ProductionOrderId=Z.PONo and LotNumber = Z.LotNumber and ProcessId=ELP.ProcessId) - day(getdate()) Days
+from (select P.PONo,P.LotNumber,
 (case when len(P.LotNumber) > 0 then 'LOT' else 'PO' end) EntryLevel,
 (case when len(P.LotNumber) > 0 then P.LotNumber else P.PONo end) ApplicableLot,
 PartyNature= STUFF((select distinct ','+XP.PartyNature from trn.SalesOrder XSO 
@@ -194,7 +196,7 @@ from TRN.ProductionSummary PS
 where PS.AddedDate between '" + FromDate + "' and '" + ToDate + @"')P
 left join org.Entity E on E.Id=P.EntityId
 )Z
-left join (select EntryLevel,P.UserName Process,QMM.UserName Issue,IssueId,QMP.Id ParameterId,PM.UserName Parameter,UOM.UserName UOM from MST.POQualityPlanDetails POD
+left join (select EntryLevel,P.UserName Process,QMM.UserName Issue,IssueId,QMP.Id ParameterId,PM.UserName Parameter,UOM.UserName UOM,POD.ProcessId from MST.POQualityPlanDetails POD
 left join HKP.Process P on P.Id=POD.ProcessId
 left join MST.QualityManagementMaster QMM on QMM.Id=POD.IssueId
 left join MST.QualityManagementParameterItem QMP on QMP.QMID=POD.IssueId and QMP.ReportApplicable=1
@@ -221,7 +223,7 @@ QCData.ParameterId=PELP.ParameterId
  and QCData.ProductionOrderId=PELP.PONo
 and QCData.ApplicableLot=PELP.ApplicableLot
 and QCData.EntryLevel=PELP.EntryLevel)Y  
-where Y.PONo='" + ProductionOrderId+ "' and Y.LotNumber='" + LotNumber+ "' and Y.EntityId='" + EntityId + "' order by Y.QCDDate,Y.QCDTime";
+where Y.PONo='" + ProductionOrderId+ "' and Y.LotNumber='" + LotNumber+ "' and Y.EntityId='" + EntityId + "' order by Y.Days,Y.QCDDate,Y.QCDTime";
                         return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
  
