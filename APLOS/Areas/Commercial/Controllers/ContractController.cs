@@ -2106,7 +2106,10 @@ namespace Aplos.Areas.Commercial.Controllers
             document.EnsureMinimal();
 
             WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
             FontBold.Bold = true;
+            FontBold.FontSize = 8f;
+            DFontSize.FontSize = 8f;
 
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Sl#");
             range.ApplyCharacterFormat(FontBold);
@@ -2118,7 +2121,7 @@ namespace Aplos.Areas.Commercial.Controllers
             int colArticle = COL; COL++;
             wTable.Rows[ROW].Cells[colArticle].Width = 140;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Buyer Item Ref");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Buyer Item#");
             range.ApplyCharacterFormat(FontBold);
             int colBuyerReferenceNo = COL; COL++;
             wTable.Rows[ROW].Cells[colBuyerReferenceNo].Width = 60;
@@ -2194,18 +2197,18 @@ namespace Aplos.Areas.Commercial.Controllers
                     }
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
-                TROW.Cells[colSrNo].AddParagraph().AppendText(sl.ToString());
+                TROW.Cells[colSrNo].AddParagraph().AppendText(sl.ToString()).ApplyCharacterFormat(DFontSize);
                 //TROW.Cells[colDescriptionOfMaterial].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialDescription"].ToString());
-                TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
-                TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
-                TROW.Cells[colSONo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SONo"].ToString());
-                TROW.Cells[colBuyerReferenceNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["BuyerReferenceNo"].ToString());
-                TROW.Cells[colDeliveryDate].AddParagraph().AppendText(dsOrderMaster.Rows[i]["DeliveryDate"].ToString());
+                TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colSONo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SONo"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colBuyerReferenceNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["BuyerReferenceNo"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colDeliveryDate].AddParagraph().AppendText(dsOrderMaster.Rows[i]["DeliveryDate"].ToString()).ApplyCharacterFormat(DFontSize);
                 //TROW.Cells[colDestination].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Destination"].ToString());            
-                TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["Qty"].ToString()).ToString("#,##0.00"));
-                TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["Rate"].ToString()).ToString("#,##0.00"));
+                TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["Qty"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["Rate"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
                 //TROW.Cells[colUpCharge].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["UpCharge"].ToString()).ToString("#,##0.00"));
-                TROW.Cells[colAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["Amount"].ToString()).ToString("#,##0.00"));
+                TROW.Cells[colAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["Amount"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
 
 
                 //totalValue += clsStdLib.dbl(sales.Rows[i]["TrnAmount"].ToString());
@@ -2279,6 +2282,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
             IWParagraphStyle style = document.AddParagraphStyle("SubTotalStyle");
             style.CharacterFormat.Bold = true;
+            style.CharacterFormat.FontSize = 8f;
             style.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Left;
             //Adds new paragraph to the section
 
@@ -2322,6 +2326,9 @@ namespace Aplos.Areas.Commercial.Controllers
             WCharacterFormat FontBold = new WCharacterFormat(document);
             FontBold.Bold = true;
 
+            WCharacterFormat DFontBold = new WCharacterFormat(document);
+            DFontBold.FontSize = 8f;
+
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("TERMS OF DELIVERY AND PAYMENT");
             range.ApplyCharacterFormat(FontBold);
             int colTermsAndCondition = COL; COL++;
@@ -2347,7 +2354,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     }
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
-                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsTermsAndCondition.Rows[i]["RoWNo"].ToString() + "." + dsTermsAndCondition.Rows[i]["TermsAndConditions"].ToString());
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsTermsAndCondition.Rows[i]["RoWNo"].ToString() + "." + dsTermsAndCondition.Rows[i]["TermsAndConditions"].ToString()).ApplyCharacterFormat(DFontBold);
 
             }
             ROW++;
