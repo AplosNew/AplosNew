@@ -145,6 +145,12 @@
                                 <textarea class="form-control" rows="1" ng-model="fabricRollMaster.Remarks" tabindex="7" maxlength="250"></textarea>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">User Reference</label>
+                            <div class="col-sm-6">
+                                <input type="text" name="User" ng-model="fabricRollMaster.UserName" ng-keyup="CheckSpecialCharecter();" class="form-control" maxlength="100" autocomplete="off">
+                            </div>
+                        </div>
                     </div>
                     <div class="col-xs-6">
                         <div class="form-group">
@@ -199,7 +205,7 @@
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="SummaryData();" ng-show="grnDetailList.length>0" class="btn"><i class="glyphicon glyphicon-file"></i> Define Group</button></li>
-                               @* <li> <button ng-click="SummaryData();" ng-show="grnDetailList.length>0" class="btn"><i class="glyphicon glyphicon-file"></i> Customer Data</button></li>*@
+                               @* <li> <button ng-click="CustomerData();" ng-show="grnDetailList.length>0" class="btn"><i class="glyphicon glyphicon-file"></i> Customer Data</button></li>*@
                             </ul>
                         </div>
                     </div>

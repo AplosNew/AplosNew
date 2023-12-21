@@ -1821,6 +1821,7 @@
     <Compile Include="SqlServerTypes\Loader.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Areas\Accounts\Scripts\multipleVPController.js" />
     <Content Include="Areas\Accounts\Scripts\bonusDisbursementController.js" />
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
     <Content Include="Areas\Accounts\Scripts\ExpenseDistributionReportController.js" />
@@ -4875,6 +4876,7 @@
     <Content Include="Areas\Productions\Views\MasterPlanSetUp\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\MasterPlanDetails\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\CutPlan\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\multipleVP.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
