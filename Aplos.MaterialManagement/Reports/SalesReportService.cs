@@ -2042,7 +2042,7 @@ LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID = MMA.HSNCodeId
 
 LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
 LEFT JOIN HKP.Party PPSI ON PPSI.Id = PSI.TransportAgentId
-LEFT JOIN MST.BankMaster BM ON BM.Id = PSI.BankMasterId
+LEFT JOIN MST.BankMaster BM ON BM.Id = IR.PaymentToReceiveBankId
 LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
 LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId AND BB.Id = BM.BankBranchId
 LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
@@ -5274,7 +5274,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                          LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId = TCV.Id
                          LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
                          LEFT JOIN HKP.Party PPSI ON PPSI.Id = PSI.TransportAgentId
-                         LEFT JOIN MST.BankMaster BM ON BM.Id = PSI.BankMasterId
+                         LEFT JOIN MST.BankMaster BM ON BM.Id = IR.PaymentToReceiveBankId
                          LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
                          LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId And BB.Id = BM.BankBranchId
                          LEFT JOIN[MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
@@ -5610,7 +5610,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                          LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId = TCV.Id
                          LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
                          LEFT JOIN HKP.Party PPSI ON PPSI.Id = PSI.TransportAgentId
-                         LEFT JOIN MST.BankMaster BM ON BM.Id = PSI.BankMasterId
+                         LEFT JOIN MST.BankMaster BM ON BM.Id = IR.PaymentToReceiveBankId
                          LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
                          LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId And BB.Id = BM.BankBranchId
                          LEFT JOIN[MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
@@ -5815,7 +5815,7 @@ LEFT JOIN HKP.CharacteristicsValue AS SCV ON IRD.SecondCharacteristicsValueId = 
 LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId = TCV.Id
 LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
 LEFT JOIN HKP.Party PPSI ON PPSI.Id = PSI.TransportAgentId
-LEFT JOIN MST.BankMaster BM ON BM.Id = PSI.BankMasterId
+LEFT JOIN MST.BankMaster BM ON BM.Id = IR.PaymentToReceiveBankId
 LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
 LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId
 	AND BB.Id = BM.BankBranchId
@@ -5992,7 +5992,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                          LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId = TCV.Id
                          LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
                          LEFT JOIN HKP.Party PPSI ON PPSI.Id = PSI.TransportAgentId
-                         LEFT JOIN MST.BankMaster BM ON BM.Id = PSI.BankMasterId
+                         LEFT JOIN MST.BankMaster BM ON BM.Id = IR.PaymentToReceiveBankId
                          LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
                          LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId And BB.Id = BM.BankBranchId
                          LEFT JOIN[MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
@@ -7065,7 +7065,7 @@ Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
                          LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId = TCV.Id
                          LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
                          LEFT JOIN HKP.Party PPSI ON PPSI.Id = PSI.TransportAgentId
-                         LEFT JOIN MST.BankMaster BM ON BM.Id = PSI.BankMasterId
+                         LEFT JOIN MST.BankMaster BM ON BM.Id = IR.PaymentToReceiveBankId
                          LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
                          LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId And BB.Id = BM.BankBranchId
                          LEFT JOIN[MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
