@@ -1902,7 +1902,7 @@ namespace Aplos.Areas.Accounts.Controllers
         public JsonResult CreateApproveBy(Dictionary<string, object> data)
         {
             try
-            {
+            { 
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from TRN.MultiplePayment where Id='" + data["Id"] + "'", out dsMaster, false, "1");
