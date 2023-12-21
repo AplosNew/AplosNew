@@ -587,7 +587,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                             ,A.TotalQtyUOMId,PL.UserName,C.Code Currency,B.UserName Buyer, (SO.Qty*SO.Rate)Amount,SO.Qty,ISNULL(A.BuyerReferenceNo,'') BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'') OwnReferenceNo,ISNULL(I.BuyerReferenceNo,'') BuyerItem,ISNULL(I.OwnReferenceNo,'') OwnItem , PT.UserName PaymentTerm,A.PaymentTermId
                             ,MM.UserName MaterialMaster,MMA.ShortName Article,po.PONumber,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,CNT.ContractNo
                             FROM TRN.SalesOrder SO
-                            INNER JOIN dbo.Contract CNT ON CNT.Id=SO.ContractId
+                            Left JOIN dbo.Contract CNT ON CNT.Id=SO.ContractId
 							INNER JOIN [TRN].[MasterOrderItem] AS I ON I.Id=SO.MasterOrderItemId
 							INNER JOIN [TRN].[MasterOrder] AS A ON A.Id=I.MasterOrderId
                             INNER JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
@@ -616,7 +616,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                             ,A.TotalQtyUOMId,PL.UserName,C.Code Currency,B.UserName Buyer, (SO.Qty*SO.Rate)Amount,SO.Qty,ISNULL(A.BuyerReferenceNo,'') BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'') OwnReferenceNo,ISNULL(I.BuyerReferenceNo,'') BuyerItem,ISNULL(I.OwnReferenceNo,'') OwnItem
                             ,MM.UserName MaterialMaster,MMA.ShortName Article,po.PONumber,PT.UserName PaymentTerm,A.PaymentTermId,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,CNT.ContractNo
                             FROM TRN.SalesOrder SO
-                            INNER JOIN dbo.Contract CNT ON CNT.Id=SO.ContractId
+                            LEFT JOIN dbo.Contract CNT ON CNT.Id=SO.ContractId
 							INNER JOIN [TRN].[MasterOrderItem] AS I ON I.Id=SO.MasterOrderItemId
 							INNER JOIN [TRN].[MasterOrder] AS A ON A.Id=I.MasterOrderId
                             INNER JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
