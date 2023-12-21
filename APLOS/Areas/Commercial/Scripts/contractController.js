@@ -788,6 +788,31 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
 
     // #endregion checkbox all
 
+    $scope.message_detailLCconfirm = null;
+    $scope.confirmToCreateLC = function () {
+        try {
+            
+            if (baseService.isUndefinedOrNull($scope.modelNew.ContractNo)) {
+                throw "ContractNo is required.";
+            }
+            if (!$scope.modelNew.IsLC) {
+                $scope.message_detailLCconfirm = "Please Confirm LC Applicable?";
+                angular.element(document.querySelector("#confirmLCPopUp")).modal("show");
+            }
+            else {
+                $scope.Save();
+                angular.element(document.querySelector("#confirmLCPopUp")).modal("hide");
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+       
+    };
+
+    $scope.LCYes = function () {
+        angular.element(document.querySelector("#confirmLCPopUp")).modal("hide");
+    }
+
     $scope.Save = function () {
         try {
             var tq = 0;
@@ -808,9 +833,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
             $scope.modelNew.Amount = amt;
             $scope.modelNew.SOQty = qt;
 
-            if (baseService.isUndefinedOrNull($scope.modelNew.ContractNo)) {
-                throw "ContractNo is required.";
-            }
+           
             if ($scope.Action === 'Save' || $scope.Action === 'Update') {
                 $http({
                     method: 'POST',
