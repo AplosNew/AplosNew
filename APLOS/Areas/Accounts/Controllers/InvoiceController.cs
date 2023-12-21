@@ -1897,7 +1897,7 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
-         
+          
         [HttpPost, Authorize]
         public JsonResult CreateApproveBy(Dictionary<string, object> data)
         {
