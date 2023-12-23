@@ -2260,9 +2260,9 @@ namespace Library.Service.Advances
                                     ToCurrencyId = companyCurrencyId,
                                     ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                                     ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(exchangeloss.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                                    DrAmount = voucherVM.Amount * (voucherVM.CompanyCurrencyRate - item.CompanyCurrencyRate)
+                                    DrAmount = item.Amount * (voucherVM.CompanyCurrencyRate - item.CompanyCurrencyRate)
                                 });
-                                totalCurrencyAmountDr += voucherVM.Amount * (voucherVM.CompanyCurrencyRate - item.CompanyCurrencyRate);
+                                totalCurrencyAmountDr += item.Amount * (voucherVM.CompanyCurrencyRate - item.CompanyCurrencyRate);
 
                             }
                             //***********************Exchange Gain*************************************
@@ -2289,9 +2289,9 @@ namespace Library.Service.Advances
                                     ToCurrencyId = companyCurrencyId,
                                     ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                                     ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(exchangeGain.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                                    CrAmount = Math.Round(voucherVM.Amount * (item.CompanyCurrencyRate - voucherVM.CompanyCurrencyRate))
+                                    CrAmount = Math.Round(item.Amount * (item.CompanyCurrencyRate - voucherVM.CompanyCurrencyRate))
                                 });
-                                totalCurrencyAmountCr += Math.Round(voucherVM.Amount * (item.CompanyCurrencyRate - voucherVM.CompanyCurrencyRate));
+                                totalCurrencyAmountCr += Math.Round(item.Amount * (item.CompanyCurrencyRate - voucherVM.CompanyCurrencyRate));
                             }
                         }
                         #endregion
@@ -2432,6 +2432,8 @@ namespace Library.Service.Advances
 
                 if (totalAmountDr != totalAmountCr)
                     throw new CustomException("Dr and Cr amount is not equal.");
+                if(totalCurrencyAmountDr!= totalCurrencyAmountCr)
+                    throw new CustomException("Dr Books Amount and Cr Books Amount is not equal.");
 
                 _unitOfWork.SaveChanges();
                 flag = false;
