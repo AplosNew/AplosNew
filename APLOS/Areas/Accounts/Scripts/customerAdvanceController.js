@@ -186,7 +186,7 @@ function customerAdvanceController(cboService, bankService, baseService, factory
     });
 
     $scope.searchBy = "ContractNo"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'ContractNo', name: "ContractNo" }, { value: 'CustomerName', name: "Customer" }];
+    $scope.searchContractByList = [{ value: 'Id', name: "Id" }, { value: 'ContractNo', name: "ContractNo" }, { value: 'CustomerName', name: "Customer" }];
 
     $scope.contractList = [];
     $scope.GetPopUpContract = function () {
@@ -934,18 +934,20 @@ function customerAdvanceController(cboService, bankService, baseService, factory
     };
 
     $scope.advanceId = null;
-    $scope.confirmPost = function (advanceId) {
+    $scope.confirmPost = function (advanceId,advanceGroupNo) {
         $scope.advanceId = advanceId;
+        $scope.advanceGroupNo = advanceGroupNo;
         $scope.message_confirmation = 'Are you sure to Post?';
         angular.element(document.querySelector('#confirmPostPopUp')).modal('show');
     };
 
-    $scope.post = function (advanceId) {
+    $scope.post = function (advanceId, advanceGroupNo) {
         $http({
             method: "POST",
             url: $scope.postUrl,
             data: {
-                "advanceId": advanceId
+                "advanceId": advanceId,
+                "advanceGroupNo": advanceGroupNo
             },
             dataType: "JSON"
         }).then(function successCallback(response) {

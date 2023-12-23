@@ -150,10 +150,10 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
         if ($scope.companyConfig.IsVoucherFromBudget)
             var getRow = $filter("filter")($scope.voucherDetailList, { "BudgetMasterId": data.BudgetMasterId, "ActivityId": data.ActivityId });
 
-        //if (!baseService.isUndefinedOrNull(getRow) && getRow.length > 0 && getRow[0].BudgetMasterId === data.BudgetMasterId) {
-        //    ShowResult("This Activity is already added!", "failure", "GLPopUp");
-        //}
-        //else {
+        if (!baseService.isUndefinedOrNull(getRow) && getRow.length > 0 && getRow[0].BudgetMasterId === data.BudgetMasterId) {
+            ShowResult("This Activity is already added!", "failure", "GLPopUp");
+        }
+        else {
             $scope.voucherDetail.BudgetMasterId = data.BudgetMasterId;
             $scope.voucherDetail.BudgetCode = data.BudgetCode;
             $scope.voucherDetail.BudgetName = data.BudgetName;
@@ -175,7 +175,7 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
             $scope.voucherDetailList.push($scope.voucherDetail);
             $scope.voucherDetail = {};
             $scope.closeCOAICodeListPopUp();
-        //}
+        }
     };
 
     $scope.removeRow = function (index) {

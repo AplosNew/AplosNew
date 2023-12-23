@@ -19,7 +19,7 @@ namespace Library.Service.Advances
         Dictionary<string, object> GetReportHeader(string voucherId);
 
         void Post(string advanceId);
-
+        void PostCustomerAdvanceGroupWise(string advanveGroupNo);
         void UnPost(string advanceId);
 
         List<Dictionary<string, object>> GetDetail(string advanceId);

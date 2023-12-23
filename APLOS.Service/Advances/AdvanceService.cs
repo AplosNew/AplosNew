@@ -581,7 +581,7 @@ namespace Library.Service.Advances
                                  LEFT JOIN [dbo].[EmployeeInformation] AS EIR ON EIR.SystemId=A.ResponsiblePersonId
                                  LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
                                  LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
-                                 LEFT JOIN [TRN].[BankCharge] AS BC ON BC.AdvanceId=A.Id
+                                 --LEFT JOIN [TRN].[BankCharge] AS BC ON BC.AdvanceId=A.Id
                                 LEFT JOIN (SELECT AdvanceId, PartyId, NetAmount FROM [TRN].[AdvanceDetail]
                                 ) AS AD ON AD.AdvanceId=A.Id AND AD.PartyId=A.PartyId
                                 WHERE A.OpeningBalanceId IS NULL AND A.Archive=0 AND V.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + @"' 
@@ -2334,6 +2334,7 @@ namespace Library.Service.Advances
                             DrAmount = bankVoucherDetail.DrAmount * voucherVM.CompanyCurrencyRate
                         });
 
+                        totalCurrencyAmountDr += Math.Round((bankVoucherDetail.DrAmount * voucherVM.CompanyCurrencyRate), 2, MidpointRounding.AwayFromZero);
                         // INSRT INTO GLTransactionDetail
                         _voucherService.InsertGLTransactionDetail(bankVoucherDetail, new GLTransactionDetail
                         {
@@ -3880,6 +3881,44 @@ namespace Library.Service.Advances
                 advance.IsPark = false;
                 base.UpdateGraph(advance);
                 _voucherService.PostVoucher(advance.VoucherId);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
+        public void PostCustomerAdvanceGroupWise(string advanveGroupNo)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var advance = Query(r=>r.AdvanceGroupNo== advanveGroupNo).Select().ToList();
+                foreach (var item in advance)
+                {
+                    CheckIsPosted(item);
+                    item.IsPosted = true;
+                    item.IsPark = false;
+                    base.UpdateGraph(item);
+                    _voucherService.PostVoucher(item.VoucherId);
+                }
+                
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();

@@ -158,9 +158,13 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult PostCustomerAdvance(string advanceId)
+        public JsonResult PostCustomerAdvance(string advanceId,string advanceGroupNo)
         {
+            if(!string.IsNullOrEmpty(advanceId))
             _advanceService.Post(advanceId);
+            else
+                _advanceService.PostCustomerAdvanceGroupWise(advanceGroupNo);
+
             return Json(new { Message = AplosMessage.Success });
         }
 
