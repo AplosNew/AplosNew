@@ -1401,12 +1401,13 @@ LEFT JOIN HKP.TermsAndConditions TC ON TC.Id=MA.TermsAndConditionsId
             string strSQL;
             try
             {
-                strSQL = @"Select DISTINCT MA.Description
+                strSQL = @"Select A.* from (
+Select DISTINCT MA.Description,MA.Sequence
 from [dbo].[MasterLCAddInfo] MA
 LEFT JOIN dbo.[Contract] C ON C.MasterLcId=MA.MasterLcId
 LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
 LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
-Where  SM.SalesId='" + SalesId + "'";
+Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }
@@ -1440,11 +1441,13 @@ Where  SM.SalesId='" + SalesId + "'";
             #region column headers
             document.EnsureMinimal();
 
-            WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat FontBold = new WCharacterFormat(document); 
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
             FontBold.Bold = true;
-
+            DFontSize.FontSize = 8f;
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Terms And Conditions");
             range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
             int colTermsAndCondition = COL; COL++;
             wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 580;
 
@@ -1468,17 +1471,13 @@ Where  SM.SalesId='" + SalesId + "'";
                     }
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
-                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsTermsAndCondition.Rows[i]["RoWNo"].ToString() + "." + dsTermsAndCondition.Rows[i]["UserName"].ToString());
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsTermsAndCondition.Rows[i]["RoWNo"].ToString() + "." + dsTermsAndCondition.Rows[i]["UserName"].ToString()).ApplyCharacterFormat(DFontSize);
 
             }
             ROW++;
 
             #region Total
-            //int TotalRow = ROW;
-            //wTable.AddRow();
-            //WTableRow _TROW = wTable.LastRow;
-
-            //range.ApplyCharacterFormat(FontBold);
+           
             #endregion Total
             ROW++;
             #region paragrpath formats
@@ -1525,10 +1524,13 @@ Where  SM.SalesId='" + SalesId + "'";
             document.EnsureMinimal();
 
             WCharacterFormat FontBold = new WCharacterFormat(document);
+             WCharacterFormat DFontSize = new WCharacterFormat(document);
             FontBold.Bold = true;
+            DFontSize.FontSize = 8f;
 
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Additional Info");
             range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
             int colTermsAndCondition = COL; COL++;
             wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 580;
 
@@ -1552,7 +1554,7 @@ Where  SM.SalesId='" + SalesId + "'";
                     }
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
-                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsaddInfo.Rows[i]["Description"].ToString());
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsaddInfo.Rows[i]["Description"].ToString()).ApplyCharacterFormat(DFontSize);
 
             }
             ROW++;
@@ -3947,25 +3949,31 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
             document.EnsureMinimal();
 
             WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
             FontBold.Bold = true;
+            DFontSize.FontSize = 8f;
 
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
             range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
             int colArticle = COL; COL++;
             wTable.Rows[ROW].Cells[colArticle].Width = 140;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Details");
             range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
             int colChar1 = COL; COL++;
             wTable.Rows[ROW].Cells[colChar1].Width = 55;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Lot No");
             range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
             int colLot = COL; COL++;
             wTable.Rows[ROW].Cells[colLot].Width = 60;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN");
             range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
             int colHSN = COL; COL++;
             wTable.Rows[ROW].Cells[colHSN].Width = 60;
 
@@ -3977,6 +3985,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
             range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
             int colQty = COL; COL++;
             wTable.Rows[ROW].Cells[colQty].Width = 60;
 
@@ -3987,11 +3996,13 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate");
             range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
             int colRate = COL; COL++;
             wTable.Rows[ROW].Cells[colRate].Width = 45;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Amount" + "(" + "" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + "" + ")" + "");
             range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
             int colAmount = COL;
             wTable.Rows[ROW].Cells[colAmount].Width = 75;
 
@@ -4017,16 +4028,16 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
                 //TROW.Cells[colMaterialGroup].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialMaster"].ToString());
-                TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
-                TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ProdDetails"].ToString());
+                TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ProdDetails"].ToString()).ApplyCharacterFormat(DFontSize);
                 //TROW.Cells[colStyle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["BuyertemRef"].ToString());
-                TROW.Cells[colLot].AddParagraph().AppendText(dsOrderMaster.Rows[i]["LotNo"].ToString());
-                TROW.Cells[colCartons].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Cartons"].ToString());
-                TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
-                TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
-                TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString());
-                TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("#,##0.0000"));
-                TROW.Cells[colAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
+                TROW.Cells[colLot].AddParagraph().AppendText(dsOrderMaster.Rows[i]["LotNo"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colCartons].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Cartons"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString()).ApplyCharacterFormat(DFontSize); ; ;
+                TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("#,##0.0000")).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
 
                 //totalValue += clsStdLib.dbl(sales.Rows[i]["TrnAmount"].ToString());
             }

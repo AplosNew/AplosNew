@@ -3176,14 +3176,14 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 string sql = "";
                 string _activityId = "";
                 DataSet dsTax = null;
-                sql = "SELECT * FROM OSTransformationPOTax WHERE OSTransformationPOId='" + data["OSTransformationPOId"] + "' and  OSTransformationPODetailId='" + data["Id"] + "'";
+                sql = "SELECT * FROM OSTransformationPOTax WHERE OSTransformationPOId='" + data["OSTransformationPOId"] + "' and  OSTransformationPOServiceId='" + data["Id"] + "'";
                 con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter(sql, out dsTax, false, "1");
                 if (TaxList != null)
                 {
                     for (int i = 0; i < dsTax.Tables[0].Rows.Count; i++)
                     {
-                        var k = TaxList.Where(ee => ee["OSTransformationPODetailId"].ToString() == dsTax.Tables[0].Rows[i]["OSTransformationPOId"].ToString()).ToList();
+                        var k = TaxList.Where(ee => ee["OSTransformationPOServiceId"].ToString() == dsTax.Tables[0].Rows[i]["OSTransformationPOServiceId"].ToString()).ToList();
                         if (k.Count == 0)
                         {
                             dsTax.Tables[0].Rows[i].Delete();
@@ -3192,7 +3192,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                     for (int i = 0; i < TaxList.Count; i++)
                     {
-                        dsTax.Tables[0].DefaultView.RowFilter = "OSTransformationPODetailId='" + TaxList[i]["OSTransformationPODetailId"] + "'";
+                        dsTax.Tables[0].DefaultView.RowFilter = "Id='" + TaxList[i]["Id"] + "'";
 
 
                         if (dsTax.Tables[0].DefaultView.Count == 0)
@@ -3209,6 +3209,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                             dr["OSTransformationPOId"] = data["OSTransformationPOId"];
                             dr["ServiceMasterId"] = data["ServiceMasterId"];
+                            dr["OSTransformationPOServiceId"] = data["Id"];
 
 
 
@@ -3236,6 +3237,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                             dr.BeginEdit();
 
                             dr["OSTransformationPOId"] = data["OSTransformationPOId"];
+                            dr["OSTransformationPOServiceId"] = data["Id"];
 
                             dr["ServiceMasterId"] = data["ServiceMasterId"];
                             dr["TaxCategoryId"] = TaxList[i]["TaxCategoryId"];
