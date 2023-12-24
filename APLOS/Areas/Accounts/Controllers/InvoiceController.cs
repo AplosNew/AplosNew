@@ -32,6 +32,7 @@ using Syncfusion.Pdf;
 using Syncfusion.ExcelToPdfConverter;
 using Library.ViewModel.OrderManagements;
 using Library.Security.Core;
+using Library.OrderManagement.Sales;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -43,7 +44,7 @@ namespace Aplos.Areas.Accounts.Controllers
         private readonly ISqlRepository _sqlRepository;
         private readonly IEmployeePayableService _employeePayableService;
         private readonly IAdvanceWriteOffService _advanceWriteOffService;
-
+        clsSales clsSales = new clsSales();
         public InvoiceController(
               IInvoiceService invoiceService
             , IInvoiceWriteOffService invoiceWriteOffService
@@ -1943,6 +1944,12 @@ namespace Aplos.Areas.Accounts.Controllers
             dr["UpdatedDate"] = System.DateTime.Now.ToString();
             dr["UpdatedFromIP"] = identity.IPAddress; 
             dr.EndEdit();
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetMultipleVendorPaymentApproveByCboList()
+        {
+            return Json(clsSales.GetMultipleVendorPaymentApproveByCboList(), JsonRequestBehavior.AllowGet);
         }
 
         #endregion Multiple Vendor Payment End
