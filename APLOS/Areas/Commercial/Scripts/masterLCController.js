@@ -484,12 +484,22 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         });
     }
 
+    $scope.sqlInStatement = null;
     $scope.searchdata = [];
     $scope.GetTermsAndConditionsList = function () {
         $scope.searchdata = [];
+        if ($scope.savedcontractList.length > 0) {
+            var uniqueCId = removeDuplicates($scope.savedcontractList, 'Id');
+            var wcCId = "";
+            if (uniqueCId.length > 0) {
+                wcCId = "IN(";
+                wcCId += Array.prototype.map.call(uniqueCId, function (item) { return "'" + item.Id + "'"; }).join(",") + ")";
+            }
+            $scope.sqlInStatement = wcCId;
+        }
         $http({
             method: 'GET',
-            url: 'Commercial/Contract/GetTermsAndConditionsDataList'
+            url: 'Commercial/Contract/GetTermsAndConditionsDataList?contractId=' + $scope.sqlInStatement
         }).then(function successCallback(response) {
             $scope.searchdata = response.data;
         });
@@ -534,33 +544,6 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
 
     };
     $scope.TermsAndConditionsList = [];
-    function MakeData() {
-        for (var i = 0; i < $scope.searchdata.length; i++) {
-            if ($scope.searchdata[i].Flag == true) {
-                if (checkExists($scope.TermsAndConditionsList, $scope.searchdata[i].Id) === false) {
-                    var ob = {};
-                    ob.Id = null;
-                    ob.TermsAndConditionsId = $scope.searchdata[i].Id;
-                    ob.MasterLCId = $scope.masterLCNew.Id;
-                    ob.Sequence = $scope.searchdata[i].Sequence;
-                    ob.Code = $scope.searchdata[i].Code;
-                    ob.ShortName = $scope.searchdata[i].ShortName;
-                    ob.StandardName = $scope.searchdata[i].StandardName;
-                    ob.UserName = $scope.searchdata[i].UserName;
-                    ob.OriginUserName = $scope.searchdata[i].UserName;
-                    ob.Description = $scope.searchdata[i].Description;
-                    ob.Remarks = null;
-
-                    $scope.TermsAndConditionsList.push(ob);
-                }
-                //else {
-                //    throw "This Terms & Conditions " + $scope.searchdata[i].UserName + " is already taken.";
-                //}
-            }
-        }
-
-    }
-
     function checkExists(list, id) {
         for (var i = 0; i < list.length; i++) {
             if (list[i].TermsAndConditionsId === id) {
@@ -572,10 +555,8 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
 
     $scope.CloseTermsAndConditions = function () {
         try {
-            MakeData();
             $scope.SaveTNC();
-            var eDialog = $("#TermsAndConditionsPoUp").data("ejDialog");
-            eDialog.close();
+            
         } catch (e) {
             ShowResult(e, 'failure');
         }
@@ -583,6 +564,37 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
 
     $scope.SaveTNC = function () {
         try {
+            for (var i = 0; i < $scope.searchdata.length; i++) {
+                if ($scope.searchdata[i].Flag == true) {
+                    if ($scope.searchdata[i].IsVarified == false) {
+                        throw "Is Varified is required.";
+                    }
+                    if ($scope.searchdata[i].IsVarified && baseService.isUndefinedOrNull($scope.searchdata[i].Remarks)) {
+                        throw "Remarks is required.";
+                    }
+                    if (checkExists($scope.TermsAndConditionsList, $scope.searchdata[i].TermsAndConditionsId) === false) {
+                        var ob = {};
+                        ob.Id = null;
+                        ob.TermsAndConditionsId = $scope.searchdata[i].TermsAndConditionsId;
+                        ob.MasterLCId = $scope.masterLCNew.Id;
+                        ob.Sequence = $scope.searchdata[i].Sequence;
+                        ob.Code = $scope.searchdata[i].Code;
+                        ob.ShortName = $scope.searchdata[i].ShortName;
+                        ob.StandardName = $scope.searchdata[i].StandardName;
+                        ob.UserName = $scope.searchdata[i].UserName;
+                        ob.OriginUserName = $scope.searchdata[i].UserName;
+                        ob.Description = $scope.searchdata[i].Description;
+                        ob.Remarks = $scope.searchdata[i].Remarks;
+                        ob.IsVarified = $scope.searchdata[i].IsVarified;
+
+                        $scope.TermsAndConditionsList.push(ob);
+                    }
+                    //else {
+                    //    throw "This Terms & Conditions " + $scope.searchdata[i].UserName + " is already taken.";
+                    //}
+                }
+            }
+
             $http({
                 method: 'POST',
                 url: 'Commercial/Contract/CreateMasterLCTNC',
@@ -598,7 +610,9 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.GetContractTermsAndConditionsList();
+                    $scope.GetMasterLCTermsAndConditionsList();
+                    var eDialog = $("#TermsAndConditionsPoUp").data("ejDialog");
+                    eDialog.close();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -625,7 +639,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.GetContractTermsAndConditionsList();
+                    $scope.GetMasterLCTermsAndConditionsList();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -788,7 +802,61 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         angular.element(document.querySelector('#NBPopUp')).modal('hide');
     }
 
+    function removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+        });
+    }
 
+
+    $scope.SelectedSalesOrderList = [];
+    $scope.GetEditSalesOrderList = function () {
+        if ($scope.savedcontractList.length > 0) {
+            var uniqueCId = removeDuplicates($scope.savedcontractList, 'Id');
+            var wcCId = "";
+            if (uniqueCId.length > 0) {
+                wcCId = "IN(";
+                wcCId += Array.prototype.map.call(uniqueCId, function (item) { return "'" + item.Id + "'"; }).join(",") + ")";
+            }
+            $scope.sqlInStatement = wcCId;
+        }
+
+        $scope.SelectedSalesOrderList = [];
+        $http({
+            method: 'GET',
+            url: "Commercial/Contract/GetSalesOrderListByContract?customerId=" + $scope.masterLC.CustomerId + '&contractId=' + $scope.sqlInStatement
+        }).then(function (response) {
+            $scope.SelectedSalesOrderList = response.data;
+            angular.element(document.querySelector('#SOPopUp')).modal('show');
+        });
+    }
+
+    $scope.CloseSOPopUp = function () {
+        try {
+            
+            $http({
+                method: 'POST',
+                url: 'Commercial/Contract/UpdateSO',
+                data: {
+                    'data': $scope.SelectedSalesOrderList
+                },
+                dataType: 'JSON'
+                , contentType: "application/json charset=utf-8"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    angular.element(document.querySelector('#SOPopUp')).modal('hide');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
 
 
 }
