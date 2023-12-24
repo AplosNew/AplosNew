@@ -762,7 +762,7 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
     $scope.GetapprovedByListCboList = function () {
         $http({
             method: 'GET',
-            url: 'SalesManagements/SalesChalan/GetSalesChalanApproveByCboList'
+            url: 'Accounts/Invoice/GetMultipleVendorPaymentApproveByCboList'
         }).then(function successCallback(response) {
             $scope.approvedByList = response.data;
         });

@@ -4709,6 +4709,13 @@ order by SAI.SalesId";
                           where  A.ActionStatus='SalesChalanApproveBy' AND E.EmployeeStatus='Active'";
 			return _sqlRepository.GetDataCollection(sql, null);
 		}
+		public IEnumerable<object> GetMultipleVendorPaymentApproveByCboList()
+		{
+			var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where  A.ActionStatus='MultipleVendorPayment' AND E.EmployeeStatus='Active'";
+			return _sqlRepository.GetDataCollection(sql, null);
+		}
 
 		public IEnumerable<object> GetApproveByDataForDispatchConfirmation()
 		{
