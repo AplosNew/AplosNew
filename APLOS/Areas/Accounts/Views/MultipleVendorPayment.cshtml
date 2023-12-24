@@ -12,7 +12,7 @@
                 <div class="row">
 
                     <div class="form-elements form-horizontal">
-                        <div class="col-xs-12 col-sm-5 col-md-5">
+                        <div class="col-xs-12 col-sm-4 col-md-4">
                             <div class="form-group" show-errors>
                                 <div class="radio col-sm-5 col-xs-5">
                                     <label>
@@ -43,10 +43,30 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xs-12 col-sm-2 col-md-2 ">
+                        <div class="col-xs-12 col-sm-4 col-md-4">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-5 control-label">Tentative Date</label>
+                                <div class="col-sm-7 show-message">
+                                    <input type="text" name="TentativeDate" ng-model="multiplePayment.TentativeDate" datepicker class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-xs-12 col-sm-4 col-md-4 ">
                             <button class="btn single-btn" ng-click="getPopupVendorList()" tabindex="10">Select Vendor</button>
-
-                            @*<button class="btn single-btn" ng-click="getPopupVendorPayableList()" tabindex="10">Select Payable</button>*@
+                            <button class="btn single-btn" ng-click="getPopupVendorPayableList()" tabindex="10">Select Payable</button>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4 ">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-3 control-label" title="CheckBy">Approved By<sup>*</sup></label>
+                                <div class="col-sm-4  show-message">
+                                    <div class="select-style" ng-show="approvedByList.length">
+                                        <select id="ApprovedBy" class="form-control" name="Approved By" ng-model="multiplePayment.ApprovedBy" tabindex="8" required>
+                                            <option ng-repeat="option in approvedByList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-12 ">
                             <div class="col-xs-12 col-sm-6 col-md-6">
@@ -77,118 +97,99 @@
                                     </table>
                                 </div>
                             </div>
-                            <div class="col-xs-12 col-sm-6 col-md-6">
-                                <div class="col-xs-6 col-sm-6 col-md-6 ">
-                                    <button class="btn single-btn" ng-click="getPopupVendorPayableList()" tabindex="10">Select Payable</button>
-                                    @*<button class="btn single-btn" ng-click="getPopupVendorList()" tabindex="10">Select Vendor</button>*@
-                                </div>
-                                <div class="col-xs-6 col-sm-6 col-md-6 ">
-                                    <div class="form-group" show-errors>
-                                        <label class="col-sm-5 control-label">Tentative Date</label>
-                                        <div class="col-sm-7 show-message">
-                                            <input type="text" name="TentativeDate" ng-model="multiplePayment.TentativeDate" datepicker class="form-control" required>
+
+                        </div>
+                        <br />
+                        <br />
+                        <div class="clearfix"></div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 ">
+                            <div class="table-responsive modal-table ">
+                                <table class="table table-striped" ng-show="paymentSelectedList.length">
+                                    <thead>
+                                        <tr>
+                                            <th>Action</th>
+                                            <th>{{partyType}}</th>
+                                            <th>Voucher No</th>
+                                            <th>Posting Date</th>
+                                            <th>Doc Date</th>
+                                            <th>Base On Due Date</th>
+                                            <th>Doc Ref</th>
+                                            <th>Currency</th>
+                                            <th>Payable</th>
+                                            <th>Payment</th>
+                                            <th>Balance</th>
+                                            <th>
+                                                Amount
+                                                <div class="common-btn">
+                                                    <button ng-click="copyPayableBalanceAmount();" class="btn" tabindex="5"><i class="glyphicon"></i> Copy</button>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in paymentSelectedList">
+                                            <td class="text-right">
+                                                <button ng-click="removeRow($index,x)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                                    <i class="glyphicon glyphicon-remove"></i>
+                                                </button>
+                                            </td>
+                                            <td ng-show="partyType=='Vendor'">{{x.PartyName}}</td>
+                                            <td>{{x.VoucherNo}}</td>
+                                            <td>{{x.PostingDate | dateFiltering}}</td>
+                                            <td>{{x.DocDate | dateFiltering}}</td>
+                                            <td>{{x.BaseOnDueDate | dateFiltering}}</td>
+                                            <td>{{x.DocRefNo}}</td>
+                                            <td>{{x.CurrencyCode}}</td>
+                                            <td class="text-right">{{x.Receivable | number:4}}</td>
+                                            <td class="text-right">{{x.Received | number:4}}</td>
+                                            <td class="text-right">{{x.Balance | number:4}}</td>
+                                            <td>
+                                                <input ng-keyup="" type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" autocomplete="off" name="Amount" ng-model="x.Amount">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="11" class="text-right">Total</td>
+                                            <td class="text-right"><b>{{ (paymentSelectedList) | sumByKey:'Amount' }}</b></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-xs-12 col-sm-6 col-md-6  " ng-show="paymentSelectedList.length">
+                            <fieldset class="scheduler-border">
+                                <legend class="scheduler-border">Bank Detail</legend>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Bank<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="input-group">
+                                            <input type="text" name="CashName" ng-model="multiplePayment.BankName" class="form-control" readonly data-toggle="tooltip" data-placement="top" title="{{voucher.BankName}}" tooltip>
+                                            <span class="input-group-btn">
+                                                <button ng-click="showBankPopUp(multiplePayment.EntityId);" class="btn single-small-btn" tabindex="23"><i class="glyphicon glyphicon-search"></i></button>
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-3 control-label" title="CheckBy">Approved By<sup>*</sup></label>
-                                <div class="col-sm-4  show-message">
-                                    <div class="select-style" ng-show="approvedByList.length">
-                                        <select id="ApprovedBy" class="form-control" name="Approved By" ng-model="multiplePayment.ApprovedBy" tabindex="8" required>
-                                            <option ng-repeat="option in approvedByList" value="{{option.Value}}">{{option.Text}}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            </div>
+                            </fieldset>
                         </div>
-                            <br />
-                            <br />
-                            <div class="clearfix"></div>
-                            <div class="col-xs-12 col-sm-12 col-md-12 ">
-                                <div class="table-responsive modal-table ">
-                                    <table class="table table-striped" ng-show="paymentSelectedList.length">
-                                        <thead>
-                                            <tr>
-                                                <th>Action</th>
-                                                <th>{{partyType}}</th>
-                                                <th>Voucher No</th>
-                                                <th>Posting Date</th>
-                                                <th>Doc Date</th>
-                                                <th>Base On Due Date</th>
-                                                <th>Doc Ref</th>
-                                                <th>Currency</th>
-                                                <th>Payable</th>
-                                                <th>Payment</th>
-                                                <th>Balance</th>
-                                                <th>
-                                                    Amount
-                                                    <div class="common-btn">
-                                                        <button ng-click="copyPayableBalanceAmount();" class="btn" tabindex="5"><i class="glyphicon"></i> Copy</button>
-                                                    </div>
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr ng-repeat="x in paymentSelectedList">
-                                                <td class="text-right">
-                                                    <button ng-click="removeRow($index,x)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove">
-                                                        <i class="glyphicon glyphicon-remove"></i>
-                                                    </button>
-                                                </td>
-                                                <td ng-show="partyType=='Vendor'">{{x.PartyName}}</td>
-                                                <td>{{x.VoucherNo}}</td>
-                                                <td>{{x.PostingDate | dateFiltering}}</td>
-                                                <td>{{x.DocDate | dateFiltering}}</td>
-                                                <td>{{x.BaseOnDueDate | dateFiltering}}</td>
-                                                <td>{{x.DocRefNo}}</td>
-                                                <td>{{x.CurrencyCode}}</td>
-                                                <td class="text-right">{{x.Receivable | number:4}}</td>
-                                                <td class="text-right">{{x.Received | number:4}}</td>
-                                                <td class="text-right">{{x.Balance | number:4}}</td>
-                                                <td>
-                                                    <input ng-keyup="" type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" autocomplete="off" name="Amount" ng-model="x.Amount">
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <td colspan="11" class="text-right">Total</td>
-                                                <td class="text-right"><b>{{ (paymentSelectedList) | sumByKey:'Amount' }}</b></td>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="clearfix"></div>
-                            <div class="col-xs-12 col-sm-6 col-md-6  " ng-show="paymentSelectedList.length">
-                                <fieldset class="scheduler-border">
-                                    <legend class="scheduler-border">Bank Detail</legend>
-                                    <div class="form-group">
-                                        <label class="col-sm-4 control-label">Bank<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <div class="input-group">
-                                                <input type="text" name="CashName" ng-model="multiplePayment.BankName" class="form-control" readonly data-toggle="tooltip" data-placement="top" title="{{voucher.BankName}}" tooltip>
-                                                <span class="input-group-btn">
-                                                    <button ng-click="showBankPopUp(multiplePayment.EntityId);" class="btn single-small-btn" tabindex="23"><i class="glyphicon glyphicon-search"></i></button>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </fieldset>
-                            </div>
-                            <div class="common-btn">
-                                <ul class="list-inline text-right">
-                                    <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                                    <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                                </ul>
-                            </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                            </ul>
                         </div>
+                    </div>
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(2), active: isSet2(2) }" ng-form="formPost">
                 <div class="row">
                     <div class="form-elements form-horizontal">
+                        <div class="col-xs-12 col-sm-4 col-md-4 ">
+                            <button class="btn single-btn" ng-click="getParkData()" tabindex="10">Select Payment</button>
+                        </div>
+                        <div class="clearfix"></div>
                         <div class="col-xs-12 col-sm-4 col-md-4">
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Entry Date<sup>*</sup></label>
@@ -411,6 +412,37 @@
     </div>
 </div>
 
+<div class="modal fade site-modal in" id="multiPaymentPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header"> Payment List <button type="button" class="close" ng-click="closeMultiPaymentPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+                        <div style="color:black;" id="multiPaymentPopUpGrid" ej-grid e-datasource="multipleVendorpaymentList" e-recorddoubleclick="closeMultiPayment"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Code" e-width="50" e-filter="false"></div>
+                                <div e-column e-field="PartyName" e-headertext="Party" e-width="130"></div>
+                                <div e-column e-field="TentativeDate" e-headertext="TentativeDate" e-width="130"></div>
+                                <div e-column e-field="AccountTitle" e-headertext="Bank" e-width="50"></div>
+                                <div e-column e-field="Amount" e-headertext="Amount" e-width="50"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right" ng-show="true">
+                            <li><button ng-click="closeMultiPaymentPopUp();" class="btn"> Close</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @Html.Partial("~/Areas/Accounts/Views/_MultipleVendorInvoicePopUp.cshtml")
 @Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete()"></confirm-archive-generic>

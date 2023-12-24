@@ -31,20 +31,29 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
         });
     };
     $scope.getData();
-    $scope.getParkData = function (id) {
+    $scope.getParkData = function () {
         $http({
             method: "GET",
-            url: "accounts/invoice/GetMultiplePaymentParkList?id="+id
+            url: "accounts/invoice/GetMultiplePaymentParkAndUnApprovedList"
         }).then(function successCallback(response) {
             $scope.multipleVendorpaymentList = response.data;
-            //for (var i = 0; i < $scope.multipleVendorpaymentList.length; i++) {
-            //    response.data[i].DueUpToDate = new Date($scope.multipleVendorpaymentList[i].DueUpToDate);
-            //    response.data[i].TentativeDate = new Date($scope.multipleVendorpaymentList[i].TentativeDate);
-            //}
-            $scope.getDetailData(id);
+           // $scope.getDetailData(id);
         });
+        angular.element(document.querySelector('#multiPaymentPopUp')).modal('show');
     };
-  
+
+    $scope.closeMultiPayment = function () {
+        var selectedPayment = $("#multiPaymentPopUpGrid").data("ejGrid");
+        var data = selectedPayment.getSelectedRecords()[0];
+
+        $scope.getDetailData(data.Id);
+        angular.element(document.querySelector('#multiPaymentPopUp')).modal('show');
+
+    }
+
+    $scope.closeMultiPaymentPopUp = function () {
+        angular.element(document.querySelector('#multiPaymentPopUp')).modal('hide');
+    }
     $scope.lst = [];
     $scope.getDetailData = function (id) {
         //debugger
@@ -54,7 +63,6 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
         }).then(function successCallback(response) {
             $scope.lst = response.data;
             window.lst = response.data;
-
         });
     }
     
@@ -98,11 +106,11 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
         var gridObj = $("#MultiplePaymentGrid").data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
         $scope.masterId = data.Id;
-        $scope.getParkData(data.Id);
+        //$scope.getParkData(data.Id);
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
-        $scope.setTab2(2);
+        //$scope.setTab2(2);
     }
     
 
@@ -386,9 +394,9 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.getParkData(response.data.Message);
+                        //$scope.getParkData(response.data.Message);
                         $scope.Clear();
-                        $scope.setTab2(2);
+                        //$scope.setTab2(2);
                         $scope.getData();
                     }
                 }, function errorCallback(response) {

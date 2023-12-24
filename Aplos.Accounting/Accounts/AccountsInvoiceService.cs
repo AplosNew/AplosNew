@@ -816,20 +816,21 @@ namespace Library.Accounting.Accounts
             }
         }
 
-        public List<Dictionary<string, object>> GetMultiplePaymentParkList(string companyGroupId, string plantId, string id)
+        public List<Dictionary<string, object>> GetMultiplePaymentParkList(string plantId)
         {
             try
             {
                 var sql = @"SELECT MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,Replace(CONVERT(VARCHAR(11), MP.DueUpToDate, 106), ' ', '-') DueUpToDate
                             ,Replace(CONVERT(VARCHAR(11), MP.TentativeDate, 106), ' ', '-') TentativeDate
                             ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle, 0 flag ,P.UserName PartyName,MPD.PartyId,SUM(MPD.Amount) Amount
-							FROM TRN.MultiplePaymentDetail MPD 
+						    FROM TRN.MultiplePaymentDetail MPD 
 							LEFT JOIN TRN.MultiplePayment MP ON MP.Id=MPD.MultiplePaymentId
 							LEFT JOIN HKP.Party P ON P.Id=MPD.PartyId
 							LEFT JOIN MST.BankMaster BM ON BM.Id=MP.BankMasterId
-							where  MP.PlantId='" + plantId + "' AND MPD.MultiplePaymentId='" + id + @"'
-							group by MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,MP.DueUpToDate
-                            , MP.TentativeDate,MPD.MultiplePaymentId
+							WHERE  MP.PlantId='" + plantId + @"' AND MPD.IsPark=1 and MP.ApprovalStatus='Approved'
+
+                            GROUP BY MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,MP.DueUpToDate
+                            ,MP.TentativeDate,MPD.MultiplePaymentId
                             ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle,P.UserName,MPD.PartyId ";
 
                 return _sqlRepository.GetDataCollection(sql);

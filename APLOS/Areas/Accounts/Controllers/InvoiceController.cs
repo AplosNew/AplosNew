@@ -1303,11 +1303,11 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetMultiplePaymentParkList(string id)
+        public JsonResult GetMultiplePaymentParkAndUnApprovedList()
         {
             AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_accountsInvoiceService.GetMultiplePaymentParkList(identity.CompanyGroupId, identity.PlantId, id), JsonRequestBehavior.AllowGet);
+            return Json(_accountsInvoiceService.GetMultiplePaymentParkList(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public JsonResult GetMultipleVendorAvailableDetailList(string multiplePaymentId)
