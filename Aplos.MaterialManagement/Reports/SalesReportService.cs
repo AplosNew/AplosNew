@@ -5,6 +5,7 @@ using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Model.Addresses;
 using Library.Service.Currencies;
+using Library.Service.Extension;
 using Library.Service.Helpers;
 using Syncfusion.DocIO;
 using Syncfusion.DocIO.DLS;
@@ -1505,7 +1506,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
 
         public double makeaddInfo(string salesId, WordDocument document, DataTable dsaddInfo)
         {
-            string replaceString = "{AddInfo}";
+            string replaceString = "{addInfo}";
 
 
             IWParagraphStyle arightAlign = document.AddParagraphStyle("addrightAlign");
@@ -1625,11 +1626,15 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                 var MaterialTotal = makeCommercialInvoiceService(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {materialItems}
                 var addInfo = makeaddInfo(salesId, document, dsaddInfo);   // {makeaddInfo}
                 var TermsAndCondition = makeTermsAndCondition(salesId, document, dsConditions);   // {conditions}
-
+                var totalQty= clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(POTransactionQty)", "CustomerNo='" + dsOrderMaster.Rows[0]["CustomerNo"].ToString() + "'"));
+                var FREIGHTVALUE = totalQty * clsStaticInfo.dbl(dsOrderMaster.Rows[0]["AdditionalFrieghtValue"].ToString());
+                var FCAVALUE = MaterialTotal - FREIGHTVALUE;
                 document.Replace("{GrandTotal}", (MaterialTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{GrandTotals}", (MaterialTotal).ToString("#,##0.00"), true, true);
+                document.Replace("{FREIGHTVALUE}", (FREIGHTVALUE).ToString("#,##0.00"), true, true);
+                document.Replace("{FCAVALUE}", (FCAVALUE).ToString("#,##0.00"), true, true);
                 //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2"), true, true);
                 document.Replace("{TotalInWords}", ru.InWord((MaterialTotal), dsOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
-
 
                 Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
 
@@ -1723,7 +1728,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
     ,INVPARTYPL.UserName InvoiceParty,INVPARTYPL.UserName InvoiceParty2,IR.InvoicingByAddress AS ConsigneeAddress,IR.DeliveryByAddress,DPARTYPL.UserName DeliveryParty 
     ,PSI.PreCarriageBy,PSI.PlaceOfReceiptByPreCarriage,PSI.CNFContainerNo,PSI.CNFVesselName,PSI.CNFVesselTrackingNo,CRNC.Code AS CurrencyName,IR.ToCurrencyRate
     ,BASECRNC.Code AS BaseCurrencyName,PayTerm.UserName PaymentTerm,MM.UserName MaterialMaster,MGM.UserName MaterialGroupMaster
-    ,Article=CASE WHEN SO.LCArticle IS NULL THEN AAP.UserName WHEN  AAP.UserName  IS  NULL THEN MMA.StandardName ELSE SO.LCArticle END   
+    ,Article=CASE WHEN ISNULL(SO.LCArticle,'')<>'' THEN SO.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
      ,POTransactionQty=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.NetWeight END) 
     ,CONVERT(NUMERIC(10,4),IRD.TransactionRate, 4) TransactionRate
 	,TrnAmount=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN ROUND((IRD.TransactionQty * IRD.TransactionRate), 2) ELSE ROUND((SCN.NetWeight * IRD.TransactionRate), 2) END)
@@ -1871,7 +1876,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     FOR XML PATH('')
                     ), 1, 1, '')
 
-,DelCN.UserName INVOICEDILEVERYPLANTCOUNTRY
+,DelCN.UserName INVOICEDILEVERYPLANTCOUNTRY,IR.AdditionalFrieghtValue
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
 LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -5217,7 +5222,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
     ,PayTerm.UserName PaymentTerm
     ,MM.UserName MaterialMaster
     ,MGM.UserName MaterialGroupMaster
-    ,Article=CASE WHEN SO.LCArticle IS NULL THEN AAP.UserName WHEN  AAP.UserName  IS  NULL THEN MMA.StandardName ELSE SO.LCArticle END
+    ,Article=CASE WHEN ISNULL(SO.LCArticle,'')<>'' THEN SO.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
    
      ,POTransactionQty=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.NetWeight END) 
     ,CONVERT(NUMERIC(10,4),IRD.TransactionRate, 4) TransactionRate
@@ -5374,7 +5379,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                               , MM.UserName MaterialMaster
                                , MM.MaterialGroupMasterId
 	                          ,MGM.UserName MaterialGroupMaster
-                              ,Article=CASE WHEN SO.LCArticle IS NULL THEN AAP.UserName WHEN  AAP.UserName  IS  NULL THEN MMA.StandardName ELSE SO.LCArticle END
+                              ,Article=CASE WHEN ISNULL(SO.LCArticle,'')<>'' THEN SO.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
                                , FC.UserName FirstChar
                                 , FCV.UserName AS FirstCharacteristicsValue
 	                          ,SCV.UserName AS SecondCharacteristicsValue
@@ -5563,7 +5568,7 @@ LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
 	,MM.UserName MaterialMaster
 	,MM.MaterialGroupMasterId
 	,MGM.UserName MaterialGroupMaster
-	,Article=CASE WHEN SO.LCArticle IS NULL THEN AAP.UserName WHEN  AAP.UserName  IS  NULL THEN MMA.StandardName ELSE SO.LCArticle END
+	,Article=CASE WHEN ISNULL(SO.LCArticle,'')<>'' THEN SO.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
 	,FC.UserName FirstChar
 	,FCV.UserName AS FirstCharacteristicsValue
 	,SCV.UserName AS SecondCharacteristicsValue
@@ -5761,7 +5766,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                               , MM.UserName MaterialMaster
                                , MM.MaterialGroupMasterId
 	                          ,MGM.UserName MaterialGroupMaster
-                              ,Article=CASE WHEN SO.LCArticle IS NULL THEN AAP.UserName WHEN  AAP.UserName  IS  NULL THEN MMA.StandardName ELSE SO.LCArticle END
+                              ,Article=CASE WHEN ISNULL(SO.LCArticle,'')<>'' THEN SO.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
                                , FC.UserName FirstChar
                                 , FCV.UserName AS FirstCharacteristicsValue
 	                          ,SCV.UserName AS SecondCharacteristicsValue

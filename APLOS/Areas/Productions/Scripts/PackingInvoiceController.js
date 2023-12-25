@@ -128,9 +128,9 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     };
 
     $scope.AdditionalFreightList = [
-        { Value: "Manufacture", Text: "Manufacture" },
-        { Value: "Trading", Text: "Trading" },
-        { Value: "Other", Text: "Other" }
+        { Value: "PercentageOfValue", Text: "Percentage Of Value" },
+        { Value: "Rate/Unit", Text: "Rate/Unit" },
+        { Value: "Fixed", Text: "Fixed" }
     ];
 
     //$http({

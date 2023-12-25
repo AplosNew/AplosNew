@@ -38,7 +38,6 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         }
     }
 
-
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
 
     $scope.ShowCustomerPopUpNew = function () {
@@ -88,6 +87,12 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
     }
     $scope.GetshipmentMode();
 
+    function removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+        });
+    }
+    $scope.sqlInStatement = null;
     $scope.savedcontractList = [];
     $scope.GetSavedContract = function (masterLCId) {
         $scope.savedcontractList = [];
@@ -96,11 +101,42 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
                         $scope.savedcontractList = response.data;
+                        if ($scope.savedcontractList.length > 0) {
+                            var uniqueCId = removeDuplicates($scope.savedcontractList, 'Id');
+                            var wcCId = "";
+                            if (uniqueCId.length > 0) {
+                                wcCId = "IN(";
+                                wcCId += Array.prototype.map.call(uniqueCId, function (item) { return "'" + item.Id + "'"; }).join(",") + ")";
+                            }
+                            $scope.sqlInStatement = wcCId;
+                        }
+                        $scope.getColor();
                     }
                 },
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
                 });
+    };
+    
+    $scope.bgcolor = '#e26969';
+    $scope.getColor = function () {
+        var remark = '';
+        $http({
+            method: 'GET',
+            url: "Commercial/Contract/GetSalesOrderListByContract?customerId=" + $scope.masterLC.CustomerId + '&contractId=' + $scope.sqlInStatement
+        }).then(function (response) {
+            for (var i = 0; i < response.data.length; i++) {
+                if (!baseService.isUndefinedOrNull(response.data[i].LCArticle)) {
+                    remark = response.data[i].LCArticle;
+                }
+                break;
+            }
+            if (remark === null || remark === '') {
+                $scope.bgcolor = '#e26969';
+            } else {
+                $scope.bgcolor = '#0f6d1c';
+            }
+        });
     };
 
     $scope.contractList = [];
@@ -132,7 +168,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
     $scope.SaveContract = function () {
         try {
             $scope.SaveList = [];
-            if (baseService.arrayLength($scope.savedcontractList)>0) {
+            if (baseService.arrayLength($scope.savedcontractList) > 0) {
                 for (var i = 0; i < $scope.contractList.length; i++) {
                     if ($scope.contractList[i].Active) {
                         if (checkSamePaymentTerm($scope.savedcontractList, $scope.contractList[i].PaymentTermId)) {
@@ -158,7 +194,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
                     }
                 }
             }
-            
+
 
             if (baseService.arrayLength($scope.SaveList) > 0) {
                 $http({
@@ -474,7 +510,6 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         $scope.ActionAdd = 'Save';
     }
 
-
     $scope.GetMasterLCTermsAndConditionsList = function () {
         $http({
             method: 'GET',
@@ -484,19 +519,10 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         });
     }
 
-    $scope.sqlInStatement = null;
     $scope.searchdata = [];
     $scope.GetTermsAndConditionsList = function () {
         $scope.searchdata = [];
-        if ($scope.savedcontractList.length > 0) {
-            var uniqueCId = removeDuplicates($scope.savedcontractList, 'Id');
-            var wcCId = "";
-            if (uniqueCId.length > 0) {
-                wcCId = "IN(";
-                wcCId += Array.prototype.map.call(uniqueCId, function (item) { return "'" + item.Id + "'"; }).join(",") + ")";
-            }
-            $scope.sqlInStatement = wcCId;
-        }
+
         $http({
             method: 'GET',
             url: 'Commercial/Contract/GetTermsAndConditionsDataList?contractId=' + $scope.sqlInStatement
@@ -556,7 +582,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
     $scope.CloseTermsAndConditions = function () {
         try {
             $scope.SaveTNC();
-            
+
         } catch (e) {
             ShowResult(e, 'failure');
         }
@@ -649,7 +675,6 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         }
     };
 
-
     $scope.message_detailconfirmation = null;
     $scope.removeBoMDetail = function (obj) {
         $scope.bomDetailNew = obj.data;
@@ -694,7 +719,6 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         UpdatedFromIP: null
     }
     $scope.BankModelNew = Object.assign({}, $scope.ModelBank);
-
 
     addressService.getCountryCbo(function (result) {
         $scope.companyList = result;
@@ -779,7 +803,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
     $scope.GetNegotiatingBankList();
 
     $scope.NegotiatingBankDataList = [];
-    $scope.searchByNBList = [{ value: 'BankName', name: "Bank Name" }, { value: 'UserName', name: "User Name" }, { value: 'AccountNo', name: "AccountNo" },{ value: 'Country', name: "Country" }];
+    $scope.searchByNBList = [{ value: 'BankName', name: "Bank Name" }, { value: 'UserName', name: "User Name" }, { value: 'AccountNo', name: "AccountNo" }, { value: 'Country', name: "Country" }];
     $scope.ShowNBPopUp = function () {
         $http({
             method: 'POST',
@@ -802,25 +826,8 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         angular.element(document.querySelector('#NBPopUp')).modal('hide');
     }
 
-    function removeDuplicates(myArr, prop) {
-        return myArr.filter((obj, pos, arr) => {
-            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
-        });
-    }
-
-
     $scope.SelectedSalesOrderList = [];
     $scope.GetEditSalesOrderList = function () {
-        if ($scope.savedcontractList.length > 0) {
-            var uniqueCId = removeDuplicates($scope.savedcontractList, 'Id');
-            var wcCId = "";
-            if (uniqueCId.length > 0) {
-                wcCId = "IN(";
-                wcCId += Array.prototype.map.call(uniqueCId, function (item) { return "'" + item.Id + "'"; }).join(",") + ")";
-            }
-            $scope.sqlInStatement = wcCId;
-        }
-
         $scope.SelectedSalesOrderList = [];
         $http({
             method: 'GET',
@@ -833,7 +840,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
 
     $scope.CloseSOPopUp = function () {
         try {
-            
+
             $http({
                 method: 'POST',
                 url: 'Commercial/Contract/UpdateSO',
@@ -848,6 +855,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.getColor();
                     angular.element(document.querySelector('#SOPopUp')).modal('hide');
                 }
             }), function errorCallBack(response) {
