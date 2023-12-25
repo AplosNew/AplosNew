@@ -1473,7 +1473,10 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
                 TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsTermsAndCondition.Rows[i]["RoWNo"].ToString() + "." + dsTermsAndCondition.Rows[i]["UserName"].ToString()).ApplyCharacterFormat(DFontSize);
-
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
             }
             ROW++;
 
@@ -1527,13 +1530,13 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             WCharacterFormat FontBold = new WCharacterFormat(document);
              WCharacterFormat DFontSize = new WCharacterFormat(document);
             FontBold.Bold = true;
-            DFontSize.FontSize = 8f;
+            DFontSize.FontSize = 5f;
 
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Additional Info");
             range.ApplyCharacterFormat(FontBold);
             range.ApplyCharacterFormat(DFontSize);
             int colTermsAndCondition = COL; COL++;
-            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 580;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 290;
 
             #endregion column headers
             double totalValue = 0;
@@ -1556,6 +1559,10 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
                 TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsaddInfo.Rows[i]["Description"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
 
             }
             ROW++;
@@ -1575,7 +1582,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             myaddStyle.CharacterFormat.FontSize = 8f;
             myaddStyle.CharacterFormat.TextColor = Color.Black;
             myaddStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
-
+  
             #endregion paragrpath formats
 
             #region merging section
