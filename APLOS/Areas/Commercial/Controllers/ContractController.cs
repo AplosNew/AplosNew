@@ -1234,6 +1234,10 @@ WHERE CT.ContractId " + contractId+"";
                     dr["PortOfLoadingId"] = data.PortOfLoadingId;
                     dr["Remarks"] = data.Remarks;
                     dr["DescriptionOfGoodsAndOrServices"] = data.DescriptionOfGoodsAndOrServices;
+                    dr["TermsandConditionVarify"] = data.TermsandConditionVarify;
+                    dr["PaymentTermVarify"] = data.PaymentTermVarify;
+                    dr["AdditionalInfoVarify"] = data.AdditionalInfoVarify;
+
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
@@ -1270,6 +1274,9 @@ WHERE CT.ContractId " + contractId+"";
                     dr["PortOfLoadingId"] = data.PortOfLoadingId;
                     dr["Remarks"] = data.Remarks;
                     dr["DescriptionOfGoodsAndOrServices"] = data.DescriptionOfGoodsAndOrServices;
+                    dr["TermsandConditionVarify"] = data.TermsandConditionVarify;
+                    dr["PaymentTermVarify"] = data.PaymentTermVarify;
+                    dr["AdditionalInfoVarify"] = data.AdditionalInfoVarify;
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
@@ -4093,7 +4100,9 @@ WHERE CT.ContractId " + contractId+"";
         public string PortOfLoadingId { get; set; }
         public string Remarks { get; set; }
         public string DescriptionOfGoodsAndOrServices { get; set; }
-
+        public bool TermsandConditionVarify { get; set; }
+        public bool PaymentTermVarify { get; set; }
+        public bool AdditionalInfoVarify { get; set; }
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }
         public string AddedFromIP { get; set; }

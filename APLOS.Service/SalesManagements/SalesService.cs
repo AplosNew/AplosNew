@@ -3118,6 +3118,8 @@ namespace Library.Service.SalesManagements
                     InvoiceStatus = voucherVM.InvoiceStatus,
                     ComercialInvoiceNo = voucherVM.ComercialInvoiceNo,
                     PaymentToReceiveBankId = voucherVM.PaymentToReceiveBankId,
+                    AdditionalFrieght = voucherVM.AdditionalFrieght,
+                    AdditionalFrieghtValue = voucherVM.AdditionalFrieghtValue,
                     SourceType = "Packing",
                     Id = "MS" + _pkGeneratorService.GetAutoNumber(nameof(Sales), PKGeneratorEnum.Yearly, null, DateTime.Now),
                 };
@@ -3489,6 +3491,8 @@ namespace Library.Service.SalesManagements
                     EXPDate = voucherVM.EXPDate,
                     EXPFromNo = voucherVM.EXPFromNo,
                     PaymentToReceiveBankId = voucherVM.PaymentToReceiveBankId,
+                    AdditionalFrieght = voucherVM.AdditionalFrieght,
+                    AdditionalFrieghtValue = voucherVM.AdditionalFrieghtValue,
                     AddedBy = voucherVM.AddedBy,
                     AddedDate = voucherVM.AddedDate,
                     AddedFromIP = voucherVM.AddedFromIP,
