@@ -711,6 +711,8 @@ namespace Library.Service.Finances
 
                 vendorAdWrsql = @"delete from TRN.FinancingSchedule where FinancingId in (select Id from TRN.Financing where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.Investment.ToString() + "' AND Id = '" + voucherId + "'))";
                 vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete from TRN.FinancingSubsequentTransaction where FinancingId in (select Id from TRN.Financing where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.Investment.ToString() + "' AND Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
 
                 vendorAdWrsql = @"delete from TRN.FinancingDetail where FinancingId in (select Id from TRN.Financing where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.Investment.ToString() + "' AND Id = '" + voucherId + "'))";
                 vendorAdWr.Append(vendorAdWrsql);
