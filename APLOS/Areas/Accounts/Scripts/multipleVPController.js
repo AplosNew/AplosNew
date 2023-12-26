@@ -104,29 +104,7 @@ function multipleVPController(accountService, addressService, $location, $window
     }
     $scope.GetCheckedHoldRejectList();
 
-    $scope.SaveHoldRejectData = function (args) {
-        try {
-            $http({
-                method: 'POST',
-                url: 'Accounts/Invoice/CreateHoldReject',
-                data: { 'data': args.data },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                }
-            }, function errorCallback(response) {
-                ShowResult(response.status.Message, 'failure');
-            });
-        }
-        catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
-
+ 
     $scope.CheckedApproved = [];
     $scope.GetCheckedApprovedList = function () {
         $http({

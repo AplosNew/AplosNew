@@ -23,7 +23,6 @@
                                         <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Approved" ng-click="$parent.SaveUnApproveData(this);" style="margin: -6px;"></i></button>
                                         <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GatePassUnApprovedList');" style="margin: -6px;"></i></button>
                                     </div>
-                                    @*<div e-column e-template="#ApprovedHoldRejectReason" e-headertext="Hold / Reject Reason" e-width="250" style="height: 20px; padding-top:-15px;"></div>*@
                                     <div e-column e-template="#ApprovedByStatus" e-headertext="Approved Status" e-width="150"></div>
 
                                     <div e-column e-field="Id" e-headertext="Payment No" e-width="90" e-filter="false"></div>
@@ -76,10 +75,7 @@
                                 </div>
                             </div>
                         </script>
-                        @*<script type="text/template" id="ApprovedHoldRejectReason">
-                                <input type="text" ng-model="data.ApprovedHoldRejectReason" style="color:black;" class="form-control" />
-                            </script>*@
-
+                        
                     </fieldset>
                 </div>
 
@@ -95,10 +91,9 @@
                                  e-scrollsettings="scroll">
                                 <div e-columns>
                                     <div e-column e-headertext="Actions" e-width="80">
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Checked/H/R" ng-click="$parent.SaveHoldRejectData(this);" style="margin: -6px;"></i></button>
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Approved" ng-click="$parent.SaveUnApproveData(this);" style="margin: -6px;"></i></button>
                                         <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GatePassHoldRejectList');" style="margin: -6px;"></i></button>
                                     </div>
-                                    @*<div e-column e-template="#ApprovedHoldRejectReason1" e-headertext="Hold / Reject Reason" e-width="250" style="height: 20px; padding-top:-15px;"></div>*@
                                     <div e-column e-template="#ApprovedByStatus1" e-headertext="Approved Status" e-width="150"></div>
                                     <div e-column e-field="Id" e-headertext="Payment No" e-width="90" e-filter="false"></div>
                                     <div e-column e-field="PartyName" e-headertext="Party" e-width="130" e-filter="false"></div>
@@ -133,10 +128,7 @@
                                     <input id="combo-default1" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.approvalStatusList" e-value="data.ApprovedByStatus" e-width="100%" />
                                 </div>
                             </div>
-                        </script>
-                        @*<script type="text/template" id="ApprovedHoldRejectReason1">
-                                <input type="text" ng-model="data.ApprovedHoldRejectReason" style="color:black;" class="form-control" />
-                            </script>*@
+                        </script> 
                     </fieldset>
                 </div>
                  
@@ -149,10 +141,9 @@
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"  
                                  e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-scrollsettings="scroll"> 
                                 <div e-columns>
-                                    <div e-column e-headertext="Actions" e-width="70">
+                                    <div e-column e-headertext="Actions" e-width="50">
                                         <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" title="Print" class="btn"><i class="glyphicon glyphicon-print" ng-click="$parent.AllTabPrint('GatePassApproved');" style="margin: -6px;"></i></button>
                                     </div>
-                                    <div e-column e-template="#ApprovedByStatus1" e-headertext="Approved Status" e-width="150"></div>
                                     <div e-column e-field="Id" e-headertext="Payment No" e-width="90" e-filter="false"></div>
                                     <div e-column e-field="PartyName" e-headertext="Party" e-width="130" e-filter="false"></div>
                                     <div e-column e-field="AccountTitle" e-headertext="Bank" e-width="100"></div>

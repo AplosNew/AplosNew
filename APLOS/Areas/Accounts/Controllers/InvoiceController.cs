@@ -1958,33 +1958,7 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
-        [HttpPost, Authorize]
-        public JsonResult CreateHoldReject(Dictionary<string, object> data)
-        {
-            try
-            {
-                DataSet dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from TRN.MultiplePayment where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
-                #region data update
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                {
-                    data["ApprovalStatus"] = data["ApprovedByStatus"];
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-                #endregion data update 
-
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster);
-                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
-        }
-
+        
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
