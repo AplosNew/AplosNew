@@ -529,6 +529,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("ProductionOrderEntitySetupController", ProductionOrderEntitySetupController)
     .controller("MasterPlanSetUpController", MasterPlanSetUpController)
     .controller("RemarksControlController", RemarksControlController)
+    .controller("TermsandConditionGroupController", TermsandConditionGroupController)
     
 
 
