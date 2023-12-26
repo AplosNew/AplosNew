@@ -6007,13 +6007,13 @@ LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
             {
                 strSQL = @"Select CONVERT(NUMERIC(10,2),SUM(ISNULL(ST.BooksCurrencyTransactionAmount,0))) BooksCurrencyTransactionAmount
 ,ST.SalesId,ST.TaxCategoryId,TC.Code TaxCode,CONVERT(NUMERIC(10,2),ST.Percentage)Percentage
-,CONVERT(NUMERIC(10,2),SUM(SM.TransactionAmount)) TaxON
-,TaxAmount=(SUM(SM.TransactionAmount)*ST.Percentage)/100
+,CONVERT(NUMERIC(10,2),SUM(SM.BooksCurrencyTransactionAmount)) TaxON
+,TaxAmount=CONVERT(NUMERIC(10,2),(SUM(SM.BooksCurrencyTransactionAmount)*ST.Percentage)/100)
 from TRN.SalesTax ST
 left join TRN.SalesMaterial SM  ON ST.SalesMaterialId=SM.Id
 left join TRN.Sales S ON S.Id=SM.SalesId
 LEFT JOIN MST.TaxCategory TC ON TC.Id=ST.TaxCategoryId
-Where S.SourceType='Packing' AND ST.SalesId='"+ SalesId + @"'
+Where S.SourceType='Packing' AND ST.SalesId='" + SalesId + @"'
 Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
 
                 return _sqlRepository.GetDataTable(strSQL);
