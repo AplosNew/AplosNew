@@ -6291,7 +6291,6 @@ namespace Library.Service.Invoices
                         totalCurrencyAmountDr += bankChargeDetailVM.CompanyCurrencyAmount;
                     }
                 }
-                //totalCurrencyAmountDr = totalCurrencyAmountCr;
                 totalAmountCr += taxDrAmount;
                 totalAmountDr += totalCharges;
                 if (totalAmountDr != totalAmountCr)
