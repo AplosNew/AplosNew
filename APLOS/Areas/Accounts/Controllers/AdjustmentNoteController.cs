@@ -10,6 +10,7 @@ using Library.Model.Enums;
 using Library.Model.Parties;
 using Library.Service.Advances;
 using Library.Service.Invoices;
+using Library.ViewModel.Banks;
 using Library.ViewModel.Invoices;
 using Library.ViewModel.Vouchers;
 using System;
@@ -198,7 +199,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         [HttpPost]
         public JsonResult InsertDebitNoteSetOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-            , IEnumerable<VoucherDetailViewModel> voucherDetailInvoiceList)
+            , IEnumerable<VoucherDetailViewModel> voucherDetailInvoiceList, IEnumerable<BankChargeViewModel> bankChargeDetailVMList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -224,7 +225,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertDebitNoteInvoiceSetOff(voucherVM, voucherDetailVMList, voucherDetailInvoiceList)) });
             }
             else
-                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertDebitNoteSetOff(voucherVM, voucherDetailVMList)) });
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertDebitNoteSetOff(voucherVM, voucherDetailVMList, bankChargeDetailVMList)) });
 
         }
 

@@ -1835,7 +1835,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     ), 1, 1, '')
 
 ,ContractDate=Stuff((
-                    SELECT distinct',' + FORMAT(C.ContractDate,'dd-MMM-yyyy')
+                    SELECT distinct',' + FORMAT(C.AddedDate,'dd-MMM-yyyy')
                     FROM  dbo.[Contract] C 
                     LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
 					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
@@ -1882,6 +1882,10 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
+,NetWeights=CONVERT(NUMERIC(10,2), SCN.NetWeight)
+,GrossWeights=CONVERT(NUMERIC(10,2), SCN.GWeight)
+,PSI.PreCarriageDocRef LRCopy 
+,FORMAT(PSI.PreCarriageDocDate,'dd-MMM-yyyy') LRDate
 
 ,DelCN.UserName INVOICEDILEVERYPLANTCOUNTRY,IR.AdditionalFrieghtValue
 FROM TRN.Sales IR
@@ -5316,7 +5320,7 @@ LEFT JOIN MST.BankMaster BM ON BM.Id = IR.PaymentToReceiveBankId
 LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
 LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId AND BB.Id = BM.BankBranchId
 LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
-                         WHERE IR.Id ='" + SalesId + "'";
+                         WHERE IR.Id ='" + SalesId + "' AND SCN.Bags<>''";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }
@@ -5475,6 +5479,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                          LEFT JOIN HKP.Party P ON P.Id = IR.PartyId
                          LEFT JOIN[MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
                          LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
+ LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
                          LEFT JOIN (Select distinct HsnCodeId,SalesMaterialId FROM TRN.SalesTax ) STH ON STH.SalesMaterialId=IRD.Id
                          LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
                          LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
@@ -5862,6 +5867,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                          LEFT JOIN HKP.Party P ON P.Id = IR.PartyId
                          LEFT JOIN[MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
                          LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
+ LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
                          LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
                          LEFT JOIN[HKP].[HSNCode] AS MHSN ON MHSN.ID = MM.HSNCodeId
                          LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId

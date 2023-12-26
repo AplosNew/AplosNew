@@ -1923,7 +1923,6 @@
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
     <Content Include="Areas\Accounts\Scripts\fiscalYearCloseController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractApprovedController.js" />
-    <Content Include="Areas\OrderManagements\Scripts\TermsandConditionGroupController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
     <Content Include="Areas\Productions\Scripts\MasterPlanDetailsController.js" />
     <Content Include="Areas\Productions\Scripts\MasterPlanSetUpController.js" />
@@ -4878,7 +4877,8 @@
     <Content Include="Areas\Productions\Views\MasterPlanDetails\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\CutPlan\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\multipleVP.cshtml" />
-    <Content Include="Areas\OrderManagements\Views\TermsAndConditions\Group.cshtml" />
+    <Content Include="Areas\Accounts\Views\_MultipleVendorPostedTab.cshtml" />
+    <Content Include="Areas\Accounts\Views\_MultipleVendorEntryTab.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

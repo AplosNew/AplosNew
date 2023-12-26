@@ -21,6 +21,7 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
     $scope.multipleVendorpaymentList = [];
     $scope.multipleVendorpaymentDetailList = [];
     $scope.MultiplepaymentDetailSelectedList = [];
+    baseService.init("Accounts/Invoice/GetMultiplePaymentVoucherList", null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
 
     $scope.getData = function () {
         $http({
@@ -31,76 +32,66 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
         });
     };
     $scope.getData();
-    $scope.getParkData = function () {
-        $http({
-            method: "GET",
-            url: "accounts/invoice/GetMultiplePaymentParkAndUnApprovedList"
-        }).then(function successCallback(response) {
-            $scope.multipleVendorpaymentList = response.data;
-           // $scope.getDetailData(id);
-        });
-        angular.element(document.querySelector('#multiPaymentPopUp')).modal('show');
+
+    $scope.searchVendorInvoiceList = [
+        {
+            "Text": "Voucher No",
+            "Value": "VoucherNo"
+        },
+        {
+            "Text": "Vendor/Party",
+            "Value": "PartyName"
+        },
+        {
+            "Text": "Posting Date",
+            "Value": "PostingDate"
+        },
+        {
+            "Text": "Multiple Payment No",
+            "Value": "MultiplePaymentNo"
+        }
+        ,
+        {
+            "Text": "Currency Code",
+            "Value": "CurrencyCode"
+        },
+        {
+            "Text": "Status",
+            "Value": "Status"
+        },
+        {
+            "Text": "Doc. RefNo",
+            "Value": "DocRefNo"
+        },
+        {
+            "Text": "Amount",
+            "Value": "Amount"
+        }
+    ];
+
+    $scope.parameters = {
+        limit: 10,
+        offset: 0,
+        order: "ASC",
+        sort: "VoucherNo",
+        searchBy: "VoucherNo",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
     };
 
-    $scope.closeMultiPayment = function () {
-        var selectedPayment = $("#multiPaymentPopUpGrid").data("ejGrid");
-        var data = selectedPayment.getSelectedRecords()[0];
-
-        $scope.getDetailData(data.Id);
-        angular.element(document.querySelector('#multiPaymentPopUp')).modal('show');
-
-    }
-
-    $scope.closeMultiPaymentPopUp = function () {
-        angular.element(document.querySelector('#multiPaymentPopUp')).modal('hide');
-    }
-    $scope.lst = [];
-    $scope.getDetailData = function (id) {
-        //debugger
-        $http({
-            method: 'GET',
-            url: "accounts/invoice/GetMultipleVendorAvailableDetailList?multiplePaymentId="+id
-        }).then(function successCallback(response) {
-            $scope.lst = response.data;
-            window.lst = response.data;
-        });
-    }
-    
-    $scope.data1 = $scope.lst;
-    $scope.detailTemp = "#tabGridContents";
-    $scope.detailgrid = function detailGridData(e) {
-
-        var filteredData = e.data["PartyId"];
-        var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("PartyId", "equal", filteredData, true).take(1000));
-        e.detailsElement.find("#detailGrid").ejGrid({
-            dataSource: data,
-            columns: [{ field: "VoucherNo", headerText: "VoucherNo", width: 50 },
-            { field: "PartyName", headerText: "PartyName", width: 150 },
-            { field: "PostingDate", headerText: "PostingDate", width: 50 },
-            { field: "DocDate", headerText: "DocDate", width: 150 },
-            { field: "DocRefNo", headerText: "DocRefNo", width: 150 },
-            { field: "CurrencyCode", headerText: "CurrencyCode", width: 50 },
-            { field: "Amount", headerText: "Amount", width: 50 },
-            ]
-        });
-        e.detailsElement.find(".tabcontrol").ejTab();
-    }
-    
-    $scope.selectPaymentList = function () {
-        $scope.checkedMultipleVendorpaymentList = [];
-        $scope.MultiplepaymentDetailSelectedList = [];
-        for (var i = 0; i < $scope.multipleVendorpaymentList.length; i++) {
-            if ($scope.multipleVendorpaymentList[i].flag === true) {
-                $scope.checkedMultipleVendorpaymentList.push($scope.multipleVendorpaymentList[i]);
-                for (var j = 0; j < window.lst.length; j++) {
-                    if (window.lst[j].PartyId == $scope.multipleVendorpaymentList[i].PartyId) {
-                        $scope.MultiplepaymentDetailSelectedList.push(window.lst[j]);
-                    }
-                }
-            }
-        }
-    }
-
+    $scope.getVoucherData = function (pageno) {
+        baseService.pagination(pageno, $scope.parameters)
+            .then(function (result) {
+                $scope.paymentList = result.Rows;
+                $scope.parameters.total_count = result.Total;
+            }, function () {
+                ShowResult(commonMessage.NetworkError, "failure");
+            }).finally(function () {
+            });
+    };
+    $scope.getVoucherData();
 
     $scope.Get = function () {
         var gridObj = $("#MultiplePaymentGrid").data("ejGrid");
@@ -632,14 +623,10 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
-                //$scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
-                //$scope.voucher.DocDate = $scope.voucher.PostingDate;
-               // $scope.getTaxCodeByTaxYear($scope.voucher.PostingDate);
-
             }
         });
     };
-    $scope.getCboVoucherTypePaymentList();
+    
 
     $scope.delete = function () {
         if ($scope.checkedMultipleVendorpaymentList.length > 0) {
@@ -679,34 +666,86 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
     };
 
 
-    //$scope.reportFormat = "Excel";
-    //$scope.Report = function () {
-    //    try {
-    //        $scope.fileName = "Multi Vendor Payment.xlsx";
-    //        $http({
-    //            method: 'POST',
-    //            url:'accounts/Invoice/GetMultiVendorPaymentReport',
-    //            data: { 'reportFormat': $scope.reportFormat, 'mpdId': $scope.masterId },
-    //            dataType: 'JSON'
-    //        }).then(function successCallback(response) {
-    //            if (response.data.Error == false) {
-    //                //$rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-    //                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-    //            }
-    //            else {
-    //                ShowResult(response.data.Message, 'failure');
-    //            }
-    //        }), function errorCallBack(response) {
-    //            ShowResult(response.data.Message, 'failure');
-    //        };
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
+    $scope.getParkData = function () {
+        $http({
+            method: "GET",
+            url: "accounts/invoice/GetMultiplePaymentParkAndUnApprovedList"
+        }).then(function successCallback(response) {
+            $scope.multipleVendorpaymentList = response.data;
+            // $scope.getDetailData(id);
+        });
+        angular.element(document.querySelector('#multiPaymentPopUp')).modal('show');
+    };
 
-    //}
+    $scope.closeMultiPayment = function () {
+        var selectedPayment = $("#multiPaymentPopUpGrid").data("ejGrid");
+        var data = selectedPayment.getSelectedRecords()[0];
+        $scope.voucher = selectedPayment.getSelectedRecords()[0];
+        $scope.voucher.VoucherDate = $filter("dateFiltering")(Date.now());
+        $scope.voucher.PaymentSource= "Bank";
+        $scope.getDetailData(data, data.Id);
+        $scope.getCboVoucherTypePaymentList();
+        angular.element(document.querySelector('#multiPaymentPopUp')).modal('hide');
+
+    }
+
+    $scope.closeMultiPaymentPopUp = function () {
+        angular.element(document.querySelector('#multiPaymentPopUp')).modal('hide');
+    }
+    $scope.lst = [];
+    $scope.getDetailData = function (data, id) {
+        //debugger
+        $http({
+            method: 'GET',
+            url: "accounts/invoice/GetMultipleVendorAvailableDetailList?multiplePaymentId=" + id
+        }).then(function successCallback(response) {
+            $scope.lst = response.data;
+            window.lst = response.data;
+            for (var i = 0; i < $scope.lst.length; i++) {
+                $scope.lst[i].TentativeDate = data.TentativeDate
+                $scope.lst[i].IsPark = true;
+                $scope.lst[i].BankMasterId = data.BankMasterId;
+                $scope.lst[i].AccountTitle = data.AccountTitle;
+            }
+        });
+    }
+
+    $scope.data1 = $scope.lst;
+    $scope.detailTemp = "#tabGridContents";
+    $scope.detailgrid = function detailGridData(e) {
+
+        var filteredData = e.data["PartyId"];
+        var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("PartyId", "equal", filteredData, true).take(1000));
+        e.detailsElement.find("#detailGrid").ejGrid({
+            dataSource: data,
+            columns: [{ field: "VoucherNo", headerText: "VoucherNo", width: 50 },
+            { field: "PartyName", headerText: "PartyName", width: 150 },
+            { field: "PostingDate", headerText: "PostingDate", width: 50 },
+            { field: "DocDate", headerText: "DocDate", width: 150 },
+            { field: "DocRefNo", headerText: "DocRefNo", width: 150 },
+            { field: "CurrencyCode", headerText: "CurrencyCode", width: 50 },
+            { field: "Amount", headerText: "Amount", width: 50 },
+            ]
+        });
+        e.detailsElement.find(".tabcontrol").ejTab();
+    }
+
+    $scope.selectPaymentList = function () {
+        $scope.checkedMultipleVendorpaymentList = [];
+        $scope.MultiplepaymentDetailSelectedList = [];
+        for (var i = 0; i < $scope.lst.length; i++) {
+            if ($scope.lst[i].flag === true) {
+                $scope.checkedMultipleVendorpaymentList.push($scope.lst[i]);
+                for (var j = 0; j < window.lst.length; j++) {
+                    if (window.lst[j].PartyId == $scope.lst[i].PartyId && window.lst[j].InvoiceDetailId == $scope.lst[i].InvoiceDetailId) {
+                        $scope.MultiplepaymentDetailSelectedList.push(window.lst[j]);
+                    }
+                }
+            }
+        }
+    }
 
 
-    //Vendor Section Start
 
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
     $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];

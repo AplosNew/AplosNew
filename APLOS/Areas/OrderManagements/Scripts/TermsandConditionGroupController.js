@@ -5,10 +5,9 @@ function TermsandConditionGroupController(cboService, commonMessage, $scope, $ro
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'OrderManagements/TermsAndConditions/';
-    $scope.getListUrl = $scope.path + 'getlist';
-    $scope.getSeqUrl = $scope.path + 'getautosequence';
-    $scope.saveUrl = $scope.path + 'create';
-    $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.getSeqUrl = $scope.path + 'GetGroupAutoSequence';
+    $scope.saveUrl = $scope.path + 'CreateGroup';
+    $scope.deleteUrl = $scope.path + 'deletegroup/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
@@ -17,7 +16,7 @@ function TermsandConditionGroupController(cboService, commonMessage, $scope, $ro
     $scope.getData = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "GetList",
+            url: $scope.path + "getgrouplist",
             data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
         }).then(function successCallback(response) {          
@@ -27,6 +26,12 @@ function TermsandConditionGroupController(cboService, commonMessage, $scope, $ro
         });
     }
     $scope.getData();
+
+    $scope.GroupNameList = [
+        { Value: "DeliveryTerm", Text: "Delivery Term" },
+        { Value: "PaymentTerm", Text: "Payment Term" },
+        { Value: "OtherTerm", Text: "Other Term" }
+    ];
 
     $scope.ModelTemp = {
         Id: null,

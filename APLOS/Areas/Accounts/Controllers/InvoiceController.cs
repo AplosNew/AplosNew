@@ -1309,6 +1309,15 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_accountsInvoiceService.GetMultiplePaymentParkList(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
+
+
+        [Authorize, HttpGet]
+        public JsonResult GetMultiplePaymentVoucherList(GridParameter parameters)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_invoiceWriteOffService.GetMultiplePaymentVoucherList(parameters, identity.PlantId, SourceType.VendorPayment), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public JsonResult GetMultipleVendorAvailableDetailList(string multiplePaymentId)
         {

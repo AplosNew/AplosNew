@@ -877,7 +877,8 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
                     data: {
                         "voucherVM": $scope.voucher,
                         "voucherDetailVMList": $scope.voucherDetailList,
-                        "voucherDetailInvoiceList": $scope.voucherInvoiceDetailList
+                        "voucherDetailInvoiceList": $scope.voucherInvoiceDetailList,
+                        "bankChargeDetailVMList": $scope.bankChargesList
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -1176,4 +1177,51 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
         $scope.voucherInvoiceDetailList.push(advance);
         angular.element(document.querySelector("#advancePopUp")).modal("hide");
     }
+
+
+    $scope.bankCharge = {
+        FinancingTypeId: null,
+        FinancingTypeName: null,
+        Amount: null,
+        CompanyCurrencyAmount: null
+    };
+
+    $scope.bankChargesList = [];
+    $scope.addCharge = function () {
+        if (manualValidation("td_FinancingType", baseService.isUndefinedOrNull($scope.bankCharge.FinancingTypeId), "Charges Type is required.")) {
+            $scope.invalidRow = true;
+        }
+        else if (manualValidation("td_FinancingTypeAmount", baseService.isUndefinedOrNull($scope.bankCharge.Amount), "Amount is required.")) {
+            $scope.invalidRow = true;
+        }
+        else if (manualValidation("td_FinancingTypeCompanyCurrencyAmount", baseService.isUndefinedOrNull($scope.bankCharge.CompanyCurrencyAmount), $scope.companyCurrencyCode + " is required.")) {
+            $scope.invalidRow = true;
+        }
+        else {
+            $scope.bankCharge.FinancingTypeName = $.grep($scope.bankChargeTypeList, function (item) {
+                return item.FinancingTypeId === $scope.bankCharge.FinancingTypeId;
+            })[0].ExpensesUserName;
+            $scope.bankChargesList.push($scope.bankCharge);
+            $scope.bankCharge = {};
+            /*$scope.calBaseAmount();*/
+        }
+    };
+
+    $scope.copyChargesAmount = function () {
+        if ($scope.voucher.CurrencyId === $scope.companyCurrencyId) {
+            $scope.bankCharge.CompanyCurrencyAmount = $scope.bankCharge.Amount;
+        }
+        else {
+            $scope.bankCharge.CompanyCurrencyAmount = ($scope.bankCharge.Amount * $scope.voucher.CompanyCurrencyRate).toFixed(2);
+        }
+    };
+
+    bankService.getCboBankChargeTypeList(function (result) {
+        $scope.bankChargeTypeList = result;
+    });
+
+    $scope.removeChargesRow = function (index) {
+        $scope.bankChargesList.splice(index, 1);
+        $scope.calBaseAmount();
+    };
 }

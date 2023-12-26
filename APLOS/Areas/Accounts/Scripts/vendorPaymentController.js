@@ -319,19 +319,22 @@ function vendorPaymentController(bankService, accountService, cboService, common
             msg = "Posting Date is required.";
             $scope.invalidPostingDate = true;
         }
+        else if ($scope.voucherDetailList.length > 0) {
+            for (var i = 0; i < $scope.voucherDetailList.length; i++) {
+                if (new Date($scope.voucherDetailList[i].PostingDate) > new Date($scope.voucher.PostingDate)) {
+                    msg = "Posting date must be below or equal to payable of " + $scope.voucherDetailList[i].VoucherNo;
+                    $scope.invalidPostingDate = true;
+                    break;
+                }
+                else {
+                    $scope.invalidPostingDate = false;
+                }
+            }
+        }
         else {
             $scope.invalidPostingDate = false;
         }
-        for (var i = 0; i < $scope.voucherDetailList.length; i++) {
-            if (new Date($scope.voucherDetailList[i].PostingDate) > new Date($scope.voucher.PostingDate)) {
-                msg = "Posting date must be below or equal to payable of " + $scope.voucherDetailList[i].VoucherNo;
-                $scope.invalidPostingDate = true;
-                break;
-            }
-            else {
-                $scope.invalidPostingDate = false;
-            }
-        }
+        
         return manualValidation("div_PostingDate", $scope.invalidPostingDate, msg);
     };
 
@@ -810,7 +813,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
         }
     }
     $scope.calBankChargesBaseAmount = function () {
-        if ($scope.bankChargesList.length == 1) {
+        if ($scope.bankChargesList.length >0) {
             $scope.BaseAmountObj.Type = 'BankCharges';
             $scope.BaseAmountObj.BaseDrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.bankChargesList), "CompanyCurrencyAmount") * 1000 + Number.EPSILON) / 1000;
             $scope.BaseAmountObj.BaseCrAmount = null;
@@ -818,17 +821,17 @@ function vendorPaymentController(bankService, accountService, cboService, common
                 $scope.BaseAmountList.push($scope.BaseAmountObj);
             $scope.BaseAmountObj = {};
         }
-        else if ($scope.bankChargesList.length > 1) {
-            $scope.BaseAmountObj.Type = 'BankCharges';
-            $scope.BaseAmountObj.BaseDrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.bankChargesList), "CompanyCurrencyAmount") * 1000 + Number.EPSILON) / 1000;
-            $scope.BaseAmountObj.BaseCrAmount = null;
-            for (var i = 0; i < $scope.BaseAmountList.length; i++) {
-                if ($scope.BaseAmountList[i].Type == 'BankCharges') {
-                    $scope.BaseAmountList[i].BaseDrAmount = $scope.BaseAmountObj.BaseDrAmount;
-                }
-            }
-            $scope.BaseAmountObj = {};
-        }
+        //else if ($scope.bankChargesList.length > 1) {
+        //    $scope.BaseAmountObj.Type = 'BankCharges';
+        //    $scope.BaseAmountObj.BaseDrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.bankChargesList), "CompanyCurrencyAmount") * 1000 + Number.EPSILON) / 1000;
+        //    $scope.BaseAmountObj.BaseCrAmount = null;
+        //    for (var i = 0; i < $scope.BaseAmountList.length; i++) {
+        //        if ($scope.BaseAmountList[i].Type == 'BankCharges') {
+        //            $scope.BaseAmountList[i].BaseDrAmount = $scope.BaseAmountObj.BaseDrAmount;
+        //        }
+        //    }
+        //    $scope.BaseAmountObj = {};
+        //}
 
     }
     $scope.calOtherChargesBaseAmount = function () {
