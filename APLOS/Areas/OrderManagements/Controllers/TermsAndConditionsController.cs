@@ -45,6 +45,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             return View();
         }
+
+        public ActionResult Group()
+        {
+            return View();
+        }
+
         [Authorize, HttpGet]
         public JsonResult GetCbo()
         {

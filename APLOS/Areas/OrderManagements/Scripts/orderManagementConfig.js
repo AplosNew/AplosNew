@@ -280,7 +280,10 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/documentation/Aplos',
             controller: 'documentationController'
         })
-
+        .when('/tcgroup', {
+            templateUrl: 'OrderManagements/TermsAndConditions/Group',
+            controller: 'TermsandConditionGroupController'
+        })
 
         ;
 }
