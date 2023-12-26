@@ -1835,7 +1835,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     ), 1, 1, '')
 
 ,ContractDate=Stuff((
-                    SELECT distinct',' + FORMAT(C.ContractDate,'dd-MMM-yyyy')
+                    SELECT distinct',' + FORMAT(C.AddedDate,'dd-MMM-yyyy')
                     FROM  dbo.[Contract] C 
                     LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
 					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
@@ -1882,6 +1882,10 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
+,NetWeights=CONVERT(NUMERIC(10,2), SCN.NetWeight)
+,GrossWeights=CONVERT(NUMERIC(10,2), SCN.GWeight)
+,PSI.PreCarriageDocRef LRCopy 
+,FORMAT(PSI.PreCarriageDocDate,'dd-MMM-yyyy') LRDate
 
 ,DelCN.UserName INVOICEDILEVERYPLANTCOUNTRY,IR.AdditionalFrieghtValue
 FROM TRN.Sales IR
