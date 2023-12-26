@@ -634,18 +634,18 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
 LEFT JOIN
 											(
-										   select A.Opening,A.EmployeeId,A.LeaveTypeId,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate from dbo.AnnualLeaveDataCurrent A
+										   select top 1 A.Opening,A.EmployeeId,A.LeaveTypeId,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate from dbo.AnnualLeaveDataCurrent A
 										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
 										  LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
-										  Where LY.FromDate between'" + _FromDate + @"' AND '" + _ToDate + @"' AND LY.ToDate between'" + _FromDate + @"' AND '" + _ToDate + @"' AND A.EmployeeId='" + EmpSystemID + @"'
+										  Where LY.FromDate between'" + _FromDate + @"' AND '" + _ToDate + @"' AND LY.ToDate between'" + _FromDate + @"' AND '" + _ToDate + @"' AND A.EmployeeId='" + EmpSystemID + @"'  order by A.addeddate desc
 											)ALD ON ALD.EmployeeId=emp.SystemId AND lt.Id=ALD.LeaveTypeId
 
  LEFT JOIN
 											(
-										  select PBroughtForward=CASE WHEN A.Opening=0 THEN A.Adjustment ELSE A.Opening END,A.EmployeeId,A.LeaveTypeId from dbo.AnnualLeaveDataPast A
+										  select top 1 PBroughtForward=CASE WHEN A.Opening=0 THEN A.Adjustment ELSE A.Opening END,A.EmployeeId,A.LeaveTypeId from dbo.AnnualLeaveDataPast A
 										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
                                         LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
-										  Where LY.FromDate between'" + _LFromDate + @"' AND '" + _LToDate + @"' AND LY.ToDate between'" + _LFromDate + @"' AND '" + _LToDate + @"' AND A.EmployeeId='" + EmpSystemID + @"'
+										  Where LY.FromDate between'" + _LFromDate + @"' AND '" + _LToDate + @"' AND LY.ToDate between'" + _LFromDate + @"' AND '" + _LToDate + @"' AND A.EmployeeId='" + EmpSystemID + @"'  order by A.addeddate desc
 											)ALP ON ALP.EmployeeId=emp.SystemId AND lt.Id=ALP.LeaveTypeId
         LEFT JOIN (Select Sum(LTD.LeaveDuration) Rejected,LT.EmpSystemID,LT.LTSystemID  from LeaveTransaction LT
                                                             Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
@@ -821,18 +821,18 @@ ELSE CONVERT(BIT,0) END  ---No
 										 left outer join dbo.LeaveType lt on lt.Id = els.LeaveTypeId
 LEFT JOIN
 											(
-										   select A.Opening,A.EmployeeId,A.LeaveTypeId,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate from dbo.AnnualLeaveDataCurrent A
+										   select top 1 A.Opening,A.EmployeeId,A.LeaveTypeId,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate from dbo.AnnualLeaveDataCurrent A
 										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
 										  LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
-										  Where LY.FromDate between'" + _FromDate + @"' AND '" + _ToDate + @"' AND LY.ToDate between'" + _FromDate + @"' AND '" + _ToDate + @"' AND A.EmployeeId='" + EmpSystemID + @"'
+										  Where LY.FromDate between'" + _FromDate + @"' AND '" + _ToDate + @"' AND LY.ToDate between'" + _FromDate + @"' AND '" + _ToDate + @"' AND A.EmployeeId='" + EmpSystemID + @"'  order by A.addeddate desc
 											)ALD ON ALD.EmployeeId=els.EmployeeId AND lt.Id=ALD.LeaveTypeId
 
  LEFT JOIN
 											(
-										  select PBroughtForward=CASE WHEN A.Opening=0 THEN A.Adjustment ELSE A.Opening END,A.EmployeeId,A.LeaveTypeId from dbo.AnnualLeaveDataPast A
+										  select top 1 PBroughtForward=CASE WHEN A.Opening=0 THEN A.Adjustment ELSE A.Opening END,A.EmployeeId,A.LeaveTypeId from dbo.AnnualLeaveDataPast A
 										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
                                         LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
-										  Where LY.FromDate between'" + _LFromDate + @"' AND '" + _LToDate + @"' AND LY.ToDate between'" + _LFromDate + @"' AND '" + _LToDate + @"' AND A.EmployeeId='" + EmpSystemID + @"'
+										  Where LY.FromDate between'" + _LFromDate + @"' AND '" + _LToDate + @"' AND LY.ToDate between'" + _LFromDate + @"' AND '" + _LToDate + @"' AND A.EmployeeId='" + EmpSystemID + @"'  order by A.addeddate desc
 											)ALP ON ALP.EmployeeId=els.EmployeeId AND lt.Id=ALP.LeaveTypeId
         LEFT JOIN (Select Sum(LTD.LeaveDuration) Rejected,LT.EmpSystemID,LT.LTSystemID  from LeaveTransaction LT
                                                             Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
