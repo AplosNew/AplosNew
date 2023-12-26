@@ -99,7 +99,7 @@
                 </label>
             </disv>
         </div>
-       
+
     </div>
     <div class="col-xs-12 col-sm-4 col-md-4">
         <div class="form-group" show-errors>
@@ -300,7 +300,61 @@
             </div>
         </fieldset>
     </div>
-
+    <div class="col-xs-12 col-sm-6 col-md-6 modal-table" ng-show="voucher.NoteType=='@Library.Model.Invoices.NoteType.CustomerDebitNote.ToString()'">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Charges</legend>
+            <table class="table table-responsive table-striped">
+                <thead>
+                    <tr>
+                        <th>Charges Type</th>
+                        <th>Trn. Amount</th>
+                        <th>{{companyCurrencyCode}}</th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="td_FinancingType">
+                            <div class="select-style show-message">
+                                <select ng-model="bankCharge.FinancingTypeId">
+                                    <option ng-repeat="option in bankChargeTypeList" value="{{option.FinancingTypeId}}">{{option.ExpensesUserName}}</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td id="td_FinancingTypeAmount">
+                            <div class="show-message">
+                                <input type="text" class="form-control text-right" ng-model="bankCharge.Amount" ng-keyup="copyChargesAmount();">
+                            </div>
+                        </td>
+                        <td id="td_FinancingTypeCompanyCurrencyAmount">
+                            <div class="show-message">
+                                <input type="text" n-decimals="2" class="form-control text-right" ng-model="bankCharge.CompanyCurrencyAmount">
+                            </div>
+                        </td>
+                        <td class="text-right">
+                            <a ng-click="addCharge();" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></a>
+                        </td>
+                    </tr>
+                    <tr ng-repeat="x in bankChargesList">
+                        <td>{{x.FinancingTypeName}}</td>
+                        <td class="text-right">{{x.Amount | number:2 }}</td>
+                        <td class="text-right">{{x.CompanyCurrencyAmount | number:2}}</td>
+                        <td class="text-right">
+                            <button ng-click="removeChargesRow($index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot ng-show="bankChargesList.length">
+                    <tr>
+                        <td><b>Sub Total</b></td>
+                        <td class="text-right"><b>{{ bankChargesList | sumByKey : 'Amount' }}</b></td>
+                        <td class="text-right"><b>{{ bankChargesList | sumByKey : 'CompanyCurrencyAmount'  }}</b></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </fieldset>
+    </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li><button ng-click="confirmSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
