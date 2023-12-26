@@ -98,6 +98,14 @@ function investmentController(accountService, bankService, cboService, commonMes
         {
             "name": "Currency",
             "value": "Currency"
+        },
+        {
+            "name": "Status",
+            "value": "Status"
+        },
+        {
+            "name": "Particulars",
+            "value": "Particulars"
         }
     ];
 
