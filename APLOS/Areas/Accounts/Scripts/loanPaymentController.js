@@ -115,6 +115,16 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
             "name": "LoanSetOffGroupNo",
             "value": "LoanSetOffGroupNo"
         }
+        ,
+        {
+            "name": "Loan No",
+            "value": "LoanNo"
+        }
+        ,
+        {
+            "name": "Status",
+            "value": "Status"
+        }
     ];
 
     baseService.init("accounts/Loan/GetLoanPaymentList", null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");

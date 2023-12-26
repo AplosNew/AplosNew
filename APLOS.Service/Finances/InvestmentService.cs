@@ -87,14 +87,15 @@ namespace Library.Service.Finances
 
         public GridModel Query(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
-            parameters.CmdText = @"SELECT V.VoucherNo, A.FinancingNo, A.Id, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.EmployeeId, EI.EmployeeCode, EI.EmployeeName
-                                , A.VoucherId, A.PostingDate, A.DocDate, A.DocRefNo, A.CurrencyId, C.Code AS CurrencyCode, A.Amount, A.IsWrittenOff, A.WrittenOffAmount, A.IsPark, A.IsPosted, A.TransactionType
+            parameters.CmdText = @"SELECT V.VoucherNo, A.FinancingNo, A.Id, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.EmployeeId, EI.EmployeeCode, EI.EmployeeName, A.VoucherId, A.PostingDate, A.DocDate, A.DocRefNo, A.CurrencyId, C.Code AS CurrencyCode,    A.Amount, A.IsWrittenOff, A.WrittenOffAmount, A.IsPark, A.IsPosted, A.TransactionType,BM.AccountTitle Particulars,Status=case when V.IsPark=1 then 'Parked' else 'Posted' end
+
                                 FROM [TRN].[Financing] AS A
                                 LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
                                 LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=A.PartyPlantId
                                 LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=A.EmployeeId
                                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
                                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
+                                LEFT JOIN MST.BankMaster BM on BM.Id=A.BankMasterId
                                 WHERE A.OpeningBalanceId IS NULL AND A.Archive=0 AND V.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' AND A.SourceType='" + sourceType + "'";
             return _sqlRepository.GetGridData(parameters);
         }
