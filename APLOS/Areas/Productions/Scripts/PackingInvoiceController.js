@@ -127,6 +127,12 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         PaymentToReceiveBankId: null
     };
 
+    $scope.AdditionalFreightList = [
+        { Value: "PercentageOfValue", Text: "Percentage Of Value" },
+        { Value: "Rate/Unit", Text: "Rate/Unit" },
+        { Value: "Fixed", Text: "Fixed" }
+    ];
+
     //$http({
     //    method: "GET",
     //    url: "accounts/PaymentTerm/getcustomercbo"

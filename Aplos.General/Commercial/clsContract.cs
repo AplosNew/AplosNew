@@ -99,6 +99,7 @@ where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1
             }
         }
 
+       
         public IEnumerable<object> GetContractDetail(string partyId, string contractId)
         {
             try
@@ -172,9 +173,11 @@ LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId
 where so.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 ,ItemNo=isnull(STUFF((select distinct ','+I.Id from TRN.MasterOrderItem I 
 INNER JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=I.Id
-where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),''),LC.LCRef MasterLCNo,B.AccountTitle Bank
                             FROM [dbo].[Contract] C
-                            JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id 
+                            LEFT JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id 
+                            LEFT JOIN dbo.MasterLC LC ON LC.Id=C.MasterLCId
+                            LEFT JOIN MST.BankMaster B ON B.Id=C.BankId
                             Where C.MasterLCId='" + masterLCId + "' ORDER BY C.CustomerId";
             return _sqlRepository.GetDataCollection(sql);
         }
@@ -370,7 +373,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                                 ,so.Rate,So.UpCharge
 								,so.Qty
 								,(so.Rate*so.Qty) as Amount
-                                ,mm.UserName MaterialDescription,mma.StandardName as Article,h.Code as HSNCode
+                                ,mm.UserName MaterialDescription,Article=CASE WHEN ISNULL(SO.LCArticle,'')<>'' THEN SO.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END,h.Code as HSNCode
                                 ,c.description as Reference,
                                 pc.UserName as CustomerName,u.UserName as UoM,
                                 pbt.UserName as ConsigneeBilltoName,
@@ -392,6 +395,8 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                                 LEFT JOIN MST.Destination DS ON DS.Id=SO.DestinationId
                                 left join MST.MaterialMaster as mm on mm.Id=moi.MaterialMasterId
                                 left join MST.MaterialMasterArticle as mma on mma.MaterialMasterId=mm.Id AND MOI.ArticleId=MMA.Id
+                                LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id
+                                LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
                                 left join HKP.HSNCode as h on h.Id=mma.HSNCodeId
                                 left join TRN.MasterOrder as mo on mo.id=moi.MasterOrderId
                                 left join SCS.UnitOfMeasurement as u on u.Id=mo.TotalQtyUOMId
@@ -627,6 +632,37 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
 							LEFT JOIN MST.MaterialMaster MM ON MM.Id=I.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=I.ArticleId
                             WHERE A.CompanyId='" + CompanyId + @"'  AND A.PlantId='" + PlantId + @"' AND A.PartyId='" + customerId + @"' AND SO.ContractId='" + contractId + "')A Order BY A.Flags desc";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetSalesOrderListByContract(string CompanyId, string PlantId, string customerId, string contractId)
+        {
+            try
+            {
+
+                var sql = @"SELECT * FROM(SELECT Flags=CAST(CASE WHEN SO.ContractId IS NULL THEN 0 ELSE 1 END AS BIT),SO.Id SalesOrderId,SO.ContractId,A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SO.Qty TotalQty	
+                            ,A.TotalQtyUOMId,PL.UserName,C.Code Currency,B.UserName Buyer, (SO.Qty*SO.Rate)Amount,SO.Qty,ISNULL(A.BuyerReferenceNo,'') BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'') OwnReferenceNo,ISNULL(I.BuyerReferenceNo,'') BuyerItem,ISNULL(I.OwnReferenceNo,'') OwnItem
+                            ,MM.UserName MaterialMaster,MMA.ShortName Article,AAP.UserName CustomerArticle,po.PONumber,PT.UserName PaymentTerm,A.PaymentTermId,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,CNT.ContractNo,SO.LCArticle
+                            FROM TRN.SalesOrder SO
+                            LEFT JOIN dbo.Contract CNT ON CNT.Id=SO.ContractId
+							INNER JOIN [TRN].[MasterOrderItem] AS I ON I.Id=SO.MasterOrderItemId
+							INNER JOIN [TRN].[MasterOrder] AS A ON A.Id=I.MasterOrderId
+                            INNER JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
+                            Left join MST.PaymentTerm AS PT on PT.Id = A.PaymentTermId
+                            LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
+                            LEFT JOIN TRN.CustomerPO PO ON PO.Id=SO.CustomerPOId
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
+                            LEFT JOIN [HKP].[Buyer] AS B ON B.Id=A.BuyerId
+							LEFT JOIN MST.MaterialMaster MM ON MM.Id=I.MaterialMasterId
+							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=I.ArticleId
+							LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id
+                            LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
+                            WHERE A.CompanyId='" + CompanyId + @"'  AND A.PlantId='" + PlantId + @"' AND A.PartyId='" + customerId + @"' AND SO.ContractId " + contractId +")A Order BY A.Flags desc";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

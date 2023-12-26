@@ -1899,7 +1899,39 @@ namespace Aplos.Areas.Accounts.Controllers
 							LEFT JOIN TRN.MultiplePayment MP ON MP.Id=MPD.MultiplePaymentId
 							LEFT JOIN HKP.Party P ON P.Id=MPD.PartyId
 							LEFT JOIN MST.BankMaster BM ON BM.Id=MP.BankMasterId
-							where  MP.PlantId='" + identity.PlantId + @"' 
+							where  MP.PlantId='" + identity.PlantId + @"' and MP.ApprovalStatus='Pending'
+							group by MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,MP.DueUpToDate
+                            , MP.TentativeDate,MPD.MultiplePaymentId
+                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle,P.UserName,MPD.PartyId ";
+
+            }
+            else if (tabType == "HoldRejectList")
+            {
+                sql = @"SELECT MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,Replace(CONVERT(VARCHAR(11), MP.DueUpToDate, 106), ' ', '-') DueUpToDate
+                            ,Replace(CONVERT(VARCHAR(11), MP.TentativeDate, 106), ' ', '-') TentativeDate
+                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle, 0 flag ,P.UserName PartyName,MPD.PartyId,SUM(MPD.Amount) Amount
+							,ParkStatus=case when MP.IsPark=1 then 'Parked' else 'Posted' end
+                            FROM TRN.MultiplePaymentDetail MPD 
+							LEFT JOIN TRN.MultiplePayment MP ON MP.Id=MPD.MultiplePaymentId
+							LEFT JOIN HKP.Party P ON P.Id=MPD.PartyId
+							LEFT JOIN MST.BankMaster BM ON BM.Id=MP.BankMasterId
+							where  MP.PlantId='" + identity.PlantId + @"' and MP.ApprovalStatus='Reject'
+							group by MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,MP.DueUpToDate
+                            , MP.TentativeDate,MPD.MultiplePaymentId
+                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle,P.UserName,MPD.PartyId ";
+
+            }
+            else
+            {
+                sql = @"SELECT MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,Replace(CONVERT(VARCHAR(11), MP.DueUpToDate, 106), ' ', '-') DueUpToDate
+                            ,Replace(CONVERT(VARCHAR(11), MP.TentativeDate, 106), ' ', '-') TentativeDate
+                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle, 0 flag ,P.UserName PartyName,MPD.PartyId,SUM(MPD.Amount) Amount
+							,ParkStatus=case when MP.IsPark=1 then 'Parked' else 'Posted' end
+                            FROM TRN.MultiplePaymentDetail MPD 
+							LEFT JOIN TRN.MultiplePayment MP ON MP.Id=MPD.MultiplePaymentId
+							LEFT JOIN HKP.Party P ON P.Id=MPD.PartyId
+							LEFT JOIN MST.BankMaster BM ON BM.Id=MP.BankMasterId
+							where  MP.PlantId='" + identity.PlantId + @"' and MP.ApprovalStatus='Approved'
 							group by MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,MP.DueUpToDate
                             , MP.TentativeDate,MPD.MultiplePaymentId
                             ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle,P.UserName,MPD.PartyId ";
@@ -1907,12 +1939,12 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
-          
+
         [HttpPost, Authorize]
-        public JsonResult CreateApproveBy(Dictionary<string, object> data)
+        public JsonResult CreateUnApproveBy(Dictionary<string, object> data)
         {
             try
-            { 
+            {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from TRN.MultiplePayment where Id='" + data["Id"] + "'", out dsMaster, false, "1");
@@ -1920,25 +1952,26 @@ namespace Aplos.Areas.Accounts.Controllers
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
-                    data["ApprovalStatus"] = "Approved";
+                    data["ApprovalStatus"] = data["ApprovedByStatus"];
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion data update 
-                 
+
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster); 
-                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated }); 
+                obj.SaveDataSets(dsMaster);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
             }
             catch (Exception ex)
             {
-                return Json(new { Error = true, Message = ex.Message }); 
+                return Json(new { Error = true, Message = ex.Message });
             }
         }
 
+        
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            dr.BeginEdit(); 
+            dr.BeginEdit();
             foreach (var item in sourceData.Keys)
             {
                 try
@@ -1948,10 +1981,10 @@ namespace Aplos.Areas.Accounts.Controllers
                 catch (Exception)
                 {
                 }
-            } 
+            }
             dr["UpdatedBy"] = identity.Name;
             dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress; 
+            dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
 

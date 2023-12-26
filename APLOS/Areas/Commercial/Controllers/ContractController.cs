@@ -94,17 +94,16 @@ namespace Aplos.Areas.Commercial.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetTermsAndConditionsDataList()
+        public ActionResult GetTermsAndConditionsDataList(string contractId)
         {
-            string sql = @"SELECT *,Flag=Convert(bit, CASE WHEN Mandatory=1 THEN 'true' ELSE 'false' END) FROM [HKP].[TermsAndConditions] Where [Type] IN('" + TermsAndConditionsEnum.Contract + "','" + TermsAndConditionsEnum.LetterOfCredit + "')";
+            string sql = @"SELECT distinct CT.TermsAndConditionsId,Flag=CAST(0 AS bit),IsVarified=CAST(0 AS bit),TC.Sequence,TC.Code,TC.ShortName,TC.StandardName,TC.UserName,TC.Description,'' Remarks  
+FROM [dbo].[ContractTermsAndConditions] CT
+LEFT JOIN HKP.TermsAndConditions TC ON TC.Id=CT.TermsAndConditionsId
+WHERE CT.ContractId " + contractId+"";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet, Authorize]
-        public ActionResult GetContractTermsAndConditionsList(string ContractId)
-        {
-            return Json(clsCon.GetContractTermsAndConditionsList(ContractId), JsonRequestBehavior.AllowGet);
-        }
+       
 
         [HttpGet, Authorize]
         public ActionResult GetContractDetail(string partyId, string contractId)
@@ -933,6 +932,64 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public JsonResult UpdateSO(List<Dictionary<string, object>> data)
+        {
+            try
+            {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsChild;
+                string id = "";
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        if (id == "")
+                            id = "'" + item["SalesOrderId"] + "'";
+                        else
+                            id = id + ",'" + item["SalesOrderId"] + "'";
+                    }
+                    string mosql = "SELECT * FROM TRN.SalesOrder WHERE Id IN (" + id + ")";
+                    objCon = new ConnectionManager.DAL.ConManager("1");
+                    objCon.OpenDataSetThroughAdapter(mosql, out dsChild, false, "1");
+
+                    string cId = string.Empty;
+                    foreach (var item in data)
+                    {
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["SalesOrderId"] + "'";
+                        
+                        if (dv.Count > 0)
+                        {
+                            DataRow drmo = dv[0].Row;
+
+                            drmo.BeginEdit();
+
+                            drmo["LCArticle"] = item["LCArticle"];
+                            drmo["UpdatedBy"] = identity.Name;
+                            drmo["UpdatedDate"] = DateTime.Now.ToString();
+                            drmo["UpdatedFromIP"] = identity.IPAddress;
+
+                            drmo.EndEdit();
+
+                        }
+
+                    }
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsChild);
+                }
+
+
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+        }
+
         private void XSaveData(Dictionary<string, object> data, List<MasterOrderItemModel> masterOrderItem, out string contractId, List<Dictionary<string, object>> funds)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1088,6 +1145,8 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }
 
+      
+
         private void UpdateContractData(Contract data)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1175,6 +1234,10 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["PortOfLoadingId"] = data.PortOfLoadingId;
                     dr["Remarks"] = data.Remarks;
                     dr["DescriptionOfGoodsAndOrServices"] = data.DescriptionOfGoodsAndOrServices;
+                    dr["TermsandConditionVarify"] = data.TermsandConditionVarify;
+                    dr["PaymentTermVarify"] = data.PaymentTermVarify;
+                    dr["AdditionalInfoVarify"] = data.AdditionalInfoVarify;
+
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
@@ -1211,6 +1274,9 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["PortOfLoadingId"] = data.PortOfLoadingId;
                     dr["Remarks"] = data.Remarks;
                     dr["DescriptionOfGoodsAndOrServices"] = data.DescriptionOfGoodsAndOrServices;
+                    dr["TermsandConditionVarify"] = data.TermsandConditionVarify;
+                    dr["PaymentTermVarify"] = data.PaymentTermVarify;
+                    dr["AdditionalInfoVarify"] = data.AdditionalInfoVarify;
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
@@ -1537,6 +1603,19 @@ namespace Aplos.Areas.Commercial.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 return Json(clsCon.GetEditSalesOrderList(identity.CompanyId, identity.PlantId, customerId, contractId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetSalesOrderListByContract(string customerId, string contractId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                return Json(clsCon.GetSalesOrderListByContract(identity.CompanyId, identity.PlantId, customerId, contractId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -4021,7 +4100,9 @@ namespace Aplos.Areas.Commercial.Controllers
         public string PortOfLoadingId { get; set; }
         public string Remarks { get; set; }
         public string DescriptionOfGoodsAndOrServices { get; set; }
-
+        public bool TermsandConditionVarify { get; set; }
+        public bool PaymentTermVarify { get; set; }
+        public bool AdditionalInfoVarify { get; set; }
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }
         public string AddedFromIP { get; set; }

@@ -45,6 +45,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             return View();
         }
+
+        public ActionResult Group()
+        {
+            return View();
+        }
+
         [Authorize, HttpGet]
         public JsonResult GetCbo()
         {
@@ -129,32 +135,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
 
         }
-        //public ActionResult DeleteTitle(string id)
-        //{
-        //    try
-        //    {
-
-        //        string ret = tg.DeleteTitle(id);
-
-        //        if (ret == "Success")
-        //        {
-        //            return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-        //        }
-        //        else
-        //        {
-        //            return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
-        //        }
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-
-        //    }
-
-
-        //}
+        
         public ActionResult DeleteTitle(string id)
         {
             try

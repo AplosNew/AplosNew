@@ -174,13 +174,27 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Payment To Receive Bank<sup>*</sup></label>
+                            <label class="col-sm-4 control-label" title="Payment To Receive Bank">Payment To Receive Bank<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="select-style">
                                     <select name="Payment To Receive Bank" id="OB" class="form-control" ng-model="salesVM.PaymentToReceiveBankId" ng-options="item.Id as item.AccountTitle for item in PaymentToReceiveBankList" tabindex="3">
                                         <option value="">--Select--</option>
                                     </select>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" title="Additional Frieght">Additional Frieght</label>
+                            <div class="col-sm-4">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="salesVM.AdditionalFrieght" name="AdditionalFrieght" id="AdditionalFrieght"
+                                            ng-options="item.Value as item.Text for item in AdditionalFreightList" tabindex="6">
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <input type="text" n-decimals="3" name="Value" ng-model="salesVM.AdditionalFrieghtValue" class="form-control" tabindex="7">
                             </div>
                         </div>
                     </div>
@@ -193,9 +207,9 @@
                                     <div class="col-sm-2 show-message">
                                         <div class="select-style">
                                             @*<select tabindex="10" id="paymentTermId" class="form-control" name="Payment Term" ng-model="salesVM.PaymentTermId" ng-change="changePaymentTerm(salesVM.PaymentTermId);">
-                                                <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
-                                            </select>*@
-                                            <select name="Payment Term" id="paymentTermId" class="form-control" ng-model="salesVM.PaymentTermId" ng-options="item.Value as item.Text for item in paymentTermList"  ng-change="changePaymentTerm(salesVM.PaymentTermId);">
+                                                    <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
+                                                </select>*@
+                                            <select name="Payment Term" id="paymentTermId" class="form-control" ng-model="salesVM.PaymentTermId" ng-options="item.Value as item.Text for item in paymentTermList" ng-change="changePaymentTerm(salesVM.PaymentTermId);">
                                                 <option value="">--Select--</option>
                                             </select>
                                         </div>
