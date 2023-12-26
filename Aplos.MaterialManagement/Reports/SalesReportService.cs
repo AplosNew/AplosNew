@@ -5280,7 +5280,16 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                     ), 1, 1, '')
         ) AS Shade
 		,IR.AddedBy CreatedBy
-        , SCN.Bags, SCN.LotNo, CONVERT(NUMERIC(10,2),SCN.GWeight)GWeight, MO.Type,MO.MasterOrderNo,SO.Id SalesOrderNo,MO.BuyerReferenceNo,BB.IFSCCode		
+        , SCN.Bags, SCN.LotNo, CONVERT(NUMERIC(10,2),SCN.GWeight)GWeight, MO.Type,MO.MasterOrderNo
+,SalesOrderNo = REPLACE(REPLACE(STUFF((
+                    SELECT DISTINCT ', ' + SO.Id
+                    FROM TRN.SalesMaterial SM
+                    JOIN TRN.SalesOrder SO ON SO.Id = SM.SalesOrderId
+                    WHERE IR.Id = SM.SalesId
+                    FOR XML path('')
+                        ,TYPE
+                    ).value('.', 'VARCHAR(MAX)'), 1, 1, ''), '&amp;', '&'), 'amp;', '')
+,MO.BuyerReferenceNo,BB.IFSCCode		
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
 LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -5998,16 +6007,13 @@ LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
             {
                 strSQL = @"Select CONVERT(NUMERIC(10,2),SUM(ISNULL(ST.BooksCurrencyTransactionAmount,0))) BooksCurrencyTransactionAmount
 ,ST.SalesId,ST.TaxCategoryId,TC.Code TaxCode,CONVERT(NUMERIC(10,2),ST.Percentage)Percentage
---,CONVERT(NUMERIC(10,2),SUM(SM.BooksCurrencyTransactionAmount)) TaxON
-,TaxON=SUM(CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN SM.BooksCurrencyTransactionAmount ELSE ROUND((SCN.NetWeight * CONVERT(NUMERIC(10,4),SM.BooksCurrencyBaseRate)), 2) END))
-,TaxAmount=CONVERT(NUMERIC(10,2),((SUM(CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN SM.BooksCurrencyTransactionAmount ELSE ROUND((SCN.NetWeight * CONVERT(NUMERIC(10,4),SM.BooksCurrencyBaseRate)), 2) END)))*CONVERT(NUMERIC(10,2),ST.Percentage)/100))
-from TRN.SalesMaterial SM 
-left join TRN.SalesTax ST ON ST.SalesMaterialId=SM.Id
-left join TRN.Sales S ON S.Id=ST.SalesId
+,CONVERT(NUMERIC(10,2),SUM(SM.TransactionAmount)) TaxON
+,TaxAmount=(SUM(SM.TransactionAmount)*ST.Percentage)/100
+from TRN.SalesTax ST
+left join TRN.SalesMaterial SM  ON ST.SalesMaterialId=SM.Id
+left join TRN.Sales S ON S.Id=SM.SalesId
 LEFT JOIN MST.TaxCategory TC ON TC.Id=ST.TaxCategoryId
-LEFT JOIN (SELECT SalesId,SalesMaterialId, LotNo, COUNT(RefNo) Bags, 
-            SUM(NetWeight)NetWeight,SUM(GWeight)GWeight FROM ItemScanChild group by SalesId ,SalesMaterialId, LotNo) SCN on SCN.SalesId = SM.SalesId AND SCN.SalesMaterialId=SM.Id
-Where S.SourceType='Packing' AND ST.SalesId='" + SalesId + @"'
+Where S.SourceType='Packing' AND ST.SalesId='"+ SalesId + @"'
 Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
 
                 return _sqlRepository.GetDataTable(strSQL);
