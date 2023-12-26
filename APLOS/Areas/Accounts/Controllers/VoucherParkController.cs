@@ -81,6 +81,28 @@ namespace Aplos.Areas.Accounts.Controllers
                     throw new CustomException("Voucher Park Mode not allowed, Bank Reconciled have to delete first!");
                 }
 
+                DataSet dsAdvanceWriteOff = null;
+                string advanceWriteOffsql = @"SELECT AW.*  from TRN.AdvanceWriteOffDetail AS AWD
+                                            INNER JOIN TRN.AdvanceWriteOff AS AW ON AW.Id=AWD.AdvanceWriteOffId
+                                            INNER JOIN TRN.Advance AS A ON A.Id=AWD.AdvanceId
+                                            where A.VoucherId = '" + voucherId + "' ";
+                objCon2.OpenDataSetThroughAdapter(advanceWriteOffsql, out dsAdvanceWriteOff, false, "1");
+                if (dsAdvanceWriteOff.Tables[0].Rows.Count > 0)
+                {
+                    throw new CustomException("Voucher Park Mode not allowed, Write Off have to delete first!");
+                }
+
+                DataSet dsInvoiceWriteOff = null;
+                string invoiceWriteOffsql = @"SELECT IW.*  from TRN.InvoiceWriteOffDetail AS IWD
+                                            INNER JOIN TRN.InvoiceWriteOff AS IW ON IW.Id=IWD.InvoiceWriteOffId
+                                            INNER JOIN TRN.Invoice AS I ON I.Id=IWD.InvoiceId
+                                            where I.VoucherId = '" + voucherId + "' ";
+                objCon2.OpenDataSetThroughAdapter(invoiceWriteOffsql, out dsInvoiceWriteOff, false, "1");
+                if (dsInvoiceWriteOff.Tables[0].Rows.Count > 0)
+                {
+                    throw new CustomException("Voucher Park Mode not allowed, Write Off have to delete first!");
+                }
+
                 if (sourceType== SourceType.JournalVoucher.ToString())
                 {
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
