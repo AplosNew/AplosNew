@@ -709,7 +709,7 @@ namespace Aplos.Areas.Commercial.Controllers
                         LEFT JOIN HKP.Party P  ON P.Id=M.VendorId
                         LEFT JOIN MST.BankMaster OB  ON OB.Id=M.OpeningBankMasterId
                         LEFT JOIN SCS.Currency CN ON CN.Id=M.CurrencyId
-						LEFT JOIN  dbo.PurchaseLCCharges CH ON CH.PurchaseLCId=M.Id AND CH.Version=M.Version WHERE ISNULL(CH.VoucherId,'')=''
+						JOIN  dbo.PurchaseLCCharges CH ON CH.PurchaseLCId=M.Id AND CH.Version=M.Version WHERE ISNULL(CH.VoucherId,'')=''
 						UNION
 						SELECT Type=CASE WHEN M.Version=1 THEN 'Open' ELSE 'Amendment' END,0 Active, M.PurchaseLCId Id,M.Version,FORMAT(M.LCDate,'dd-MMM-yyyy') LCDate,0 Amount
 						,FORMAT(M.AmendmentDate,'dd-MMM-yyyy') AmendmentDate, M.Amount AmendmentAmount ,M.Rate CompanyCurrencyRate,M.Rate
@@ -719,7 +719,7 @@ namespace Aplos.Areas.Commercial.Controllers
                         LEFT JOIN HKP.Party P  ON P.Id=M.VendorId
                         LEFT JOIN MST.BankMaster OB  ON OB.Id=M.OpeningBankMasterId
                         LEFT JOIN SCS.Currency CN ON CN.Id=M.CurrencyId
-						LEFT JOIN  dbo.PurchaseLCCharges CH ON CH.PurchaseLCId=M.PurchaseLCId AND CH.Version=M.Version  WHERE ISNULL(CH.VoucherId,'')=''
+						JOIN  dbo.PurchaseLCCharges CH ON CH.PurchaseLCId=M.PurchaseLCId AND CH.Version=M.Version  WHERE ISNULL(CH.VoucherId,'')=''
 					) A ORDER BY A.Id ";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
