@@ -1001,17 +1001,6 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
 
     $scope.searchByNB = "UserName"; $scope.searchNB = "";
 
-    $scope.NegotiatingBankList = [];
-    $scope.GetNegotiatingBankList = function () {
-        $http({
-            method: 'GET',
-            url: 'Commercial/Contract/GetNegotiatingBankList'
-        }).then(function successCallback(response) {
-            $scope.NegotiatingBankList = response.data;
-        });
-    }
-    $scope.GetNegotiatingBankList();
-
     $scope.NegotiatingBankDataList = [];
     $scope.searchByNBList = [{ value: 'BankName', name: "Bank Name" }, { value: 'UserName', name: "User Name" }, { value: 'AccountNo', name: "AccountNo" }, { value: 'Country', name: "Country" }];
     $scope.ShowNBPopUp = function () {

@@ -87,9 +87,13 @@ namespace Library.Service.Finances
 
         public GridModel Query(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
-            parameters.CmdText = @"SELECT V.VoucherNo, A.FinancingNo, A.Id, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.EmployeeId, EI.EmployeeCode, EI.EmployeeName, A.VoucherId, A.PostingDate, A.DocDate, A.DocRefNo, A.CurrencyId, C.Code AS CurrencyCode,    A.Amount, A.IsWrittenOff, A.WrittenOffAmount, A.IsPark, A.IsPosted, A.TransactionType,BM.AccountTitle Particulars,Status=case when V.IsPark=1 then 'Parked' else 'Posted' end
-
-                                FROM [TRN].[Financing] AS A
+            parameters.CmdText = @"SELECT V.VoucherNo, A.FinancingNo, A.Id, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.EmployeeId, EI.EmployeeCode
+								, EI.EmployeeName, A.VoucherId, A.PostingDate, A.DocDate, A.DocRefNo, A.CurrencyId, C.Code AS CurrencyCode,    A.Amount, A.IsWrittenOff
+								, A.WrittenOffAmount, A.IsPark, A.IsPosted,BM.AccountTitle Particulars
+								,Status=case when V.IsPark=1 then 'Parked' else 'Posted' end,FT.AssetUserName InvestmentType
+								, A.TransactionType
+                                 FROM [TRN].[Financing] AS A
+								 LEFT JOIN HKP.FinancingType AS FT ON FT.Id=A.FinancingTypeId
                                 LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
                                 LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=A.PartyPlantId
                                 LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=A.EmployeeId
