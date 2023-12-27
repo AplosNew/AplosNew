@@ -22,6 +22,7 @@ namespace Library.Service.Finances
         void Post(string financingId);
         void PostFinancingWriteOff(string financingWriteOffId);
         void DeleteLoanPayment(string companyId, string plantId, string voucherId);
+        void DeleteInvestmentPayment(string companyId, string plantId, string voucherId);
         Financing FindFinancing(string financingId);
         FinancingDetail FindFinancingDetail(string financingDetailId);
         FinancingWriteOff InsertFinancingWriteOff(FinancingWriteOff invoiceWriteOff);
