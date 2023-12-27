@@ -822,16 +822,16 @@ namespace Library.Accounting.Accounts
             {
                 var sql = @"SELECT MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,Replace(CONVERT(VARCHAR(11), MP.DueUpToDate, 106), ' ', '-') DueUpToDate
                             ,Replace(CONVERT(VARCHAR(11), MP.TentativeDate, 106), ' ', '-') TentativeDate
-                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle, 0 flag ,P.UserName PartyName,MPD.PartyId, MPD.Amount 
+                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle, 0 flag 
+							, MPD.Amount 
 						    FROM   TRN.MultiplePayment MP 
-							JOIN (SELECT SUM(MPD.Amount) Amount,MPD.MultiplePaymentId,MPD.PartyId FROM TRN.MultiplePaymentDetail MPD 
+							JOIN (SELECT SUM(MPD.Amount) Amount,MPD.MultiplePaymentId FROM TRN.MultiplePaymentDetail MPD 
 									WHERE ISNULL(MPD.Id,NULL) NOT IN (SELECT MultiplePaymentDetailId FROM TRN.InvoiceWriteOffDetail 
 									WHERE MultiplePaymentDetailId<>'' )
-									GROUP BY MPD.MultiplePaymentId,MPD.PartyId
+									GROUP BY MPD.MultiplePaymentId
 								)MPD ON MP.Id=MPD.MultiplePaymentId
-							LEFT JOIN HKP.Party P ON P.Id=MPD.PartyId
 							LEFT JOIN MST.BankMaster BM ON BM.Id=MP.BankMasterId
-							WHERE  MP.PlantId='"+ plantId + @"' 
+							WHERE  MP.PlantId='" + plantId + @"' 
 							AND MP.ApprovalStatus='Approved'";
 
                 return _sqlRepository.GetDataCollection(sql);
@@ -852,16 +852,17 @@ namespace Library.Accounting.Accounts
             {
                 var sql = @"SELECT MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,Replace(CONVERT(VARCHAR(11), MP.DueUpToDate, 106), ' ', '-') DueUpToDate
                             ,Replace(CONVERT(VARCHAR(11), MP.TentativeDate, 106), ' ', '-') TentativeDate
-                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle, 0 flag ,P.UserName PartyName,MPD.PartyId,SUM(MPD.Amount) Amount
-							,ParkStatus=case when MP.IsPark=1 then 'Parked' else 'Posted' end
+                            ,MP.BankMasterId,MP.IsFifo,MPD.IsPark ,BM.AccountTitle, 0 flag 
+                            ,SUM(MPD.Amount) Amount
+							,ParkStatus=case when MPD.IsPark=1 then 'Parked' else 'Posted' end
                             FROM TRN.MultiplePaymentDetail MPD 
 							LEFT JOIN TRN.MultiplePayment MP ON MP.Id=MPD.MultiplePaymentId
 							LEFT JOIN HKP.Party P ON P.Id=MPD.PartyId
 							LEFT JOIN MST.BankMaster BM ON BM.Id=MP.BankMasterId
-							where  MP.PlantId='" + plantId + @"' 
+							where  MP.PlantId='"+ plantId + @"' 
 							group by MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,MP.DueUpToDate
                             , MP.TentativeDate,MPD.MultiplePaymentId
-                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle,P.UserName,MPD.PartyId ";
+                            ,MP.BankMasterId,MP.IsFifo,MPD.IsPark ,BM.AccountTitle ";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -1012,7 +1013,8 @@ namespace Library.Accounting.Accounts
 										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
 									) AS CC ON CC.VoucherDetailId=VD.Id
-                                     WHERE   MP.PlantId='" + plantId + "' AND MPD.MultiplePaymentId='" + multiplePaymentId + "'";
+                                     WHERE   MP.PlantId='" + plantId + "' AND MPD.MultiplePaymentId='" + multiplePaymentId + @"' 
+                                    AND MPD.Id NOT IN (select MultiplePaymentDetailId from TRN.InvoiceWriteOffDetail where MultiplePaymentDetailId<>'')";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

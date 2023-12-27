@@ -330,10 +330,12 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
         }
     }
     $scope.Clear = function () {
-        var voucherTypeId = $scope.voucher.VoucherId;
         $scope.Action = 'Submit';
         $scope.tempList = [];
         $scope.paymentSelectedList = [];
+        $scope.lst = [];
+        $scope.checkedMultipleVendorpaymentList = [];
+        $scope.MultiplepaymentDetailSelectedList = [];
     };
    
     $scope.validation = function () {

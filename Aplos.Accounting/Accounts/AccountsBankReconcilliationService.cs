@@ -390,14 +390,16 @@ namespace Library.Accounting.Accounts
         {
             try
             {
-                var sql = @"SELECT V.Id AS VoucherId
-	                                         ,VD.Id AS VoucherDetailId
-                                             ,VD.Id AS VoucherDetail
-                                             ,GLT.Id AS GLTransactionDetailId
-	                                         ,V.VoucherNo
-	                                         ,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') AS VoucherDate
-	                                         ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS PostingDate
-                                             ,VD.DocRefNo, VD.PartyType, VD.Narration
+                var sql = @"SELECT * FROM(
+                                           SELECT V.Id AS VoucherId ,VD.Id AS VoucherDetailId
+                                             ,VD.Id AS VoucherDetail ,GLT.Id AS GLTransactionDetailId
+	                                         ,V.VoucherNo ,REPLACE(CONVERT(CHAR(11), V.VoucherDate, 106),' ','-') AS VoucherDate
+	                                         ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS PostingDate ,VD.DocRefNo, VD.PartyType, VD.Narration
+											 , MultiplePaymentNo=(select top(1) mpd.MultiplePaymentId from TRN.InvoiceWriteOffDetail iwd 
+											JOIN TRN.InvoiceWriteOff IW ON IW.Id=IWD.InvoiceWriteOffId 
+											LEFT JOIN TRN.MultiplePaymentDetail mpd on mpd.Id=iwd.MultiplePaymentDetailId
+											LEFT JOIN trn.MultiplePayment mp on mp.Id=mpd.MultiplePaymentId
+											WHERE IW.VoucherId=V.Id)
 	                                         ,GLT.CrAmount AS Amount --[Add : BanK other Credit]
 	                                         ,'' AS CheckNo
 	                                         ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS EncashmentDate 
@@ -408,7 +410,8 @@ namespace Library.Accounting.Accounts
                                        AND V.CompanyGroupId='" + companyGroupId + @"' AND V.CompanyId='" + companyId + @"' AND V.IsPark=0
                                        AND VD.BankMasterId='" + bankMasterId + @"'  AND V.PostingDate BETWEEN CONVERT(DATE,'" + fromDate + @"') AND CONVERT(DATE,'" + toDate + @"')
                                        AND VD.CrAmount<>0.0000 AND V.Archive=0
-                                       AND VD.Id NOT IN(select VoucherDetailId from TRN.BankReconciliationMap) ";
+                                       AND VD.Id NOT IN(select VoucherDetailId from TRN.BankReconciliationMap) 
+									   ) X ORDER BY X.MultiplePaymentNo DESC,X.PostingDate  ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
