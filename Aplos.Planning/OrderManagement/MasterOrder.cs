@@ -399,13 +399,13 @@ namespace Library.Planning.OrderManagement
             }
         }
 
-        public void GetSalesOrderId(string masterItemId, out DataSet dsRef)
+        public void GetSalesOrderQty(string masterItemId, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager Obj;
 
             try
             {
-                string sql = @"SELECT ISNULL((MAX(Id)+1),0) Id,SUM(Qty)Qty FROM [TRN].[SalesOrder] WHERE MasterOrderItemId='" + masterItemId + "'";
+                string sql = @"SELECT SUM(Qty)Qty FROM [TRN].[SalesOrder] WHERE MasterOrderItemId='" + masterItemId + "'";
                 Obj = new ConnectionManager.DAL.ConManager("1");
                 Obj.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
             }
@@ -424,10 +424,13 @@ namespace Library.Planning.OrderManagement
             try
             {
 
-                DataSet dsSOId;
-                GetSalesOrderId(masterItemId, out dsSOId);
-                string NewId = dsSOId.Tables[0].Rows[0]["Id"].ToString();
-                decimal SOQty = Convert.ToDecimal(dsSOId.Tables[0].Rows[0]["Qty"].ToString());
+                DataSet dsSOId, dsSOqty;
+                GetSalesOrderQty(masterItemId, out dsSOqty);
+                GetSplitSalesOrderId(masterItemId, out dsSOId);
+                var count = Convert.ToInt32(dsSOId.Tables[0].Rows[0]["Id"].ToString());
+                count++;
+                string NewId = MakePK(masterItemId, count, 2);
+                decimal SOQty = Convert.ToDecimal(dsSOqty.Tables[0].Rows[0]["Qty"].ToString());
 
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -496,6 +499,42 @@ namespace Library.Planning.OrderManagement
             }
         }
 
+        public void GetSplitSalesOrderId(string masterItemId, out DataSet dsRef)
+        {
+            ConnectionManager.DAL.ConManager Obj;
+
+            try
+            {
+                string sql = @"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[SalesOrder] WHERE MasterOrderItemId='" + masterItemId + "'";
+                Obj = new ConnectionManager.DAL.ConManager("1");
+                Obj.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        //public void GetSalesOrderQty(string Id, out DataSet dsRef)
+        //{
+        //    ConnectionManager.DAL.ConManager Obj;
+
+        //    try
+        //    {
+        //        string sql = @"SELECT Qty FROM [TRN].[SalesOrder] WHERE Id='" + Id + "'";
+        //        Obj = new ConnectionManager.DAL.ConManager("1");
+        //        Obj.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+
+        public static string MakePK(string masterId, int currentId, int padLeft)
+        {
+            return masterId + currentId.ToString().PadLeft(padLeft, '0');
+        }
         public void SplitSalesOrderData(string masterItemId, SalesOrderMaster salesOrderMaster, IdentityParameter para)
         {
             DataSet dsToSalesOrder, dsParentSalesOrder;
@@ -506,9 +545,10 @@ namespace Library.Planning.OrderManagement
             {
 
                 DataSet dsSOId;
-                GetSalesOrderId(masterItemId, out dsSOId);
-                string NewId = dsSOId.Tables[0].Rows[0]["Id"].ToString();
-                decimal SOQty = Convert.ToDecimal(dsSOId.Tables[0].Rows[0]["Qty"].ToString());
+               GetSplitSalesOrderId(masterItemId, out dsSOId);
+                var count = Convert.ToInt32(dsSOId.Tables[0].Rows[0]["Id"].ToString());              
+                count++;
+                string NewId = MakePK(masterItemId, count, 2);
 
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
