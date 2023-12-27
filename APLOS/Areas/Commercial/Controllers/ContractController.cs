@@ -103,7 +103,11 @@ WHERE CT.ContractId " + contractId+"";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-       
+        [HttpGet, Authorize]
+        public ActionResult GetContractTermsAndConditionsList(string ContractId)
+        {
+            return Json(clsCon.GetContractTermsAndConditionsList(ContractId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public ActionResult GetContractDetail(string partyId, string contractId)
