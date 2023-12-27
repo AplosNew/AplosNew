@@ -283,12 +283,13 @@ namespace Library.Service.Finances
                     Replace(CONVERT(VARCHAR(11), VD.DocDate, 106), ' ', '-') InvoiceDate, VD.DocRefNo AS InvoiceNo, P.UserName AS Customer, VD.RefCode AS Ref,
                     CO.UserName AS CompanyName,AM.Address1 AS AddressLine, ENT.UserName AS Entity, BUD.UserName AS Budget, ACT.UserName AS Activity, CST.UserName AS [Cost Center]
                     , BFY.FiscalYearName AS [Budget Fiscal Year], BFYP.PeriodName AS [Budget Fiscal Year Period], BFYP.PeriodNo AS [Budget Period No]
-					,[ParticularName]=CASE
-								WHEN VI.TransactionType='InvestmentGiven'  THEN FT.AssetUserName
-								WHEN VI.TransactionType='InvestmentTaken' THEN FT.LiabilityUserName
-								WHEN VD.BankMasterId<>'' THEN  BNK.AccountTitle
-								WHEN P.UserName<>'' THEN P.UserName 
-								ELSE ''	END
+					--,[ParticularName]=CASE
+					--			WHEN VI.TransactionType='InvestmentGiven'  THEN FT.AssetUserName
+					--			WHEN VI.TransactionType='InvestmentTaken' THEN FT.LiabilityUserName
+					--			WHEN VD.BankMasterId<>'' THEN  BNK.AccountTitle
+					--			WHEN P.UserName<>'' THEN P.UserName 
+					--			ELSE ''	END
+					,BNK.AccountTitle ParticularName
                     FROM TRN.VoucherDetailCurrency AS VDC
                     INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
                     INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
