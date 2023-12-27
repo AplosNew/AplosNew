@@ -515,21 +515,6 @@ namespace Library.Planning.OrderManagement
             }
         }
 
-        //public void GetSalesOrderQty(string Id, out DataSet dsRef)
-        //{
-        //    ConnectionManager.DAL.ConManager Obj;
-
-        //    try
-        //    {
-        //        string sql = @"SELECT Qty FROM [TRN].[SalesOrder] WHERE Id='" + Id + "'";
-        //        Obj = new ConnectionManager.DAL.ConManager("1");
-        //        Obj.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
 
         public static string MakePK(string masterId, int currentId, int padLeft)
         {

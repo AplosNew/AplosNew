@@ -2713,6 +2713,48 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
         location.href = "Sales/SalesInvoice?salesId=" + data.Id;
     };
 
+    //#region Sales File upload
 
+    $scope.onBeginPBUpload = function (args) {
+        try {
+            if (angular.isUndefinedOrNull($scope.PostSalesInvoice.Id))
+                throw 'Please select/save Post Sales Invoice first'
+
+            args.data = $scope.bulletinTemplateNew.Id;
+        } catch (e) {
+
+            args.cancel = true;
+            ShowResult(e, 'Error');
+        }
+
+    }
+    $scope.uploadPBUrl = "Commercial/PostSalesInvoice/SavePostSaleFile";
+    $scope.fileselect = function (e) {
+
+    }
+    $scope.errorPBPicUpload = function (e) {
+        if (angular.isUndefinedOrNull($scope.bulletinTemplateNew.Id))
+            ShowResult('Please select/save the production order first', 'Error');
+        else
+            ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
+    }
+    $scope.getFileList = function () {
+        $http({
+            method: 'POST', url: 'Commercial/PostSalesInvoice/GetFileInfo', dataType: 'JSON',
+            data: { Id: $scope.bulletinTemplateNew.Id }
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult('error', 'failure');
+            }
+            else {
+                var str = response.data[0].FileName;
+                var extention = str.substr(str.indexOf('.'));
+                $scope.FileName = virtualPath.ProductionBulletinImage + '/' + $scope.bulletinTemplateNew.Id + extention;
+            }
+        }, function errorCallback(response) {
+            ShowResult('Failed', 'failure');
+        });
+    }
+    //#endregion Production Bulletin Picture upload
 
 }
