@@ -2413,12 +2413,14 @@ namespace Library.Accounting.Accounts
 		{
 			try
 			{
-				string CmdText = @"SELECT  II.Id,II.DocRefNo,II.SalesReturnDate, 
+				string CmdText = @"SELECT  II.Id,II.DocRefNo,II.SalesReturnDate, Pt.UserName Customer,
                                 SUM(IID.TransactionQty) Qty,ISNULL(ISC.ReturnNetWeight,0) Verified_Qty,II.Narration,II.SalesId
                                 FROM [TRN].[SalesReturn] AS II
                                 JOIN TRN.SalesReturnDetail AS IID ON IID.SalesReturnId=II.Id
 								LEFT JOIN (SELECT SalesReturnId,sum(ReturnNetWeight) ReturnNetWeight FROM ItemScanChild group by SalesReturnId) ISC ON ISC.SalesReturnId=II.Id
-                                GROUP BY II.Id,II.Narration,II.Id,II.SalesId,II.DocRefNo,II.SalesReturnDate,II.Addeddate,ISC.ReturnNetWeight 
+                                left join trn.Sales SS on ss.Id = II.SalesId 
+								left join hkp.Party PT on PT.Id = ss.PartyId
+								GROUP BY II.Id,II.Narration,II.Id,II.SalesId,II.DocRefNo,II.SalesReturnDate,II.Addeddate,ISC.ReturnNetWeight , Pt.UserName
 								Order By II.AddedDate desc";
 				return _sqlRepository.GetDataCollection(CmdText);
 			}
