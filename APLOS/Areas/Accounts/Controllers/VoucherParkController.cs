@@ -81,27 +81,6 @@ namespace Aplos.Areas.Accounts.Controllers
                     throw new CustomException("Voucher Park Mode not allowed, Bank Reconciled have to delete first!");
                 }
 
-                DataSet dsAdvanceWriteOff = null;
-                string advanceWriteOffsql = @"SELECT AW.*  from TRN.AdvanceWriteOffDetail AS AWD
-                                            INNER JOIN TRN.AdvanceWriteOff AS AW ON AW.Id=AWD.AdvanceWriteOffId
-                                            INNER JOIN TRN.Advance AS A ON A.Id=AWD.AdvanceId
-                                            where A.VoucherId = '" + voucherId + "' ";
-                objCon2.OpenDataSetThroughAdapter(advanceWriteOffsql, out dsAdvanceWriteOff, false, "1");
-                if (dsAdvanceWriteOff.Tables[0].Rows.Count > 0)
-                {
-                    throw new CustomException("Voucher Park Mode not allowed, Write Off have to delete first!");
-                }
-
-                DataSet dsInvoiceWriteOff = null;
-                string invoiceWriteOffsql = @"SELECT IW.*  from TRN.InvoiceWriteOffDetail AS IWD
-                                            INNER JOIN TRN.InvoiceWriteOff AS IW ON IW.Id=IWD.InvoiceWriteOffId
-                                            INNER JOIN TRN.Invoice AS I ON I.Id=IWD.InvoiceId
-                                            where I.VoucherId = '" + voucherId + "' ";
-                objCon2.OpenDataSetThroughAdapter(invoiceWriteOffsql, out dsInvoiceWriteOff, false, "1");
-                if (dsInvoiceWriteOff.Tables[0].Rows.Count > 0)
-                {
-                    throw new CustomException("Voucher Park Mode not allowed, Write Off have to delete first!");
-                }
 
                 if (sourceType== SourceType.JournalVoucher.ToString())
                 {
@@ -190,6 +169,26 @@ namespace Aplos.Areas.Accounts.Controllers
                 }
                 if (sourceType == SourceType.Loan.ToString()|| sourceType == SourceType.Investment.ToString() || sourceType == SourceType.AutoLoan.ToString())
                 {
+                    ConnectionManager.DAL.ConManager objCon1;
+                    DataSet dsMaster1 = null;
+                    DataSet dsLoanInterest = null;
+                    string setOffsql = @"SELECT VoucherNo from trn.FinancingDetailWriteOff FDW JOIN trn.FinancingWriteOff FW on FW.Id=FDW.FinancingWriteOffId 
+                    LEFT JOIN    trn.Voucher v on v.Id = FW.VoucherId WHERE FDW.FinancingId in (select Id from [TRN].[Financing] where VoucherId = '" + voucherId + @"')";
+                    string loanInterestsql = @"SELECT VoucherNo,FST.SourceType from TRN.FinancingSubsequentTransaction FST INNER JOIN    
+                    trn.Voucher v on v.Id = FST.VoucherId WHERE FST.SourceType NOT IN('Loan') AND FST.FinancingId in (select Id from [TRN].[Financing] where VoucherId = '" + voucherId + @"')";
+                    objCon1 = new ConnectionManager.DAL.ConManager("1");
+                    objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
+                    objCon1.OpenDataSetThroughAdapter(loanInterestsql, out dsLoanInterest, false, "1");
+
+                    if (dsMaster1.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Voucher Park Mode not allowed, SetOf Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                    }
+                    if (dsLoanInterest.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Voucher Park Mode not allowed, " + dsLoanInterest.Tables[0].Rows[0]["SourceType"].ToString() + "  Voucher No: '" + dsLoanInterest.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                    }
+
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     var bankJournalSql = @"UPDATE [TRN].Financing SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
@@ -202,7 +201,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     rdBuilder.Append(voucherSql);
                     rdBuilder.Append(bankJournalSql);
                 }
-                if (sourceType == SourceType.LoanPayment.ToString())
+                if (sourceType == SourceType.LoanPayment.ToString()|| sourceType == SourceType.InvestmentSetOff.ToString())
                 {
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     var bankJournalSql = @"UPDATE [TRN].FinancingWriteOff SET ISPark=1,IsPosted=0 WHERE VoucherId='" + voucherId + "'";

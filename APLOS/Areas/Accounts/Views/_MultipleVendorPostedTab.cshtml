@@ -82,7 +82,12 @@
                 <div e-column e-template="#TentativeDate" e-headertext="Tentative Date" e-width="60" style="height: 20px;"></div>
                 <div e-column e-field="PartyName" e-headertext="Party" e-width="120"></div>
                 <div e-column e-field="AccountTitle" e-headertext="Bank" e-width="120"></div>
+                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="120"></div>
+                <div e-column e-field="CompanyCurrencyRate" e-headertext="Rate" e-width="120"></div>
                 <div e-column e-field="Amount" e-headertext="Amount (TRN)" textAlign='Right' e-width="80"></div>
+                <div e-column e-field="ExchangeType" e-headertext="ExchangeType" textAlign='Right' e-width="80"></div>
+                <div e-column e-field="ExchangeAmount" e-headertext="ExchangeAmount" textAlign='Right' e-width="80"></div>
+                <div e-column e-field="BaseDrAmount" e-headertext="Base Amount" textAlign='Right' e-width="80"></div>
             </div>
         </div>
     </div>
@@ -126,10 +131,10 @@
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getVoucherData()">
                 </div>
                 <div class="col-xs-12 col-sm-2 col-md-2">
-                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    <button type="button" ng-click="getVoucherData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                 </div>
             </div>
         </div>

@@ -380,6 +380,17 @@
                         </div>
                     </div>
                 </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Critical Level<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" id="CriticalLevel" ng-model="POQualityNew.CriticalLevel" name="ProcessId" ng-options="item.Value as item.Text for item in CriticalLevelLists" required>
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
             </div>
             <div class="common-btn">
                 <ul class="list-inline text-right">
@@ -400,6 +411,7 @@
                     <div e-column e-field="Legdays" e-headertext="Legdays" e-width="100"></div>
                     <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="100"></div>
                     <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
+                    <div e-column e-field="CriticalLevel" e-headertext="Critical Level" e-width="100"></div>
                     <div e-column e-field="PositionCode" e-headertext="Position Code" e-width="100"></div>
                     <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
                     <div e-column e-field="IsActive" e-headertext="IsActive" e-width="100"></div>

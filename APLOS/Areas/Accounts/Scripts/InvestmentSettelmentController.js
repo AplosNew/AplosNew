@@ -19,7 +19,7 @@ function InvestmentSettelmentController(accountService, bankService, cboService,
     $controller("bankBaseController", { $scope: $scope, $http: $http });
     $controller("cashBaseController", { $scope: $scope, $http: $http });
     $scope.url = "accounts/Loan";
-    $scope.deleteUrl = $scope.url + "/DeleteLoanPayment";
+    $scope.deleteUrl = $scope.url + "/DeleteInvestmentPayment";
     $scope.postUrl = $scope.url + "/PostLoanPayment";
     $scope.voucher = {
         Id: null,
