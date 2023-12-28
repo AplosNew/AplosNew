@@ -511,5 +511,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return 1;
         }
 
+        public ActionResult GetGroupNameList()
+        {
+             string sql = "SELECT Id Value, UserName Text FROM dbo.TermsandConditionGroup";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
     }
 }

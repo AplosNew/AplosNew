@@ -1,5 +1,5 @@
 ﻿'use strict';
-TermsAndConditionsController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$window'];
+TermsAndConditionsController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
 function TermsAndConditionsController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Terms And Conditions';
     $scope.Action = 'Save';
@@ -74,6 +74,17 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
     cboService.getCompanyGroupCompanyCbo(null, function (result) {
         $scope.companyList = result;
     });
+
+    $scope.GroupNameList = [];
+    $scope.GetGroupNameList = function () {
+        $http.get('OrderManagements/TermsAndConditions/GetGroupNameList')
+            .then(function (response) {
+                $scope.GroupNameList = response.data;
+            });
+    }
+
+
+
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
@@ -126,7 +137,7 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
         Id: null,
         TermsAndConditionsMasterId: $scope.ModelNew.Id,
         Title: null,
-        Sequence:0
+        Sequence: 0
     }
 
     $scope.titleAction = true;
@@ -239,16 +250,16 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
                     };
                     $scope.GridTitle();
                 }
-               
-              
+
+
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
 
         } catch (e) {
-            ShowResult(e,'failure')
+            ShowResult(e, 'failure')
         }
-      
+
     };
 
 
@@ -267,7 +278,7 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
 
     $scope.ClearTitle = function () {
         $scope.TitleModel = {};
-        
+
     };
 
     function ClearFields(seq) {
@@ -375,7 +386,7 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
             $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.TitleModel.Title + ' ]';
         angular.element(document.querySelector('#confirmBoMDetailPopUp')).modal('show');
         /* $scope.TitleModel = {};*/
- /*       $scope.ClearTitle();*/
+        /*       $scope.ClearTitle();*/
     }
 
     $scope.DeleteBomDetail = function () {
