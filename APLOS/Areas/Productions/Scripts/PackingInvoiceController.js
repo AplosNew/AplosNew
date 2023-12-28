@@ -52,7 +52,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         },
         {
             "name": "Currency",
-            "value": "Currency"
+            "value": "CurrencyCode"
         },
         {
             "name": "Status",
