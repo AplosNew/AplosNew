@@ -187,6 +187,10 @@
             templateUrl: 'QMS/DefineSQCIssue/AplosWC',
             controller: 'DefineSQCIssueController'
         })
+        .when('/lot-wise-quality-report', {
+            templateUrl: 'QMS/LotWiseQualityReport/Aplos',
+            controller: 'LotWiseQualityReportController'
+        })
         
 }
 qmsConfig.$inject = ['$routeProvider', '$locationProvider'];

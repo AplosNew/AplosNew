@@ -922,19 +922,39 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
     $scope.getFileList = function () {
         $http({
             method: 'POST', url: 'Commercial/PostSalesInvoice/GetFileInfo', dataType: 'JSON',
-            data: { Id: $scope.bulletinTemplateNew.Id }
+            data: { Id: $scope.ModelNew.Id }
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
                 ShowResult('error', 'failure');
             }
             else {
                 var str = response.data[0].FileName;
+                $scope.ModelNew.FileName = response.data[0].FileName;
                 var extention = str.substr(str.indexOf('.'));
-                $scope.FileName = virtualPath.ProductionBulletinImage + '/' + $scope.bulletinTemplateNew.Id + extention;
+                $scope.FileName = virtualPath.PostSalesInvoiceDoc + '/' + $scope.ModelNew.Id + extention;
             }
         }, function errorCallback(response) {
             ShowResult('Failed', 'failure');
         });
     }
+
+    $scope.FileNam = null;
+    $scope.tempdata = {};
+    $scope.DocDownload = function (data) {
+        $scope.tempdata = data;
+        $scope.dwonloadUrl = null;
+        var str = data.FileName;
+        $scope.FileNam = data.FileName;
+        var extention = str.substr(str.indexOf('.'));
+        $scope.dwonloadUrl = virtualPath.PostSalesInvoiceDoc + '/' + data.Id + extention;
+        angular.element(document.querySelector('#DocShowPopUp')).modal('show');
+    };
+
+    $scope.DownloadImageFile = function () {
+        var str = $scope.tempdata.FileName;
+        $scope.FileNam = $scope.tempdata.FileName;
+        var extention = str.substr(str.indexOf('.'));
+        $scope.dwonloadUrl = virtualPath.PostSalesInvoiceDoc + '/' + $scope.tempdata.Id + extention;
+    };
     //#endregion Production Bulletin Picture upload
 }

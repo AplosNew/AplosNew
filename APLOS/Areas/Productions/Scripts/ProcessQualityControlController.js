@@ -23,20 +23,16 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.saveUrlActionToBeTaken = $scope.path + 'createActionToBeTaken';
     $scope.CriticalLevelLists = [
         {
-            'Value': 'High',
-            'Text': 'High'
+            'Value': 'A-Critical',
+            'Text': 'A-Critical'
         },
         {
-            'Value': 'Very High',
-            'Text': 'Very High'
+            'Value': 'B-Important',
+            'Text': 'B-Important'
         },
         {
-            'Value': 'Medium',
-            'Text': 'Medium'
-        },
-        {
-            'Value': 'Low',
-            'Text': 'Low'
+            'Value': 'C-Normal',
+            'Text': 'C-Normal'
         }
     ];
         
@@ -394,7 +390,8 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         PositionCode: null,
         Remarks: null,
         EntryLevel: null,
-        IsActive: true
+        IsActive: true,
+        CriticalLevel: null
     };
     $scope.POQualityNew = Object.assign({}, $scope.POQuality);
 
