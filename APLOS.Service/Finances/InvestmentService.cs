@@ -1028,7 +1028,7 @@ namespace Library.Service.Finances
                             {
                                 BankMasterId = voucherDetailFrom.BankMasterId,
                                 CashMasterId = voucherDetailFrom.CashMasterId,
-                                DrAmount = bankMasterFrom["CurrencyId"].ToString() == voucher.CurrencyId ? voucherDetailFrom.DrAmount : voucherVM.CompanyCurrencyRate * voucherDetailFrom.DrAmount,
+                                CrAmount = bankMasterFrom["CurrencyId"].ToString() == voucher.CurrencyId ? voucherDetailFrom.CrAmount : voucherVM.CompanyCurrencyRate * voucherDetailFrom.CrAmount,
                                 SourceType = voucherDetailFrom.PaymentSource
                             });
                         }
@@ -1038,7 +1038,7 @@ namespace Library.Service.Finances
                             {
                                 BankMasterId = voucherDetailFrom.BankMasterId,
                                 CashMasterId = voucherDetailFrom.CashMasterId,
-                                DrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailFrom.DrAmount), 2, MidpointRounding.AwayFromZero),
+                                CrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailFrom.CrAmount), 2, MidpointRounding.AwayFromZero),
                                 SourceType = voucherDetailFrom.PaymentSource
                             });
                         }
@@ -1056,7 +1056,7 @@ namespace Library.Service.Finances
                         {
                             BankMasterId = voucherDetailTo.BankMasterId,
                             CashMasterId = voucherDetailTo.CashMasterId,
-                            CrAmount = bankMasterTo["CurrencyId"].ToString() == voucher.CurrencyId ? voucherDetailTo.CrAmount : voucherVM.CompanyCurrencyRate * voucherDetailTo.CrAmount,
+                            DrAmount = bankMasterTo["CurrencyId"].ToString() == voucher.CurrencyId ? voucherDetailTo.DrAmount : voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount,
                             SourceType = voucherDetailTo.PaymentSource
                         });
                     }
@@ -1066,7 +1066,7 @@ namespace Library.Service.Finances
                         {
                             BankMasterId = voucherDetailTo.BankMasterId,
                             CashMasterId = voucherDetailTo.CashMasterId,
-                            CrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTo.CrAmount), 2, MidpointRounding.AwayFromZero),
+                            DrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount), 2, MidpointRounding.AwayFromZero),
                             SourceType = voucherDetailTo.PaymentSource
                         });
                     }

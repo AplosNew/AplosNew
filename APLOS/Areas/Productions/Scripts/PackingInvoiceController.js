@@ -133,15 +133,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         { Value: "Fixed", Text: "Fixed" }
     ];
 
-    //$http({
-    //    method: "GET",
-    //    url: "accounts/PaymentTerm/getcustomercbo"
-    //}).then(function successCallback(response) {
-    //    $scope.paymentTermList = response.data;
-    //});
-
     $scope.paymentTermList = [];
-
     $scope.PackingList = [];
     $scope.GetPackingListPopUp = function () {
         $scope.PackingList = [];
@@ -2436,5 +2428,67 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
 
     // #endregion checkbox all
 
+    //#region Sales File upload
 
+    $scope.onBeginPBUpload = function (args) {
+        try {
+            if (angular.isUndefinedOrNull($scope.ModelNew.Id))
+                throw 'Please select/save Post Sales Invoice first'
+
+            args.data = $scope.ModelNew.Id;
+        } catch (e) {
+
+            args.cancel = true;
+            ShowResult(e, 'Error');
+        }
+
+    }
+    $scope.uploadPBUrl = "Commercial/PostSalesInvoice/SavePostSaleFile";
+    $scope.fileselect = function (e) {
+
+    }
+    $scope.errorPBPicUpload = function (e) {
+        if (angular.isUndefinedOrNull($scope.ModelNew.Id))
+            ShowResult('Please select/save the production order first', 'Error');
+        else
+            ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
+    }
+    $scope.getFileList = function () {
+        $http({
+            method: 'POST', url: 'Commercial/PostSalesInvoice/GetFileInfo', dataType: 'JSON',
+            data: { Id: $scope.ModelNew.Id }
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult('error', 'failure');
+            }
+            else {
+                var str = response.data[0].FileName;
+                $scope.ModelNew.FileName = response.data[0].FileName;
+                var extention = str.substr(str.indexOf('.'));
+                $scope.FileName = virtualPath.PostSalesInvoiceDoc + '/' + $scope.ModelNew.Id + extention;
+            }
+        }, function errorCallback(response) {
+            ShowResult('Failed', 'failure');
+        });
+    }
+
+    $scope.FileNam = null;
+    $scope.tempdata = {};
+    $scope.DocDownload = function (data) {
+        $scope.tempdata = data;
+        $scope.dwonloadUrl = null;
+        var str = data.FileName;
+        $scope.FileNam = data.FileName;
+        var extention = str.substr(str.indexOf('.'));
+        $scope.dwonloadUrl = virtualPath.PostSalesInvoiceDoc + '/' + data.Id + extention;
+        angular.element(document.querySelector('#DocShowPopUp')).modal('show');
+    };
+
+    $scope.DownloadImageFile = function () {
+        var str = $scope.tempdata.FileName;
+        $scope.FileNam = $scope.tempdata.FileName;
+        var extention = str.substr(str.indexOf('.'));
+        $scope.dwonloadUrl = virtualPath.PostSalesInvoiceDoc + '/' + $scope.tempdata.Id + extention;
+    };
+    //#endregion Production Bulletin Picture upload
 }

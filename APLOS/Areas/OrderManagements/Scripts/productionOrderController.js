@@ -58,6 +58,31 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
     }
 
+    $scope.onBeginUpload = function (args) {
+        try {
+            if (angular.isUndefinedOrNull($scope.model.Id))
+                throw 'Please select/save the production order first'
+
+            args.data = $scope.model.Id;
+        } catch (e) {
+
+            args.cancel = true;
+            ShowResult(e, 'Error');
+        }
+
+    }
+    $scope.uploadUrl = "OrderManagements/ProductionOrder/SaveDefault";
+    $scope.fileselect = function (e) {
+
+    }
+    $scope.errorPicUpload = function (e) {
+        if (angular.isUndefinedOrNull($scope.model.Id))
+            ShowResult('Please select/save the production order first', 'Error');
+        else
+            ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
+    }
+
+
     $scope.modelFilterByList = [
         {
             value: 'Id'

@@ -125,6 +125,17 @@ namespace Library.Service.Helpers
 				throw new CustomException(ServiceResources.FilePathNotFound);
 			}
 		}
+		public static string GetPostSalesInvoiceImagePath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/PostSalesInvoice/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
 
 		public static string GetBulletinImagePath()
 		{

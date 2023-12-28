@@ -4065,7 +4065,7 @@ WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='" + productionDat
                 ResponsiblePerson = " and QPEmployeeId = '" + ResponsiblePersonId + "'";
             }
 
-            string sql = @"Select (select day(Min(AddedDate)) from TRN.ProductionSummary where ProductionOrderId=PO1.POId and LotNumber = PO1.LotNumber and ProcessId = PO1.ProcessId) - day(getdate()) Days,Format(PO1.Date,'dd-MMM-yyyy') PODate,Format(PO1.QualityPlanDate,'dd-MMM-yyyy') QPDate,PO1.* from (Select distinct QPC.Id,PD.Id QPId,PO.Id POId,PO.EntryLevel,PO.LotNumber,PD.IssueId,QMM.UserName QPIssue,PO.ProcessId,P.UserName Process,PD.Legdays,
+            string sql = @"Select (select day(Min(AddedDate)) from TRN.ProductionSummary where ProductionOrderId=PO1.POId and LotNumber = PO1.LotNumber and ProcessId = PO1.ProcessId) - day(getdate()) Days,Format(PO1.Date,'dd-MMM-yyyy') PODate,Format(PO1.QualityPlanDate,'dd-MMM-yyyy') QPDate,PO1.* from (Select distinct QPC.Id,PD.Id QPId,PO.Id POId,PO.EntryLevel,PO.LotNumber,PD.IssueId,QMM.UserName QPIssue,PO.ProcessId,P.UserName Process,PD.Legdays,PD.CriticalLevel,
 PD.DependentDate DependentOn,E.UserName Entity,PO.EntityId,
 (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' and RepeatEntry is not null order by AddedDate desc) as RepeatEntry,
 PD.Remarks,PO.POStatus,PO.Customer,
@@ -4136,7 +4136,7 @@ where PO.ProcessId is not null and E.Id in (select EntityId from MST.QualityMana
 and QPC.QCID is null 
 --or (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' order by AddedDate desc) is not null
 union
-Select distinct QPC.Id,PD.Id QPId,PO.Id POId,PO.EntryLevel,PO.LotNumber,PD.IssueId,QMM.UserName QPIssue,PO.ProcessId,P.UserName Process,PD.Legdays,
+Select distinct QPC.Id,PD.Id QPId,PO.Id POId,PO.EntryLevel,PO.LotNumber,PD.IssueId,QMM.UserName QPIssue,PO.ProcessId,P.UserName Process,PD.Legdays,PD.CriticalLevel,
 PD.DependentDate DependentOn,E.UserName Entity,PO.EntityId,
 (select top 1 RepeatEntry from TRN.QualityControl where IssueId=QMM.Id and QualityPlanId=QPC.Id and PlanType='POIssue' and RepeatEntry is not null order by AddedDate desc) as RepeatEntry,
 PD.Remarks,PO.POStatus,PO.Customer,
@@ -7334,6 +7334,151 @@ Group By FRC.GRNRowId,MMA.StandardName,MMA.Id,MM.Id,MM.UserName";
 
         #endregion
 
+        #region Lot Wise Quality Report 
+
+
+        public IEnumerable<object> GetCustomerList()
+        {
+            string sql = @"select Distinct PartyId,P.UserName Customer,P.ShortName,P.StandardName from TRN.Sales S
+left join HKP.Party P ON P.Id=S.PartyId
+where P.Active=1";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public IEnumerable<object> GetInvoiceList(string PartyId)
+        {
+            string sql = @"select I.Id InvoiceId,P.UserName Party,Format(I.AddedDate,'dd-MMM-yyyy') InvoiceDate from TRN.Sales I
+left join HKP.Party P on P.Id=I.PartyId
+where PartyId='" + PartyId + "'";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public IEnumerable<object> GetInvoicePOList(string InvoiceId)
+        {
+            string sql = "";
+            if (InvoiceId != "null" && InvoiceId != "undefined")
+            {
+                sql = @"select distinct POD.ProductionOrderId Value,POD.ProductionOrderId Text from TRN.Sales S 
+LEFT join SalesPacking SP on SP.SalesId=S.Id
+LEFT join TRN.Packing P on P.PackingId=SP.PackingId
+LEFT join TRN.PackingLineItem PLI on PLI.PackingId=P.PackingId
+LEFT join TRN.SalesOrder SO on SO.Id=PLI.SOId
+LEFT JOIN TRN.ProductionOrderDetail POD on POD.SalesOrderId=SO.Id
+LEFT JOIN TRN.ProductionOrder PO on PO.Id=POD.ProductionOrderId
+where S.Id='" + InvoiceId + "'";
+            }
+            else
+            {
+                sql = @"select distinct Id Value,Id Text from TRN.ProductionOrder";
+            }
+
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+        public IEnumerable<object> GetLotNumberLists(string POId)
+        {
+            string sql = "";
+            if (POId != "null" && POId != "undefined")
+            {
+                 sql = @"select Distinct PS.LotNumber Value,PS.LotNumber Text from TRN.ProductionSummary PS
+left join TRN.ProductionOrder PO on PO.Id=PS.ProductionOrderId
+where PS.ProductionOrderId = '" + POId + "' and PS.LotNumber is not null and PS.LotNumber not in (select LotNo from TRN.CustomerQualityReportHeader)";
+            }
+            else
+            {
+                sql = @"select Distinct PS.LotNumber Value,PS.LotNumber Text from TRN.ProductionSummary PS where PS.LotNumber is not null and PS.LotNumber not in (select LotNo from TRN.CustomerQualityReportHeader)";
+            }
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public IEnumerable<object> LoadLotWiseQualityReport(string POId, string LotNumber, string CustomerId, string InvoiceId)
+        {
+            string CQRHFilter = string.Empty;
+            string LotFilter =string.Empty;
+            string CustFilter = string.Empty;
+            string InvFilter = string.Empty;
+            if (POId != "null" && POId != "undefined")
+            {
+                LotFilter = " and QC.ProductionOrderId='" + POId + "' and QC.LotNumber='" + LotNumber + "'";
+                CQRHFilter = " CQH.ProductionOrderId='" + POId + "' and CQH.LotNo='" + LotNumber + "'";
+            }
+            else
+            {
+                LotFilter = " and QC.LotNumber='" + LotNumber + "'";
+                CQRHFilter = " CQH.LotNo='" + LotNumber + "'";
+            }
+            if (CustomerId != "null" && CustomerId != "undefined")
+            {
+                CustFilter = " and CQH.CustomerId='" + CustomerId + "'";
+            }
+            if (InvoiceId != "null" && InvoiceId != "undefined")
+            {
+                InvFilter = " and CQH.InvoiceId='" + InvoiceId + "'";
+            }
+            string sql = @"select distinct QC.ProductionOrderId,QC.LotNumber LotNo,'" + CustomerId + "' CustomerId,'"+ InvoiceId + @"' InvoiceId,
+--CustomerName= isnull((select UserName from hkp.Party where Id='" + CustomerId + @"'),STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO
+--JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+--left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+--left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+--left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+--where QC.ProductionOrderId=Xpod.ProductionOrderId    for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')),
+CustomerName=(select UserName from hkp.Party where Id='" + CustomerId + @"'),
+Article = STUFF((select distinct ',' + MA.StandardName from trn.ProductionOrderDetail Pod
+left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId = so.Id
+left outer join trn.MasterOrderItem MOI on moi.Id = so.MasterOrderItemId
+left outer join[MST].[MaterialMasterArticle] MA ON ma.Id = moi.ArticleId
+where Pod.ProductionOrderId = QC.ProductionOrderId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+(select UserName from MST.QualityManagementMaster where Id=QC.IssueId) as IssueName,QMP.Finalreport,
+QMP.Id ParameterId,CQH.Id CQRHeaderId,CQH.UserName,CQH.Remarks,CQH.ByWhomId,
+(select EmployeeName from EmployeeInformation where systemId=CQH.ByWhomId) as ByWhom,
+(select top 1 Id from [TRN].[CustomerQualityReportDetails] where CQRHeaderId=CQH.Id and ParameterId=QMP.Id and UOMId=QMP.UOMId) as Id,
+(select top 1 ParaRemarks from [TRN].[CustomerQualityReportDetails] where CQRHeaderId=CQH.Id and ParameterId=QMP.Id and UOMId=QMP.UOMId) as ParaRemarks,
+(select top 1 SpecialRemarks from [TRN].[CustomerQualityReportDetails] where CQRHeaderId=CQH.Id and ParameterId=QMP.Id and UOMId=QMP.UOMId) as SpecialRemarks,
+isnull((select top 1 Value from [TRN].[CustomerQualityReportDetails] where CQRHeaderId=CQH.Id and ParameterId=QMP.Id and UOMId=QMP.UOMId),QCD.Value) Value,
+PM.UserName Parameter,QMP.UOMId,UM.UserName UOM,
+Reverse(stuff(Reverse((select QR.Grade +', ' from MST.QualityRemark QR																			
+where QR.PONo=QC.ProductionOrderId and QR.LotNo=QC.LotNumber for xml PATH(''))),1,2,'')) QRGrade,
+Reverse(stuff(Reverse((select (select EmployeeName from EmployeeInformation where SystemId=QR.ByWhomId) +', ' from MST.QualityRemark QR																			
+where QR.PONo=QC.ProductionOrderId and QR.LotNo=QC.LotNumber  for xml PATH(''))),1,2,'')) QRByWhom,
+Reverse(stuff(Reverse((select QR.Comment +', ' from MST.QualityRemark QR																			
+where QR.PONo=QC.ProductionOrderId and QR.LotNo=QC.LotNumber   for xml PATH(''))),1,2,'')) QRComment,
+Reverse(stuff(Reverse((select OWC.Grade +', ' from MST.OrderWiseQualityComment OWC																			
+where OWC.PONo=QC.ProductionOrderId and OWC.LotNo=QC.LotNumber for xml PATH(''))),1,2,'')) OWGrade,
+Reverse(stuff(Reverse((select (select EmployeeName from EmployeeInformation where SystemId=(Select AuthorizedResPersonId from HKP.QualityManagementAuthorizedPerson where Id=OWC.ByWhomId)) +', ' from MST.OrderWiseQualityComment OWC																			
+where OWC.PONo=QC.ProductionOrderId and OWC.LotNo=QC.LotNumber  for xml PATH(''))),1,2,'')) OWByWhom,
+Reverse(stuff(Reverse((select OWC.Comment +', ' from MST.OrderWiseQualityComment OWC																			
+where OWC.PONo=QC.ProductionOrderId and OWC.LotNo=QC.LotNumber for xml PATH(''))),1,2,'')) OWComment
+from MST.QualityManagementParameterItem QMP
+left join TRN.QualityControlDetails QCD on QCD.ItemId=QMP.Id
+left join TRN.QualityControl QC on QC.Id=QCD.QCID
+left join HKP.ParameterMaster PM on PM.Id=QMP.ParameterId
+left join SCS.UnitOfMeasurement UM on UM.Id=QMP.UOMId
+left join[TRN].[CustomerQualityReportHeader] CQH on " + CQRHFilter + " " + CustFilter + " " + InvFilter + @"
+where CustomerParameter=1 and QCD.GradeId is not null" + LotFilter + "";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public IEnumerable<object> GetByWhomList()
+        {
+            string sql = @"select EMP.SystemId, EMP.EmployeeCode, EMP.EmployeeName, FORMAT(EMP.DOJ, 'dd-MMM-yyyy') DOJ, EC.UserName EmployeeCategory, DP.UserName Department
+                               ,SC.UserName Section, SBC.UserName SubSection, LDSG.UserName Designation, LDSG.UserName LegalDesignation, UN.UserName as Entity
+                                from EmployeeInformation EMP
+                                LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+                                LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
+                                left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+                                left join ORG.Entity UN on UN.Id = MBGT.EntityId
+                                left join ORG.Department DP on DP.ID = POS.DepartmentId
+                                left join ORG.Section SC on SC.Id = POS.SectionId
+                                left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+                                LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=EMP.DesignationGroupId
+                                LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+                                LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+                                left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
+                                left join hkp.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
+                                where EMP.EmployeeStatus = 'Active'";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        #endregion
     }
 }
 
