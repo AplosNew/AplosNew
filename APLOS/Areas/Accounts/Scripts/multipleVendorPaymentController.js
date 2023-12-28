@@ -15,7 +15,7 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
     $scope.isAdvance = false;
     $scope.isBankAmount = false;
     $scope.downloadgriddataUrlPath = 'accounts/invoice/DownloadUsingFullPath';
-    $controller("currencyBaseController", { $scope: $scope, $http: $http });
+    //$controller("currencyBaseController", { $scope: $scope, $http: $http });
     $controller('bankBaseController', { $scope: $scope, $http: $http });
     $scope.multiplePaymentDataList = [];
     $scope.multipleVendorpaymentList = [];
@@ -540,9 +540,13 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
     $scope.GetCurrencyParallel();
 
     $scope.tranCurrencyList = [];
-    cboService.getCboTransactionCurrencyByCompany("", function (result) {
-        $scope.tranCurrencyList = result;
-    });
+    $scope.LoadCurrency = function () {
+        cboService.getCboTransactionCurrencyByCompany("", function (result) {
+            $scope.tranCurrencyList = result;
+        });
+    }
+    $scope.LoadCurrency();
+    
 
     $scope.GetCurrencyExchangeRateList = function () {
         if (!baseService.isUndefinedOrNull($scope.voucher.VoucherDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
@@ -695,6 +699,7 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
         angular.element(document.querySelector('#multiPaymentPopUp')).modal('hide');
     }
     $scope.lst = [];
+    var CurrencyDifferentRate = 0.0000;
     $scope.getDetailData = function (data, id) {
         //debugger
         $http({
@@ -708,10 +713,47 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
                 $scope.lst[i].IsPark = true;
                 $scope.lst[i].BankMasterId = data.BankMasterId;
                 $scope.lst[i].AccountTitle = data.AccountTitle;
+
+                if ($scope.lst[i].CompanyCurrencyRate < $scope.voucher.CompanyCurrencyRate) {
+                    $scope.lst[i].ExchangeAmount = Math.round(($scope.lst[i].Amount * ($scope.voucher.CompanyCurrencyRate - $scope.lst[i].CompanyCurrencyRate)) * 1000 + Number.EPSILON) / 1000;
+                    $scope.lst[i].ExchangeType = "ExchangeLoss";
+                    $scope.lst[i].BaseDrAmount = Math.round(($scope.lst[i].Amount * $scope.lst[i].CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
+
+                }
+                else if ($scope.lst[i].CompanyCurrencyRate > $scope.voucher.CompanyCurrencyRate) {
+                    $scope.lst[i].ExchangeAmount = Math.round(($scope.lst[i].Amount * ($scope.lst[i].CompanyCurrencyRate - $scope.voucher.CompanyCurrencyRate)) * 1000 + Number.EPSILON) / 1000;
+                    $scope.lst[i].ExchangeType = "ExchangeGain";
+                    $scope.lst[i].BaseDrAmount = Math.round(($scope.lst[i].Amount * $scope.lst[i].CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
+
+                }
+                else {
+                    $scope.lst[i].ExchangeAmount = 0;
+                    $scope.lst[i].BaseDrAmount = Math.round(($scope.lst[i].Amount * $scope.lst[i].CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
+                    $scope.lst[i].ExchangeType = null;
+                }
             }
         });
     }
-
+    $scope.exchangeGainLossCal = function (rate) {
+        for (var i = 0; i < $scope.lst.length; i++) {
+            if ($scope.lst[i].CompanyCurrencyRate < rate) {
+                CurrencyDifferentRate = (rate - $scope.lst[i].CompanyCurrencyRate).toFixed(2);
+                $scope.lst[i].ExchangeAmount = Math.round(($scope.lst[i].Amount * CurrencyDifferentRate) * 1000 + Number.EPSILON) / 1000;
+                $scope.lst[i].ExchangeType = "ExchangeLoss";
+            }
+            else if ($scope.lst[i].CompanyCurrencyRate > rate) {
+                CurrencyDifferentRate = ($scope.lst[i].CompanyCurrencyRate - rate).toFixed(2);
+                $scope.lst[i].ExchangeAmount = Math.round(($scope.lst[i].Amount * CurrencyDifferentRate) * 1000 + Number.EPSILON) / 1000;
+                $scope.lst[i].ExchangeType = "ExchangeGain";
+            }
+            else {
+                $scope.lst[i].ExchangeAmount = 0;
+                $scope.lst[i].ExchangeType = null;
+            }
+        }
+        var gridObj = $("#gridTab").data("ejGrid");
+        gridObj.refreshContent();
+    };
     $scope.data1 = $scope.lst;
     $scope.detailTemp = "#tabGridContents";
     $scope.detailgrid = function detailGridData(e) {
