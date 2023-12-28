@@ -106,9 +106,9 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label" title="Expected time of arrival">ETA</label>
+                            <label class="col-sm-4 control-label">Upload File</label>
                             <div class="col-sm-8">
-                                <input type="text" name="ETA" ng-model="ModelNew.ETA" datepicker class="form-control" tabindex="18">
+                                <div id="UploadDefault" e-dialogtext-title="File" e-autoupload="true" e-begin="onBeginPBUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadPBUrl" e-multiplefilesselection=false e-success="getFileList" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.xlsx,.xls,.pptx,.ppt,.docx,.doc" e-error="errorPBPicUpload"></div>
                             </div>
                         </div>
                     </div>
@@ -197,6 +197,12 @@
                                         <option value=""></option>
                                     </select>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" title="Expected time of arrival">ETA</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="ETA" ng-model="ModelNew.ETA" datepicker class="form-control" tabindex="18">
                             </div>
                         </div>
                     </div>

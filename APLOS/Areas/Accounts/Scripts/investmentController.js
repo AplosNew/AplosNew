@@ -106,6 +106,14 @@ function investmentController(accountService, bankService, cboService, commonMes
         {
             "name": "Particulars",
             "value": "Particulars"
+        },
+        {
+            "name": "Investment Type",
+            "value": "InvestmentType"
+        },
+        {
+            "name": "Transaction Type",
+            "value": "TransactionType"
         }
     ];
 
