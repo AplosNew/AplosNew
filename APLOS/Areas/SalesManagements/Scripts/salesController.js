@@ -477,7 +477,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
                             $scope.getData();
 
                             $scope.salesVM = response.data.Data;
-
+                            $scope.salesVM.AddedDate = $filter('dateFiltering')(new Date($scope.salesVM.AddedDate), 'dd-MM-yyyy');
                             $scope.salesVM.BaseOnDueDate = $scope.BaseDate;
                             $scope.salesVM.DocDate = $scope.DData;
                             $scope.salesVM.InvoiceDate = $scope.InDate;
@@ -500,6 +500,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
                     return true;
                 }
                 else if ($scope.Action === "Update") {
+                    $scope.AddedDate = $scope.salesVM.AddedDate;
                     $http({
                         method: "POST",
                         url: "SalesManagements/Sales/UpdateSales",
@@ -521,7 +522,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
 
                             $scope.salesVM = response.data.Data;
 
-
+                            $scope.salesVM.AddedDate = $scope.AddedDate;
                             $scope.salesVM.BaseOnDueDate = $scope.BaseDate;
                             $scope.salesVM.DocDate = $scope.DData;
                             $scope.salesVM.InvoiceDate = $scope.InDate;

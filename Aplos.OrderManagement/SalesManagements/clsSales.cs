@@ -1,13 +1,21 @@
 ﻿using ConnectionManager;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data;
 using Library.Data.Sql;
 using Library.Service.Helpers;
 using OTSBD;
+using Syncfusion.DocIO;
+using Syncfusion.DocIO.DLS;
+using Syncfusion.DocToPDFConverter;
+using Syncfusion.Pdf;
 using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Data;
+using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace Library.OrderManagement.Sales
@@ -4759,6 +4767,284 @@ order by SAI.SalesId";
 			}
 		}
 
+		public IWorkbook MultipleVendorPaymentReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string mvpId)
+		{
+			var excelEngine = new ExcelEngine();
+
+			var reportUtility = new ReportUtility();
+			var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
+			workbook.Version = ExcelVersion.Excel2016;
+			var sheet = workbook.Worksheets[0];
+			sheet.Name = "Voucher";
+			 
+			DataTable dsLocal = GetMultipleVendorPaymentReportData(mvpId);
+			if (dsLocal.Rows.Count == 0)
+				throw new Exception("No data found");
+            DataTable data= GetMultipleVendorPaymentDetailReportData(mvpId);
+            
+            reportFileName = "Multiple Vendor Payment" + dsLocal.Rows[0]["MultiplePaymentNo"];
+
+			//var curCode = dsLocal.Rows[0]["CurrencyCode"].ToString();
+			//var trnCur = dsLocal.Rows[0]["TrnCurrency"].ToString();
+			var row = 5;
+
+			//var colLast = 1;
+
+			reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Multiple Payment No");
+			reportUtility.SetText(ref sheet, row, 2, dsLocal.Rows[0]["MultiplePaymentNo"].ToString());
+			//sheet[reportUtility.GetColumnNameForXls(4) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
+
+
+			reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Tentative Date");
+			reportUtility.SetText(ref sheet, row, 5, dsLocal.Rows[0]["TentativeDate"].ToString());
+			sheet[reportUtility.GetColumnNameForXls(5) + 8 + ":" + reportUtility.GetColumnNameForXls(6) + 8].Merge();
+
+			//if (curCode != trnCur)
+			//{
+			//	sheet[reportUtility.GetColumnNameForXls(5) + 8 + ":" + reportUtility.GetColumnNameForXls(6) + 8].Merge();
+			//}
+
+			row++;
+			reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Due Up To Date");
+			reportUtility.SetText(ref sheet, row, 2, dsLocal.Rows[0]["DueUpToDate"].ToString());
+			//sheet[reportUtility.GetColumnNameForXls(4) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
+
+			reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Bank");
+			reportUtility.SetText(ref sheet, row, 5, dsLocal.Rows[0]["Bank"].ToString());
+			sheet[reportUtility.GetColumnNameForXls(4) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
+
+			//if (curCode != trnCur)
+			//{
+			//	sheet[reportUtility.GetColumnNameForXls(4) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
+			//}
+
+			row++;
+			reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Account No");
+			reportUtility.SetText(ref sheet, row, 2, dsLocal.Rows[0]["AccountNo"].ToString());
+			//sheet[reportUtility.GetColumnNameForXls(4) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
+
+			reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Approved By");
+			reportUtility.SetText(ref sheet, row, 5, dsLocal.Rows[0]["ApprovedBy"].ToString());
+			sheet[reportUtility.GetColumnNameForXls(4) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
+
+			//if (curCode != trnCur)
+			//{
+			//	sheet[reportUtility.GetColumnNameForXls(4) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
+			//}
+
+			row++; //row8
+			reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Approval Status");
+			reportUtility.SetText(ref sheet, row, 2, dsLocal.Rows[0]["ApprovalStatus"].ToString());
+			//sheet[reportUtility.GetColumnNameForXls(4) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
+
+			//reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");
+			//reportUtility.SetText(ref sheet, row, 5, dsLocal.Rows[0]["Park/Post"].ToString());
+
+			row++; //row9
+
+
+
+
+			//sheet.Range[9, 4, row, 5].BorderAround(ExcelLineStyle.Hair);
+			//sheet.Range[9, 4, row, 5].BorderInside(ExcelLineStyle.Hair);
+			//row++;
+			//var col = 1;
+			//reportUtility.SetHeaderText(ref sheet, 10, col, "GL", 15); col++;
+			//reportUtility.SetHeaderText(ref sheet, 10, col, "Budget", 15); col++;
+			//reportUtility.SetHeaderText(ref sheet, 10, col, "Activity", 15); col++;
+			//sheet[10, 1, 10, 3].Merge();
+			//if (curCode != trnCur)
+			//{
+			//	reportUtility.SetHeaderText(ref sheet, 10, col, "Trn Currency", 7); col++;
+			//	reportUtility.SetHeaderText(ref sheet, 10, col, "Trn Value", 9); col++;
+			//}
+			//reportUtility.SetHeaderText(ref sheet, 9, col, curCode, ExcelHAlign.HAlignCenter);
+			//sheet[9, col, 9, col + 1].Merge();
+			//reportUtility.SetHeaderText(ref sheet, 10, col, "Debit", 11, ExcelHAlign.HAlignRight); col++;
+			//reportUtility.SetHeaderText(ref sheet, 10, col, "Credit", 11, ExcelHAlign.HAlignRight);
+			//var colLast = col;
+			////row = 11;
+			//row++;
+
+			//double _Total_Amount = 0;
+			//var Row_Total_Start = row; //row11
+			//for (int n = 0; n < dsLocal.Rows.Count; n++)
+			//{
+			//	col = 1;
+			//	reportUtility.SetText(ref sheet, row, col, dsLocal.Rows[n]["AccountCode"] + " - " + dsLocal.Rows[n]["GL"] + " - " + dsLocal.Rows[n]["BudgetName"] + " - " + dsLocal.Rows[n]["Activity"]); col++; //GL
+
+			//	col++;
+			//	col++;
+			//	if (curCode != trnCur)
+			//	{
+			//		reportUtility.SetText(ref sheet, row, col, dsLocal.Rows[n]["TrnCurrency"].ToString()); col++;
+			//		reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(dsLocal.Rows[n]["Value"])); col++;
+			//	}
+			//	reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(dsLocal.Rows[n]["DrAmount"].ToString()));
+			//	_Total_Amount += Convert.ToDouble(dsLocal.Rows[n]["DrAmount"].ToString()); col++;
+			//	reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(dsLocal.Rows[n]["CrAmount"].ToString())); col++;
+			//	sheet[row, 1, row, 3].Merge();
+			//	row++;
+			//}
+
+			//var rowLast = row - 1;
+			//sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ": " + reportUtility.GetColumnNameForXls(colLast - 2) + row].Merge();
+			//reportUtility.SetText(ref sheet, row, 1, "Total : ", true);
+
+			//sheet.Range[row, colLast - 1].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colLast - 1) + Row_Total_Start + ":" + reportUtility.GetColumnNameForXls(colLast - 1) + rowLast + ")"; //rowLast
+			//sheet.Range[row, colLast - 1].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+			//sheet.Range[row, colLast - 1].CellStyle.Font.Bold = true;
+			//// sheet.Range[row, colLast - 1].BorderAround(ExcelLineStyle.Hair);
+
+			//sheet.Range[row, colLast].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colLast) + Row_Total_Start + ":" + reportUtility.GetColumnNameForXls(colLast) + rowLast + ")";
+			//sheet.Range[row, colLast].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+			//sheet.Range[row, colLast].CellStyle.Font.Bold = true;
+			////sheet.Range[row, colLast].BorderAround(ExcelLineStyle.Hair);
+
+			//sheet.Range[10, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
+			//sheet.Range[10, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
+			//row += 2;
+
+			//reportUtility.SetText(ref sheet, row, 1, "In Word : ", true);
+			//sheet.Range[reportUtility.GetColumnNameForXls(2) + row].Text = reportUtility.InWord(_Total_Amount, dsLocal.Rows[0]["CurrencyId"].ToString()); ;
+			//sheet.Range[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
+			//sheet.Range[reportUtility.GetColumnNameForXls(2) + row].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+			//sheet.Range[reportUtility.GetColumnNameForXls(2) + row].VerticalAlignment = ExcelVAlign.VAlignTop;
+			//sheet.Range[reportUtility.GetColumnNameForXls(2) + row].CellStyle.Font.Bold = true;
+
+			//sheet.UsedRange.AutofitColumns();
+			//sheet.UsedRange.CellStyle.Font.Size = 8;
+			//row = row + 4;
+
+			//reportUtility.SetSignatureText(ref sheet, row - 1, 1, dsLocal.Rows[0]["AddedBy"].ToString());
+			//sheet.Range[row, 1].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+			//reportUtility.SetTextMiddle(ref sheet, row, 1, "Prepared By", true);
+
+			//reportUtility.SetSignatureText(ref sheet, row - 1, 3, dsLocal.Rows[0]["PostedBy"].ToString());
+			//sheet.Range[row, 3].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+			//reportUtility.SetTextMiddle(ref sheet, row, 3, "Checked By", true);
+
+			//sheet.Range[row, colLast].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+			//reportUtility.SetTextMiddle(ref sheet, row, colLast, "Authorized By", true);
+
+			int ROW = 10; int COL = 1;
+
+			#region columns
+			sheet[ROW, COL].Text = "Multiple Payment Detail No";
+			sheet[ROW, COL].ColumnWidth = 20;
+			int ColMultiplePaymentDetailId = COL;
+			COL++;
+
+			sheet[ROW, COL].Text = "Party";
+			sheet[ROW, COL].ColumnWidth = 10;
+			int ColPartyName = COL;
+			COL++;
+
+			sheet[ROW, COL].Text = "Doc RefNo";
+			sheet[ROW, COL].ColumnWidth = 12;
+			int ColDocRefNo = COL;
+			COL++;
+
+			sheet[ROW, COL].Text = "Currency";
+			sheet[ROW, COL].ColumnWidth = 12;
+			int ColCurrency = COL;
+			COL++;
+
+			sheet[ROW, COL].Text = "Amount";
+			sheet[ROW, COL].ColumnWidth = 20;
+			int ColAmount = COL;
+			COL++;
+
+			sheet[ROW, COL].Text = "Status";
+			sheet[ROW, COL].ColumnWidth = 12;
+			int ColStatus = COL;
+			 
+			#endregion columns
+			int endCol = COL;
+			sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+			sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+			sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+			sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+			sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+			sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+			ROW++;
+
+			int startRow = ROW;
+
+			for (int i = 0; i < data.Rows.Count; i++)
+			{
+				sheet[ROW, ColMultiplePaymentDetailId].Text = data.Rows[i]["MultiplePaymentDetailId"].ToString();
+				sheet[ROW, ColPartyName].Text = data.Rows[i]["PartyName"].ToString();
+				sheet[ROW, ColDocRefNo].Text = data.Rows[i]["DocRefNo"].ToString();
+				sheet[ROW, ColCurrency].Text = data.Rows[i]["Currency"].ToString();
+				sheet[ROW, ColAmount].Text = data.Rows[i]["Amount"].ToString();
+				sheet[ROW, ColStatus].Text = data.Rows[i]["Status"].ToString(); 
+
+				sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+				sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+				sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+				ROW++;
+			}
+			//IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
+			//table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+			sheet.UsedRange.WrapText = true;
+			sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+			sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+			sheet["A" + startRow.ToString()].FreezePanes();
+
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity; 
+			//reportUtility.PlantHeader(ref sheet, endCol, "Utility Transaction Report", identity.PlantId);
+			reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+			sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+			sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+			sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+			sheet.UsedRange.WrapText = true;
+			sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+			sheet.IsGridLinesVisible = false;
+
+			//sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+			//#endregion ******************Report Header******************
+			sheet.PageSetup.TopMargin = 0.2;
+			sheet.PageSetup.BottomMargin = 0.8;
+			//sheet.PageSetup.PrintTitleRows = "$1:$6";
+			sheet.PageSetup.LeftMargin = 0.2;
+			sheet.PageSetup.RightMargin = 0.2;
+			sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+			sheet.PageSetup.FitToPagesTall = 0;
+			sheet.PageSetup.FitToPagesWide = 1;
+			sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+			sheet.PageSetup.CenterHorizontally = true; 
+
+			reportUtility.CompanyPlantHeader(ref sheet, endCol, "Journal Voucher", companyId, plantId, plantName, null);
+            reportUtility.FreezePage(ref sheet, 1, endCol);
+            reportUtility.PageAdjustableSetup(ref sheet, 1, row + 3, ExcelPageOrientation.Portrait); 
+			 
+			return workbook; 
+		}
+		public DataTable GetMultipleVendorPaymentReportData(string mvpId)
+		{ 
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			var sql = @"select MP.Id MultiplePaymentNo,MP.TentativeDate,MP.DueUpToDate,BM.AccountTitle Bank,BM.AccountNumber AccountNo
+							,EI.EmployeeName ApprovedBy,MP.ApprovalStatus
+							from TRN.MultiplePayment MP 
+							left join MST.BankMaster BM on BM.Id=MP.BankMasterId
+							left join EmployeeInformation EI on EI.SystemId=MP.ApprovedBy
+							where MP.Id='" + mvpId + @"'"; 
+			return _sqlRepository.GetDataTable(sql);
+		}
+		public DataTable GetMultipleVendorPaymentDetailReportData(string mvpId)
+		{
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			var sql = @"select MPD.Id MultiplePaymentDetailId,EI.EmployeeName PartyName,I.DocRefNo,C.Name Currency,MPD.Amount
+									,Status= case when MPD.IsPark=0 then 'Posted' else 'Parked' end
+									from TRN.MultiplePaymentDetail MPD
+									left join EmployeeInformation EI on EI.SystemId=MPD.PartyId
+									left join TRN.Invoice I on I.Id=MPD.InvoiceId
+									left join SCS.Currency C on C.Id=I.CurrencyId
+							where MPD.MultiplePaymentId='" + mvpId + @"'"; 
+			return _sqlRepository.GetDataTable(sql);
+		}
 	}
 
 
