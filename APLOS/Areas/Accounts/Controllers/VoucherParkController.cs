@@ -201,7 +201,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     rdBuilder.Append(voucherSql);
                     rdBuilder.Append(bankJournalSql);
                 }
-                if (sourceType == SourceType.LoanPayment.ToString())
+                if (sourceType == SourceType.LoanPayment.ToString()|| sourceType == SourceType.InvestmentSetOff.ToString())
                 {
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     var bankJournalSql = @"UPDATE [TRN].FinancingWriteOff SET ISPark=1,IsPosted=0 WHERE VoucherId='" + voucherId + "'";
