@@ -60,20 +60,6 @@ function PostSalesInvoiceController(cboService, commonMessage, $scope, $rootScop
     };
     $scope.getShipmode();
 
-    //$scope.PlantCountryId = null;
-    //$scope.getPantCountry = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'Commercial/PurchaseLC/GetPlantCountry'
-    //    }).then(function successCallback(response) {
-    //        if (baseService.arrayLength(response.data) > 0) {
-    //            $scope.PlantCountryId = response.data[0].PlantCountryId;
-    //        }
-    //        $scope.GetPortByPlantCountry($scope.PlantCountryId);
-    //        $scope.getDestination();
-    //    });
-    //};
-    //$scope.getPantCountry();
 
     $scope.destinationList = [];
     $scope.getDestination = function () {
@@ -142,8 +128,8 @@ function PostSalesInvoiceController(cboService, commonMessage, $scope, $rootScop
         AddedFromIP: null,
         UpdatedBy: null,
         UpdatedDate: null,
-        UpdatedFromIP: null
-
+        UpdatedFromIP: null,
+        FileName:null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -405,6 +391,48 @@ function PostSalesInvoiceController(cboService, commonMessage, $scope, $rootScop
         $scope.hidePartyPopUp();
     };
 
+    //#region Production Bulletin Picture upload
 
+    $scope.onBeginPBUpload = function (args) {
+        try {
+            if (angular.isUndefinedOrNull($scope.PostSalesInvoice.Id))
+                throw 'Please select/save Post Sales Invoice first'
+
+            args.data = $scope.bulletinTemplateNew.Id;
+        } catch (e) {
+
+            args.cancel = true;
+            ShowResult(e, 'Error');
+        }
+
+    }
+    $scope.uploadPBUrl = "Commercial/PostSalesInvoice/SavePostSaleFile";
+    $scope.fileselect = function (e) {
+
+    }
+    $scope.errorPBPicUpload = function (e) {
+        if (angular.isUndefinedOrNull($scope.bulletinTemplateNew.Id))
+            ShowResult('Please select/save the production order first', 'Error');
+        else
+            ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
+    }
+    $scope.getFileList = function () {
+        $http({
+            method: 'POST', url: $scope.path + 'GetFileInfo', dataType: 'JSON',
+            data: { Id: $scope.bulletinTemplateNew.Id }
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult('error', 'failure');
+            }
+            else {
+                var str = response.data[0].PicFileName;
+                var extention = str.substr(str.indexOf('.'));
+                $scope.PicFileName = virtualPath.ProductionBulletinImage + '/' + $scope.bulletinTemplateNew.Id + extention;
+            }
+        }, function errorCallback(response) {
+            ShowResult('Failed', 'failure');
+        });
+    }
+    //#endregion Production Bulletin Picture upload
 
 }

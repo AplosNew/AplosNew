@@ -256,7 +256,7 @@
                                         <div class="select-style">
                                             <select id="bankId" class="form-control" name="Bank" ng-model="modelNew.BankId" tabindex="5">
                                                 <option value="">--Select--</option>
-                                                <option ng-repeat="option in bankList" value="{{option.Value}}">{{option.Text}}</option>
+                                                <option ng-repeat="option in bankList" value="{{option.Id}}">{{option.AccountTitle}}</option>
                                             </select>
                                         </div>
                                     </div>
@@ -705,7 +705,7 @@
                 <br />
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li> <button ng-click="Save()" ng-disabled="modelNew.MasterOrderId!==null" class="btn single-small-btn" tabindex="6"><i class="glyphicon glyphicon-floppy-disk"></i> {{modelNew.Id.length>0?'Update':'Save'}}</button></li>
+                        <li> <button ng-click="confirmToCreateLC()" ng-disabled="modelNew.MasterOrderId!==null" class="btn single-small-btn" tabindex="6"><i class="glyphicon glyphicon-floppy-disk"></i> {{modelNew.Id.length>0?'Update':'Save'}}</button></li>
                         <li> <button data-toggle="modal" ng-disabled="modelNew.MasterOrderId!==null" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                         <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                     </ul>
@@ -993,6 +993,7 @@
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteTNC();"></confirm-archive-generic>
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="DeleteMOI();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmSOPopUp" title="Confirmation" message={{message_detailconfirm}} data-ng-click-right-button="DeleteSO();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmLCPopUp" title="Confirmation" message={{message_detailLCconfirm}} data-ng-click-left-button="Save();" data-ng-click-right-button="LCYes();"></confirm-archive-generic>
 <div class="loader" data-loader>
     Please wait
     <div class="bounce1"></div>

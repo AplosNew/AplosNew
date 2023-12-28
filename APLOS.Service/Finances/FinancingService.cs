@@ -634,6 +634,83 @@ namespace Library.Service.Finances
             }
         }
 
+        public void DeleteInvestmentPayment(string companyId, string plantId, string voucherId)
+        {
+            var flag = false;
+            try
+            {
+
+
+                // Delete Loan
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucherRepository.Find(voucherId);
+                var laonIntPayable = _loanInterestPayableRepository.Query(r => r.VoucherId == voucherId).Select().FirstOrDefault();
+                var financingWriteOff = _financingWriteOffRepository.Query(r => r.VoucherId == voucherId).Select().FirstOrDefault();
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+                if (financingWriteOff != null)
+                {
+                    vendorAdWrsql = @"declare @writeOffAmount decimal(18,2)=(select Amount from TRN.FinancingDetailWriteOff where FinancingWriteOffId in (select Id from TRN.FinancingWriteOff where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.InvestmentSetOff.ToString() + "' AND VoucherId = '" + voucherId + "'))";
+                    vendorAdWr.Append(vendorAdWrsql);
+
+                    vendorAdWrsql = @"update TRN.Financing set WrittenOffAmount=(WrittenOffAmount - @writeOffAmount),IsWrittenOff= 0 
+                                where Id in (select FinancingId from TRN.FinancingDetailWriteOff where FinancingWriteOffId in (select Id from TRN.FinancingWriteOff where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.InvestmentSetOff.ToString() + "' AND VoucherId = '" + voucherId + "'))";
+                    vendorAdWr.Append(vendorAdWrsql);
+                    vendorAdWrsql = @"update TRN.FinancingDetail set WrittenOffAmount=(WrittenOffAmount - @writeOffAmount)
+                                where Id in (select FinancingDetailId from TRN.FinancingDetailWriteOff where FinancingWriteOffId in (select Id from TRN.FinancingWriteOff where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.InvestmentSetOff.ToString() + "' AND VoucherId = '" + voucherId + "'))";
+                    vendorAdWr.Append(vendorAdWrsql);
+                }
+                if (laonIntPayable != null)
+                {
+                    vendorAdWrsql = @"delete from TRN.FinancingSubsequentTransaction where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.InvestmentSetOff.ToString() + "' AND Id = '" + voucherId + "')";
+                    vendorAdWr.Append(vendorAdWrsql);
+                }
+                vendorAdWrsql = @"delete from trn.GLTransactionDetail where VoucherDetailId in (select Id from TRN.VoucherDetail  where VoucherId in (select Id from TRN.Voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.InvestmentSetOff.ToString() + "' AND Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete from [TRN].[CheckLotDetailHistory] where VoucherDetailId in (select Id from TRN.VoucherDetail  where VoucherId in (select Id from TRN.Voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.InvestmentSetOff.ToString() + "' AND Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.VoucherDetailCurrency where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.InvestmentSetOff.ToString() + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.VoucherDetail where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.InvestmentSetOff.ToString() + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                if (financingWriteOff != null)
+                {
+                    vendorAdWrsql = @"delete from TRN.FinancingDetailWriteOff where FinancingWriteOffId in (select Id from TRN.FinancingWriteOff where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.InvestmentSetOff.ToString() + "' AND Id = '" + voucherId + "'))";
+                    vendorAdWr.Append(vendorAdWrsql);
+                    vendorAdWrsql = @"delete from TRN.FinancingWriteOff where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.InvestmentSetOff.ToString() + "' AND Id = '" + voucherId + "')";
+                    vendorAdWr.Append(vendorAdWrsql);
+                }
+
+
+                vendorAdWrsql = @"delete trn.voucher  where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.InvestmentSetOff.ToString() + "' AND Id = '" + voucherId + "'";
+                vendorAdWr.Append(vendorAdWrsql);
+                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
         //DeleteSalaryJournal
 
         private static void CheckIsPostedLoanInterestPayable(FinancingSubsequentTransaction loanInterestPayable)
@@ -710,6 +787,8 @@ namespace Library.Service.Finances
 
 
                 vendorAdWrsql = @"delete from TRN.FinancingSchedule where FinancingId in (select Id from TRN.Financing where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.Investment.ToString() + "' AND Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete from TRN.FinancingSubsequentTransaction where FinancingId in (select Id from TRN.Financing where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.Investment.ToString() + "' AND Id = '" + voucherId + "'))";
                 vendorAdWr.Append(vendorAdWrsql);
 
                 vendorAdWrsql = @"delete from TRN.FinancingDetail where FinancingId in (select Id from TRN.Financing where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.Investment.ToString() + "' AND Id = '" + voucherId + "'))";

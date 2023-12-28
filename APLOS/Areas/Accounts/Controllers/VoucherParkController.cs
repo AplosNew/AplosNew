@@ -81,6 +81,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     throw new CustomException("Voucher Park Mode not allowed, Bank Reconciled have to delete first!");
                 }
 
+
                 if (sourceType== SourceType.JournalVoucher.ToString())
                 {
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
@@ -168,6 +169,26 @@ namespace Aplos.Areas.Accounts.Controllers
                 }
                 if (sourceType == SourceType.Loan.ToString()|| sourceType == SourceType.Investment.ToString() || sourceType == SourceType.AutoLoan.ToString())
                 {
+                    ConnectionManager.DAL.ConManager objCon1;
+                    DataSet dsMaster1 = null;
+                    DataSet dsLoanInterest = null;
+                    string setOffsql = @"SELECT VoucherNo from trn.FinancingDetailWriteOff FDW JOIN trn.FinancingWriteOff FW on FW.Id=FDW.FinancingWriteOffId 
+                    LEFT JOIN    trn.Voucher v on v.Id = FW.VoucherId WHERE FDW.FinancingId in (select Id from [TRN].[Financing] where VoucherId = '" + voucherId + @"')";
+                    string loanInterestsql = @"SELECT VoucherNo,FST.SourceType from TRN.FinancingSubsequentTransaction FST INNER JOIN    
+                    trn.Voucher v on v.Id = FST.VoucherId WHERE FST.SourceType NOT IN('Loan') AND FST.FinancingId in (select Id from [TRN].[Financing] where VoucherId = '" + voucherId + @"')";
+                    objCon1 = new ConnectionManager.DAL.ConManager("1");
+                    objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
+                    objCon1.OpenDataSetThroughAdapter(loanInterestsql, out dsLoanInterest, false, "1");
+
+                    if (dsMaster1.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Voucher Park Mode not allowed, SetOf Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                    }
+                    if (dsLoanInterest.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Voucher Park Mode not allowed, " + dsLoanInterest.Tables[0].Rows[0]["SourceType"].ToString() + "  Voucher No: '" + dsLoanInterest.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                    }
+
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     var bankJournalSql = @"UPDATE [TRN].Financing SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);

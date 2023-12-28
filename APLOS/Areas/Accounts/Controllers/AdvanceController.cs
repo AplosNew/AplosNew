@@ -102,7 +102,8 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult ParkCustomerAdvance(VoucherViewModel advanceVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList, IEnumerable<VoucherDetailViewModel> banksDetailVMList)
+        public JsonResult ParkCustomerAdvance(VoucherViewModel advanceVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList
+            , IEnumerable<VoucherDetailViewModel> banksDetailVMList, IEnumerable<BankChargeViewModel> bankChargeDetailVMList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             advanceVM.CompanyGroupId = identity.CompanyGroupId;
@@ -121,7 +122,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceService.InsertCustomerAdvance(advanceVM, advanceDetailVMList)) });
             }
             else
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceService.InsertMultiBankCustomerAdvance(advanceVM, advanceDetailVMList, banksDetailVMList)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceService.InsertMultiBankCustomerAdvance(advanceVM, advanceDetailVMList, banksDetailVMList, bankChargeDetailVMList)) });
         }
 
         [HttpPost,Authorize]
@@ -157,9 +158,13 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult PostCustomerAdvance(string advanceId)
+        public JsonResult PostCustomerAdvance(string advanceId,string advanceGroupNo)
         {
+            if(!string.IsNullOrEmpty(advanceId))
             _advanceService.Post(advanceId);
+            else
+                _advanceService.PostCustomerAdvanceGroupWise(advanceGroupNo);
+
             return Json(new { Message = AplosMessage.Success });
         }
 

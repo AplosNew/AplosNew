@@ -5,6 +5,7 @@ using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Model.Addresses;
 using Library.Service.Currencies;
+using Library.Service.Extension;
 using Library.Service.Helpers;
 using Syncfusion.DocIO;
 using Syncfusion.DocIO.DLS;
@@ -740,7 +741,7 @@ namespace Library.MaterialManagement.Reports
                 DataTable dsOrderMaster;
 
                 dsOrderMaster = GetLotWiseSalesReportData(salesId);
-                if (dsOrderMaster.Rows.Count>0)
+                if (dsOrderMaster.Rows.Count > 0)
                 {
                     if (string.IsNullOrEmpty(dsOrderMaster.Rows[0]["Email"].ToString()))
                     {
@@ -822,7 +823,7 @@ namespace Library.MaterialManagement.Reports
                 //Closes the instance of document objects
 
                 //Saves the PDF file 
-                string FileName = "TaxInvoice-" + salesId+".pdf";
+                string FileName = "TaxInvoice-" + salesId + ".pdf";
 
                 MemoryStream ms = new MemoryStream();
                 // Save and close the document.
@@ -1382,7 +1383,7 @@ LEFT JOIN dbo.[Contract] C ON C.MasterLcId=MA.MasterLcId
 LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
 LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
 LEFT JOIN HKP.TermsAndConditions TC ON TC.Id=MA.TermsAndConditionsId
-                        where SM.SalesId='"+ SalesId + @"')A  ";
+                        where SM.SalesId='" + SalesId + @"')A  ";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }
@@ -1401,12 +1402,13 @@ LEFT JOIN HKP.TermsAndConditions TC ON TC.Id=MA.TermsAndConditionsId
             string strSQL;
             try
             {
-                strSQL = @"Select DISTINCT MA.Description
+                strSQL = @"Select A.* from (
+Select DISTINCT MA.Description,MA.Sequence
 from [dbo].[MasterLCAddInfo] MA
 LEFT JOIN dbo.[Contract] C ON C.MasterLcId=MA.MasterLcId
 LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
 LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
-Where  SM.SalesId='" + SalesId + "'";
+Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }
@@ -1440,11 +1442,13 @@ Where  SM.SalesId='" + SalesId + "'";
             #region column headers
             document.EnsureMinimal();
 
-            WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat FontBold = new WCharacterFormat(document); 
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
             FontBold.Bold = true;
-
+            DFontSize.FontSize = 8f;
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Terms And Conditions");
             range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
             int colTermsAndCondition = COL; COL++;
             wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 580;
 
@@ -1468,17 +1472,16 @@ Where  SM.SalesId='" + SalesId + "'";
                     }
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
-                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsTermsAndCondition.Rows[i]["RoWNo"].ToString() + "." + dsTermsAndCondition.Rows[i]["UserName"].ToString());
-
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsTermsAndCondition.Rows[i]["RoWNo"].ToString() + "." + dsTermsAndCondition.Rows[i]["UserName"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
             }
             ROW++;
 
             #region Total
-            //int TotalRow = ROW;
-            //wTable.AddRow();
-            //WTableRow _TROW = wTable.LastRow;
-
-            //range.ApplyCharacterFormat(FontBold);
+           
             #endregion Total
             ROW++;
             #region paragrpath formats
@@ -1525,12 +1528,15 @@ Where  SM.SalesId='" + SalesId + "'";
             document.EnsureMinimal();
 
             WCharacterFormat FontBold = new WCharacterFormat(document);
+             WCharacterFormat DFontSize = new WCharacterFormat(document);
             FontBold.Bold = true;
+            DFontSize.FontSize = 5f;
 
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Additional Info");
             range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
             int colTermsAndCondition = COL; COL++;
-            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 580;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 290;
 
             #endregion column headers
             double totalValue = 0;
@@ -1552,7 +1558,11 @@ Where  SM.SalesId='" + SalesId + "'";
                     }
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
-                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsaddInfo.Rows[i]["Description"].ToString());
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsaddInfo.Rows[i]["Description"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
 
             }
             ROW++;
@@ -1572,7 +1582,7 @@ Where  SM.SalesId='" + SalesId + "'";
             myaddStyle.CharacterFormat.FontSize = 8f;
             myaddStyle.CharacterFormat.TextColor = Color.Black;
             myaddStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
-
+  
             #endregion paragrpath formats
 
             #region merging section
@@ -1623,11 +1633,15 @@ Where  SM.SalesId='" + SalesId + "'";
                 var MaterialTotal = makeCommercialInvoiceService(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {materialItems}
                 var addInfo = makeaddInfo(salesId, document, dsaddInfo);   // {makeaddInfo}
                 var TermsAndCondition = makeTermsAndCondition(salesId, document, dsConditions);   // {conditions}
-
+                var totalQty= clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(POTransactionQty)", "CustomerNo='" + dsOrderMaster.Rows[0]["CustomerNo"].ToString() + "'"));
+                var FREIGHTVALUE = totalQty * clsStaticInfo.dbl(dsOrderMaster.Rows[0]["AdditionalFrieghtValue"].ToString());
+                var FCAVALUE = MaterialTotal - FREIGHTVALUE;
                 document.Replace("{GrandTotal}", (MaterialTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{GrandTotals}", (MaterialTotal).ToString("#,##0.00"), true, true);
+                document.Replace("{FREIGHTVALUE}", (FREIGHTVALUE).ToString("#,##0.00"), true, true);
+                document.Replace("{FCAVALUE}", (FCAVALUE).ToString("#,##0.00"), true, true);
                 //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2"), true, true);
                 document.Replace("{TotalInWords}", ru.InWord((MaterialTotal), dsOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
-
 
                 Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
 
@@ -1700,214 +1714,28 @@ Where  SM.SalesId='" + SalesId + "'";
         public DataTable GetloadCommercialLocalTaxMaterialMaster(string SalesId)
         {
             string strSQL;
+//            ,AddInfo = Stuff((
+//                    SELECT distinct'/ ' + A.Description
+//                    from(Select A.* from(
+//Select DISTINCT MA.Description, MA.Sequence
+//from[dbo].[MasterLCAddInfo] MA
+//LEFT JOIN dbo.[Contract] C ON C.MasterLcId = MA.MasterLcId
+//LEFT JOIN TRN.SalesOrder SO ON SO.ContractId = C.Id
+//LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId = SO.Id
+//Where  SM.SalesId = IR.Id)A)A FOR XML PATH('')), 1, 1, '')
             try
             {
-
-
-                //                strSQL = @"SELECT IR.Id CustomerNo, IRD.Id SalesMaterialId
-                //                                 , IR.CompanyGroupId
-                //                                ,IR.CompanyId,CRNC.Code
-                //								,p.UserName Customer
-                //                                , P.UserName Buyer
-                //                                 , ir.CurfrencyId
-                //								,cmp.BaseCurrencyId
-                //								,P.TINNO CustomerGSTNo
-                //                                , p.VATResistrationNo as CustomerPANNo
-                //								,Addres.Address1 VendorAddress
-                //                                , ISNULL(HSNC.Code,MHSN.Code) HSNCode
-                //                                 , Plant.GSTIN
-                //								,Plant.VATResistrationNo as PlantPANNo
-                //                                ,DPARTYPL.GSTIN ShipGSTIN
-                //                                , INVPARTYPL.GSTIN BillGSTIN
-                //                                 , IR.DocRefNo
-                //	                            ,IR.InvoiceNo
-                //                                ,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS DocDate
-                //                                , REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate
-                //                                 , REPLACE(Convert(VARCHAR(11), IR.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate
-                //                                  , REPLACE(Convert(VARCHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
-                //                                   , IR.InvoicingPartyPlantId
-                //		                        ,INVPARTYPL.UserName InvoiceParty
-                //                                , INVPARTYPL.UserName InvoiceParty2
-                //                                 , IR.InvoicingByAddress as ConsigneeAddress
-                //		                        ,IR.DeliveryByAddress
-                //		                        ,DPARTYPL.UserName DeliveryParty
-                //                                , IR.DeliveryPartyPlantId
-                //		                        ,IRD.MaterialMasterId
-                //								,PSI.PreCarriageBy
-                //								,PSI.PlaceOfReceiptByPreCarriage
-                //								,PSI.CNFContainerNo
-                //								,PSI.CNFVesselName
-                //								,PSI.CNFVesselTrackingNo
-                //                                ,LC.LcNo,LC.BenificiaryBank,LC.OpeningBank
-                //								,FORMAT(LC.LCDate, 'dd-MMM-yyyy')LCDate
-                //                                ,LC.BenificiaryBankDescription
-                //                                ,LC.OpeningBankAddress
-                //                                ,LC.ContractNo
-                //								,D.UserName as FinalDestination
-                //								,PL.UserName as PortOfLanding
-                //								,PD.UserName as PortOfDischarge
-                //								,PoD.UserName as PortOfDelivery
-                //	                            ,CRNC.Code AS CurrencyName
-                //	                            ,IR.ToCurrencyRate
-                //		                        ,BASECRNC.Code AS BaseCurrencyName
-                //		                        ,PayTerm.UserName PaymentTerm
-                //                              , MM.UserName MaterialMaster
-                //                               , MM.MaterialGroupMasterId
-                //	                          ,MGM.UserName MaterialGroupMaster
-                //                              , MMA.StandardName Article
-                //                               , FC.UserName FirstChar
-                //                                , FCV.UserName AS FirstCharacteristicsValue
-                //	                          ,SCV.UserName AS SecondCharacteristicsValue
-                //	                          ,TCV.UserName AS ThirdCharacteristicsValue
-                //	                          ,SC.UserName SecondChar
-                //                              , TC.UserName ThirdChar
-                //							    ,POTransactionQty=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.NetWeight END) 
-                //	                          ,ROUND(IRD.TransactionRate, 4) TransactionRate
-
-                //	                          ,ROUND(((CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.NetWeight END)) * ROUND(IRD.TransactionRate, 4)), 2) AS TrnAmount
-                //                              , IRD.BaseAmount
-                //	                          ,IRD.TaxAmount AS BaseTaxAmount
-                //	                          ,TaxAmount = (SELECT SUM(TaxAmount) FROM[TRN].[PurchaseOrderTax] WHERE InventoryReceiveDetailId = IRD.Id)
-                //	                          ,ServiceTaxAmount = (SELECT SUM(TaxAmount) FROM[TRN].[SalesService] WHERE SalesId = IRD.Id)
-                //	                          ,TUoM.UserName AS TransactionUoM
-                //							  ,PONumber = REPLACE(REPLACE(
-                //                                        STUFF((select distinct ', ' + CPO.PONumber FROM
-                //                                        TRN.SalesMaterial SM
-                //                                        JOIN TRN.SalesOrder SO ON SO.Id = SM.SalesOrderId
-                //                                        JOIN TRN.CustomerPO CPO ON CPO.id = SO.CustomerPOId
-                //                                        WHERE IR.Id = SM.SalesId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                //										,'&amp;','&'), 'amp;', '')
-                //							  ,OurOrderRefNo = REPLACE(REPLACE(
-                //                                        STUFF((select distinct ', ' + MO.OwnReferenceNo FROM
-                //                                        TRN.SalesOrderItem SOI
-                //                                        JOIN TRN.MasterOrder MO ON MO.Id = SOI.MasterOrderId
-                //                                        WHERE IR.Id = SOI.SalesId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                //										,'&amp;','&'), 'amp;', '')
-                //							,YourOrderRefNo = REPLACE(REPLACE(
-                //                                        STUFF((select distinct ', ' + MO.BuyerReferenceNo FROM
-                //                                        TRN.SalesOrderItem SOI
-                //                                        JOIN TRN.MasterOrder MO ON MO.Id = SOI.MasterOrderId
-                //                                        WHERE IR.Id = SOI.SalesId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                //										,'&amp;','&'), 'amp;', '')
-                //                            ,BuyertemRef = REPLACE(REPLACE(
-                //                                        STUFF((select distinct ', ' + MOI.BuyerReferenceNo FROM
-                //                                        TRN.SalesMaterial SM
-                //										JOIN TRN.SalesOrder SO ON SO.Id = SM.SalesOrderId
-                //                                        JOIN TRN.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId
-                //                                        WHERE IR.Id = SM.SalesId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                //										,'&amp;','&'), 'amp;', '')
-                //							,AddedDate = REPLACE(REPLACE(
-                //                                        STUFF((select distinct ', ' + FORMAT(MO.AddedDate, 'dd-MMM-yyyy') FROM
-                //                                        TRN.SalesOrderItem SOI
-                //                                        JOIN TRN.MasterOrder MO ON MO.Id = SOI.MasterOrderId
-                //                                        WHERE IR.Id = SOI.SalesId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                //										,'&amp;','&'), 'amp;', '')
-                //                                ,IR.ComercialInvoiceNo,IR.BLNumber,FORMAT(IR.BLDate, 'dd-MMM-yyyy')BLDate,
-                //								IR.EXPFromNo,FORMAT(IR.EXPDate, 'dd-MMM-yyyy')EXPDate,IR.ItemDescription
-                //								,PSI.TransportVehicleNo,PSI.TransportDriverName,PPSI.UserName TransporterName, BM.AccountTitle,BM.AccountNumber
-                //								,BMA.Address1,PSI.TransportDocRefNo,FORMAT(PSI.TransportDocDate, 'dd-MMM-yyyy') CNFBLAWBDate
-                //								,B.UserName as Bank,BB.UserName as BankBranch
-                //								,IRD.BooksCurrencyTransactionAmount
-                //								,IRD.BooksCurrencyTaxAmount
-                //								,IRD.BooksCurrencyBaseRate
-                //                        ,(Select Stuff((
-                //						Select distinct ' / '  + pla.AttributeValue
-                //						from dbo.ProductLibraryAttribute pla
-                //						LEFT JOIN dbo.SalesPacking SP ON pla.ProductLibraryId = SP.ProductLibraryId
-                //						WHERE SP.SalesId=IR.Id
-                //						for XML PATH('')
-                //						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy,SCN.Cartons,SCN.LotNo
-                //                        FROM TRN.Sales IR
-                //                         LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
-                //                         LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
-                //                         LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
-                //                         LEFT JOIN dbo.PostSalesInvoice PSI ON PSI.SalesId = IR.Id
-                //                         LEFT JOIN MST.[Port] as PL on PL.Id = PSI.PortOfLoadingId
-                //                         LEFT JOIN MST.[Port] as PD on PD.Id = PSI.PortOfDischargeId
-                //                         LEFT JOIN MST.[Port] as PoD on PoD.Id = PSI.PortOfDelivaryId
-                //                         LEFT JOIN MST.Destination as D on D.Id = PSI.FinalDestinationId
-                //                         LEFT JOIN SCS.Currency CRNC ON CRNC.Id = IR.CurrencyId
-                //                         LEFT JOIN SCS.Currency BASECRNC ON BASECRNC.Id = cmp.BaseCurrencyId
-                //                         LEFT JOIN MST.PaymentTerm PayTerm ON PayTerm.Id = IR.PaymentTermId
-                //                         LEFT JOIN HKP.PartyPlant INVPARTYPL ON INVPARTYPL.Id = IR.InvoicingPartyPlantId
-                //                         LEFT JOIN HKP.PartyPlant DPARTYPL ON DPARTYPL.Id = IR.DeliveryPartyPlantId
-                //                         LEFT JOIN HKP.Party P ON P.Id = IR.PartyId
-                //                         LEFT JOIN[MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
-                //                         LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
-                //                         LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
-                //                         LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
-                //                         LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
-                //                         LEFT JOIN[HKP].[HSNCode] AS MHSN ON MHSN.ID = MM.HSNCodeId
-                //                         LEFT JOIN[HKP].[HSNCode] AS HSNC ON HSNC.ID = MMA.HSNCodeId
-                //                         LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
-                //                         LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId = SC.Id
-                //                         LEFT JOIN HKP.Characteristics AS TC ON IRD.ThirdCharacteristicsId = TC.Id
-                //                         LEFT JOIN HKP.CharacteristicsValue AS FCV ON IRD.FirstCharacteristicsValueId = FCV.Id
-                //                         LEFT JOIN HKP.CharacteristicsValue AS SCV ON IRD.SecondCharacteristicsValueId = SCV.Id
-                //                         LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId = TCV.Id
-                //                         LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
-                //                         LEFT JOIN HKP.Party PPSI ON PPSI.Id = PSI.TransportAgentId
-                //                         LEFT JOIN MST.BankMaster BM ON BM.Id = PSI.BankMasterId
-                //                         LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
-                //                         LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId And BB.Id = BM.BankBranchId
-                //                         LEFT JOIN[MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
-                //                         LEFT JOIN(
-                //SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address1 BenificiaryBankDescription,LC.OpeningBank, SM.SalesId,LC.OpeningDescription OpeningBankAddress,C.ContractNo
-                //                         FROM trn.SalesMaterial as SM
-                //                         LEFT JOIN TRN.SalesOrder SO on SO.Id=SM.SalesOrderId
-                //                         LEFT JOIN dbo.[Contract]  C on c.Id = SO.ContractId
-                //                         LEFT JOIN dbo.MasterLC LC on LC.Id=C.MasterLCId
-                //                         LEFT JOIN  MST.BankMaster OB on OB.Id = LC.BenificiaryBankId
-                //                         LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
-                //                         LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId
-                //) LC on LC.SalesId = IR.Id
-                //LEFT JOIN (SELECT SalesId,SalesMaterialId, LotNo, COUNT(RefNo) Cartons, 
-                //            SUM(NetWeight)NetWeight,SUM(GWeight)GWeight FROM ItemScanChild group by SalesId ,SalesMaterialId, LotNo) SCN on SCN.SalesId = IR.Id AND SCN.SalesMaterialId=IRD.Id
-                //                         WHERE IR.Id ='" + SalesId + "'";
-                strSQL = @"SELECT IR.Id CustomerNo   
-    ,CRNC.Code
-    ,cmp.BaseCurrencyId
-    ,IR.CurrencyId
-    ,p.UserName Customer
-    ,P.UserName Buyer 
-    ,P.TINNO CustomerGSTNo
-    ,p.VATResistrationNo AS CustomerPANNo
-    ,Addres.Address1 VendorAddress
-    ,ISNULL(HSNC.Code,MHSN.Code) HSNCode
-    ,Plant.GSTIN
-    ,Plant.VATResistrationNo AS PlantPANNo
-    ,DPARTYPL.GSTIN ShipGSTIN
-    ,INVPARTYPL.GSTIN BillGSTIN
-    ,IR.DocRefNo
-    ,IR.InvoiceNo
+                strSQL = @"SELECT IR.Id CustomerNo,CRNC.Code,cmp.BaseCurrencyId,IR.CurrencyId,p.UserName Customer,P.UserName Buyer,P.TINNO CustomerGSTNo,p.VATResistrationNo AS CustomerPANNo
+    ,Addres.Address1 VendorAddress,ISNULL(HSNC.Code,MHSN.Code) HSNCode,Plant.GSTIN,Plant.VATResistrationNo AS PlantPANNo,DPARTYPL.GSTIN ShipGSTIN
+    ,INVPARTYPL.GSTIN BillGSTIN,IR.DocRefNo,IR.InvoiceNo
     ,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS DocDate
     ,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate
     ,REPLACE(Convert(VARCHAR(11), IR.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate
-    ,REPLACE(Convert(VARCHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
-   
-    ,INVPARTYPL.UserName InvoiceParty
-    ,INVPARTYPL.UserName InvoiceParty2
-    ,IR.InvoicingByAddress AS ConsigneeAddress
-    ,IR.DeliveryByAddress
-    ,DPARTYPL.UserName DeliveryParty
- 
-    ,PSI.PreCarriageBy
-    ,PSI.PlaceOfReceiptByPreCarriage
-    ,PSI.CNFContainerNo
-    ,PSI.CNFVesselName
-    ,PSI.CNFVesselTrackingNo
-    ,D.UserName AS FinalDestination
-    ,PL.UserName AS PortOfLanding
-    ,PD.UserName AS PortOfDischarge
-    ,PoD.UserName AS PortOfDelivery
-    ,CRNC.Code AS CurrencyName
-    ,IR.ToCurrencyRate
-    ,BASECRNC.Code AS BaseCurrencyName
-    ,PayTerm.UserName PaymentTerm
-    ,MM.UserName MaterialMaster
-    ,MGM.UserName MaterialGroupMaster
-    ,MMA.StandardName Article
-   
+    ,REPLACE(Convert(VARCHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate   
+    ,INVPARTYPL.UserName InvoiceParty,INVPARTYPL.UserName InvoiceParty2,IR.InvoicingByAddress AS ConsigneeAddress,IR.DeliveryByAddress,DPARTYPL.UserName DeliveryParty 
+    ,PSI.PreCarriageBy,PSI.PlaceOfReceiptByPreCarriage,PSI.CNFContainerNo,PSI.CNFVesselName,PSI.CNFVesselTrackingNo,CRNC.Code AS CurrencyName,IR.ToCurrencyRate
+    ,BASECRNC.Code AS BaseCurrencyName,PayTerm.UserName PaymentTerm,MM.UserName MaterialMaster,MGM.UserName MaterialGroupMaster
+    ,Article=CASE WHEN ISNULL(SO.LCArticle,'')<>'' THEN SO.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
      ,POTransactionQty=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.NetWeight END) 
     ,CONVERT(NUMERIC(10,4),IRD.TransactionRate, 4) TransactionRate
 	,TrnAmount=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN ROUND((IRD.TransactionQty * IRD.TransactionRate), 2) ELSE ROUND((SCN.NetWeight * IRD.TransactionRate), 2) END)
@@ -1926,39 +1754,23 @@ Where  SM.SalesId='" + SalesId + "'";
                         ,TYPE
                     ).value('.', 'VARCHAR(MAX)'), 1, 1, ''), '&amp;', '&'), 'amp;', '')
     
-    ,IR.ComercialInvoiceNo
-    ,IR.BLNumber
-    ,FORMAT(IR.BLDate, 'dd-MMM-yyyy') BLDate
-    ,IR.EXPFromNo
-    ,FORMAT(IR.EXPDate, 'dd-MMM-yyyy') EXPDate
-    ,IR.ItemDescription
-    ,PSI.TransportVehicleNo
-    ,PSI.TransportDriverName
-    ,PSI.TransportDriverNo
-    ,PPSI.UserName TransporterName
-    ,BM.AccountTitle
-    ,BM.AccountNumber
-    ,BMA.Address1
-    ,PSI.TransportDocRefNo
-    ,FORMAT(PSI.TransportDocDate, 'dd-MMM-yyyy') CNFBLAWBDate
-    ,B.UserName AS Bank
-    ,BB.UserName AS BankBranch
-	
-    ,(
-        SELECT Stuff((
+    ,IR.ComercialInvoiceNo,IR.BLNumber,FORMAT(IR.BLDate, 'dd-MMM-yyyy') BLDate,IR.EXPFromNo,FORMAT(IR.EXPDate, 'dd-MMM-yyyy') EXPDate,IR.ItemDescription
+    ,PSI.TransportVehicleNo,PSI.TransportDriverName,PSI.TransportDriverNo,PPSI.UserName TransporterName,BM.AccountTitle,BM.AccountNumber,BMA.Address1
+    ,PSI.TransportDocRefNo,FORMAT(PSI.TransportDocDate, 'dd-MMM-yyyy') CNFBLAWBDate,B.UserName AS Bank,BB.UserName AS BankBranch
+	,(SELECT Stuff((
                     SELECT distinct',' + pla.AttributeValue
                     FROM dbo.ProductLibraryAttribute pla
                     WHERE pla.ProductLibraryId = MOI.ProductLibraryId
                     FOR XML PATH('')
                     ), 1, 1, '')
-        ) AS ProdDetails
-		,IR.AddedBy CreatedBy
-        , SCN.Bags Cartons, SCN.LotNo, CONVERT(NUMERIC(10,2),SCN.GWeight)GWeight, MO.Type,MO.MasterOrderNo,SO.Id SalesOrderNo,MO.BuyerReferenceNo,BB.IFSCCode
+        ) AS ProdDetails,SCN.Bags Cartons, SCN.LotNo, CONVERT(NUMERIC(10,2),SCN.GWeight)GWeight, MO.Type,MO.MasterOrderNo,SO.Id SalesOrderNo,MO.BuyerReferenceNo,BB.IFSCCode
 ,LcNo=Stuff((
                     SELECT distinct',' + LC.LCRef
                     FROM dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
-                    WHERE C.Id = SO.ContractId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
 ,BenificiaryBank=Stuff((
@@ -1967,21 +1779,28 @@ Where  SM.SalesId='" + SalesId + "'";
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
 					LEFT JOIN MST.BankMaster OB on OB.Id = LC.BenificiaryBankId
 					LEFT JOIN HKP.Bank B on B.Id = OB.BankId
-                    WHERE C.Id = SO.ContractId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
 ,OpeningBank=Stuff((
-                    SELECT distinct',' + LC.OpeningBank
+                    SELECT distinct',' + NB.UserName
                     FROM dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
-                    WHERE C.Id = SO.ContractId
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
 ,LCDate=Stuff((
                     SELECT distinct',' + FORMAT(LC.LCDate, 'dd-MMM-yyyy')
                     FROM dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
-                    WHERE C.Id = SO.ContractId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
 
@@ -1992,31 +1811,88 @@ Where  SM.SalesId='" + SalesId + "'";
 					LEFT JOIN MST.BankMaster OB on OB.Id = LC.BenificiaryBankId
 					LEFT JOIN HKP.Bank B on B.Id = OB.BankId
 					LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId
-                    WHERE C.Id = SO.ContractId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
 ,OpeningBankAddress=Stuff((
                     SELECT distinct',' + LC.OpeningDescription
                     FROM dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
-                    WHERE C.Id = SO.ContractId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
 ,ContractNo=Stuff((
-                    SELECT distinct',' + C.ContractNo
+                    SELECT distinct',' + C.Id
                     FROM  dbo.[Contract] C 
-                    WHERE C.Id = SO.ContractId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
+
+,ContractDate=Stuff((
+                    SELECT distinct',' + FORMAT(C.AddedDate,'dd-MMM-yyyy')
+                    FROM  dbo.[Contract] C 
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,ShipmentMode=Stuff((
+                    SELECT distinct',' + SHM.UserName
+                    FROM  dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.ShipMode SHM ON SHM.Id=LC.ShipmentModeId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,PortOfLoading=Stuff((
+                    SELECT distinct',' + PL.UserName
+                    FROM  dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.[Port] AS PL ON PL.Id = LC.PortOfLoadingId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,PortOfDischarge=Stuff((
+                    SELECT distinct',' + PL.UserName
+                    FROM  dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.[Port] AS PL ON PL.Id = LC.PortOfLandingId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,PortOfDelivary=Stuff((
+                    SELECT distinct',' + PL.UserName
+                    FROM  dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.[Port] AS PL ON PL.Id = LC.FinalDestinationId
+					LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,NetWeights=CONVERT(NUMERIC(10,2), SCN.NetWeight)
+,GrossWeights=CONVERT(NUMERIC(10,2), SCN.GWeight)
+,PSI.PreCarriageDocRef LRCopy 
+,FORMAT(PSI.PreCarriageDocDate,'dd-MMM-yyyy') LRDate
+
+,DelCN.UserName INVOICEDILEVERYPLANTCOUNTRY,IR.AdditionalFrieghtValue
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
 LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
 LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
 LEFT JOIN dbo.PostSalesInvoice PSI ON PSI.SalesId = IR.Id
-LEFT JOIN MST.[Port] AS PL ON PL.Id = PSI.PortOfLoadingId
-LEFT JOIN MST.[Port] AS PD ON PD.Id = PSI.PortOfDischargeId
-LEFT JOIN MST.[Port] AS PoD ON PoD.Id = PSI.PortOfDelivaryId
-LEFT JOIN MST.Destination AS D ON D.Id = PSI.FinalDestinationId
 LEFT JOIN SCS.Currency CRNC ON CRNC.Id = IR.CurrencyId
 LEFT JOIN SCS.Currency BASECRNC ON BASECRNC.Id = cmp.BaseCurrencyId
 LEFT JOIN MST.PaymentTerm PayTerm ON PayTerm.Id = IR.PaymentTermId
@@ -2027,7 +1903,8 @@ LEFT JOIN [MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
 LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
 LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
 LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
-
+LEFT JOIN [MST].[AddressMaster] DelAddres ON DelAddres.Id = DPARTYPL.AddressMasterId
+LEFT JOIN SCS.Country DelCN ON DelCN.Id=DelAddres.CountryId
 left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
 left join ProductLibrary PLA on PLA.Id = MOI.ProductLibraryId
 LEFT JOIN (SELECT distinct LotNo, SalesId,SalesMaterialId,  COUNT(RefNo) Bags, 
@@ -2037,12 +1914,14 @@ LEFT JOIN (SELECT distinct LotNo, SalesId,SalesMaterialId,  COUNT(RefNo) Bags,
 LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
 LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
 LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
+LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id
+LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
 LEFT JOIN [HKP].[HSNCode] AS MHSN ON MHSN.ID = MM.HSNCodeId
 LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID = MMA.HSNCodeId
 
 LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
 LEFT JOIN HKP.Party PPSI ON PPSI.Id = PSI.TransportAgentId
-LEFT JOIN MST.BankMaster BM ON BM.Id = PSI.BankMasterId
+LEFT JOIN MST.BankMaster BM ON BM.Id = IR.PaymentToReceiveBankId
 LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
 LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId AND BB.Id = BM.BankBranchId
 LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
@@ -4076,7 +3955,9 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
             document.EnsureMinimal();
 
             WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
             FontBold.Bold = true;
+            DFontSize.FontSize = 8f;
 
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
             range.ApplyCharacterFormat(FontBold);
@@ -4146,16 +4027,16 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
                 //TROW.Cells[colMaterialGroup].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialMaster"].ToString());
-                TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
-                TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ProdDetails"].ToString());
+                TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ProdDetails"].ToString()).ApplyCharacterFormat(DFontSize);
                 //TROW.Cells[colStyle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["BuyertemRef"].ToString());
-                TROW.Cells[colLot].AddParagraph().AppendText(dsOrderMaster.Rows[i]["LotNo"].ToString());
-                TROW.Cells[colCartons].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Cartons"].ToString());
-                TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
-                TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
-                TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString());
-                TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("#,##0.0000"));
-                TROW.Cells[colAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
+                TROW.Cells[colLot].AddParagraph().AppendText(dsOrderMaster.Rows[i]["LotNo"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colCartons].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Cartons"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString()).ApplyCharacterFormat(DFontSize); ; ;
+                TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("#,##0.0000")).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
 
                 //totalValue += clsStdLib.dbl(sales.Rows[i]["TrnAmount"].ToString());
             }
@@ -5274,7 +5155,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                          LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId = TCV.Id
                          LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
                          LEFT JOIN HKP.Party PPSI ON PPSI.Id = PSI.TransportAgentId
-                         LEFT JOIN MST.BankMaster BM ON BM.Id = PSI.BankMasterId
+                         LEFT JOIN MST.BankMaster BM ON BM.Id = IR.PaymentToReceiveBankId
                          LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
                          LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId And BB.Id = BM.BankBranchId
                          LEFT JOIN[MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
@@ -5352,7 +5233,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
     ,PayTerm.UserName PaymentTerm
     ,MM.UserName MaterialMaster
     ,MGM.UserName MaterialGroupMaster
-    ,MMA.StandardName Article
+    ,Article=CASE WHEN ISNULL(SO.LCArticle,'')<>'' THEN SO.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
    
      ,POTransactionQty=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.NetWeight END) 
     ,CONVERT(NUMERIC(10,4),IRD.TransactionRate, 4) TransactionRate
@@ -5399,7 +5280,16 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                     ), 1, 1, '')
         ) AS Shade
 		,IR.AddedBy CreatedBy
-        , SCN.Bags, SCN.LotNo, CONVERT(NUMERIC(10,2),SCN.GWeight)GWeight, MO.Type,MO.MasterOrderNo,SO.Id SalesOrderNo,MO.BuyerReferenceNo,BB.IFSCCode		
+        , SCN.Bags, SCN.LotNo, CONVERT(NUMERIC(10,2),SCN.GWeight)GWeight, MO.Type,MO.MasterOrderNo
+,SalesOrderNo = REPLACE(REPLACE(STUFF((
+                    SELECT DISTINCT ', ' + SO.Id
+                    FROM TRN.SalesMaterial SM
+                    JOIN TRN.SalesOrder SO ON SO.Id = SM.SalesOrderId
+                    WHERE IR.Id = SM.SalesId
+                    FOR XML path('')
+                        ,TYPE
+                    ).value('.', 'VARCHAR(MAX)'), 1, 1, ''), '&amp;', '&'), 'amp;', '')
+,MO.BuyerReferenceNo,BB.IFSCCode		
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
 LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -5428,6 +5318,8 @@ LEFT JOIN (SELECT SalesId,SalesMaterialId, LotNo, COUNT(RefNo) Bags,
 LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
 LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
 LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
+LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id
+LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
 LEFT JOIN [HKP].[HSNCode] AS MHSN ON MHSN.ID = MM.HSNCodeId
 LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID = MMA.HSNCodeId
 
@@ -5437,7 +5329,7 @@ LEFT JOIN MST.BankMaster BM ON BM.Id = IR.PaymentToReceiveBankId
 LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
 LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId AND BB.Id = BM.BankBranchId
 LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
-                         WHERE IR.Id ='" + SalesId + "'";
+                         WHERE IR.Id ='" + SalesId + "' AND SCN.Bags<>''";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }
@@ -5507,7 +5399,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                               , MM.UserName MaterialMaster
                                , MM.MaterialGroupMasterId
 	                          ,MGM.UserName MaterialGroupMaster
-                              , MMA.StandardName Article
+                              ,Article=CASE WHEN ISNULL(SO.LCArticle,'')<>'' THEN SO.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
                                , FC.UserName FirstChar
                                 , FCV.UserName AS FirstCharacteristicsValue
 	                          ,SCV.UserName AS SecondCharacteristicsValue
@@ -5596,10 +5488,13 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                          LEFT JOIN HKP.Party P ON P.Id = IR.PartyId
                          LEFT JOIN[MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
                          LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
+ LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
                          LEFT JOIN (Select distinct HsnCodeId,SalesMaterialId FROM TRN.SalesTax ) STH ON STH.SalesMaterialId=IRD.Id
                          LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
                          LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
                          LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
+LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id
+LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
                          LEFT JOIN[HKP].[HSNCode] AS MHSN ON MHSN.ID = STH.HSNCodeId
                          LEFT JOIN[HKP].[HSNCode] AS MHC ON MHC.ID = MMA.HSNCodeId
                          LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
@@ -5610,7 +5505,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                          LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId = TCV.Id
                          LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
                          LEFT JOIN HKP.Party PPSI ON PPSI.Id = PSI.TransportAgentId
-                         LEFT JOIN MST.BankMaster BM ON BM.Id = PSI.BankMasterId
+                         LEFT JOIN MST.BankMaster BM ON BM.Id = IR.PaymentToReceiveBankId
                          LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
                          LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId And BB.Id = BM.BankBranchId
                          LEFT JOIN[MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
@@ -5694,7 +5589,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
 	,MM.UserName MaterialMaster
 	,MM.MaterialGroupMasterId
 	,MGM.UserName MaterialGroupMaster
-	,MMA.StandardName Article
+	,Article=CASE WHEN ISNULL(SO.LCArticle,'')<>'' THEN SO.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
 	,FC.UserName FirstChar
 	,FCV.UserName AS FirstCharacteristicsValue
 	,SCV.UserName AS SecondCharacteristicsValue
@@ -5805,6 +5700,8 @@ left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
 LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
 LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
 LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
+LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id
+LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
 LEFT JOIN [HKP].[HSNCode] AS MHSN ON MHSN.ID = MM.HSNCodeId
 LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID = MMA.HSNCodeId
 LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
@@ -5815,7 +5712,7 @@ LEFT JOIN HKP.CharacteristicsValue AS SCV ON IRD.SecondCharacteristicsValueId = 
 LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId = TCV.Id
 LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
 LEFT JOIN HKP.Party PPSI ON PPSI.Id = PSI.TransportAgentId
-LEFT JOIN MST.BankMaster BM ON BM.Id = PSI.BankMasterId
+LEFT JOIN MST.BankMaster BM ON BM.Id = IR.PaymentToReceiveBankId
 LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
 LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId
 	AND BB.Id = BM.BankBranchId
@@ -5890,7 +5787,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                               , MM.UserName MaterialMaster
                                , MM.MaterialGroupMasterId
 	                          ,MGM.UserName MaterialGroupMaster
-                              , MMA.StandardName Article
+                              ,Article=CASE WHEN ISNULL(SO.LCArticle,'')<>'' THEN SO.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
                                , FC.UserName FirstChar
                                 , FCV.UserName AS FirstCharacteristicsValue
 	                          ,SCV.UserName AS SecondCharacteristicsValue
@@ -5979,10 +5876,13 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                          LEFT JOIN HKP.Party P ON P.Id = IR.PartyId
                          LEFT JOIN[MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
                          LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
+ LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
                          LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
                          LEFT JOIN[HKP].[HSNCode] AS MHSN ON MHSN.ID = MM.HSNCodeId
                          LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
                          LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
+LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id
+LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
                          LEFT JOIN[HKP].[HSNCode] AS HSNC ON HSNC.ID = MMA.HSNCodeId
                          LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
                          LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId = SC.Id
@@ -5992,7 +5892,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                          LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId = TCV.Id
                          LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
                          LEFT JOIN HKP.Party PPSI ON PPSI.Id = PSI.TransportAgentId
-                         LEFT JOIN MST.BankMaster BM ON BM.Id = PSI.BankMasterId
+                         LEFT JOIN MST.BankMaster BM ON BM.Id = IR.PaymentToReceiveBankId
                          LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
                          LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId And BB.Id = BM.BankBranchId
                          LEFT JOIN[MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
@@ -6107,15 +6007,12 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
             {
                 strSQL = @"Select CONVERT(NUMERIC(10,2),SUM(ISNULL(ST.BooksCurrencyTransactionAmount,0))) BooksCurrencyTransactionAmount
 ,ST.SalesId,ST.TaxCategoryId,TC.Code TaxCode,CONVERT(NUMERIC(10,2),ST.Percentage)Percentage
---,CONVERT(NUMERIC(10,2),SUM(SM.BooksCurrencyTransactionAmount)) TaxON
-,TaxON=SUM(CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN SM.BooksCurrencyTransactionAmount ELSE ROUND((SCN.NetWeight * CONVERT(NUMERIC(10,4),SM.BooksCurrencyBaseRate)), 2) END))
-,TaxAmount=CONVERT(NUMERIC(10,2),((SUM(CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN SM.BooksCurrencyTransactionAmount ELSE ROUND((SCN.NetWeight * CONVERT(NUMERIC(10,4),SM.BooksCurrencyBaseRate)), 2) END)))*CONVERT(NUMERIC(10,2),ST.Percentage)/100))
-from TRN.SalesMaterial SM 
-left join TRN.SalesTax ST ON ST.SalesMaterialId=SM.Id
-left join TRN.Sales S ON S.Id=ST.SalesId
+,CONVERT(NUMERIC(10,2),SUM(SM.BooksCurrencyTransactionAmount)) TaxON
+,TaxAmount=CONVERT(NUMERIC(10,2),(SUM(SM.BooksCurrencyTransactionAmount)*ST.Percentage)/100)
+from TRN.SalesTax ST
+left join TRN.SalesMaterial SM  ON ST.SalesMaterialId=SM.Id
+left join TRN.Sales S ON S.Id=SM.SalesId
 LEFT JOIN MST.TaxCategory TC ON TC.Id=ST.TaxCategoryId
-LEFT JOIN (SELECT SalesId,SalesMaterialId, LotNo, COUNT(RefNo) Bags, 
-            SUM(NetWeight)NetWeight,SUM(GWeight)GWeight FROM ItemScanChild group by SalesId ,SalesMaterialId, LotNo) SCN on SCN.SalesId = SM.SalesId AND SCN.SalesMaterialId=SM.Id
 Where S.SourceType='Packing' AND ST.SalesId='" + SalesId + @"'
 Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
 
@@ -7065,7 +6962,7 @@ Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
                          LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId = TCV.Id
                          LEFT JOIN[SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
                          LEFT JOIN HKP.Party PPSI ON PPSI.Id = PSI.TransportAgentId
-                         LEFT JOIN MST.BankMaster BM ON BM.Id = PSI.BankMasterId
+                         LEFT JOIN MST.BankMaster BM ON BM.Id = IR.PaymentToReceiveBankId
                          LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
                          LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId And BB.Id = BM.BankBranchId
                          LEFT JOIN[MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId

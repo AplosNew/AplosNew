@@ -87,14 +87,19 @@ namespace Library.Service.Finances
 
         public GridModel Query(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
-            parameters.CmdText = @"SELECT V.VoucherNo, A.FinancingNo, A.Id, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.EmployeeId, EI.EmployeeCode, EI.EmployeeName
-                                , A.VoucherId, A.PostingDate, A.DocDate, A.DocRefNo, A.CurrencyId, C.Code AS CurrencyCode, A.Amount, A.IsWrittenOff, A.WrittenOffAmount, A.IsPark, A.IsPosted, A.TransactionType
-                                FROM [TRN].[Financing] AS A
+            parameters.CmdText = @"SELECT V.VoucherNo, A.FinancingNo, A.Id, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.EmployeeId, EI.EmployeeCode
+								, EI.EmployeeName, A.VoucherId, A.PostingDate, A.DocDate, A.DocRefNo, A.CurrencyId, C.Code AS CurrencyCode,    A.Amount, A.IsWrittenOff
+								, A.WrittenOffAmount, A.IsPark, A.IsPosted,BM.AccountTitle Particulars
+								,Status=case when V.IsPark=1 then 'Parked' else 'Posted' end,FT.AssetUserName InvestmentType
+								, A.TransactionType
+                                 FROM [TRN].[Financing] AS A
+								 LEFT JOIN HKP.FinancingType AS FT ON FT.Id=A.FinancingTypeId
                                 LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
                                 LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=A.PartyPlantId
                                 LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=A.EmployeeId
                                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
                                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
+                                LEFT JOIN MST.BankMaster BM on BM.Id=A.BankMasterId
                                 WHERE A.OpeningBalanceId IS NULL AND A.Archive=0 AND V.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' AND A.SourceType='" + sourceType + "'";
             return _sqlRepository.GetGridData(parameters);
         }
@@ -1023,7 +1028,7 @@ namespace Library.Service.Finances
                             {
                                 BankMasterId = voucherDetailFrom.BankMasterId,
                                 CashMasterId = voucherDetailFrom.CashMasterId,
-                                DrAmount = bankMasterFrom["CurrencyId"].ToString() == voucher.CurrencyId ? voucherDetailFrom.DrAmount : voucherVM.CompanyCurrencyRate * voucherDetailFrom.DrAmount,
+                                CrAmount = bankMasterFrom["CurrencyId"].ToString() == voucher.CurrencyId ? voucherDetailFrom.CrAmount : voucherVM.CompanyCurrencyRate * voucherDetailFrom.CrAmount,
                                 SourceType = voucherDetailFrom.PaymentSource
                             });
                         }
@@ -1033,7 +1038,7 @@ namespace Library.Service.Finances
                             {
                                 BankMasterId = voucherDetailFrom.BankMasterId,
                                 CashMasterId = voucherDetailFrom.CashMasterId,
-                                DrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailFrom.DrAmount), 2, MidpointRounding.AwayFromZero),
+                                CrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailFrom.CrAmount), 2, MidpointRounding.AwayFromZero),
                                 SourceType = voucherDetailFrom.PaymentSource
                             });
                         }
@@ -1051,7 +1056,7 @@ namespace Library.Service.Finances
                         {
                             BankMasterId = voucherDetailTo.BankMasterId,
                             CashMasterId = voucherDetailTo.CashMasterId,
-                            CrAmount = bankMasterTo["CurrencyId"].ToString() == voucher.CurrencyId ? voucherDetailTo.CrAmount : voucherVM.CompanyCurrencyRate * voucherDetailTo.CrAmount,
+                            DrAmount = bankMasterTo["CurrencyId"].ToString() == voucher.CurrencyId ? voucherDetailTo.DrAmount : voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount,
                             SourceType = voucherDetailTo.PaymentSource
                         });
                     }
@@ -1061,7 +1066,7 @@ namespace Library.Service.Finances
                         {
                             BankMasterId = voucherDetailTo.BankMasterId,
                             CashMasterId = voucherDetailTo.CashMasterId,
-                            CrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTo.CrAmount), 2, MidpointRounding.AwayFromZero),
+                            DrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount), 2, MidpointRounding.AwayFromZero),
                             SourceType = voucherDetailTo.PaymentSource
                         });
                     }

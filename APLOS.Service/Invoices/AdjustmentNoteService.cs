@@ -1893,7 +1893,7 @@ namespace Library.Service.Invoices
 										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 										WHERE CPC.ParallelCurrencyType='CompanyGroupCurrency' AND CPC.CompanyId='" + companyId + @"'
 									) AS GC ON GC.VoucherDetailId=VD.Id
-                                    WHERE I.Archive=0 AND I.IsWrittenOff=0 AND ID.IsWrittenOff=0  AND I.SourceType in ('"+ SourceType.DebitNote + @"','"+SourceType.InventoryReturnPayable+ @"')
+                                    WHERE I.Archive=0 AND I.IsWrittenOff=0 AND ID.IsWrittenOff=0 AND I.IsPark=0 AND I.SourceType in ('"+ SourceType.DebitNote + @"','"+SourceType.InventoryReturnPayable+ @"')
                                     AND I.PartyType='" + partyType + "' AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='"+ plantId + "' AND I.PartyId='"+ partyId + @"'";
                 return _sqlRepository.GetGridData(parameters);
             }
@@ -1942,7 +1942,7 @@ namespace Library.Service.Invoices
 										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 										WHERE CPC.ParallelCurrencyType='CompanyGroupCurrency' AND CPC.CompanyId='" + companyId + @"'
 									) AS GC ON GC.VoucherDetailId=VD.Id
-                                    WHERE I.Archive=0 AND V.Archive=0 AND I.IsWrittenOff=0 AND ID.IsWrittenOff=0  AND I.SourceType in ('" + SourceType.CreditNote + "','"+ SourceType.VendorPayment + @"') AND V.IsPark=0
+                                    WHERE I.Archive=0 AND V.Archive=0 AND I.IsWrittenOff=0 AND ID.IsWrittenOff=0 AND I.IsPark=0  AND I.SourceType in ('" + SourceType.CreditNote + "','"+ SourceType.VendorPayment + @"') AND V.IsPark=0
                                     AND I.PartyType='" + partyType + "' AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + "' AND I.PartyId='" + partyId + @"'";
                 return _sqlRepository.GetGridData(parameters);
             }

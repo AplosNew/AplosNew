@@ -292,6 +292,61 @@
             </table>
         </div>
     </div>
+    <div class="col-xs-12 col-sm-6 col-md-6 modal-table" ng-show="advance.PaymentSource=='MultiBank'">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Charges</legend>
+            <table class="table table-responsive table-striped">
+                <thead>
+                    <tr>
+                        <th>Charges Type</th>
+                        <th>Trn. Amount</th>
+                        <th>{{companyCurrencyCode}}</th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="td_FinancingType">
+                            <div class="select-style show-message">
+                                <select ng-model="bankCharge.FinancingTypeId">
+                                    <option ng-repeat="option in bankChargeTypeList" value="{{option.FinancingTypeId}}">{{option.ExpensesUserName}}</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td id="td_FinancingTypeAmount">
+                            <div class="show-message">
+                                <input type="text" class="form-control text-right" ng-model="bankCharge.Amount" ng-keyup="copyChargesAmount();">
+                            </div>
+                        </td>
+                        <td id="td_FinancingTypeCompanyCurrencyAmount">
+                            <div class="show-message">
+                                <input type="text" n-decimals="2" class="form-control text-right" ng-model="bankCharge.CompanyCurrencyAmount">
+                            </div>
+                        </td>
+                        <td class="text-right">
+                            <a ng-click="addCharge();" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></a>
+                        </td>
+                    </tr>
+                    <tr ng-repeat="x in bankChargesList">
+                        <td>{{x.FinancingTypeName}}</td>
+                        <td class="text-right">{{x.Amount | number:2 }}</td>
+                        <td class="text-right">{{x.CompanyCurrencyAmount | number:2}}</td>
+                        <td class="text-right">
+                            <button ng-click="removeChargesRow($index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot ng-show="bankChargesList.length">
+                    <tr>
+                        <td><b>Sub Total</b></td>
+                        <td class="text-right"><b>{{ bankChargesList | sumByKey : 'Amount' }}</b></td>
+                        <td class="text-right"><b>{{ bankChargesList | sumByKey : 'CompanyCurrencyAmount'  }}</b></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </fieldset>
+    </div>
     <div class="col-xs-12 col-sm-4 col-md-4">
 
     </div>
@@ -451,10 +506,8 @@
                     <td>{{x.IsPark?'Parked': x.IsPosted?'Post':'Pending'}}</td>
                     <td class="text-right">
                         <ul class="list-inline action-list">
-                            <li ng-show="x.IsPoste || x.IsPark"><a ng-click="confirmPost(x.Id);" href="" class="btn btn-action tooltip-here">Post</a></li>
+                            <li ng-show="x.IsPoste || x.IsPark"><a ng-click="confirmPost(x.Id,x.AdvanceGroupNo);" href="" class="btn btn-action tooltip-here">Post</a></li>
                             <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
-                            @*<li ng-hide="x.IsWrittenOff || !x.IsPosted"><a href="{{bootPoint}}customer-advance-write-off/{{x.Id}}" class="btn btn-action tooltip-here">Set-off</a></li>*@
-                            @*<li ng-hide="x.IsWrittenOff || !x.IsPosted"><a ng-click="confirmUnPost(x.Id);" href="" class="btn btn-action tooltip-here">UnPost</a></li>*@
                             <li><a class="btn btn-action" href="Accounts/Advance/ReportCustomerAdvance?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}&advanceGroupNo={{x.AdvanceGroupNo}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                             <li><a class="btn btn-action" href="Accounts/Advance/ReportCustomerAdvance?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}&advanceGroupNo={{x.AdvanceGroupNo}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                         </ul>
@@ -500,7 +553,7 @@
 @Html.Partial("~/Areas/Accounts/Views/_AdvanceJournalPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_MasterOrderPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/Loan/_LoanListPopUp.cshtml")
-<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(advanceId,advanceGroupNo)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmUnPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="unPost(advanceId)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(advanceId,voucherId)"></confirm-archive-generic>
 
@@ -565,3 +618,4 @@
         </div>
     </div>
 </div>
+

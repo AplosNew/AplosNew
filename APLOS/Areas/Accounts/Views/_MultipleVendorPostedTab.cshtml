@@ -1,0 +1,175 @@
+﻿<togglable name="Multiple Vendor Post "></togglable>
+<div class="form-elements form-horizontal" ng-form="formPost">
+    <div class="col-xs-12 col-sm-4 col-md-4 ">
+        <button class="btn single-btn" ng-click="getParkData()" tabindex="10">Select Payment</button>
+    </div>
+    <div class="clearfix"></div>
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Entry Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="VoucherDate" ng-model="voucher.VoucherDate" datepicker class="form-control" disabled required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Payment Source<sup>*</sup></label>
+            <div class="col-sm-8 radio">
+                <label>
+                    <input ng-click="clearBankPopUp()" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.PaymentSource.Bank.ToString()">
+                    <span class="cr" tabindex="17"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Bank.ToString()
+                </label>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Doc Ref<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="50" name="Doc Ref" ng-model="voucher.DocRefNo" class="form-control" tabindex="4" required capitalize autocomplete="off">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
+            <div class="col-sm-5 show-message" style="padding-right:0px;">
+                <div class="select-style">
+                    <select id="currencyTransactionId" class="form-control" tabindex="5" name="Currency" required ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();checkBankAmount();">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-3 show-message" style="padding-left:0px;">
+                <input type="text" maxlength="50" n-decimals="4" name="Rate" ng-keyup="exchangeGainLossCal(voucher.CompanyCurrencyRate);rateChangeBankCharge(voucher.CompanyCurrencyRate)" id="Rate" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off" ng-disabled="voucher.CurrencyId==companyCurrencyId">
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Voucher Type<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select ng-disabled="voucherTypeList.length==1" class="form-control" name="Voucher Type" ng-model="voucher.VoucherTypeId" tabindex="2" ng-change="changeVoucherType(voucher.VoucherTypeId);GetCurrencyExchangeRateList()" required>
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in voucherTypeList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Narration<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <textarea rows="2" type="text" name="Narration" tabindex="8" class="form-control" ng-model="voucher.Narration" required capitalize></textarea>
+            </div>
+        </div>
+
+    </div>
+    <div class="clearfix"></div>
+    <div class="content-container-fluid" style="color:black;">
+        <div style="color:black;" id="gridTab" ej-grid e-datasource="lst"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+             e-filtersettings-filterType="excel" e-recorddoubleclick="Done"
+             e-enabletouch="true" e-allowselection="true" e-templaterefresh="refreshTemplate"
+             e-rowdatabound="rowDataBound" e-scrollsettings="scroll" e-detailstemplate="detailTemp"
+             e-detailsdatabound="detailgrid">
+
+            <div e-columns>
+                <div e-column e-template="#bootstrapToggle2" e-headertext="Check" e-width="40" textAlign='center'></div>
+                <div e-column e-field="Id" e-headertext="Payment No" e-width="60"></div>
+                <div e-column e-field="DueUpToDate" e-headertext="DueUpToDate" e-width="60"></div>
+                @*<div e-column e-field="TentativeDate" e-headertext="TentativeDate" e-width="60"></div>*@
+                <div e-column e-template="#TentativeDate" e-headertext="Tentative Date" e-width="60" style="height: 20px;"></div>
+                <div e-column e-field="PartyName" e-headertext="Party" e-width="120"></div>
+                <div e-column e-field="AccountTitle" e-headertext="Bank" e-width="120"></div>
+                <div e-column e-field="Amount" e-headertext="Amount (TRN)" textAlign='Right' e-width="80"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/template" id="TentativeDate">
+        <input type="text" ng-model="data.TentativeDate" style="color:black;" class="form-control" />
+    </script>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Post();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
+            <li><button ng-click="confirmDelete();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Delete</button></li>
+            <li><button ng-click="postClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+    <script type="text/template" id="bootstrapToggle2">
+        <input type="checkbox" e-change="$parent.selectPaymentList" e-value="data.flag" ej-checkbox class="rowCheckbox" e-checked="data.flag" />
+    </script>
+    <script id="tabGridContents" type="text/x-jsrender">
+        <div class="tabcontrol" id="Test">
+            <ul>
+                <li><a href="#gridTab{{:Id}}">Detail</a></li>
+            </ul>
+            <div id="gridTab{{:Id}}">
+                <div id="detailGrid"></div>
+            </div>
+
+        </div>
+    </script>
+    <div class="col-md-1 text-right" style="margin-top:20px;">
+        <button type="button" class="btn single-btn" ng-click="Report()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Download</button>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchVendorInvoiceList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getVoucherData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getVoucherData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>VoucherNo</th>
+                <th>Vendor</th>
+                <th>Posting Date</th>
+                <th>Multiple Payment No</th>
+                <th>Doc. RefNo</th>
+                <th>Currency</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in paymentList |itemsPerPage:$root.pageSize" total-items="$root.total_count" @*ng-dblclick="getById(x.Id);"*@>
+                <td>{{x.VoucherNo}}</td>
+                <td>{{x.PartyCode}} - {{x.PartyName}}</td>
+                <td>{{x.PostingDate | dateFiltering}}</td>
+                <td>{{x.MultiplePaymentNo}}</td>
+                <td>{{x.DocRefNo}}</td>
+                <td>{{x.CurrencyCode}}</td>
+                <td class="text-right">{{x.Amount | number:2}}</td>
+                <td>{{x.IsPark?'Parked':'Posted'}}</td>
+                <td align="right">
+                    <ul class="list-inline action-list">
+                        <li ng-show="x.IsPark"><a ng-click="confirmPost(x.Id);" href="" class="btn btn-action tooltip-here">Post</a></li>
+                        <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
+                        <li><a class="btn btn-action" href="Accounts/invoice/VendorInvoicePaymentReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                        <li><a class="btn btn-action" href="Accounts/invoice/VendorInvoicePaymentReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
+                    </ul>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+</div>

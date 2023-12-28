@@ -26,7 +26,7 @@ namespace Library.Accounting.Accounts
         public GridModel LoanQuery(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
             parameters.CmdText = @"SELECT V.VoucherNo, F.FinancingNo, F.TransactionType, F.Id, F.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, F.PartyPlantId, PP.UserName AS PartyPlantName, F.EmployeeId, EI.EmployeeCode, EI.EmployeeName
-                                , F.VoucherId, F.PostingDate, F.DocDate, F.DocRefNo, F.CurrencyId, C.Code AS CurrencyCode, F.Amount, F.IsWrittenOff, F.WrittenOffAmount, F.IsPark, F.IsPosted
+                                , F.VoucherId, F.PostingDate, F.DocDate, F.DocRefNo, F.CurrencyId, C.Code AS CurrencyCode, F.Amount, F.IsWrittenOff, F.WrittenOffAmount, F.IsPark, F.IsPosted,Status=case when V.IsPark=1 then 'Parked' else 'Posted' end 
                                 FROM [TRN].[Financing] AS F
                                 LEFT JOIN [HKP].[Party] AS P ON P.Id=F.PartyId
                                 LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=F.PartyPlantId
@@ -38,7 +38,7 @@ namespace Library.Accounting.Accounts
         }
         public GridModel GetLoanWriteOffList(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
-            parameters.CmdText = @"SELECT AW.FinancingNo,AW.FinancingId,F.DocRefNo LoanNo, V.Id VoucherId, V.VoucherNo, AW.Id, P.Code AS PartyCode, P.UserName AS PartyName, V.PostingDate, V.DocDate, V.DocRefNo, C.Code AS CurrencyCode, VD.Amount
+            parameters.CmdText = @"SELECT AW.FinancingNo,AW.FinancingId,F.DocRefNo LoanNo, V.Id VoucherId, V.VoucherNo, AW.Id, P.Code AS PartyCode, P.UserName AS PartyName, V.PostingDate, V.DocDate, V.DocRefNo, C.Code AS CurrencyCode, VD.Amount,Status=case when V.IsPark=1 then 'Parked' else 'Posted' end
                                     , AW.PartyPlantId, PP.UserName AS PartyPlantName, V.IsPark, AW.LoanSetOffGroupNo
                                     FROM [TRN].[Voucher] AS V
                                     LEFT JOIN [TRN].[FinancingWriteOff] AS AW ON V.Id=AW.VoucherId

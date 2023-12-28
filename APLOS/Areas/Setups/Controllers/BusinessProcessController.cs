@@ -432,7 +432,8 @@ namespace Aplos.Areas.Setups.Controllers
             , Advance 
             , PaymentTerm 
             , DeleteEntry 
-            , Modify 
+            , Modify
+            , Parking
         }
 
         [HttpGet, Authorize]

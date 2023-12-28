@@ -1723,7 +1723,7 @@ namespace Library.Accounting.Accounts
                                 LEFT JOIN (SELECT AdvanceId, PartyId, NetAmount FROM [TRN].[AdvanceDetail]
                                 ) AS AD ON AD.AdvanceId=A.Id AND AD.PartyId=A.PartyId
                                 WHERE A.OpeningBalanceId IS NULL AND A.Archive=0 AND V.Archive=0 
-								AND  A.CompanyId='" + companyId + "' AND A.PlantId='"+ plantId + @"' AND A.SourceType='CustomerAdvance' and A.AdvanceGroupNo IS NOT NULL
+								AND  A.CompanyId='" + companyId + "' AND A.PlantId='"+ plantId + @"' AND A.SourceType='CustomerAdvance' and A.AdvanceGroupNo='"+ invoiceWriteOffGroupNo + @"'
 								Group By A.PartyId, P.Code, P.UserName, A.PartyPlantId, PP.UserName, A.EmployeeId, EI.EmployeeCode
                                  , EI.EmployeeName, EIR.EmployeeCode,EIR.EmployeeName, A.PostingDate, A.DocDate, A.DocRefNo
                                  , A.CurrencyId, C.Code  , A.IsWrittenOff,A.AdvanceGroupNo,A.IsPark , A.IsInterTransaction, A.IsPosted,A.VoucherDate,A.Narration,VT.UserName,A.AddedBy,A.UpdatedBy";
@@ -1747,8 +1747,8 @@ namespace Library.Accounting.Accounts
 							, [DRCR]=CASE WHEN SUM(VDC.DrAmount)>0 THEN '1' ELSE '2' END
                             , VD.GLGeneralInfoId, GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode, P.UserName AS Customer, PP.UserName AS CustomerPlant, VD.Narration AS DetailNarration, BUD.UserName AS Budget
                             , Activity= CASE WHEN VD.BankMasterId<>'' THEN ACT.UserName+' - '+ BM.AccountTitle ELSE ACT.UserName END,VD.PartyType
-                            ,CASE WHEN LOAN.DocRefNo IS NOT NULL THEN IV.DocRefNo
-										WHEN LOAN.DocRefNo IS NOT NULL THEN LOAN.DocRefNo
+                             ,CASE WHEN LOAN.DocRefNo IS NOT NULL THEN LOAN.DocRefNo
+										WHEN VD.BankMasterId<>'' THEN BM.AccountNumber
 										ELSE '' END InvoiceNo
                             FROM 
 							 [TRN].[Advance] AS IV 
@@ -1770,12 +1770,12 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=VD.BankMasterId
                             LEFT JOIN (select F.DocRefNo,FST.VoucherDetailId from TRN.FinancingSubsequentTransaction FST
 												INNER JOIN TRN.Financing F ON F.Id=FST.FinancingId)LOAN ON LOAN.VoucherDetailId=VD.Id
-                            WHERE V.Archive=0 AND IV.AdvanceGroupNo='"+ advanceGroupNo + @"' 
+                            WHERE V.Archive=0 AND IV.AdvanceGroupNo='" + advanceGroupNo + @"' 
 							GROUP BY  GL.Id 
 							, FY.FiscalYearName, FYP.PeriodName, FYP.PeriodNo, V.IsPark, V.PostingDate
                             , V.IsPark , v.DocDate, V.DocRefNo, V.Narration
                             , V.CurrencyId, IV.VoucherDate, CU1.Code , V.AddedBy, V.PostedBy, VDC.ParallelCurrencyId, CU.Code 
-                            , VDC.FromCurrencyId, VDC.ToCurrencyId
+                            , VDC.FromCurrencyId, VDC.ToCurrencyId,BM.AccountNumber
 							, VDC.ToCurrencyRate--, VD.DrAmount, VD.CrAmount, VDC.DrAmount, VDC.CrAmount
                             , VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, P.UserName, PP.UserName , VD.Narration, BUD.UserName
                             ,  VD.BankMasterId,ACT.UserName,BM.AccountTitle ,VD.PartyType,IV.DocRefNo,LOAN.DocRefNo

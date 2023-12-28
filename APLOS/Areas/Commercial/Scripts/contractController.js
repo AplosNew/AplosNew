@@ -125,11 +125,9 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
     }
 
     $scope.bankList = [];
-    $http({
-        method: "GET",
-        url: "Commercial/contract/GetNegotiatingContractBankList"
-    }).then(function successCallback(response) {
-        $scope.bankList = response.data;
+    bankService.GetNegotiatingBankMasterCboListByPlant(function (result) {
+        $scope.bankList = result;
+
     });
 
     $scope.bankMasterList = [];
@@ -788,6 +786,31 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
 
     // #endregion checkbox all
 
+    $scope.message_detailLCconfirm = null;
+    $scope.confirmToCreateLC = function () {
+        try {
+            
+            if (baseService.isUndefinedOrNull($scope.modelNew.ContractNo)) {
+                throw "ContractNo is required.";
+            }
+            if (!$scope.modelNew.IsLC) {
+                $scope.message_detailLCconfirm = "Please Confirm LC Applicable?";
+                angular.element(document.querySelector("#confirmLCPopUp")).modal("show");
+            }
+            else {
+                $scope.Save();
+                angular.element(document.querySelector("#confirmLCPopUp")).modal("hide");
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+       
+    };
+
+    $scope.LCYes = function () {
+        angular.element(document.querySelector("#confirmLCPopUp")).modal("hide");
+    }
+
     $scope.Save = function () {
         try {
             var tq = 0;
@@ -808,9 +831,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
             $scope.modelNew.Amount = amt;
             $scope.modelNew.SOQty = qt;
 
-            if (baseService.isUndefinedOrNull($scope.modelNew.ContractNo)) {
-                throw "ContractNo is required.";
-            }
+           
             if ($scope.Action === 'Save' || $scope.Action === 'Update') {
                 $http({
                     method: 'POST',
@@ -979,17 +1000,6 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
     }
 
     $scope.searchByNB = "UserName"; $scope.searchNB = "";
-
-    $scope.NegotiatingBankList = [];
-    $scope.GetNegotiatingBankList = function () {
-        $http({
-            method: 'GET',
-            url: 'Commercial/Contract/GetNegotiatingBankList'
-        }).then(function successCallback(response) {
-            $scope.NegotiatingBankList = response.data;
-        });
-    }
-    $scope.GetNegotiatingBankList();
 
     $scope.NegotiatingBankDataList = [];
     $scope.searchByNBList = [{ value: 'BankName', name: "Bank Name" }, { value: 'UserName', name: "User Name" }, { value: 'AccountNo', name: "AccountNo" }, { value: 'Country', name: "Country" }];

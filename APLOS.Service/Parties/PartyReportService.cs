@@ -4781,8 +4781,17 @@ union
         }
 
 
-        private DataTable GetPartyPaymentStatusPlantLedger3(string companyGroupId, string companyId, string plantId, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId)
+        private DataTable GetPartyPaymentStatusPlantLedger3(string companyGroupId, string companyId, string plantId, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId, string partyType)
         {
+            string tempPartyType = null;
+            if (partyType == "Vendor" || partyType == "Customer" || partyType == "Director")
+            {
+                tempPartyType = partyType;
+            }
+            if (partyType == null || partyType == "null")
+            {
+                tempPartyType = "Vendor" + "','" + "Customer" + "','" + "Director";
+            }
             var cmdText = @"
                             DECLARE @companyId VARCHAR(10)='" + companyId + @"';
                             SELECT REPLACE(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') AS PostingDate
@@ -4837,7 +4846,7 @@ union
                             ) AS CC ON CC.VoucherDetailId=VD.Id
 
                             WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + @"' 
-							AND V.PlantId='" + plantId + "' AND VD.PartyId='" + partyId + "' AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"'
+							AND V.PlantId='" + plantId + "' AND VD.PartyId='" + partyId + "' AND VD.PartyType IN ('" + tempPartyType + "') AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"'
                             AND V.SourceType<>'OpeningBalance' 
                             AND V.Id NOT IN(SELECT VoucherId FROM TRN.InvoiceWriteOff  WHERE SourceType='VendorAdvanceWriteOff')
                             --AND V.SourceType NOT IN ('OpeningBalance','VendorAdvanceWriteOff')
@@ -4970,7 +4979,7 @@ union
 
                 }
 
-                var ledgerData = GetPartyPaymentStatusPlantLedger3(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
+                var ledgerData = GetPartyPaymentStatusPlantLedger3(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId, partyType.ToString());
                 row++;
                 int sumStrRow = 0;
                 // Get bank transaction data.
@@ -5086,8 +5095,17 @@ union
         }
 
 
-        private DataTable GetPartyPaymentStatuPlantLedger3(string companyGroupId, string companyId, string plantId, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId)
+        private DataTable GetPartyPaymentStatuPlantLedger3(string companyGroupId, string companyId, string plantId, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId, string partyType)
         {
+            string tempPartyType = null;
+            if (partyType == "Vendor" || partyType == "Customer" || partyType == "Director")
+            {
+                tempPartyType = partyType;
+            }
+            if (partyType == null || partyType == "null")
+            {
+                tempPartyType = "Vendor" + "','" + "Customer" + "','" + "Director";
+            }
             var cmdText = @"--Modify query
 
                             DECLARE @companyId VARCHAR(10)='"+companyId+@"';
@@ -5143,7 +5161,7 @@ union
                             ) AS CC ON CC.VoucherDetailId=VD.Id
 
                             WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='"+companyGroupId+"' AND V.CompanyId='"+companyId+@"' 
-							AND V.PlantId='"+plantId+"' AND VD.PartyId='"+partyId+"' AND V.PostingDate BETWEEN '"+fromDate+"' AND '"+toDate+ @"'
+							AND V.PlantId='"+plantId+"' AND VD.PartyId='"+partyId+ "' AND VD.PartyType IN ('" + tempPartyType + "') AND V.PostingDate BETWEEN '" + fromDate+"' AND '"+toDate+ @"'
                             AND V.SourceType<>'OpeningBalance' 
                             AND V.Id NOT IN(SELECT VoucherId FROM TRN.InvoiceWriteOff  WHERE SourceType='VendorAdvanceWriteOff')
                             --AND V.SourceType NOT IN ('OpeningBalance','VendorAdvanceWriteOff')
@@ -5280,7 +5298,7 @@ union
 
                 }
 
-                var ledgerData = GetPartyPaymentStatuPlantLedger3(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
+                var ledgerData = GetPartyPaymentStatuPlantLedger3(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId, partyType.ToString());
                 row++;
                 int sumStrRow = 0;
                 // Get bank transaction data.
@@ -5378,8 +5396,17 @@ union
             }
         }
 
-        private DataTable GetShortPartyPaymentStatuPlantLedger(string companyGroupId, string companyId, string plantId, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId)
+        private DataTable GetShortPartyPaymentStatuPlantLedger(string companyGroupId, string companyId, string plantId, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId, string partyType)
         {
+            string tempPartyType = null;
+            if (partyType == "Vendor" || partyType == "Customer" || partyType == "Director")
+            {
+                tempPartyType = partyType;
+            }
+            if (partyType == null || partyType == "null")
+            {
+                tempPartyType = "Vendor" + "','" + "Customer" + "','" + "Director";
+            }
             var cmdText = @"--Modify query
 
                             DECLARE @companyId VARCHAR(10)='" + companyId + @"';
@@ -5435,7 +5462,7 @@ union
                             ) AS CC ON CC.VoucherDetailId=VD.Id
 
                             WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + @"' 
-							AND V.PlantId='" + plantId + "' AND VD.PartyId='" + partyId + "' AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"'
+							AND V.PlantId='" + plantId + "' AND VD.PartyId='" + partyId + "' AND VD.PartyType IN ('" + tempPartyType + "') AND V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"'
                             AND V.SourceType<>'OpeningBalance' 
                             AND V.Id NOT IN(SELECT VoucherId FROM TRN.InvoiceWriteOff  WHERE SourceType IN('VendorAdvanceWriteOff','CustomerAdvanceWriteOff','CreditNoteSetOff'))
                             --AND V.SourceType NOT IN ('OpeningBalance','VendorAdvanceWriteOff')
@@ -5570,7 +5597,7 @@ union
 
                 }
 
-                var ledgerData = GetShortPartyPaymentStatuPlantLedger(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
+                var ledgerData = GetShortPartyPaymentStatuPlantLedger(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId, partyType.ToString());
                 row++;
                 int sumStrRow = 0;
                 // Get bank transaction data.

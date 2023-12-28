@@ -2747,6 +2747,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return null;
         }
 
+        [Authorize]
         public ActionResult EntityWiseExpenseAndEarningreportDateWise(string fromDate, string toDate, string entityId, string entity, string parallelCurrency)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

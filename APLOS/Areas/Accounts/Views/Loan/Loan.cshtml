@@ -615,6 +615,7 @@
                 <th>Doc Ref</th>
                 <th>Currency</th>
                 <th>Amount</th>
+                <th>Written Off Amount</th>
                 <th>Status</th>
                 <th>Action</th>
             </tr>
@@ -628,6 +629,7 @@
                 <td>{{x.DocRefNo}}</td>
                 <td>{{x.CurrencyCode}}</td>
                 <td class="text-right">{{x.Amount | number:2}}</td>
+                <td class="text-right">{{x.WrittenOffAmount | number:2}}</td>
                 <td>{{x.IsPark?'Parked':'Posted'}}</td>
                 <td class="text-right">
                     <ul class="list-inline action-list">

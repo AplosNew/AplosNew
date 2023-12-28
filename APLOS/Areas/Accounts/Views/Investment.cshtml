@@ -262,9 +262,13 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>VoucherNo</th>
+                <th>Voucher No</th>
                 <th>Posting Date</th>
+                <th>Particulars</th>
+                <th>Investment Type</th>
+                <th>Transaction Type</th>
                 <th>Doc Date</th>
+                <th>Doc RefNo</th>
                 <th>Currency</th>
                 <th>Amount</th>
                 <th>Status</th>
@@ -275,7 +279,11 @@
             <tr dir-paginate="x in investmentGivenList |itemsPerPage:$root.pageSize" total-items="$root.total_count">
                 <td>{{x.VoucherNo}}</td>
                 <td>{{x.PostingDate| dateFiltering}}</td>
+                <td>{{x.Particulars}}</td>
+                <td>{{x.InvestmentType}}</td>
+                <td>{{x.TransactionType}}</td>
                 <td>{{x.DocDate| dateFiltering}}</td>
+                <td>{{x.DocRefNo}}</td>
                 <td>{{x.CurrencyCode}}</td>
                 <td class="text-right">{{x.Amount | number:2}}</td>
                 <td>{{x.IsPark?'Parked':'Posted'}}</td>
