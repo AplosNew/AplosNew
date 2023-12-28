@@ -82,7 +82,7 @@ function TermsAndConditionsController(cboService, commonMessage, $scope, $rootSc
                 $scope.GroupNameList = response.data;
             });
     }
-
+    $scope.GetGroupNameList();
 
 
     $scope.Save = function () {

@@ -442,7 +442,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(TableName, out _Id);
+                    genid.GenID("TermsandConditionGroup", out _Id);
 
                     data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
@@ -510,7 +510,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
             return 1;
         }
-
+        [HttpGet, Authorize]
         public ActionResult GetGroupNameList()
         {
              string sql = "SELECT Id Value, UserName Text FROM dbo.TermsandConditionGroup";
