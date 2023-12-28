@@ -894,7 +894,6 @@ namespace Aplos.App_Start
             container.RegisterType<IPurchaseDocumentAcceptanceDetailService, PurchaseDocumentAcceptanceDetailService>();
             container.RegisterType<IPurchaseDocAcceptanceChargesService, PurchaseDocAcceptanceChargesService>();
 
-            container.RegisterType<IGRNAcceptanceMapService, GRNAcceptanceMapService>();
             container.RegisterType<IPurchaseDocAcceptancePOMapService, PurchaseDocAcceptancePOMapService>();
             container.RegisterType<IInventoryDashboardService, InventoryDashboardService>(); 
             container.RegisterType<IEncashmentService, EncashmentService>();

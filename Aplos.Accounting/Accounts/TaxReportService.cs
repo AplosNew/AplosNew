@@ -5986,7 +5986,6 @@ UNION ALL
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
 
                 string voucherNo = "";
-                string Percentage = "";
                 int startRow = 0;
                 int perStartRow = 0;
                 string formula = "";

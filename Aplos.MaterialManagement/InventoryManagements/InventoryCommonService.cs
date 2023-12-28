@@ -1,49 +1,17 @@
-﻿using Library.Crosscutting.Security;
-using Library.Data;
-using Library.Data.Sql;
-using Library.Service.Helpers;
-using OTSBD;
-using Syncfusion.DocToPDFConverter;
-using Syncfusion.Pdf;
-using Syncfusion.XlsIO;
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
+﻿
 #region Using
-
-using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
-using Library.Data.Repositories;
 using Library.Data.Sql;
-using Library.Data.UnitOfWorks;
-
-using Library.Service.Accounts;
-
-using Library.Service.Enums;
 using Library.Service.Helpers;
-
-using Library.Service.Organizations;
-
-
 using OTSBD;
-
 using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
+using Library.Service.Enums;
 using Library.Service.Logs;
 
 #endregion Using

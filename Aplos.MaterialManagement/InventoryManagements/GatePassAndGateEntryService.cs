@@ -1109,7 +1109,6 @@ namespace Library.MaterialManagement.InventoryManagements
             var NormalOverBudgetNew = "";
             var normalBudgetType = "";
             var overBudgetType = "";
-            var newBudgetType = "";
             var MaterialDetail = "";
             var RequiredDate = "";
             var Remarks = "";
