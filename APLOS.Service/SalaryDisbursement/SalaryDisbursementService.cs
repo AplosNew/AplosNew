@@ -1425,7 +1425,34 @@ namespace Library.Service.SalaryDisbursement
                     _unitOfWork.Rollback();
             }
         }
-
+        public void PostSalarydisbursement(string voucherId)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                _voucherService.PostVoucher(voucherId);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
         public void DeleteSalaryDisbursementVoucher(string plantId, string voucherId, string monthNo, string yearNo)
         {
             var flag = false;
