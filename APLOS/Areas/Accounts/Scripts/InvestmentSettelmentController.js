@@ -19,8 +19,6 @@ function InvestmentSettelmentController(accountService, bankService, cboService,
     $controller("bankBaseController", { $scope: $scope, $http: $http });
     $controller("cashBaseController", { $scope: $scope, $http: $http });
     $scope.url = "accounts/Loan";
-    $scope.deleteUrl = $scope.url + "/DeleteInvestmentPayment";
-    $scope.postUrl = $scope.url + "/PostLoanPayment";
     $scope.voucher = {
         Id: null,
         EntityId: null,
@@ -579,33 +577,6 @@ function InvestmentSettelmentController(accountService, bankService, cboService,
         angular.element(document.querySelector('#confirmPostPopUp')).modal('show');
     };
 
-    $scope.post = function (voucherId) {
-        $http({
-            method: "POST",
-            url: $scope.postUrl,
-            data: {
-                "voucherId": voucherId
-            },
-            dataType: "JSON"
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, "failure");
-            }
-            else {
-                ShowResult(response.data.Message, "success");
-                $scope.getData();
-                $scope.Clear();
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.status.Message, "failure");
-        });
-        return true;
-    };
-
-
-
-   
-
     $scope.GetCurrencyExchangeRateList = function () {
         if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
             $http({
@@ -983,7 +954,7 @@ function InvestmentSettelmentController(accountService, bankService, cboService,
     $scope.delete = function (financingId, voucherId) {
         $http({
             method: "POST",
-            url: $scope.deleteUrl,
+            url: "Accounts/Investment/DeleteInvestmentPayment",
             data: {
                 "financingId": financingId, "voucherId": voucherId
             },
@@ -1273,7 +1244,7 @@ function InvestmentSettelmentController(accountService, bankService, cboService,
     $scope.post = function (voucherId) {
         $http({
             method: "POST",
-            url: $scope.postUrl,
+            url: "Accounts/Investment/PostInvestmentPayment",
             data: {
                 "voucherId": voucherId
             },
