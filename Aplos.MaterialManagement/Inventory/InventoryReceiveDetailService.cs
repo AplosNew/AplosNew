@@ -722,7 +722,7 @@ namespace Library.MaterialManagement.Inventory
                                         }
                                     }
                                 }
-                                catch (DivideByZeroException ex)
+                                catch (DivideByZeroException )
                                 {
 
                                 }
@@ -1218,7 +1218,7 @@ namespace Library.MaterialManagement.Inventory
                                     AuditService.AddedLog(RejectionDetails);
                                     _gRNRejectionDetailsRepository.Insert(RejectionDetails);
                                 }
-                                catch (DivideByZeroException ex)
+                                catch (DivideByZeroException )
                                 {
 
                                 }
@@ -1776,8 +1776,6 @@ namespace Library.MaterialManagement.Inventory
         public void InsertOrUpdateGraphNewEdits(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
         {
             var flag = false;
-            var builderSql = "";
-            var builderSql1 = "";
             var rdBuilder = new System.Text.StringBuilder();
             Library.Service.Extension.Conversions.UOMConversion conversion = new Library.Service.Extension.Conversions.UOMConversion();
             try
@@ -1791,7 +1789,6 @@ namespace Library.MaterialManagement.Inventory
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var currentId1 = _receiveDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId='{entity.Id}'").First();
                 var Temppodetailid = "";
-                var grndId = "";
 
 
                 foreach (var itemDetail in entityMatAndImat)
@@ -2326,7 +2323,6 @@ namespace Library.MaterialManagement.Inventory
                 var currentId1 = _receiveDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(substring(id, CHARINDEX('-',id)+1,len(id)) AS INT)), 0) Id FROM [TRN].[InventoryReceiveDetail]  WHERE InventoryReceiveId ='{entity.Id}'").First();
                 var Temppodetailid = "";
                 var grndId = "";
-                DataSet dsRef;
                 foreach (var itemDetail in List)
                 {
                     itemDetail.CompanyGroupId = identity.CompanyGroupId;
@@ -2799,8 +2795,6 @@ namespace Library.MaterialManagement.Inventory
         public void UpdateFOCDetail(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
         {
             var flag = false;
-            var builderSql = "";
-            var builderSql1 = "";
             var rdBuilder = new System.Text.StringBuilder();
             Library.Service.Extension.Conversions.UOMConversion conversion = new Library.Service.Extension.Conversions.UOMConversion();
             try
@@ -2814,7 +2808,6 @@ namespace Library.MaterialManagement.Inventory
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var currentId1 = _receiveDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId='{entity.Id}'").First();
                 var Temppodetailid = "";
-                var grndId = "";
 
 
                 foreach (var itemDetail in entityMatAndImat)
@@ -3073,7 +3066,7 @@ namespace Library.MaterialManagement.Inventory
                                 _gRNRejectionDetailsRepository.Update(RejectionDetails);
 
                             }
-                            catch (DivideByZeroException ex)
+                            catch (DivideByZeroException  )
                             {
 
                             }
@@ -4110,8 +4103,6 @@ namespace Library.MaterialManagement.Inventory
             if (detailList.IsNotNull())
             {
                 int i = 0;
-                decimal Tax = 0;
-                decimal serviceCN = 0;
                 decimal Tax1 = 0;
                 decimal serviceCN1 = 0;
                 int detailCount = detailList.Count;
@@ -4164,8 +4155,6 @@ namespace Library.MaterialManagement.Inventory
             if (detailList.IsNotNull())
             {
                 int i = 0;
-                decimal Tax = 0;
-                decimal serviceCN = 0;
                 decimal Tax1 = 0;
                 decimal serviceCN1 = 0;
                 int detailCount = detailList.Count;
@@ -4313,8 +4302,6 @@ namespace Library.MaterialManagement.Inventory
             if (detailList.IsNotNull())
             {
                 int i = 0;
-                decimal Tax = 0;
-                decimal serviceCN = 0;
                 decimal Tax1 = 0;
                 decimal serviceCN1 = 0;
                 int detailCount = detailList.Count;
@@ -4424,8 +4411,6 @@ namespace Library.MaterialManagement.Inventory
                 var Temppodetailid = "";
 
                 var grndId = "";
-                decimal detailtrnAmount = 0;
-                decimal totalGRNQty = 0;
                 foreach (var itemDetail in entityMat)
                 {
                     itemDetail.Id = null;
@@ -4755,7 +4740,6 @@ namespace Library.MaterialManagement.Inventory
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 var rdBuilder = new System.Text.StringBuilder();
-                var builderSql = "";
                 //flag = true;
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -4986,7 +4970,6 @@ namespace Library.MaterialManagement.Inventory
 
                     var Temppodetailid = "";
                     var grndId = "";
-                    var grndId1 = "";
                     var currentId1 = _receiveDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(substring(id, CHARINDEX('-',id)+1,len(id)) AS INT)), 0) Id FROM [TRN].[InventoryReceiveDetail]  WHERE InventoryReceiveId ='{entity.Id}'").First();
                     if (entityMat.IsNotNull())
                     {
@@ -5472,8 +5455,6 @@ namespace Library.MaterialManagement.Inventory
                     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                     var Temppodetailid = "";
-                    var grndId = "";
-                    var grndId1 = "";
                     if (entityMat.IsNotNull())
                     {
                         foreach (var itemDetail in entityMat)
@@ -5692,7 +5673,7 @@ namespace Library.MaterialManagement.Inventory
                                     UpdateGraph(receiveDetail);
 
                                 }
-                                catch (DivideByZeroException ex)
+                                catch (DivideByZeroException )
                                 {
 
                                 }
@@ -6219,7 +6200,6 @@ namespace Library.MaterialManagement.Inventory
 
                     var Temppodetailid = "";
                     var grndId = "";
-                    var grndId1 = "";
                     var currentId1 = _receiveDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(substring(id, CHARINDEX('-',id)+1,len(id)) AS INT)), 0) Id FROM [TRN].[InventoryReceiveDetail]  WHERE InventoryReceiveId ='{entity.Id}'").First();
                     if (entityMat.IsNotNull())
                     {
@@ -6700,9 +6680,6 @@ namespace Library.MaterialManagement.Inventory
                     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                     var Temppodetailid = "";
-                    var grndId = "";
-                    var grndId1 = "";
-                    //var currentId1 = _receiveDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(substring(id, CHARINDEX('-',id)+1,len(id)) AS INT)), 0) Id FROM [TRN].[InventoryReceiveDetail]  WHERE InventoryReceiveId ='{entity.Id}'").First();
                     if (entityMat.IsNotNull())
                     {
                         foreach (var itemDetail in entityMat)

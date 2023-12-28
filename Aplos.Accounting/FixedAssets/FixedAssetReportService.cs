@@ -1280,7 +1280,6 @@ namespace Library.Accounting.FixedAssets
             //}
 
             #endregion column headers
-            double totalValue = 0;
             int startRow = ROW + 1;
             for (int i = 0; i < dsOrderMaster.Rows.Count; i++)
             {
