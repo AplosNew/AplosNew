@@ -407,6 +407,15 @@ namespace Aplos.Areas.SalesManagements.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             _salesReportService.CommercialInvoiceService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, salesId);
+            //_salesReportService.CommercialInvoicePackingListService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, salesId);
+            return View();
+        }
+        [Authorize, HttpGet]
+        public ActionResult CommercialInvoicePackingList(string salesId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _salesReportService.CommercialInvoicePackingListService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, salesId);
 
             return View();
         }
