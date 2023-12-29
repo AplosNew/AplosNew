@@ -1,0 +1,405 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>Lot Wise Quality Report Update
+</h3>
+<style>
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell {
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    .modellgModify {
+        width: 1600px;
+    }
+</style>
+<div class="form-horizontal form-elements">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 contro-label">Customer</label>
+                <div class="col-sm-8">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="Customer" ng-disabled="true" ng-model="statusNew.Customer" class="form-control" maxlength="100" autocomplete="off">
+                    </div>
+                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                        <button ng-click="selectCustomer();" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">PO No</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="statusNew.ProductionOrderId" ng-change="GetLotNumberLists();" name="ProductionOrderId"
+                                ng-options="item.Value as item.Text for item in POList">
+                        </select>
+                    </div>
+                </div>
+                @*<div class="col-sm-8">
+                        <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="POList" e-value="statusNew.LotNo" e-change="GetLotNumberLists" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                    </div>*@
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 contro-label">Invoice No</label>
+                <div class="col-sm-8">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="InvoiceId" ng-disabled="true" ng-model="statusNew.InvoiceId" class="form-control" maxlength="100" autocomplete="off">
+                    </div>
+                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                        <button ng-click="selectInvoice();" class="btn single-small-btn" tabindex="2"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">LotNumber</label>
+                <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="statusNew.LotNo" name="LotNo"
+                                ng-options="item.Value as item.Text for item in LotNumberLists">
+                        </select>
+                    </div>
+                </div>
+                @*<div class="col-sm-8">
+                        <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="LotNumberLists" e-value="statusNew.LotNo" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                    </div>*@
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="View();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
+                    <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="CustomerQualityReportPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Customer Quality Information<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-12 control-label"><span style="font-weight:bold">Quality Incharge Comment Details</span></label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">QIComment :</span></label>
+                            <label class="col-sm-8 control-label">{{commentNew.QRComment}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">Checked ByWhom :</span></label>
+                            <label class="col-sm-8 control-label">{{commentNew.QRByWhom}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">QIGrade :</span></label>
+                            <label class="col-sm-8 control-label">{{commentNew.QRGrade}}</label>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-12 control-label"><span style="font-weight:bold">Order Wise Quality Comment Details</span></label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">Comment :</span></label>
+                            <label class="col-sm-8 control-label">{{commentNew.OWComment}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">Approved ByWhom :</span></label>
+                            <label class="col-sm-8 control-label">{{commentNew.OWByWhom}}</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">Grade :</span></label>
+                            <label class="col-sm-8 control-label">{{commentNew.OWGrade}}</label>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label class="col-sm-12 control-label" ng-show="commentNew.OWGrade===null"><span style="font-weight:bold;color:red">**Update the grade and take approval from the Marketing for Shipment.</span></label>
+                            <label class="col-sm-12 control-label" ng-show="commentNew.OWGrade==='Fail' || commentNew.OWGrade==='Reject'"><span style="font-weight: bold; color: red">**This lot has not been authorized for Shipment,please contact Authorized Person.</span></label>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-12 control-label"><span style="font-weight:bold">Customer Information</span></label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">Customer :</span></label>
+                            <div class="col-sm-8">
+                                <div class="col-sm-11" style="padding:0px;">
+                                    <input type="text" name="Customer" ng-disabled="true" ng-model="statusNew.Customer" class="form-control" maxlength="100" autocomplete="off">
+                                </div>
+                                <div class="col-sm-1 text-left" style="padding:0px;padding-left:2px">
+                                    <button ng-click="selectCustomer();" ng-disabled="true" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">PO No :</span></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="statusNew.ProductionOrderId" ng-disabled="true" ng-change="GetLotNumberLists();" name="ProductionOrderId"
+                                            ng-options="item.Value as item.Text for item in POList">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">User Name :</span></label>
+                            <div class="col-sm-8">
+                                <div class="col-sm-12" style="padding:0px;">
+                                    <input type="text" name="UserName" ng-disabled="commentNew.OWGrade==='Fail' || commentNew.OWGrade==='Reject'" ng-model="statusNew.UserName" class="form-control" maxlength="100" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">Remarks :</span></label>
+                            <div class="col-sm-8">
+                                <div class="col-sm-12" style="padding:0px;">
+                                    <input type="text" name="Remarks" ng-disabled="commentNew.OWGrade==='Fail' || commentNew.OWGrade==='Reject'" ng-model="statusNew.Remarks" class="form-control" maxlength="100" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-12 control-label"><span style="font-weight:bold"></span></label>
+                            <label class="col-sm-12 control-label"><span style="font-weight:bold"></span></label>
+                            <label class="col-sm-12 control-label"><span style="font-weight:bold"></span></label>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">InvoiceNo :</span></label>
+                            <div class="col-sm-8">
+                                <div class="col-sm-11" style="padding:0px;">
+                                    <input type="text" name="InvoiceId" ng-disabled="true" ng-model="statusNew.InvoiceId" class="form-control" maxlength="100" autocomplete="off">
+                                </div>
+                                <div class="col-sm-1 text-left" style="padding:0px;padding-left:2px">
+                                    <button ng-click="selectInvoice();" ng-disabled="true" class="btn single-small-btn" tabindex="2"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">Lot No :</span></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="statusNew.LotNo" ng-disabled="true" name="LotNo"
+                                            ng-options="item.Value as item.Text for item in LotNumberLists">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label"><span style="font-weight:bold">ByWhom :</span></label>
+                            <div class="col-sm-8">
+                                <div class="col-sm-11" style="padding:0px;">
+                                    <input type="text" name="InvoiceId" ng-disabled="true" ng-model="statusNew.ByWhom" class="form-control" maxlength="100" autocomplete="off">
+                                </div>
+                                <div class="col-sm-1 text-left" style="padding:0px;padding-left:2px">
+                                    <button ng-click="selectByWhom();" ng-disabled="commentNew.OWGrade==='Fail' || commentNew.OWGrade==='Reject'" class="btn single-small-btn" tabindex="2"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="col-sm-12 control-label"><span style="font-weight:bold">Customer Details Information</span></label>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <div id="GridCustomerQualityReport" ej-grid e-datasource="LWQRList"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                 e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                <div e-columns>
+                                    <div e-column e-type="string" e-field="Parameter" e-headertext="Parameter" e-width="100"></div>
+                                    <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="80"></div>
+                                    <div e-column e-type="string" e-template="#Value" e-headertext="Value" e-width="80"></div>
+                                    <div e-column e-type="string" e-template="#Remarks" e-headertext="Remark" e-width="100"></div>
+                                    <div e-column e-type="string" e-field="IssueName" e-headertext="Issue Name" e-width="80"></div>
+                                    <div e-column e-type="string" e-template="#Finalreport" e-headertext="Final Report" e-width="80"></div>
+                                </div>
+                            </div>
+                            <script type="text/template" id="Value">
+                                <div class="col-sm-10" style="padding:0px;">
+                                    <input type="text" name="Value" ng-model="data.Value" ng-change="$parent.SpecialRemarks(this);" ng-click="" class="form-control" maxlength="200">
+                                </div>
+                            </script>
+                            <script type="text/template" id="Remarks">
+                                <div class="col-sm-10" style="padding:0px;">
+                                    <input type="text" name="Remarks" ng-model="data.ParaRemarks" ng-click="" class="form-control" maxlength="200">
+                                </div>
+                            </script>
+                            <script type="text/template" id="Finalreport">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="data.Finalreport" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </script>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li>
+                                        <button ng-click="JobCardCQReportFunc();" ng-disabled="commentNew.OWGrade==='Fail' || commentNew.OWGrade==='Reject' || commentNew.OWGrade===null" class="btn"><i class=""></i> PrintReport</button>
+                                        <button ng-click="SaveCQR();" ng-disabled="commentNew.OWGrade==='Fail' || commentNew.OWGrade==='Reject' || commentNew.OWGrade===null" class="btn"><i class=""></i> Save</button>
+                                        <button ng-click="closeCustomerQualityReportPopup();" class="btn"><i class=""></i> Close</button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="SpecialRemarksPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">SpecialRemarks<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <label class="col-sm-4 control-label"><span style="font-weight:bold; color:red">Please Update Special Remarks and Proceed to change Parameter Value</span></label>
+                </div>
+                <div class="col-md-12">
+                    <label class="col-sm-4 control-label"><span style="font-weight:bold">Special Remarks :</span></label>
+                    <div class="col-sm-8">
+                        <div class="col-sm-12" style="padding:0px;">
+                            <input type="text" name="SpecialRemarks" ng-model="statusNew.SpecialRemarks" class="form-control" maxlength="100" autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="UpdateSpecialRemarks();" class="btn"><i class=""></i>Update</button>
+                            <button ng-click="SpecialRemarksPopup();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="CustomerPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Customer List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Customer</p>
+                        <div style="color:black;" id="GridCustomerPopup" ej-grid e-datasource="CustomerList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleCustomer">
+                            <div e-columns>
+                                <div e-column e-field="PartyId" e-headertext="Customer Id" e-width="120"></div>
+                                <div e-column e-field="Customer" e-headertext="Customer Name" e-width="120"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="120"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="120"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeCustomerPopup();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="InvoicePopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Invoice List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Invoice</p>
+                        <div style="color:black;" id="GridCustomerPopup" ej-grid e-datasource="InvoiceList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleInvoice">
+                            <div e-columns>
+                                <div e-column e-field="InvoiceId" e-headertext="Invoice Id" e-width="120"></div>
+                                <div e-column e-field="Party" e-headertext="Customer Name" e-width="120"></div>
+                                <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="120"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeInvoicePopup();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="ByWhomPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Employee List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Employee</p>
+                        <div style="color:black;" id="GridByWhom" ej-grid e-datasource="ByWhomList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="true" e-responsive="true"
+                             e-recorddoubleclick="doubleByWhom">
+                            <div e-columns>
+                                <div e-column e-field="Entity" e-headertext="Entity" e-width="50"></div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
+                                <div e-column e-field="BudgetCode" e-headertext="Budget Code" e-width="100"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="50"></div>
+                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="50"></div>
+                                <div e-column e-field="Designation" e-headertext="Designation" e-width="50"></div>
+                                <div e-column e-field="GivenDesignation" e-headertext="DesiGivenDesignationgnation" e-width="50"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeByWhomPopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+

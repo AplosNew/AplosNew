@@ -659,6 +659,8 @@
     <Compile Include="Areas\QMS\Controllers\CustomerCompletedParameterController.cs" />
     <Compile Include="Areas\QMS\Controllers\CustomerQualityAndTechnicalSupportController.cs" />
     <Compile Include="Areas\QMS\Controllers\CustomerConfirmationParameterController.cs" />
+    <Compile Include="Areas\QMS\Controllers\LWQRUpdateController.cs" />
+    <Compile Include="Areas\QMS\Controllers\LWQSummaryReportController.cs" />
     <Compile Include="Areas\QMS\Controllers\LotWiseQualityReportController.cs" />
     <Compile Include="Areas\QMS\Controllers\DailyQualityStatusReportController.cs" />
     <Compile Include="Areas\QMS\Controllers\OrderWiseQualityReportController.cs" />
@@ -1928,6 +1930,8 @@
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
     <Content Include="Areas\Productions\Scripts\MasterPlanDetailsController.js" />
     <Content Include="Areas\Productions\Scripts\MasterPlanSetUpController.js" />
+    <Content Include="Areas\QMS\Scripts\LWQRUpdateController.js" />
+    <Content Include="Areas\QMS\Scripts\LWQSummaryReportController.js" />
     <Content Include="Areas\QMS\Scripts\LotWiseQualityReportController.js" />
     <Content Include="Areas\QMS\Scripts\DefineSQCIssueController.js" />
     <Content Include="Areas\SalesManagements\Scripts\SalesChanlanDispatchConfirmationController.js" />
@@ -5053,6 +5057,8 @@
     <Content Include="Areas\QMS\Views\DefineSQCIssue\Report.cshtml" />
     <Content Include="Areas\Setups\Views\RemarksControl\Aplos.cshtml" />
     <Content Include="Areas\QMS\Views\LotWiseQualityReport\Aplos.cshtml" />
+    <Content Include="Areas\QMS\Views\LWQSummaryReport\Aplos.cshtml" />
+    <Content Include="Areas\QMS\Views\LWQRUpdate\Aplos.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

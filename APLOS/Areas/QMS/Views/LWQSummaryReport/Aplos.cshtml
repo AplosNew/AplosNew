@@ -1,0 +1,156 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>Lot Wise Quality Summary Report
+</h3>
+<style>
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell {
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    .modellgModify {
+        width: 1600px;
+    }
+</style>
+<div class="form-horizontal form-elements">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 contro-label">Customer</label>
+                <div class="col-sm-8">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="Customer" ng-disabled="true" ng-model="statusNew.Customer" class="form-control" maxlength="100" autocomplete="off">
+                    </div>
+                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                        <button ng-click="selectCustomer();" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">PO No</label>
+                <div class="col-sm-8">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="statusNew.ProductionOrderId" ng-change="GetLotNumberLists();" name="ProductionOrderId"
+                                    ng-options="item.Value as item.Text for item in POList">
+                            </select>
+                        </div>
+                    </div>
+                @*<div class="col-sm-8">
+                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="POList" e-value="statusNew.LotNo" e-change="GetLotNumberLists" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                </div>*@
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 contro-label">Invoice No</label>
+                <div class="col-sm-8">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="InvoiceId" ng-disabled="true" ng-model="statusNew.InvoiceId" class="form-control" maxlength="100" autocomplete="off">
+                    </div>
+                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                        <button ng-click="selectInvoice();" class="btn single-small-btn" tabindex="2"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">LotNumber</label>
+                <div class="col-sm-8">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="statusNew.LotNo" name="LotNo"
+                                    ng-options="item.Value as item.Text for item in LotNumberLists">
+                            </select>
+                        </div>
+                    </div>
+                @*<div class="col-sm-8">
+                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="LotNumberLists" e-value="statusNew.LotNo" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                </div>*@
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="View();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> Go</button></li>
+                    <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="CustomerPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Customer List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Customer</p>
+                        <div style="color:black;" id="GridCustomerPopup" ej-grid e-datasource="CustomerList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleCustomer">
+                            <div e-columns>
+                                <div e-column e-field="PartyId" e-headertext="Customer Id" e-width="120"></div>
+                                <div e-column e-field="Customer" e-headertext="Customer Name" e-width="120"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="120"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="120"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeCustomerPopup();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="InvoicePopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Invoice List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Invoice</p>
+                        <div style="color:black;" id="GridCustomerPopup" ej-grid e-datasource="InvoiceList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleInvoice">
+                            <div e-columns>
+                                <div e-column e-field="InvoiceId" e-headertext="Invoice Id" e-width="120"></div>
+                                <div e-column e-field="Party" e-headertext="Customer Name" e-width="120"></div>
+                                <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="120"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeInvoicePopup();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
