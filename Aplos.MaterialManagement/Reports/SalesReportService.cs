@@ -1711,18 +1711,119 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             document.Close();
         }
 
+        public void CommercialInvoicePackingListService(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId)
+        {
+            var fileName = "";
+            var strPath = "";
+            var File = "";
+
+            ReportUtility ru = new ReportUtility();
+            fileName = "CommercialInvoicePackingList" + plantId + ".docx";
+
+            strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
+            File = strPath;
+            if (!System.IO.File.Exists(strPath))
+            {
+                throw new CustomException("File <" + fileName + "> Not Found.");
+            }
+
+            WordDocument document = new WordDocument(File, FormatType.Docx);
+
+            try
+            {
+                WSection section = document.Sections[0];
+
+                DataTable dsOrderMaster, dsConditions, dsaddInfo;
+
+                dsOrderMaster = GetloadCommercialLocalTaxMaterialMaster(salesId);
+                dsConditions = TermsAndConditionSQL(salesId);
+                dsaddInfo = GetAddinfo(salesId);
+                Dictionary<string, string> columns = new Dictionary<string, string>();
+
+                foreach (DataColumn item in dsOrderMaster.Columns)
+                    columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
+
+                var MaterialTotal = makeCommercialInvoicePackingListService(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {materialItems}
+                var addInfo = makeaddInfo(salesId, document, dsaddInfo);   // {makeaddInfo}
+                var TermsAndCondition = makeTermsAndCondition(salesId, document, dsConditions);   // {conditions}
+               
+                document.Replace("{GrandTotal}", (MaterialTotal).ToString("#,##0.00"), true, true);
+               
+                //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2"), true, true);
+                //document.Replace("{TotalInWords}", ru.InWord((MaterialTotal), dsOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
+
+                Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
+
+                TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
+
+                //creating secondary array to prevent memory leak and accidental over-writing (Tarek Talukder-26-May-2019)
+                List<string> strReplace = new List<string>();
+                for (int i = 0; i < allresult.Length; i++)
+                    strReplace.Add(allresult[i].SelectedText.ToString().ToUpper());
+
+                for (int i = 0; i < strReplace.Count; i++)
+                {
+                    string text = strReplace[i].ToUpper();
+                    ReplaceInfo.Add(text, 0);
+                    if (columns.ContainsKey(text.ToUpper()))
+                    {
+                        //ReplaceInfo[text] = document.Replace(text, dsOrderMaster.Tables[0].Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+                        document.Replace(text, dsOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+                    }
+                    if (text == "{PRINTEDBY}")
+                    {
+                        document.Replace(text, Name, false, false);
+                    }
+                    if (text == "{DT}")
+                    {
+                        document.Replace(text, DateTime.Now.ToString("dd-MMM-yyyy h:mm tt"), false, false);
+                    }
+                }
+
+                document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
+
+                foreach (var item in ReplaceInfo.Keys)
+                {
+                    if (ReplaceInfo[item.ToString()] == 0)
+                        document.Replace(item.ToString(), "N/A", false, false);
+                }
+
+                /////////////////////
+                ///
+
+                DocToPDFConverter converter = new DocToPDFConverter();
+
+                //Converts Word document into PDF document
+                PdfDocument pdfDocument = converter.ConvertToPDF(document);
+                pdfDocument.PageSettings.Width = 1200;
+                pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
+                //Releases all resources used by DocToPDFConverter
+                converter.Dispose();
+
+                //Closes the instance of document objects
+
+                //Saves the PDF file 
+                string Prefix = "PackingList-" + salesId;
+
+                pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
+                //Closes the instance of document objects
+                pdfDocument.Close(true);
+                document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
+                document.Close();
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+
+            document.Close();
+        }
+
         public DataTable GetloadCommercialLocalTaxMaterialMaster(string SalesId)
         {
             string strSQL;
-//            ,AddInfo = Stuff((
-//                    SELECT distinct'/ ' + A.Description
-//                    from(Select A.* from(
-//Select DISTINCT MA.Description, MA.Sequence
-//from[dbo].[MasterLCAddInfo] MA
-//LEFT JOIN dbo.[Contract] C ON C.MasterLcId = MA.MasterLcId
-//LEFT JOIN TRN.SalesOrder SO ON SO.ContractId = C.Id
-//LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId = SO.Id
-//Where  SM.SalesId = IR.Id)A)A FOR XML PATH('')), 1, 1, '')
+
             try
             {
                 strSQL = @"SELECT IR.Id CustomerNo,CRNC.Code,cmp.BaseCurrencyId,IR.CurrencyId,p.UserName Customer,P.UserName Buyer,P.TINNO CustomerGSTNo,p.VATResistrationNo AS CustomerPANNo
@@ -1925,7 +2026,7 @@ LEFT JOIN MST.BankMaster BM ON BM.Id = IR.PaymentToReceiveBankId
 LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
 LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId AND BB.Id = BM.BankBranchId
 LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
-                       WHERE IR.Id ='" + SalesId + "'";
+                       WHERE IR.Id ='" + SalesId + "' AND SCN.Bags<>''";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }
@@ -3939,10 +4040,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
             string replaceString = "{materialItems}";
 
             DataTable sales, materialTax;
-            //Sales== Master Query
-            //sales = loadLocalTaxMaterialMaster(salesId);
-            //  materialTax = loadOrderMasterTax(salesId);
-
+            
             int LasColumnIndex = 8;
 
             WTable wTable = new WTable(document);
@@ -4122,7 +4220,175 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
             return total;
         }
 
+        public double makeCommercialInvoicePackingListService(string companyGroupId, string companyId, string plantId, string salesId, WordDocument document, DataTable dsOrderMaster)
+        {
+            string replaceString = "{materialItems}";
 
+            DataTable sales, materialTax;
+
+            int LasColumnIndex = 6;
+
+            WTable wTable = new WTable(document);
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex + 1);
+
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
+            FontBold.Bold = true;
+            DFontSize.FontSize = 8f;
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("ARTICLE");
+            range.ApplyCharacterFormat(FontBold);
+            int colArticle = COL; COL++;
+            wTable.Rows[ROW].Cells[colArticle].Width = 200;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("PRODUCT DETAILS");
+            range.ApplyCharacterFormat(FontBold);
+            int colChar1 = COL; COL++;
+            wTable.Rows[ROW].Cells[colChar1].Width = 60;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("LOT NO");
+            range.ApplyCharacterFormat(FontBold);
+            int colLot = COL; COL++;
+            wTable.Rows[ROW].Cells[colLot].Width = 80;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN");
+            range.ApplyCharacterFormat(FontBold);
+            int colHSN = COL; COL++;
+            wTable.Rows[ROW].Cells[colHSN].Width = 60;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("QUANTITY NET WEIGHT IN(KGS.)");
+            range.ApplyCharacterFormat(FontBold);
+            int colQty = COL; COL++;
+            wTable.Rows[ROW].Cells[colQty].Width = 60;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("CARTON  SERIAL NOS.");
+            range.ApplyCharacterFormat(FontBold);
+            int colCartons = COL; COL++;
+            wTable.Rows[ROW].Cells[colCartons].Width = 50;
+
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("GROSS WEIGHT IN KGS.");
+            range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
+            int colGW = COL;
+            wTable.Rows[ROW].Cells[colQty].Width = 60;
+
+            #endregion column headers
+            double totalValue = 0;
+            int sl = 0;
+            int startRow = 0;
+            for (int i = 0; i < dsOrderMaster.Rows.Count; i++)
+            {
+                ROW++;
+                sl++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ProdDetails"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colLot].AddParagraph().AppendText(dsOrderMaster.Rows[i]["LotNo"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colCartons].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Cartons"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["NetWeights"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colGW].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["GrossWeights"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
+                
+            }
+
+            ROW++;
+            #region Total
+            int TotalRow = ROW;
+            wTable.AddRow();
+            WTableRow _TROW = wTable.LastRow;
+            _TROW.Cells[0].AddParagraph().AppendText("Total").ApplyCharacterFormat(FontBold);
+
+            range.ApplyCharacterFormat(FontBold);
+
+            for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
+            {
+                //|| dicTaxes.ContainsValue(C)
+                if (C == colArticle || C == colHSN || C == colChar1 || C == colLot)
+                    continue;
+
+                double value = 0;
+                for (int i = startRow; i < TotalRow; i++)
+                {
+
+                    foreach (WParagraph item in wTable.Rows[i].Cells[C].Paragraphs)
+                    {
+                        value += clsStdLib.dbl(item.Text);
+                    }
+                }
+                _TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
+            }
+            #endregion Total
+
+            ROW++;
+            #region Sub Total
+
+           double total = clsStdLib.dbl(dsOrderMaster.Compute("SUM(Cartons)", "").ToString());
+
+            #endregion Total
+
+            ROW++;
+            #region Total Payable
+
+            #endregion Total Payable
+
+            ROW++;
+
+            #region paragrpath formats
+            //Adds a new paragraph style named "MyStyle"
+            IWParagraphStyle myStyle = document.AddParagraphStyle("MyStyle");
+            //Sets the formatting of the style
+            myStyle.CharacterFormat.FontSize = 8f;
+            myStyle.CharacterFormat.TextColor = Color.Black;
+            myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+
+
+            #endregion paragrpath formats
+
+            #region merging section
+
+            ROW = 0;
+
+            ROW++;
+
+            IWParagraphStyle style = document.AddParagraphStyle("SubTotalStyle");
+            style.CharacterFormat.Bold = true;
+            style.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Left;
+
+            #endregion merging section
+
+
+
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+
+            string replaceaddInfoString = "{addInfo}";
+            int addLasColumnIndex = 0;
+            WTable wTableadd = new WTable(document);
+            int ROWAdd = 0; int COLAdd = 0;
+            wTableadd.ResetCells(1, addLasColumnIndex + 1);
+
+            return total;
+        }
 
         public double makeOrderServiceTable(string companyGroupId, string companyId, string plantId, string salesId, WordDocument document, DataTable dsOrderMaster)
         {

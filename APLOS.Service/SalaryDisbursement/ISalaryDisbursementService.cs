@@ -26,5 +26,6 @@ namespace Library.Service.SalaryDisbursement
         IWorkbook GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool isTopSheet, string voucherId);
         void DeleteSalaryPayable(string plantId, string voucherId, string monthNo, string yearNo);
         void DeleteSalaryDisbursementVoucher(string plantId, string voucherId, string monthNo, string yearNo);
+        void PostSalarydisbursement(string voucherId);
     }
 }

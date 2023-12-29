@@ -714,13 +714,11 @@ namespace Library.MaterialManagement.Inventory
                                 var invMaterial = _issueHistoryRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + invMaterialId + "'").FirstOrDefault();
                                 var stockList = specificStockList.Where(t => t.InventoryMaterialId == invMaterialId).ToList();
                                 var totalReqQty = 0M;
-                                decimal policyAmmount = 0;
 
                                 decimal detailtrnAmount = 0;
                                 decimal totalGRNQty = 0;
                                 /*Amount=MaterialTrnAmount - ((TRN Qty - IssueQty)* TrnRate)*/
                                 /*Rate= Amount/Sum GRN Qty */
-                                var IssueRequestDetailIdnew = "";
 
                                 foreach (var item in specificStockList.Where(r => r.InventoryMaterialId == invMaterialId))
                                 {
@@ -903,9 +901,6 @@ namespace Library.MaterialManagement.Inventory
 															where IssueRequestDetailId='" + itemall.IssueRequest + @"' Order By IRBM.Qty ASC").ToList();
                                             if (receiveDetailList1.IsNotNull())
                                             {
-                                                bool isQtyAlocated = true;
-                                                decimal temp = 0;
-                                                int count = 0;
                                                 foreach (var receiveDetailListNew in receiveDetailList1)
                                                 {
                                                     var IssueDetailAndIssueRequestMapNew = new IssueDetailAndIssueRequestMap
@@ -1508,13 +1503,11 @@ namespace Library.MaterialManagement.Inventory
                                 var invMaterial = _issueHistoryRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + invMaterialId + "'").FirstOrDefault();
                                 var stockList = specificStockList.Where(t => t.InventoryMaterialId == invMaterialId).ToList();
                                 var totalReqQty = 0M;
-                                decimal policyAmmount = 0;
 
                                 decimal detailtrnAmount = 0;
                                 decimal totalGRNQty = 0;
                                 /*Amount=MaterialTrnAmount - ((TRN Qty - IssueQty)* TrnRate)*/
                                 /*Rate= Amount/Sum GRN Qty */
-                                var IssueRequestDetailIdnew = "";
 
                                 foreach (var item in specificStockList.Where(r => r.InventoryMaterialId == invMaterialId))
                                 {
@@ -1710,9 +1703,6 @@ namespace Library.MaterialManagement.Inventory
 															where IssueRequestDetailId='" + itemall.IssueRequest + @"' Order By IRBM.Qty ASC").ToList();
                                             if (receiveDetailList1.IsNotNull())
                                             {
-                                                bool isQtyAlocated = true;
-                                                decimal temp = 0;
-                                                int count = 0;
                                                 foreach (var receiveDetailListNew in receiveDetailList1)
                                                 {
                                                     var IssueDetailAndIssueRequestMapNew = new IssueDetailAndIssueRequestMap
@@ -2630,7 +2620,7 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_row, 33, _row, 35].BorderAround(ExcelLineStyle.Hair);
             sheet1.Range[_row, 33, _row, 35].BorderInside(ExcelLineStyle.Hair);
             sheet1.Range[_row, 33, _row, 35].Merge();
-            sheet1.Range[_row, 33, _row, 35].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1.Range[_row, 33, _row, 35].CellStyle.ColorIndex = ExcelKnownColors.Tan;
 
             sheet1[_row, 36].Text = "Posted (Cr.)";
             sheet1[_row, 36].CellStyle.Font.Size = 10;
@@ -2641,7 +2631,7 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_row, 36, _row, 38].BorderAround(ExcelLineStyle.Hair);
             sheet1.Range[_row, 36, _row, 38].BorderInside(ExcelLineStyle.Hair);
             sheet1.Range[_row, 36, _row, 38].Merge();
-            sheet1.Range[_row, 36, _row, 38].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1.Range[_row, 36, _row, 38].CellStyle.ColorIndex = ExcelKnownColors.Tan;
 
 
 
@@ -3034,7 +3024,7 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 
             //sheet1headreColIndex++;
-            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.ColorIndex = ExcelKnownColors.Grey_40_percent;
             sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 10;
             sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].RowHeight = 22;
 
@@ -3191,7 +3181,7 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_row, 34, _row, 38].BorderAround(ExcelLineStyle.Hair);
             sheet1.Range[_row, 34, _row, 38].BorderInside(ExcelLineStyle.Hair);
             sheet1.Range[_row, 34, _row, 38].Merge();
-            sheet1.Range[_row, 34, _row, 38].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1.Range[_row, 34, _row, 38].CellStyle.ColorIndex = ExcelKnownColors.Tan;
 
             sheet1[_row, 39].Text = "Posted (Cr.)";
             sheet1[_row, 39].CellStyle.Font.Size = 10;
@@ -3202,7 +3192,7 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_row, 39, _row, 43].BorderAround(ExcelLineStyle.Hair);
             sheet1.Range[_row, 39, _row, 43].BorderInside(ExcelLineStyle.Hair);
             sheet1.Range[_row, 39, _row, 43].Merge();
-            sheet1.Range[_row, 39, _row, 43].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1.Range[_row, 39, _row, 43].CellStyle.ColorIndex = ExcelKnownColors.Tan;
 
 
 
@@ -3620,7 +3610,7 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             
-            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.ColorIndex = ExcelKnownColors.Grey_40_percent;
             sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 10;
             sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].RowHeight = 22;
 
@@ -4069,7 +4059,7 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 
-            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.ColorIndex = ExcelKnownColors.Grey_40_percent;
             sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 10;
             sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].RowHeight = 22;
 
@@ -4560,7 +4550,7 @@ namespace Library.MaterialManagement.Inventory
             //sheet1.Range[_row, 18, _row, 20].CellStyle.Color="LightYellow";
             sheet1.Range[_row, 35, _row, 37].BorderInside(ExcelLineStyle.Hair);
             sheet1.Range[_row, 35, _row, 37].Merge();
-            sheet1.Range[_row, 35, _row, 37].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1.Range[_row, 35, _row, 37].CellStyle.ColorIndex = ExcelKnownColors.Tan;
 
             sheet1[_row, 38].Text = "Posted (Cr.)";
             sheet1.UsedRange.CellStyle.Font.Size = 10;
@@ -4571,7 +4561,7 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_row, 38, _row, 40].BorderAround(ExcelLineStyle.Hair);
             sheet1.Range[_row, 38, _row, 40].BorderInside(ExcelLineStyle.Hair);
             sheet1.Range[_row, 38, _row, 40].Merge();
-            sheet1.Range[_row, 38, _row, 40].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1.Range[_row, 38, _row, 40].CellStyle.ColorIndex = ExcelKnownColors.Tan;
 
             var _rowL = _row;
             var row = _row + 1;
@@ -4978,7 +4968,7 @@ namespace Library.MaterialManagement.Inventory
 
             //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.ColorIndex = ExcelKnownColors.Grey_40_percent;
             sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 10;
             sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].RowHeight = 22;
             var Row_Total_Start = _rowL + 1;
@@ -5212,7 +5202,7 @@ namespace Library.MaterialManagement.Inventory
             //sheet1.Range[_row, 18, _row, 20].CellStyle.Color="LightYellow";
             sheet1.Range[_row, 22, _row, 26].BorderInside(ExcelLineStyle.Hair);
             sheet1.Range[_row, 22, _row, 26].Merge();
-            sheet1.Range[_row, 22, _row, 26].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1.Range[_row, 22, _row, 26].CellStyle.ColorIndex = ExcelKnownColors.Tan;
 
             sheet1[_row, 27].Text = "Posted (Cr.)";
             sheet1.UsedRange.CellStyle.Font.Size = 10;
@@ -5223,7 +5213,7 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_row, 27, _row, 31].BorderAround(ExcelLineStyle.Hair);
             sheet1.Range[_row, 27, _row, 31].BorderInside(ExcelLineStyle.Hair);
             sheet1.Range[_row, 27, _row, 31].Merge();
-            sheet1.Range[_row, 27, _row, 31].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1.Range[_row, 27, _row, 31].CellStyle.ColorIndex = ExcelKnownColors.Tan;
 
             var _rowL = _row;
             var row = _row + 1;
@@ -5526,7 +5516,7 @@ namespace Library.MaterialManagement.Inventory
 
             //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+            sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.ColorIndex = ExcelKnownColors.Grey_40_percent;
             sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 10;
             sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].RowHeight = 22;
             var Row_Total_Start = _rowL + 1;
@@ -6193,7 +6183,6 @@ namespace Library.MaterialManagement.Inventory
                                 var invMaterial = _PhysicalStockAdjustmentHistoryRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + invMaterialId + "'").FirstOrDefault();
                                 var stockList = specificStockList.Where(t => t.InventoryMaterialId == invMaterialId).ToList();
                                 var totalReqQty = 0M;
-                                decimal policyAmmount = 0;
 
                                 decimal detailtrnAmount = 0;
                                 decimal totalGRNQty = 0;
@@ -7068,7 +7057,6 @@ namespace Library.MaterialManagement.Inventory
                                 var invMaterial = _InventorySalesHistoryRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + invMaterialId + "'").FirstOrDefault();
                                 var stockList = specificStockList.Where(t => t.InventoryMaterialId == invMaterialId).ToList();
                                 var totalReqQty = 0M;
-                                decimal policyAmmount = 0;
                                 decimal detailtrnAmount = 0;
                                 decimal totalGRNQty = 0;
                                 /*Amount=MaterialTrnAmount - ((TRN Qty - IssueQty)* TrnRate)*/
@@ -7742,7 +7730,6 @@ namespace Library.MaterialManagement.Inventory
                                 var invMaterial = _InventorySalesHistoryRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + invMaterialId + "'").FirstOrDefault();
                                 var stockList = specificStockList.Where(t => t.InventoryMaterialId == invMaterialId).ToList();
                                 var totalReqQty = 0M;
-                                decimal policyAmmount = 0;
 
                                 decimal detailtrnAmount = 0;
                                 decimal totalGRNQty = 0;
@@ -8429,10 +8416,8 @@ namespace Library.MaterialManagement.Inventory
                                 var invMaterial = _issueHistoryRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + invMaterialId + "'").FirstOrDefault();
                                 var stockList = specificStockList.Where(t => t.InventoryMaterialId == invMaterialId).ToList();
                                 var totalReqQty = 0M;
-                                decimal policyAmmount = 0;
                                 decimal detailtrnAmount = 0;
                                 decimal totalGRNQty = 0;
-                                var IssueRequestDetailIdnew = "";
                                 foreach (var item in specificStockList.Where(r => r.InventoryMaterialId == invMaterialId))
                                 {
                                     decimal IssueTransactionQty = item.RequisitionQty;
@@ -8714,7 +8699,6 @@ namespace Library.MaterialManagement.Inventory
         {
             try
             {
-                var builderSql11 = "";
                 var rdBuilder11 = new System.Text.StringBuilder();
                 var flag = false;
 
@@ -9362,10 +9346,8 @@ namespace Library.MaterialManagement.Inventory
                                         var invMaterial = _issueHistoryRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + invMaterialId + "'").FirstOrDefault();
                                         var stockList = specificStockList.Where(t => t.InventoryMaterialId == invMaterialId).ToList();
                                         var totalReqQty = 0M;
-                                        decimal policyAmmount = 0;
                                         decimal detailtrnAmount = 0;
                                         decimal totalGRNQty = 0;
-                                        var IssueRequestDetailIdnew = "";
 
                                         foreach (var item in specificStockList.Where(r => r.InventoryMaterialId == invMaterialId))
                                         {
@@ -9536,9 +9518,6 @@ namespace Library.MaterialManagement.Inventory
 															where IssueRequestDetailId='" + itemall.IssueRequest + @"' Order By IRBM.Qty ASC").ToList();
                                                         if (receiveDetailList1.IsNotNull())
                                                         {
-                                                            bool isQtyAlocated = true;
-                                                            decimal temp = 0;
-                                                            int count = 0;
                                                             foreach (var receiveDetailListNew in receiveDetailList1)
                                                             {
 
@@ -10194,11 +10173,8 @@ namespace Library.MaterialManagement.Inventory
                                         var invMaterial = _issueHistoryRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + invMaterialId + "'").FirstOrDefault();
                                         var stockList = specificStockList.Where(t => t.InventoryMaterialId == invMaterialId).ToList();
                                         var totalReqQty = 0M;
-                                        decimal policyAmmount = 0;
                                         decimal detailtrnAmount = 0;
                                         decimal totalGRNQty = 0;
-                                        var IssueRequestDetailIdnew = "";
-
 
                                         foreach (var item in specificStockList.Where(r => r.InventoryMaterialId == invMaterialId))
                                         {
@@ -10421,12 +10397,8 @@ namespace Library.MaterialManagement.Inventory
 															where IssueRequestDetailId='" + itemall.IssueRequest + @"' Order By IRBM.Qty ASC").ToList();
                                                         if (receiveDetailList1.IsNotNull())
                                                         {
-                                                            bool isQtyAlocated = true;
-                                                            decimal temp = 0;
-                                                            int count = 0;
                                                             foreach (var receiveDetailListNew in receiveDetailList1)
                                                             {
-
 
                                                                 //count++;
                                                                 //if (count == 1)
@@ -11400,10 +11372,8 @@ namespace Library.MaterialManagement.Inventory
                                         var invMaterial = _issueHistoryRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + invMaterialId + "'").FirstOrDefault();
                                         var stockList = specificStockList.Where(t => t.InventoryMaterialId == invMaterialId).ToList();
                                         var totalReqQty = 0M;
-                                        decimal policyAmmount = 0;
                                         decimal detailtrnAmount = 0;
                                         decimal totalGRNQty = 0;
-                                        var IssueRequestDetailIdnew = "";
 
                                         foreach (var item in specificStockList.Where(r => r.InventoryMaterialId == invMaterialId))
                                         {
@@ -11574,9 +11544,6 @@ namespace Library.MaterialManagement.Inventory
 															where IssueRequestDetailId='" + itemall.IssueRequest + @"' Order By IRBM.Qty ASC").ToList();
                                                         if (receiveDetailList1.IsNotNull())
                                                         {
-                                                            bool isQtyAlocated = true;
-                                                            decimal temp = 0;
-                                                            int count = 0;
                                                             foreach (var receiveDetailListNew in receiveDetailList1)
                                                             {
 
@@ -12232,10 +12199,8 @@ namespace Library.MaterialManagement.Inventory
                                         var invMaterial = _issueHistoryRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + invMaterialId + "'").FirstOrDefault();
                                         var stockList = specificStockList.Where(t => t.InventoryMaterialId == invMaterialId).ToList();
                                         var totalReqQty = 0M;
-                                        decimal policyAmmount = 0;
                                         decimal detailtrnAmount = 0;
                                         decimal totalGRNQty = 0;
-                                        var IssueRequestDetailIdnew = "";
 
 
                                         foreach (var item in specificStockList.Where(r => r.InventoryMaterialId == invMaterialId))
@@ -12460,9 +12425,6 @@ namespace Library.MaterialManagement.Inventory
 															where IssueRequestDetailId='" + itemall.IssueRequest + @"' Order By IRBM.Qty ASC").ToList();
                                                         if (receiveDetailList1.IsNotNull())
                                                         {
-                                                            bool isQtyAlocated = true;
-                                                            decimal temp = 0;
-                                                            int count = 0;
                                                             foreach (var receiveDetailListNew in receiveDetailList1)
                                                             {
 
@@ -13012,7 +12974,6 @@ namespace Library.MaterialManagement.Inventory
                 var receiveDetailcurrentId = _receiveDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(substring(id, CHARINDEX('-',id)+1,len(id)) AS INT)), 0) Id FROM [TRN].[InventoryReceiveDetail]  WHERE InventoryReceiveId ='{inventoryReceive.Id}'").First();
 
 
-                int isrdCount = 0;
                 DataSet AR = null;
                 GetAvgRate(inventoryIssue.InventorySalesId, out AR);
                 if (AR.Tables[0].Rows.Count > 0)
@@ -13023,11 +12984,9 @@ namespace Library.MaterialManagement.Inventory
                 {
                     foreach (var issue in entities.Where(r => r.TransactionQty > 0))
                     {
-                        // isrdCount++;
                         currentId++;
                         var detail = new InventorySalesReturnDetail
                         {
-                            //Id = inventoryIssue.Id + "-" + isrdCount,  //MakePK(inventoryIssue.Id, currentId, 2),
                             Id = MakePK(inventoryIssue.Id, currentId, 2),
                             InventorySalesReturnId = inventoryIssue.Id,
                             InventorySalesDetailId = issue.InventorySalesDetailId,
@@ -13297,7 +13256,6 @@ namespace Library.MaterialManagement.Inventory
             int inventoryReceiveTaxId = 0;
             int currentSalesServiceId = 0;
             decimal avgRate = 0;
-            decimal totalReturnQty = 0;
             decimal totalGRNTax = 0;
 
             try
@@ -13319,7 +13277,6 @@ namespace Library.MaterialManagement.Inventory
                 var receiveDetailcurrentId = _receiveDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(substring(id, CHARINDEX('-',id)+1,len(id)) AS INT)), 0) Id FROM [TRN].[InventoryReceiveDetail]  WHERE InventoryReceiveId ='{inventoryreceive.Id}'").First();
 
 
-                int isrdCount = 0;
                 DataSet AR = null;
                 GetAvgRate(inventoryIssue.InventorySalesId, out AR);
                 if (AR.Tables[0].Rows.Count > 0)
