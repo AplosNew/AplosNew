@@ -544,11 +544,11 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
     $scope.exchangeGainLossCal = function (rate) {
         for (var i = 0; i < $scope.voucherDetailList.length; i++) {
             if ($scope.voucherDetailList[i].CompanyCurrencyRate < rate) {
-                $scope.voucherDetailList[i].ExchangeAmount = $scope.voucherDetailList[i].Amount * (rate - $scope.voucherDetailList[i].CompanyCurrencyRate);
+                $scope.voucherDetailList[i].ExchangeAmount = Math.abs($scope.voucherDetailList[i].Amount * (rate - $scope.voucherDetailList[i].CompanyCurrencyRate)).toFixed(2);
                 $scope.voucherDetailList[i].ExchangeType = "ExchangeGain";
             }
             else if ($scope.voucherDetailList[i].CompanyCurrencyRate > rate) {
-                $scope.voucherDetailList[i].ExchangeAmount = $scope.voucherDetailList[i].Amount * ($scope.voucherDetailList[i].CompanyCurrencyRate - rate);
+                $scope.voucherDetailList[i].ExchangeAmount = Math.abs($scope.voucherDetailList[i].Amount * ($scope.voucherDetailList[i].CompanyCurrencyRate - rate)).toFixed(2);
                 $scope.voucherDetailList[i].ExchangeType = "ExchangeLoss";
             }
             else {

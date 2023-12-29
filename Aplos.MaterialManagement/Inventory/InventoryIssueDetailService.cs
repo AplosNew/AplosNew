@@ -648,15 +648,12 @@ namespace Library.MaterialManagement.Inventory
 
                 var specificInvaterialIds = new string[] { };
                 var rdBuilder = new System.Text.StringBuilder();
-                var builderSql = "";
 
                 if (specificStockList.IsNotNull())
                 {
                     foreach (var invIssue in entities)
                     {
                         var invMaterial = _issueHistoryRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + invIssue + "'").FirstOrDefault();
-                        var totalReqQty = 0M;
-                        decimal policyAmmount = 0;
                         currentId++;
                         var issueDetail = new InventoryIssueDetail();
 
@@ -746,15 +743,12 @@ namespace Library.MaterialManagement.Inventory
 
                 var specificInvaterialIds = new string[] { };
                 var rdBuilder = new System.Text.StringBuilder();
-                var builderSql = "";
 
                 if (specificStockList.IsNotNull())
                 {
                     foreach (var invIssue in entities)
                     {
                         var invMaterial = _issueHistoryRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + invIssue + "'").FirstOrDefault();
-                        var totalReqQty = 0M;
-                        decimal policyAmmount = 0;
                         //currentId++;
                         var issueDetail = base.Find(invIssue.IssueDetailId);
 
@@ -877,7 +871,6 @@ namespace Library.MaterialManagement.Inventory
                         var invMaterial = _issueHistoryRepository.SqlQuery<InventoryMaterial>(@"SELECT * FROM [TRN].[InventoryMaterial] WHERE Id='" + invMaterialId + "'").FirstOrDefault();
                         var stockList = specificStockList.Where(t => t.InventoryMaterialId == invMaterialId).ToList();
                         var totalReqQty = 0M;
-                        decimal policyAmmount = 0;
 
                         decimal detailtrnAmount = 0;
                         decimal totalGRNQty = 0;
@@ -1616,7 +1609,6 @@ namespace Library.MaterialManagement.Inventory
 
                 Dictionary<string, string> columns = new Dictionary<string, string>();
 
-                var poApprovedStatus = "";
 
                 foreach (DataColumn item in dtOrderMaster.Columns)
                     columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
@@ -2063,7 +2055,6 @@ namespace Library.MaterialManagement.Inventory
 
           
             #endregion column headers
-            double totalValue = 0;
             int startRow = ROW + 1;
             for (int i = 0; i < dsOrderMaster.Rows.Count; i++)
             {

@@ -1247,5 +1247,13 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
         #endregion Gate pass 
+        #region Leave Approve
+        public List<Default2> GetLeaveApprovestatus(string Fmdate , string Todate)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetLeaveApprovestatus(out List<Default2> activelists , Fmdate , Todate);
+            return activelists;
+        }
+        #endregion Leave Approve
     }
 }

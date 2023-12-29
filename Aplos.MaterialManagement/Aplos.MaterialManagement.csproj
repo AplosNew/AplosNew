@@ -121,10 +121,8 @@
     <Compile Include="InventoryManagements\InventoryReceiveService.cs" />
     <Compile Include="Inventory\EntitySFGInventoryService.cs" />
     <Compile Include="Inventory\GateEntryService.cs" />
-    <Compile Include="Inventory\GRNAcceptanceMapService.cs" />
     <Compile Include="Inventory\IEntitySFGInventoryService.cs" />
     <Compile Include="Inventory\IGateEntryService.cs" />
-    <Compile Include="Inventory\IGRNAcceptanceMapService.cs" />
     <Compile Include="Inventory\IInventoryDashboardService.cs" />
     <Compile Include="Inventory\IInventoryIssueDetailService.cs" />
     <Compile Include="Inventory\IInventoryIssueService.cs" />

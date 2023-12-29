@@ -993,7 +993,7 @@ namespace Library.Accounting.Accounts
                                         VD.Id AS VoucherDetailId, IV.CurrencyId, C.Code AS CurrencyCode, MPD.PartyId,MPD.PartyPlantId, IVD.NetAmount AS Payable,
                                         IVD.WrittenOffAmount AS PaymentMade, IVD.NetAmount-IVD.WrittenOffAmount AS Balance,MPD.Amount ,MPD.MultiplePaymentId,MPD.Id,
 										CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, CC.CompanyCurrencyConversion
-                                        ,P.UserName PartyName,PP.UserName PartyPlantName
+                                        ,P.UserName PartyName,PP.UserName PartyPlantName,NULL ExchangeType,0 ExchangeAmount,0 BaseDrAmount
                                         FROM TRN.MultiplePaymentDetail AS MPD
 										JOIN TRN.MultiplePayment AS MP ON MP.Id=MPD.MultiplePaymentId
 										LEFT JOIN [TRN].[InvoiceDetail] AS IVD ON IVD.Id=MPD.InvoiceDetailId

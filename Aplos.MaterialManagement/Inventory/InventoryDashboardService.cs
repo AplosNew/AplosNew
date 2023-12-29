@@ -27148,7 +27148,7 @@ UNION ALL
 				worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Bold = true;
 
 				//worksheet.Range[ROW, startCol, ROW, COL].CellStyle.ColorIndex = ExcelKnownColors.Yellow;
-				worksheet.Range[ROW, startCol, ROW, COL].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+				worksheet.Range[ROW, startCol, ROW, COL].CellStyle.ColorIndex = ExcelKnownColors.Grey_40_percent;
 
 				worksheet.Range[ROW, startCol, ROW, COL].BorderAround(ExcelLineStyle.Hair);
 				worksheet.Range[ROW, startCol, ROW, COL].BorderInside(ExcelLineStyle.Hair);
@@ -27444,7 +27444,7 @@ UNION ALL
 				worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Bold = true;
 
 				//worksheet.Range[ROW, startCol, ROW, COL].CellStyle.ColorIndex = ExcelKnownColors.Yellow;
-				worksheet.Range[ROW, startCol, ROW, COL].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+				worksheet.Range[ROW, startCol, ROW, COL].CellStyle.ColorIndex = ExcelKnownColors.Grey_40_percent;
 
 				worksheet.Range[ROW, startCol, ROW, COL].BorderAround(ExcelLineStyle.Hair);
 				worksheet.Range[ROW, startCol, ROW, COL].BorderInside(ExcelLineStyle.Hair);

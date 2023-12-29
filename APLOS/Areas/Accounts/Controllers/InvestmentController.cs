@@ -275,6 +275,20 @@ namespace Aplos.Areas.Accounts.Controllers
                     return RenderReportAsExcel(workbook, reportFileName);
             }
         }
+        [HttpPost]
+        public JsonResult DeleteInvestmentPayment(string financingId, string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _financingService.DeleteInvestmentPayment(identity.CompanyId, identity.PlantId, voucherId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+        [HttpPost]
+        public JsonResult PostInvestmentPayment(string voucherId)
+        {
+            _financingService.PostFinancingWriteOff(voucherId);
+            return Json(new { Message = AplosMessage.Posted });
+        }
 
     }
 }

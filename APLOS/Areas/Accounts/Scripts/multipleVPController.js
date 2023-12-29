@@ -344,13 +344,12 @@ function multipleVPController(accountService, addressService, $location, $window
 
 
 
-
+    $scope.reportFormat = 'Excel';
     $scope.AllTabPrint = function (z) {
-        //debugger;
         var x = "#" + z;
         var gridObj = $(x).data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
-        location.href = " GoodsReceiveNote/PurchaseReturnReport?grnId=" + data.Id;
+        location.href = " Invoice/MultipleVendorPaymentReport?reportFormat=" + $scope.reportFormat + '&mvpId=' + data.Id ;
     };
 
 
