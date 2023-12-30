@@ -6,7 +6,6 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
     $scope.CAction = "Add";
     $scope.isPartyListing = false;
     $scope.index = -1;
-    $scope.budgetTransactionMasters = [];
     $scope.currencyExchangeRate = [];
     $scope.voucherDetailList = [];
     $scope.transactionTypeList = [];
@@ -438,32 +437,6 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
         }, function errorCallback(response) {
             ShowResult(response.status.Message, "failure");
         });
-        return true;
-    };
-
-    $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.budgetTransactionMaster.Id)) {
-            $http({
-                method: "POST",
-                url: $scope.deleteUrl + $scope.budgetTransactionMaster.Id,
-                dataType: "JSON"
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, "failure");
-                }
-                else {
-                    ShowResult(response.data.Message, "success");
-                    $scope.budgetTransactionMasters.splice($scope.index, 1);
-                    baseService.paginationRemove();
-                    $scope.Clear();
-                }
-            }, function errorCallback(response) {
-                ShowResult(response.status.Message, "failure");
-            });
-        }
-        else {
-            ShowResult(commonMessage.primaryKeyNullMessage, "failure");
-        }
         return true;
     };
 
