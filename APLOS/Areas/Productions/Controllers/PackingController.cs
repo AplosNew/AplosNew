@@ -367,56 +367,70 @@ namespace Aplos.Areas.Productions.Controllers
             string Article = "";
 
             #region Grid Headers
-            sheet.Range[ROW, COL + 2].Text = "Invoice No:";
-            sheet.Range[ROW, COL, ROW, COL + 2].Merge();
-            sheet.Range[ROW, COL, ROW, COL + 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet.Range[ROW, COL, ROW, COL + 2].BorderAround(ExcelLineStyle.Thin);
+            sheet.Range[ROW, COL + 3].Text = "Invoice No:" + " " +  data.Rows[0]["InvoiceNo"].ToString();
+            sheet.Range[ROW, COL, ROW, COL + 3].Merge();
+            sheet.Range[ROW, COL, ROW, COL + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[ROW, COL, ROW, COL + 3].BorderAround(ExcelLineStyle.Thin);
 
-            sheet.Range[ROW, COL + 3].Text = data.Rows[0]["InvoiceNo"].ToString();
-            sheet.Range[ROW, COL + 3, ROW, COL + 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet.Range[ROW, COL + 3, ROW, COL + 4].Merge();
-            sheet.Range[ROW, COL + 3, ROW, COL + 4].BorderAround(ExcelLineStyle.Thin);
+            /*sheet.Range[ROW, COL + 2].Text = data.Rows[0]["InvoiceNo"].ToString();
+            sheet.Range[ROW, COL + 2, ROW, COL + 6].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[ROW, COL + 2, ROW, COL + 6].Merge();
+            sheet.Range[ROW, COL + 2, ROW, COL + 6].BorderAround(ExcelLineStyle.Thin);*/
             ROW++;
 
-            sheet.Range[ROW, COL + 2].Text = "Invoice Date:";
-            sheet.Range[ROW, COL, ROW, COL + 2].Merge();
-            sheet.Range[ROW, COL, ROW, COL + 2].BorderAround(ExcelLineStyle.Thin);
-            sheet.Range[ROW, COL + 3].Text = data.Rows[0]["InvoiceDate"].ToString();
-            sheet.Range[ROW, COL + 3, ROW, COL + 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet.Range[ROW, COL + 3, ROW, COL + 4].Merge();
-            sheet.Range[ROW, COL + 3, ROW, COL + 4].BorderAround(ExcelLineStyle.Thin);
+            sheet.Range[ROW, COL + 3].Text = "Invoice Date:" + " " + data.Rows[0]["InvoiceDate"].ToString();
+            sheet.Range[ROW, COL, ROW, COL + 3].Merge();
+            sheet.Range[ROW, COL, ROW, COL + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[ROW, COL, ROW, COL + 3].BorderAround(ExcelLineStyle.Thin);
+            /*sheet.Range[ROW, COL + 2].Text = data.Rows[0]["InvoiceDate"].ToString();
+            sheet.Range[ROW, COL + 2, ROW, COL + 6].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[ROW, COL + 2, ROW, COL + 6].Merge();
+            sheet.Range[ROW, COL + 2, ROW, COL + 6].BorderAround(ExcelLineStyle.Thin)*/;
             ROW++;
 
-            sheet.Range[ROW, COL + 2].Text = "Name of Consignee:";
-            sheet.Range[ROW, COL, ROW, COL + 2].Merge();
-            sheet.Range[ROW, COL, ROW, COL + 2].BorderAround(ExcelLineStyle.Thin);
-            sheet.Range[ROW, COL + 3].Text = data.Rows[0]["ConsigneeBilltoName"].ToString();
-            sheet.Range[ROW, COL + 3, ROW, COL + 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet.Range[ROW, COL + 3, ROW, COL + 4].Merge();
-            sheet.Range[ROW, COL + 3, ROW, COL + 4].WrapText = true;
-            sheet.Range[ROW, COL + 3, ROW, COL + 4].BorderAround(ExcelLineStyle.Thin);
+            sheet.Range[ROW, COL + 3].Text = "Name of Consignee:" + " " + data.Rows[0]["ConsigneeBilltoName"].ToString();
+            sheet.Range[ROW, COL, ROW, COL + 3].Merge();
+            sheet.Range[ROW, COL, ROW, COL + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[ROW, COL, ROW, COL + 3].BorderAround(ExcelLineStyle.Thin);
+            /*sheet.Range[ROW, COL + 2].Text = data.Rows[0]["ConsigneeBilltoName"].ToString();
+            sheet.Range[ROW, COL + 2, ROW, COL + 6].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[ROW, COL + 2, ROW, COL + 6].Merge();
+            sheet.Range[ROW, COL + 2, ROW, COL + 6].WrapText = true;
+            sheet.Range[ROW, COL + 2, ROW, COL + 6].BorderAround(ExcelLineStyle.Thin);*/
             ROW++;
 
             int ArtRow = ROW;
             
             ROW = 10;
-            report.SetHeaderText(ref sheet, ROW, COL, "S.No", 13, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "S.No", 5, ExcelHAlign.HAlignCenter);
             int SNo = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "LOT NO", 13, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Article", 36, ExcelHAlign.HAlignCenter);
+            int ColArticles = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Shade", 10, ExcelHAlign.HAlignCenter);
+            int ColSahde = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "LOT NO", 15, ExcelHAlign.HAlignCenter);
             int ColLot = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "REF NO", 13, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "REF NO", 9, ExcelHAlign.HAlignCenter);
             int ColREF = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "N.WEIGHT", 13, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "No of Cones", 5, ExcelHAlign.HAlignCenter);
+            int ColNocones = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "N.WEIGHT", 8, ExcelHAlign.HAlignCenter);
             int ColNtWt = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "G.WEIGHT", 13, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "G.WEIGHT", 8, ExcelHAlign.HAlignCenter);
             int ColGWt = COL;
             COL++;
 
@@ -429,11 +443,11 @@ namespace Aplos.Areas.Productions.Controllers
             for (int i = 0; i < data.Rows.Count; i++)
             {
                 SRC++;
-                if (Article != data.Rows[i]["StandardName"].ToString())
+                if (Article != data.Rows[i]["Article"].ToString())
                 {
                     SRC = 1;
-                    Article = data.Rows[i]["StandardName"].ToString();
-                   
+                    Article = data.Rows[i]["Article"].ToString();
+
                     if (catFRow < ROW)
                     {
                         sheet[ROW, 2].Text = "TOTAL:";
@@ -450,12 +464,12 @@ namespace Aplos.Areas.Productions.Controllers
                         ArtRow = ROW;
                         ROW++;
                     }
-                    sheet[ArtRow, 1, ArtRow, 5].Text = data.Rows[i]["StandardName"].ToString();
+                    /*sheet[ArtRow, 1, ArtRow, 5].Text = data.Rows[i]["Article"].ToString();
                     sheet.Range[ArtRow, 1, ArtRow, 5].Merge();
                     sheet.Range[ArtRow, 1, ArtRow, 5].WrapText = true;
                     sheet.Range[ArtRow, 1, ArtRow, 5].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet.Range[ArtRow, 1, ArtRow, 5].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet.Range[ArtRow, 1, ArtRow, 5].BorderAround(ExcelLineStyle.Thin);
+                    sheet.Range[ArtRow, 1, ArtRow, 5].BorderAround(ExcelLineStyle.Thin);*/
                     if (catFRow < ROW)
                     {
                         catFRow = ROW;
@@ -464,11 +478,17 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, SNo].Text = SRC.ToString();
                 sheet.Range[ROW, SNo].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet[ROW, SNo].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet[ROW, ColArticles].Text = data.Rows[i]["ATS"].ToString();
+                sheet.Range[ROW, ColArticles].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColSahde].Text = data.Rows[i]["Shade"].ToString();
+                sheet.Range[ROW, ColSahde].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet[ROW, ColLot].Text = data.Rows[i]["LotNo"].ToString();
                 sheet.Range[ROW, ColLot].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet[ROW, ColLot].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet[ROW, ColREF].Text = data.Rows[i]["RefNo"].ToString();
-                sheet.Range[ROW, ColREF].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[ROW, ColLot].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet[ROW, ColNocones].Text = data.Rows[i]["Cones"].ToString();
+                sheet.Range[ROW, ColNocones].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet[ROW, ColREF].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet[ROW, ColNtWt].Number = clsStaticInfo.dbl(data.Rows[i]["netWeight"].ToString());
                 sheet.Range[ROW, ColNtWt].VerticalAlignment = ExcelVAlign.VAlignCenter;

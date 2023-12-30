@@ -1983,8 +1983,12 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
-,NetWeights=CONVERT(NUMERIC(10,2), SCN.NetWeight)
-,GrossWeights=CONVERT(NUMERIC(10,2), SCN.GWeight)
+,NetWeights =convert(NUMERIC(10,2), (select sum(NetWeight) from Itemscanchild 
+				where SalesId = IR.Id
+				))
+,GrossWeights=convert(NUMERIC(10,2), (select sum(GWeight) from Itemscanchild 
+				where SalesId = IR.Id
+				))
 ,PSI.PreCarriageDocRef LRCopy 
 ,FORMAT(PSI.PreCarriageDocDate,'dd-MMM-yyyy') LRDate
 
@@ -4151,7 +4155,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
                 //|| dicTaxes.ContainsValue(C)
-                if (C == colArticle || C == colHSN || C == colUoM || C == colRate || C == colCartons || C == colChar1 || C == colLot)
+                if (C == colArticle || C == colHSN || C == colUoM || C == colRate ||  C == colChar1 || C == colLot)
                     continue;
 
                 double value = 0;
