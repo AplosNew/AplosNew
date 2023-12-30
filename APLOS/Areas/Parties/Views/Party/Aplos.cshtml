@@ -1128,6 +1128,7 @@
                 <th>Standard Name</th>
                 <th>User Define Name</th>
                 <th>Party Nature</th>
+                <th>Approved</th>
                 <th>Active</th>
             </tr>
         </thead>
@@ -1140,6 +1141,7 @@
                 <td>{{x.StandardName}}</td>
                 <td>{{x.UserName}}</td>
                 <td>{{x.PartyNature}}</td>
+                <td>{{x.IsApproved? 'Yes':'No'}}</td>
                 <td>{{x.Active? 'Yes':'No'}}</td>
             </tr>
         </tbody>
