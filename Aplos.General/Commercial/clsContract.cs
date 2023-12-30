@@ -373,7 +373,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                                 ,so.Rate,So.UpCharge
 								,so.Qty
 								,(so.Rate*so.Qty) as Amount
-                                ,mm.UserName MaterialDescription,Article=CASE WHEN ISNULL(SO.LCArticle,'')<>'' THEN SO.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END,h.Code as HSNCode
+                                ,mm.UserName MaterialDescription,Article=CASE WHEN ISNULL(MO.LCArticle,'')<>'' THEN MO.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END,h.Code as HSNCode
                                 ,c.description as Reference,
                                 pc.UserName as CustomerName,u.UserName as UoM,
                                 pbt.UserName as ConsigneeBilltoName,
