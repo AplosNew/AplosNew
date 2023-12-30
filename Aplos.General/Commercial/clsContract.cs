@@ -99,7 +99,7 @@ where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1
             }
         }
 
-       
+
         public IEnumerable<object> GetContractDetail(string partyId, string contractId)
         {
             try
@@ -662,7 +662,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=I.ArticleId
 							LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id
                             LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
-                            WHERE A.CompanyId='" + CompanyId + @"'  AND A.PlantId='" + PlantId + @"' AND A.PartyId='" + customerId + @"' AND SO.ContractId " + contractId +")A Order BY A.Flags desc";
+                            WHERE A.CompanyId='" + CompanyId + @"'  AND A.PlantId='" + PlantId + @"' AND A.PartyId='" + customerId + @"' AND SO.ContractId " + contractId + ")A Order BY A.Flags desc";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1440,6 +1440,232 @@ LEFT JOIN dbo.EmployeeInformation IEI ON IEI.SystemId=RC.InformToId) AS TEMP WHE
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        public IWorkbook GetLCPendingReportWorkbookExcel(string companyGroupId, string companyId, string PlantId)
+        {
+            try
+            {
+                #region Variable
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility oRU = new ReportUtility();
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                DataSet dsCmp = null;
+                var objRpt = new clsReport();
+
+                int xlsRow = 1, xlsCol = 1; int endXlsCol = 1;
+
+                #endregion Variable
+                DataTable dtManPBSummary = GetLCPendingReportData();
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+
+                workbook = application.Workbooks.Create(1);
+                sheet1 = workbook.Worksheets[0];
+                sheet1.IsGridLinesVisible = true;
+
+
+                string CmpName;
+                string FactoryName;
+
+
+                xlsRow = 5;
+
+                #region ColumnHeaderVariables              
+                int cDD = 0; int cDT = 0; int cC = 0; int cMO; int cSO; int cBF = 0; int cA = 0; int cPC = 0; int cP = 0; int cOR = 0; int cPM = 0; int cPT = 0; int cLC = 0; int cR = 0;
+                #endregion
+                #region ColumnHeaders
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Delivery Days", 14, ExcelHAlign.HAlignCenter); cDD = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DeliveryDate", 14, ExcelHAlign.HAlignCenter); cDT = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Customer", 20, ExcelHAlign.HAlignCenter); cC = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MasterOrderNo", 20, ExcelHAlign.HAlignCenter); cMO = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SONo", 25, ExcelHAlign.HAlignCenter); cSO = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Buyer Ref#", 8, ExcelHAlign.HAlignCenter); cBF = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Article", 12, ExcelHAlign.HAlignCenter); cA = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Product Code", 14, ExcelHAlign.HAlignCenter); cPC = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Product", 14, ExcelHAlign.HAlignCenter); cP = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Own Ref#", 12, ExcelHAlign.HAlignCenter); cOR = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Payment Mode", 14, ExcelHAlign.HAlignCenter); cPM = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Payment Term", 14, ExcelHAlign.HAlignCenter); cPT = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LC Status", 14, ExcelHAlign.HAlignCenter); cLC = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks", 14, ExcelHAlign.HAlignCenter); cR = xlsCol;
+
+
+                var orgCollist = xlsCol;
+                xlsRow++;
+                endXlsCol = xlsCol;
+
+                #endregion
+
+                if (dtManPBSummary.Rows.Count > 0)
+                {
+
+                    DataRow dr = dtManPBSummary.NewRow();
+                    dtManPBSummary.Rows.Add(dr);
+                    for (int i = 0; i < dtManPBSummary.Rows.Count; i++)
+                    {
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cDD, dtManPBSummary.Rows[i]["DeliveryDays"].ToString());
+                        sheet1.Range[xlsRow, cDT].Text = dtManPBSummary.Rows[i]["DeliveryDate"].ToString();
+                        sheet1.Range[xlsRow, cC].Text = dtManPBSummary.Rows[i]["Customer"].ToString();
+                        sheet1.Range[xlsRow, cC].ColumnWidth = 40;
+                        sheet1.Range[xlsRow, cDD].Text = dtManPBSummary.Rows[i]["DeliveryDays"].ToString();
+                        sheet1.Range[xlsRow, cMO].Text = dtManPBSummary.Rows[i]["MasterOrderId"].ToString();
+                        sheet1.Range[xlsRow, cMO].ColumnWidth = 13;
+                        sheet1.Range[xlsRow, cSO].Text = dtManPBSummary.Rows[i]["SalesOrderId"].ToString();
+                        sheet1.Range[xlsRow, cSO].ColumnWidth = 10;
+                        sheet1.Range[xlsRow, cBF].Text = dtManPBSummary.Rows[i]["BuyerReferenceNo"].ToString();
+                        sheet1.Range[xlsRow, cBF].ColumnWidth = 17;
+                        sheet1.Range[xlsRow, cA].Text = dtManPBSummary.Rows[i]["Article"].ToString();
+                        sheet1.Range[xlsRow, cA].ColumnWidth = 50;
+                        sheet1.Range[xlsRow, cPC].Text = dtManPBSummary.Rows[i]["ProductCode"].ToString();
+                        sheet1.Range[xlsRow, cPC].ColumnWidth = 10;
+                        sheet1.Range[xlsRow, cP].Text = dtManPBSummary.Rows[i]["Product"].ToString();
+                        sheet1.Range[xlsRow, cP].ColumnWidth = 30;
+                        sheet1.Range[xlsRow, cOR].Text = dtManPBSummary.Rows[i]["OwnReferenceNo"].ToString();
+                        sheet1.Range[xlsRow, cPM].Text = dtManPBSummary.Rows[i]["PaymentMode"].ToString();
+                        sheet1.Range[xlsRow, cPM].ColumnWidth = 10;
+                        sheet1.Range[xlsRow, cPT].Text = dtManPBSummary.Rows[i]["PaymentTerm"].ToString();
+                        sheet1.Range[xlsRow, cPT].ColumnWidth = 25;
+                        sheet1.Range[xlsRow, cLC].Text = dtManPBSummary.Rows[i]["LCStatus"].ToString();
+                        sheet1.Range[xlsRow, cLC].ColumnWidth = 10;
+                        sheet1.Range[xlsRow, cR].Text = dtManPBSummary.Rows[i]["Remarks"].ToString();
+                        sheet1.Range[xlsRow, cR].ColumnWidth = 20;
+                        xlsRow++;
+                    }
+                    sheet1.AutoFilters.FilterRange = sheet1.Range[cDD, 1, xlsRow, endXlsCol];
+
+
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = false;
+                    sheet1.UsedRange.CellStyle.Font.Size = 8;
+                    sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                    sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    #endregion UsedRange Alignment
+
+
+                    #region Freeze Panes
+                    sheet1.IsDisplayZeros = false;
+                    sheet1.FirstVisibleColumn = 1;
+                    sheet1.FirstVisibleRow = 6;
+
+                    #endregion
+
+
+                    objRpt.SelectedPlantWiseCompany(identity.PlantId, "", out dsCmp);
+                    xlsRow = 1;
+                    xlsCol = 1;
+
+                    FactoryName = string.Empty;
+
+                    var FactoryAddress = string.Empty;
+
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                    }
+                    else
+                    {
+                        CmpName = "";
+                    }
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        FactoryName = dsCmp.Tables[0].Rows[0]["PlantName"].ToString();
+                    }
+                    else
+                    {
+                        FactoryName = "";
+                    }
+                    sheet1.Range[xlsRow, 1].Text = FactoryName;
+                    sheet1.Range[xlsRow, 1].CellStyle.Font.Size = 20;
+                    sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    sheet1.Range[xlsRow, 1, xlsRow, Convert.ToInt32(endXlsCol)].Merge();
+                    sheet1.Range[xlsRow, 1].RowHeight = 30;
+
+                    #region Plant Address
+
+
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        FactoryAddress = dsCmp.Tables[0].Rows[0]["CompanyAddress"].ToString();
+                    }
+                    else
+                    {
+                        FactoryAddress = "";
+                    }
+
+                    #endregion
+                    xlsRow += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "LC Pending Report";
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 15;
+                    sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 24;
+
+
+                    //#endregion *****************Report Header*****************
+                    #region Freeze Panes
+                    sheet1.UsedRange["A6"].FreezePanes();
+                    sheet1.FirstVisibleColumn = 1;
+                    sheet1.FirstVisibleRow = 5;
+                    #endregion
+
+                    #region UsedRange Alignment
+                    sheet1.UsedRange.WrapText = true;
+                    sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                    #endregion UsedRange Alignment
+
+                    oRU.PageSetup(ref sheet1, 5, ExcelPageOrientation.Portrait);
+                }
+
+
+
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+        public DataTable GetLCPendingReportData()
+        {
+            try
+            {
+                string sql = "";
+
+                sql = @"Select DeliveryDays=DATEDIFF(day, GetDate(), SO.DeliveryDate),FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate
+,P.UserName Customer,MO.Id MasterOrderId,SO.Id SalesOrderId,MO.BuyerReferenceNo,A.StandardName Article,PL.Code ProductCode,PL.UserName Product
+,MO.OwnReferenceNo,PT.PaymentMode,PT.UserName PaymentTerm,LCStatus =CASE WHEN LC.IsClose=1 THEN 'Close' ELSE '' END,MO.Remarks
+From TRN.SalesOrder SO
+LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
+LEFT JOIN TRN.MasterOrder MO ON MO.Id=MOI.MasterOrderId
+LEFT JOIN HKP.Party P ON P.Id=MO.PartyId
+LEFT JOIN MST.MaterialMasterArticle A ON A.Id=MOI.ArticleId
+LEFT JOIN [dbo].[ProductLibrary] PL ON PL.Id=MOI.ProductLibraryId
+LEFT JOIN MST.PaymentTerm PT ON PT.Id=MO.PaymentTermId
+LEFT JOIN dbo.Contract C ON C.Id=SO.ContractId
+LEFT JOIN dbo.MasterLC LC ON LC.Id=C.MasterLCId
+Where SO.OrderStatusId NOT IN('Closed','Cancelled')
+Order By SO.DeliveryDate";
+
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
 

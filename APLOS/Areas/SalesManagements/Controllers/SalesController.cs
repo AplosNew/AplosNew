@@ -411,6 +411,14 @@ namespace Aplos.Areas.SalesManagements.Controllers
             return View();
         }
         [Authorize, HttpGet]
+        public ActionResult LRDraft(string salesId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _salesReportService.LRDraftService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, salesId);
+            return View();
+        }
+        [Authorize, HttpGet]
         public ActionResult CommercialInvoicePackingList(string salesId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
