@@ -41,7 +41,7 @@ namespace Library.Service.Materials
         void DeleteArticleProcess(string id);
 
         void DeleteArticleProcessGraphByProductDefinition(string id);
-        IEnumerable<object> getArticleAliaslist(string articleId);
+        IEnumerable<object> getArticleAliaslist(string articleId, string masterOrderItemId);
         void deleteArticleAliasData(string Id);
     }
 }

@@ -603,7 +603,7 @@ namespace Library.Service.OrderManagements
 						LEFT JOIN (SELECT AttributeSetLength=CASE WHEN COUNT(MaterialMasterId)>0 THEN COUNT(MaterialMasterId) ELSE 0 END
                                                 , HasAttribute=CASE WHEN COUNT(MaterialMasterId)>0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END, MaterialMasterId
                                             FROM MST.MaterialMasterAttribute GROUP BY MaterialMasterId) AS HART ON HART.MaterialMasterId=MM.Id
-                        LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=ART.Id
+                        LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=ART.Id AND AA.MasterOrderItemId=MOI.Id
 						LEFT JOIN HKP.Party P ON P.Id=AA.Partyid
                         LEFT JOIN [TRN].ProductDefinition AS PD ON PD.MaterialMasterId= MM.Id
 						LEFT JOIN [MST].[ProductMaster] AS PM ON PD.ProductMasterId = PM.Id
