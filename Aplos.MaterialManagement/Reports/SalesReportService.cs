@@ -4155,7 +4155,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
                 //|| dicTaxes.ContainsValue(C)
-                if (C == colArticle || C == colHSN || C == colUoM || C == colRate || C == colCartons || C == colChar1 || C == colLot)
+                if (C == colArticle || C == colHSN || C == colUoM || C == colRate ||  C == colChar1 || C == colLot)
                     continue;
 
                 double value = 0;
