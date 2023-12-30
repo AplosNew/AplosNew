@@ -1463,7 +1463,13 @@ namespace Library.Service.SalaryDisbursement
                 var direct = new System.Text.StringBuilder();
                 var directsql = "";
 
-                directsql = @"update [dbo].[SalaryLock] set DisbursementVoucherId=NULL where Id in (
+                directsql = @"UPDATE DA SET DA.Status='InProgress' FROM [dbo].[DisbursementAdvice] DA
+						      INNER JOIN [dbo].[SalaryLock] sl ON sl.DisbursementAdviceId=DA.Id
+                              where sl.YearNo='" + yearNo + "' and sl.MonthNo='" + monthNo + @"' and sl.Islocked=1 and sl.PayableVoucherId<>''
+                              and sl.DisbursementVoucherId='" + voucherId + @"' ";
+                direct.Append(directsql);
+                directsql = @"
+                              update [dbo].[SalaryLock] set DisbursementVoucherId=NULL where Id in (
                         select sl.Id     from [dbo].[SalaryLock] sl 
 						 left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
 						 left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
