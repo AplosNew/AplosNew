@@ -55,6 +55,10 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             return View();
         }
+        public ActionResult LCPendingReport()
+        {
+            return View();
+        }
         public ActionResult MasterLC()
         {
             return View();
@@ -3473,6 +3477,28 @@ WHERE CT.ContractId " + contractId+"";
             catch (Exception ex)
             {
                 return Json(new { Error = true, ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetLCPendingReport()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var workbook = clsCon.GetLCPendingReportWorkbookExcel(identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+
+                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "LCPendingReport.xlsx";
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                workbook.SaveAs(fullPath);
+
+
+                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
             }
         }
 
