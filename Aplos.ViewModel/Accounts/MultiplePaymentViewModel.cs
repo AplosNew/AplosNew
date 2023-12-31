@@ -31,6 +31,7 @@ namespace Library.ViewModel.Invoices
         public string PlantId { get; set; }
         public string BankMasterId { get; set; }
         public string PartyId { get; set; }
+        public string PartyPlantId { get; set; }
 
 
     }
