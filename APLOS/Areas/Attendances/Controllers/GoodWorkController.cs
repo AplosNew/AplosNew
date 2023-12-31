@@ -108,7 +108,7 @@ namespace Aplos.Areas.Attendances.Controllers
                          LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
                          LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
                          WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec + @"  " + dep + @"  " + sec + @"   " + subsec + @"   " + des + @" " + userGr + @"
-                         and EI.EmployeeStatus='Active'
+                         and EI.EmployeeStatus='Active' and EI.BudgetCode in (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup) 
                          ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
             }
             catch (Exception ex)
@@ -867,6 +867,25 @@ namespace Aplos.Areas.Attendances.Controllers
             return json;
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetGoodWorkCheckByCbo()
+        {
+            var sql = @"select E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text ,a.ActionStatus
+                          from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where E.EmployeeStatus='Active' and A.ActionStatus='GoodWorkCheckBy'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetGoodWorkApprovedByCbo()
+        {
+            var sql = @"select E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text ,a.ActionStatus
+                          from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where E.EmployeeStatus='Active' and A.ActionStatus='GoodWorkApproveBy'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
         public class WorkerAdvanceTransaction
         {
             #region Scalar Properties

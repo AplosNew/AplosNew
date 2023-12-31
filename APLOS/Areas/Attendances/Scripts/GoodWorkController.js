@@ -217,15 +217,14 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     };
 
     $scope.GetSelectedEmployeeList = function () {
-        try {
-            //for (var y = 0; y < $scope.ModelList.length; y++) {
-            for (var i = 0; i < $scope.EmployeeList.length; i++) {
-                //if (+$scope.ModelList[y].WorkDate != $scope.ModelNew.WorkDate) {
+        try { 
+            for (var i = 0; i < $scope.EmployeeList.length; i++) { 
                 if (checkItemExist($scope.GoodWorkList, $scope.EmployeeList[i].SystemId) === false) {
                     if ($scope.EmployeeList[i].CheckBoxSelect === true) {
                         $scope.EmployeeList[i].FromTime = $scope.ModelNew.FromTime;
                         $scope.EmployeeList[i].ToTime = $scope.ModelNew.ToTime;
                         $scope.EmployeeList[i].Minute = $scope.ModelNew.Minute;
+                        $scope.EmployeeList[i].checkedByList = $scope.checkedByList;
                         $scope.GoodWorkList.push($scope.EmployeeList[i]);
                     }
                 }
@@ -557,5 +556,17 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         }
         return string;
     }
+
+
+    $scope.checkedByList = [];
+    $scope.GetSupervisorCboList = function () {
+        $http({
+            method: 'GET',
+            url: 'Attendances/GoodWork/GetGoodWorkCheckByCbo'
+        }).then(function successCallback(response) {
+            $scope.checkedByList = response.data; 
+        });
+    }
+    $scope.GetSupervisorCboList();
 
 }

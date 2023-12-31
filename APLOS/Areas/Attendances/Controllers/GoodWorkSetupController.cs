@@ -37,7 +37,7 @@ namespace Aplos.Areas.Attendances.Controllers
         private readonly IAuthorizationConfigService _authorizationConfigService;
         private readonly ISqlRepository _sqlRepository;
         clsContract clsCon = new clsContract();
-        public GoodWorkSetupController(IAuthorizationConfigService authorizationConfigService,ISqlRepository R)
+        public GoodWorkSetupController(IAuthorizationConfigService authorizationConfigService, ISqlRepository R)
         {
             _authorizationConfigService = authorizationConfigService;
             _sqlRepository = R;
@@ -219,7 +219,7 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
 
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
-        }        
+        }
 
         [HttpPost, Authorize]
         public JsonResult CreateBudgetCode(List<Dictionary<string, object>> data, string goodWorkSetupId)
@@ -228,7 +228,7 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
             ConnectionManager.DAL.ConManager objCon;
             bplib.clsGenID genid = new bplib.clsGenID();
             DataSet dsBC;
-            string _Id = string.Empty;            
+            string _Id = string.Empty;
             try
             {
                 #region Entity 
@@ -236,16 +236,17 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.GoodWorkBudgetSetup where  GoodWorkSetupId='" + goodWorkSetupId + "'", out dsBC, false, "1");
                 if (data != null)
                 {
+                    int idcount = 0;
                     genid.GenID("GoodWorkBudgetSetup", out _Id);
                     foreach (var item in data)
-                    {                        
+                    {
                         DataView dv = new DataView(dsBC.Tables[0]);
                         dv.RowFilter = "BudgetId='" + item["BudgetId"] + "'";
-
+                        idcount++;
                         if (dv.Count == 0)
                         {
-                            item["Id"] = goodWorkSetupId + "-" + _Id;
-                            item["GoodWorkSetupId"] = goodWorkSetupId; 
+                            item["Id"] = goodWorkSetupId + "-" + _Id + "-" + idcount;
+                            item["GoodWorkSetupId"] = goodWorkSetupId;
 
                             AddNewRow(dsBC.Tables[0], item);
                         }
@@ -254,7 +255,7 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
                             DataRow drmo = dv[0].Row;
                             EditRow(drmo, item);
                         }
-                   }
+                    }
                 }
                 #endregion
                 clsStaticInfo obj = new clsStaticInfo();

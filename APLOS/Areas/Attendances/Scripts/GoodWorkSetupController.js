@@ -81,7 +81,7 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         $scope.ModelNew.ResponsiblePersonId = arg.data.SystemId;
         $scope.ModelNew.ResponsiblePerson = arg.data.EmployeeName;
         $scope.ModelNew.ResponsiblePersonCode = arg.data.EmployeeCode;
-        $scope.closePopUp();
+        $scope.closePopUp2();
     }
 
 
@@ -91,7 +91,7 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         $scope.ModelNew.ResponsiblePersonCode = null;
     }
 
-    $scope.closePopUp = function () {
+    $scope.closePopUp2 = function () {
         angular.element(document.querySelector('#popUp')).modal('hide');
     }
 
@@ -463,6 +463,9 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         angular.element(document.querySelector('#LDPopUp')).modal('hide');
     };
 
+    $scope.callbackbuttoncancel = function () {
+        $scope.closePopUp();
+    };
 
     $scope.BCSave = function () {
 
@@ -624,7 +627,7 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         return false;
     }
 
-    $scope.closePopUp = function () {
+    $scope.closeEmpPopUp = function () {
         angular.element(document.querySelector('#popUpEmp')).modal('hide');
     };
     // #endregion
