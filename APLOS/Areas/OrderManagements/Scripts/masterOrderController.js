@@ -6246,6 +6246,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             $scope.ind = index;
             $scope.articleId = $scope.itemList[$scope.ind].ArticleId;
             $scope.ArticleName = $scope.itemList[$scope.ind].ArticleName;
+            $scope.MasterOrderItemId = $scope.itemList[$scope.ind].Id;
             if (baseService.isUndefinedOrNull($scope.articleId)) {
                 throw "Select Article first.";
             }
@@ -6253,6 +6254,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             $scope.articleAliasModel = {
                 Id: null
                 , ArticleId: $scope.articleId
+                , MasterOrderItemId: $scope.MasterOrderItemId
                 , Code: $scope.fileNew.CustomerCode
                 , PartyId: $scope.fileNew.PartyId
                 , PartyName: $scope.fileNew.CustomerName
@@ -6283,9 +6285,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.GetArticleAliasDatas = function () {
         $http({
             method: 'GET',
-            url: 'Materials/materialmasterarticle/getArticleAliaslist?articleId=' + $scope.articleId
+            url: 'Materials/materialmasterarticle/getArticleAliaslist?articleId=' + $scope.articleId + '&masterOrderItemId=' + $scope.MasterOrderItemId
         }).then(function successCallback(response) {
-            //  $scope.aliasList = response.data;
             if (baseService.arrayLength(response.data) > 0) {
                 $scope.articleAlias = Object.assign({}, response.data[0]);
                 $scope.itemList[$scope.ind].CustomerArticle = response.data[0].ArticlePartyName;
@@ -6295,6 +6296,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.articleAliasModel = {
         Id: null
         , ArticleId: $scope.articleId
+        , MasterOrderItemId: null
         , Code: $scope.fileNew.CustomerCode
         , PartyId: $scope.fileNew.PartyId
         , PartyName: $scope.fileNew.CustomerName
@@ -6330,6 +6332,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         try {
             $scope.articleAlias.Id = baseService.isUndefinedOrNull($scope.articleAlias.Id) == null ? null : $scope.articleAlias.Id;
             $scope.articleAlias.ArticleId = $scope.articleId;
+            $scope.articleAlias.MasterOrderItemId = $scope.MasterOrderItemId;
+            if (baseService.isUndefinedOrNull($scope.articleAlias.ArticleId)) {
+                throw "Article is required.";
+            }
             if (baseService.isUndefinedOrNull($scope.articleAlias.PartyId)) {
                 throw "Party is required.";
             }

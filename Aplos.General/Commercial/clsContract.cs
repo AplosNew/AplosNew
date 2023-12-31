@@ -373,7 +373,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                                 ,so.Rate,So.UpCharge
 								,so.Qty
 								,(so.Rate*so.Qty) as Amount
-                                ,mm.UserName MaterialDescription,Article=CASE WHEN ISNULL(SO.LCArticle,'')<>'' THEN SO.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END,h.Code as HSNCode
+                                ,mm.UserName MaterialDescription,Article=CASE WHEN ISNULL(MO.LCArticle,'')<>'' THEN MO.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END,h.Code as HSNCode
                                 ,c.description as Reference,
                                 pc.UserName as CustomerName,u.UserName as UoM,
                                 pbt.UserName as ConsigneeBilltoName,
@@ -640,29 +640,30 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
             }
         }
 
-        public IEnumerable<object> GetSalesOrderListByContract(string CompanyId, string PlantId, string customerId, string contractId)
+        public IEnumerable<object> GetSalesOrderListByContract(string customerId, string contractId)
         {
             try
             {
 
-                var sql = @"SELECT * FROM(SELECT Flags=CAST(CASE WHEN SO.ContractId IS NULL THEN 0 ELSE 1 END AS BIT),SO.Id SalesOrderId,SO.ContractId,A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SO.Qty TotalQty	
-                            ,A.TotalQtyUOMId,PL.UserName,C.Code Currency,B.UserName Buyer, (SO.Qty*SO.Rate)Amount,SO.Qty,ISNULL(A.BuyerReferenceNo,'') BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'') OwnReferenceNo,ISNULL(I.BuyerReferenceNo,'') BuyerItem,ISNULL(I.OwnReferenceNo,'') OwnItem
-                            ,MM.UserName MaterialMaster,MMA.ShortName Article,AAP.UserName CustomerArticle,po.PONumber,PT.UserName PaymentTerm,A.PaymentTermId,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,CNT.ContractNo,SO.LCArticle
-                            FROM TRN.SalesOrder SO
-                            LEFT JOIN dbo.Contract CNT ON CNT.Id=SO.ContractId
-							INNER JOIN [TRN].[MasterOrderItem] AS I ON I.Id=SO.MasterOrderItemId
+                var sql = @"SELECT I.MasterOrderId,I.Id MasterOrderItemId,MMA.ShortName Article,AAP.UserName CustomerArticle,I.LCArticle
+						   ,SalesOrderId=  REPLACE(REPLACE(
+										            STUFF((SELECT DISTINCT ','+XSO.Id from 
+	                                                    TRN.SalesOrder XSO 
+		                                                LEFT JOIN dbo.[Contract] C ON C.Id=XSO.ContractId
+			                                                WHERE XSO.MasterOrderItemId=I.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										                    ,'&amp;','&'), 'amp;', '')	
+							 ,DeliveryDate=  REPLACE(REPLACE(
+										            STUFF((SELECT DISTINCT ','+FORMAT(XSO.DeliveryDate,'dd-MMM-yyyy') from 
+	                                                    TRN.SalesOrder XSO 
+		                                                LEFT JOIN dbo.[Contract] C ON C.Id=XSO.ContractId
+			                                                WHERE XSO.MasterOrderItemId=I.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										                    ,'&amp;','&'), 'amp;', '')	
+                            FROM [TRN].[MasterOrderItem] AS I
 							INNER JOIN [TRN].[MasterOrder] AS A ON A.Id=I.MasterOrderId
-                            INNER JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
-                            Left join MST.PaymentTerm AS PT on PT.Id = A.PaymentTermId
-                            LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
-                            LEFT JOIN TRN.CustomerPO PO ON PO.Id=SO.CustomerPOId
-                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
-                            LEFT JOIN [HKP].[Buyer] AS B ON B.Id=A.BuyerId
-							LEFT JOIN MST.MaterialMaster MM ON MM.Id=I.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=I.ArticleId
-							LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id
+							LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id AND AA.MasterOrderItemId=I.Id
                             LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
-                            WHERE A.CompanyId='" + CompanyId + @"'  AND A.PlantId='" + PlantId + @"' AND A.PartyId='" + customerId + @"' AND SO.ContractId " + contractId + ")A Order BY A.Flags desc";
+                            WHERE  A.PartyId='"+customerId+@"' AND I.Id IN(Select MasterOrderItemId From TRN.SalesOrder Where ContractId "+contractId+")";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

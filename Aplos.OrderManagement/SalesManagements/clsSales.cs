@@ -1325,7 +1325,7 @@ WHERE sm.Id IN(" + Ids + ")";
                     //sheet1.Range[xlsRow, colGSTRate].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     sheet1.Range[xlsRow, colIgstAmt].Text = dtdata.Rows[i]["IgstAmt"].ToString();
                     IgstAmt = clsStaticInfo.dbl(dtdata.Compute("SUM(IgstAmt)", "DocumentNumber='" + dtdata.Rows[i]["DocumentNumber"].ToString() + "'"));
-                    if (IgstAmt!=0)
+                    if (IgstAmt != 0)
                     {
                         sheet1.Range[xlsRow, colIgstAmts].Text = Convert.ToString(IgstAmt);
                     }
@@ -1567,11 +1567,11 @@ WHERE sm.Id IN(" + Ids + ")";
             }
         }
 
-		public IEnumerable<object> GetAllGoodWorkEmployeeData()
-		{
-			try
-			{
-				string CmdText = @"SELECT CAST (0 AS bit) Flag,E.SystemId
+        public IEnumerable<object> GetAllGoodWorkEmployeeData()
+        {
+            try
+            {
+                string CmdText = @"SELECT CAST (0 AS bit) Flag,E.SystemId
 							    	,E.PlantId
 							    	,E.GroupID
 							    	,E.CompanyId
@@ -1616,19 +1616,19 @@ WHERE sm.Id IN(" + Ids + ")";
                                 WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest'  
 								AND PR.Id IN(select GoodWorkPositionCodeId from org.position WHERE GoodWorkPositionCodeId<>'')
 								Order by EmployeeCodeNumeric";
-				return _sqlRepository.GetDataCollection(CmdText);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		public IEnumerable<object> GetPayableCreationEmployeeData()
-		{
-			try
-			{
-				string CmdText = @"SELECT E.SystemId
+        public IEnumerable<object> GetPayableCreationEmployeeData()
+        {
+            try
+            {
+                string CmdText = @"SELECT E.SystemId
 							    	,E.PlantId
 							    	,E.GroupID
 							    	,E.CompanyId
@@ -1670,19 +1670,19 @@ WHERE sm.Id IN(" + Ids + ")";
                                 WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest'  
 								AND PR.Id IN(select GoodWorkPositionCodeId from org.position WHERE GoodWorkPositionCodeId<>'')
 								Order by EmployeeCodeNumeric";
-				return _sqlRepository.GetDataCollection(CmdText);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		public IEnumerable<object> GetAllActiveEmployeeData()
-		{
-			try
-			{
-				string CmdText = @"SELECT CAST (0 AS bit) Flag,E.SystemId
+        public IEnumerable<object> GetAllActiveEmployeeData()
+        {
+            try
+            {
+                string CmdText = @"SELECT CAST (0 AS bit) Flag,E.SystemId
 							    	,E.PlantId
 							    	,E.GroupID
 							    	,E.CompanyId
@@ -1726,15 +1726,15 @@ WHERE sm.Id IN(" + Ids + ")";
                                 LEFT JOIN ORG.Company C ON C.Id=E.CompanyId
                                 WHERE E.EmployeeStatus='Active' AND E.EmpType<>'Guest'  
 								Order by EmployeeCodeNumeric";
-				return _sqlRepository.GetDataCollection(CmdText);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		public void SavePlantData(List<Dictionary<string, object>> data)
+        public void SavePlantData(List<Dictionary<string, object>> data)
         {
             try
             {
@@ -2082,7 +2082,7 @@ Order by P.Sequence";
 									LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PT.AddressMasterId
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=S.Id
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
-                                    WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + "' AND S.PlantId='" + plantId + "' AND S.VoucherId<>'' AND S.SourceType IN('MasterOrderSales','Packing') AND convert(date,S.AddedDate) between '" + FromDate+ "' AND '" + ToDate + "' AND S.IsAdditionalInfoApplicable=1" +
+                                    WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + "' AND S.PlantId='" + plantId + "' AND S.VoucherId<>'' AND S.SourceType IN('MasterOrderSales','Packing') AND convert(date,S.AddedDate) between '" + FromDate + "' AND '" + ToDate + "' AND S.IsAdditionalInfoApplicable=1" +
                                     ") AS TEMP WHERE " + strkey + " order by PostingDate DESC";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -2092,11 +2092,11 @@ Order by P.Sequence";
             }
         }
 
-		public DataTable GetMasterOrderSalesPostedDataList(string plantId,string FromDate, string ToDate,string Ids)
-		{
-			try
-			{
-				string sql = @"Select A.InvoiceNo,A.VoucherNo,A.PartyCode,A.PartyName,A.PartyAccountGroup,A.BillTo,A.DocRefNo,A.CurrencyCode,A.Amount,A.Value,A.UserName 
+        public DataTable GetMasterOrderSalesPostedDataList(string plantId, string FromDate, string ToDate, string Ids)
+        {
+            try
+            {
+                string sql = @"Select A.InvoiceNo,A.VoucherNo,A.PartyCode,A.PartyName,A.PartyAccountGroup,A.BillTo,A.DocRefNo,A.CurrencyCode,A.Amount,A.Value,A.UserName 
 into #tempOT from
 (
 
@@ -2127,9 +2127,9 @@ LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial
 LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
 LEFT JOIN dbo.SalesAdditionalInfo SAI ON SAI.SalesId=S.Id
 LEFT JOIN hkp.AdditionalInfo AI ON AI.Id=SAI.AdditionalInfoId
-WHERE  S.PlantId='"+ plantId + @"' AND S.VoucherId<>'' AND S.SourceType IN('MasterOrderSales','Packing') 
-AND convert(date,S.AddedDate) between '"+FromDate+@"' AND '"+ToDate+@"' AND S.IsAdditionalInfoApplicable=1
-AND S.Id "+Ids+@"
+WHERE  S.PlantId='" + plantId + @"' AND S.VoucherId<>'' AND S.SourceType IN('MasterOrderSales','Packing') 
+AND convert(date,S.AddedDate) between '" + FromDate + @"' AND '" + ToDate + @"' AND S.IsAdditionalInfoApplicable=1
+AND S.Id " + Ids + @"
 )A
 DECLARE @sql nvarchar(max), @col nvarchar(max)
                             SELECT @col = (
@@ -2140,16 +2140,16 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
                             (SELECT * FROM #tempOT PIVOT (MAX([Value]) FOR [UserName] IN ('+STUFF(@col,1,1,'')+')) as pvt)' 
                             EXEC sp_executesql @sql
                             drop table #tempOT";
-				return _sqlRepository.GetDataTable(sql);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
 
-		public DataTable GetInventorySalesReportData(string CompanyGroupId, string CompanyId, string PlantId, string fromDate, string toDate, string Qty, string Amount, string Summary, string Type, string partyId)
+        public DataTable GetInventorySalesReportData(string CompanyGroupId, string CompanyId, string PlantId, string fromDate, string toDate, string Qty, string Amount, string Summary, string Type, string partyId)
         {
 
             var CusAll = "";
@@ -4380,14 +4380,14 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
         }
 
 
-		public void GetMasterData(string Ids, out DataTable dtOrder)
-		{
-			ConnectionManager.DAL.ConManager objCon;
-			string strSql = string.Empty;
-			try
-			{
+        public void GetMasterData(string Ids, out DataTable dtOrder)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
 
-				strSql = @"SELECT S.Id,S.Id AS SalesId, S.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, S.CurrencyId, C.Code AS CurrencyCode, S.DocRefNo, ISNULL(SM.Amount,0) + ISNULL(SS.Amount,0) AS Amount,
+                strSql = @"SELECT S.Id,S.Id AS SalesId, S.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, S.CurrencyId, C.Code AS CurrencyCode, S.DocRefNo, ISNULL(SM.Amount,0) + ISNULL(SS.Amount,0) AS Amount,
 Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') InvoiceDate,
 Replace(CONVERT(VARCHAR(11), S.EntryDate, 106), ' ', '-') VoucherDate, Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') PostingDate
 , S.RowState, S.DeliveryPartyPlantId, S.InvoicingPartyPlantId AS PartyPlantId, S.InvoicingPartyPlantId, S.EntityId, S.PaymentTermId, S.BaseNoOfDays, S.BaseOnDueDate
@@ -4413,75 +4413,75 @@ LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PT.AddressMasterId
 LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=S.Id
 LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
 WHERE  S.VoucherId<>'' AND S.SourceType IN('MasterOrderSales','Packing') AND S.IsAdditionalInfoApplicable=1
-AND S.Id "+ Ids + "";
+AND S.Id " + Ids + "";
 
-				dtOrder = _sqlRepository.GetDataTable(strSql);
-			}
-			catch (Exception ex)
-			{
-				throw (ex);
-			}
-			finally
-			{
-				objCon = null;
-			}
-		}//End Function
+                dtOrder = _sqlRepository.GetDataTable(strSql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
 
-		public Dictionary<string, List<DataRow>> GetParameterData(string Ids, out DataTable dtParameter)
-		{
-			ConnectionManager.DAL.ConManager objCon;
-			string strSql = string.Empty;
-			DataSet dsRef = null;
-			Dictionary<string, List<DataRow>> dicParameter = new Dictionary<string, List<DataRow>>();
-			dtParameter = new DataTable("Tmp");
-			try
-			{
-				strSql = @"select SAI.*,AI.UserName,AI.CharecterType from dbo.SalesAdditionalInfo SAI
+        public Dictionary<string, List<DataRow>> GetParameterData(string Ids, out DataTable dtParameter)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            DataSet dsRef = null;
+            Dictionary<string, List<DataRow>> dicParameter = new Dictionary<string, List<DataRow>>();
+            dtParameter = new DataTable("Tmp");
+            try
+            {
+                strSql = @"select SAI.*,AI.UserName,AI.CharecterType from dbo.SalesAdditionalInfo SAI
 LEFT JOIN hkp.AdditionalInfo AI ON AI.Id=SAI.AdditionalInfoId
 Where SAI.SalesId " + Ids + @"
 order by SAI.SalesId";
 
-				ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
-				con.getDataSet(strSql, out dsRef);
+                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                con.getDataSet(strSql, out dsRef);
 
-				dtParameter = dsRef.Tables[0].DefaultView.ToTable(true, "AdditionalInfoId", "UserName", "CharecterType");
-				dtParameter = dtParameter.DefaultView.ToTable();
+                dtParameter = dsRef.Tables[0].DefaultView.ToTable(true, "AdditionalInfoId", "UserName", "CharecterType");
+                dtParameter = dtParameter.DefaultView.ToTable();
 
-				DataTable dt = dsRef.Tables[0];
-				List<DataRow> _data = new List<DataRow>();
-				string empId = "";
-				for (int i = 0; i < dt.Rows.Count; i++)
-				{
-					if (empId != dt.Rows[i]["SalesId"].ToString())
-					{
-						_data = new List<DataRow>();
-						dicParameter.Add(dt.Rows[i]["SalesId"].ToString(), _data);
-					}
-					_data.Add(dt.Rows[i]);
+                DataTable dt = dsRef.Tables[0];
+                List<DataRow> _data = new List<DataRow>();
+                string empId = "";
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (empId != dt.Rows[i]["SalesId"].ToString())
+                    {
+                        _data = new List<DataRow>();
+                        dicParameter.Add(dt.Rows[i]["SalesId"].ToString(), _data);
+                    }
+                    _data.Add(dt.Rows[i]);
 
-					empId = dt.Rows[i]["SalesId"].ToString();
-				}
+                    empId = dt.Rows[i]["SalesId"].ToString();
+                }
 
-				return dicParameter;
+                return dicParameter;
 
-			}
-			catch (Exception ex)
-			{
-				throw (ex);
-			}
-			finally
-			{
-				objCon = null;
-			}
-		}
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
 
 
-		public void GetSalesChalanReportData(string masterId, out DataTable dtOrder)
-		{
-			string strSql = string.Empty;
-			try
-			{
-				strSql = @"Select SCD.*,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight,DT.UserName Destination,FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
+        public void GetSalesChalanReportData(string masterId, out DataTable dtOrder)
+        {
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"Select SCD.*,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight,DT.UserName Destination,FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
                                     ,SC.VechileNo,SC.UserRef,FORMAT(SC.AddedDate,'dd-MMM-yyyy')GatePassDate
 									,EI.EmployeeName CheckedBy,EIM.EmployeeName ApprovedBy,SC.CheckedStatus,SC.ApprovedStatus,ISNULL(SC.IsDispatchConfirmation,0)IsDispatchConfirmation,SC.DispatchConfirmationBy
                                     from dbo.SalesChalanDetail SCD
@@ -4500,78 +4500,78 @@ order by SAI.SalesId";
 									left join EmployeeInformation EIM on EIM.SystemId = SC.ApproveById
                                     Where SCD.SalesChalanId='" + masterId + "'";
 
-				dtOrder = _sqlRepository.GetDataTable(strSql);
-			}
-			catch (Exception ex)
-			{
-				throw (ex);
-			}
-			finally
-			{
+                dtOrder = _sqlRepository.GetDataTable(strSql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
 
-			}
-		}//End Function
+            }
+        }//End Function
 
-		public IEnumerable<object> GetVehicleNoCbo(string fromDate, string toDate)
-		{
-			try
-			{
-				string sql = @"SELECT DISTINCT TransportVehicleNo AS Value,TransportVehicleNo AS Text
+        public IEnumerable<object> GetVehicleNoCbo(string fromDate, string toDate)
+        {
+            try
+            {
+                string sql = @"SELECT DISTINCT TransportVehicleNo AS Value,TransportVehicleNo AS Text
                                 FROM [dbo].[PostSalesInvoice] PO
                                 LEFT JOIN TRN.Sales S ON S.Id=PO.SalesId
                                 Where TransportVehicleNo IS NOT NULL AND FORMAT(S.AddedDate,'dd-MMM-yyyy') between '" + fromDate + @"' AND '" + toDate + "'";
-				return _sqlRepository.GetDataCollection(sql, null);
-			}
-			catch (Exception ex)
-			{
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
 
-				throw ex;
-			}
-		}
+                throw ex;
+            }
+        }
 
-		public IEnumerable<object> GetTransportDriverNo(string TransportVehicleNo)
-		{
-			try
-			{
-				string sql = @"SELECT TransportDriverNo FROM [dbo].[PostSalesInvoice] Where TransportVehicleNo='" + TransportVehicleNo + "' AND TransportDriverNo IS NOT NULL";
-				return _sqlRepository.GetDataCollection(sql, null);
-			}
-			catch (Exception ex)
-			{
+        public IEnumerable<object> GetTransportDriverNo(string TransportVehicleNo)
+        {
+            try
+            {
+                string sql = @"SELECT TransportDriverNo FROM [dbo].[PostSalesInvoice] Where TransportVehicleNo='" + TransportVehicleNo + "' AND TransportDriverNo IS NOT NULL";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
 
-				throw ex;
-			}
-		}
-		public IEnumerable<object> GetSalesChalan(string column, string value)
-		{
-			try
-			{
-				string strkey = "1=1";
-				if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-					strkey = column + " like '%" + value + "%'";
+                throw ex;
+            }
+        }
+        public IEnumerable<object> GetSalesChalan(string column, string value)
+        {
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
 
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				string sql = @"select * from (Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string sql = @"select * from (Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
                                                     from [dbo].[SalesChalan] SC
                                                     LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
                                                     LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
                                                     LEFT JOIN dbo.EmployeeInformation RE ON RE.SystemId=SC.ResponsiblePersonId
                                                     LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
                                                     LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById) AS TEMP WHERE " + strkey + " Order By TEMP.AddedDate DESC";
-				return _sqlRepository.GetDataCollection(sql, null);
-			}
-			catch (Exception ex)
-			{
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
 
-				throw ex;
-			}
-		}
+                throw ex;
+            }
+        }
 
-		public IEnumerable<object> GetInvoiceData(string fromDate, string toDate, string vehicleno)
-		{
-			try
-			{
-				string sql = @"SELECT Checked=CAST(0 AS bit),FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate, S.Id InvoiceId,P.UserName Customer,DT.UserName Destination,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight
+        public IEnumerable<object> GetInvoiceData(string fromDate, string toDate, string vehicleno)
+        {
+            try
+            {
+                string sql = @"SELECT Checked=CAST(0 AS bit),FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate, S.Id InvoiceId,P.UserName Customer,DT.UserName Destination,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight
                                 FROM TRN.Sales S
                                 LEFT JOIN HKP.Party P ON P.Id=S.PartyId
                                 LEFT JOIN (select  sum(isc.NetWeight) NetWeight ,sum(isc.Gweight) GrossWeight , Count(isc.RefNo) NoOfPackage , isc.SalesId 
@@ -4585,19 +4585,19 @@ order by SAI.SalesId";
                                 Where FORMAT(S.AddedDate,'dd-MMM-yyyy') between '" + fromDate + @"' AND '" + toDate + @"' AND PSI.Transportvehicleno='" + vehicleno + @"'
                                 AND S.Id NOT IN(Select  InvoiceId from dbo.SalesChalanDetail)
                                 ORDER BY S.Id";
-				return _sqlRepository.GetDataCollection(sql, null);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		public IEnumerable<object> GetInvoiceDataByChalan(string masterId)
-		{
-			try
-			{
-				string sql = @"Select SCD.*,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight,DT.UserName Destination,FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate 
+        public IEnumerable<object> GetInvoiceDataByChalan(string masterId)
+        {
+            try
+            {
+                string sql = @"Select SCD.*,P.UserName Customer,BKD.NoOfPackage,BKD.NetWeight,BKD.GrossWeight,DT.UserName Destination,FORMAT(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate 
                                     from dbo.SalesChalanDetail SCD
                                     LEFT JOIN TRN.Sales S ON S.Id=SCD.InvoiceId
                                     LEFT JOIN HKP.Party P ON P.Id=S.PartyId
@@ -4610,20 +4610,20 @@ order by SAI.SalesId";
                                     left join MST.Addressmaster AM on Am.Id = P.AddressmasterId
                                     left join scs.District DT on DT.Id = AM.DistrictId
                                     Where SCD.SalesChalanId='" + masterId + "'";
-				return _sqlRepository.GetDataCollection(sql, null);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		public IEnumerable<object> GetUncheckedSalesChalanData(string EmployeeId)
-		{
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
+        public IEnumerable<object> GetUncheckedSalesChalanData(string EmployeeId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
 								from [dbo].[SalesChalan] SC
 								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
 								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
@@ -4631,20 +4631,20 @@ order by SAI.SalesId";
 								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
 								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
 								where SC.CheckedStatus='To Be Check' AND SC.CheckById='" + EmployeeId + "'";
-				return _sqlRepository.GetDataCollection(sql, null);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		public IEnumerable<object> GetcheckedSalesChalanData(string EmployeeId)
-		{
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
+        public IEnumerable<object> GetcheckedSalesChalanData(string EmployeeId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy
 								from [dbo].[SalesChalan] SC
 								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
 								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
@@ -4652,20 +4652,20 @@ order by SAI.SalesId";
 								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
 								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
 								where SC.CheckedStatus='Checked' AND SC.ApprovedStatus='To Be Approve' AND SC.ApproveById='" + EmployeeId + "'";
-				return _sqlRepository.GetDataCollection(sql, null);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		public IEnumerable<object> GetApproveBycheckedSalesChalanData(string EmployeeId)
-		{
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy,SC.CheckedStatus,SC.ApprovedStatus
+        public IEnumerable<object> GetApproveBycheckedSalesChalanData(string EmployeeId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy,SC.CheckedStatus,SC.ApprovedStatus
 								from [dbo].[SalesChalan] SC
 								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
 								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
@@ -4673,20 +4673,20 @@ order by SAI.SalesId";
 								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
 								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
 								where SC.ApprovedStatus='Approved' AND SC.ApproveById='" + EmployeeId + "'";
-				return _sqlRepository.GetDataCollection(sql, null);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		public IEnumerable<object> GetcheckedSalesChalanDataList(string EmployeeId)
-		{
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy,SC.CheckedStatus,SC.ApprovedStatus
+        public IEnumerable<object> GetcheckedSalesChalanDataList(string EmployeeId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy,SC.CheckedStatus,SC.ApprovedStatus
 								from [dbo].[SalesChalan] SC
 								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
 								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
@@ -4694,43 +4694,43 @@ order by SAI.SalesId";
 								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
 								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
 								where SC.CheckedStatus='Checked' AND SC.CheckById='" + EmployeeId + "'";
-				return _sqlRepository.GetDataCollection(sql, null);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		public IEnumerable<object> GetSalesChalanCheckedByCboList()
-		{
-			var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+        public IEnumerable<object> GetSalesChalanCheckedByCboList()
+        {
+            var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='SalesChalanCheckBy' AND E.EmployeeStatus='Active'";
-			return _sqlRepository.GetDataCollection(sql, null);
-		}
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
 
-		public IEnumerable<object> GetSalesChalanApproveByCboList()
-		{
-			var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+        public IEnumerable<object> GetSalesChalanApproveByCboList()
+        {
+            var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='SalesChalanApproveBy' AND E.EmployeeStatus='Active'";
-			return _sqlRepository.GetDataCollection(sql, null);
-		}
-		public IEnumerable<object> GetMultipleVendorPaymentApproveByCboList()
-		{
-			var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+        public IEnumerable<object> GetMultipleVendorPaymentApproveByCboList()
+        {
+            var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='MultipleVendorPayment' AND E.EmployeeStatus='Active'";
-			return _sqlRepository.GetDataCollection(sql, null);
-		}
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
 
-		public IEnumerable<object> GetApproveByDataForDispatchConfirmation()
-		{
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy,SC.CheckedStatus,SC.ApprovedStatus
+        public IEnumerable<object> GetApproveByDataForDispatchConfirmation()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy,SC.CheckedStatus,SC.ApprovedStatus
 								from [dbo].[SalesChalan] SC
 								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
 								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
@@ -4738,20 +4738,20 @@ order by SAI.SalesId";
 								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
 								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
 								where SC.ApprovedStatus='Approved' AND SC.IsDispatchConfirmation=0";
-				return _sqlRepository.GetDataCollection(sql, null);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		public IEnumerable<object> GetApproveByDataForDispatchConfirmed()
-		{
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy,SC.CheckedStatus,SC.ApprovedStatus
+        public IEnumerable<object> GetApproveByDataForDispatchConfirmed()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var sql = @"Select SC.*,WE.EmployeeName ByWhom,SE.EmployeeName SecurityInCharge,RE.EmployeeName ResponsiblePerson,CE.EmployeeName CheckBy,AE.EmployeeName ApproveBy,SC.CheckedStatus,SC.ApprovedStatus
 								from [dbo].[SalesChalan] SC
 								LEFT JOIN dbo.EmployeeInformation WE ON WE.SystemId=SC.ByWhomId
 								LEFT JOIN dbo.EmployeeInformation SE ON SE.SystemId=SC.SecurityInChargeId
@@ -4759,293 +4759,193 @@ order by SAI.SalesId";
 								LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=SC.CheckById
 								LEFT JOIN dbo.EmployeeInformation AE ON AE.SystemId=SC.ApproveById 
 								where SC.IsDispatchConfirmation=1";
-				return _sqlRepository.GetDataCollection(sql, null);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-		public IWorkbook MultipleVendorPaymentReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string mvpId)
-		{
-			var excelEngine = new ExcelEngine();
+        public IWorkbook MultipleVendorPaymentReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string mvpId)
+        {
+            var excelEngine = new ExcelEngine();
 
-			var reportUtility = new ReportUtility();
-			var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
-			workbook.Version = ExcelVersion.Excel2016;
-			var sheet = workbook.Worksheets[0];
-			sheet.Name = "Voucher";
-			 
-			DataTable dsLocal = GetMultipleVendorPaymentReportData(mvpId);
-			if (dsLocal.Rows.Count == 0)
-				throw new Exception("No data found");
-            DataTable data= GetMultipleVendorPaymentDetailReportData(mvpId);
-            
+            var reportUtility = new ReportUtility();
+            var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
+            workbook.Version = ExcelVersion.Excel2016;
+            var sheet = workbook.Worksheets[0];
+            sheet.Name = "Voucher";
+
+            DataTable dsLocal = GetMultipleVendorPaymentReportData(mvpId);
+            if (dsLocal.Rows.Count == 0)
+                throw new Exception("No data found");
+            DataTable data = GetMultipleVendorPaymentDetailReportData(mvpId);
+
             reportFileName = "Multiple Vendor Payment" + dsLocal.Rows[0]["MultiplePaymentNo"];
+			 
+            var row = 7;
+            var col = 1;
+            var colRow = row;
 
-			//var curCode = dsLocal.Rows[0]["CurrencyCode"].ToString();
-			//var trnCur = dsLocal.Rows[0]["TrnCurrency"].ToString();
-			var row = 5;
-
-			//var colLast = 1;
-
-			reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Multiple Payment No");
-			reportUtility.SetText(ref sheet, row, 2, dsLocal.Rows[0]["MultiplePaymentNo"].ToString());
-			//sheet[reportUtility.GetColumnNameForXls(4) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
+            reportUtility.SetMasterHeaderText(ref sheet, row, col, "Multiple Payment No");
+            reportUtility.SetText(ref sheet, row, col + 1, dsLocal.Rows[0]["MultiplePaymentNo"].ToString());
+            sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge();
 
 
-			reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Tentative Date");
-			reportUtility.SetText(ref sheet, row, 5, dsLocal.Rows[0]["TentativeDate"].ToString());
-			sheet[reportUtility.GetColumnNameForXls(5) + 8 + ":" + reportUtility.GetColumnNameForXls(6) + 8].Merge();
+            reportUtility.SetMasterHeaderText(ref sheet, row, col + 3, "Tentative Date");
+            reportUtility.SetText(ref sheet, row, col + 4, dsLocal.Rows[0]["TentativeDate"].ToString());
+			sheet[reportUtility.GetColumnNameForXls(5) + row + ":" + reportUtility.GetColumnNameForXls(6) + row].Merge();
 
-			//if (curCode != trnCur)
-			//{
-			//	sheet[reportUtility.GetColumnNameForXls(5) + 8 + ":" + reportUtility.GetColumnNameForXls(6) + 8].Merge();
-			//}
 
-			row++;
-			reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Due Up To Date");
-			reportUtility.SetText(ref sheet, row, 2, dsLocal.Rows[0]["DueUpToDate"].ToString());
-			//sheet[reportUtility.GetColumnNameForXls(4) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
+            row++;
+            reportUtility.SetMasterHeaderText(ref sheet, row, col, "Due Up To Date");
+            reportUtility.SetText(ref sheet, row, col + 1, dsLocal.Rows[0]["DueUpToDate"].ToString());
+			sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge();
 
-			reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Bank");
-			reportUtility.SetText(ref sheet, row, 5, dsLocal.Rows[0]["Bank"].ToString());
-			sheet[reportUtility.GetColumnNameForXls(4) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
-
-			//if (curCode != trnCur)
-			//{
-			//	sheet[reportUtility.GetColumnNameForXls(4) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
-			//}
+			reportUtility.SetMasterHeaderText(ref sheet, row, col + 3, "Bank");
+            reportUtility.SetText(ref sheet, row, col + 4, dsLocal.Rows[0]["Bank"].ToString());
+			sheet[reportUtility.GetColumnNameForXls(5) + row + ":" + reportUtility.GetColumnNameForXls(6) + row].Merge();
 
 			row++;
-			reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Account No");
-			reportUtility.SetText(ref sheet, row, 2, dsLocal.Rows[0]["AccountNo"].ToString());
-			//sheet[reportUtility.GetColumnNameForXls(4) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
+            reportUtility.SetMasterHeaderText(ref sheet, row, col, "Account No");
+            reportUtility.SetText(ref sheet, row, col + 1, dsLocal.Rows[0]["AccountNo"].ToString());
+			sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge();
 
-			reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Approved By");
-			reportUtility.SetText(ref sheet, row, 5, dsLocal.Rows[0]["ApprovedBy"].ToString());
-			sheet[reportUtility.GetColumnNameForXls(4) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
-
-			//if (curCode != trnCur)
-			//{
-			//	sheet[reportUtility.GetColumnNameForXls(4) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
-			//}
+			reportUtility.SetMasterHeaderText(ref sheet, row, col + 3, "Approved By");
+            reportUtility.SetText(ref sheet, row, col + 4, dsLocal.Rows[0]["ApprovedBy"].ToString());
+			sheet[reportUtility.GetColumnNameForXls(5) + row + ":" + reportUtility.GetColumnNameForXls(6) + row].Merge();
 
 			row++; //row8
-			reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Approval Status");
-			reportUtility.SetText(ref sheet, row, 2, dsLocal.Rows[0]["ApprovalStatus"].ToString());
-			//sheet[reportUtility.GetColumnNameForXls(4) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
+            reportUtility.SetMasterHeaderText(ref sheet, row, col, "Approval Status");
+            reportUtility.SetText(ref sheet, row, col + 1, dsLocal.Rows[0]["ApprovalStatus"].ToString());
+			sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge();
 
-			//reportUtility.SetMasterHeaderText(ref sheet, row, 4, "Status");
-			//reportUtility.SetText(ref sheet, row, 5, dsLocal.Rows[0]["Park/Post"].ToString());
+			sheet[reportUtility.GetColumnNameForXls(5) + row + ":" + reportUtility.GetColumnNameForXls(6) + row].Merge();
 
-			row++; //row9
+			sheet.Range[colRow, col, row, col + 5].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[colRow, col, row, col + 5].BorderInside(ExcelLineStyle.Hair);
+			row++; 
+             
+            int ROW = 12; int COL = 1;
 
+            #region columns
+            sheet[ROW, COL].Text = "Multiple Payment Detail No";
+            sheet[ROW, COL].ColumnWidth = 20;
+            int ColMultiplePaymentDetailId = COL;
+            COL++;
 
+            sheet[ROW, COL].Text = "Party";
+            sheet[ROW, COL].ColumnWidth = 20;
+            int ColPartyName = COL;
+            COL++;
 
+            sheet[ROW, COL].Text = "Doc RefNo";
+            sheet[ROW, COL].ColumnWidth = 12;
+            int ColDocRefNo = COL;
+            COL++;
 
-			//sheet.Range[9, 4, row, 5].BorderAround(ExcelLineStyle.Hair);
-			//sheet.Range[9, 4, row, 5].BorderInside(ExcelLineStyle.Hair);
-			//row++;
-			//var col = 1;
-			//reportUtility.SetHeaderText(ref sheet, 10, col, "GL", 15); col++;
-			//reportUtility.SetHeaderText(ref sheet, 10, col, "Budget", 15); col++;
-			//reportUtility.SetHeaderText(ref sheet, 10, col, "Activity", 15); col++;
-			//sheet[10, 1, 10, 3].Merge();
-			//if (curCode != trnCur)
-			//{
-			//	reportUtility.SetHeaderText(ref sheet, 10, col, "Trn Currency", 7); col++;
-			//	reportUtility.SetHeaderText(ref sheet, 10, col, "Trn Value", 9); col++;
-			//}
-			//reportUtility.SetHeaderText(ref sheet, 9, col, curCode, ExcelHAlign.HAlignCenter);
-			//sheet[9, col, 9, col + 1].Merge();
-			//reportUtility.SetHeaderText(ref sheet, 10, col, "Debit", 11, ExcelHAlign.HAlignRight); col++;
-			//reportUtility.SetHeaderText(ref sheet, 10, col, "Credit", 11, ExcelHAlign.HAlignRight);
-			//var colLast = col;
-			////row = 11;
-			//row++;
+            sheet[ROW, COL].Text = "Currency";
+            sheet[ROW, COL].ColumnWidth = 12;
+            int ColCurrency = COL;
+            COL++;
 
-			//double _Total_Amount = 0;
-			//var Row_Total_Start = row; //row11
-			//for (int n = 0; n < dsLocal.Rows.Count; n++)
-			//{
-			//	col = 1;
-			//	reportUtility.SetText(ref sheet, row, col, dsLocal.Rows[n]["AccountCode"] + " - " + dsLocal.Rows[n]["GL"] + " - " + dsLocal.Rows[n]["BudgetName"] + " - " + dsLocal.Rows[n]["Activity"]); col++; //GL
+            sheet[ROW, COL].Text = "Amount";
+            sheet[ROW, COL].ColumnWidth = 20;
+            int ColAmount = COL;
+            COL++;
 
-			//	col++;
-			//	col++;
-			//	if (curCode != trnCur)
-			//	{
-			//		reportUtility.SetText(ref sheet, row, col, dsLocal.Rows[n]["TrnCurrency"].ToString()); col++;
-			//		reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(dsLocal.Rows[n]["Value"])); col++;
-			//	}
-			//	reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(dsLocal.Rows[n]["DrAmount"].ToString()));
-			//	_Total_Amount += Convert.ToDouble(dsLocal.Rows[n]["DrAmount"].ToString()); col++;
-			//	reportUtility.SetText(ref sheet, row, col, Convert.ToDouble(dsLocal.Rows[n]["CrAmount"].ToString())); col++;
-			//	sheet[row, 1, row, 3].Merge();
-			//	row++;
-			//}
+            sheet[ROW, COL].Text = "Status";
+            sheet[ROW, COL].ColumnWidth = 12;
+            int ColStatus = COL;
 
-			//var rowLast = row - 1;
-			//sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ": " + reportUtility.GetColumnNameForXls(colLast - 2) + row].Merge();
-			//reportUtility.SetText(ref sheet, row, 1, "Total : ", true);
+            #endregion columns
+            int endCol = COL;
+            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+            sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+            ROW++;
 
-			//sheet.Range[row, colLast - 1].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colLast - 1) + Row_Total_Start + ":" + reportUtility.GetColumnNameForXls(colLast - 1) + rowLast + ")"; //rowLast
-			//sheet.Range[row, colLast - 1].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-			//sheet.Range[row, colLast - 1].CellStyle.Font.Bold = true;
-			//// sheet.Range[row, colLast - 1].BorderAround(ExcelLineStyle.Hair);
+            int startRow = ROW;
 
-			//sheet.Range[row, colLast].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colLast) + Row_Total_Start + ":" + reportUtility.GetColumnNameForXls(colLast) + rowLast + ")";
-			//sheet.Range[row, colLast].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-			//sheet.Range[row, colLast].CellStyle.Font.Bold = true;
-			////sheet.Range[row, colLast].BorderAround(ExcelLineStyle.Hair);
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                sheet[ROW, ColMultiplePaymentDetailId].Text = data.Rows[i]["MultiplePaymentDetailId"].ToString();
+                sheet[ROW, ColPartyName].Text = data.Rows[i]["PartyName"].ToString();
+                sheet[ROW, ColDocRefNo].Text = data.Rows[i]["DocRefNo"].ToString();
+                sheet[ROW, ColCurrency].Text = data.Rows[i]["Currency"].ToString();
+                sheet[ROW, ColAmount].Text = data.Rows[i]["Amount"].ToString();
+                sheet[ROW, ColStatus].Text = data.Rows[i]["Status"].ToString();
 
-			//sheet.Range[10, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
-			//sheet.Range[10, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
-			//row += 2;
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                ROW++;
+            }
+            //IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
+            //table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+            sheet["A" + startRow.ToString()].FreezePanes();
 
-			//reportUtility.SetText(ref sheet, row, 1, "In Word : ", true);
-			//sheet.Range[reportUtility.GetColumnNameForXls(2) + row].Text = reportUtility.InWord(_Total_Amount, dsLocal.Rows[0]["CurrencyId"].ToString()); ;
-			//sheet.Range[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
-			//sheet.Range[reportUtility.GetColumnNameForXls(2) + row].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-			//sheet.Range[reportUtility.GetColumnNameForXls(2) + row].VerticalAlignment = ExcelVAlign.VAlignTop;
-			//sheet.Range[reportUtility.GetColumnNameForXls(2) + row].CellStyle.Font.Bold = true;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            //reportUtility.PlantHeader(ref sheet, endCol, "Utility Transaction Report", identity.PlantId);
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.IsGridLinesVisible = false;
 
-			//sheet.UsedRange.AutofitColumns();
-			//sheet.UsedRange.CellStyle.Font.Size = 8;
-			//row = row + 4;
+            //sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
 
-			//reportUtility.SetSignatureText(ref sheet, row - 1, 1, dsLocal.Rows[0]["AddedBy"].ToString());
-			//sheet.Range[row, 1].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-			//reportUtility.SetTextMiddle(ref sheet, row, 1, "Prepared By", true);
+            //#endregion ******************Report Header******************
+            sheet.PageSetup.TopMargin = 0.2;
+            sheet.PageSetup.BottomMargin = 0.8;
+            //sheet.PageSetup.PrintTitleRows = "$1:$6";
+            sheet.PageSetup.LeftMargin = 0.2;
+            sheet.PageSetup.RightMargin = 0.2;
+            sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+            sheet.PageSetup.FitToPagesTall = 0;
+            sheet.PageSetup.FitToPagesWide = 1;
+            sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+            sheet.PageSetup.CenterHorizontally = true;
 
-			//reportUtility.SetSignatureText(ref sheet, row - 1, 3, dsLocal.Rows[0]["PostedBy"].ToString());
-			//sheet.Range[row, 3].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-			//reportUtility.SetTextMiddle(ref sheet, row, 3, "Checked By", true);
-
-			//sheet.Range[row, colLast].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-			//reportUtility.SetTextMiddle(ref sheet, row, colLast, "Authorized By", true);
-
-			int ROW = 10; int COL = 1;
-
-			#region columns
-			sheet[ROW, COL].Text = "Multiple Payment Detail No";
-			sheet[ROW, COL].ColumnWidth = 20;
-			int ColMultiplePaymentDetailId = COL;
-			COL++;
-
-			sheet[ROW, COL].Text = "Party";
-			sheet[ROW, COL].ColumnWidth = 10;
-			int ColPartyName = COL;
-			COL++;
-
-			sheet[ROW, COL].Text = "Doc RefNo";
-			sheet[ROW, COL].ColumnWidth = 12;
-			int ColDocRefNo = COL;
-			COL++;
-
-			sheet[ROW, COL].Text = "Currency";
-			sheet[ROW, COL].ColumnWidth = 12;
-			int ColCurrency = COL;
-			COL++;
-
-			sheet[ROW, COL].Text = "Amount";
-			sheet[ROW, COL].ColumnWidth = 20;
-			int ColAmount = COL;
-			COL++;
-
-			sheet[ROW, COL].Text = "Status";
-			sheet[ROW, COL].ColumnWidth = 12;
-			int ColStatus = COL;
-			 
-			#endregion columns
-			int endCol = COL;
-			sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
-			sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
-			sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
-			sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
-			sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-			sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-			ROW++;
-
-			int startRow = ROW;
-
-			for (int i = 0; i < data.Rows.Count; i++)
-			{
-				sheet[ROW, ColMultiplePaymentDetailId].Text = data.Rows[i]["MultiplePaymentDetailId"].ToString();
-				sheet[ROW, ColPartyName].Text = data.Rows[i]["PartyName"].ToString();
-				sheet[ROW, ColDocRefNo].Text = data.Rows[i]["DocRefNo"].ToString();
-				sheet[ROW, ColCurrency].Text = data.Rows[i]["Currency"].ToString();
-				sheet[ROW, ColAmount].Text = data.Rows[i]["Amount"].ToString();
-				sheet[ROW, ColStatus].Text = data.Rows[i]["Status"].ToString(); 
-
-				sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-				sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-				sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-				ROW++;
-			}
-			//IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
-			//table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
-			sheet.UsedRange.WrapText = true;
-			sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-			sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-			sheet["A" + startRow.ToString()].FreezePanes();
-
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity; 
-			//reportUtility.PlantHeader(ref sheet, endCol, "Utility Transaction Report", identity.PlantId);
-			reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-			sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-			sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-			sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-			sheet.UsedRange.WrapText = true;
-			sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-			sheet.IsGridLinesVisible = false;
-
-			//sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-
-			//#endregion ******************Report Header******************
-			sheet.PageSetup.TopMargin = 0.2;
-			sheet.PageSetup.BottomMargin = 0.8;
-			//sheet.PageSetup.PrintTitleRows = "$1:$6";
-			sheet.PageSetup.LeftMargin = 0.2;
-			sheet.PageSetup.RightMargin = 0.2;
-			sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
-			sheet.PageSetup.FitToPagesTall = 0;
-			sheet.PageSetup.FitToPagesWide = 1;
-			sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
-			sheet.PageSetup.CenterHorizontally = true; 
-
-			reportUtility.CompanyPlantHeader(ref sheet, endCol, "Journal Voucher", companyId, plantId, plantName, null);
+            reportUtility.CompanyPlantHeader(ref sheet, endCol, "Journal Voucher", companyId, plantId, plantName, null);
             reportUtility.FreezePage(ref sheet, 1, endCol);
-            reportUtility.PageAdjustableSetup(ref sheet, 1, row + 3, ExcelPageOrientation.Portrait); 
-			 
-			return workbook; 
-		}
-		public DataTable GetMultipleVendorPaymentReportData(string mvpId)
-		{ 
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			var sql = @"select MP.Id MultiplePaymentNo,MP.TentativeDate,MP.DueUpToDate,BM.AccountTitle Bank,BM.AccountNumber AccountNo
-							,EI.EmployeeName ApprovedBy,MP.ApprovalStatus
+            reportUtility.PageAdjustableSetup(ref sheet, 1, row + 3, ExcelPageOrientation.Portrait);
+
+            return workbook;
+        }
+        public DataTable GetMultipleVendorPaymentReportData(string mvpId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"select MP.Id MultiplePaymentNo,format(MP.TentativeDate,'dd-MMM-yyyy') TentativeDate,format(MP.DueUpToDate,'dd-MMM-yyyy') DueUpToDate
+							,BM.AccountTitle Bank,BM.AccountNumber AccountNo,EI.EmployeeName ApprovedBy,MP.ApprovalStatus
 							from TRN.MultiplePayment MP 
 							left join MST.BankMaster BM on BM.Id=MP.BankMasterId
 							left join EmployeeInformation EI on EI.SystemId=MP.ApprovedBy
-							where MP.Id='" + mvpId + @"'"; 
-			return _sqlRepository.GetDataTable(sql);
-		}
-		public DataTable GetMultipleVendorPaymentDetailReportData(string mvpId)
-		{
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			var sql = @"select MPD.Id MultiplePaymentDetailId,EI.EmployeeName PartyName,I.DocRefNo,C.Name Currency,MPD.Amount
+							where MP.Id='" + mvpId + @"'";
+            return _sqlRepository.GetDataTable(sql);
+        }
+        public DataTable GetMultipleVendorPaymentDetailReportData(string mvpId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"select MPD.Id MultiplePaymentDetailId,EI.EmployeeName PartyName,I.DocRefNo,C.Name Currency,MPD.Amount
 									,Status= case when MPD.IsPark=0 then 'Posted' else 'Parked' end
 									from TRN.MultiplePaymentDetail MPD
 									left join EmployeeInformation EI on EI.SystemId=MPD.PartyId
 									left join TRN.Invoice I on I.Id=MPD.InvoiceId
 									left join SCS.Currency C on C.Id=I.CurrencyId
-							where MPD.MultiplePaymentId='" + mvpId + @"'"; 
-			return _sqlRepository.GetDataTable(sql);
-		}
-	}
+							where MPD.MultiplePaymentId='" + mvpId + @"'";
+            return _sqlRepository.GetDataTable(sql);
+        }
+    }
 
 
 }

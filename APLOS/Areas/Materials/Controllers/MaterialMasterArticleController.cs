@@ -244,7 +244,7 @@ namespace Aplos.Areas.Materials.Controllers
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from ArticleAlias where ArticleId='" + data["ArticleId"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM ArticleAlias where ArticleId='" + data["ArticleId"] + "' AND MasterOrderItemId='" + data["MasterOrderItemId"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
@@ -331,11 +331,11 @@ namespace Aplos.Areas.Materials.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult getArticleAliaslist(string articleId)
+        public ActionResult getArticleAliaslist(string articleId, string masterOrderItemId)
         {
             try
             {
-                return Json(_baseService.getArticleAliaslist(articleId), JsonRequestBehavior.AllowGet);
+                return Json(_baseService.getArticleAliaslist(articleId, masterOrderItemId), JsonRequestBehavior.AllowGet);
             }
             catch (System.Exception ex)
             {

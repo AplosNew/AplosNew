@@ -954,11 +954,11 @@ WHERE CT.ContractId " + contractId+"";
                     foreach (var item in data)
                     {
                         if (id == "")
-                            id = "'" + item["SalesOrderId"] + "'";
+                            id = "'" + item["MasterOrderItemId"] + "'";
                         else
-                            id = id + ",'" + item["SalesOrderId"] + "'";
+                            id = id + ",'" + item["MasterOrderItemId"] + "'";
                     }
-                    string mosql = "SELECT * FROM TRN.SalesOrder WHERE Id IN (" + id + ")";
+                    string mosql = "SELECT * FROM TRN.[MasterOrderItem] WHERE Id IN (" + id + ")";
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(mosql, out dsChild, false, "1");
 
@@ -966,7 +966,7 @@ WHERE CT.ContractId " + contractId+"";
                     foreach (var item in data)
                     {
                         DataView dv = new DataView(dsChild.Tables[0]);
-                        dv.RowFilter = "Id='" + item["SalesOrderId"] + "'";
+                        dv.RowFilter = "Id='" + item["MasterOrderItemId"] + "'";
                         
                         if (dv.Count > 0)
                         {
@@ -1622,8 +1622,7 @@ WHERE CT.ContractId " + contractId+"";
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                return Json(clsCon.GetSalesOrderListByContract(identity.CompanyId, identity.PlantId, customerId, contractId), JsonRequestBehavior.AllowGet);
+                return Json(clsCon.GetSalesOrderListByContract(customerId, contractId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
