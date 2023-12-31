@@ -739,7 +739,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
             UserName: null,
             SWIFTCode: null,
             CountryId: null,
-            Remark: null,
+            OpeningBankAddress: null,
             AddedBy: null,
             AddedDate: null,
             AddedFromIP: null,

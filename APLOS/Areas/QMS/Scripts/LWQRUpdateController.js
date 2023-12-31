@@ -1,9 +1,9 @@
 ﻿'use strict';
-LotWiseQualityReportController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter", "$window"];
-function LotWiseQualityReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
-    $rootScope.title = "LotWiseQualityReport";
+LWQRUpdateController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter", "$window"];
+function LWQRUpdateController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
+    $rootScope.title = "LWQRUpdate";
     $scope.Action = 'Save';
-    $scope.path = 'QMS/LotWiseQualityReport/';
+    $scope.path = 'QMS/LWQRUpdate/';
 
     $scope.status = {
         Id: null,
@@ -36,7 +36,7 @@ function LotWiseQualityReportController(cboService, commonMessage, $scope, $root
     $scope.selectCustomer = function () {
         $http({
             method: 'GET',
-            url: 'QMS/LotWiseQualityReport/GetCustomerList'
+            url: 'QMS/LWQRUpdate/GetUpdateCustomerList'
         }).then(function successCallback(response) {
             $scope.CustomerList = response.data;
             angular.element(document.querySelector('#CustomerPopup')).modal('show');
@@ -57,7 +57,7 @@ function LotWiseQualityReportController(cboService, commonMessage, $scope, $root
     $scope.selectInvoice = function () {
         $http({
             method: 'GET',
-            url: 'QMS/LotWiseQualityReport/GetInvoiceList?PartyId=' + $scope.statusNew.CustomerId
+            url: 'QMS/LWQRUpdate/GetUpdateInvoiceList?PartyId=' + $scope.statusNew.CustomerId
         }).then(function successCallback(response) {
             $scope.InvoiceList = response.data;
             angular.element(document.querySelector('#InvoicePopup')).modal('show');
@@ -79,7 +79,7 @@ function LotWiseQualityReportController(cboService, commonMessage, $scope, $root
         $scope.POList = [];
         $http({
             method: 'GET',
-            url: 'QMS/LotWiseQualityReport/GetPOList?InvoiceId=' + $scope.statusNew.InvoiceId
+            url: 'QMS/LWQRUpdate/GetUpdatePOList?InvoiceId=' + $scope.statusNew.InvoiceId
         }).then(function successCallback(response) {
             $scope.POList = response.data;
         });
@@ -91,7 +91,7 @@ function LotWiseQualityReportController(cboService, commonMessage, $scope, $root
         $scope.LotNumberLists = [];
         $http({
             method: 'GET',
-            url: 'QMS/LotWiseQualityReport/GetLotNumberLists?POId=' + $scope.statusNew.ProductionOrderId
+            url: 'QMS/LWQRUpdate/GetUpdateLotNumberLists?POId=' + $scope.statusNew.ProductionOrderId
         }).then(function successCallback(response) {
             $scope.LotNumberLists = response.data;
         });
@@ -105,7 +105,7 @@ function LotWiseQualityReportController(cboService, commonMessage, $scope, $root
                 throw "LotNumber is must please select it and proceed..";
             }
             else {
-                $http.get('QMS/LotWiseQualityReport/LoadLotWiseQualityReport?POId=' + $scope.statusNew.ProductionOrderId + '&LotNumber=' + $scope.statusNew.LotNo + '&CustomerId=' + $scope.statusNew.CustomerId + '&InvoiceId=' + $scope.statusNew.InvoiceId)
+                $http.get('QMS/LWQRUpdate/LoadLWQRUpdate?POId=' + $scope.statusNew.ProductionOrderId + '&LotNumber=' + $scope.statusNew.LotNo + '&CustomerId=' + $scope.statusNew.CustomerId + '&InvoiceId=' + $scope.statusNew.InvoiceId)
                     .then(function (response) {
                         $scope.LWQRList = response.data;
                         $scope.commentNew.QRComment = $scope.LWQRList[0].QRComment;
@@ -141,7 +141,7 @@ function LotWiseQualityReportController(cboService, commonMessage, $scope, $root
     $scope.selectByWhom = function () {
         $http({
             method: 'GET',
-            url: 'QMS/LotWiseQualityReport/GetByWhomList'
+            url: 'QMS/LWQRUpdate/GetByWhomList'
         }).then(function successCallback(response) {
             $scope.ByWhomList = response.data;
             angular.element(document.querySelector('#ByWhomPopup')).modal('show');
@@ -193,7 +193,7 @@ function LotWiseQualityReportController(cboService, commonMessage, $scope, $root
             }
             $http({
                 method: "POST",
-                url: 'QMS/LotWiseQualityReport/CreateCQRData',
+                url: 'QMS/LWQRUpdate/CreateCQRData',
                 data: {
                     'data': $scope.statusNew,
                     'DataList': $scope.SaveList
@@ -222,7 +222,7 @@ function LotWiseQualityReportController(cboService, commonMessage, $scope, $root
            
             $http({
                 method: "POST",
-                url: 'QMS/LotWiseQualityReport/UpdateParameterData',
+                url: 'QMS/LWQRUpdate/UpdateParameterData',
                 data: {
                     'ParameterChildId': $scope.ParameterChildId,
                     'SpecialRemarks': $scope.statusNew.SpecialRemarks
@@ -286,7 +286,7 @@ function LotWiseQualityReportController(cboService, commonMessage, $scope, $root
                 throw "Maximum 50 'Job card' can be downloded at a time";
             }
             else {
-                var url = $scope.path + '/GetCustomerQualityLotWiseJobCardReport?CustomerId=' + $scope.statusNew.CustomerId + '&InvoiceId=' + $scope.statusNew.InvoiceId + '&ProductionOrderId=' + $scope.statusNew.ProductionOrderId + '&LotNumber=' + $scope.statusNew.LotNo;
+                var url = $scope.path + '/GetCustomerQualityLotWiseUpdateJobCardReport?CustomerId=' + $scope.statusNew.CustomerId + '&InvoiceId=' + $scope.statusNew.InvoiceId + '&ProductionOrderId=' + $scope.statusNew.ProductionOrderId + '&LotNumber=' + $scope.statusNew.LotNo;
                 $rootScope.report(url);
             }
         } catch (e) {

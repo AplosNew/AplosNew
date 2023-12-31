@@ -220,20 +220,7 @@ namespace Library.Service.Finances
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
 
                         dr.BeginEdit();
-                        //dr["PurchaseDocAcceptanceId"] = voucherVM.PurchaseDocAcceptanceId;
                         dr["VoucherId"] = voucher.Id;
-                        //dr["BankMasterId"] = voucherVM.BankMasterId;
-                        //dr["CompanyGroupId"] = voucherVM.CompanyGroupId;
-                        //dr["CompanyId"] = voucherVM.CompanyId;
-                        //dr["PlantId"] = voucherVM.PlantId;
-                        //dr["CurrencyId"] = voucherVM.CurrencyId;
-                        //dr["PartyType"] = "Vendor";
-                        //dr["PartyId"] = voucherVM.PartyId;
-                        //dr["PartyPlantId"] = voucherVM.PartyPlantId;
-                        //dr["Amount"] = voucherVM.Amount;
-                        //dr["PaymentSource"] = "Bank";
-                        //dr["TransactionType"] = "LoanTaken";
-                        //dr["IsPark"] = true;
                         dr["UpdatedBy"] = voucher.AddedBy;
                         dr["UpdatedDate"] = voucher.AddedDate;
                         dr["UpdatedFromIP"] = voucher.AddedFromIP;
@@ -366,16 +353,9 @@ namespace Library.Service.Finances
                         {
                             PartyType = voucherVM.PartyType
                         };
-                        if (voucherVM.PartyType == PartyType.Vendor.ToString())
-                        {
-                            if (string.IsNullOrEmpty(financing.PartyId))
-                                throw new CustomException("Vendor Id not found!");
 
-                            voucherDetailTo.PartyId = financing.PartyId;
-                            voucherDetailTo.PartyPlantId = financing.PartyPlantId;
-                            voucherDetailTo.TrnNature = TransactionNature.Vendor.ToString();
-                        }
-
+                        voucherDetailTo.PartyId = invoiceWriteOff.PartyId;
+                        voucherDetailTo.PartyPlantId = invoiceWriteOff.PartyPlantId;  
                         voucherDetailTo.GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId;
                         voucherDetailTo.BudgetMasterId = voucherDetailVM.BudgetMasterId;
                         voucherDetailTo.ActivityId = voucherDetailVM.ActivityId;
@@ -592,14 +572,6 @@ namespace Library.Service.Finances
                         drInvoice.BeginEdit();
 
                         drInvoice["VoucherId"] = voucher.Id;
-                        //drInvoice["BankMasterId"] = voucherVM.BankMasterId;
-                        //drInvoice["CompanyGroupId"] = voucherVM.CompanyGroupId;
-                        //drInvoice["CompanyId"] = voucherVM.CompanyId;
-                        //drInvoice["PlantId"] = voucherVM.PlantId;
-                        //drInvoice["CurrencyId"] = voucherVM.CurrencyId;
-                        //drInvoice["PartyId"] = voucherVM.PartyId;
-                        //drInvoice["PartyPlantId"] = voucherVM.PartyPlantId;
-                        //drInvoice["Amount"] = voucherVM.Amount;
                         drInvoice["UpdatedBy"] = voucher.AddedBy;
                         drInvoice["UpdatedDate"] = voucher.AddedDate;
                         drInvoice["UpdatedFromIP"] = voucher.AddedFromIP;
@@ -708,7 +680,7 @@ namespace Library.Service.Finances
                             GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
                             BudgetMasterId = voucherDetailVM.BudgetMasterId,
                             PartyId = invoiceWriteOff.PartyId,
-                            PartyPlantId = voucherDetailVM.PartyPlantId,
+                            PartyPlantId = invoiceWriteOff.PartyPlantId,
                             ActivityId = voucherDetailVM.ActivityId,
                             CurrencyId = voucherDetailVM.CurrencyId,
                             InvoiceWriteOffId = invoiceWriteOff.Id,
@@ -731,16 +703,10 @@ namespace Library.Service.Finances
                         {
                             PartyType = voucherVM.PartyType
                         };
-                        //if (voucherVM.PartyType == PartyType.Vendor.ToString())
-                        //{
-                        //    if (string.IsNullOrEmpty(financing.PartyId))
-                        //        throw new CustomException("Vendor Id not found!");
-
-                        //    voucherDetailTo.PartyId = financing.PartyId;
-                        //    voucherDetailTo.PartyPlantId = financing.PartyPlantId;
-                        //    voucherDetailTo.TrnNature = TransactionNature.Vendor.ToString();
-                        //}
-
+                        
+                        voucherDetailTo.PartyId = invoiceWriteOff.PartyId;
+                        voucherDetailTo.PartyPlantId = invoiceWriteOff.PartyPlantId;
+                        
                         voucherDetailTo.GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId;
                         voucherDetailTo.BudgetMasterId = voucherDetailVM.BudgetMasterId;
                         voucherDetailTo.ActivityId = voucherDetailVM.ActivityId;
@@ -957,14 +923,6 @@ namespace Library.Service.Finances
                     drInvoice.BeginEdit();
 
                     drInvoice["VoucherId"] = voucher.Id;
-                    //drInvoice["BankMasterId"] = voucherVM.BankMasterId;
-                    //drInvoice["CompanyGroupId"] = voucherVM.CompanyGroupId;
-                    //drInvoice["CompanyId"] = voucherVM.CompanyId;
-                    //drInvoice["PlantId"] = voucherVM.PlantId;
-                    //drInvoice["CurrencyId"] = voucherVM.CurrencyId;
-                    //drInvoice["PartyId"] = voucherVM.PartyId;
-                    //drInvoice["PartyPlantId"] = voucherVM.PartyPlantId;
-                    //drInvoice["Amount"] = voucherVM.Amount;
                     drInvoice["UpdatedBy"] = voucher.AddedBy;
                     drInvoice["UpdatedDate"] = voucher.AddedDate;
                     drInvoice["UpdatedFromIP"] = voucher.AddedFromIP;
@@ -1111,16 +1069,9 @@ namespace Library.Service.Finances
                         {
                             PartyType = voucherVM.PartyType
                         };
-                        if (voucherVM.PartyType == PartyType.Vendor.ToString())
-                        {
-                            if (string.IsNullOrEmpty(voucherVM.PartyId))
-                                throw new CustomException("Vendor Id not found!");
-
-                            voucherDetailTo.PartyId = voucherVM.PartyId;
-                            voucherDetailTo.PartyPlantId = voucherVM.PartyPlantId;
-                            voucherDetailTo.TrnNature = TransactionNature.Vendor.ToString();
-                        }
-
+                       
+                        voucherDetailTo.PartyId = invoiceWriteOff.PartyId;
+                        voucherDetailTo.PartyPlantId = invoiceWriteOff.PartyPlantId;
                         voucherDetailTo.GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId;
                         voucherDetailTo.BudgetMasterId = voucherDetailVM.BudgetMasterId;
                         voucherDetailTo.ActivityId = voucherDetailVM.ActivityId;

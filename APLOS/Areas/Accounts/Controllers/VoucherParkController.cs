@@ -175,7 +175,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     string setOffsql = @"SELECT VoucherNo from trn.FinancingDetailWriteOff FDW JOIN trn.FinancingWriteOff FW on FW.Id=FDW.FinancingWriteOffId 
                     LEFT JOIN    trn.Voucher v on v.Id = FW.VoucherId WHERE FDW.FinancingId in (select Id from [TRN].[Financing] where VoucherId = '" + voucherId + @"')";
                     string loanInterestsql = @"SELECT VoucherNo,FST.SourceType from TRN.FinancingSubsequentTransaction FST INNER JOIN    
-                    trn.Voucher v on v.Id = FST.VoucherId WHERE FST.SourceType NOT IN('Loan') AND FST.FinancingId in (select Id from [TRN].[Financing] where VoucherId = '" + voucherId + @"')";
+                    trn.Voucher v on v.Id = FST.VoucherId WHERE FST.SourceType NOT IN('Loan','AutoLoan','Investment') AND FST.FinancingId in (select Id from [TRN].[Financing] where VoucherId = '" + voucherId + @"')";
                     objCon1 = new ConnectionManager.DAL.ConManager("1");
                     objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
                     objCon1.OpenDataSetThroughAdapter(loanInterestsql, out dsLoanInterest, false, "1");

@@ -1899,7 +1899,7 @@ namespace Aplos.Areas.Accounts.Controllers
 							LEFT JOIN TRN.MultiplePayment MP ON MP.Id=MPD.MultiplePaymentId
 							LEFT JOIN HKP.Party P ON P.Id=MPD.PartyId
 							LEFT JOIN MST.BankMaster BM ON BM.Id=MP.BankMasterId
-							where  MP.PlantId='" + identity.PlantId + @"' and MP.ApprovalStatus='Pending'
+							where  MP.PlantId='" + identity.PlantId + @"' and MP.ApprovedBy='" + identity.EmployeeId + @"' and MP.ApprovalStatus='Pending'
 							group by MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,MP.DueUpToDate
                             , MP.TentativeDate,MPD.MultiplePaymentId
                             ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle,P.UserName,MPD.PartyId ";
@@ -1915,7 +1915,7 @@ namespace Aplos.Areas.Accounts.Controllers
 							LEFT JOIN TRN.MultiplePayment MP ON MP.Id=MPD.MultiplePaymentId
 							LEFT JOIN HKP.Party P ON P.Id=MPD.PartyId
 							LEFT JOIN MST.BankMaster BM ON BM.Id=MP.BankMasterId
-							where  MP.PlantId='" + identity.PlantId + @"' and MP.ApprovalStatus='Reject'
+							where  MP.PlantId='" + identity.PlantId + @"' and MP.ApprovedBy='" + identity.EmployeeId + @"'  and MP.ApprovalStatus='Reject'
 							group by MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,MP.DueUpToDate
                             , MP.TentativeDate,MPD.MultiplePaymentId
                             ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle,P.UserName,MPD.PartyId ";
@@ -1931,7 +1931,7 @@ namespace Aplos.Areas.Accounts.Controllers
 							LEFT JOIN TRN.MultiplePayment MP ON MP.Id=MPD.MultiplePaymentId
 							LEFT JOIN HKP.Party P ON P.Id=MPD.PartyId
 							LEFT JOIN MST.BankMaster BM ON BM.Id=MP.BankMasterId
-							where  MP.PlantId='" + identity.PlantId + @"' and MP.ApprovalStatus='Approved'
+							where  MP.PlantId='" + identity.PlantId + @"' and MP.ApprovedBy='" + identity.EmployeeId + @"'  and MP.ApprovalStatus='Approved'
 							group by MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,MP.DueUpToDate
                             , MP.TentativeDate,MPD.MultiplePaymentId
                             ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle,P.UserName,MPD.PartyId ";
@@ -1967,7 +1967,7 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
-        
+
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1992,6 +1992,26 @@ namespace Aplos.Areas.Accounts.Controllers
         public JsonResult GetMultipleVendorPaymentApproveByCboList()
         {
             return Json(clsSales.GetMultipleVendorPaymentApproveByCboList(), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [Authorize, HttpGet]
+
+        public ActionResult MultipleVendorPaymentReport(ReportFormat reportFormat, string mvpId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = clsSales.MultipleVendorPaymentReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, mvpId);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
         }
 
         #endregion Multiple Vendor Payment End

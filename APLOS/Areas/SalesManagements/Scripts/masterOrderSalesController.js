@@ -53,7 +53,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
         },
         {
             "name": "Currency",
-            "value": "Currency"
+            "value": "CurrencyCode"
         },
         {
             "name": "Status",

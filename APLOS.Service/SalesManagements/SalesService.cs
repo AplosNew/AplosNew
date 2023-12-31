@@ -189,6 +189,7 @@ namespace Library.Service.SalesManagements
                 voucherVM.Id = sales.Id;
                 AuditService.AddedLog(sales);
                 _salesRepository.Insert(sales);
+                voucherVM.AddedDate = sales.AddedDate;
 
                 var currentSalesMaterialId = 0;
                 var currentSalesServiceId = 0;

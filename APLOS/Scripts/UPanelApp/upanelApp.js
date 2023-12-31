@@ -1244,6 +1244,9 @@ upanelApp.controller("InvoiceStatusController", InvoiceStatusController)
 upanelApp.controller("MasterPlanDetailsController", MasterPlanDetailsController)
 upanelApp.controller("CutPlanController", CutPlanController)
 upanelApp.controller("LotWiseQualityReportController", LotWiseQualityReportController)
+upanelApp.controller("LWQSummaryReportController", LWQSummaryReportController)
+upanelApp.controller("LWQRUpdateController", LWQRUpdateController)
+upanelApp.controller("LCPendingReportController", LCPendingReportController)
           
 
 

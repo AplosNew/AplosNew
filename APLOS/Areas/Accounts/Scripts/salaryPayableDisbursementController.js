@@ -2,11 +2,10 @@
 salaryPayableDisbursementController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller"];
 function salaryPayableDisbursementController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
     $rootScope.title = "Salary Disbursement";
-    $scope.Action = "Save";
+    $scope.Action = "Park";
     $scope.CAction = "Add";
     $scope.isPartyListing = false;
     $scope.index = -1;
-    $scope.budgetTransactionMasters = [];
     $scope.currencyExchangeRate = [];
     $scope.voucherDetailList = [];
     $scope.transactionTypeList = [];
@@ -16,7 +15,7 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
     $scope.saveUrl = $scope.path + "ParkSalaryPayableDisbursement";
     $scope.updateUrl = $scope.path + "UpdateEmployeePayable";
     $scope.deleteUrl = $scope.path + "delete/";
-    $scope.postUrl = $scope.path + "PostEmployeePayable";
+    $scope.postUrl = $scope.path + "PostSalarydisbursement";
     $scope.hideSource = true;
     $scope.isWriteOff = true;
     $controller("currencyBaseController", { $scope: $scope, $http: $http });
@@ -374,7 +373,7 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
         $scope.saveBtnDisable = true;
         try {
             if ($scope.form0.$valid) {
-                if ($scope.Action === "Save") {
+                if ($scope.Action === "Park") {
                     $http({
                         method: "POST",
                         url: $scope.saveUrl,
@@ -411,19 +410,19 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
         return true;
     };
 
-    $scope.payableId = null;
-    $scope.confirmPost = function (payableId) {
-        $scope.payableId = payableId;
+    $scope.voucherId = null;
+    $scope.confirmPost = function (voucherId) {
+        $scope.voucherId = voucherId;
         $scope.message_confirmation = "Are you sure to Post?";
         angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
     };
 
-    $scope.post = function (payableId) {
+    $scope.post = function (voucherId) {
         $http({
             method: "POST",
             url: $scope.postUrl,
             data: {
-                "id": payableId
+                "voucherId": voucherId
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
@@ -441,38 +440,12 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
         return true;
     };
 
-    $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.budgetTransactionMaster.Id)) {
-            $http({
-                method: "POST",
-                url: $scope.deleteUrl + $scope.budgetTransactionMaster.Id,
-                dataType: "JSON"
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, "failure");
-                }
-                else {
-                    ShowResult(response.data.Message, "success");
-                    $scope.budgetTransactionMasters.splice($scope.index, 1);
-                    baseService.paginationRemove();
-                    $scope.Clear();
-                }
-            }, function errorCallback(response) {
-                ShowResult(response.status.Message, "failure");
-            });
-        }
-        else {
-            ShowResult(commonMessage.primaryKeyNullMessage, "failure");
-        }
-        return true;
-    };
-
     $scope.Clear = function () {
         ClearFields();
     };
 
     function ClearFields() {
-        $scope.Action = "Save";
+        $scope.Action = "Park";
         $scope.voucher = {};
         $scope.voucher.PaymentMode ='';
         $scope.voucher.EmployeeId = null;

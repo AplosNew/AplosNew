@@ -151,6 +151,153 @@ namespace Library.Service.Helpers
             return Dollars + Cents + " " + strOnly;
         }
 
+        public static string SpellAmountInIndiaSubConWayNew(string myNumber, string CUR_NAME, string CUR_DEC_NAME)
+        {
+            var Dollars = "";
+            var Cents = "";
+            var Temp = "";
+            int DecimalPlace, Count;
+
+            var place = new string[9];
+            place[2] = " Thousand ";
+            place[3] = " Lakhs ";
+            place[4] = " Crore ";
+
+            //String representation of amount.
+            myNumber = myNumber.Trim();
+
+            if (ConvNumData(myNumber) != "0")
+            {
+                myNumber = string.Format("{0:#.00}", double.Parse(ConvNumData(myNumber)));
+            }
+
+            //Position of decimal place 0 if none.
+            DecimalPlace = myNumber.IndexOf(".");
+            //Convert cents and set MyNumber to dollar amount.
+            if (DecimalPlace > 0)
+            {
+                Cents = myNumber.Substring(DecimalPlace + 1);
+                Cents = GetTens(Cents);
+                myNumber = myNumber.Substring(0, DecimalPlace);
+            }
+            if (DecimalPlace == 0)
+            {
+                Cents = myNumber.Substring(DecimalPlace + 1);
+                Cents = GetTens(Cents);
+                myNumber = myNumber.Substring(0, DecimalPlace);
+            }
+            Count = 1;
+            while (myNumber != "")
+            {
+                if (Count == 1)
+                {
+                    if (myNumber.Length > 3)
+                    {
+                        Temp = myNumber.Substring(myNumber.Length - 3);
+                    }
+                    else
+                    {
+                        Temp = myNumber;
+                    }
+                    Temp = GetHundreds(Temp);
+                }
+                else if (Count > 1 && Count <= 3)
+                {
+                    if (myNumber.Length >= 2)
+                    {
+                        Temp = GetTens(myNumber.Substring(myNumber.Length - 2));
+                    }
+                    else if (myNumber.Length == 1)
+                    {
+                        Temp = GetDigit(myNumber);
+                    }
+                }
+                else if (Count >= 4)
+                {
+                    if (myNumber.Length > 3)
+                    {
+                        Temp = myNumber.Substring(myNumber.Length - 3);
+                    }
+                    else
+                    {
+                        Temp = myNumber;
+                    }
+                    Temp = GetHundreds(Temp);
+                }
+
+                if (Temp != "")
+                {
+                    Dollars = Temp + place[Count] + Dollars;
+                }
+                if (Count == 1)
+                {
+                    if (myNumber.Length > 2)
+                    {
+                        myNumber = myNumber.Substring(0, myNumber.Length - 3);
+                    }
+                    else
+                    {
+                        myNumber = "";
+                    }
+                }
+                else if (Count > 1 && Count <= 3)
+                {
+                    if (myNumber.Length > 1)
+                    {
+                        myNumber = myNumber.Substring(0, myNumber.Length - 2);
+                    }
+                    else
+                    {
+                        myNumber = "";
+                    }
+                }
+                else if (Count >= 4)
+                {
+                    if (myNumber.Length > 2)
+                    {
+                        myNumber = myNumber.Substring(0, myNumber.Length - 3);
+                    }
+                    else
+                    {
+                        myNumber = "";
+                    }
+                }
+
+                Count = Count + 1;
+            }
+
+            switch (Dollars)
+            {
+                case "":
+                    Dollars = "";
+                    break;
+
+                case "One":
+                    Dollars = "One " + " " + CUR_NAME;
+                    break;
+
+                default:
+                    Dollars = Dollars + " " + CUR_NAME;
+                    break;
+            }
+            switch (Cents)
+            {
+                case "":
+                    Cents = "";
+                    break;
+
+                case "One":
+                    Cents = " and One " + " " + CUR_DEC_NAME;
+                    break;
+
+                default:
+                    Cents = " and " + Cents + " " + CUR_DEC_NAME;
+                    break;
+            }
+
+            return Dollars + Cents;
+        }
+
         public static string SpellAmountInIntlWay(string MyNumber, string CUR_NAME, string CUR_DEC_NAME, string strOnly)
         {
             string Dollars = "", Cents = "", Temp = "";

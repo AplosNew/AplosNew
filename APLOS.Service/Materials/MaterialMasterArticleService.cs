@@ -420,12 +420,12 @@ namespace Library.Service.Materials
 
 
        
-        public IEnumerable<object> getArticleAliaslist(string articleId)
+        public IEnumerable<object> getArticleAliaslist(string articleId, string masterOrderItemId)
         {
             string sql = @"select AA.*,P.UserName PartyName 
                             from [dbo].[ArticleAlias] AA
                             left join [HKP].[Party] P on P.Id=AA.PartyId
-                            where ArticleId in ('" + articleId + @"')";
+                            where ArticleId ='" + articleId + @"' AND MasterOrderItemId= '"+ masterOrderItemId + "'";
 
             return _sqlRepository.GetDataCollection(sql, null);
         }
