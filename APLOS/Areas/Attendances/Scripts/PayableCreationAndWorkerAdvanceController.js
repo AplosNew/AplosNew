@@ -3,7 +3,7 @@ PayableCreationAndWorkerAdvanceController.$inject = ['cboService', 'commonMessag
 function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
     $rootScope.title = 'Payable Creation & Multiple Employee advance';
     $rootScope.titleTab1 = 'Payable Creation';
-    $rootScope.titleTab2 = 'Multiple Employee Advance';
+    $rootScope.titleTab2 = 'Multiple Employee Payment';
     $scope.WorkerAdvanceList = [];
     $scope.path = 'Attendances/GoodWork/';
     $scope.saveUrl = $scope.path + 'CreateWorkerAdvance';
@@ -386,15 +386,15 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         $scope.FD = $filter('dateFiltering')(new Date($scope.ModelNew.FromDate), 'dd-MM-yyyy');
         $scope.TD = $filter('dateFiltering')(new Date($scope.ModelNew.ToDate), 'dd-MM-yyyy');
 
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope._firstDay == $scope.FD) {
-            ShowResult('You can not select 1st Date!', 'failure');
-            return false;
-        }
-        if ($scope._lastDay == $scope.TD) {
-            ShowResult('You can not select Last Date of the Month!', 'failure');
-            return false;
-        }
+        //$scope.$broadcast('show-errors-check-validity');
+        //if ($scope._firstDay == $scope.FD) {
+        //    ShowResult('You can not select 1st Date!', 'failure');
+        //    return false;
+        //}
+        //if ($scope._lastDay == $scope.TD) {
+        //    ShowResult('You can not select Last Date of the Month!', 'failure');
+        //    return false;
+        //}
 
         $http({
             method: 'POST',
