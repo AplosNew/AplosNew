@@ -621,7 +621,7 @@ namespace Aplos.Areas.Attendances.Controllers
             try
             {
                 string pDays = null;
-                if (payDaysType == "FinalOT" || payDaysType == "Attendance")
+                if (payDaysType == "FinalOT")
                 {
                     pDays = @"LEFT JOIN(select isnull(SUM(PresentValue),0) PayDays,isnull(SUM(StandardOT),0) StandardOT,isnull(SUM(AdditionalOT),0) AdditionalOT,0 GoodWork,EmpSystemID  
 							from AttdnProcessData 

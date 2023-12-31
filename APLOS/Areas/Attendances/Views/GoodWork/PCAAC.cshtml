@@ -121,7 +121,7 @@
             <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
                 <input type="hidden" ng-model="ModelNew.Id">
                 <div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group" show-errors>
+                    <div class="form-group" show-errors ng-hide="true">
                         <label class="col-sm-4 control-label">Year<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <div class="select-style">
@@ -133,9 +133,9 @@
                         </div>
                     </div>
                     <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Work Date<sup>*</sup></label>
+                        <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" id="GFG" name="FromDate" ng-model="ModelNew.FromDate" class="form-control datepic"  ng-change="getPayDaysAmount();"  datepic placeholder="dd-Mmm-yyyy" tabindex="3">
+                            <input type="text" id="GFG" name="FromDate" ng-model="ModelNew.FromDate" class="form-control datepic" ng-change="getPayDaysAmount();" datepic placeholder="dd-mmm-yyyy" tabindex="3">
                         </div>
                     </div>
                     <div class="form-group" show-errors>
@@ -179,9 +179,13 @@
                             </div>
                         </div>
                     </div>
+                    <div>
+                        <label>Only Lock Days data will be processed</label>
+                    </div>
+
                 </div>
                 <div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group" show-errors>
+                    <div class="form-group" show-errors ng-hide="true">
                         <label class="col-sm-4 control-label">Month<sup style="color:red">*</sup></label>
                         <div class="col-sm-8">
                             <div class="select-style" style="color:red">
@@ -193,13 +197,13 @@
                         </div>
                     </div>
 
-                    <div class="form-group" show-errors ng-hide="true" >
+                    <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" id="GFG" name="ToDate" ng-model="ModelNew.ToDate" class="form-control datepic"  ng-change="getPayDaysAmount();"  datepic placeholder="dd-Mmm-yyyy" tabindex="3">
+                            <input type="text" id="GFG" name="ToDate" ng-model="ModelNew.ToDate" class="form-control datepic" ng-change="getPayDaysAmount();" datepic placeholder="dd-mmm-yyyy" tabindex="3">
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
+                    <div class="form-group" show-errors ng-hide="true">
                         <label class="col-sm-4 control-label">No Of Days<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <input type="number" class="form-control" name="NoOfDays" ng-model="ModelNew.NoOfDays" e-width="100" />
@@ -235,9 +239,9 @@
                             <div class="select-style">
                                 <select name="PayDaysType" ng-model="ModelNew.PayDaysType">
                                     <option value="">--Select--</option>
-                                    <option value="FinalOT">Final OT</option>
+                                    <option value="FinalOT">Extra OT</option>
                                     <option value="GoodWork">Good Work</option>
-                                    <option value="Attendance">Attendance</option>
+                                    @*<option value="Attendance">Attendance</option>*@
                                 </select>
                             </div>
                         </div>
@@ -270,7 +274,7 @@
                                 <th>Good Work</th>
                                 <th title="((Gross/208)*2)*2)">Rate Per Day</th>
                                 <th title="(((Gross/208)*2))">Rate Per Hour</th>
-                                <th  title="Basic/26*PayDays*Percentage">Amount</th>
+                                <th title="Basic/26*PayDays*Percentage">Amount</th>
                                 <th>AdvanceGiven</th>
                                 <th title="(Basic/26*PayDays*Percentage)-AdvanceGiven">NetPayable</th>
                                 <th>Actions</th>
@@ -284,7 +288,7 @@
                                 <td>{{x.SubSection}}</td>
                                 <td>{{x.Department}}</td>
                                 <td>
-                                        <label>{{x.PayDays}}</label>
+                                    <label>{{x.PayDays}}</label>
                                 </td>
                                 <td><input type="number" class="form-control" name="Standard OT" ng-model="x.StandardOT" e-width="100" ng-disabled="true" /></td>
                                 <td><input type="number" class="form-control" name="Additional OT" ng-model="x.AdditionalOT" e-width="100" ng-disabled="true" /></td>
@@ -452,35 +456,35 @@
 
 
 @*<div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                Employee List
-                <button type="button" class="close" ng-click="closeEmployeePopUp();">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="content-container-fluid" style="color:black;">
-                    <div style="color:black;" id="Grid" ej-grid e-datasource="employeeDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
-                        <div e-columns>
-                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
-                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
-                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
-                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
-                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
-                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
-                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
-                            <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-width="80"></div>
-                            <div e-column e-field="PolicyName" e-headertext="Policy Name" e-width="100"></div>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Employee List
+                    <button type="button" class="close" ng-click="closeEmployeePopUp();">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="Grid" ej-grid e-datasource="employeeDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                                <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                                <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                                <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-width="80"></div>
+                                <div e-column e-field="PolicyName" e-headertext="Policy Name" e-width="100"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer common-btn">
-                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Close</button>
+                <div class="modal-footer common-btn">
+                    <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Close</button>
+                </div>
             </div>
         </div>
-    </div>
-</div>*@
+    </div>*@
 
