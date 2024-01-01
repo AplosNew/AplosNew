@@ -409,7 +409,6 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     }
 
     $scope.getPayDaysAmount = function () {
-        $scope.ModelNew.ToDate = $scope.ModelNew.FromDate;
         $http({
             method: 'POST',
             url: $scope.path + "LoadPCAACEmployeelist",

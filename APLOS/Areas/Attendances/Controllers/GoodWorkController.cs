@@ -108,7 +108,7 @@ namespace Aplos.Areas.Attendances.Controllers
                          LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
                          LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
                          WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec + @"  " + dep + @"  " + sec + @"   " + subsec + @"   " + des + @" " + userGr + @"
-                         and EI.EmployeeStatus='Active'
+                         and EI.EmployeeStatus='Active' and EI.BudgetCode in (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup) 
                          ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
             }
             catch (Exception ex)
@@ -186,6 +186,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         genid.GenID("GoodWork", out _Id);
                     }
                     data["Id"] = _Id;
+                    data["CheckedStatus"] = "To Be Check";
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -217,10 +218,9 @@ namespace Aplos.Areas.Attendances.Controllers
                             item["FromTime"] = item["FromTime"];
                             item["ToTime"] = item["ToTime"];
                             item["Purpose"] = item["Purpose"];
-                            item["PurposeCategory"] = item["PurposeCategory"];
-                            item["ApprovedById"] = item["ApprovedById"];
+                            item["PurposeCategory"] = item["PurposeCategory"]; 
                             item["Minute"] = item["Minute"];
-                            item["Remarks"] = item["Remark"];
+                            item["Remark"] = item["Remark"];
 
                             materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
                         }
@@ -239,7 +239,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             drmo["PurposeCategory"] = item["PurposeCategory"];
                             //drmo["ApprovedById"] = item["ApprovedById"];
                             //drmo["Minute"] = item["CalculatedTime"];
-                            drmo["Remark"] = item["Remark"];
+                            drmo["Remark"] = item["Remarks"];
                             drmo.EndEdit();
 
                         }
@@ -305,14 +305,11 @@ namespace Aplos.Areas.Attendances.Controllers
         public ActionResult GetGoodWorkDetailCenter(string goodWorkId)
         {
             string str = @"select GWD.Id,EI.SystemId,EI.EmployeeCode,EI.EmployeeName,format(GWD.FromTime,'hh:m') FromTime,format(GWD.ToTime,'hh:m') ToTime,GWD.Minute CalculatedTime
-							,GWD.Purpose,GWD.PurposeCategory,ec.Id EmployeeCategoryId,EC.UserName EmployeeCategory
-                            ,EmI.SystemId ApprovedById,EmI.EmployeeCode ApprovedByCode
-                            ,EmI.EmployeeName ApprovedByName,GWD.[Minute],GWD.Remark
+							,GWD.Purpose,GWD.PurposeCategory,ec.Id EmployeeCategoryId,EC.UserName EmployeeCategory,GWD.[Minute],GWD.Remark
 							,PR.GoodWorkPositionCodeId UserGroupId,PR1.UserReportGroup UserGroup,ei.GivenDesignationId DesignationId,D.UserName Designation,S.Id SectionId,S.UserName Section
 							,SS.Id SubSectionId,SS.UserName SubSection,DEPT.Id DepartmentId,DEPT.UserName Department
                             from GoodworkDetail GWD 
-                            left join EmployeeInformation EI on EI.SystemId=GWD.EmpSystemId
-                            left join EmployeeInformation EmI on EmI.SystemId=GWD.ApprovedById
+                            left join EmployeeInformation EI on EI.SystemId=GWD.EmpSystemId 
 							LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
                             LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
                             LEFT JOIN ORG.Department DEPT ON EI.DepartmentId=DEPT.Id
@@ -867,6 +864,25 @@ namespace Aplos.Areas.Attendances.Controllers
             return json;
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetGoodWorkCheckByCbo()
+        {
+            var sql = @"select E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text ,a.ActionStatus
+                          from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where E.EmployeeStatus='Active' and A.ActionStatus='GoodWorkCheckBy'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetGoodWorkApprovedByCbo()
+        {
+            var sql = @"select E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text ,a.ActionStatus
+                          from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where E.EmployeeStatus='Active' and A.ActionStatus='GoodWorkApproveBy'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
         public class WorkerAdvanceTransaction
         {
             #region Scalar Properties

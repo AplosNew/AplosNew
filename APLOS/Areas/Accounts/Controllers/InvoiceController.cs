@@ -1266,7 +1266,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult PostMultipleVendorPayment(VoucherViewModel voucherVM, IEnumerable<MultiplePaymentViewModel> multiplePaymentlist, IEnumerable<MultiplePaymentDetailViewModel> multiplePaymentDetailList
+        public JsonResult PostMultipleVendorPayment(VoucherViewModel voucherVM, IEnumerable<MultiplePaymentViewModel> mpSummarylist, IEnumerable<MultiplePaymentDetailViewModel> multiplePaymentDetailList
                 , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1285,7 +1285,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 if (voucherVM.CurrencyId != advanceDetailVM.CurrencyId)
                     throw new CustomException("Transaction currency and Payable currency should be same.!!!");
             }
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.PostMultipleVendorPayment(voucherVM, multiplePaymentlist, multiplePaymentDetailList, bankChargeDetailVMList, taxDetailVMList)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.PostMultipleVendorPayment(voucherVM, mpSummarylist, multiplePaymentDetailList, bankChargeDetailVMList, taxDetailVMList)) });
         }
 
         [HttpPost]

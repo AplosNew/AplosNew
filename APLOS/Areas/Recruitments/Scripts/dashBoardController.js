@@ -410,7 +410,7 @@ function dashBoardController(fileReader, cboService, commonMessage, $scope, $roo
     $scope.GetOrgStrunctureListJS = function () {
         $http({
             method: 'POST',
-            url: 'predashboard/GetOrgStrunctureList/',
+            url: 'Recruitments/predashboard/GetOrgStrunctureList/',
             dataType: 'JSON'
         }).then(function successCallback(response) {
 

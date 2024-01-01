@@ -150,8 +150,8 @@
                             <input type="number" class="form-control" name="Percentage" ng-model="ModelNew.Percentage" ng-change="getCalulationAmount();" e-width="100" />
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Approved By<sup>*</sup></label>
+                    <!--<div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Approved By<sup>*</sup></label>-->
                         @*<div class="col-sm-8 show-message">
                                 <div class="input-group">
                                     <input tabindex="1" type="text" name="ApprovedBy" ng-model="ModelNew.ApprovedBy" class="form-control" readonly required>
@@ -160,14 +160,14 @@
                                     </span>
                                 </div>
                             </div>*@
-                        <div class="col-sm-8 show-message">
+                        <!--<div class="col-sm-8 show-message">
                             <div class="select-style" ng-show="approvedByList.length">
                                 <select id="ApprovedBy" class="form-control" name="Checked By" ng-model="ModelNew.ApprovedById" tabindex="8" required>
                                     <option ng-repeat="option in approvedByList" value="{{option.Value}}">{{option.Text}}</option>
                                 </select>
                             </div>
                         </div>
-                    </div>
+                    </div>-->
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Prepared By<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
@@ -318,7 +318,7 @@
             </div>
             <div class="table-responsive aplos-grid-toggle">
                 <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="WorkerAdvanceList" e-recorddoubleclick="GetDblClick" e-load="loadGridEdit"
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                      e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                     <div e-columns>
                         <div e-column e-field="FromDate" e-headertext="From Date" e-width="2" e-isprimarykey="true"></div>
