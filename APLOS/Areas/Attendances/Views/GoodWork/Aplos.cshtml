@@ -91,40 +91,7 @@
                 </div>
             </div>
         </div>
-
-        @*<div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Department<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select id="Category" class="form-control" ng-model="ModelNew.DepartmentId" name="Department" ng-change="changeSectionByDept();" tabindex="4">
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in DepartmentList" value="{{option.Value}}">{{option.Text}}</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Sub-Section<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select id="Category" class="form-control" ng-model="ModelNew.SubSectionId" name="SubSection" tabindex="6">
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in subSectionList" value="{{option.Value}}">{{option.Text}}</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label">User Group</label>
-                <div class="col-sm-8">
-                    <div class="select-style">
-                        <select id="Category" class="form-control" ng-model="ModelNew.UserGroupId" name="UserGroup" tabindex="8">
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in UserGroupList" value="{{option.UserReportGroup}}">{{option.UserReportGroup}}</option>
-                        </select>
-                    </div>
-                </div>
-            </div>*@
+         
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Purpose Category<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -145,7 +112,16 @@
                 <input type="number" class="form-control" name="Minute" ng-model="ModelNew.Minute" e-width="100" disabled tabindex="12" />
             </div>
         </div>
-
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Check By<sup>*</sup></label>
+            <div class="col-sm-8 show-message"> 
+                <div class="select-style">
+                    <select id="CheckedBy" class="form-control" name="Checked By" ng-model="ModelNew.CheckedBy" tabindex="8" required>
+                        <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Reason</label>
             <div class="col-sm-8 show-message">
@@ -237,34 +213,27 @@
             <div e-column e-field="FromTime" e-headertext="From Time" e-width="50"></div>
             <div e-column e-field="ToTime" e-headertext="To Time" e-width="50"></div>
             <div e-column e-field="Purpose" e-headertext="Purpose" e-width="50"></div>
-            <div e-column e-headertext="Purpose Category" e-template="#purposeCategory" e-textalign="center" e-width="40"></div>
-            <div e-column e-headertext="Checked By" e-template="#checkedBy" e-textalign="center" e-width="40"></div>
-            <div e-column e-field="Remarks" e-headertext="Remark" e-width="30"></div>
+            <div e-column e-field="PurposeCategory" e-headertext="Purpose Category" e-width="50"></div>
+            @*<div e-column e-headertext="Checked By" e-template="#checkedBy" e-textalign="center" e-width="40"></div>*@
+            <div e-column e-field="Remark" e-headertext="Remark" e-width="30"></div>
             <div e-column e-field="Minute" e-headertext="Minute" e-width="30"></div>
             <div e-column e-field="Section" e-headertext="Section" e-width="40"></div>
             <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="40"></div>
             <div e-column e-field="Department" e-headertext="Department" e-width="40"></div>
 
         </div>
-        <script type="text/x-jsrender" id="purposeCategory">
-            <select name="PurposeCategory" ng-model="PurposeCategory" id="pc" class="form-control">
-                <option value="BreakDown">BreakDown</option>
-                <option value="Additional">Additional</option>
-                <option value="New">New</option>
-                <option value="Normal">Normal</option>
-            </select>
-        </script>
-        <script type="text/x-jsrender" id="checkedBy">
-            <div class="select-style" ng-show="checkedByList.length">
+         
+        <!--<script type="text/x-jsrender" id="checkedBy">
+            <div class="select-style">-->
                 @*<select id="CheckedBy" class="form-control" name="Checked By" ng-model="data.CheckedById" tabindex="8">
                     <option ng-repeat="option in $parent.checkedByList" value="{{option.Value}}">{{option.Text}}</option>
                 </select>*@
 
-                <select name="CheckedBy" class="form-control" ng-model="data.CheckedById" ng-options="item.Value as item.Text for item in $parent.data.checkedByList" tabindex="9">
+                <!--<select name="CheckedBy" class="form-control" ng-model="data.CheckedById" ng-options="item.Value as item.Text for item in data.checkByList" tabindex="9">
                     <option value="">--Select--</option>
                 </select>
             </div>
-        </script>
+        </script>-->
     </div>
 
 
