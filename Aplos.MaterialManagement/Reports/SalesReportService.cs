@@ -2044,7 +2044,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
     ,INVPARTYPL.UserName InvoiceParty,INVPARTYPL.UserName InvoiceParty2,IR.InvoicingByAddress AS ConsigneeAddress,IR.DeliveryByAddress,DPARTYPL.UserName DeliveryParty 
     ,PSI.PreCarriageBy,PSI.PlaceOfReceiptByPreCarriage,PSI.CNFContainerNo,PSI.CNFVesselName,PSI.CNFVesselTrackingNo,CRNC.Code AS CurrencyName,IR.ToCurrencyRate
     ,BASECRNC.Code AS BaseCurrencyName,PayTerm.UserName PaymentTerm,MM.UserName MaterialMaster,MGM.UserName MaterialGroupMaster
-    ,Article=CASE WHEN ISNULL(MO.LCArticle,'')<>'' THEN MO.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
+    ,Article=CASE WHEN ISNULL(MOI.LCArticle,'')<>'' THEN MOI.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
      ,POTransactionQty=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.NetWeight END) 
     ,CONVERT(NUMERIC(10,4),IRD.TransactionRate, 4) TransactionRate
 	,TrnAmount=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN ROUND((IRD.TransactionQty * IRD.TransactionRate), 2) ELSE ROUND((SCN.NetWeight * IRD.TransactionRate), 2) END)
@@ -5747,7 +5747,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
     ,PayTerm.UserName PaymentTerm
     ,MM.UserName MaterialMaster
     ,MGM.UserName MaterialGroupMaster
-    ,Article=CASE WHEN ISNULL(MO.LCArticle,'')<>'' THEN MO.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
+    ,Article=CASE WHEN ISNULL(MOI.LCArticle,'')<>'' THEN MOI.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
    
      ,POTransactionQty=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.NetWeight END) 
     ,CONVERT(NUMERIC(10,4),IRD.TransactionRate, 4) TransactionRate
@@ -5913,7 +5913,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                               , MM.UserName MaterialMaster
                                , MM.MaterialGroupMasterId
 	                          ,MGM.UserName MaterialGroupMaster
-                              ,Article=CASE WHEN ISNULL(MO.LCArticle,'')<>'' THEN MO.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
+                              ,Article=CASE WHEN ISNULL(MOI.LCArticle,'')<>'' THEN MOI.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
                                , FC.UserName FirstChar
                                 , FCV.UserName AS FirstCharacteristicsValue
 	                          ,SCV.UserName AS SecondCharacteristicsValue
@@ -6003,6 +6003,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                          LEFT JOIN[MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
                          LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
  LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
+LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
                          LEFT JOIN (Select distinct HsnCodeId,SalesMaterialId FROM TRN.SalesTax ) STH ON STH.SalesMaterialId=IRD.Id
                          LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
                          LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
@@ -6103,7 +6104,7 @@ LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
 	,MM.UserName MaterialMaster
 	,MM.MaterialGroupMasterId
 	,MGM.UserName MaterialGroupMaster
-	,Article=CASE WHEN ISNULL(MO.LCArticle,'')<>'' THEN MO.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
+	,Article=CASE WHEN ISNULL(MOI.LCArticle,'')<>'' THEN MOI.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
 	,FC.UserName FirstChar
 	,FCV.UserName AS FirstCharacteristicsValue
 	,SCV.UserName AS SecondCharacteristicsValue
@@ -6301,7 +6302,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                               , MM.UserName MaterialMaster
                                , MM.MaterialGroupMasterId
 	                          ,MGM.UserName MaterialGroupMaster
-                              ,Article=CASE WHEN ISNULL(MO.LCArticle,'')<>'' THEN MO.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
+                              ,Article=CASE WHEN ISNULL(MOI.LCArticle,'')<>'' THEN MOI.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
                                , FC.UserName FirstChar
                                 , FCV.UserName AS FirstCharacteristicsValue
 	                          ,SCV.UserName AS SecondCharacteristicsValue
@@ -6391,6 +6392,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                          LEFT JOIN[MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
                          LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
  LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
+LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
                          LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
                          LEFT JOIN[HKP].[HSNCode] AS MHSN ON MHSN.ID = MM.HSNCodeId
                          LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
