@@ -757,7 +757,7 @@ namespace Library.Service.Advances
             }
         }
         
-        public string InsertMultiCustomerAdvanceWriteOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList, IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList)
+        public string InsertMultiCustomerAdvanceWriteOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList, IEnumerable<VoucherDetailViewModel> voucherDetailListNew, IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList)
         {
             var flag = false;
             try
@@ -937,12 +937,12 @@ namespace Library.Service.Advances
                     invoiceWriteOff.Amount = totalAmountDr;
 
                     // Invoice
-                    var invoiceIds = advanceDetailVMList.Select(r => r.InvoiceId);
+                    var invoiceIds = voucherDetailListNew.Select(r => r.InvoiceId);
                     var inviceDbList = _invoiceService.Query(r => invoiceIds.Contains(r.Id)).Select().ToList();
-                    var invoiceDetailIds = advanceDetailVMList.Select(r => r.InvoiceDetailId);
+                    var invoiceDetailIds = voucherDetailListNew.Select(r => r.InvoiceDetailId);
                     var inviceDetailDbList = _invoiceService.GetInvoiceDetailList(r => invoiceDetailIds.Contains(r.Id)).Select().ToList();
                     var currentInvoiceDetail = 0;
-                    foreach (var voucherDetailVM in advanceDetailVMList)
+                    foreach (var voucherDetailVM in   voucherDetailListNew)
                     {
                         var invoiceDetail = inviceDetailDbList.FirstOrDefault(r => r.Id == voucherDetailVM.InvoiceDetailId);
                         if (null == invoiceDetail)

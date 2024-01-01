@@ -371,6 +371,10 @@
                                     <input ng-click="clearSourceInfo()" type="radio" name="SourceNew" ng-model="advanceNew.PaymentSource" value="@Library.Model.Payments.PaymentSource.Bank.ToString()">
                                     <span class="cr" tabindex="8"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Bank.ToString()
                                 </label>
+                                <label>
+                                    <input ng-click="changeSettlementType()" type="radio" name="SourceNew" ng-model="advanceNew.PaymentSource" value="@Library.Model.Payments.SettlementType.Invoice.ToString()">
+                                    <span class="cr" tabindex="9"><i class="cr-icon"></i></span>@Library.Model.Payments.SettlementType.Invoice.ToString()
+                                </label>
                             </div>
                         </div>
                         <div class="form-group">
@@ -428,6 +432,17 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="form-group" ng-show="advanceNew.PaymentSource=='@Library.Model.Payments.PaymentSource.Invoice.ToString()'">
+                            <label class="col-sm-4 control-label">Invoice<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+                                    <span class="input-group-btn">
+                                        <button ng-click="showCustomerInvoicePopUp(advanceNew.PartyId);" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i> Select Invoice</button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
 
                         <div class="form-group" ng-show="advanceNew.PaymentSource=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">
                             <label class="col-sm-4 control-label">Discount<sup>*</sup></label>
@@ -485,7 +500,7 @@
                                 </div>
                             </div>
                             <div class="col-sm-3 show-message" style="padding-left:0px;">
-                                <input type="text" maxlength="50" id="Rate" name="Rate" ng-model="advanceNew.CompanyCurrencyRate" ng-disabled="advanceNew.CurrencyId==companyCurrencyId" class="form-control text-right" tabindex="5" required>
+                                <input type="text" maxlength="50" id="Rate" name="Rate" ng-model="advanceNew.CompanyCurrencyRate" ng-disabled="advanceNew.CurrencyId==companyCurrencyId || voucherDetailListNew.length" class="form-control text-right" tabindex="5" required>
                             </div>
                         </div>
                         <div class="form-group" show-errors>
@@ -552,6 +567,60 @@
 
                                     <td class="text-right"><b>{{ advanceDetailList | sumByKey : 'CrAmount'  }}</b></td>
                                     <td class="text-right"><b>{{ advanceDetailList | sumByKey : 'DrAmount' }}</b></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="table-responsive modal-table" ng-hide="voucherDetailListNew.length==0">
+                        <table class="table table-responsive table-striped">
+                            <thead>
+                                <tr>
+                                    <th>#No</th>
+                                    <th>Ordering @Library.Model.Parties.PartyType.Customer.ToString()</th>
+                                    <th>Currency</th>
+                                    <th>Rate</th>
+                                    <th>Amount</th>
+                                    <th>Set-off Amount</th>
+                                    <th>Balance</th>
+                                    <th>Received Amount</th>
+                                    <th>Exchange Type</th>
+                                    <th>Exchange Amount</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in voucherDetailListNew">
+                                    <td>{{x.VoucherNo}}</td>
+                                    <td>{{x.PartyPlantName}}</td>
+                                    <td>{{x.CurrencyCode}}</td>
+                                    <td>{{x.CompanyCurrencyRate}}</td>
+                                    <td class="text-right">{{x.Amount | number:2}}</td>
+                                    <td class="text-right">{{x.WriteOff | number:2}}</td>
+                                    <td class="text-right">{{x.Advilable | number:2}}</td>
+                                    <td><input type="text" ng-keyup="exchangeGainLossAmountNew(x)" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" ng-model="x.DrAmount"></td>
+                                    <td><input readonly type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ExchangeType" ng-model="x.ExchangeType"></td>
+                                    <td><input readonly type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ExchangeAmount" ng-model="x.ExchangeAmount"></td>
+                                    <td class="text-right">
+                                        <button ng-click="removeRow($index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove" ng-hide="x.AdvanceDetailId!=null">
+                                            <i class="glyphicon glyphicon-remove"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot ng-show="voucherDetailListNew.length">
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td><b>Sub Total</b></td>
+
+                                    <td class="text-right"><b>{{ voucherDetailListNew | sumByKey : 'CrAmount'  }}</b></td>
+                                    <td class="text-right"><b>{{ voucherDetailListNew | sumByKey : 'DrAmount' }}</b></td>
                                     <td></td>
                                     <td></td>
                                 </tr>
@@ -677,6 +746,7 @@
                             <thead>
                                 <tr>
                                     <th>Voucher No</th>
+                                    <th>Advance Group No</th>
                                     <th>Customer</th>
                                     <th>Customer Plant</th>
                                     <th>Payment Type</th>
@@ -692,6 +762,7 @@
                                 <tr dir-paginate="x in customerAdvanceNewList |itemsPerPage:customerAdvanceParametersNew.pageSize" pagination-id="metaData.name + 'customerAdvanceNewList'"
                                     total-items="customerAdvanceParametersNew.total_count" ng-class="{selected : x.AdvanceId == selectedAdvanceId}" ng-dblclick="closeAdvancePopUpNewselected(x)">
                                     <td>{{x.VoucherNo}}</td>
+                                    <td>{{x.AdvanceGroupNo}}</td>
                                     <td>{{x.PartyCode}} - {{x.PartyName}}</td>
                                     <td>{{x.PartyPlantName}}</td>
                                     <td>{{x.PaymentType}}</td>

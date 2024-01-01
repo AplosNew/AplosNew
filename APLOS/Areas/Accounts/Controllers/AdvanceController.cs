@@ -263,7 +263,8 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult ParkMultiCustomerAdvanceWriteOff(VoucherViewModel advanceVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList, IEnumerable<VoucherDetailCurrencyViewModel> currencyList)
+        public JsonResult ParkMultiCustomerAdvanceWriteOff(VoucherViewModel advanceVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList
+            , IEnumerable<VoucherDetailViewModel> voucherDetailListNew, IEnumerable<VoucherDetailCurrencyViewModel> currencyList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             advanceVM.CompanyGroupId = identity.CompanyGroupId;
@@ -274,7 +275,7 @@ namespace Aplos.Areas.Accounts.Controllers
             advanceVM.PartyType = PartyType.Customer.ToString();
             if (advanceVM.PaymentSource == PaymentSource.Bank.ToString() && advanceVM.CurrencyId != advanceVM.BankCurrencyId && advanceVM.BankAmount == 0)
                 throw new CustomException("Please Input BankAmount !");
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceWriteOffService.InsertMultiCustomerAdvanceWriteOff(advanceVM, advanceDetailVMList, currencyList)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceWriteOffService.InsertMultiCustomerAdvanceWriteOff(advanceVM, advanceDetailVMList, voucherDetailListNew, currencyList)) });
         }
 
         [HttpPost]
