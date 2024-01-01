@@ -138,72 +138,7 @@
     </ul>
 
     <div class="clearfix"></div>
-    <!--<div class="table-responsive modal-table ">
-        <table class="table table-striped table-bordered">
-            <thead>
-                <tr>
-                    <th>Employee Code</th>
-                    <th>Employee Name</th>
-                    <th>From Time</th>
-                    <th>To Time</th>
-                    <th>Purpose</th>
-                    <th>Purpose Category</th>
-                    <th>Approved By</th>
-                    <th>Remarks</th>
-                    <th>Minute</th>
-                    <th>Section</th>
-                    <th>SubSection</th>
-                    <th>Department</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="x in GoodWorkList" ng-class="{selected : x.Id==null}">
-                    <td>{{x.EmployeeCode}}</td>
-                    <td>{{x.EmployeeName}}</td>
-                    <td>{{x.FromTime}}</td>
-                    <td>{{x.ToTime}}</td>
-
-                    <td><input type="text" name="Purpose" ng-model="x.Purpose" class="form-control" maxlength="15" required tabindex="3"></td>
-                    <td>
-                        <select name="PurposeCategory" ng-model="x.PurposeCategory" id="pc" class="form-control">
-                            <option value="BreakDown">BreakDown</option>
-                            <option value="Additional">Additional</option>
-                            <option value="New">New</option>
-                            <option value="Normal">Normal</option>
-                        </select>
-                    </td>
-                    <td>
-                        <div class="select-style" ng-show="checkedByList.length">
-                            <select id="CheckedBy" class="form-control" name="Checked By" ng-model="ModelNew.CheckedById" tabindex="8" required>
-                                <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
-                            </select>
-                        </div>-->
-                        @*<span class="input-group-btn">
-                                <button ng-click="$parent.showByWhomEmployeeListPopUp($index);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                <button ng-click="clearEmp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                            </span>*@
-                    <!--</td>
-                    <td><input type="text" name="Remarks" ng-model="x.Remark" class="form-control" maxlength="15" required tabindex="3"></td>
-                    <td><input type="number" class="form-control" name="Minute" ng-model="x.Minute" e-width="100" disabled /></td>
-                    <td>{{x.Section}}</td>
-                    <td>{{x.SubSection}}</td>
-                    <td>{{x.Department}}</td>
-
-                    <td class="text-right">-->
-                        @*<button ng-click="$parent.selectEdit(x,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Edit">
-                                <i class="glyphicon glyphicon-edit"></i>
-                            </button>*@
-
-                        <!--<button ng-click="$parent.removeRow(x)"--> @*data-toggle="modal"*@ <!--ng-disabled="currencyDisable" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
-                            <i class="glyphicon glyphicon-remove"></i>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>-->
-
+   
     <div id="GridEdit" ej-grid e-datasource="GoodWorkList"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
@@ -222,18 +157,7 @@
             <div e-column e-field="Department" e-headertext="Department" e-width="40"></div>
 
         </div>
-         
-        <!--<script type="text/x-jsrender" id="checkedBy">
-            <div class="select-style">-->
-                @*<select id="CheckedBy" class="form-control" name="Checked By" ng-model="data.CheckedById" tabindex="8">
-                    <option ng-repeat="option in $parent.checkedByList" value="{{option.Value}}">{{option.Text}}</option>
-                </select>*@
-
-                <!--<select name="CheckedBy" class="form-control" ng-model="data.CheckedById" ng-options="item.Value as item.Text for item in data.checkByList" tabindex="9">
-                    <option value="">--Select--</option>
-                </select>
-            </div>
-        </script>-->
+          
     </div>
 
 
