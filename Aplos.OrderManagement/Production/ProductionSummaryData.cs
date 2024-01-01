@@ -7504,18 +7504,19 @@ where CustomerParameter=1 and QCD.GradeId is not null" + LotFilter + "";
 
         public IEnumerable<object> LoadLWQRUpdate(string POId, string LotNumber, string CustomerId, string InvoiceId)
         {
-            string POFilter = string.Empty;
+            string CQRHFilter = string.Empty;
             string LotFilter = string.Empty;
             string CustFilter = string.Empty;
             string InvFilter = string.Empty;
             if (POId != "null" && POId != "undefined")
             {
-
-                POFilter = "and CQH.ProductionOrderId='" + POId + "'";
+                LotFilter = " and QC.ProductionOrderId='" + POId + "' and QC.LotNumber='" + LotNumber + "'";
+                CQRHFilter = " CQH.ProductionOrderId='" + POId + "' and CQH.LotNo='" + LotNumber + "'";
             }
-            if (LotNumber != "null" && LotNumber != "undefined")
+            else
             {
-                LotFilter = "and CQH.LotNo='" + LotNumber + "'";
+                LotFilter = " and QC.LotNumber='" + LotNumber + "'";
+                CQRHFilter = " CQH.LotNo='" + LotNumber + "'";
             }
             if (CustomerId != "null" && CustomerId != "undefined")
             {
@@ -7525,37 +7526,41 @@ where CustomerParameter=1 and QCD.GradeId is not null" + LotFilter + "";
             {
                 InvFilter = " and CQH.InvoiceId='" + InvoiceId + "'";
             }
-            string sql = @"select distinct CQH.ProductionOrderId,CQH.LotNo,CQH.CustomerId,CQH.InvoiceId,
-CustomerName=(select UserName from hkp.Party where Id=CQH.CustomerId),
+            string sql = @"select distinct QC.ProductionOrderId,QC.LotNumber LotNo,'" + CustomerId + "' CustomerId,'" + InvoiceId + @"' InvoiceId,
+CustomerName=(select UserName from hkp.Party where Id='" + CustomerId + @"'),
 Article = STUFF((select distinct ',' + MA.StandardName from trn.ProductionOrderDetail Pod
 left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId = so.Id
 left outer join trn.MasterOrderItem MOI on moi.Id = so.MasterOrderItemId
 left outer join[MST].[MaterialMasterArticle] MA ON ma.Id = moi.ArticleId
-where Pod.ProductionOrderId = CQH.ProductionOrderId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-(select UserName from MST.QualityManagementMaster where Id=(select IssueId from TRN.QualityControl where Id=QCD.QCId)) as IssueName,
-(select Finalreport from MST.QualityManagementParameterItem where id=CQD.ParameterId) Finalreport,
-CQD.ParameterId,CQH.Id CQRHeaderId,CQH.UserName,CQH.Remarks,CQH.ByWhomId,
+where Pod.ProductionOrderId = QC.ProductionOrderId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+(select UserName from MST.QualityManagementMaster where Id=QC.IssueId) as IssueName,
+(select top 1 Finalreport from [TRN].[CustomerQualityReportDetails] where CQRHeaderId=CQH.Id and ParameterId=QMP.Id and UOMId=QMP.UOMId) Finalreport,
+QMP.Id ParameterId,CQH.Id CQRHeaderId,CQH.UserName,CQH.Remarks,CQH.ByWhomId,
 (select EmployeeName from EmployeeInformation where systemId=CQH.ByWhomId) as ByWhom,
-CQD.Id,CQD.ParaRemarks,CQD.SpecialRemarks,CQD.Value,PM.UserName Parameter,CQD.UOMId,UM.UserName UOM,
+(select top 1 Id from [TRN].[CustomerQualityReportDetails] where CQRHeaderId=CQH.Id and ParameterId=QMP.Id and UOMId=QMP.UOMId) as Id,
+(select top 1 ParaRemarks from [TRN].[CustomerQualityReportDetails] where CQRHeaderId=CQH.Id and ParameterId=QMP.Id and UOMId=QMP.UOMId) as ParaRemarks,
+(select top 1 SpecialRemarks from [TRN].[CustomerQualityReportDetails] where CQRHeaderId=CQH.Id and ParameterId=QMP.Id and UOMId=QMP.UOMId) as SpecialRemarks,
+isnull((select top 1 Value from [TRN].[CustomerQualityReportDetails] where CQRHeaderId=CQH.Id and ParameterId=QMP.Id and UOMId=QMP.UOMId),QCD.Value) Value,
+PM.UserName Parameter,QMP.UOMId,UM.UserName UOM,
 Reverse(stuff(Reverse((select QR.Grade +', ' from MST.QualityRemark QR																			
-where QR.PONo=CQH.ProductionOrderId and QR.LotNo=CQH.LotNo for xml PATH(''))),1,2,'')) QRGrade,
+where QR.PONo=QC.ProductionOrderId and QR.LotNo=QC.LotNumber for xml PATH(''))),1,2,'')) QRGrade,
 Reverse(stuff(Reverse((select (select EmployeeName from EmployeeInformation where SystemId=QR.ByWhomId) +', ' from MST.QualityRemark QR																			
-where QR.PONo=CQH.ProductionOrderId and QR.LotNo=CQH.LotNo  for xml PATH(''))),1,2,'')) QRByWhom,
+where QR.PONo=QC.ProductionOrderId and QR.LotNo=QC.LotNumber  for xml PATH(''))),1,2,'')) QRByWhom,
 Reverse(stuff(Reverse((select QR.Comment +', ' from MST.QualityRemark QR																			
-where QR.PONo=CQH.ProductionOrderId and QR.LotNo=CQH.LotNo   for xml PATH(''))),1,2,'')) QRComment,
+where QR.PONo=QC.ProductionOrderId and QR.LotNo=QC.LotNumber   for xml PATH(''))),1,2,'')) QRComment,
 Reverse(stuff(Reverse((select OWC.Grade +', ' from MST.OrderWiseQualityComment OWC																			
-where OWC.PONo=CQH.ProductionOrderId and OWC.LotNo=CQH.LotNo for xml PATH(''))),1,2,'')) OWGrade,
+where OWC.PONo=QC.ProductionOrderId and OWC.LotNo=QC.LotNumber for xml PATH(''))),1,2,'')) OWGrade,
 Reverse(stuff(Reverse((select (select EmployeeName from EmployeeInformation where SystemId=(Select AuthorizedResPersonId from HKP.QualityManagementAuthorizedPerson where Id=OWC.ByWhomId)) +', ' from MST.OrderWiseQualityComment OWC																			
-where OWC.PONo=CQH.ProductionOrderId and OWC.LotNo=CQH.LotNo  for xml PATH(''))),1,2,'')) OWByWhom,
+where OWC.PONo=QC.ProductionOrderId and OWC.LotNo=QC.LotNumber  for xml PATH(''))),1,2,'')) OWByWhom,
 Reverse(stuff(Reverse((select OWC.Comment +', ' from MST.OrderWiseQualityComment OWC																			
-where OWC.PONo=CQH.ProductionOrderId and OWC.LotNo=CQH.LotNo for xml PATH(''))),1,2,'')) OWComment
-from TRN.CustomerQualityReportHeader CQH
-left Join TRN.CustomerQualityReportDetails CQD on CQD.CQRHeaderId=CQH.Id
-left join MST.QualityManagementParameterItem QMP on QMP.Id=CQD.ParameterId
+where OWC.PONo=QC.ProductionOrderId and OWC.LotNo=QC.LotNumber for xml PATH(''))),1,2,'')) OWComment
+from MST.QualityManagementParameterItem QMP
+left join TRN.QualityControlDetails QCD on QCD.ItemId=QMP.Id
+left join TRN.QualityControl QC on QC.Id=QCD.QCID
 left join HKP.ParameterMaster PM on PM.Id=QMP.ParameterId
-left join SCS.UnitOfMeasurement UM on UM.Id=CQD.UOMId 
-left join TRN.QualityControlDetails QCD on QCD.ItemId=CQD.ParameterId
-where QMP.CustomerParameter=1 and QCD.GradeId is not null " + POFilter + " " + LotFilter + "" + CustFilter + " " + InvFilter + "";
+left join SCS.UnitOfMeasurement UM on UM.Id=QMP.UOMId
+left join[TRN].[CustomerQualityReportHeader] CQH on " + CQRHFilter + " " + CustFilter + " " + InvFilter + @"
+where CustomerParameter=1 and QCD.GradeId is not null" + LotFilter + "";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
