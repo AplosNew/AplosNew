@@ -55,6 +55,10 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             return View();
         }
+        public ActionResult LCPendingReport()
+        {
+            return View();
+        }
         public ActionResult MasterLC()
         {
             return View();
@@ -950,11 +954,11 @@ WHERE CT.ContractId " + contractId+"";
                     foreach (var item in data)
                     {
                         if (id == "")
-                            id = "'" + item["SalesOrderId"] + "'";
+                            id = "'" + item["MasterOrderItemId"] + "'";
                         else
-                            id = id + ",'" + item["SalesOrderId"] + "'";
+                            id = id + ",'" + item["MasterOrderItemId"] + "'";
                     }
-                    string mosql = "SELECT * FROM TRN.SalesOrder WHERE Id IN (" + id + ")";
+                    string mosql = "SELECT * FROM TRN.[MasterOrderItem] WHERE Id IN (" + id + ")";
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(mosql, out dsChild, false, "1");
 
@@ -962,7 +966,7 @@ WHERE CT.ContractId " + contractId+"";
                     foreach (var item in data)
                     {
                         DataView dv = new DataView(dsChild.Tables[0]);
-                        dv.RowFilter = "Id='" + item["SalesOrderId"] + "'";
+                        dv.RowFilter = "Id='" + item["MasterOrderItemId"] + "'";
                         
                         if (dv.Count > 0)
                         {
@@ -1618,8 +1622,7 @@ WHERE CT.ContractId " + contractId+"";
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                return Json(clsCon.GetSalesOrderListByContract(identity.CompanyId, identity.PlantId, customerId, contractId), JsonRequestBehavior.AllowGet);
+                return Json(clsCon.GetSalesOrderListByContract(customerId, contractId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -3473,6 +3476,28 @@ WHERE CT.ContractId " + contractId+"";
             catch (Exception ex)
             {
                 return Json(new { Error = true, ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetLCPendingReport()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var workbook = clsCon.GetLCPendingReportWorkbookExcel(identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+
+                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "LCPendingReport.xlsx";
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                workbook.SaveAs(fullPath);
+
+
+                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
             }
         }
 

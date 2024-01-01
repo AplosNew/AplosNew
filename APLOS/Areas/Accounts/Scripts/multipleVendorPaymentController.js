@@ -20,7 +20,7 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
     $scope.multiplePaymentDataList = [];
     $scope.multipleVendorpaymentList = [];
     $scope.multipleVendorpaymentDetailList = [];
-    $scope.MultiplepaymentDetailSelectedList = [];
+    $scope.multPaymentPartySummaryList = [];
     baseService.init("Accounts/Invoice/GetMultiplePaymentVoucherList", null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
 
     $scope.getData = function () {
@@ -335,7 +335,7 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
         $scope.paymentSelectedList = [];
         $scope.lst = [];
         $scope.checkedMultipleVendorpaymentList = [];
-        $scope.MultiplepaymentDetailSelectedList = [];
+        $scope.multPaymentPartySummaryList = [];
     };
    
     $scope.validation = function () {
@@ -571,7 +571,20 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
         })[0];
         $scope.voucher.VoucherTypeId = data.Value;
     };
-   
+    $scope.selectPaymentList = function () {
+        $scope.checkedMultipleVendorpaymentList = [];
+        $scope.multPaymentPartySummaryList = [];
+        for (var i = 0; i < $scope.lst.length; i++) {
+            if ($scope.lst[i].flag === true) {
+                $scope.checkedMultipleVendorpaymentList.push($scope.lst[i]);
+                var getRow = null;
+                getRow = $filter("filter")($scope.multPaymentPartySummaryList, { "PartyId": $scope.lst[i].PartyId, "PartyPlantId": $scope.lst[i].PartyPlantId });
+                if (getRow.length === 0) {
+                    $scope.multPaymentPartySummaryList.push($scope.lst[i]);
+                } 
+            }
+        }
+    }
     $scope.Post = function () {
         // $scope.pushMultiplePaymentDetail();
         if ($scope.formPost.$valid && $scope.checkedMultipleVendorpaymentList.length > 0) {
@@ -580,8 +593,8 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
                     url: 'accounts/Invoice/PostMultipleVendorPayment',
                     data: {
                         'voucherVM': $scope.voucher,
-                        'multiplePaymentlist': $scope.checkedMultipleVendorpaymentList,
-                        'multiplePaymentDetailList': $scope.MultiplepaymentDetailSelectedList,
+                        'mpSummarylist': $scope.multPaymentPartySummaryList,
+                            'multiplePaymentDetailList': $scope.checkedMultipleVendorpaymentList
                     },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
@@ -605,7 +618,8 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
         $scope.voucher.VoucherDate = $filter("dateFiltering")(Date.now());
         $scope.voucher.PaymentSource= "Bank";
         $scope.checkedMultipleVendorpaymentList = [];
-        $scope.MultiplepaymentDetailSelectedList = [];
+        $scope.lst = [];
+        $scope.multPaymentPartySummaryList = [];
     };
 
     $scope.exchangeGainLossCal = function (rate) {
@@ -641,7 +655,7 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
                 url: 'accounts/Invoice/DeleteMultipleVendorRow',
                 data: {
                     'multiplePaymentlist': $scope.checkedMultipleVendorpaymentList,
-                    'multiplePaymentDetailList': $scope.MultiplepaymentDetailSelectedList,
+                    'multiplePaymentDetailList': $scope.multPaymentPartySummaryList,
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -774,20 +788,7 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
         e.detailsElement.find(".tabcontrol").ejTab();
     }
 
-    $scope.selectPaymentList = function () {
-        $scope.checkedMultipleVendorpaymentList = [];
-        $scope.MultiplepaymentDetailSelectedList = [];
-        for (var i = 0; i < $scope.lst.length; i++) {
-            if ($scope.lst[i].flag === true) {
-                $scope.checkedMultipleVendorpaymentList.push($scope.lst[i]);
-                for (var j = 0; j < window.lst.length; j++) {
-                    if (window.lst[j].PartyId == $scope.lst[i].PartyId && window.lst[j].InvoiceDetailId == $scope.lst[i].InvoiceDetailId) {
-                        $scope.MultiplepaymentDetailSelectedList.push(window.lst[j]);
-                    }
-                }
-            }
-        }
-    }
+   
 
 
 

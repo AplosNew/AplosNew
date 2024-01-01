@@ -2226,6 +2226,14 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         location.href = "SalesManagements/Sales/CommercialInvoice?salesId=" + data.Id;
       //  $scope.CommercialInvoicePackingListReport(data);
     };
+    $scope.LRDraft = function (data) {
+        location.href = "SalesManagements/Sales/LRDraft?salesId=" + data.Id;
+        //  $scope.CommercialInvoicePackingListReport(data);
+    };
+    $scope.BillofExchange = function (data) {
+        location.href = "SalesManagements/Sales/BillofExchange?salesId=" + data.Id;
+        //  $scope.CommercialInvoicePackingListReport(data);
+    };
     $scope.CommercialInvoicePackingListReport = function (data) {
         location.href = "SalesManagements/Sales/CommercialInvoicePackingList?salesId=" + data.Id;
     };

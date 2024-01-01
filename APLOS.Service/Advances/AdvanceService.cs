@@ -591,6 +591,8 @@ namespace Library.Service.Advances
                                  , EI.EmployeeName, EIR.EmployeeCode,EIR.EmployeeName, A.PostingDate, A.DocDate, A.DocRefNo
                                  , A.CurrencyId, C.Code  , A.IsWrittenOff,A.AdvanceGroupNo,A.IsPark , A.IsInterTransaction, A.IsPosted
 ";
+            parameters.sort = " PostingDate DESC, VoucherNo";
+            parameters.order = "DESC";
             return _sqlRepository.GetGridData(parameters);
         }
 

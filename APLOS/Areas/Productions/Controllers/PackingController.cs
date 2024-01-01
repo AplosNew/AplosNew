@@ -406,7 +406,7 @@ namespace Aplos.Areas.Productions.Controllers
             int SNo = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Article", 36, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Article", 40, ExcelHAlign.HAlignCenter);
             int ColArticles = COL;
             COL++;
 
@@ -480,16 +480,17 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, SNo].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet[ROW, ColArticles].Text = data.Rows[i]["ATS"].ToString();
                 sheet.Range[ROW, ColArticles].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet.Range[ROW, ColArticles].RowHeight = 25;
                 sheet[ROW, ColSahde].Text = data.Rows[i]["Shade"].ToString();
                 sheet.Range[ROW, ColSahde].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet[ROW, ColLot].Text = data.Rows[i]["LotNo"].ToString();
                 sheet.Range[ROW, ColLot].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet[ROW, ColLot].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet[ROW, ColREF].Text = data.Rows[i]["RefNo"].ToString();
-                sheet[ROW, ColLot].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet[ROW, ColREF].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet[ROW, ColNocones].Text = data.Rows[i]["Cones"].ToString();
                 sheet.Range[ROW, ColNocones].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet[ROW, ColREF].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[ROW, ColREF].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet[ROW, ColNtWt].Number = clsStaticInfo.dbl(data.Rows[i]["netWeight"].ToString());
                 sheet.Range[ROW, ColNtWt].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet[ROW, ColNtWt].HorizontalAlignment = ExcelHAlign.HAlignCenter;

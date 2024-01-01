@@ -662,6 +662,48 @@ namespace Library.Service.Helpers
             }
         }
 
+        public string InWordNew(double amount, string CurrencyId)
+        {
+            var _result = string.Empty;
+            var _Amount = amount.ToString();
+            var _TotalAmount = amount.ToString();
+
+            var inwords = string.Empty;
+            var BaseCurrency = string.Empty;
+            var LargeUnit = string.Empty;
+            var SmallUnit = string.Empty;
+            try
+            {
+                var sql = "Select Id, [Description], LargeUnit, SmallUnit, InWordFormat from [SCS].[Currency] where Id='" + CurrencyId + "'";
+                var dsLocal = _sqlRepository.GetDataTable(sql);
+                if (dsLocal.Rows.Count > 0)
+                {
+                    BaseCurrency = dsLocal.Rows[0]["Description"].ToString();
+                    LargeUnit = dsLocal.Rows[0][nameof(LargeUnit)].ToString();
+                    SmallUnit = dsLocal.Rows[0][nameof(SmallUnit)].ToString();
+                    inwords = "";
+                    if (dsLocal.Rows[0]["InWordFormat"].ToString().ToUpper() == "SUBCONTINENT")
+                        inwords += Helpers.InWord.SpellAmountInIndiaSubConWayNew(_Amount, LargeUnit, SmallUnit);
+                    else if (dsLocal.Rows[0]["InWordFormat"].ToString().ToUpper() == "INTERNATIONAL")
+                        inwords += Helpers.InWord.SpellAmountInIndiaSubConWayNew(_Amount, LargeUnit, SmallUnit);
+                    else
+                        inwords += Helpers.InWord.SpellAmountInIndiaSubConWayNew(_Amount, LargeUnit, SmallUnit);
+                    _result = inwords;
+                }
+                else
+                {
+                    inwords += Helpers.InWord.SpellAmountInIndiaSubConWayNew(_Amount, LargeUnit, SmallUnit);
+                    _result = inwords;
+                }
+
+                return _result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public IWorkbook GetWorkbook(ref ExcelEngine excelEngine, int TotalSheet)
         {
             excelEngine = new ExcelEngine();

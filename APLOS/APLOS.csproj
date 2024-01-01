@@ -1926,6 +1926,8 @@
     <Content Include="Areas\Accounts\Scripts\invoiceChargeWriteOffController.js" />
     <Content Include="Areas\Accounts\Scripts\fiscalYearCloseController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractApprovedController.js" />
+    <Content Include="Areas\Attendances\Scripts\GoodWorkCheckedController.js" />
+    <Content Include="Areas\Commercial\Scripts\LCPendingReportController.js" />
     <Content Include="Areas\OrderManagements\Scripts\TermsandConditionGroupController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
     <Content Include="Areas\Productions\Scripts\MasterPlanDetailsController.js" />
@@ -4887,6 +4889,8 @@
     <Content Include="Areas\Accounts\Views\_MultipleVendorPostedTab.cshtml" />
     <Content Include="Areas\Accounts\Views\_MultipleVendorEntryTab.cshtml" />
     <Content Include="Areas\OrderManagements\Views\TermsAndConditions\Group.cshtml" />
+    <Content Include="Areas\Commercial\Views\Contract\LCPendingReport.cshtml" />
+    <Content Include="Areas\Attendances\Views\GoodWork\GoodWorkCheck.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -40,7 +40,8 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         Reason: null,
         Remarks: null,
         UserGroupId: null,
-        UserGroup: null
+        UserGroup: null,
+        CheckedStatus: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -147,11 +148,11 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
             if (!baseService.isUndefinedOrNull($scope.ModelNew.FromTime)) {
                 if (!baseService.isUndefinedOrNull($scope.ModelNew.ToTime)) {
                     if (!baseService.isUndefinedOrNull($scope.ModelNew.WorkDate)) {
-                        if ($scope.ModelNew.Minute > 0) { 
+                        if ($scope.ModelNew.Minute > 0) {
                             $http({
                                 method: 'POST',
                                 url: 'Attendances/GoodWork/LoadEmployeelist',
-                                data: {'parameters': $scope.parameters},
+                                data: { 'parameters': $scope.parameters },
                                 dataType: 'JSON'
                             }).then(function successCallback(response) {
                                 if (response.data.Error === true) {
@@ -218,14 +219,15 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
 
     $scope.GetSelectedEmployeeList = function () {
         try {
-            //for (var y = 0; y < $scope.ModelList.length; y++) {
             for (var i = 0; i < $scope.EmployeeList.length; i++) {
-                //if (+$scope.ModelList[y].WorkDate != $scope.ModelNew.WorkDate) {
                 if (checkItemExist($scope.GoodWorkList, $scope.EmployeeList[i].SystemId) === false) {
                     if ($scope.EmployeeList[i].CheckBoxSelect === true) {
                         $scope.EmployeeList[i].FromTime = $scope.ModelNew.FromTime;
                         $scope.EmployeeList[i].ToTime = $scope.ModelNew.ToTime;
+                        $scope.EmployeeList[i].Purpose = $scope.ModelNew.Purpose;
                         $scope.EmployeeList[i].Minute = $scope.ModelNew.Minute;
+                        $scope.EmployeeList[i].PurposeCategory = $scope.ModelNew.PurposeCategory;
+                        $scope.EmployeeList[i].Remark = $scope.ModelNew.Remarks;
                         $scope.GoodWorkList.push($scope.EmployeeList[i]);
                     }
                 }
@@ -235,7 +237,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
                 //    throw "This employee already added in that Date";
                 //}
             }
-            //}
+
         }
         catch (e) {
             ShowResult(e, "failure");
@@ -307,6 +309,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
             ShowResult(e, 'failure');
         }
     }
+
 
     $scope.getMinuteEdit = function () {
         try {
@@ -490,10 +493,10 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
 
     $scope.filters = [];
     $scope.getFiltersData = function () {
-        try { 
+        try {
             $http({
                 method: 'GET',
-                url: $scope.path +'getFiltersData',
+                url: $scope.path + 'getFiltersData',
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.filters = response.data;
@@ -528,12 +531,12 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.getFiltersData();
 
     $scope.parameters = [];
-    $scope.filterComplete = function () { 
+    $scope.filterComplete = function () {
         var g = $("#filters").data("ejGrid");
         var fl = g.getFilteredRecords();
         if (fl.length == 0) {
             fl = $scope.filters;
-        } 
+        }
         var parameters = [];
         parameters.push({ "Key": "EmpCategoryId", "Value": getString(fl, "EmpCategoryId") });
         parameters.push({ "Key": "DepartmentId", "Value": getString(fl, "DepartmentId") });
@@ -557,5 +560,17 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         }
         return string;
     }
+
+
+    $scope.checkedByList = [];
+    $scope.GetSupervisorCboList = function () {
+        $http({
+            method: 'GET',
+            url: 'Attendances/GoodWork/GetGoodWorkCheckByCbo'
+        }).then(function successCallback(response) {
+            $scope.checkedByList = response.data;
+        });
+    }
+    $scope.GetSupervisorCboList();
 
 }

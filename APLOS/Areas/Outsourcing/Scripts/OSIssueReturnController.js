@@ -661,7 +661,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 		Id: null,
 		IssueDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
 		EmployeeId: null,
-		Types: 'InventoryJWIssue',
+		Types: 'InventoryOSIssue',
 		MaterialStorageId: null,
 		Remarks: null,
 		EmployeeStatus: null,

@@ -2221,7 +2221,7 @@ namespace Library.Service.Invoices
         }
 
 
-        public string PostMultipleVendorPayment(VoucherViewModel voucherVM, IEnumerable<MultiplePaymentViewModel> multiplePaymentlist, IEnumerable<MultiplePaymentDetailViewModel> multiplePaymentDetailList
+        public string PostMultipleVendorPayment(VoucherViewModel voucherVM, IEnumerable<MultiplePaymentViewModel> mpSummarylist, IEnumerable<MultiplePaymentDetailViewModel> multiplePaymentDetailList
                 , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList)
         {
             var flag = false;
@@ -2239,7 +2239,7 @@ namespace Library.Service.Invoices
                 var totalCurrencyAmountCr = 0.0M;
                 decimal taxDrAmount = 0;
 
-                foreach (var mulpay in multiplePaymentlist)
+                foreach (var mulpay in mpSummarylist)
                 {
                     if (mulpay.IsPark == false)
                         throw new CustomException("Post is not allowed!");
@@ -2250,11 +2250,11 @@ namespace Library.Service.Invoices
                     _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
 
                     //if (voucherVM.PaymentSource == PaymentSource.Discount.ToString())
-                    voucherVM.Amount = multiplePaymentDetailList.Where(r => r.Id == mulpay.Id && r.PartyId == mulpay.PartyId).Sum(r => r.Amount);
+                    voucherVM.Amount = multiplePaymentDetailList.Where(r =>  r.PartyId == mulpay.PartyId && r.PartyPlantId==mulpay.PartyPlantId).Sum(r => r.Amount);
                     // INSERT INTO InvoiceWriteOff
                     voucherVM.BankMasterId = mulpay.BankMasterId;
                     voucherVM.PartyId = mulpay.PartyId;
-                    voucherVM.PartyPlantId = multiplePaymentDetailList.Where(r => r.Id == mulpay.Id && r.PartyId == mulpay.PartyId).Select(r => r.PartyPlantId).FirstOrDefault();
+                    voucherVM.PartyPlantId = mulpay.PartyPlantId;
                     var invoiceWriteOff = InsertMultipleVendorInvoiceWriteOff(voucherVM);
 
                     // INSERT INTO Voucher
@@ -2270,14 +2270,16 @@ namespace Library.Service.Invoices
                     string voucherDetailTempId = null;
                     var withholdgl = false;
 
-                    var invoiceIds = multiplePaymentDetailList.Where(r => r.Id == mulpay.Id && r.PartyId == mulpay.PartyId).Select(r => r.InvoiceId);
+
+                    var invoiceIds = multiplePaymentDetailList.Where(r => r.PartyId == mulpay.PartyId && r.PartyPlantId == mulpay.PartyPlantId).Select(r => r.InvoiceId);
                     var inviceDbList = _invoiceService.Query(r => invoiceIds.Contains(r.Id)).Select().ToList();
-                    var invoiceDetailIds = multiplePaymentDetailList.Where(r => r.Id == mulpay.Id && r.PartyId == mulpay.PartyId).Select(r => r.InvoiceDetailId);
+                    var invoiceDetailIds = multiplePaymentDetailList.Where(r => r.PartyId == mulpay.PartyId && r.PartyPlantId == mulpay.PartyPlantId).Select(r => r.InvoiceDetailId);
                     var inviceDetailDbList = _invoiceService.QueryInvoiceDetailEnumerable(invoiceDetailIds);
 
-
-                    foreach (var multiplePaymentDetail in multiplePaymentDetailList.Where(r => r.Id == mulpay.Id && r.PartyId == mulpay.PartyId))
+                    foreach (var multiplePaymentDetail in multiplePaymentDetailList)
                     {
+                       
+                        if(multiplePaymentDetail.PartyId== mulpay.PartyId && multiplePaymentDetail.PartyPlantId== mulpay.PartyPlantId) { 
                         var invoiceDetail = inviceDetailDbList.FirstOrDefault(r => r.Id == multiplePaymentDetail.InvoiceDetailId);
                         if (null == invoiceDetail)
                             throw new CustomException("Invoice not found!");
@@ -2485,6 +2487,7 @@ namespace Library.Service.Invoices
                             });
                             totalCurrencyAmountCr -= voucherVM.ExchangeAmount;
                         }
+                        }
                     }
 
                     decimal totalCharges = 0;
@@ -2611,7 +2614,7 @@ namespace Library.Service.Invoices
                         var voucherDetailCr = new VoucherDetail
                         {
                             Narration = voucher.Narration,
-                            CrAmount = multiplePaymentDetailList.Where(r => r.Id == mulpay.Id && r.PartyId == mulpay.PartyId).Sum(r => r.Amount) + totalCharges,
+                            CrAmount = multiplePaymentDetailList.Where(r =>  r.PartyId == mulpay.PartyId && r.PartyPlantId==mulpay.PartyPlantId).Sum(r => r.Amount) + totalCharges,
                             PaymentSource = invoiceWriteOff.PaymentSource
                         };
                         if (invoiceWriteOff.RoundingType == RoundingType.RoundDown.ToString())
@@ -3119,13 +3122,13 @@ namespace Library.Service.Invoices
         {
 
             parameters.CmdText = @"SELECT AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id, P.Code AS PartyCode, P.UserName AS PartyName, AW.PostingDate, AW.DocDate, AW.DocRefNo, C.Code AS CurrencyCode, SUM(IWD.Amount) AS Amount
-                                    , AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.IsPark, AW.BankJournalId,IWD.MultiplePaymentNo,IWD.MultiplePaymentDetailId
+                                    , AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.IsPark, AW.BankJournalId,IWD.MultiplePaymentNo--,IWD.MultiplePaymentDetailId
                                     ,Status=case when AW.IsPark=1 then 'Parked' else 'Posted' end
                                     FROM [TRN].[InvoiceWriteOff] AS AW
 									 JOIN (SELECT WD.Id,WD.InvoiceWriteOffId,MPD.MultiplePaymentId MultiplePaymentNo,WD.MultiplePaymentDetailId,SUM(WD.Amount) Amount 
 											FROM [TRN].[InvoiceWriteOffDetail] WD 
 											LEFT JOIN TRN.Invoice IV ON WD.InvoiceId=IV.Id
-											LEFT JOIN TRN.MultiplePaymentDetail MPD ON MPD.InvoiceId=IV.Id 
+											LEFT JOIN TRN.MultiplePaymentDetail MPD ON MPD.InvoiceId=IV.Id AND WD.MultiplePaymentDetailId=MPD.Id
 											where WD.MultiplePaymentDetailId<>''
 											Group BY WD.Id,WD.InvoiceWriteOffId,IV.Id ,MPD.MultiplePaymentId,WD.MultiplePaymentDetailId) AS IWD ON IWD.InvoiceWriteOffId=AW.Id
 									LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceWriteOffDetailId=IWD.Id
@@ -3134,10 +3137,11 @@ namespace Library.Service.Invoices
                                     LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AW.PartyPlantId
                                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=AW.CurrencyId
                                     WHERE AW.Archive=0 AND V.Archive=0 
-									AND AW.PlantId='"+ plantId + @"' AND AW.[SourceType]='VendorPayment' AND AW.IsPark=0
+									AND AW.PlantId='" + plantId + @"' AND AW.[SourceType]='VendorPayment' AND AW.IsPark=0
                                     Group BY AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id, P.Code , P.UserName, AW.PostingDate
 									, AW.DocDate, AW.DocRefNo, C.Code, AW.PartyPlantId, PP.UserName, AW.IsPark, AW.BankJournalId
-									, IWD.MultiplePaymentNo,IWD.MultiplePaymentDetailId";
+									, IWD.MultiplePaymentNo--,IWD.MultiplePaymentDetailId
+                                    ";
             return _sqlRepository.GetGridData(parameters);
         }
 

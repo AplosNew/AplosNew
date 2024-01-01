@@ -50,6 +50,10 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             return View();
         }
+        public ActionResult GoodWorkCheck()
+        {
+            return View();
+        }
         //Load Employee
         [HttpPost]
         public ActionResult LoadEmployeelist(Dictionary<string, string> parameters)
@@ -108,7 +112,7 @@ namespace Aplos.Areas.Attendances.Controllers
                          LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
                          LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
                          WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec + @"  " + dep + @"  " + sec + @"   " + subsec + @"   " + des + @" " + userGr + @"
-                         and EI.EmployeeStatus='Active'
+                         and EI.EmployeeStatus='Active' and EI.BudgetCode in (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup) 
                          ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
             }
             catch (Exception ex)
@@ -186,6 +190,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         genid.GenID("GoodWork", out _Id);
                     }
                     data["Id"] = _Id;
+                    data["CheckedStatus"] = "To Be Checked";
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -217,10 +222,9 @@ namespace Aplos.Areas.Attendances.Controllers
                             item["FromTime"] = item["FromTime"];
                             item["ToTime"] = item["ToTime"];
                             item["Purpose"] = item["Purpose"];
-                            item["PurposeCategory"] = item["PurposeCategory"];
-                            item["ApprovedById"] = item["ApprovedById"];
+                            item["PurposeCategory"] = item["PurposeCategory"]; 
                             item["Minute"] = item["Minute"];
-                            item["Remarks"] = item["Remark"];
+                            item["Remark"] = item["Remark"];
 
                             materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
                         }
@@ -230,16 +234,10 @@ namespace Aplos.Areas.Attendances.Controllers
                             string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
                             DataRow drmo = dv[0].Row;
                             drmo.BeginEdit();
-                            drmo["Id"] = detailid;
-                            //drmo["goodWorkId"] = _MasterId;
-                            //drmo["EmpSystemId"] = item["SystemId"];
-                            //drmo["FromTime"] = item["FromTime"];
-                            //drmo["ToTime"] = item["ToTime"];
+                            drmo["Id"] = detailid; 
                             drmo["Purpose"] = item["Purpose"];
-                            drmo["PurposeCategory"] = item["PurposeCategory"];
-                            //drmo["ApprovedById"] = item["ApprovedById"];
-                            //drmo["Minute"] = item["CalculatedTime"];
-                            drmo["Remark"] = item["Remark"];
+                            drmo["PurposeCategory"] = item["PurposeCategory"]; 
+                            drmo["Remark"] = item["Remarks"];
                             drmo.EndEdit();
 
                         }
@@ -281,7 +279,7 @@ namespace Aplos.Areas.Attendances.Controllers
         public ActionResult GetGoodWorkList()
         {
             string sql = @"select GW.Id,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,S.UserName Shift,GW.Remarks
-                                    ,format(GW.FromTime,'hh:m') FromTime,format(GW.ToTime,'hh:m') ToTime,gw.Minute
+                                    ,format(GW.FromTime,'hh:mm') FromTime,format(GW.ToTime,'hh:mm') ToTime,gw.Minute
                                     from GoodWork GW
                                     left join ShiftDefination S on S.SystemId=GW.ShiftId";
 
@@ -305,14 +303,11 @@ namespace Aplos.Areas.Attendances.Controllers
         public ActionResult GetGoodWorkDetailCenter(string goodWorkId)
         {
             string str = @"select GWD.Id,EI.SystemId,EI.EmployeeCode,EI.EmployeeName,format(GWD.FromTime,'hh:m') FromTime,format(GWD.ToTime,'hh:m') ToTime,GWD.Minute CalculatedTime
-							,GWD.Purpose,GWD.PurposeCategory,ec.Id EmployeeCategoryId,EC.UserName EmployeeCategory
-                            ,EmI.SystemId ApprovedById,EmI.EmployeeCode ApprovedByCode
-                            ,EmI.EmployeeName ApprovedByName,GWD.[Minute],GWD.Remark
+							,GWD.Purpose,GWD.PurposeCategory,ec.Id EmployeeCategoryId,EC.UserName EmployeeCategory,GWD.[Minute],GWD.Remark
 							,PR.GoodWorkPositionCodeId UserGroupId,PR1.UserReportGroup UserGroup,ei.GivenDesignationId DesignationId,D.UserName Designation,S.Id SectionId,S.UserName Section
 							,SS.Id SubSectionId,SS.UserName SubSection,DEPT.Id DepartmentId,DEPT.UserName Department
                             from GoodworkDetail GWD 
-                            left join EmployeeInformation EI on EI.SystemId=GWD.EmpSystemId
-                            left join EmployeeInformation EmI on EmI.SystemId=GWD.ApprovedById
+                            left join EmployeeInformation EI on EI.SystemId=GWD.EmpSystemId 
 							LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
                             LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
                             LEFT JOIN ORG.Department DEPT ON EI.DepartmentId=DEPT.Id
@@ -621,7 +616,7 @@ namespace Aplos.Areas.Attendances.Controllers
             try
             {
                 string pDays = null;
-                if (payDaysType == "FinalOT" || payDaysType == "Attendance")
+                if (payDaysType == "FinalOT")
                 {
                     pDays = @"LEFT JOIN(select isnull(SUM(PresentValue),0) PayDays,isnull(SUM(StandardOT),0) StandardOT,isnull(SUM(AdditionalOT),0) AdditionalOT,0 GoodWork,EmpSystemID  
 							from AttdnProcessData 
@@ -867,6 +862,148 @@ namespace Aplos.Areas.Attendances.Controllers
             return json;
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetGoodWorkCheckByCbo()
+        {
+            var sql = @"select E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text ,a.ActionStatus
+                          from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where E.EmployeeStatus='Active' and A.ActionStatus='GoodWorkCheckBy'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetGoodWorkApprovedByCbo()
+        {
+            var sql = @"select E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text ,a.ActionStatus
+                          from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where E.EmployeeStatus='Active' and A.ActionStatus='GoodWorkApproveBy'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        #region Good work check
+        [HttpGet, Authorize]
+        public ActionResult GetUncheckedData()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                return Json(clsSales.GetUncheckedGoodWorkData(identity.EmployeeId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetGoodWorkApproveByCboList()
+        {
+            return Json(clsSales.GetGoodWorkApproveByCboList(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetcheckedData()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                return Json(clsSales.GetcheckedGoodWorkData(identity.EmployeeId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetApproveBycheckedData()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                return Json(clsSales.GetApproveBycheckedGoodWorkData(identity.EmployeeId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetcheckedDataList()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                return Json(clsSales.GetcheckedSalesChalanDataList(identity.EmployeeId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateCheckBy(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from GoodWork where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    data["CheckedStatus"] = "Checked";
+                    data["ApprovedStatus"] = "To Be Approved";
+                    data["ApprovedBy"] = data["ApproveBy"];
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster); 
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated }); 
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }); 
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateApproveBy(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from GoodWork where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    data["ApprovedStatus"] = data["ApprovedStatus"];
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        #endregion Good work check
         public class WorkerAdvanceTransaction
         {
             #region Scalar Properties
