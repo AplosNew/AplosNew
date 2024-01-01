@@ -1530,13 +1530,18 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             WCharacterFormat FontBold = new WCharacterFormat(document);
              WCharacterFormat DFontSize = new WCharacterFormat(document);
             FontBold.Bold = true;
-            DFontSize.FontSize = 5f;
+            DFontSize.FontSize = 8f;
 
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Additional Info");
             range.ApplyCharacterFormat(FontBold);
             range.ApplyCharacterFormat(DFontSize);
             int colTermsAndCondition = COL; COL++;
-            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 290;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 600;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+
 
             #endregion column headers
             double totalValue = 0;
