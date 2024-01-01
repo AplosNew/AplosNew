@@ -3724,7 +3724,7 @@ where M.ProductionOrderId='" + ProductionOrderId + "' and M.LotNumber='" + LotNu
             try
             {
                 string sql = @"SELECT ps.Id,PS.Quantity,PS.ProductionOrderId PONo,FORMAT(PS.ProductionDate,'dd-MMM-yyyy')ProductionDate,P.UserName Process,POS.Sequence ProcessSetSeq,PS.LotNumber LotNo
-,WC.UserName WorkCenterMaster,EI.EmployeeName ResponsiblePerson,PS.Remarks,IsBaseProcess=CASE WHEN POS.IsBaseProcess=1 THEN 'Yes' ELSE 'No' END
+,WC.Code WorkCenterMaster,EI.EmployeeName ResponsiblePerson,PS.Remarks,IsBaseProcess=CASE WHEN POS.IsBaseProcess=1 THEN 'Yes' ELSE 'No' END
  FROM TRN.ProductionSummary PS
 LEFT JOIN TRN.ProductionOrderProcessSet POS ON POS.ProductionOrderId=PS.ProductionOrderId AND POS.ProcessId=PS.ProcessId
 LEFT JOIN HKP.Process P ON P.Id=PS.ProcessId
