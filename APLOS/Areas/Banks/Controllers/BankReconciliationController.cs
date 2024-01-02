@@ -600,7 +600,7 @@ namespace Aplos.Areas.Banks.Controllers
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
             voucherVM.SourceType = SourceType.CustomerReceipt.ToString();
-            voucherVM.IsPark = false;
+            voucherVM.IsPark = true;
             if (voucherVM.CompanyCurrencyRate <= 0)
                 throw new CustomException("Please Input Rate.");
             if ((voucherVM.PaymentSource == "Bank") && (voucherVM.BankMasterId == null))

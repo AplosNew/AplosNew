@@ -53,7 +53,8 @@ namespace Aplos.Areas.Outsourcing.Controllers
 			, FORMAT(RB.InvoiceDate,'dd-MMM-yyyy') PostingDate,FORMAT(RB.InvoiceDate,'dd-MMM-yyyy') DocDate
 			, RB.VoucherId,RB.BillingRate,RB.BillingRate CompanyCurrencyRate
 			, TabType='Transformation', tc.EntityId,tc.PartyId,tc.Remarks,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate
-			                ,FORMAT(tc.[Time],'hh:mm tt')[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
+			                --,FORMAT(tc.[Time],'hh:mm tt')[VACTime]
+                            ,FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
 			                FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
 			                e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName,tc.CurrencyId,CU.Code Currency
                             ,TC.PurchaseLCId,ISNULL(LC.LCRef,'')LCRef,ISNULL(CN.ContractNo,'')ContractNo

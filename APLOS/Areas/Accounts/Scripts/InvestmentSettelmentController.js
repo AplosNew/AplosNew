@@ -551,7 +551,7 @@ function InvestmentSettelmentController(accountService, bankService, cboService,
         $scope.voucher.TransactionType = "LoanTaken";
         $scope.currencyExchangeRate = [];
         $scope.loanAddition = {};
-        $scope.getCboVoucherTypeLoanList();
+        $scope.getCboVoucherTypeInvestmentSetOffList();
         $scope.loanRepaymentSchedulelist = [];
         $("#loanDetails").children().remove();
         $scope.isReadOnly = false;

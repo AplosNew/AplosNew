@@ -447,9 +447,9 @@ function bankSettlementCustomerReceiptController(bankService, cboService, common
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
-                $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
+               // $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
                 $scope.voucher.BankTransactionDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
-                $scope.voucher.DocDate = $scope.voucher.PostingDate;
+                //$scope.voucher.DocDate = $scope.voucher.PostingDate;
                 $scope.getTaxCodeByTaxYear($scope.voucher.PostingDate);
 
             }
