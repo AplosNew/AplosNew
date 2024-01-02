@@ -151,6 +151,22 @@ namespace Library.Service.Employees
             }
         }
 
+        public GridModel GetManpowerBudgetListByEntitySql(GridParameter parameters, string plantId,string entityids)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                parameters.CmdText = _manpowerBudgetService.GetManpowerBudgetListByEntitySql(identity.CompanyGroupId, identity.CompanyId, plantId,entityids);
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+
         public PreRecruitmentEmployee GetMaster(string PK)
         {
             string _sql = "SELECT * FROM PreRecruitmentEmployee WHERE Id='" + PK + "'";

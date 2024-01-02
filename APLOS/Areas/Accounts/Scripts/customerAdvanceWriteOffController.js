@@ -20,6 +20,7 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
     $scope.voucherDetailCurrencyList = [];
     $scope.voucherList = [];
     $scope.voucherDetailList = [];
+    $scope.voucherDetailListNew = [];
     $scope.isWriteOff = true;
     $controller("currencyBaseController", { $scope: $scope, $http: $http });
     $scope.partyType = "Customer";
@@ -378,6 +379,10 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
                 ShowResult("Please select Invoice Receivable!", "failure");
                 return true;
             }
+            if ($scope.voucherDetailListNew.length === 0 && $scope.advanceNew.SettlementType === 'SetOff' && $scope.advanceNew.PaymentSource === 'Invoice') {
+                ShowResult("Please select Invoice Receivable!", "failure");
+                return true;
+            }
             if ($scope.advance.PaymentSource === 'Bank' && $scope.advance.SettlementType === 'Return' && $scope.advance.BankMasterId==null) {
                 ShowResult("Please select Bank!", "failure");
                 return true;
@@ -411,6 +416,7 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         $scope.advanceNew.DocDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.voucherDetailCurrencyList = [];
         $scope.voucherDetailList = [];
+        $scope.voucherDetailListNew = [];
         $scope.advanceDetailList = [];
         $scope.partyPlantList = [];
         $scope.advance.PaymentSource = "Invoice";
@@ -586,11 +592,24 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
                     data.Advilable = data.Balance;
                     data.DrAmount = '';
                     data.CrAmount = data.Balance;
-                    $scope.voucherDetailList.push(data);
-                    if ($scope.voucherDetailList.length > 0)
-                        $scope.isReadOnly = true;
-                    else
-                        $scope.isReadOnly = false;
+                    if ($scope.advanceNew.PartyId == null) {
+                        $scope.voucherDetailList.push(data);
+                        if ($scope.voucherDetailList.length > 0)
+                            $scope.isReadOnly = true;
+                        else
+                            $scope.isReadOnly = false;
+                    }
+                    else {
+                        $scope.voucherDetailListNew = [];
+                        $scope.advanceNew.CurrencyId = data.CurrencyId
+                        $scope.advanceNew.CompanyCurrencyRate = data.CompanyCurrencyRate;
+                        $scope.voucherDetailListNew.push(data);
+                        if ($scope.voucherDetailListNew.length > 0)
+                            $scope.isReadOnly = true;
+                        else
+                            $scope.isReadOnly = false;
+                    }
+                   
                     angular.element(document.querySelector("#customerInvoicePopUp")).modal("hide");
                     $scope.convertAmountCr(data);
                 }
@@ -948,6 +967,36 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         }
     };
 
+    $scope.exchangeGainLossAmountNew = function (data) {
+        var balance = parseFloat(data.Advilable), dramount = parseFloat(data.DrAmount);
+        if (dramount > balance) {
+            data.DrAmount = data.Balance;
+            ShowResult("Payment Amount should not exceed Balance Amount.", "failure");
+        }
+        else {
+            CloseShowResult();
+        }
+        //$scope.DrAmountSubTotal = $filter("sumByKey")($filter("filter")($scope.voucherDetailListNew), "DrAmount");
+        //if (parseFloat($scope.advance.PaymentAmount) < $scope.DrAmountSubTotal) {
+        //    data.DrAmount = 0;
+        //    ShowResult("Total Received Amount should not exceed Payment Amount.", "failure");
+        //}
+        //else {
+        //    CloseShowResult();
+        //}
+        if (data.CompanyCurrencyRate > $scope.advanceNew.CompanyCurrencyRate) {
+            data.ExchangeAmount = Math.abs(data.DrAmount * ($scope.advanceNew.CompanyCurrencyRate - data.CompanyCurrencyRate)).toFixed(2);
+            data.ExchangeType = "ExchangeLoss";
+        }
+        else if (data.CompanyCurrencyRate < $scope.advanceNew.CompanyCurrencyRate) {
+            data.ExchangeAmount = Math.abs(data.DrAmount * (data.CompanyCurrencyRate - $scope.advanceNew.CompanyCurrencyRate)).toFixed(2);
+            data.ExchangeType = "ExchangeGain";
+        }
+        else {
+            data.ExchangeAmount = 0;
+            data.ExchangeType = null;
+        }
+    };
     //Delete option
 
 
@@ -1020,6 +1069,7 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         $scope.advance.ActivityCode = null;
         $scope.advance.ActivityName = null;
         $scope.voucherDetailList = [];
+        $scope.voucherDetailListNew = [];
     }
 
     
@@ -1043,6 +1093,7 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
             $scope.getPartyPlantListNew(party.Id);
             $scope.GetCurrencyExchangeRateList();
             $scope.voucherDetailList = [];
+            $scope.voucherDetailListNew = [];
         }
         $scope.hidePartyPopUp();
     };
@@ -1216,6 +1267,7 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
             x.Advilable = x.Balance;
             x.CrAmount = '';
             x.DrAmount = x.Balance;
+           
             $scope.advanceDetailList.push(x);
             if ($scope.advanceDetailList.length > 0)
                 $scope.isReadOnly = true;
@@ -1254,37 +1306,54 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         else {
             CloseShowResult();
         }
-        if (data.CompanyCurrencyRate > $scope.advanceNew.CompanyCurrencyRate) {
-            data.ExchangeAmount = Math.abs(data.DrAmount * ($scope.advanceNew.CompanyCurrencyRate - data.CompanyCurrencyRate)).toFixed(2);
-            data.ExchangeType = "ExchangeLoss";
-        }
-        else if (data.CompanyCurrencyRate < $scope.advanceNew.CompanyCurrencyRate) {
-            data.ExchangeAmount = Math.abs(data.DrAmount * (data.CompanyCurrencyRate - $scope.advanceNew.CompanyCurrencyRate)).toFixed(2);
-            data.ExchangeType = "ExchangeGain";
-        }
-        else {
-            data.ExchangeAmount = 0;
-            data.ExchangeType = null;
-        }
-    };
-
-    $scope.AdvanceExchangeGainLossAmount = function () {
-        for (var i = 0; i < $scope.advanceDetailList.length; i++) {
-            if ($scope.advanceDetailList[i].CompanyCurrencyRate > $scope.advanceNew.CompanyCurrencyRate) {
-                $scope.advanceDetailList[i].ExchangeAmount = Math.abs($scope.advanceDetailList[i].DrAmount * ($scope.advanceNew.CompanyCurrencyRate - $scope.advanceDetailList[i].CompanyCurrencyRate)).toFixed(2);
-                $scope.advanceDetailList[i].ExchangeType = "ExchangeLoss";
+        if ($scope.advanceNew.PaymentSource == 'Bank') {
+            if (data.CompanyCurrencyRate > $scope.advanceNew.CompanyCurrencyRate) {
+                data.ExchangeAmount = Math.abs(data.DrAmount * ($scope.advanceNew.CompanyCurrencyRate - data.CompanyCurrencyRate)).toFixed(2);
+                data.ExchangeType = "ExchangeLoss";
             }
-            else if ($scope.advanceDetailList[i].CompanyCurrencyRate < $scope.advanceNew.CompanyCurrencyRate) {
-                $scope.advanceDetailList[i].ExchangeAmount = Math.abs($scope.advanceDetailList[i].DrAmount * ($scope.advanceDetailList[i].CompanyCurrencyRate - $scope.advanceNew.CompanyCurrencyRate)).toFixed(2);
-                $scope.advanceDetailList[i].ExchangeType = "ExchangeGain";
+            else if (data.CompanyCurrencyRate < $scope.advanceNew.CompanyCurrencyRate) {
+                data.ExchangeAmount = Math.abs(data.DrAmount * (data.CompanyCurrencyRate - $scope.advanceNew.CompanyCurrencyRate)).toFixed(2);
+                data.ExchangeType = "ExchangeGain";
             }
             else {
-                $scope.advanceDetailList[i].ExchangeAmount = 0;
-                $scope.advanceDetailList[i].ExchangeType = null;
+                data.ExchangeAmount = 0;
+                data.ExchangeType = null;
             }
         }
-       
+        else {
+            if (data.CompanyCurrencyRate < $scope.advanceNew.CompanyCurrencyRate) {
+                data.ExchangeAmount = Math.abs(data.DrAmount * ($scope.advanceNew.CompanyCurrencyRate - data.CompanyCurrencyRate)).toFixed(2);
+                data.ExchangeType = "ExchangeLoss";
+            }
+            else if (data.CompanyCurrencyRate > $scope.advanceNew.CompanyCurrencyRate) {
+                data.ExchangeAmount = Math.abs(data.DrAmount * (data.CompanyCurrencyRate - $scope.advanceNew.CompanyCurrencyRate)).toFixed(2);
+                data.ExchangeType = "ExchangeGain";
+            }
+            else {
+                data.ExchangeAmount = 0;
+                data.ExchangeType = null;
+            }
+        }
+        
     };
+
+    //$scope.AdvanceExchangeGainLossAmount = function () {
+    //    for (var i = 0; i < $scope.advanceDetailList.length; i++) {
+    //        if ($scope.advanceDetailList[i].CompanyCurrencyRate > $scope.advanceNew.CompanyCurrencyRate) {
+    //            $scope.advanceDetailList[i].ExchangeAmount = Math.abs($scope.advanceDetailList[i].DrAmount * ($scope.advanceNew.CompanyCurrencyRate - $scope.advanceDetailList[i].CompanyCurrencyRate)).toFixed(2);
+    //            $scope.advanceDetailList[i].ExchangeType = "ExchangeLoss";
+    //        }
+    //        else if ($scope.advanceDetailList[i].CompanyCurrencyRate < $scope.advanceNew.CompanyCurrencyRate) {
+    //            $scope.advanceDetailList[i].ExchangeAmount = Math.abs($scope.advanceDetailList[i].DrAmount * ($scope.advanceDetailList[i].CompanyCurrencyRate - $scope.advanceNew.CompanyCurrencyRate)).toFixed(2);
+    //            $scope.advanceDetailList[i].ExchangeType = "ExchangeGain";
+    //        }
+    //        else {
+    //            $scope.advanceDetailList[i].ExchangeAmount = 0;
+    //            $scope.advanceDetailList[i].ExchangeType = null;
+    //        }
+    //    }
+       
+    //};
 
     $scope.MultiAdvanceValidation = function () {
         if (baseService.isUndefinedOrNull($scope.advanceNew.CurrencyId)) {
@@ -1326,7 +1395,8 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
                     url: $scope.parkUrlMultiAdvance,
                     data: {
                         "advanceVM": $scope.advanceNew,
-                        "advanceDetailVMList": $scope.advanceDetailList
+                        "advanceDetailVMList": $scope.advanceDetailList,
+                        "voucherDetailListNew": $scope.voucherDetailListNew
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {

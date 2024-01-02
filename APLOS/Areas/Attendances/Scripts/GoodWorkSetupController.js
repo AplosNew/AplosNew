@@ -325,14 +325,14 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.Clear = function () {
         $scope.Action = 'Save';
-        $scope.ModelNew = Object.assign({}, $scope.ModelTemp); 
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.selectedEntityList = [];
         $scope.BudgetCodeList = [];
         $scope.authorizationList = [];
         $scope.CheckByList = [];
         return true;
     };
- 
+
     //#region BudgetCode
 
     $scope.name = null;
@@ -351,12 +351,21 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         serverPagination: true
     };
     $scope.popUpBudgetCode = function () {
-
+        var entityCode = "";
+        if ($scope.selectedEntityList.length > 0) {
+            var uniqueEntityId = removeDuplicates($scope.selectedEntityList, 'EntityId');
+            var entityCode = "";
+            if (uniqueEntityId.length > 0) {
+                entityCode = "IN(";
+                entityCode += Array.prototype.map.call(uniqueEntityId, function (item) { return "'" + item.EntityId + "'"; }).join(",") + ")";
+            }
+            $scope.sqlInStatement = entityCode;
+        }
         $scope.popUpDataList = [];
         $scope.popUpList = [];
         $scope.budgetpopUpParameters.sort = 'Code';
         $scope.budgetpopUpParameters.searchBy = 'Code';
-        $scope.popUpUrl = 'employees/recruitment/getbudgetcodelist';
+        $scope.popUpUrl = 'employees/recruitment/GetManpowerBudgetListByEntitySql?entityids=' + $scope.sqlInStatement;
         baseService.setCurrentPage('dataList');
         $scope.getPopUpData = function (pageno) {
             baseService.paginationBase($scope.popUpUrl, pageno, $scope.budgetpopUpParameters)
@@ -376,6 +385,13 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         angular.element(document.querySelector('#popUpId')).modal('show');
         $scope.getPopUpData();
     };
+
+    function removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+        });
+    }
+
 
     $scope.BudgetCodeList = [];
     $scope.selectDoubleClick = function (data) {

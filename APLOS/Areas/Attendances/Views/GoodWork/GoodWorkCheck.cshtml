@@ -1,0 +1,185 @@
+﻿
+<div><h4><span class="glyphicon glyphicon-info-sign"></span>Good Work Check & Approve</h4></div>
+<div class="tab-design">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Good Work Check</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Checked</a></li>
+            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="Service" role="tab" data-toggle="tab">Good Work Approve</a></li>
+            <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="Service" role="tab" data-toggle="tab">Approved</a></li>
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridSCCUnchecked" ej-grid e-datasource="GriddataGWCUnCheckedList"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="true"
+                         e-detailstemplate="detailTemp"
+                         e-detailsdatabound="detailgrid">
+                        <div e-columns>
+                            <div e-column e-headertext="Actions" e-width="60">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" ng-disabled="btndisable" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Un Checked" ng-click="$parent.SaveCheckData(this)" style="margin: -6px;"></i></button>
+                                @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>*@
+                            </div>
+                            <div e-column e-template="#ToBeApprovedBy1" e-headertext="To Be Approved By" e-width="150"></div>  
+                            <div e-column e-field="WorkDate" e-headertext="Work Date" e-width="80"></div>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                            <div e-column e-field="FromTime" e-headertext="From Time" e-width="80"></div>
+                            <div e-column e-field="ToTime" e-headertext="To Time" e-width="100"></div>
+                            <div e-column e-field="Minute" e-headertext="Minute" e-width="80"></div>
+                            <div e-column e-field="Shift" e-headertext="Shift" e-width="100"></div>
+                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                        </div>
+                    </div>
+                    <script id="tabGridContents" type="text/x-jsrender">
+                        <div class="tabcontrol" id="Test">
+                            <ul>
+                                <li><a href="#gridTab{{:Id}}">Invoice Item</a></li>
+                            </ul>
+                            <div id="gridTab{{:Id}}">
+                                <div id="detailGrid"></div>
+                            </div>
+                        </div>
+                    </script>
+                    <script type="text/template" id="ToBeApprovedBy1">
+                        <div class="">
+                            <div id="control">
+                                <input ej-dropdownlist e-datasource="$parent.ApproveByList" e-value="data.ApproveBy" e-fields-text="Text" e-fields-value="Value" e-width="100%" />
+                            </div>
+                        </div>
+                    </script>
+                    @*<script type="text/template" id="CheckedStatus1">
+                        <div class="">
+                            <div id="control1">
+                                <input id="combo-default" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.POApprovalList" e-value="data.CheckedStatus" e-width="100%" />
+                            </div>
+                        </div>
+                    </script>*@ 
+                </div>
+            </fieldset>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="Gridchecked" ej-grid e-datasource="GriddataGWCCheckedList"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="true"
+                         e-detailstemplate="detailTemp"
+                         e-detailsdatabound="detailgrid">
+
+                        <div e-columns>
+                            @*<div e-column e-headertext="Actions" e-width="80">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>
+                            </div>*@  
+                            <div e-column e-field="WorkDate" e-headertext="Work Date" e-width="80"></div>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                            <div e-column e-field="FromTime" e-headertext="From Time" e-width="80"></div>
+                            <div e-column e-field="ToTime" e-headertext="To Time" e-width="100"></div>
+                            <div e-column e-field="Minute" e-headertext="Minute" e-width="80"></div>
+                            <div e-column e-field="Shift" e-headertext="Shift" e-width="100"></div>
+                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                        </div>
+
+                    </div>
+                    <script id="tabGridContents" type="text/x-jsrender">
+                        <div class="tabcontrol" id="Test">
+                            <ul>
+                                <li><a href="#gridTab{{:Id}}">Invoice Item</a></li>
+                            </ul>
+                            <div id="gridTab{{:Id}}">
+                                <div id="detailGrid"></div>
+                            </div>
+                        </div>
+                    </script>
+                     
+                </div>
+            </fieldset>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="Gridchecked" ej-grid e-datasource="GriddataApproveList"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="true"
+                         e-detailstemplate="detailTemp"
+                         e-detailsdatabound="detailgrid">
+
+                        <div e-columns>
+                            <div e-column e-headertext="Actions" e-width="80">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Approved" ng-click="$parent.SaveApproveData(this);" style="margin: -6px;"></i></button>
+                                @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>*@
+                            </div>
+                            @*<div e-column e-field="ApprovedStatus" e-headertext="Approved Status" e-width="150"></div>*@
+                            <div e-column e-field="WorkDate" e-headertext="Work Date" e-width="80"></div>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                            <div e-column e-field="FromTime" e-headertext="From Time" e-width="80"></div>
+                            <div e-column e-field="ToTime" e-headertext="To Time" e-width="100"></div>
+                            <div e-column e-field="Minute" e-headertext="Minute" e-width="80"></div>
+                            <div e-column e-field="Shift" e-headertext="Shift" e-width="100"></div>
+                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                        </div>
+
+                    </div>
+                    <script id="tabGridContents" type="text/x-jsrender">
+                        <div class="tabcontrol" id="Test">
+                            <ul>
+                                <li><a href="#gridTab{{:Id}}">Invoice Item</a></li>
+                            </ul>
+                            <div id="gridTab{{:Id}}">
+                                <div id="detailGrid"></div>
+                            </div>
+                        </div>
+                    </script>
+
+                </div>
+            </fieldset>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="Gridcheck" ej-grid e-datasource="GriddataCheckedList"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="true"
+                         e-detailstemplate="detailTemp"
+                         e-detailsdatabound="detailgrid"> 
+                        <div e-columns>
+                            @*<div e-column e-headertext="Actions" e-width="80">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>
+                            </div>*@
+                            @*<div e-column e-field="CheckedStatus" e-headertext="Checked Status" e-width="150"></div>*@
+                            <div e-column e-field="WorkDate" e-headertext="Work Date" e-width="80"></div>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                            <div e-column e-field="FromTime" e-headertext="From Time" e-width="80"></div>
+                            <div e-column e-field="ToTime" e-headertext="To Time" e-width="100"></div>
+                            <div e-column e-field="Minute" e-headertext="Minute" e-width="80"></div>
+                            <div e-column e-field="Shift" e-headertext="Shift" e-width="100"></div>
+                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                        </div> 
+                    </div>
+                    <script id="tabGridContents" type="text/x-jsrender">
+                        <div class="tabcontrol" id="Test">
+                            <ul>
+                                <li><a href="#gridTab{{:Id}}">Invoice Item</a></li>
+                            </ul>
+                            <div id="gridTab{{:Id}}">
+                                <div id="detailGrid"></div>
+                            </div>
+                        </div>
+                    </script> 
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+
+

@@ -1051,7 +1051,7 @@ namespace Library.MaterialManagement.JobWork
                         ,0 Tolerance--,sum(CC3.GrossConsumption*vvvv.Rate) GrossConsumption--,sum(vvvv.Rate) Rate
                         --,(CC3.GrossConsumption*vvvv.Rate) GrossConsumption
                         --,GrossConsumption=isnull((CC3.GrossConsumption*vvvv.Rate),'0')
-						,vvvv.ConsumptionAmount as GrossConsumption
+						,vvvv.ConsumptionAmount as GrossConsumption,vvvv.TQty InventoryIssueQty
                         from dbo.OSTransformationPODetail mp 
                         left join dbo.OSTransformationPO tc on tc.Id=mp.OSTransformationPOId
                         left join hkp.JobWorkActivity jwa on jwa.Id=mp.JobActivityId
@@ -1121,7 +1121,7 @@ namespace Library.MaterialManagement.JobWork
                          --,CC3.GrossConsumption,vvvv.Rate
                          ,vvvv.ConsumptionAmount,FChar.UserName,FCharValue.UserName,SChar.UserName,SCharValue.UserName ,TChar.UserName,TCharValue.UserName
 						 ,mp.FirstCharacteristicsId,mp.FirstCharacteristicsValueId,mp.SecondCharacteristicsId,mp.SecondCharacteristicsValueId
-						 ,mp.ThirdCharacteristicsId,mp.ThirdCharacteristicsValueId";
+						 ,mp.ThirdCharacteristicsId,mp.ThirdCharacteristicsValueId,vvvv.TQty ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }

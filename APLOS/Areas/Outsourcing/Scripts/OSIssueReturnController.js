@@ -165,6 +165,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 					$scope.SelectedTConEntity();
 					$scope.SelectedTConMaterialStorage();
 					$scope.getdataInventoryIssue();
+					
 				}
 
 			});
@@ -304,6 +305,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 			url: $scope.path + 'GetTransformationChildData?PKId=' + $scope.Transformation.Id,
 		}).then(function successCallback(response) {
 			$scope.IssueTransformationChildList = response.data;
+			
 		});
 	}
 
@@ -596,6 +598,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 					$scope.IssueTransformation.MaterialStorageId = $scope.JobWorkLocList[0].Value;
 					$scope.IssueTransformation.StorageLocation = $scope.JobWorkLocList[0].StorageLocation;
 					$scope.IssueTransformation.MaterialStorageIdInventory = $scope.JobWorkLocList[0].Value;
+					$scope.SelectMaterialPlanning();
 				}
 			});
 		}
@@ -780,11 +783,11 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 			return false;
 
 		}
-		if (baseService.isUndefinedOrNull($scope.IssueTransformation.EntityId)) {
-			ShowResult("Select the Entity");
-			return false;
+		//if (baseService.isUndefinedOrNull($scope.IssueTransformation.EntityId)) {
+		//	ShowResult("Select the Entity");
+		//	return false;
 
-		}
+		//}
 		if (baseService.isUndefinedOrNull($scope.IssueTransformation.MaterialStorageId)) {
 			ShowResult("Select the Material Storage");
 			return false;
@@ -795,11 +798,11 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 			return false;
 
 		}
-		if (baseService.isUndefinedOrNull($scope.IssueTransformation.EmpName)) {
-			ShowResult("Select the wby whom");
-			return false;
+		//if (baseService.isUndefinedOrNull($scope.IssueTransformation.EmpName)) {
+		//	ShowResult("Select the wby whom");
+		//	return false;
 
-		}
+		//}
 		$scope.detailModel = {
 			Id: null
 			, InventoryReveiveId: null
