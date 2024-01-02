@@ -317,7 +317,7 @@ group by uom.Id --,mi.Id
 ,BaseUoMId=case when mi.ArticleId is not null then uom.Id else uomm.Id End
 --,uom.UserName as TransactionUoM
 ,TransactionUoM=case when mi.ArticleId is not null then uom.UserName else uomm.UserName End
-,Isnull(ab.TotalQty,0)+ISNULL(TIRD.TransferBaseQty,0) TotalQty, Isnull(cd.PostingQty,0)+ISNULL(TIRD.TransferBaseQty,0) PostingQty, Isnull(ef.ApprovedQty,0) ApprovedQty, Isnull(gh.UnApprovedQty,0) UnApprovedQty
+,Isnull(ab.TotalQty,0)+ISNULL(TIRD.TransferBaseQty,0) TotalQty, Isnull(cd.PostingQty,0)+ISNULL(TIRD.TransferBaseQty,0) PostingQty, Isnull(ef.ApprovedQty,0) ApprovedQty, Isnull(gh.UnApprovedQty,0) UnApprovedQty,isSelectedMatInput = Convert(bit, 'True')
 from dbo.OSTransformationPOInputMaterial mi
 left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
 left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
