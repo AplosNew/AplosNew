@@ -4996,13 +4996,32 @@ order by SAI.SalesId";
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				var sql = @"select format(gw.WorkDate,'dd-MMM-yyyy')WorkDate,format(gw.FromTime,'hh:mm') FromTime
+				var sql = @"select gw.Id,format(gw.WorkDate,'dd-MMM-yyyy')WorkDate,format(gw.FromTime,'hh:mm') FromTime
 										,format(gw.ToTime,'hh:mm') ToTime,gw.Minute,gw.Remarks,SD.UserName Shift 
 										,ei.EmployeeName
 										from goodwork gw  
 										left join ShiftDefination SD on SD.SystemID=gw.ShiftId	
 										left join EmployeeInformation ei on ei.SystemId=gw.ApprovedBy								
 						where gw.ApprovedStatus='To Be Approved' AND gw.ApprovedBy='" + EmployeeId + "'";
+				return _sqlRepository.GetDataCollection(sql, null);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+		public IEnumerable<object> GetcheckedGoodWorkDataList(string EmployeeId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				var sql = @"select gw.Id,format(gw.WorkDate,'dd-MMM-yyyy')WorkDate,format(gw.FromTime,'hh:mm') FromTime
+										,format(gw.ToTime,'hh:mm') ToTime,gw.Minute,gw.Remarks,SD.UserName Shift 
+										,ei.EmployeeName
+										from goodwork gw  
+										left join ShiftDefination SD on SD.SystemID=gw.ShiftId	
+										left join EmployeeInformation ei on ei.SystemId=gw.ApprovedBy								
+						where gw.CheckedStatus ='Checked' AND gw.ApprovedStatus='Approved' AND gw.ApprovedBy='" + EmployeeId + "'";
 				return _sqlRepository.GetDataCollection(sql, null);
 			}
 			catch (Exception ex)

@@ -22,7 +22,7 @@
                         <div e-columns>
                             <div e-column e-headertext="Actions" e-width="60">
                                 <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" ng-disabled="btndisable" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Un Checked" ng-click="$parent.SaveCheckData(this)" style="margin: -6px;"></i></button>
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>
+                                @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>*@
                             </div>
                             <div e-column e-template="#ToBeApprovedBy1" e-headertext="To Be Approved By" e-width="150"></div>  
                             <div e-column e-field="WorkDate" e-headertext="Work Date" e-width="80"></div>
@@ -73,9 +73,9 @@
                          e-detailsdatabound="detailgrid">
 
                         <div e-columns>
-                            <div e-column e-headertext="Actions" e-width="80">
+                            @*<div e-column e-headertext="Actions" e-width="80">
                                 <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>
-                            </div>  
+                            </div>*@  
                             <div e-column e-field="WorkDate" e-headertext="Work Date" e-width="80"></div>
                             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
                             <div e-column e-field="FromTime" e-headertext="From Time" e-width="80"></div>
@@ -114,9 +114,9 @@
                         <div e-columns>
                             <div e-column e-headertext="Actions" e-width="80">
                                 <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Approved" ng-click="$parent.SaveApproveData(this);" style="margin: -6px;"></i></button>
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>
+                                @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>*@
                             </div>
-                            <div e-column e-field="ApprovedStatus" e-headertext="Approved Status" e-width="150"></div>
+                            @*<div e-column e-field="ApprovedStatus" e-headertext="Approved Status" e-width="150"></div>*@
                             <div e-column e-field="WorkDate" e-headertext="Work Date" e-width="80"></div>
                             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
                             <div e-column e-field="FromTime" e-headertext="From Time" e-width="80"></div>
@@ -150,21 +150,20 @@
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                          e-filtersettings-filterType="excel" e-enabletouch="true"
                          e-detailstemplate="detailTemp"
-                         e-detailsdatabound="detailgrid">
-
+                         e-detailsdatabound="detailgrid"> 
                         <div e-columns>
-                            <div e-column e-headertext="Actions" e-width="80">
+                            @*<div e-column e-headertext="Actions" e-width="80">
                                 <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>
-                            </div>
-
+                            </div>*@
+                            @*<div e-column e-field="CheckedStatus" e-headertext="Checked Status" e-width="150"></div>*@
+                            <div e-column e-field="WorkDate" e-headertext="Work Date" e-width="80"></div>
                             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-                            <div e-column e-field="ByWhom" e-headertext="ByWhom" e-width="80"></div>
-                            <div e-column e-field="VechileNo" e-headertext="VechileNo" e-width="100"></div>
-                            <div e-column e-field="MobileNo" e-headertext="MobileNo" e-width="80"></div>
-                            <div e-column e-field="SecurityInCharge" e-headertext="SecurityInCharge" e-width="100"></div>
-                            <div e-column e-field="CheckedStatus" e-headertext="Checked Status" e-width="150"></div>
-                        </div>
-
+                            <div e-column e-field="FromTime" e-headertext="From Time" e-width="80"></div>
+                            <div e-column e-field="ToTime" e-headertext="To Time" e-width="100"></div>
+                            <div e-column e-field="Minute" e-headertext="Minute" e-width="80"></div>
+                            <div e-column e-field="Shift" e-headertext="Shift" e-width="100"></div>
+                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                        </div> 
                     </div>
                     <script id="tabGridContents" type="text/x-jsrender">
                         <div class="tabcontrol" id="Test">
@@ -175,8 +174,7 @@
                                 <div id="detailGrid"></div>
                             </div>
                         </div>
-                    </script>
-
+                    </script> 
                 </div>
             </fieldset>
         </div>

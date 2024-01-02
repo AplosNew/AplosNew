@@ -936,7 +936,7 @@ namespace Aplos.Areas.Attendances.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                return Json(clsSales.GetcheckedSalesChalanDataList(identity.EmployeeId), JsonRequestBehavior.AllowGet);
+                return Json(clsSales.GetcheckedGoodWorkDataList(identity.EmployeeId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -985,7 +985,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
-                    data["ApprovedStatus"] = data["ApprovedStatus"];
+                    data["ApprovedStatus"] = "Approved";
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion data update
