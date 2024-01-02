@@ -365,7 +365,7 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         $scope.popUpList = [];
         $scope.budgetpopUpParameters.sort = 'Code';
         $scope.budgetpopUpParameters.searchBy = 'Code';
-        $scope.popUpUrl = 'employees/recruitment/getbudgetcodelist?entityId=' + $scope.sqlInStatement;
+        $scope.popUpUrl = 'employees/recruitment/GetManpowerBudgetListByEntitySql?entityids=' + $scope.sqlInStatement;
         baseService.setCurrentPage('dataList');
         $scope.getPopUpData = function (pageno) {
             baseService.paginationBase($scope.popUpUrl, pageno, $scope.budgetpopUpParameters)
