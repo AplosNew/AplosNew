@@ -1247,6 +1247,7 @@ upanelApp.controller("LotWiseQualityReportController", LotWiseQualityReportContr
 upanelApp.controller("LWQSummaryReportController", LWQSummaryReportController)
 upanelApp.controller("LWQRUpdateController", LWQRUpdateController)
 upanelApp.controller("LCPendingReportController", LCPendingReportController)
+upanelApp.controller("GoodWorkCheckedController", GoodWorkCheckedController)
           
 
 

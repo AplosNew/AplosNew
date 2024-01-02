@@ -4945,7 +4945,93 @@ order by SAI.SalesId";
 							where MPD.MultiplePaymentId='" + mvpId + @"'";
             return _sqlRepository.GetDataTable(sql);
         }
-    }
+
+		#region Good Work Check
+
+		public IEnumerable<object> GetGoodWorkApproveByCboList()
+		{
+			var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                          Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where  A.ActionStatus='GoodWorkApproveBy' AND E.EmployeeStatus='Active'";
+			return _sqlRepository.GetDataCollection(sql, null);
+		}
+		public IEnumerable<object> GetUncheckedGoodWorkData(string EmployeeId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				var sql = @"select gw.Id,format(gw.WorkDate,'dd-MMM-yyyy')WorkDate,format(gw.FromTime,'hh:mm') FromTime
+									,format(gw.ToTime,'hh:mm') ToTime,gw.Minute,gw.Remarks,SD.UserName Shift 
+									from goodwork gw  
+									left join ShiftDefination SD on SD.SystemID=gw.ShiftId
+						  where gw.CheckedStatus='To Be Checked' and gw.ApprovedStatus is null 
+							AND gw.CheckedBy='" + EmployeeId + "'";
+				return _sqlRepository.GetDataCollection(sql, null);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+		public IEnumerable<object> GetcheckedGoodWorkData(string EmployeeId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				var sql = @"select gw.Id,format(gw.WorkDate,'dd-MMM-yyyy')WorkDate,format(gw.FromTime,'hh:mm') FromTime
+									,format(gw.ToTime,'hh:mm') ToTime,gw.Minute,gw.Remarks,SD.UserName Shift 
+									from goodwork gw  
+									left join ShiftDefination SD on SD.SystemID=gw.ShiftId 
+									where gw.CheckedStatus ='Checked' AND gw.ApprovedStatus ='To Be Approved' AND gw.CheckedBy='" + EmployeeId + "'";
+				return _sqlRepository.GetDataCollection(sql, null);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		public IEnumerable<object> GetApproveBycheckedGoodWorkData(string EmployeeId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				var sql = @"select gw.Id,format(gw.WorkDate,'dd-MMM-yyyy')WorkDate,format(gw.FromTime,'hh:mm') FromTime
+										,format(gw.ToTime,'hh:mm') ToTime,gw.Minute,gw.Remarks,SD.UserName Shift 
+										,ei.EmployeeName
+										from goodwork gw  
+										left join ShiftDefination SD on SD.SystemID=gw.ShiftId	
+										left join EmployeeInformation ei on ei.SystemId=gw.ApprovedBy								
+						where gw.ApprovedStatus='To Be Approved' AND gw.ApprovedBy='" + EmployeeId + "'";
+				return _sqlRepository.GetDataCollection(sql, null);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+		public IEnumerable<object> GetcheckedGoodWorkDataList(string EmployeeId)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				var sql = @"select gw.Id,format(gw.WorkDate,'dd-MMM-yyyy')WorkDate,format(gw.FromTime,'hh:mm') FromTime
+										,format(gw.ToTime,'hh:mm') ToTime,gw.Minute,gw.Remarks,SD.UserName Shift 
+										,ei.EmployeeName
+										from goodwork gw  
+										left join ShiftDefination SD on SD.SystemID=gw.ShiftId	
+										left join EmployeeInformation ei on ei.SystemId=gw.ApprovedBy								
+						where gw.CheckedStatus ='Checked' AND gw.ApprovedStatus='Approved' AND gw.ApprovedBy='" + EmployeeId + "'";
+				return _sqlRepository.GetDataCollection(sql, null);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		#endregion Good Work Check
+	}
 
 
 }
