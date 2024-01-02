@@ -2134,6 +2134,214 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             document.Close();
         }
 
+        public double makeaddInfoCTO(string salesId, WordDocument document, DataTable dsaddInfo)
+        {
+            string replaceString = "{addInfo}";
+
+
+            IWParagraphStyle arightAlign = document.AddParagraphStyle("addrightAlign");
+            //Sets the formatting of the style
+            arightAlign.CharacterFormat.FontSize = 8f;
+            arightAlign.CharacterFormat.TextColor = Color.Black;
+            arightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+            int LasColumnIndex = 1;
+            WTable wTable = new WTable(document);
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex);
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
+            FontBold.Bold = true;
+            DFontSize.FontSize = 8f;
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+            range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
+            int colTermsAndCondition = COL; COL++;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 230;
+
+            #endregion column headers
+            double totalValue = 0;
+            int sl = 0;
+            int startRow = 0;
+            for (int i = 0; i < dsaddInfo.Rows.Count; i++)
+            {
+                ROW++;
+                sl++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsaddInfo.Rows[i]["Description"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+
+            }
+            ROW++;
+
+            #region Total
+            //int TotalRow = ROW;
+            //wTable.AddRow();
+            //WTableRow _TROW = wTable.LastRow;
+
+            //range.ApplyCharacterFormat(FontBold);
+            #endregion Total
+            ROW++;
+            #region paragrpath formats
+
+            IWParagraphStyle myaddStyle = document.AddParagraphStyle("AddinfoStyle");
+            //Sets the formatting of the style
+            myaddStyle.CharacterFormat.FontSize = 8f;
+            myaddStyle.CharacterFormat.TextColor = Color.Black;
+            myaddStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            #endregion paragrpath formats
+
+            #region merging section
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            ROW++;
+            #endregion merging section
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+
+            return 0;
+        }
+
+        public void CertificateofOrigin(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId)
+        {
+            var fileName = "";
+            var strPath = "";
+            var File = "";
+
+            ReportUtility ru = new ReportUtility();
+            fileName = "CertificateofOrigin.docx";
+
+            strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
+            File = strPath;
+            if (!System.IO.File.Exists(strPath))
+            {
+                throw new CustomException("File <" + fileName + "> Not Found.");
+            }
+
+            WordDocument document = new WordDocument(File, FormatType.Docx);
+
+            try
+            {
+                WSection section = document.Sections[0];
+
+                DataTable dsOrderMaster, dsConditions, dsaddInfo;
+
+                dsOrderMaster = GetloadCommercialLocalTaxMaterialMaster(salesId);
+                dsConditions = TermsAndConditionSQL(salesId);
+                dsaddInfo = GetAddinfo(salesId);
+                Dictionary<string, string> columns = new Dictionary<string, string>();
+
+                foreach (DataColumn item in dsOrderMaster.Columns)
+                    columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
+
+                var MaterialTotal = makeCommercialInvoiceService(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {materialItems}
+                var addInfo = makeaddInfoCTO(salesId, document, dsaddInfo);   // {makeaddInfo}
+                var TermsAndCondition = makeTermsAndCondition(salesId, document, dsConditions);   // {conditions}
+                var totalQty = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(POTransactionQty)", "CustomerNo='" + dsOrderMaster.Rows[0]["CustomerNo"].ToString() + "'"));
+                var FREIGHTVALUE = totalQty * clsStaticInfo.dbl(dsOrderMaster.Rows[0]["AdditionalFrieghtValue"].ToString());
+                var FCAVALUE = MaterialTotal - FREIGHTVALUE;
+                document.Replace("{GrandTotal}", (MaterialTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{GrandTotals}", (MaterialTotal).ToString("#,##0.00"), true, true);
+                document.Replace("{FREIGHTVALUE}", (FREIGHTVALUE).ToString("#,##0.00"), true, true);
+                document.Replace("{FCAVALUE}", (FCAVALUE).ToString("#,##0.00"), true, true);
+                //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2"), true, true);
+                document.Replace("{TotalInWords}", ru.InWordNew(clsStaticInfo.dbl(dsOrderMaster.Rows[0]["NoCartons"].ToString()), null), true, true);
+
+                Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
+
+                TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
+
+                //creating secondary array to prevent memory leak and accidental over-writing (Tarek Talukder-26-May-2019)
+                List<string> strReplace = new List<string>();
+                for (int i = 0; i < allresult.Length; i++)
+                    strReplace.Add(allresult[i].SelectedText.ToString().ToUpper());
+
+                for (int i = 0; i < strReplace.Count; i++)
+                {
+                    string text = strReplace[i].ToUpper();
+                    ReplaceInfo.Add(text, 0);
+                    if (columns.ContainsKey(text.ToUpper()))
+                    {
+                        //ReplaceInfo[text] = document.Replace(text, dsOrderMaster.Tables[0].Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+                        document.Replace(text, dsOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+                    }
+                    if (text == "{PRINTEDBY}")
+                    {
+                        document.Replace(text, Name, false, false);
+                    }
+                    if (text == "{DT}")
+                    {
+                        document.Replace(text, DateTime.Now.ToString("dd-MMM-yyyy h:mm tt"), false, false);
+                    }
+                }
+
+                document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
+
+                foreach (var item in ReplaceInfo.Keys)
+                {
+                    if (ReplaceInfo[item.ToString()] == 0)
+                        document.Replace(item.ToString(), "N/A", false, false);
+                }
+
+                /////////////////////
+                ///
+
+                /*DocToPDFConverter converter = new DocToPDFConverter();
+
+                //Converts Word document into PDF document
+                PdfDocument pdfDocument = converter.ConvertToPDF(document);
+                pdfDocument.PageSettings.Width = 1200;
+                pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
+                //Releases all resources used by DocToPDFConverter
+                converter.Dispose();
+
+                //Closes the instance of document objects
+
+                //Saves the PDF file 
+                string Prefix = "CertificateofOrigin" + plantId;
+
+                pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
+                //Closes the instance of document objects
+                pdfDocument.Close(true);*/
+                document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
+                document.Close();
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+
+            document.Close();
+        }
+
         public void CommercialInvoicePackingListService(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId)
         {
             var fileName = "";
@@ -2520,6 +2728,8 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
+,PSI.RFIDSealNo 
+,PSI.LineSealNo
 
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
