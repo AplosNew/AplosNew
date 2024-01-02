@@ -2301,6 +2301,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                                 ,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue
                                 ,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue
                                 ,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue
+                                ,isSelected = Convert(bit, 'True')
                                from dbo.OSTransformationPODetail mp left join HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
         					   left join SCS.UnitOfMeasurement uom on uom.Id=mp.OutputMaterialUOMId
                                left join SCS.UnitOfMeasurement mmuom on mmuom.Id=mp.BaseUOMId

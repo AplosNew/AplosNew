@@ -14,6 +14,7 @@ namespace Library.MaterialManagement.Reports
         void CommercialInvoiceService(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId);
         void LRDraftService(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId);
         void BillofExchange(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId);
+        void CertificateofOrigin(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId);
         void SalesInvoiceService(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId);
         void GetLotWiseTaxInvoiceServiceReporttoMail(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId);
         void CommercialInvoicePackingListService(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId);

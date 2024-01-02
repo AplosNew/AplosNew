@@ -104,6 +104,11 @@ namespace Aplos.Areas.QMS.Controllers
                 con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[CustomerQualityReportHeader] WHERE ProductionOrderId='" + data["ProductionOrderId"] + "' and LotNo='" + data["LotNo"] + "'", out DataSet dsCustomerQualityReportHeaderPOLotValidation, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[CustomerQualityReportHeader] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("Update [TRN].[CustomerQualityReportDetails] set FinalReport=0 where CQRHeaderId = '" + data["Id"] + "'");
+                conC.CommitTransaction();
+
                 string _Id = "";
 
                 if (dsMaster.Tables[0].Rows.Count == 0)

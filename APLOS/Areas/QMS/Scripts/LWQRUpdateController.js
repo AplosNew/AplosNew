@@ -205,7 +205,7 @@ function LWQRUpdateController(cboService, commonMessage, $scope, $rootScope, bas
                 }
                 else {
                     ShowResult(response.data.Message, "success");
-                    //LWQRClearFields();
+                    $scope.View();
                 }
             }, function errorCallback(response) {
                 ShowResult(response.status.Message, "failure");
