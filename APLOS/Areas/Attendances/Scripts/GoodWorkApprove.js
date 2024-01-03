@@ -1,10 +1,10 @@
 ﻿'use strict';
-GoodWorkController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', "$controller"];
-function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
-    $rootScope.title = 'Good Work';
+GoodWorkApproveController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', "$controller"];
+function GoodWorkApproveController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
+    $rootScope.title = 'Good Work Approve';
     $scope.ModelList = [];
     $scope.path = 'Attendances/GoodWork/';
-    $scope.saveUrl = $scope.path + 'CreateGoodWork';
+    $scope.saveUrl = $scope.path + 'CreateGoodWorkApproved';
     $scope.UpdateUrl = $scope.path + 'UpdateGoodWorkDetailEdit';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
@@ -94,7 +94,6 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.doubleShift = function (e) {
         $scope.ModelNew.ShiftId = e.data.ShiftId;
         $scope.ModelNew.Shift = e.data.ShiftDefination;
-        $scope.getFiltersData();
         angular.element(document.querySelector('#ShiftPop')).modal('hide');
     }
 
@@ -153,8 +152,8 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
                         if ($scope.ModelNew.Minute > 0) {
                             $http({
                                 method: 'POST',
-                                url: 'Attendances/GoodWork/LoadEmployeelist',
-                                data: { 'parameters': $scope.parameters, 'userGroupId': $scope.ModelNew.UserGroupId, 'shiftId': $scope.ModelNew.ShiftId },
+                                url: 'Attendances/GoodWork/LoadEmployeelist?userGroupId=' + $scope.ModelNew.UserGroupId,
+                                data: { 'parameters': $scope.parameters },
                                 dataType: 'JSON'
                             }).then(function successCallback(response) {
                                 if (response.data.Error === true) {
@@ -378,7 +377,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     };
 
 
-    $scope.Save = function () {
+    $scope.SaveGoodWorkApproved = function () {
         try { 
             $http({
                 method: 'POST',
@@ -414,7 +413,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.getData = function () {
         $http({
             method: 'Get',
-            url: $scope.path + "GetGoodWorkList",
+            url: $scope.path + "GetGoodWorkApprovedDataList",
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
@@ -498,7 +497,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         try {
             $http({
                 method: 'GET',
-                url: $scope.path + 'getFiltersData?userGroupId=' + $scope.ModelNew.UserGroupId + '&shiftId=' + $scope.ModelNew.ShiftId,
+                url: $scope.path + 'getFiltersData?userGroupId=' + $scope.ModelNew.UserGroupId,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.filters = response.data;

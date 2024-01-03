@@ -450,5 +450,9 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/GoodWork/GoodWorkCheck',
             controller: 'GoodWorkCheckedController'
         })
+        .when('/good-work-approve', {
+            templateUrl: 'Attendances/GoodWork/GoodWorkApprove',
+            controller: 'GoodWorkApproveController'
+        })
         ;
 } 
