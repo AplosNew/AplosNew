@@ -86,6 +86,12 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(_productionSummaryData.GetSummaryList(GRNId, parameters), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpPost]
+        public ActionResult GetCustomerDataList(string GRNId)
+        {
+            return Json(_productionSummaryData.GetCustomerDataList(GRNId), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpGet]
         public ActionResult GetFilterList(string GRNId)
         {

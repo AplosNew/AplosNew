@@ -7332,6 +7332,18 @@ Group By FRC.GRNRowId,MMA.StandardName,MMA.Id,MM.Id,MM.UserName";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
+        public IEnumerable<object> GetCustomerDataList(string GRNId)
+        {
+           
+            string sql = @"select FRC.FabricType,FRC.CutableWidth,FRC.ShrinkageWidthWise,FRC.ShrinkageLengthWise,FRC.Shade,COUNT(FRC.Id) NoOfRoll,Sum(FRC.SupplierQty) Qty,
+FRC.CutableWidthGroup,FRC.MarkerGroup,FRC.ShadeGroup,FRC.FabricGroup,FRC.Remarks,FRC.ShrinkageGroup
+ from BPDT.FabricRollManagementChild FRC
+where FRC.FabricRollManagementMasterId in (select Id from BPDT.FabricRollManagementMaster where GRNId='" + GRNId + @"')
+Group By CutableWidth,ShrinkageWidthWise,ShrinkageLengthWise,Shade,
+CutableWidthGroup,MarkerGroup,ShadeGroup,FabricGroup,Remarks,ShrinkageGroup,FabricType";
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
         #endregion
 
         #region Lot Wise Quality Report & Lot Wise Quality Report Update

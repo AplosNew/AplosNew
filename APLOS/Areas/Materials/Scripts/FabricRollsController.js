@@ -291,23 +291,29 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         angular.element(document.querySelector('#grnSummaryListPopUp')).modal('show');
     }
 
-    $scope.CustomerData = function () {
-        $scope.getCustomerData();
-        angular.element(document.querySelector('#grnCustomerDataListPopUp')).modal('show');
-    }
+    //$scope.CustomerData = function () {
+    //    $scope.getCustomerData();
+    //    angular.element(document.querySelector('#grnCustomerDataListPopUp')).modal('show');
+    //}
 
     $scope.grnCustomerDataList = [];
-    $scope.GetCustomerDataList = function () {
-        $scope.grnSummaryList = [];
+    $scope.getCustomerData = function () {
+        $scope.grnCustomerDataList = [];
         $http({
             method: 'POST',
             url: $scope.path + "GetCustomerDataList",
-            data: { 'parameters': $scope.parameters[0].Value, 'GRNId': $scope.fabricRollMaster.GRNNo },
+            data: {'GRNId': $scope.fabricRollMaster.GRNNo },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.grnCustomerDataList = response.data;
         });
-        var gridObj = $("#GridFabricSummary").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+        var gridObj = $("#GridCustomerData").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+        angular.element(document.querySelector('#grnCustomerDataListPopUp')).modal('show');
+    }
+
+    $scope.closeGRNCustomerDataPopUp = function () {
+        $scope.grnCustomerDataList = [];
+        angular.element(document.querySelector('#grnCustomerDataListPopUp')).modal('hide');
     }
 
     $scope.grnSummaryList = [];
@@ -1157,7 +1163,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     };
 
     $scope.modeldata = {
-        Id: null, PlantId: null, GRNId: $scope.fabricRollMaster.GRNNo, GRNDate: $scope.fabricRollMaster.GRNDate, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
+        Id: null, PlantId: null, GRNId: $scope.fabricRollMaster.GRNNo, GRNDate: $scope.fabricRollMaster.GRNDate, UserName: $scope.fabricRollMaster.UserName, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
     }
 
     $scope.Action = "Save";

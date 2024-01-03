@@ -210,7 +210,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                                 ob.CustomerId = $scope.PackingList[i].CustomerId;
                                 $scope.salesVM.PartyName = $scope.PackingList[i].Customer;
                                 $scope.salesVM.PartyId = $scope.PackingList[i].CustomerId;
-                                
+
                                 ob.StorageLoc = $scope.PackingList[i].StorageLoc;
                                 ob.ByWhom = $scope.PackingList[i].ByWhom;
                                 ob.DRespPerson = $scope.PackingList[i].DRespPerson;
@@ -227,7 +227,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                                 }
 
                                 ObjPt = { Value: null, Text: null, BaseLineDate: null, NoOfDay: 0, PaymentTermCode: null };
-                                
+
                                 $scope.getPartyPlant();
                                 $scope.selectedPackingList.push(ob);
 
@@ -239,11 +239,11 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                     }
                 }
             }
-            if (baseService.arrayLength($scope.paymentTermList)==1) {
+            if (baseService.arrayLength($scope.paymentTermList) == 1) {
                 $scope.salesVM.PaymentTermId = $scope.paymentTermList[0].Value;
                 $scope.changePaymentTerm($scope.salesVM.PaymentTermId);
             }
-           
+
             $scope.GetCurrencyExchangeRateList();
         } catch (e) {
             ShowResult(e, 'failure', 'PackingListPopUp');
@@ -1268,13 +1268,13 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     $scope.GetSalesPackingData = function (salesId) {
         $scope.selectedPackingList = [];
         $scope.paymentTermList = [];
-       
+
         $http({
             method: 'GET',
             url: "Productions/PackingInvoice/GetSalesPackingData?salesId=" + salesId
         }).then(function (response) {
             $scope.selectedPackingList = response.data;
-            
+
             if ($scope.selectedPackingList.length > 0) {
                 var uniquePackingId = removeDuplicates($scope.selectedPackingList, 'PackingId');
                 var wcPackingId = "";
@@ -2224,7 +2224,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     };
     $scope.CommercialInvoiceReport = function (data) {
         location.href = "SalesManagements/Sales/CommercialInvoice?salesId=" + data.Id;
-      //  $scope.CommercialInvoicePackingListReport(data);
+        //  $scope.CommercialInvoicePackingListReport(data);
     };
     $scope.LRDraft = function (data) {
         location.href = "SalesManagements/Sales/LRDraft?salesId=" + data.Id;
@@ -2288,6 +2288,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             url: 'Productions/PackingInvoice/GetAdditionalInfoList?SalesId=' + $scope.salesVM.Id
         }).then(function successCallback(response) {
             $scope.SalesAdditionalInfoList = response.data;
+            $scope.GetSalesAdditionalInfoData();
         });
     }
 
@@ -2511,4 +2512,167 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         $scope.dwonloadUrl = virtualPath.PostSalesInvoiceDoc + '/' + $scope.tempdata.Id + extention;
     };
     //#endregion Production Bulletin Picture upload
+
+
+
+    $scope.monthList = [
+        { 'Value': "1", 'Text': "Jan", 'Days': 31 },
+        { 'Value': "2", 'Text': "Feb", 'Days': 28 },
+        { 'Value': "3", 'Text': "Mar", 'Days': 31 },
+        { 'Value': "4", 'Text': "Apr", 'Days': 30 },
+        { 'Value': "5", 'Text': "May", 'Days': 31 },
+        { 'Value': "6", 'Text': "Jun", 'Days': 30 },
+        { 'Value': "7", 'Text': "Jul", 'Days': 31 },
+        { 'Value': "8", 'Text': "Aug", 'Days': 31 },
+        { 'Value': "9", 'Text': "Sep", 'Days': 30 },
+        { 'Value': "10", 'Text': "Oct", 'Days': 31 },
+        { 'Value': "11", 'Text': "Nov", 'Days': 30 },
+        { 'Value': "12", 'Text': "Dec", 'Days': 31 }
+    ];
+
+    function validatedate(dateText) {
+
+        if (dateText) {
+            try {
+                var errorMessage = "";
+                var monthNO = 0;
+                var daysPerMonth = 0;
+                var splitComponents = dateText.split('-');
+                if (splitComponents.length > 0) {
+                    var day = parseInt(splitComponents[0]);
+                    var month = splitComponents[1];
+                    var year = parseInt(splitComponents[2]);
+
+                    if (isNaN(day) || isNaN(year)) {
+                        errorMessage = "Please enter the date in dd-MMM-yyyy format.";
+                        throw errorMessage;
+                        return false;
+                    }
+
+                    var monthName = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                    if (monthName.includes(month)) {
+                        for (var i = 0; i < $scope.monthList.length; i++) {
+                            if ($scope.monthList[i].Text == month) {
+                                monthNO = $scope.monthList[i].Value;
+                                daysPerMonth = $scope.monthList[i].Days;
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        throw "Invalid Month Name.";
+                    }
+
+                    if (day <= 0 || year <= 0) {
+                        throw "The day and year need to be positive values greater than 0";
+                    }
+
+                    if (errorMessage == "") {
+                        // assuming no leap year by default
+                        //var daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+                        if (year % 4 == 0) {
+                            // current year is a leap year
+                            daysPerMonth = 29;
+                        }
+
+                        if (day > daysPerMonth) {
+                            errorMessage = "Number of days are more than those allowed for the month";
+                        }
+                    }
+                } else {
+                    throw errorMessage = "Please enter the date in dd-MMM-yyyy format.";
+                }
+
+                if (errorMessage) {
+                    throw errorMessage;
+                    return false;
+                }
+            } catch (e) {
+                throw e;
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    $scope.SaveAddInfo = function () {
+        try {
+            for (var i = 0; i < $scope.SalesAdditionalInfoDataList.length; i++) {
+                if ($scope.SalesAdditionalInfoDataList[i].Flag) {
+                    if (baseService.isUndefinedOrNull($scope.SalesAdditionalInfoDataList[i].Value)) {
+                        throw "Value is required for " + $scope.SalesAdditionalInfoDataList[i].UserName + ".";
+                    }
+                }
+
+                if ($scope.SalesAdditionalInfoDataList[i].CharecterType == "DateTime") {
+                    validatedate($scope.SalesAdditionalInfoDataList[i].Value);
+                }
+
+
+                if ($scope.SalesAdditionalInfoDataList[i].CharecterType == "Decimal") {
+                    if (isNaN($scope.SalesAdditionalInfoDataList[i].Value)) {
+                        throw "Number is required for " + $scope.SalesAdditionalInfoDataList[i].UserName + ".";
+                    }
+                }
+            }
+
+
+            $http({
+                method: 'POST',
+                url: 'SalesManagements/Sales/CreateSalesAdditionalInfo',
+                data: {
+                    'data': $scope.SalesAdditionalInfoDataList,
+                    'salesId': $scope.salesVM.Id
+                },
+                dataType: 'JSON'
+                , contentType: "application/json charset=utf-8"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetSalesAdditionalInfoData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.SalesAdditionalInfoDataList = [];
+    $scope.GetSalesAdditionalInfoData = function () {
+        $scope.SalesAdditionalInfoDataList = [];
+        $http.get("SalesManagements/Sales/GetSalesAdditionalInfoData?salesId=" + $scope.salesVM.Id)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        for (var i = 0; i < response.data.length; i++) {
+                            response.data[i].SalesId = $scope.SalesId;
+
+                            if (response.data[i].CharecterType == "Text" || response.data[i].CharecterType == "DateTime") {
+                                response.data[i].CharType = "text";
+                            }
+                            else {
+                                response.data[i].CharType = "number";
+                            }
+                            if (response.data[i].CharecterType == "DateTime") {
+                                response.data[i].datepic = 'datepicker';
+                            }
+                        }
+
+                        $scope.SalesAdditionalInfoDataList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+
+
 }

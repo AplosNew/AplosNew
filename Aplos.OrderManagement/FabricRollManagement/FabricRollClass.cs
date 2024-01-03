@@ -1799,7 +1799,7 @@ WHERE BP.BusinessProcessName='FabricRollManagement' AND IRD.InventoryReceiveId='
             try
             {
                 string sql = @"
-SELECT F.Id,IR.Id GRNNo,F.PreparedById,F.CheckedById,F.Remarks,F.Comment
+SELECT F.Id,IR.Id GRNNo,F.PreparedById,F.CheckedById,F.Remarks,F.Comment,F.UserName
 ,PE.EmployeeCode PreparedByCode,CE.EmployeeCode CheckedByCode,PE.EmployeeName PreparedByName,CE.EmployeeName CheckedByName
                                     ,IR.Status GRNStatus
                                     ,FORMAT(IR.GRNDate,'dd-MMM-yyyy') GRNDate
