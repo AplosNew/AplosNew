@@ -2342,6 +2342,134 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             document.Close();
         }
 
+        public void BankLatter(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId , string BankName)
+        {
+            var fileName = "";
+            var strPath = "";
+            var File = "";
+
+            ReportUtility ru = new ReportUtility();
+            if (BankName != "" || BankName != null || BankName != "null")
+            {
+                if (BankName == "HDFC 59265400002289")
+                {
+                    fileName = "HDFC.docx";
+                }
+                if (BankName == "ICICI Bank Limited")
+                {
+                    fileName = "ICICI.docx";
+                }
+                strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
+                File = strPath;
+                if (!System.IO.File.Exists(strPath))
+                {
+                    throw new CustomException("File <" + fileName + "> Not Found.");
+                }
+            }
+            else
+            {
+                throw new CustomException("Bank Is not Selected");
+            }
+
+            
+
+            WordDocument document = new WordDocument(File, FormatType.Docx);
+
+            try
+            {
+                WSection section = document.Sections[0];
+
+                DataTable dsOrderMaster, dsConditions, dsaddInfo;
+
+                dsOrderMaster = GetloadCommercialLocalTaxMaterialMaster(salesId);
+                dsConditions = TermsAndConditionSQL(salesId);
+                dsaddInfo = GetAddinfo(salesId);
+                Dictionary<string, string> columns = new Dictionary<string, string>();
+
+                foreach (DataColumn item in dsOrderMaster.Columns)
+                    columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
+
+                var MaterialTotal = makeCommercialInvoiceService(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {materialItems}
+                var addInfo = makeaddInfoCTO(salesId, document, dsaddInfo);   // {makeaddInfo}
+                var TermsAndCondition = makeTermsAndCondition(salesId, document, dsConditions);   // {conditions}
+                var totalQty = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(POTransactionQty)", "CustomerNo='" + dsOrderMaster.Rows[0]["CustomerNo"].ToString() + "'"));
+                var FREIGHTVALUE = totalQty * clsStaticInfo.dbl(dsOrderMaster.Rows[0]["AdditionalFrieghtValue"].ToString());
+                var FCAVALUE = MaterialTotal - FREIGHTVALUE;
+                document.Replace("{GrandTotal}", (MaterialTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{GrandTotals}", (MaterialTotal).ToString("#,##0.00"), true, true);
+                document.Replace("{FREIGHTVALUE}", (FREIGHTVALUE).ToString("#,##0.00"), true, true);
+                document.Replace("{FCAVALUE}", (FCAVALUE).ToString("#,##0.00"), true, true);
+                //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2"), true, true);
+                document.Replace("{TotalInWords}", ru.InWordNew(clsStaticInfo.dbl(dsOrderMaster.Rows[0]["NoCartons"].ToString()), null), true, true);
+
+                Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
+
+                TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
+
+                //creating secondary array to prevent memory leak and accidental over-writing (Tarek Talukder-26-May-2019)
+                List<string> strReplace = new List<string>();
+                for (int i = 0; i < allresult.Length; i++)
+                    strReplace.Add(allresult[i].SelectedText.ToString().ToUpper());
+
+                for (int i = 0; i < strReplace.Count; i++)
+                {
+                    string text = strReplace[i].ToUpper();
+                    ReplaceInfo.Add(text, 0);
+                    if (columns.ContainsKey(text.ToUpper()))
+                    {
+                        //ReplaceInfo[text] = document.Replace(text, dsOrderMaster.Tables[0].Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+                        document.Replace(text, dsOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+                    }
+                    if (text == "{PRINTEDBY}")
+                    {
+                        document.Replace(text, Name, false, false);
+                    }
+                    if (text == "{DT}")
+                    {
+                        document.Replace(text, DateTime.Now.ToString("dd-MMM-yyyy h:mm tt"), false, false);
+                    }
+                }
+
+                document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
+
+                foreach (var item in ReplaceInfo.Keys)
+                {
+                    if (ReplaceInfo[item.ToString()] == 0)
+                        document.Replace(item.ToString(), "N/A", false, false);
+                }
+
+                /////////////////////
+                ///
+
+                /*DocToPDFConverter converter = new DocToPDFConverter();
+
+                //Converts Word document into PDF document
+                PdfDocument pdfDocument = converter.ConvertToPDF(document);
+                pdfDocument.PageSettings.Width = 1200;
+                pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
+                //Releases all resources used by DocToPDFConverter
+                converter.Dispose();
+
+                //Closes the instance of document objects
+
+                //Saves the PDF file 
+                string Prefix = "CertificateofOrigin" + plantId;
+
+                pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
+                //Closes the instance of document objects
+                pdfDocument.Close(true);*/
+                document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
+                document.Close();
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+
+            document.Close();
+        }
+
         public void CommercialInvoicePackingListService(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId)
         {
             var fileName = "";
@@ -2507,6 +2635,20 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
+,LcAmount= (
+                    SELECT CONVERT(NUMERIC(10,2) , LC.Amount)
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id)
+,LcAmountBL = (
+                    SELECT CONVERT(NUMERIC(10,2) , LC.Amount)
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id)
 ,LcNoNew=Stuff((
                     SELECT distinct',' + LC.LCRef
                     FROM dbo.MasterLC LC 
@@ -2586,7 +2728,24 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
-
+,LCShipingdate=Stuff((
+                    SELECT distinct',' + FORMAT(LC.LCShipmentDate, 'dd-MMM-yyyy')
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,LCExpirydate=Stuff((
+                    SELECT distinct',' + FORMAT(LC.ExpiryDate, 'dd-MMM-yyyy')
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
 ,BenificiaryBankDescription=Stuff((
                     SELECT distinct',' + OA.Address1
                     FROM dbo.MasterLC LC 
@@ -2730,6 +2889,13 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     ), 1, 1, '')
 ,PSI.RFIDSealNo 
 ,PSI.LineSealNo
+,NEGADD.Address1 NegotiationBankAdd
+,NEGBB.SWIFTCode NegotiatingBankSwiftCode
+,PSI.ShippingBillNo
+,PSI.PortCode
+,FORMAT(PSI.ShippingBillDate,'dd-MMM-yyyy')ShippingBillDate
+,FORMAT(PSI.ShipmentDate,'dd-MMM-yyyy')ShipmentDate
+,CONVERT(numeric(10,2) , SAI.Value) AdvanceRevceive
 
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
@@ -2769,6 +2935,11 @@ LEFT JOIN MST.BankMaster BM ON BM.Id = IR.PaymentToReceiveBankId
 LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
 LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId AND BB.Id = BM.BankBranchId
 LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
+left join mst.BankMaster NEGBNKMT on NEGBNKMT.Id = PSI.BankMasterId
+left join hkp.Bank NEGBNK on NEGBNK.Id = NEGBNKMT.BankId
+left join hkp.BankBranch NEGBB on NEGBB.Id = NEGBNKMT.BankBranchId
+left join MST.AddressMaster NEGADD on NEGADD.Id = NEGBB.AddressMasterId
+left join SalesAdditionalInfo SAI on SAI.SalesId = IR.Id and SAI.AdditionalInfoId = 'AI18'
                        WHERE IR.Id ='" + SalesId + "' AND SCN.Bags<>''";
 
                 return _sqlRepository.GetDataTable(strSQL);

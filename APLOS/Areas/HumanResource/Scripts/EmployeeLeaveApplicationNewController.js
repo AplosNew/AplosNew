@@ -43,7 +43,7 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
         ApprovalPerson: null,
         FirstApprovingStatus: 1,
         FirstApprovingAuthority: null,
-        FirstApprovingDate:null        
+        FirstApprovingDate: null
     };
     $scope.leaveApplicationNew = Object.assign({}, $scope.leaveApplication);
 
@@ -65,7 +65,7 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
             'value': 'ToDate'
         }
     ];
-       
+
     $scope.leaveTypelist = [];
     $scope.leavetypecbo = function () {
         $http.get($scope.path + 'GetLeaveTypeCbo?EmpsystemId=' + $scope.leaveApplicationNew.EmpSystemID)
@@ -89,11 +89,12 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
 
     $scope.YearNo = null;
     $scope.getLeaveBalance = function () {
-        $http.get('HumanResource/LeaveApplicationNew/GetEmpLeaveBalanceNew?EmpsystemId=' + $scope.leaveApplicationNew.EmpSystemID + '&calanderYearId=' + $scope.YearNo)
-            .then(function (response) {
-                $scope.LeaveBalanceList = response.data;
-               console.log($scope.LeaveBalanceList);
-            });
+        if (!baseService.isUndefinedOrNull($scope.YearNo)) {
+            $http.get('HumanResource/LeaveApplicationNew/GetEmpLeaveBalanceNew?EmpsystemId=' + $scope.leaveApplicationNew.EmpSystemID + '&calanderYearId=' + $scope.YearNo)
+                .then(function (response) {
+                    $scope.LeaveBalanceList = response.data;
+                });
+        }
     };
 
 
@@ -208,7 +209,7 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
             $scope.LeavePolicyNames = response.data.data[0].PolicyName;
         });
     };
-    
+
     $scope.GetEnterEmployeeOutInfo = function () {
         var parameters = {
             'SearchValue': $scope.leaveApplicationNew.EmployeeCode
@@ -332,7 +333,7 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
                     ShowResult('Leave Duration is greater then balance.', 'failure');
                 }
 
-                if ($scope.LeaveBalanceList[i].LeaveDays - (($scope.LeaveBalanceList[i].Applied - $scope.LeaveBalanceList[i].Rejected) + diffDays) <0) {
+                if ($scope.LeaveBalanceList[i].LeaveDays - (($scope.LeaveBalanceList[i].Applied - $scope.LeaveBalanceList[i].Rejected) + diffDays) < 0) {
                     throw 'Leave Duration is greater then balance.';
                 }
                 if ($scope.LeaveBalanceList[i].LeaveDays - (($scope.LeaveBalanceList[i].Applied - $scope.LeaveBalanceList[i].Rejected) + diffDays) >= $scope.LeaveBalanceList[i].Balance) {
@@ -341,97 +342,97 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
             }
         }
 
-        }
+    }
 
-        $scope.Save = function () {
-            try {
-                ValidationLeave();
-                angular.copy($scope.leaveApplicationNew, $scope.leaveApplication);
-                $scope.$broadcast('show-errors-check-validity');
+    $scope.Save = function () {
+        try {
+            ValidationLeave();
+            angular.copy($scope.leaveApplicationNew, $scope.leaveApplication);
+            $scope.$broadcast('show-errors-check-validity');
 
-                if ($scope.leaveApplicationNewForm.$valid) {
-                   
-                    if ($scope.Action === 'Save' || $scope.Action === 'Update') {
-                        $http({
-                            method: 'POST',
-                            url: $scope.saveUrl,
-                            data: { 'leaveApplication': $scope.leaveApplication, 'yearId': $scope.YearNo },
-                            dataType: 'JSON'
-                        }).then(function successCallback(response) {
-                            if (response.data.Error === true) {
-                                ShowResult(response.data.Message, 'failure');
-                            }
-                            else {
-                                ShowResult(response.data.Message, 'success');
-                                $scope.LeaveTransactionList.push(response.data.LeaveApplication);
-                                $scope.getData();
-                                $scope.getLeaveBalance();
-                                $scope.leaveApplicationNew.LeaveDayType = 'FullDay';
-                                $scope.setEnable();
-                                ClearDataField();
-                            }
-                        }), function errorCallBack(response) {
+            if ($scope.leaveApplicationNewForm.$valid) {
+
+                if ($scope.Action === 'Save' || $scope.Action === 'Update') {
+                    $http({
+                        method: 'POST',
+                        url: $scope.saveUrl,
+                        data: { 'leaveApplication': $scope.leaveApplication, 'yearId': $scope.YearNo },
+                        dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
                             ShowResult(response.data.Message, 'failure');
-                        };
-                    }
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success');
+                            $scope.LeaveTransactionList.push(response.data.LeaveApplication);
+                            $scope.getData();
+                            $scope.getLeaveBalance();
+                            $scope.leaveApplicationNew.LeaveDayType = 'FullDay';
+                            $scope.setEnable();
+                            ClearDataField();
+                        }
+                    }), function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    };
                 }
-            } catch (e) {
-                ShowResult(e, "failure");
             }
-        };
-
-        $scope.Delete = function () {
-            if (!baseService.isUndefinedOrNull($scope.leaveApplicationNew.SystemID)) {
-                $http({
-                    method: 'POST',
-                    url: $scope.deleteUrl + $scope.leaveApplicationNew.SystemID,
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.LeaveTransactionList.splice($scope.index, 1);
-                        baseService.paginationRemove();
-                        $scope.getData();
-                        $scope.getLeaveBalance();
-                        $scope.leaveApplicationNew.LeaveDayType = 'FullDay';
-                        $scope.setEnable();
-                        ClearDataField();
-                    }
-                    function errorCallBack(response) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                });
-            }
-        };
-
-        $scope.Clear = function () {
-            ClearFields();
-            return true;
-        };
-
-        function ClearDataField() {
-            $scope.Action = 'Save';
-            $scope.leaveApplication = { SectionId: $scope.leaveApplication.SectionId, EmpSystemID: $scope.leaveApplication.EmpSystemID, EmployeeName: $scope.leaveApplication.EmployeeName, EmployeeCode: $scope.leaveApplication.EmployeeCode, DOJ: $scope.leaveApplication.DOJ, DOC: $scope.leaveApplication.DOC };
-            $scope.leaveApplicationNew = { SectionId: $scope.leaveApplicationNew.SectionId, EmpSystemID: $scope.leaveApplicationNew.EmpSystemID, EmployeeName: $scope.leaveApplicationNew.EmployeeName, EmployeeCode: $scope.leaveApplicationNew.EmployeeCode, DOJ: $scope.leaveApplicationNew.DOJ, DOC: $scope.leaveApplicationNew.DOC };
-            $scope.employeeInfo = [];
-            $scope.leaveApplications = [];
-            $scope.leaveApplicationNew.LeaveDayType = 'FullDay';
-            $scope.setEnable();
+        } catch (e) {
+            ShowResult(e, "failure");
         }
+    };
 
-        function ClearFields() {
-            $scope.Action = 'Save';
-            $scope.leaveApplication = { SectionId: $scope.leaveApplication.SectionId };
-            $scope.leaveApplicationNew = { SectionId: $scope.leaveApplicationNew.SectionId };
-            $scope.employeeInfo = [];
-            $scope.leaveApplications = [];
-            $scope.leaveApplicationNew.LeaveDayType = 'FullDay';
-            $scope.LeaveBalanceList = [];
-            $scope.LeaveTransactionList = [];
-            $scope.imageSrc = virtualPath.EmployeePic + '';
+    $scope.Delete = function () {
+        if (!baseService.isUndefinedOrNull($scope.leaveApplicationNew.SystemID)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrl + $scope.leaveApplicationNew.SystemID,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LeaveTransactionList.splice($scope.index, 1);
+                    baseService.paginationRemove();
+                    $scope.getData();
+                    $scope.getLeaveBalance();
+                    $scope.leaveApplicationNew.LeaveDayType = 'FullDay';
+                    $scope.setEnable();
+                    ClearDataField();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+    $scope.Clear = function () {
+        ClearFields();
+        return true;
+    };
+
+    function ClearDataField() {
+        $scope.Action = 'Save';
+        $scope.leaveApplication = { SectionId: $scope.leaveApplication.SectionId, EmpSystemID: $scope.leaveApplication.EmpSystemID, EmployeeName: $scope.leaveApplication.EmployeeName, EmployeeCode: $scope.leaveApplication.EmployeeCode, DOJ: $scope.leaveApplication.DOJ, DOC: $scope.leaveApplication.DOC };
+        $scope.leaveApplicationNew = { SectionId: $scope.leaveApplicationNew.SectionId, EmpSystemID: $scope.leaveApplicationNew.EmpSystemID, EmployeeName: $scope.leaveApplicationNew.EmployeeName, EmployeeCode: $scope.leaveApplicationNew.EmployeeCode, DOJ: $scope.leaveApplicationNew.DOJ, DOC: $scope.leaveApplicationNew.DOC };
+        $scope.employeeInfo = [];
+        $scope.leaveApplications = [];
+        $scope.leaveApplicationNew.LeaveDayType = 'FullDay';
+        $scope.setEnable();
+    }
+
+    function ClearFields() {
+        $scope.Action = 'Save';
+        $scope.leaveApplication = { SectionId: $scope.leaveApplication.SectionId };
+        $scope.leaveApplicationNew = { SectionId: $scope.leaveApplicationNew.SectionId };
+        $scope.employeeInfo = [];
+        $scope.leaveApplications = [];
+        $scope.leaveApplicationNew.LeaveDayType = 'FullDay';
+        $scope.LeaveBalanceList = [];
+        $scope.LeaveTransactionList = [];
+        $scope.imageSrc = virtualPath.EmployeePic + '';
     }
 
     $scope.LeaveAppNewReportExcel = function () {

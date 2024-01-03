@@ -13,7 +13,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
     $controller("currencyBaseController", { $scope: $scope, $http: $http });
 
     $scope.masterLC = {
-        Id: null, Version: 0, CustomerId: null, ContractId: null, BenificiaryBankId: null, OpeningBankId: null, OpeningDescription: null, LeinBankId: null, LeinDescription: null, LCRef: null, LCDate: null, ExpiryDate: null, Amount: null, Type: null, Tenure: null, FinalDestinationId: null, PortOfLandingId: null, CurrencyId: null, IsClose: false, Remarks: null
+        Id: null, Version: 0, CustomerId: null, ContractId: null, BenificiaryBankId: null, OpeningBankId: null, OpeningDescription: null, LeinBankId: null, LeinDescription: null, LCRef: null, LCDate: null, ExpiryDate: null, Amount: null, Type: null, Tenure: null, FinalDestinationId: null, PortOfLandingId: null, CurrencyId: null, IsClose: false, Remarks: null, PaymentTermVarify: false, TermsandConditionVarify: false, AdditionalInfoVarify:false
     };
     $scope.masterLCNew = Object.assign({}, $scope.masterLC);
 

@@ -6,6 +6,7 @@
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet2(1) }"><a ng-click="setTab2(1)" href="" aria-controls="general" role="tab" data-toggle="tab2">Invoice</a></li>
                 <li role="presentation" ng-class="{ active: isSet2(2) }"><a ng-click="setTab2(2)" href="" aria-controls="address" role="tab" data-toggle="tab2">Post Sales</a></li>
+                <li role="presentation" ng-class="{ active: isSet2(3) }"><a ng-click="setTab2(3)" href="" data-toggle="tab">Invoice Additional Info</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -207,8 +208,8 @@
                                     <div class="col-sm-2 show-message">
                                         <div class="select-style">
                                             @*<select tabindex="10" id="paymentTermId" class="form-control" name="Payment Term" ng-model="salesVM.PaymentTermId" ng-change="changePaymentTerm(salesVM.PaymentTermId);">
-                                                    <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
-                                                </select>*@
+                                            <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>*@
                                             <select name="Payment Term" id="paymentTermId" class="form-control" ng-model="salesVM.PaymentTermId" ng-options="item.Value as item.Text for item in paymentTermList" ng-change="changePaymentTerm(salesVM.PaymentTermId);">
                                                 <option value="">--Select--</option>
                                             </select>
@@ -325,8 +326,8 @@
                                                 </td>
 
                                                 @*<td class="text-right">
-                                                        <strong>{{salesOrderList | sumByKey : 'Balance'| setDecimal:2 | number:2}}</strong>
-                                                    </td>*@
+                                                <strong>{{salesOrderList | sumByKey : 'Balance'| setDecimal:2 | number:2}}</strong>
+                                            </td>*@
                                                 <td class="text-right">
                                                     <strong>{{salesOrderList | sumByKey : 'TransactionAmount'| setDecimal:2 | number:2}}</strong>
                                                 </td>
@@ -832,7 +833,12 @@
                                     </div>
                                 </div>
                             </div>
-
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="Payment Due/Mature Date">Payment Due/Mature Date</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="PaymentDueMatureDate" ng-model="ModelNew.PaymentDueMatureDate" datepicker class="form-control" tabindex="9">
+                                </div>
+                            </div>
                         </div>
                     </fieldset>
                     <fieldset class="scheduler-border">
@@ -993,6 +999,51 @@
                     </div>
                 </div>
             </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(3), active: isSet2(3) }">
+                <div class="row">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>InvoiceNo</th>
+                                    <th>User Name</th>
+                                    <th>Value</th>
+                                    <th>Remark</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in SalesAdditionalInfoDataList">
+                                    <td class="text-right table-td">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="x.Flag" tabindex="8">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>{{x.SalesId}}</td>
+                                    <td>{{x.UserName}}</td>
+                                    <td>
+                                        <div class="col-sm-10" style="padding:0px; width:100%;" ng-hide="x.datepic == 'datepicker'">
+                                            <input type="text" name="Value" ng-model="x.Value" class="form-control">
+                                        </div>
+                                        <div class="col-sm-10" style="padding:0px; width:100%;" ng-hide="x.datepic != 'datepicker'">
+                                            <input type="text" name="Value" placeholder="dd-MMM-yyyy" ng-model="x.Value" class="form-control">
+                                        </div>
+                                    </td>
+                                    <td><input type="text" ng-model="x.Remarks" ng-maxlength="250" style="color:black;" class="form-control" /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveAddInfo();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -1051,6 +1102,7 @@
                         <li><a class="btn btn-action" ng-click="LRDraft(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="LR Draft" href="" target="_blank"><i class=""></i>Draft</a></li>
                         <li><a class="btn btn-action" ng-click="BillofExchange(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Bill of Exchange" href="" target="_blank"><i class=""></i>BE</a></li>
                         <li><a class="btn btn-action" ng-click="CertificateofOrigin(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Certificate of Origin" href="" target="_blank"><i class=""></i>CTO</a></li>
+                        <li><a class="btn btn-action" ng-click="BankLatter(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Bank Letter" href="" target="_blank"><i class=""></i>BL</a></li>
                         @* <li><a class="btn btn-action" ng-click="LocalTaxInvoiceReport(x);" title="Tax Invoice" href="" target="_blank"><i class=""></i>TI</a></li>*@
                         @*<li><a class="btn btn-action" ng-click="LocalTaxInvoiceWithProductDetailService(x);" title="Tax Invoice With Product Detail" href="" target="_blank"><i class=""></i>TI</a></li>
         <li><a class="btn btn-action" ng-click="LocalTaxInvoiceWithoutSUIReport(x);" title="Tax Invoice Without SKU" href="" target="_blank"><i class=""></i>TI</a></li>*@

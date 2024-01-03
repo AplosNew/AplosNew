@@ -435,6 +435,14 @@ namespace Aplos.Areas.SalesManagements.Controllers
             return View();
         }
         [Authorize, HttpGet]
+        public ActionResult BankLatter(string salesId , string BankName)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _salesReportService.BankLatter(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, salesId , BankName);
+            return View();
+        }
+        [Authorize, HttpGet]
         public ActionResult CommercialInvoicePackingList(string salesId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
