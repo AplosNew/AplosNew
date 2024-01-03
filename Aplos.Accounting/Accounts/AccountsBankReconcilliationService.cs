@@ -1074,7 +1074,8 @@ namespace Library.Accounting.Accounts
                     Narration = voucherVM.Narration,
                     PostingDate = voucherVM.PostingDate,
                     SourceType = SourceType.CustomerReceipt.ToString(),
-                    VoucherTypeId = voucherVM.VoucherTypeId
+                    VoucherTypeId = voucherVM.VoucherTypeId,
+                    IsPark = true
                 };
                 _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
                 var invoiceWriteOff = new InvoiceWriteOff
@@ -1101,7 +1102,7 @@ namespace Library.Accounting.Accounts
                     AddedBy = voucherVM.AddedBy,
                     AddedDate = voucherVM.AddedDate,
                     AddedFromIP = voucherVM.AddedFromIP,
-                    IsPark = voucherVM.IsPark,
+                    IsPark = true,
                     Archive = false,
                     BankMasterId = voucherVM.BankMasterId,
                     CashMasterId = voucherVM.CashMasterId,

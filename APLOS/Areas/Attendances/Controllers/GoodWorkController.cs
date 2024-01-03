@@ -616,19 +616,19 @@ namespace Aplos.Areas.Attendances.Controllers
             try
             {
                 string pDays = null;
-                if (payDaysType == "FinalOT")
+                if (payDaysType == "ExtraOT")
                 {
-                    pDays = @"LEFT JOIN(select isnull(SUM(PresentValue),0) PayDays,isnull(SUM(StandardOT),0) StandardOT,isnull(SUM(AdditionalOT),0) AdditionalOT,0 GoodWork,EmpSystemID  
+                    pDays = @"LEFT JOIN(select isnull(SUM(PresentValue),0) PayDays,isnull(SUM(StandardOT),0) StandardOT,isnull(SUM(AdditionalOT),0) AdditionalOT,0 GoodWork,EmpSystemID,OverStay    
 							from AttdnProcessData 
                             where WorkDate between '" + fromDate + @"' and '" + toDate + @"'
-                            GROUP BY EmpSystemID)y on y.EmpSystemID = EI.SystemId ";
+                            GROUP BY EmpSystemID,OverStay)y on y.EmpSystemID = EI.SystemId ";
                 }
                 else  
                 {
                     pDays = @"LEFT JOIN(select (SUM(cast(gwd.Minute as decimal)/1440)) PayDays,0 AdditionalOT,0 StandardOT,isnull(sum(gwd.Minute),0) GoodWork,EmpSystemID  
 							from GoodWorkDetail gwd
 							LEFT JOIN GoodWork AS gw ON gw.Id=gwd.GoodWorkId
-                            where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"'
+                            where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and gw.ApprovedStatus='Approved'
                             GROUP BY EmpSystemID)y on y.EmpSystemID = EI.SystemId ";
                 } 
 
@@ -936,7 +936,7 @@ namespace Aplos.Areas.Attendances.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                return Json(clsSales.GetcheckedSalesChalanDataList(identity.EmployeeId), JsonRequestBehavior.AllowGet);
+                return Json(clsSales.GetcheckedGoodWorkDataList(identity.EmployeeId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -985,7 +985,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
-                    data["ApprovedStatus"] = data["ApprovedStatus"];
+                    data["ApprovedStatus"] = "Approved";
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion data update

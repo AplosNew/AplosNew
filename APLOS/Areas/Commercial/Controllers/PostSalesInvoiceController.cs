@@ -158,6 +158,8 @@ namespace Aplos.Areas.Commercial.Controllers
                           ,FORMAT(P.[AddedDate],'dd-MMM-yyyy')AddedDate
                           ,P.[AddedFromIP]
                           ,P.[UpdatedBy]
+                          ,P.RFIDSealNo
+                          ,P.LineSealNo
                           ,FORMAT(P.[UpdatedDate],'dd-MMM-yyyy')[UpdatedDate]
                           ,P.UpdatedFromIP
 						  ,C.UserName CNFAgentName
@@ -484,6 +486,8 @@ namespace Aplos.Areas.Commercial.Controllers
                     {
                         dr["PaymentReceivedDate"] = data.PaymentReceivedDate;
                     }
+                    dr["RFIDSealNo"] = data.RFIDSealNo;
+                    dr["LineSealNo"] = data.LineSealNo;
                     dr["Remark"] = data.Remark;
 
                     dr["AddedBy"] = identity.Name;
@@ -654,6 +658,8 @@ namespace Aplos.Areas.Commercial.Controllers
                     {
                         dr["PaymentReceivedDate"] = data.PaymentReceivedDate;
                     }
+                    dr["RFIDSealNo"] = data.RFIDSealNo;
+                    dr["LineSealNo"] = data.LineSealNo;
                     dr["Remark"] = data.Remark;
 
 
@@ -916,6 +922,8 @@ namespace Aplos.Areas.Commercial.Controllers
         public DateTime? UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
         public string Flag { get; set; }
+        public string RFIDSealNo { get; set; }
+        public string LineSealNo { get; set; }
 
     }
 }

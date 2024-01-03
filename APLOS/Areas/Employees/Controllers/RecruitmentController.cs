@@ -54,6 +54,12 @@ namespace Aplos.Areas.Employees.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_preRecruitmentEmployee.GetBudgetCodeList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public ActionResult GetManpowerBudgetListByEntitySql(GridParameter parameters,string entityids)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_preRecruitmentEmployee.GetManpowerBudgetListByEntitySql(parameters, identity.PlantId, entityids), JsonRequestBehavior.AllowGet);
+        }
 
         //App Data Save
         [HttpPost]

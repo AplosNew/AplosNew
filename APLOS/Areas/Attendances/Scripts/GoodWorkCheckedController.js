@@ -91,9 +91,9 @@ function GoodWorkCheckedController(cboService, commonMessage, $scope, $rootScope
  
     $scope.SaveApproveData = function (args) {
         try {
-            if (baseService.isUndefinedOrNull(args.data.ApprovedStatus)) {
-                throw "Select Approved Status.";
-            }
+            //if (baseService.isUndefinedOrNull(args.data.ApprovedStatus)) {
+            //    throw "Select Approved Status.";
+            //}
             $scope.btndisable = true;
             $http({
                 method: 'POST',

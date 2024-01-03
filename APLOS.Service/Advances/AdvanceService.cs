@@ -1868,6 +1868,9 @@ namespace Library.Service.Advances
                         BankReconciliationUploadedDataId = voucherVM.BankReconciliationUploadedDataId,
                         VoucherDetailId = bankVoucherDetail.Id,
                         GLTransactionDetailId = bankVoucherDetail.Id,
+                        AddedBy= voucher.AddedBy,
+                        AddedDate=voucher.AddedDate,
+                        AddedFromIP=voucher.AddedFromIP
                     };
                     _bankReconciliationMapRepository.Insert(bankReconciliationMap);
                 }

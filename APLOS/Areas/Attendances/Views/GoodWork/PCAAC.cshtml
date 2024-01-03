@@ -239,7 +239,7 @@
                             <div class="select-style">
                                 <select name="PayDaysType" ng-model="ModelNew.PayDaysType">
                                     <option value="">--Select--</option>
-                                    <option value="FinalOT">Extra OT</option>
+                                    <option value="ExtraOT">Extra OT</option>
                                     <option value="GoodWork">Good Work</option>
                                     @*<option value="Attendance">Attendance</option>*@
                                 </select>
@@ -269,6 +269,7 @@
                                 <th>SubSection</th>
                                 <th>Department</th>
                                 <th title="SUM(CalculatedMinute/1440)">Pay Days</th>
+                                <th>Extra OT</th>
                                 <th>Standard OT</th>
                                 <th>Additional OT</th>
                                 <th>Good Work</th>
@@ -290,6 +291,7 @@
                                 <td>
                                     <label>{{x.PayDays}}</label>
                                 </td>
+                                <td><input type="number" class="form-control" name="Extra OT" ng-model="x.OverStay" e-width="100" ng-disabled="true" /></td>
                                 <td><input type="number" class="form-control" name="Standard OT" ng-model="x.StandardOT" e-width="100" ng-disabled="true" /></td>
                                 <td><input type="number" class="form-control" name="Additional OT" ng-model="x.AdditionalOT" e-width="100" ng-disabled="true" /></td>
                                 <td><input type="number" class="form-control" name="Good Work" ng-model="x.GoodWork" e-width="100" ng-disabled="true" /></td>
