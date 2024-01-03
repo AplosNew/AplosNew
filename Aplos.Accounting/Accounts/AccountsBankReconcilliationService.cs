@@ -4,6 +4,7 @@ using Library.Data;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
 using Library.Model.Accounts;
+using Library.Model.Advances;
 using Library.Model.Banks;
 using Library.Model.Enums;
 using Library.Model.Finances;
@@ -823,6 +824,7 @@ namespace Library.Accounting.Accounts
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckParkCustomerInvoiceSetOffPending();
                 if (string.IsNullOrEmpty(voucherVM.BankMasterId))
                     throw new CustomException("Bank Id not found!");
                 if (voucherVM.BankMasterId == voucherVM.OtherBankMasterId)
@@ -1480,6 +1482,270 @@ namespace Library.Accounting.Accounts
                 clsStaticInfo objApp = new clsStaticInfo();
                 objApp.SaveDataSets(_vdataset, _invoiceWriteOffData, _invoiceWriteOffDetailData, _invoiceData, _invoiceDetailData, _crvDetailData,  _crvDetailCurrencyData, _drvDetailData, _drvDetailCurrencyData
                     , _glTransactionDetailData, _bankReconciliationMapData, _drvDetailExLoseData, _drvDetailExLoseCurrencyData, _crvDetailExGainData, _crvDetailCurrencyExGainData, _drvDetailRoundingData, _drvDetailCurrencyRoundingData, _crvDetailRoundingData, _crvDetailCurrencyRoundingData);
+
+                return voucher.VoucherNo;
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
+        public string InsertCustomerAdvance(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+
+        {
+            var flag = false;
+            try
+            {
+                DataSet _advanceData = null;
+                DataSet _advanceDetailData = null;
+                DataSet _bankReconciliationMapData = null;
+                DataSet _glTransactionDetailData = null;
+                DataSet _drvDetailData = null;
+                DataSet _drvDetailCurrencyData = null;
+                DataSet _crvDetailData = null;
+                DataSet _crvDetailCurrencyData = null;
+             
+                if (string.IsNullOrEmpty(voucherVM.BankMasterId) && voucherVM.PaymentSource == PaymentSource.Bank.ToString())
+                    throw new CustomException("Bank Id not found!");
+                else if (string.IsNullOrEmpty(voucherVM.CashMasterId) && voucherVM.PaymentSource == PaymentSource.Cash.ToString())
+                    throw new CustomException("Cash Id not found!");
+
+                AccountsCommonService _accountsCommonService = new AccountsCommonService(_sqlRepository);
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckParkCustomerAdvancePending();
+
+                if (voucherVM.PaymentSource == PaymentSource.Discount.ToString())
+                    voucherVM.Amount = voucherDetailVMList.Sum(r => r.Amount);
+                var voucher = new Voucher
+                {
+                    CompanyGroupId = voucherVM.CompanyGroupId,
+                    CompanyId = voucherVM.CompanyId,
+                    PlantId = voucherVM.PlantId,
+                    CurrencyId = companyCurrencyId,
+                    FiscalYearId = voucherVM.FiscalYearId,
+                    FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+                    TaxYearId = voucherVM.TaxYearId,
+                    TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+                    VoucherDate = DateTime.Now,
+                    DocDate = voucherVM.DocDate,
+                    DocRefNo = voucherVM.DocRefNo,
+                    Narration = voucherVM.Narration,
+                    PostingDate = voucherVM.PostingDate,
+                    SourceType = SourceType.CustomerAdvance.ToString(),
+                    VoucherTypeId = voucherVM.VoucherTypeId,
+                    IsPark = true
+                };
+                _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
+
+                var advance = new Advance
+                {
+                    CompanyGroupId = voucherVM.CompanyGroupId,
+                    CompanyId = voucherVM.CompanyId,
+                    PlantId = voucherVM.PlantId,
+                    FiscalYearId = voucherVM.FiscalYearId,
+                    FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+                    TaxYearId = voucherVM.TaxYearId,
+                    TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+                    VoucherTypeId = voucherVM.VoucherTypeId,
+                    CurrencyId = voucherVM.CurrencyId,
+                    SourceType = voucherVM.SourceType,
+                    PartyType = voucherVM.PartyType,
+                    PartyId = voucherVM.PartyId,
+                    PartyPlantId = voucherVM.PartyPlantId,
+                    Amount = voucherVM.Amount,
+                    VoucherDate = voucherVM.VoucherDate,
+                    PostingDate = voucherVM.PostingDate,
+                    DocDate = voucherVM.DocDate,
+                    DocRefNo = voucherVM.DocRefNo,
+                    Narration = voucherVM.Narration,
+                    AddedBy = voucherVM.AddedBy,
+                    AddedDate = voucherVM.AddedDate,
+                    AddedFromIP = voucherVM.AddedFromIP,
+                    IsPark = true,
+                    Archive = false,
+                    BankMasterId = voucherVM.BankMasterId,
+                    CashMasterId = voucherVM.CashMasterId,
+                    EmployeeId = voucherVM.EmployeeId,
+                    PaymentSource = voucherVM.PaymentSource,
+                    VoucherId = voucher.Id
+                };
+                _accountsCommonService.InsertAdvance(advance, out _advanceData);
+
+
+                // Set to Advance
+                advance.VoucherId = voucher.Id;
+                advance.AdvanceNo = voucher.VoucherNo;
+
+                var currentVoucherDetailId = 0;
+                var currentAdvanceDetaiId = 0;
+                // Set Dr/Cr amount to local variable.
+                var totalAmountDr = 0.0M;
+                var totalCurrencyAmountDr = 0.0M;
+                var totalAmountCr = 0.0M;
+                var totalCurrencyAmountCr = 0.0M;
+                foreach (var advanceDetailVM in voucherDetailVMList)
+                {
+                    currentAdvanceDetaiId++;
+                    advanceDetailVM.Amount = voucherVM.Amount;
+                    var advanceDetail = new AdvanceDetail
+                    {
+                        AdvanceId = advance.Id,
+                        CompanyId = advance.CompanyId,
+                        PlantId = advance.PlantId,
+                        PartyId = advance.PartyId,
+                        PartyPlantId = advance.PartyPlantId,
+                        EmployeeId = advanceDetailVM.EmployeeId,
+                        PartyType = advanceDetailVM.PartyType,
+                        PaymentType = advanceDetailVM.PaymentType,
+                        GLGeneralInfoId = advanceDetailVM.GLGeneralInfoId,
+                        BudgetMasterId = advanceDetailVM.BudgetMasterId,
+                        ActivityId = advanceDetailVM.ActivityId,
+                        AddedBy = advance.AddedBy,
+                        AddedDate = advance.AddedDate,
+                        AddedFromIP = advance.AddedFromIP,
+                        Archive = advance.Archive,
+                        Narration = advanceDetailVM.Narration,
+                        Amount = advanceDetailVM.Amount,
+                        NetAmount = advanceDetailVM.Amount,
+                        BooksAmount = Math.Round((advanceDetailVM.Amount * advance.CompanyCurrencyRate), 2, MidpointRounding.AwayFromZero)
+                    };
+                    _accountsCommonService.InsertAdvanceDetail(advanceDetail, currentAdvanceDetaiId, out _advanceDetailData);
+                    if (string.IsNullOrEmpty(advanceDetailVM.ActivityId))
+                        throw new CustomException("ActivityId is not found.");
+                    var voucherDetailCr = new VoucherDetail
+                    {
+                        GLGeneralInfoId = advanceDetailVM.GLGeneralInfoId,
+                        BudgetMasterId = advanceDetailVM.BudgetMasterId,
+                        ActivityId = advanceDetailVM.ActivityId,
+                        EntityId = advanceDetailVM.EntityId,
+                        CrAmount = advanceDetailVM.Amount,
+                        DocDate = advanceDetailVM.DocDate,
+                        DocRefNo = advanceDetailVM.DocRefNo,
+                        Narration = advanceDetailVM.Narration,
+                        PartyId = advanceDetail.PartyId,
+                        PartyPlantId = advanceDetailVM.PartyPlantId,
+                        PartyType = advanceDetail.PartyType,
+                        AdvanceDetailId = advanceDetail.Id
+                    };
+                    currentVoucherDetailId++;
+                    _accountsCommonService.InsertVoucherDetail(voucher, voucherDetailCr, currentVoucherDetailId, ref _crvDetailData);
+
+                    _accountsCommonService.InsertVoucherDetailCompanyCurrency(voucherDetailCr, new VoucherDetailCurrency
+                    {
+                        ParallelCurrencyId = companyCurrencyId,
+                        FromCurrencyId = voucherDetailCr.CurrencyId,
+                        ToCurrencyId = companyCurrencyId,
+                        ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                        ToCurrencyConversion = 1,
+                        CrAmount = Math.Round(voucherVM.CompanyCurrencyRate * voucherDetailCr.CrAmount, 2)
+                    }, ref _crvDetailCurrencyData);
+
+                    totalAmountCr += voucherDetailCr.CrAmount;
+                    totalCurrencyAmountCr += Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailCr.CrAmount), 2, MidpointRounding.AwayFromZero);
+                    totalAmountDr += voucherDetailCr.DrAmount;
+                    totalCurrencyAmountDr += Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailCr.DrAmount), 2, MidpointRounding.AwayFromZero);
+                }
+
+                // INSERT INTO VoucherDetail
+                var voucherDetailDr = new VoucherDetail
+                {
+                    Narration = voucher.Narration,
+                    DrAmount = advance.Amount,
+                    PaymentSource = advance.PaymentSource
+                };
+                var glTransactionDetail = new GLTransactionDetail
+                {
+                    SourceType = voucherDetailDr.PaymentSource,
+                    BankMasterId = voucherVM.BankMasterId,
+                    CashMasterId = voucherVM.CashMasterId
+                };
+                if (!string.IsNullOrEmpty(voucherVM.BankMasterId))
+                {
+                    var bankMaster = _accountsCommonService.GetBankMaster(voucherVM.BankMasterId);
+                    voucherDetailDr.GLGeneralInfoId = bankMaster["GLGeneralInfoId"].ToString();
+                    voucherDetailDr.BudgetMasterId = bankMaster["BudgetMasterId"].ToString();
+                    voucherDetailDr.ActivityId = bankMaster["ActivityId"].ToString();
+                    if (string.IsNullOrEmpty(voucherDetailDr.ActivityId))
+                        throw new CustomException("ActivityId is not found.");
+                    voucherDetailDr.BankMasterId = bankMaster["Id"].ToString();
+                    voucherDetailDr.PartyType = PartyType.Bank.ToString();
+                    if (bankMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
+                        glTransactionDetail.DrAmount = voucherDetailDr.DrAmount;
+                    else
+                        glTransactionDetail.DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailDr.DrAmount;
+
+                }
+                else if (!string.IsNullOrEmpty(voucherVM.CashMasterId))
+                {
+                    var cashMaster = _accountsCommonService.GetCashMaster(voucherVM.CashMasterId);
+                    voucherDetailDr.GLGeneralInfoId = cashMaster["GLGeneralInfoId"].ToString();
+                    voucherDetailDr.BudgetMasterId = cashMaster["BudgetMasterId"].ToString();
+                    voucherDetailDr.ActivityId = cashMaster["ActivityId"].ToString();
+                    if (string.IsNullOrEmpty(voucherDetailDr.ActivityId))
+                        throw new CustomException("ActivityId is not found.");
+                    voucherDetailDr.CashMasterId = cashMaster["Id"].ToString();
+                    voucherDetailDr.PartyType = PartyType.Cash.ToString();
+                    if (cashMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
+                        glTransactionDetail.DrAmount = voucherDetailDr.DrAmount;
+                    else
+                        glTransactionDetail.DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailDr.DrAmount;
+
+                }
+                else
+                    throw new CustomException("Bank or Cash Id not found!");
+
+                currentVoucherDetailId++;
+                _accountsCommonService.InsertVoucherDetail(voucher, voucherDetailDr, currentVoucherDetailId, ref _drvDetailData);
+                _accountsCommonService.InsertGLTransactionDetail(voucherDetailDr, glTransactionDetail, out _glTransactionDetailData);
+                totalAmountDr += voucherDetailDr.DrAmount;
+                totalCurrencyAmountDr += Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailDr.DrAmount), 2, MidpointRounding.AwayFromZero);
+                // INSERT INTO VoucherDetailCurrency
+                var voucherDetailCurrencyDr = _accountsCommonService.InsertVoucherDetailCompanyCurrency(voucherDetailDr, new VoucherDetailCurrency
+                {
+                    ParallelCurrencyId = companyCurrencyId,
+                    FromCurrencyId = voucherDetailDr.CurrencyId,
+                    ToCurrencyId = companyCurrencyId,
+                    ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                    ToCurrencyConversion = 1,
+                    DrAmount = totalCurrencyAmountCr
+                }, ref _drvDetailCurrencyData);
+               
+
+                if (voucherVM.BankReconciliationUploadedDataId != null)
+                {
+                    var bankReconciliationMap = new BankReconciliationMap
+                    {
+                        BankReconciliationUploadedDataId = voucherVM.BankReconciliationUploadedDataId,
+                        VoucherDetailId = voucherDetailDr.Id,
+                        GLTransactionDetailId = voucherDetailDr.Id,
+                        AddedBy = voucher.AddedBy,
+                        AddedDate = voucher.AddedDate,
+                        AddedFromIP = voucher.AddedFromIP
+                    };
+                    _accountsCommonService.InsertBankReconciliationMap(bankReconciliationMap, ref _bankReconciliationMapData);
+                }
+                   
+            if (totalAmountDr != totalAmountCr)
+                    throw new CustomException("Dr and Cr amount is not equal.");
+                if (totalCurrencyAmountDr != totalCurrencyAmountCr)
+                    throw new CustomException("Dr Books and Cr Books amount is not equal.");
+                clsStaticInfo objApp = new clsStaticInfo();
+                objApp.SaveDataSets(_vdataset, _advanceData, _advanceDetailData,  _crvDetailData, _crvDetailCurrencyData, _drvDetailData, _drvDetailCurrencyData
+                    , _glTransactionDetailData, _bankReconciliationMapData);
 
                 return voucher.VoucherNo;
             }

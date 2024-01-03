@@ -368,7 +368,7 @@ namespace Library.Service.Invoices
                             , REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
                             , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo
 							, AddedBy=case when u.FullName <>'' then u.FullName else v.AddedBy end
-							, PostedBy= case when u.FullName <>'' then u.FullName else v.PostedBy end
+							 ,PostedBy=CASE WHEN UP.FullName<>'' THEN UP.FullName ELSE V.PostedBy END
 							, V.PostedBy, UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
                             , P.UserName AS Customer, PP.UserName AS CustomerPlant, BJ.CurrencyId, C.Code AS CurrencyCode
                             FROM [TRN].[InvoiceWriteOff] AS BJ
@@ -378,6 +378,7 @@ namespace Library.Service.Invoices
 							LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=BJ.PartyPlantId
 							LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
 							left join SEC.[User] u on u.UserId= v.AddedBy
+                            LEFT JOIN SEC.[User] UP ON UP.UserId=V.PostedBy
                             WHERE BJ.Archive=0 AND BJ.CompanyGroupId='" + companyGroupId + "' AND BJ.CompanyId='" + companyId + "' AND BJ.PlantId='" + plantId + "' AND BJ.VoucherId='" + voucherId + "' AND BJ.SourceType='" + sourceType + "'";
             return _sqlRepository.GetData(cmdText);
         }
