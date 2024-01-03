@@ -663,7 +663,7 @@ UNION ALL
  ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear,DaysCanBeSanctioned=CAST (A.Opening AS decimal(18,2))
  ,CurrentAllocationDCBS=CAST (A.Opening AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal,CAST (0 AS decimal(18,2)) Balance,CAST (A.Opening AS decimal(18,2)) CurrentAllocation,CAST (0 AS decimal(18,2)) PreviousYearCarryForward,B.BroughtForward,CAST (A.Opening AS decimal(18,2)) LeaveDays
  ,ISNULL(ltrn.ldays, 0) Applied,ISNULL(tav.av, 0) Availed,ISNULL(R.Rejected,0) Rejected,ISNULL(acApl.ldays,0) ldays,A.LeaveType,CAST (0 AS BIT) IsBroughtForwardAdd
- ,CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(md.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2)) as Earned
+ ,CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2)) as Earned
  from (
  select top 1 '' CalanderYearID,0 IsExceptionAllowed,a.Id SystemID,A.LeaveTypeId LTSystemID,A.EmployeeId EmployeeID,lt.UserName LeaveName, lt.Description LeaveDescription,lt.LeaveType
  ,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate,A.Opening 
@@ -733,7 +733,10 @@ left join (SELECT EmpSystemID,SUM(l.EarnValue)EarnDays,T.Id as LeaveId,ei.PlantI
                 and EI.PlantID='" + sPlantID + @"' and t.LeaveType='Earn'
                 group by EmpSystemID,t.Id,ei.plantid
                 ) as Masterx on Masterx.EmpSystemID=A.EmployeeId and Masterx.PlantId='" + sPlantID + @"' and Masterx.LeaveId=A.LTSystemID
-				left join ManualLeaveData md on md.EmployeeId=A.EmployeeId
+				left join (Select top(1) md.* from  ManualLeaveData md
+				JOIN LeaveType T ON t.Id=md.LeaveTypeId AND t.LeaveType='Earn'
+				Where md.EmployeeId='" + EmpSystemID + @"'order by md.addeddate desc
+				)med on med.EmployeeId=A.EmployeeId
 Where A.EmployeeId='" + EmpSystemID + "'"
                     };
                     parameters.sort = "LeaveName";
@@ -874,7 +877,7 @@ UNION ALL
  ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear,DaysCanBeSanctioned=CAST (A.Opening AS decimal(18,2))
  ,CurrentAllocationDCBS=CAST (A.Opening AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal,CAST (0 AS decimal(18,2)) Balance,CAST (A.Opening AS decimal(18,2)) CurrentAllocation,CAST (0 AS decimal(18,2)) PreviousYearCarryForward,B.BroughtForward,CAST (A.Opening AS decimal(18,2)) LeaveDays
  ,ISNULL(ltrn.ldays, 0) Applied,ISNULL(tav.av, 0) Availed,ISNULL(R.Rejected,0) Rejected,ISNULL(acApl.ldays,0) ldays,A.LeaveType,CAST (0 AS BIT) IsBroughtForwardAdd
- ,CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(md.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2)) as Earned
+ ,CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2)) as Earned
  from (
  select '' CalanderYearID,0 IsExceptionAllowed,a.Id SystemID,A.LeaveTypeId LTSystemID,A.EmployeeId EmployeeID,lt.UserName LeaveName, lt.Description LeaveDescription,lt.LeaveType
  ,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate,A.Opening 
@@ -943,7 +946,10 @@ left join (SELECT EmpSystemID,SUM(l.EarnValue)EarnDays,T.Id as LeaveId,ei.PlantI
                 and EI.PlantID='" + sPlantID + @"' and t.LeaveType='Earn'
                 group by EmpSystemID,t.Id,ei.plantid
                 ) as Masterx on Masterx.EmpSystemID=A.EmployeeId and Masterx.PlantId='" + sPlantID + @"' and Masterx.LeaveId=A.LTSystemID
-				left join ManualLeaveData md on md.EmployeeId=A.EmployeeId
+				left join (Select top(1) md.* from  ManualLeaveData md
+				JOIN LeaveType T ON t.Id=md.LeaveTypeId AND t.LeaveType='Earn'
+				Where md.EmployeeId='" + EmpSystemID + @"' order by md.addeddate desc
+				)med on med.EmployeeId=A.EmployeeId
 Where A.EmployeeId='" + EmpSystemID+"'"
                     };
                     parameters.sort = "LeaveName";
