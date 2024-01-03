@@ -1627,6 +1627,9 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                                 //}
 
                                 item["Id"] = GetPK();
+                                //bplib.clsGenID genid = new bplib.clsGenID();
+                                //genid.GenID("MachineMasterTransaction", out _Id);
+                                //item["Id"] = _Id;
                                 AddNewRow(dsProdBooked.Tables[0], item);
                             }
                             else
