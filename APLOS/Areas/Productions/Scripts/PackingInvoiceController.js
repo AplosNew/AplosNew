@@ -2238,6 +2238,10 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         location.href = "SalesManagements/Sales/CertificateofOrigin?salesId=" + data.Id;
         //  $scope.CommercialInvoicePackingListReport(data);
     };
+    $scope.BankLatter = function (data) {
+        location.href = "SalesManagements/Sales/BankLatter?salesId=" + data.Id + '&BankName=' + data.BankName;
+        //  $scope.CommercialInvoicePackingListReport(data);
+    };
     $scope.CommercialInvoicePackingListReport = function (data) {
         location.href = "SalesManagements/Sales/CommercialInvoicePackingList?salesId=" + data.Id;
     };
