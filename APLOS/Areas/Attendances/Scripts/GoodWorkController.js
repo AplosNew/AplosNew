@@ -39,9 +39,10 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         Minute: null,
         Reason: null,
         Remarks: null,
-        UserGroupId: null,
         UserGroup: null,
-        CheckedStatus: null
+        CheckedStatus: null,
+        OverStay: null,
+        DayStatus:null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -151,7 +152,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
                         if ($scope.ModelNew.Minute > 0) {
                             $http({
                                 method: 'POST',
-                                url: 'Attendances/GoodWork/LoadEmployeelist',
+                                url: 'Attendances/GoodWork/LoadEmployeelist?userGroupId=' + $scope.ModelNew.UserGroupId,
                                 data: { 'parameters': $scope.parameters },
                                 dataType: 'JSON'
                             }).then(function successCallback(response) {
@@ -228,6 +229,8 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
                         $scope.EmployeeList[i].Minute = $scope.ModelNew.Minute;
                         $scope.EmployeeList[i].PurposeCategory = $scope.ModelNew.PurposeCategory;
                         $scope.EmployeeList[i].Remark = $scope.ModelNew.Remarks;
+                        //$scope.EmployeeList[i].OverStay = $scope.ModelNew.OverStay;
+                        //$scope.EmployeeList[i].DayStatus = $scope.ModelNew.DayStatus;
                         $scope.GoodWorkList.push($scope.EmployeeList[i]);
                     }
                 }
@@ -375,8 +378,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
 
 
     $scope.Save = function () {
-        try {
-            $scope.$broadcast('show-errors-check-validity');
+        try { 
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -453,9 +455,8 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
             $scope.ModelNew.SubSection = $scope.GoodWorkList[0].SubSection;
             $scope.ModelNew.DesignationId = $scope.GoodWorkList[0].DesignationId;
             $scope.ModelNew.Designation = $scope.GoodWorkList[0].Designation;
-            $scope.ModelNew.UserGroupId = $scope.GoodWorkList[0].UserGroupId;
             $scope.ModelNew.UserGroup = $scope.GoodWorkList[0].UserGroup;
-
+            $scope.getFiltersData();
         });
     }
 
@@ -496,7 +497,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         try {
             $http({
                 method: 'GET',
-                url: $scope.path + 'getFiltersData',
+                url: $scope.path + 'getFiltersData?userGroupId=' + $scope.ModelNew.UserGroupId,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.filters = response.data;
@@ -506,7 +507,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
                     { field: 'Section', width: 100, headerText: "Section", type: "string" },
                     { field: 'SubSection', width: 100, headerText: "Sub-Section", type: "string" },
                     { field: 'LegalDesignation', width: 100, headerText: "Designation", type: "string" },
-                    { field: 'UserGroup', width: 100, headerText: "User Group", type: "string" }
+                    { field: 'UserReportGroup', width: 100, headerText: "User Group", type: "string" }
 
                 ];
                 $("#filters").ejGrid({
@@ -528,7 +529,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
             ShowResult(e, 'failure');
         }
     }
-    $scope.getFiltersData();
+   
 
     $scope.parameters = [];
     $scope.filterComplete = function () {
@@ -543,7 +544,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         parameters.push({ "Key": "SectionId", "Value": getString(fl, "SectionId") });
         parameters.push({ "Key": "SubSectionId", "Value": getString(fl, "SubSectionId") });
         parameters.push({ "Key": "DesignationId", "Value": getString(fl, "DesignationId") });
-        parameters.push({ "Key": "UserGroupId", "Value": getString(fl, "UserGroupId") });
+        parameters.push({ "Key": "UserReportGroupId", "Value": getString(fl, "UserReportGroupId") });
 
         $scope.parameters = parameters;
     }
@@ -572,5 +573,16 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         });
     }
     $scope.GetSupervisorCboList();
+
+    $scope.userGroupDataList = [];
+    $scope.GetUserGroupList = function () {
+        $http({
+            method: 'GET',
+            url: 'Attendances/GoodWork/GetUserGrData'
+        }).then(function successCallback(response) {
+            $scope.userGroupDataList = response.data;
+        });
+    }
+    $scope.GetUserGroupList();
 
 }
