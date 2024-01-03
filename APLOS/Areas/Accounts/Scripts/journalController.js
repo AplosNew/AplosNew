@@ -150,10 +150,10 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
         if ($scope.companyConfig.IsVoucherFromBudget)
             var getRow = $filter("filter")($scope.voucherDetailList, { "BudgetMasterId": data.BudgetMasterId, "ActivityId": data.ActivityId });
 
-        if (!baseService.isUndefinedOrNull(getRow) && getRow.length > 0 && getRow[0].BudgetMasterId === data.BudgetMasterId) {
-            ShowResult("This Activity is already added!", "failure", "GLPopUp");
-        }
-        else {
+        //if (!baseService.isUndefinedOrNull(getRow) && getRow.length > 0 && getRow[0].BudgetMasterId === data.BudgetMasterId) {
+        //    ShowResult("This Activity is already added!", "failure", "GLPopUp");
+        //}
+        //else {
             $scope.voucherDetail.BudgetMasterId = data.BudgetMasterId;
             $scope.voucherDetail.BudgetCode = data.BudgetCode;
             $scope.voucherDetail.BudgetName = data.BudgetName;
@@ -175,7 +175,7 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
             $scope.voucherDetailList.push($scope.voucherDetail);
             $scope.voucherDetail = {};
             $scope.closeCOAICodeListPopUp();
-        }
+       /* }*/
     };
 
     $scope.removeRow = function (index) {
@@ -332,9 +332,21 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
         $scope.voucherDetailList = [];
     };
 
+    $scope.validation = function () {
+        for (var i = 0; i < $scope.voucherDetailList.length; i++) {
+            var getRow = $filter("filter")($scope.voucherDetailList, { "BudgetMasterId": $scope.voucherDetailList[i].BudgetMasterId, "ActivityId": $scope.voucherDetailList[i].ActivityId, "EntityId": $scope.voucherDetailList[i].EntityId });
+            if (!baseService.isUndefinedOrNull(getRow) && getRow.length > 1 ) {
+                ShowResult("Same combination of Activity and Entity duplicate are not allowed!", "failure");
+                return true;
+                break;
+            }
+        }
+
+        return false;
+    };
     $scope.Save = function () {
         $scope.$broadcast("show-errors-check-validity");
-        if ($scope.form0.$valid) {
+        if ($scope.form0.$valid && !$scope.validation()) {
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",

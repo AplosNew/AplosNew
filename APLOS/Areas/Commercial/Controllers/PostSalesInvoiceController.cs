@@ -488,7 +488,14 @@ namespace Aplos.Areas.Commercial.Controllers
                     }
                     dr["RFIDSealNo"] = data.RFIDSealNo;
                     dr["LineSealNo"] = data.LineSealNo;
-                    dr["PaymentDueMatureDate"] = data.PaymentDueMatureDate;
+                    if (String.IsNullOrEmpty(data.PaymentDueMatureDate.ToString()))
+                    {
+                        dr["PaymentDueMatureDate"] = DBNull.Value;
+                    }
+                    else
+                    {
+                        dr["PaymentDueMatureDate"] = data.PaymentDueMatureDate;
+                    }
                     dr["Remark"] = data.Remark;
 
                     dr["AddedBy"] = identity.Name;
@@ -661,7 +668,15 @@ namespace Aplos.Areas.Commercial.Controllers
                     }
                     dr["RFIDSealNo"] = data.RFIDSealNo;
                     dr["LineSealNo"] = data.LineSealNo;
-                    dr["PaymentDueMatureDate"] = data.PaymentDueMatureDate;
+                    if (String.IsNullOrEmpty(data.PaymentDueMatureDate.ToString()))
+                    {
+                        dr["PaymentDueMatureDate"] = DBNull.Value;
+                    }
+                    else
+                    {
+                        dr["PaymentDueMatureDate"] = data.PaymentDueMatureDate;
+                    }
+                   
                     dr["Remark"] = data.Remark;
 
 

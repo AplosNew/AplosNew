@@ -9,7 +9,7 @@ function BankSettlementCustomerAdvanceController(cboService, baseService, factor
     $scope.index = -1;
     $scope.url = 'accounts/Advance';
     $scope.listUrl = $scope.url + '/GetCustomerAdvanceList';
-    $scope.parkUrl = $scope.url + '/ParkCustomerAdvance';
+    $scope.parkUrl = 'banks/BankReconciliation/ParkCustomerAdvance';
     $scope.updateUrl = $scope.url + '/UpdateCustomerAdvance';
     $scope.postUrl = $scope.url + '/PostCustomerAdvance';
     $scope.unPostUrl = $scope.url + '/UnPostCustomerAdvance';
@@ -851,9 +851,9 @@ function BankSettlementCustomerAdvanceController(cboService, baseService, factor
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.advance.VoucherTypeId = $scope.voucherTypeList[0].Value;
-                $scope.advance.PostingDate = $filter('dateFiltering')($scope.voucherTypeList[0].LastPostingDate);
+                //$scope.advance.PostingDate = $filter('dateFiltering')($scope.voucherTypeList[0].LastPostingDate);
                 $scope.advance.BankTransactionDate = $filter('dateFiltering')($scope.voucherTypeList[0].LastPostingDate);
-                $scope.advance.DocDate = $scope.advance.PostingDate;
+                //$scope.advance.DocDate = $scope.advance.PostingDate;
             }
         });
     }
@@ -864,8 +864,8 @@ function BankSettlementCustomerAdvanceController(cboService, baseService, factor
             return item.Value === voucherTypeId;
         })[0];
         $scope.advance.VoucherTypeId = data.Value;
-        $scope.advance.PostingDate = $filter('dateFiltering')(data.LastPostingDate);
-        $scope.advance.DocDate = $scope.advance.PostingDate;
+        //$scope.advance.PostingDate = $filter('dateFiltering')(data.LastPostingDate);
+        //$scope.advance.DocDate = $scope.advance.PostingDate;
     };
     cboService.getCboInterCompanyFinancingType("InterTransaction", function (result) {
         $scope.financingTypeList = result;
