@@ -2317,7 +2317,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             ExcelEngine excelEngine = null;
             IApplication application = null;
-            var workbook = oru.GetWorkbook(ref excelEngine, 2);
+            var workbook = oru.GetWorkbook(ref excelEngine, 1);
             workbook.Version = ExcelVersion.Excel2013;
             IWorksheet sheet = null;
             IWorksheet sheet1 = null;
@@ -2351,8 +2351,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                     }
                     excelEngine = new ExcelEngine();
                     application = excelEngine.Excel;
-                    workbook = application.Workbooks.Create(2);
-                    for (int Ec = 0; Ec < sEmpCodeColl.Count; Ec++)
+                    workbook = application.Workbooks.Create(1);
+                    for (int Ec = 0; Ec < sEmpCodeColl.Count-1; Ec++)
                     {
                         dvBioDvAC = new DataView();
                         dvBioDvAC.Table = dtBioDvAC;
@@ -2550,9 +2550,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 Image companyLogo = Image.FromFile(strPath);
                                 if (companyLogo != null)
                                 {
-                                    double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(2);
+                                    double totalWidth = sheet1.GetColumnWidth(1);
                                     int totalWidthPixel = (int)(totalWidth * 7.5);
-                                    int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2) + sheet1.GetRowHeight(3) + sheet1.GetRowHeight(3)) * 1.50);
+                                    int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2)) * 1.50);
 
                                     companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
                                     IPictureShape pic = null;

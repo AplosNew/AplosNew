@@ -550,7 +550,6 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
                                         ,els.EncashedInbetween
                                         ,ltd.IsAvailExceptionAllowedOnSpecialAppeal,
-										 0.00 Balance,
                                         CurrentAllocation=ISNULL(els.CurrentYearAllocation, 0),
                                         ISNULL(els.PreviousYearCarryForward, 0) PreviousYearCarryForward,
 										 --all carry forward
@@ -589,6 +588,9 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                                     ELSE  CONVERT(BIT,1) END---Yes
                                             ELSE CONVERT(BIT,0) END  ---No
                                             ,Earned=CAST (0 AS decimal(18,2))
+,Balance=(case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) END)-ISNULL(tav.av, 0)+isnull(CurrentYearAvailedOpeningBalance,0)
                                             ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -661,9 +663,10 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 UNION ALL
  Select distinct '' CalanderYearID,CAST (0 AS BIT) IsExceptionAllowed,A.FromDate,A.ToDate
  ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear,DaysCanBeSanctioned=CAST (A.Opening AS decimal(18,2))
- ,CurrentAllocationDCBS=CAST (A.Opening AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal,CAST (0 AS decimal(18,2)) Balance,CAST (A.Opening AS decimal(18,2)) CurrentAllocation,CAST (0 AS decimal(18,2)) PreviousYearCarryForward,B.BroughtForward,CAST (A.Opening AS decimal(18,2)) LeaveDays
+ ,CurrentAllocationDCBS=CAST (A.Opening AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal,CAST (A.Opening AS decimal(18,2)) CurrentAllocation,CAST (0 AS decimal(18,2)) PreviousYearCarryForward,B.BroughtForward,CAST (A.Opening AS decimal(18,2)) LeaveDays
  ,ISNULL(ltrn.ldays, 0) Applied,ISNULL(tav.av, 0) Availed,ISNULL(R.Rejected,0) Rejected,ISNULL(acApl.ldays,0) ldays,A.LeaveType,CAST (0 AS BIT) IsBroughtForwardAdd
  ,CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2)) as Earned
+,Balance=CAST (B.BroughtForward+CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2))
  from (
  select top 1 '' CalanderYearID,0 IsExceptionAllowed,a.Id SystemID,A.LeaveTypeId LTSystemID,A.EmployeeId EmployeeID,lt.UserName LeaveName, lt.Description LeaveDescription,lt.LeaveType
  ,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate,A.Opening 
@@ -768,7 +771,6 @@ SELECT els.CalanderYearID, ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed
 																   else Isnull(els.DaysCanBeSanctioned,0) END
 										,els.EncashedInbetween
                                          ,CAST (ISNULL(ltd.IsAvailExceptionAllowedOnSpecialAppeal,0) AS BIT)IsAvailExceptionAllowedOnSpecialAppeal,
-										 0.00 Balance,
                                         CurrentAllocation=ISNULL(els.CurrentYearAllocation, 0),
                                          ISNULL(els.PreviousYearCarryForward, 0) PreviousYearCarryForward,
 										 --all carry forward
@@ -815,6 +817,9 @@ SELECT els.CalanderYearID, ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed
         ELSE  CONVERT(BIT,1) END---Yes
 ELSE CONVERT(BIT,0) END  ---No
 ,Earned=CAST (0 AS decimal(18,2))
+,Balance=(case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) END)-ISNULL(tav.av, 0)+isnull(CurrentYearAvailedOpeningBalance,0)
 ----------------------------------------------------------------------------------------------------------------------
                                           FROM (    select S.* from trn.EmployeeLeaveSummary S
                                                         LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=s.EmployeeId
@@ -875,9 +880,10 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 UNION ALL
  Select distinct '' CalanderYearID,CAST (0 AS BIT) IsExceptionAllowed,A.FromDate,A.ToDate
  ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear,DaysCanBeSanctioned=CAST (A.Opening AS decimal(18,2))
- ,CurrentAllocationDCBS=CAST (A.Opening AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal,CAST (0 AS decimal(18,2)) Balance,CAST (A.Opening AS decimal(18,2)) CurrentAllocation,CAST (0 AS decimal(18,2)) PreviousYearCarryForward,B.BroughtForward,CAST (A.Opening AS decimal(18,2)) LeaveDays
+ ,CurrentAllocationDCBS=CAST (A.Opening AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal,CAST (A.Opening AS decimal(18,2)) CurrentAllocation,CAST (0 AS decimal(18,2)) PreviousYearCarryForward,B.BroughtForward,CAST (A.Opening AS decimal(18,2)) LeaveDays
  ,ISNULL(ltrn.ldays, 0) Applied,ISNULL(tav.av, 0) Availed,ISNULL(R.Rejected,0) Rejected,ISNULL(acApl.ldays,0) ldays,A.LeaveType,CAST (0 AS BIT) IsBroughtForwardAdd
  ,CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2)) as Earned
+,Balance=CAST (B.BroughtForward+CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2))
  from (
  select '' CalanderYearID,0 IsExceptionAllowed,a.Id SystemID,A.LeaveTypeId LTSystemID,A.EmployeeId EmployeeID,lt.UserName LeaveName, lt.Description LeaveDescription,lt.LeaveType
  ,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate,A.Opening 
@@ -2684,7 +2690,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
             }
         }//End Function
 
-        public IEnumerable<object> LoadGrdAllocatedLvDetailsNew(string companyGroupId, string plantId, string employeeId, string calanderYearId)
+        public IEnumerable<object> LoadGrdAllocatedLvDetailsNew_(string companyGroupId, string plantId, string employeeId, string calanderYearId)
         {
             //DataSet dsLocal = null;
             DataRow drLocal = null;
@@ -2794,6 +2800,34 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
 
                     }
                 }
+
+                var list = new List<LeaveTransactionVM>();
+                list = ConvertDataTable<LeaveTransactionVM>(dsLvAllo.Tables[0]);
+                return list;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                //dsLvAllo = null;
+            }
+        }//End Function
+
+        public IEnumerable<object> LoadGrdAllocatedLvDetailsNew(string companyGroupId, string plantId, string employeeId, string calanderYearId)
+        {
+            DataRow drLocal = null;
+            DataView dvLocal = null;
+            try
+            {
+                var dsLvAllo = GetLeaveBalanceTypeNew(companyGroupId, plantId, employeeId, calanderYearId);
+
+                dvLocal = new DataView();
+                dvLocal.Table = dsLvAllo.Tables[0];
+                List<object> ss = new List<object>();
+
+                object ob = new object { };              
 
                 var list = new List<LeaveTransactionVM>();
                 list = ConvertDataTable<LeaveTransactionVM>(dsLvAllo.Tables[0]);

@@ -60,7 +60,7 @@ namespace Aplos.Areas.Attendances.Controllers
         }
         //Load Employee
         [HttpPost]
-        public ActionResult LoadEmployeelist(Dictionary<string, string> parameters, string userGroupId,string shiftId)
+        public ActionResult LoadEmployeelist(Dictionary<string, string> parameters, string userGroupId,string shiftId, string workDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = string.Empty;
@@ -115,6 +115,10 @@ namespace Aplos.Areas.Attendances.Controllers
 						 LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
                          LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
                          LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                         LEFT JOIN GoodWorkDetail GWD on GWD.EmpSystemId=EI.SystemId
+                         left join GoodWork GW on GW.Id=GWD.GoodWorkId
+						 left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate='" + workDate +@"'
+
                          WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec + @"  " + dep + @"  " + sec + @"   " + subsec + @"   " + des + @" " + userGr + @"
                          and ei.SystemId in (select EmpSystemID from EmployeeShiftAssign where FixSystemID='" + shiftId + @"')  
                         and EI.EmployeeStatus='Active' and EI.BudgetCode in (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup where GoodWorkSetUpId = '" + userGroupId + @"') 
@@ -1043,7 +1047,7 @@ namespace Aplos.Areas.Attendances.Controllers
                     data["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
                     data["CheckedStatus"] = "Checked";
                     data["ApprovedStatus"] = "To Be Approved";
-                    data["ApprovedBy"] = data["ApproveBy"];
+                    data["ApprovedBy"] = data["ApprovedBy"];
                     EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);
                 }
 
@@ -1197,7 +1201,7 @@ namespace Aplos.Areas.Attendances.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             string sql = @"select GW.Id,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,S.UserName Shift,GW.Remarks,GWS.UserName UserGroup,GWS.Id UserGroupId,gw.Reason
-                                    ,format(GW.FromTime,'hh:mm') FromTime,format(GW.ToTime,'hh:mm') ToTime,gw.Minute,gw.CheckedBy
+                                    ,format(GW.FromTime,'hh:mm') FromTime,format(GW.ToTime,'hh:mm') ToTime,gw.Minute,gw.CheckedBy,gw.ApprovedBy
                                     from GoodWork GW
                                     left join ShiftDefination S on S.SystemId=GW.ShiftId
 									left join [dbo].[GoodWorkSetup] GWS on GWS.Id=GW.UserGroupId
@@ -1213,7 +1217,7 @@ namespace Aplos.Areas.Attendances.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             string sql = @"select GW.Id,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,S.UserName Shift,GW.Remarks,GWS.UserName UserGroup,GWS.Id UserGroupId,gw.Reason
-                                    ,format(GW.FromTime,'hh:mm') FromTime,format(GW.ToTime,'hh:mm') ToTime,gw.Minute,gw.CheckedBy
+                                    ,format(GW.FromTime,'hh:mm') FromTime,format(GW.ToTime,'hh:mm') ToTime,gw.Minute,gw.CheckedBy,gw.ApprovedBy
                                     from GoodWork GW
                                     left join ShiftDefination S on S.SystemId=GW.ShiftId
 									left join [dbo].[GoodWorkSetup] GWS on GWS.Id=GW.UserGroupId

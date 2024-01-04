@@ -562,14 +562,13 @@ function GoodWorkApproveController(cboService, commonMessage, $scope, $rootScope
         return string;
     }
 
-
-    $scope.checkedByList = [];
+    $scope.approvedByList = [];
     $scope.GetSupervisorCboList = function () {
         $http({
             method: 'GET',
-            url: 'Attendances/GoodWork/GetGoodWorkCheckByCbo'
+            url: 'Attendances/GoodWork/GetGoodWorkApprovedByCbo'
         }).then(function successCallback(response) {
-            $scope.checkedByList = response.data;
+            $scope.approvedByList = response.data;
         });
     }
     $scope.GetSupervisorCboList();

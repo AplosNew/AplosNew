@@ -1,7 +1,7 @@
 ﻿'use strict';
 GoodWorkCheckedController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', "$controller"];
 function GoodWorkCheckedController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
-    $rootScope.s = 'Good Work Check';
+    $rootScope.title = 'Good Work Check';
     $scope.ModelList = [];
     $scope.path = 'Attendances/GoodWork/';
     $scope.saveUrl = $scope.path + 'CreateGoodWorkChecked';
@@ -563,13 +563,13 @@ function GoodWorkCheckedController(cboService, commonMessage, $scope, $rootScope
     }
 
 
-    $scope.checkedByList = [];
+    $scope.approvedByList = [];
     $scope.GetSupervisorCboList = function () {
         $http({
             method: 'GET',
-            url: 'Attendances/GoodWork/GetGoodWorkCheckByCbo'
+            url: 'Attendances/GoodWork/GetGoodWorkApprovedByCbo'
         }).then(function successCallback(response) {
-            $scope.checkedByList = response.data;
+            $scope.approvedByList = response.data;
         });
     }
     $scope.GetSupervisorCboList();

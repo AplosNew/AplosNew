@@ -87,9 +87,9 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult GetCustomerDataList(string GRNId)
+        public ActionResult GetCustomerDataList(string HeaderId)
         {
-            return Json(_productionSummaryData.GetCustomerDataList(GRNId), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetCustomerDataList(HeaderId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
@@ -1163,6 +1163,55 @@ namespace Aplos.Areas.Materials.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
 
+        }
+
+        [HttpPost]
+        public ActionResult createCustomer(List<Dictionary<string, object>> DataList, string Pid)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "TRN.CustomerMaterial";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                //ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                //conC.BeginTransaction();
+                //conC.executeQuery("delete from " + TableName + " where  HeaderId ='" + Pid + "'");
+                //conC.CommitTransaction();
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and HeaderId='" + item["HeaderId"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "CD" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
         }
 
         #endregion upload product picture
