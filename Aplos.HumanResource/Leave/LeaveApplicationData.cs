@@ -1801,10 +1801,11 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
                 #region DataSet Finding
 
-                var sql = @"select xx.*,(xx.Opening+xx.Earned-xx.Availed-xx.RegularEncashment+xx.Adjustment)as Closing 
+                var sql = @"select xx.*,(xx.Earned-xx.Availed-xx.RegularEncashment+xx.PAdjustment)as Closing 
+                    
 			    from (select dd.*,
 				case when lpd.EncashWorkingDaysQty >0 then dd.EarningDays/lpd.EncashWorkingDaysQty else 
-				0 END as Earned				
+				0 END as Earned,ISNULL(ame.PAdjustment,0)PAdjustment	
                 from (select e.SystemId as EmpId,e.EmployeeCode,ld.Id as 
                 LeaveYearId,ld.UserName as LeaveYear,p.UserName as Plant,
                 lt.UserName as LeaveType,lt.Id as LeaveTypeId,lt.Code
@@ -1816,17 +1817,20 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 ISNULL(Info.EmpTypeId,EDM.EmployeeCategoryId)EmpTypeId,ISNULL(Info.LeavePolicyMasterId,edmc.LeavePolicyMasterId)LeavePolicyMasterId
                 from LeaveYearDefination ld 
                 left join LeaveYearDefinationPlantChild pc on 
-				pc.LeaveYearDefinationId=ld.Id and pc.PlantId='" + PlantId+@"'
+				pc.LeaveYearDefinationId=ld.Id and pc.PlantId='" + PlantId+ @"'
                 left join org.Plant p on p.Id=pc.PlantId
 				left join org.Company c on c.Id=p.CompanyId
                 left join org.CompanyGroup cg on cg.Id=c.CompanyGroupId
                 left join LeaveType lt on lt.CompanyGroupId=cg.Id 
                 left join EmployeeInformation e on e.PlantId=p.Id
-                left join ManualLeaveData md on md.EmployeeId=e.SystemId
-				and md.LeaveYearId=ld.Id and 
-				md.LeaveTypeId=lt.Id and md.PlantId='"+PlantId+@"'
+                left join ManualLeaveData md on md.EmployeeId=e.SystemId and md.LeaveYearId=ld.Id and 
+				md.LeaveTypeId=lt.Id and md.PlantId='" + PlantId + @"'
+                --left join (Select m.EmployeeId,m.Adjustment,m.RegularEncashment,m.Earned,m.Availed from ManualLeaveData m Where m.Id =
+				--(Select top(1) d.Id from  ManualLeaveData d
+				--JOIN LeaveType T ON t.Id=d.LeaveTypeId AND t.LeaveType='Earn' Where d.EmployeeId=m.EmployeeId order by d.addeddate desc
+				--)) md on md.EmployeeId=e.SystemId
                 left join AnnualLeaveDataCurrent ac on ac.EmployeeId=e.SystemId
-				and ac.LeaveYearId=ld.Id and ac.LeaveTypeId=lt.Id and ac.PlantId='"+PlantId+ @"'
+				and ac.LeaveYearId=ld.Id and ac.LeaveTypeId=lt.Id and ac.PlantId='" + PlantId+ @"'
 				left join
 				(
 				select a.EmpSystemID,SUM(a.LvValue)AvailedLeave---,A.DayStatus
@@ -1862,11 +1866,14 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 				LEFT JOIN mst.DesignationMaster EDM ON EDM.DesignationId=E.GivenDesignationId
 				LEFT JOIN scs.DesignationMasterConfiguration AS edmc ON edmc.DesignationMasterId=EDM.Id AND edmc.PlantId=e.PlantId
                 where p.Id='" + PlantId+@"' and ld.Id='"+LvYearId+@"' and
-				lt.Id in ("+LTypeId+@") and
+				lt.Id in ("+LTypeId+ @") and
                 e.EmployeeStatus='Active') as dd
-				left join LeavePolicyDetail lpd on lpd.LPMSystemID=dd.LeavePolicyMasterId
-				and lpd.LTSystemID=dd.LeaveTypeId
-			    where dd.EmpTypeId In("+EmpCategoryId+@")
+				left join LeavePolicyDetail lpd on lpd.LPMSystemID=dd.LeavePolicyMasterId and lpd.LTSystemID=dd.LeaveTypeId
+                left join (Select m.EmployeeId,m.Adjustment PAdjustment from ManualLeaveData m Where m.Id =
+				(Select top(1) md.Id from  ManualLeaveData md
+				JOIN LeaveType T ON t.Id=md.LeaveTypeId AND t.LeaveType='Earn' Where md.EmployeeId=m.EmployeeId order by md.addeddate desc
+				)) ame on ame.EmployeeId=dd.EmpId
+			    where dd.EmpTypeId In(" + EmpCategoryId+@")
 				) as xx
 				order by xx.EmpId,xx.LeaveTypeId";
                 return _sqlRepository.GetDataCollection(sql);
