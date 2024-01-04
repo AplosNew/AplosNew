@@ -1927,7 +1927,7 @@
     <Content Include="Areas\Accounts\Scripts\fiscalYearCloseController.js" />
     <Content Include="Areas\Administration\Scripts\GeneralContractApprovedController.js" />
     <Content Include="Areas\Attendances\Scripts\GoodWorkCheckedController.js" />
-    <Content Include="Areas\Attendances\Scripts\GoodWorkApprove.js" />
+    <Content Include="Areas\Attendances\Scripts\GoodWorkApproveController.js" />
     <Content Include="Areas\Commercial\Scripts\LCPendingReportController.js" />
     <Content Include="Areas\OrderManagements\Scripts\TermsandConditionGroupController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
