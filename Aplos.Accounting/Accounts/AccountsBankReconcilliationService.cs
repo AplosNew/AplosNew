@@ -824,7 +824,7 @@ namespace Library.Accounting.Accounts
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
-                _accountsCommonService.CheckParkCustomerInvoiceSetOffPending();
+                _accountsCommonService.CheckParkExpensesPaymentPending();
                 if (string.IsNullOrEmpty(voucherVM.BankMasterId))
                     throw new CustomException("Bank Id not found!");
                 if (voucherVM.BankMasterId == voucherVM.OtherBankMasterId)

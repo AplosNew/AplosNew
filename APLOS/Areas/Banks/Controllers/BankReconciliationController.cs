@@ -581,7 +581,7 @@ namespace Aplos.Areas.Banks.Controllers
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
             voucherVM.SourceType = SourceType.BankJournal.ToString();
-            voucherVM.IsPark = false;
+            voucherVM.IsPark = true;
             if (voucherVM.BankJournalType == BankJournalType.BankToGL.ToString() && voucherDetailVMList == null)
                 throw new CustomException("Please select GL!");
 
