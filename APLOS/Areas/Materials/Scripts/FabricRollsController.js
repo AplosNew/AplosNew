@@ -8,6 +8,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     $scope.path = 'Materials/FabricRoll/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
+    $scope.saveUrlCustomer = $scope.path + 'createCustomer';
     $scope.updateUrlFabricDetails = $scope.path + 'UpdateFabricDetails';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.showfromto = true;
@@ -212,7 +213,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
     }
 
  
-
+    $scope.MasterFabricRollId = null;
     $scope.getSaveMaster = function (GRNNo) {
         $http({
             method: 'GET',
@@ -221,6 +222,7 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
             if (baseService.arrayLength(response.data) > 0) {
                 $scope.fabricRollMaster = Object.assign({}, response.data[0]);
                 $scope.getSaveChildData($scope.fabricRollMaster.Id);
+                $scope.MasterFabricRollId = $scope.fabricRollMaster.Id;
             }
         });
     }
@@ -291,18 +293,13 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         angular.element(document.querySelector('#grnSummaryListPopUp')).modal('show');
     }
 
-    //$scope.CustomerData = function () {
-    //    $scope.getCustomerData();
-    //    angular.element(document.querySelector('#grnCustomerDataListPopUp')).modal('show');
-    //}
-
     $scope.grnCustomerDataList = [];
     $scope.getCustomerData = function () {
         $scope.grnCustomerDataList = [];
         $http({
             method: 'POST',
             url: $scope.path + "GetCustomerDataList",
-            data: {'GRNId': $scope.fabricRollMaster.GRNNo },
+            data: { 'HeaderId': $scope.MasterFabricRollId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.grnCustomerDataList = response.data;
@@ -1310,5 +1307,62 @@ function FabricRollsController(commonMessage, $controller, $scope, $rootScope, b
         }
     };
 
+    $scope.refreshTemplateCustomerData = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllCustomerData });
+    };
+    function CheckBoxSelectAllCustomerData(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
 
+        var filtered = $("#GridCustomerData").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.grnCustomerDataList.length; i++) {
+                $scope.grnCustomerDataList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridCustomerData").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+
+    $scope.SaveCustomerData = function () {
+        try {
+
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.grnCustomerDataList.length; i++) {
+                if ($scope.grnCustomerDataList[i].Flag == true) {
+                    $scope.grnCustomerDataList[i].HeaderId = $scope.MasterFabricRollId;
+                    $scope.SaveList.push($scope.grnCustomerDataList[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlCustomer,
+                data: {
+                    "DataList": $scope.SaveList,
+                    "Pid": $scope.MasterFabricRollId
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
 }

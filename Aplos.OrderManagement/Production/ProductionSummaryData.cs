@@ -7332,15 +7332,19 @@ Group By FRC.GRNRowId,MMA.StandardName,MMA.Id,MM.Id,MM.UserName";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
-        public IEnumerable<object> GetCustomerDataList(string GRNId)
+        public IEnumerable<object> GetCustomerDataList(string HeaderId)
         {
            
-            string sql = @"select FRC.FabricType,FRC.CutableWidth,FRC.ShrinkageWidthWise,FRC.ShrinkageLengthWise,FRC.Shade,COUNT(FRC.Id) NoOfRoll,Sum(FRC.SupplierQty) Qty,
-FRC.CutableWidthGroup,FRC.MarkerGroup,FRC.ShadeGroup,FRC.FabricGroup,FRC.Remarks,FRC.ShrinkageGroup
- from BPDT.FabricRollManagementChild FRC
-where FRC.FabricRollManagementMasterId in (select Id from BPDT.FabricRollManagementMaster where GRNId='" + GRNId + @"')
-Group By CutableWidth,ShrinkageWidthWise,ShrinkageLengthWise,Shade,
-CutableWidthGroup,MarkerGroup,ShadeGroup,FabricGroup,Remarks,ShrinkageGroup,FabricType";
+            string sql = @"select CAST (CASE WHEN CM.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,CM.Id,CM.HeaderId,P.UserName Customer,MO.Id MasterOrderNo,SO.Id SOId,SO.Id SONo,SO.MasterOrderItemId,MA.StandardName Article,
+MOI.BuyerReferenceNo CustomerReferenceNo,MOI.OwnReferenceNo,PL.Code ProductCode,SO.DeliveryDate,CM.Remarks
+from TRN.SalesOrder SO
+left outer join trn.MasterOrderItem MOI on moi.Id=SO.MasterOrderItemId
+left outer join trn.MasterOrder MO on mo.Id=MOI.MasterOrderId
+left outer join [HKP].[Party] p on P.Id=MO.PartyId
+left outer join MST.MaterialMasterArticle MA  on MA.Id=MOI.ArticleId
+left outer join dbo.ProductLibrary PL ON PL.Id=MOI.ProductLibraryId
+left outer join TRN.CustomerMaterial CM on CM.HeaderId='" + HeaderId + @"' and CM.SOId=SO.Id 
+where SO.OrderStatusId='Active'";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
@@ -7369,7 +7373,7 @@ where CQH.CustomerId not in ('null')";
         {
             string sql = @"select I.Id InvoiceId,P.UserName Party,Format(I.AddedDate,'dd-MMM-yyyy') InvoiceDate from TRN.Sales I
 left join HKP.Party P on P.Id=I.PartyId
-where PartyId='" + PartyId + "'";
+where PartyId='" + PartyId + "' order by I.AddedDate desc";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
@@ -7423,13 +7427,17 @@ where S.Id='" + InvoiceId + "'";
             string sql = "";
             if (POId != "null" && POId != "undefined")
             {
-                 sql = @"select Distinct PS.LotNumber Value,PS.LotNumber Text from TRN.ProductionSummary PS
+                 sql = @"select P.* from (select Distinct PS.LotNumber Value,PS.LotNumber +' - '+ (case when OWC.Grade is not null then 'Yes' else 'No' end) Text,(case when OWC.Grade is not null then 'Yes' else 'No' end) Status from TRN.ProductionSummary PS
+left join MST.OrderWiseQualityComment OWC on OWC.LotNo=PS.LotNumber
 left join TRN.ProductionOrder PO on PO.Id=PS.ProductionOrderId
-where PS.ProductionOrderId = '" + POId + "' and PS.LotNumber is not null and PS.LotNumber not in (select LotNo from TRN.CustomerQualityReportHeader)";
+where PS.ProductionOrderId = '" + POId + "' and PS.LotNumber is not null and PS.LotNumber not in (' ') and PS.LotNumber not in (select LotNo from TRN.CustomerQualityReportHeader))P order by Status desc";
             }
             else
             {
-                sql = @"select Distinct PS.LotNumber Value,PS.LotNumber Text from TRN.ProductionSummary PS where PS.LotNumber is not null and PS.LotNumber not in (select LotNo from TRN.CustomerQualityReportHeader)";
+                sql = @"select P.* from (select Distinct PS.LotNumber Value,PS.LotNumber +' - '+ (case when OWC.Grade is not null then 'Yes' else 'No' end) Text,(case when OWC.Grade is not null then 'Yes' else 'No' end) Status from TRN.ProductionSummary PS
+left join MST.OrderWiseQualityComment OWC on OWC.LotNo=PS.LotNumber
+where PS.LotNumber is not null and PS.LotNumber not in (' ') and PS.LotNumber not in (select LotNo from TRN.CustomerQualityReportHeader))P
+order by Status desc";
             }
             return _sqlRepository.GetDataCollection(sql, null);
         }
@@ -7538,7 +7546,7 @@ where CustomerParameter=1 and QCD.GradeId is not null" + LotFilter + "";
             {
                 InvFilter = " and CQH.InvoiceId='" + InvoiceId + "'";
             }
-            string sql = @"select distinct QC.ProductionOrderId,QC.LotNumber LotNo,'" + CustomerId + "' CustomerId,'" + InvoiceId + @"' InvoiceId,
+            string sql = @"select P.* from (select distinct QC.ProductionOrderId,QC.LotNumber LotNo,'" + CustomerId + "' CustomerId,'" + InvoiceId + @"' InvoiceId,
 CustomerName=(select UserName from hkp.Party where Id='" + CustomerId + @"'),
 Article = STUFF((select distinct ',' + MA.StandardName from trn.ProductionOrderDetail Pod
 left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId = so.Id
@@ -7572,7 +7580,7 @@ left join TRN.QualityControl QC on QC.Id=QCD.QCID
 left join HKP.ParameterMaster PM on PM.Id=QMP.ParameterId
 left join SCS.UnitOfMeasurement UM on UM.Id=QMP.UOMId
 left join[TRN].[CustomerQualityReportHeader] CQH on " + CQRHFilter + " " + CustFilter + " " + InvFilter + @"
-where CustomerParameter=1 and QCD.GradeId is not null" + LotFilter + "";
+where CustomerParameter=1 and QCD.GradeId is not null" + LotFilter + ")P order by P.Finalreport desc";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
