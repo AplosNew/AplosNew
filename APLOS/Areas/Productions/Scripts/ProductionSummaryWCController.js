@@ -73,6 +73,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         Quantity: 0,
         ScanQty: 0,
         QtyWithoutScan: 0,
+        SKUQty: 0,
         UOM: 0,
         MOQty: 0,
         ExtraP: 0,
@@ -1069,6 +1070,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
         $scope.productionSummaryNew.Quantity = null;
         $scope.productionSummaryNew.QtyWithoutScan = 0;
+        $scope.productionSummaryNew.SKUQty = 0;
         $scope.productionSummaryNew.ScanQty = 0;
         $scope.productionSummaryNew.Customer = null;
         $scope.productionSummaryNew.ResponsiblePersonId = null;
@@ -1342,6 +1344,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         $scope.productionSummaryNew.ProductionGrade = null;
         $scope.productionSummaryNew.Quantity = 0;
         $scope.productionSummaryNew.QtyWithoutScan = 0;
+        $scope.productionSummaryNew.SKUQty = 0;
         $scope.productionSummaryNew.ScanQty = 0;
         $scope.productionSummaryNew.UOM = null;
         //$scope.productionSummaryNew.ProductionHour = null;
@@ -1625,6 +1628,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 }
                 $scope.productionSummaryNew.Quantity = $scope.ProdQty;
                 $scope.productionSummaryNew.QtyWithoutScan = $scope.ProdQty;
+                $scope.productionSummaryNew.SKUQty = $scope.ProdQty;
             }
             if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
                 if ($scope.ProdQty === 0) {

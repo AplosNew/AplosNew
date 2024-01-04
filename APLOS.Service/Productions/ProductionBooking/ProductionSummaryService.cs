@@ -1387,7 +1387,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                         }
                     }
 
-                    ps.Quantity = ps.QtyWithoutScan + ps.ScanQty;
+                    ps.Quantity = ps.QtyWithoutScan + ps.ScanQty ;
 
                     base.Insert(ps);
                 }
@@ -1409,6 +1409,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                     ob_fromDB.MentorId = ps.MentorId;
                     ob_fromDB.ScanQty = ps.ScanQty;
                     ob_fromDB.QtyWithoutScan = ps.QtyWithoutScan;
+                    ob_fromDB.SKUQty = ps.SKUQty;
                     ob_fromDB.Quantity = ps.QtyWithoutScan + ps.ScanQty;
                     ob_fromDB.ProductionOrderId = ps.ProductionOrderId;
                     ob_fromDB.SalesOrderId = ps.SalesOrderId;
@@ -1530,6 +1531,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                     ob_fromDB.MentorId = ps.MentorId;
                     ob_fromDB.ScanQty = ps.ScanQty;
                     ob_fromDB.QtyWithoutScan = ps.QtyWithoutScan;
+                    ob_fromDB.SKUQty = ps.SKUQty;
                     ob_fromDB.Quantity = ps.QtyWithoutScan + ps.ScanQty;
                     ob_fromDB.ProductionOrderId = ps.ProductionOrderId;
                     ob_fromDB.SalesOrderId = ps.SalesOrderId;

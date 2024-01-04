@@ -50,6 +50,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         Quantity: 0,
         ScanQty: 0,
         QtyWithoutScan: 0,
+        SKUQty: 0,
         UOM: 0,
         MOQty: 0,
         ExtraP: 0,
@@ -602,6 +603,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         $scope.productionSummaryNew.Quantity = 0;
         $scope.productionSummaryNew.QtyWithoutScan = 0;
         $scope.productionSummaryNew.ScanQty = 0;
+        $scope.productionSummaryNew.SKUQty = 0;
         $scope.productionSummaryNew.Customer = null;
         $scope.productionSummaryNew.ResponsiblePersonId = null;
         $scope.productionSummaryNew.ResponsiblePersonName = null;
@@ -875,6 +877,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         $scope.productionSummaryNew.Quantity = 0;
         $scope.productionSummaryNew.QtyWithoutScan = 0;
         $scope.productionSummaryNew.ScanQty = 0;
+        $scope.productionSummaryNew.SKUQty = 0;
         $scope.productionSummaryNew.UOM = null;
         //$scope.productionSummaryNew.ProductionHour = null;
         $scope.productionSummaryNew.MOQty = null;
@@ -1136,6 +1139,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 }
                 $scope.productionSummaryNew.Quantity = $scope.ProdQty;
                 $scope.productionSummaryNew.QtyWithoutScan = $scope.ProdQty;
+                $scope.productionSummaryNew.SKUQty = $scope.ProdQty;
             }
             if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
                 if ($scope.ProdQty === 0) {
