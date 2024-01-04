@@ -154,7 +154,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
                             $http({
                                 method: 'POST',
                                 url: 'Attendances/GoodWork/LoadEmployeelist',
-                                data: { 'parameters': $scope.parameters, 'userGroupId': $scope.ModelNew.UserGroupId, 'shiftId': $scope.ModelNew.ShiftId },
+                                data: { 'parameters': $scope.parameters, 'userGroupId': $scope.ModelNew.UserGroupId, 'shiftId': $scope.ModelNew.ShiftId, 'workDate': $scope.ModelNew.WorkDate},
                                 dataType: 'JSON'
                             }).then(function successCallback(response) {
                                 if (response.data.Error === true) {
