@@ -323,6 +323,7 @@ where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1
 							FORMAT(MLC.UpdatedDate,'dd-MMM-yyyy') UpdatedDate, MLC.UpdatedFromIP, MLC.CurrencyId,LB.UserName BenificiaryBank,CN.Code Currency, 
 							MLC.CustomerId, P.UserName PartyName,MLC.Version,FORMAT(mlc.LCShipmentDate,'dd-MMM-yyyy')LCShipmentDate,mlc.ShipmentModeId,sm.UserName ShipmentMode,FORMAT(mlc.AmendmentDate,'dd-MMM-yyyy')AmendmentDate
 							,mlc.PortOfLoadingId,prl.UserName PortOfLoading,MLC.Remarks,MLC.DescriptionOfGoodsAndOrServices, MLC.OpeningBankId
+							,LCC.Clause1 , LCC.Clause2 , LCC.Clause3 , LCC.Clause4 , LCC.Clause5 , LCC.Clause6, LCC.Clause7 , LCC.Clause8 , LCC.Clause9, LCC.Clause10
                          FROM [dbo].[MasterLC] MLC
                          LEFT JOIN MST.BankMaster OB  ON OB.Id=MLC.BenificiaryBankId
                          LEFT JOIN HKP.Bank LB ON LB.Id=OB.BankId
@@ -332,6 +333,7 @@ where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1
                          LEFT JOIN [MST].[Port] PR ON PR.Id=mlc.PortOfLandingId
                          LEFT JOIN [MST].[Port] PRL ON PRL.Id=mlc.PortOfLoadingId
                          LEFT JOIN [dbo].[NegotiatingBank] NB ON NB.Id=mlc.OpeningBankId
+						 left join dbo.lcclauses  LCC on LCC.MasterLCId = MLC.Id
 						 order By MLC.AddedDate Desc";
             return _sqlRepository.GetDataCollection(sql);
         }

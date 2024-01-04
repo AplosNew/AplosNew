@@ -1269,7 +1269,7 @@ Select ISNULL(SUM(sc.NetWeight),0) Qty, ISNULL(SUM(PlanQty),0) PlanQty,PackingLi
             {
 
                 var str = @"SELECT MMA.StandardName Article, MMA.StandardName ATS, POLR.netWeight,PLA.AttributeValue Shade, POLR.GWeight,POLR.RefNo,POLR.Cones,POLR.LotNo
-,SP.SalesId InvoiceNo,FORMAT(S.InvoiceDate,'dd-MMM-yyyy') InvoiceDate,pc.UserName as ConsigneeBilltoName
+,SP.SalesId InvoiceNo,FORMAT(S.InvoiceDate,'dd-MMM-yyyy') InvoiceDate,pc.UserName as ConsigneeBilltoName 
 FROM [TRN].[SalesOrder] AS SO
 JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
 JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id
@@ -1278,9 +1278,9 @@ LEFT JOIN [MST].[MaterialMasterArticle] AS MMA ON MOI.ArticleId = MMA.Id
 left join ProductLibrary PL on PL.Id = MOI.ProductLibraryId
 left join ProductLibraryAttribute PLA on PLA.ProductLibraryId  = PL.Id and PLA.StandardName like '%SH%'
 LEFT JOIN trn.PackingLineItem PLI ON PLI.SOId=SO.Id
-LEFT JOIN dbo.[contract] as c on c.id = SO.contractId
-LEFT JOIN HKP.Party as pc on pc.Id=c.CustomerId
-LEFT JOIN HKP.PartyPlant as pbt on pbt.Id=c.InvoicingPartyPlantId
+--LEFT JOIN dbo.[contract] as c on c.id = SO.contractId
+LEFT JOIN HKP.Party as pc on pc.Id=MO.PartyId
+--LEFT JOIN HKP.PartyPlant as pbt on pbt.Id=c.InvoicingPartyPlantId
 LEFT JOIN dbo.SalesPacking SP on SP.PackingId=pli.PackingId
 LEFT JOIN TRN.Sales S on S.Id=SP.SalesId
 LEFT JOIN 

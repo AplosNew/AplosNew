@@ -7,6 +7,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveMasterLCUrl = $scope.path + 'SaveMasterLC';
     $scope.saveAddInfoLCUrl = $scope.path + 'SaveMasterLCAddInfo';
+    $scope.saveLCclauseLCUrl = $scope.path + 'SaveMasterlcclause';
     $scope.deleteUrl = $scope.path + 'DeleteMasterLC/';
     $scope.partyType = "Customer";
     $controller("partyBaseController", { $scope: $scope, $http: $http });
@@ -460,6 +461,39 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
                     url: $scope.saveAddInfoLCUrl,
                     data: {
                         'data': $scope.addInfo
+                    },
+                    dataType: 'JSON'
+                    , contentType: "application/json charset=utf-8"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.GetMasterLCAddInfoData();
+                        $scope.ClearAddInfo();
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                };
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.ActionAddLC = 'Save';
+    $scope.SaveMasterlcclause = function () {
+        try {
+            $scope.LCClause.MasterLCId = $scope.masterLCNew.Id;
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.LCClauseForm.$valid) {
+
+                $http({
+                    method: 'POST',
+                    url: $scope.saveLCclauseLCUrl,
+                    data: {
+                        'data': $scope.LCClause
                     },
                     dataType: 'JSON'
                     , contentType: "application/json charset=utf-8"
