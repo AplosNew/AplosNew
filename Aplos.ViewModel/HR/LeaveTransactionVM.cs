@@ -28,5 +28,6 @@ namespace Library.ViewModel.HR
         public string FromDate { get; set; }
         public string ToDate { get; set; }
         public decimal Rejected { get; set; }
+        public decimal Earned { get; set; }
     }
 }

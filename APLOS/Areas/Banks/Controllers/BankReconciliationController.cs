@@ -9,6 +9,7 @@ using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Banks;
 using Library.Model.Enums;
+using Library.Model.Parties;
 using Library.Model.Vouchers;
 using Library.Service.Banks;
 using Library.Service.Helpers;
@@ -617,6 +618,26 @@ namespace Aplos.Areas.Banks.Controllers
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, accountsBankReconcilliationService.InsertCustomerInvoiceReceipt(voucherVM, voucherDetailVMList, bankChargeDetailVMList, taxDetailVMList)) });
         }
 
+        [HttpPost]
+        public JsonResult ParkCustomerAdvance(VoucherViewModel advanceVM, IEnumerable<VoucherDetailViewModel> advanceDetailVMList
+           )
+        {
+            AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            advanceVM.CompanyGroupId = identity.CompanyGroupId;
+            advanceVM.CompanyId = identity.CompanyId;
+            advanceVM.PlantId = identity.PlantId;
+            advanceVM.IsPosted = false;
+            advanceVM.IsPark = true;
+            if (advanceVM.CurrencyId == null)
+                throw new CustomException("Please Select Currency !");
+            if ( (advanceVM.Amount < 0 || advanceVM.Amount == 0))
+                throw new CustomException("Please Input Amount !");
+            advanceVM.SourceType = SourceType.CustomerAdvance.ToString();
+            advanceVM.PartyType = PartyType.Customer.ToString();
+           
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, accountsBankReconcilliationService.InsertCustomerAdvance(advanceVM, advanceDetailVMList)) });
+        }
         #endregion
     }
 }

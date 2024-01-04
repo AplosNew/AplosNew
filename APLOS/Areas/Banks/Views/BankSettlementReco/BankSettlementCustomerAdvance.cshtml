@@ -94,13 +94,13 @@
         <div id="div_PostingDate" class="form-group" show-errors>
             <label class="col-sm-4 control-label">Posting Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input required datepicker="checkPostingDate();checkDocDate();" readonly id="postingDate" type="text" name="PostingDate" ng-model="advance.PostingDate" class="form-control" tabindex="2">
+                <input required datepicker="checkPostingDate();checkDocDate();" readonly id="postingDate" type="text" name="PostingDate" ng-model="advance.PostingDate" ng-disabled="true" class="form-control" tabindex="2">
             </div>
         </div>
         <div id="div_DocDate" class="form-group" show-errors>
             <label class="col-sm-4 control-label">Doc Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="DocDate" ng-model="advance.DocDate" readonly datepicker="checkPostingDate();checkDocDate();" required class="form-control" tabindex="4">
+                <input type="text" name="DocDate" ng-model="advance.DocDate" readonly datepicker="checkPostingDate();checkDocDate();" ng-disabled="true" required class="form-control" tabindex="4">
             </div>
         </div>
         <div class="form-group" id="div_qty">

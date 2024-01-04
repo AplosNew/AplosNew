@@ -102,7 +102,7 @@ namespace Aplos.Areas.Commercial.Controllers
 						  ,PT.UserName [Port]
 						  ,SP.UserName ShipMode
                             ,P.ExportRefNo,P.TransporterCHAForwarderId,FORMAT(P.DocumentReceiveDate,'dd-MMM-yyyy')DocumentReceiveDate,P.AWBB2B,P.ActualPaymentReceived,P.ShippingBillNo,P.PortCode,FORMAT(P.DocumentSubmissionDate,'dd-MMM-yyyy')DocumentSubmissionDate
-					      ,FORMAT(P.DocAcceptanceDate,'dd-MMM-yyyy')DocAcceptanceDate,P.FinalShipmentStatus,FORMAT(P.ShippingBillDate,'dd-MMM-yyyy')ShippingBillDate,FORMAT(P.ShipmentDate,'dd-MMM-yyyy')ShipmentDate,P.NegotiationType,FORMAT(P.PaymentReceivedDate,'dd-MMM-yyyy')PaymentReceivedDate,P.Remark,S.InvoiceStatus,P.TransporterCHAForwarderId,TF.UserName TransporterCHAForwarder
+					      ,FORMAT(P.DocAcceptanceDate,'dd-MMM-yyyy')DocAcceptanceDate,P.FinalShipmentStatus,FORMAT(P.ShippingBillDate,'dd-MMM-yyyy')ShippingBillDate,FORMAT(P.ShipmentDate,'dd-MMM-yyyy')ShipmentDate,P.NegotiationType,FORMAT(P.PaymentReceivedDate,'dd-MMM-yyyy')PaymentReceivedDate,P.Remark,S.InvoiceStatus,P.TransporterCHAForwarderId,TF.UserName TransporterCHAForwarder,FORMAT(P.PaymentDueMatureDate,'dd-MMM-yyyy')PaymentDueMatureDate,P.RFIDSealNo,P.LineSealNo
                       FROM [dbo].[PostSalesInvoice] P
 					  LEFT JOIN TRN.Sales S ON S.Id=P.SalesId
 					  LEFT JOIN HKP.Party C ON C.Id=P.CNFAgentId
@@ -168,7 +168,7 @@ namespace Aplos.Areas.Commercial.Controllers
 						  ,PT.UserName [Port]
 						  ,SP.UserName ShipMode
                            ,P.ExportRefNo,P.TransporterCHAForwarderId,FORMAT(P.DocumentReceiveDate,'dd-MMM-yyyy')DocumentReceiveDate,P.AWBB2B,P.ActualPaymentReceived,P.ShippingBillNo,P.PortCode,FORMAT(P.DocumentSubmissionDate,'dd-MMM-yyyy')DocumentSubmissionDate
-					      ,FORMAT(P.DocAcceptanceDate,'dd-MMM-yyyy')DocAcceptanceDate,P.FinalShipmentStatus,FORMAT(P.ShippingBillDate,'dd-MMM-yyyy')ShippingBillDate,FORMAT(P.ShipmentDate,'dd-MMM-yyyy')ShipmentDate,P.NegotiationType,FORMAT(P.PaymentReceivedDate,'dd-MMM-yyyy')PaymentReceivedDate,P.Remark,S.InvoiceStatus,P.TransporterCHAForwarderId,TF.UserName TransporterCHAForwarder,P.FileName
+					      ,FORMAT(P.DocAcceptanceDate,'dd-MMM-yyyy')DocAcceptanceDate,P.FinalShipmentStatus,FORMAT(P.ShippingBillDate,'dd-MMM-yyyy')ShippingBillDate,FORMAT(P.ShipmentDate,'dd-MMM-yyyy')ShipmentDate,P.NegotiationType,FORMAT(P.PaymentReceivedDate,'dd-MMM-yyyy')PaymentReceivedDate,P.Remark,S.InvoiceStatus,P.TransporterCHAForwarderId,TF.UserName TransporterCHAForwarder,P.FileName,FORMAT(P.PaymentDueMatureDate,'dd-MMM-yyyy')PaymentDueMatureDate
                       FROM [dbo].[PostSalesInvoice] P
 					  LEFT JOIN TRN.Sales S ON S.Id=P.SalesId
 					  LEFT JOIN HKP.Party C ON C.Id=P.CNFAgentId
@@ -488,6 +488,14 @@ namespace Aplos.Areas.Commercial.Controllers
                     }
                     dr["RFIDSealNo"] = data.RFIDSealNo;
                     dr["LineSealNo"] = data.LineSealNo;
+                    if (String.IsNullOrEmpty(data.PaymentDueMatureDate.ToString()))
+                    {
+                        dr["PaymentDueMatureDate"] = DBNull.Value;
+                    }
+                    else
+                    {
+                        dr["PaymentDueMatureDate"] = data.PaymentDueMatureDate;
+                    }
                     dr["Remark"] = data.Remark;
 
                     dr["AddedBy"] = identity.Name;
@@ -660,6 +668,15 @@ namespace Aplos.Areas.Commercial.Controllers
                     }
                     dr["RFIDSealNo"] = data.RFIDSealNo;
                     dr["LineSealNo"] = data.LineSealNo;
+                    if (String.IsNullOrEmpty(data.PaymentDueMatureDate.ToString()))
+                    {
+                        dr["PaymentDueMatureDate"] = DBNull.Value;
+                    }
+                    else
+                    {
+                        dr["PaymentDueMatureDate"] = data.PaymentDueMatureDate;
+                    }
+                   
                     dr["Remark"] = data.Remark;
 
 
@@ -898,7 +915,7 @@ namespace Aplos.Areas.Commercial.Controllers
         public string PortOfDelivaryId { get; set; }
         public string BankDocRef { get; set; }
         public DateTime? NegotiatingDate { get; set; }
-
+        public DateTime? PaymentDueMatureDate { get; set; }
         public string ExportRefNo { get; set; }
         public string TransporterCHAForwarderId { get; set; }
         public DateTime? DocumentReceiveDate { get; set; }

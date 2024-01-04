@@ -328,6 +328,10 @@ namespace Library.Accounting.Accounts
         {
             return masterId + currentId.ToString().PadLeft(padLeft, '0');
         }
+        public string MakePK(string masterId, int currentId)
+        {
+            return masterId + currentId.ToString();
+        }
         public Voucher InsertVoucher(Voucher voucher, string fiscalYearPrefix, out DataSet dsData)
         {
             return InsertVoucher(voucher, fiscalYearPrefix, true, out dsData);
@@ -648,6 +652,53 @@ namespace Library.Accounting.Accounts
                 con.getDataSet("Select * from TRN.InvoiceDetail where InvoiceId='" + invoiceDetail["InvoiceId"].ToString()  + "'", out _invoiceDetail);
             }
             EditRow_Dictionary(_invoiceDetail.Tables[0].Rows[0], invoiceDetail);
+        }
+
+
+        public Advance InsertAdvance(Advance advance, out DataSet dsData)
+        {
+            if (advance.PaymentSource == PaymentSource.Bank.ToString())
+                if (string.IsNullOrEmpty(advance.BankMasterId))
+                    throw new CustomException("Bank Id not found!");
+                else
+                    advance.CashMasterId = null;
+            else if (advance.PaymentSource == PaymentSource.Cash.ToString())
+                if (string.IsNullOrEmpty(advance.CashMasterId))
+                    throw new CustomException("Cash Id not found!");
+                else
+                    advance.BankMasterId = null;
+            return InsertAdvance(advance, true, out dsData);
+        }
+        public Advance InsertAdvance(Advance advance, bool flag, out DataSet dsData)
+        {
+            advance.Id = GetAutoNumber(nameof(Advance), PKGeneratorEnum.Yearly, null, DateTime.Now);
+            advance.Narration = advance.Narration?.ToUpper();
+            if (string.IsNullOrEmpty(advance.AddedBy))
+                AuditService.AddedLog(advance);
+
+            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+            con.getDataSet("Select * from TRN.Advance where 1=2", out dsData);
+
+            AddNewRow<Advance>(dsData.Tables[0], advance);
+            return advance;
+        }
+
+        public AdvanceDetail InsertAdvanceDetail(AdvanceDetail advanceDetail, int currentId, out DataSet dsData)
+        {
+            return InsertInvoiceWriteOffDetail(advanceDetail, currentId, true, out dsData);
+        }
+        public AdvanceDetail InsertInvoiceWriteOffDetail(AdvanceDetail advanceDetail, int currentId, bool flag, out DataSet dsData)
+        {
+            advanceDetail.Id = MakePK(advanceDetail.AdvanceId, currentId);
+            advanceDetail.Narration = advanceDetail.Narration?.ToUpper();
+            if (string.IsNullOrEmpty(advanceDetail.AddedBy))
+                AuditService.AddedLog(advanceDetail);
+
+            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+            con.getDataSet("Select * from TRN.AdvanceDetail where 1=2", out dsData);
+
+            AddNewRow<AdvanceDetail>(dsData.Tables[0], advanceDetail);
+            return advanceDetail;
         }
 
         public InvoiceWriteOff InsertInvoiceWriteOff(InvoiceWriteOff invoiceWriteOff, out DataSet dsData)
@@ -1778,21 +1829,21 @@ namespace Library.Accounting.Accounts
         public List<Dictionary<string, object>> getVoucherGLDataList(string companyGroupId, string companyId, string plantId, string voucherNo)
         {
             var sql = @"SELECT
-V.Id,FORMAT (V.VoucherDate,'dd-MMM-yyyy') VoucherDate,FORMAT (V.PostingDate,'dd-MMM-yyyy') PostingDate, V.DocRefNo
-, V.VoucherTypeId,vt.UserName VoucherType
-, V.CurrencyId,FORMAT (V.DocDate,'dd-MMM-yyyy') DocDate, V.EntityId,
-C.Code AS CurrencyCode, VD.DrAmount, V.VoucherNo, V.IsPark, V.Narration,e.UserName Entity,V.SourceType
-,CASE WHEN  II.IssueType='Capital' AND  II.CapitalizeVoucherId is not null THEN 'Yes' ELSE 'No' END Capitalize
-,II.Id InventoryIssueId,IR.Id InventoryReceiveId
-                                    FROM TRN.[Voucher] AS V
-									LEFT JOIN TRN.InventoryIssue AS II ON II.VoucherId = V.Id
-                                    LEFT JOIN TRN.InventoryReceive AS IR ON IR.VoucherId = V.Id
-                                    LEFT JOIN SCS.Currency AS C ON C.Id = V.CurrencyId
-                                    LEFT JOIN SCS.VoucherType AS vt ON vt.Id=v.VoucherTypeId
-                                    LEFT JOIN ORG.Entity AS e ON e.Id=v.EntityId
-                                    LEFT JOIN (SELECT SUM(VD.DrAmount) AS DrAmount, VD.VoucherId FROM [TRN].[VoucherDetail] AS VD WHERE VD.DrAmount <> 0 GROUP BY VD.VoucherId
-                                    ) AS VD ON VD.VoucherId=V.Id
-where V.Archive=0 AND V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + companyGroupId + "' and V.CompanyId='" + companyId + "' and V.PlantId='" + plantId + @"' AND V.SourceType IN ('VendorInvoice','EmployeePayable','IssueJournal','JournalVoucher','InventoryPayable') ";
+                        V.Id,FORMAT (V.VoucherDate,'dd-MMM-yyyy') VoucherDate,FORMAT (V.PostingDate,'dd-MMM-yyyy') PostingDate, V.DocRefNo
+                        , V.VoucherTypeId,vt.UserName VoucherType
+                        , V.CurrencyId,FORMAT (V.DocDate,'dd-MMM-yyyy') DocDate, V.EntityId,
+                        C.Code AS CurrencyCode, VD.DrAmount, V.VoucherNo, V.IsPark, V.Narration,e.UserName Entity,V.SourceType
+                        ,CASE WHEN  II.IssueType='Capital' AND  II.CapitalizeVoucherId is not null THEN 'Yes' ELSE 'No' END Capitalize
+                        ,II.Id InventoryIssueId,IR.Id InventoryReceiveId
+                          FROM TRN.[Voucher] AS V
+						  LEFT JOIN TRN.InventoryIssue AS II ON II.VoucherId = V.Id
+                          LEFT JOIN TRN.InventoryReceive AS IR ON IR.VoucherId = V.Id
+                          LEFT JOIN SCS.Currency AS C ON C.Id = V.CurrencyId
+                          LEFT JOIN SCS.VoucherType AS vt ON vt.Id=v.VoucherTypeId
+                          LEFT JOIN ORG.Entity AS e ON e.Id=v.EntityId
+                          LEFT JOIN (SELECT SUM(VD.DrAmount) AS DrAmount, VD.VoucherId FROM [TRN].[VoucherDetail] AS VD WHERE VD.DrAmount <> 0 GROUP BY VD.VoucherId
+                          ) AS VD ON VD.VoucherId=V.Id
+            WHERE V.Archive=0 AND V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + companyGroupId + "' and V.CompanyId='" + companyId + "' and V.PlantId='" + plantId + @"' AND V.SourceType IN ('VendorInvoice','EmployeePayable','IssueJournal','JournalVoucher','InventoryPayable') ";
             return _sqlRepository.GetDataCollection(sql);
 
         }
@@ -1819,6 +1870,29 @@ where V.Archive=0 AND V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + 
 
         #endregion getVoucherGLDataList
 
-      
+        public Dictionary<string, object> CheckParkCustomerAdvancePending()
+        {
+
+            var sql = @"SELECT TOP(1) * FROM [TRN].[BankReconciliationMap] BRM 
+                        JOIN TRN.VoucherDetail VD ON VD.Id=BRM.VoucherDetailId 
+                        JOIN TRN.Voucher V ON V.Id=VD.VoucherId WHERE V.IsPark=1 AND V.SourceType='CustomerAdvance'";
+            var customerAdvanceTemp = _sqlRepository.GetData(sql);
+            if (null != customerAdvanceTemp || customerAdvanceTemp.Count > 0)
+                throw new CustomException("Please post voucher No "+customerAdvanceTemp["VoucherNo"]+" First!");
+
+            return customerAdvanceTemp;
+        }
+        public Dictionary<string, object> CheckParkCustomerInvoiceSetOffPending()
+        {
+
+            var sql = @"SELECT TOP(1) * FROM [TRN].[BankReconciliationMap] BRM 
+                        JOIN TRN.VoucherDetail VD ON VD.Id=BRM.VoucherDetailId 
+                        JOIN TRN.Voucher V ON V.Id=VD.VoucherId WHERE V.IsPark=1 AND V.SourceType='CustomerReceipt'";
+            var customerAdvanceTemp = _sqlRepository.GetData(sql);
+            if (null != customerAdvanceTemp || customerAdvanceTemp.Count > 0)
+                throw new CustomException("Please post voucher No " + customerAdvanceTemp["VoucherNo"] + " First!");
+
+            return customerAdvanceTemp;
+        }
     }
 }

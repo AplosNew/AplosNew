@@ -427,7 +427,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
 									, S.InvoiceNo, PPI.UserName AS BillTo, AM.StateId AS InvoicingStateId, ST.UserName AS InvoicingState, PPI.GSTIN AS InvoicingGSTIN
 									, PPD.UserName AS ShipTo, STD.UserName AS DeliveryState, PPD.GSTIN AS DeliveryGSTIN, S.InvoicingByAddress, S.DeliveryByAddress, S.MatureDate, S.ToCurrencyRate
 									, S.ToCurrencyRate AS CompanyCurrencyRate, S.Narration, S.PartyType, S.VoucherId, AMP.StateId AS PlantStateId,S.BLNumber,S.ItemDescription,S.ComercialInvoiceNo,S.EXPFromNo,S.EXPDate,S.BLDate
-                                    , CASE  WHEN S.RowState='Parked' THEN 1 ELSE 0 END AS IsPark,S.AddedDate,s.AddedBy,S.AddedFromIP,FORMAT(S.UpdatedDate,'dd-MMM-yyyy') UpdatedDate,s.UpdatedBy,S.UpdatedFromIP,S.PaymentToReceiveBankId
+                                    , CASE  WHEN S.RowState='Parked' THEN 1 ELSE 0 END AS IsPark,S.AddedDate,s.AddedBy,S.AddedFromIP,FORMAT(S.UpdatedDate,'dd-MMM-yyyy') UpdatedDate,s.UpdatedBy,S.UpdatedFromIP,S.PaymentToReceiveBankId , NEGBNKMT.AccountTitle BankName
 									FROM [TRN].[Sales] AS S
                                     LEFT JOIN [ORG].[Company] AS CO ON CO.Id=S.CompanyId
                                     JOIN [HKP].[Party] AS P ON P.Id=S.PartyId
@@ -440,6 +440,8 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
                                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=S.CurrencyId
 									LEFT JOIN [ORG].[Plant] AS PT ON PT.Id=S.PlantId
 									LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PT.AddressMasterId
+									LEFT JOIN dbo.PostSalesInvoice PSI ON PSI.SalesId = s.Id
+									left join mst.BankMaster NEGBNKMT on NEGBNKMT.Id = PSI.BankMasterId
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=S.Id
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
                                     WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + "'  AND SourceType='Packing'";
