@@ -59,8 +59,8 @@
     <div class="row">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">BudgetCode</a></li>
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Entity</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">BudgetCode</a></li>
                 <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">Check By</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Approved By</a></li>
             </ul>
@@ -121,6 +121,7 @@
                             <div e-columns>
                                 <div e-column e-headertext="Remove" e-headertemplateid="#headerTemplate" e-template="#DeleteBudgetCode" e-textalign="center" e-width="60"></div>
                                 <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="80"></div>
+                                <div e-column e-type="string" e-field="BudgetCode" e-headertext="Budget Code" e-width="100"></div>
                                 <div e-column e-type="string" e-field="Division" e-headertext="Division" e-width="80"></div>
                                 <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="80"></div>
                                 <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="140"></div>
@@ -130,7 +131,6 @@
                                 <div e-column e-type="string" e-field="Activity" e-headertext="Activity" e-width="140"></div>
                                 <div e-column e-type="string" e-field="UserGroup" e-headertext="User Group" e-width="140"></div>
                                 <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="140"></div>
-                                <div e-column e-type="string" e-field="BudgetCode" e-headertext="Budget Code" e-width="140"></div>
                                 <div e-column e-type="string" e-field="IsOTEntitled" e-headertext="OT Applicable" e-width="140"></div>
                                 <div e-column e-headertext="Good Work Applicable" e-headertemplateid="#headerTemplate" e-template="#GWcheckboxTemplate" e-textalign="center" e-width="130"></div>
                                 <div e-column e-headertext="Compensatory Applicable" e-headertemplateid="#headerTemplate" e-template="#CAcheckboxTemplate" e-textalign="center" e-width="130"></div>
@@ -211,7 +211,7 @@
                         </ul>
                     </div>
                         <div class="content-container-fluid" style="color:black;">
-                            <div style="color:black;" id="Grid" ej-grid e-datasource="authorizationList" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                            <div style="color:black;" id="GridCheck" ej-grid e-datasource="authorizationList" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                                  e-rowdatabound="onrowdatabound" e-allowselection="true" e-filtersettings-filterType="excel">
                                 <div e-columns>
                                     <div e-column e-headertext="Remove" e-headertemplateid="" e-template="#DeleteAuthority" e-textalign="center" e-width="40"></div>

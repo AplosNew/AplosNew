@@ -22,7 +22,7 @@
             <label class="col-sm-4 control-label">From Time<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="input-group bootstrap-timepicker timepicker">
-                    <input id="FromTime" type="text" class="form-control" ng-model="ModelNew.FromTime" ng-change="getMinute();" e-width="100" tabindex="11">
+                    <input id="FromTime" type="text" class="form-control" ng-model="ModelNew.FromTime" ng-change="getMinute();" e-width="100" tabindex="11" disabled>
                     <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
                 </div>
             </div>
@@ -33,7 +33,7 @@
             <label class="col-sm-4 control-label">To Time<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="input-group bootstrap-timepicker timepicker">
-                    <input id="ToTime" type="text" class="form-control" ng-model="ModelNew.ToTime" ng-change="getMinute();" e-width="100" tabindex="13">
+                    <input id="ToTime" type="text" class="form-control" ng-model="ModelNew.ToTime" ng-change="getMinute();" e-width="100" tabindex="13" disabled>
                     <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
                 </div>
             </div>
@@ -140,9 +140,9 @@
             <tbody>
                 <tr ng-repeat="x in GoodWorkList" ng-class="{selected : x.Id==null}">
                     <td class="text-right">
-                        <button ng-click="$parent.selectEdit(x,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Edit Time">
+                        @*<button ng-click="$parent.selectEdit(x,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Edit Time">
                             <i class="glyphicon glyphicon-edit"></i>
-                        </button>
+                        </button>*@
 
                         <button ng-click="$parent.removeRow(x)" data-toggle="modal"
                                 ng-disabled="currencyDisable" class="btn btn-action tooltip-here" data-placement="top" title="Remove">

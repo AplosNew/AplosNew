@@ -100,7 +100,7 @@ namespace Aplos.Areas.Attendances.Controllers
                          , DG.UserName LegalDesignation
                          ,S.UserName Section,SS.UserName SubSection, DP.UserName Department
                          , PMB.Code,PR.UserName PositionName
-                         ,EI.EmployeeStatus
+                         ,EI.EmployeeStatus,APD.OverStay,APD.DayStatus
 						 ,OTTitle = case when EI.ExcludeOT=0 then 'Yes' else 'No' end
                          FROM dbo.Employeeinformation EI
                          LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
@@ -291,7 +291,7 @@ namespace Aplos.Areas.Attendances.Controllers
         public ActionResult GetGoodWorkList()
         { 
             string sql = @"select GW.Id,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,S.UserName Shift,GW.Remarks,GWS.UserName UserGroup,GWS.Id UserGroupId,gw.Reason
-                                    ,format(GW.FromTime,'hh:mm') FromTime,format(GW.ToTime,'hh:mm') ToTime,gw.Minute,gw.CheckedBy
+                                    ,format(GW.FromTime,'hh:mm') FromTime,format(GW.ToTime,'hh:mm') ToTime,gw.Minute,gw.CheckedBy,gw.CheckedStatus,GW.ApprovedStatus
                                     from GoodWork GW
                                     left join ShiftDefination S on S.SystemId=GW.ShiftId
 									left join [dbo].[GoodWorkSetup] GWS on GWS.Id=GW.UserGroupId

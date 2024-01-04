@@ -379,6 +379,11 @@ function GoodWorkCheckedController(cboService, commonMessage, $scope, $rootScope
 
     $scope.SaveGoodWorkChecked = function () {
         try {
+            for (var i = 0; i < $scope.GoodWorkList.length; i++) {
+                if ($scope.GoodWorkList[i].Minute > $scope.ModelNew.Minute) {
+                    throw "Minute can not be greater than Calculated Minute!";
+                }
+            }
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
