@@ -1,10 +1,10 @@
 ﻿'use strict';
-GoodWorkCheckedController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', "$controller"];
-function GoodWorkCheckedController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
-    $rootScope.title = 'Good Work Check';
+GoodWorkApproveController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', "$controller"];
+function GoodWorkApproveController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
+    $rootScope.title = 'Good Work Approve';
     $scope.ModelList = [];
     $scope.path = 'Attendances/GoodWork/';
-    $scope.saveUrl = $scope.path + 'CreateGoodWorkChecked';
+    $scope.saveUrl = $scope.path + 'CreateGoodWorkApproved';
     $scope.UpdateUrl = $scope.path + 'UpdateGoodWorkDetailEdit';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
@@ -42,7 +42,7 @@ function GoodWorkCheckedController(cboService, commonMessage, $scope, $rootScope
         UserGroup: null,
         CheckedStatus: null,
         OverStay: null,
-        DayStatus: null
+        DayStatus:null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -377,8 +377,8 @@ function GoodWorkCheckedController(cboService, commonMessage, $scope, $rootScope
     };
 
 
-    $scope.SaveGoodWorkChecked = function () {
-        try {
+    $scope.SaveGoodWorkApproved = function () {
+        try { 
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -413,7 +413,7 @@ function GoodWorkCheckedController(cboService, commonMessage, $scope, $rootScope
     $scope.getData = function () {
         $http({
             method: 'Get',
-            url: $scope.path + "GetGoodWorkCheckedDataList",
+            url: $scope.path + "GetGoodWorkApprovedDataList",
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
@@ -529,7 +529,7 @@ function GoodWorkCheckedController(cboService, commonMessage, $scope, $rootScope
             ShowResult(e, 'failure');
         }
     }
-
+   
 
     $scope.parameters = [];
     $scope.filterComplete = function () {
@@ -561,7 +561,6 @@ function GoodWorkCheckedController(cboService, commonMessage, $scope, $rootScope
         }
         return string;
     }
-
 
     $scope.approvedByList = [];
     $scope.GetSupervisorCboList = function () {

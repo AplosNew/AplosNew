@@ -3255,6 +3255,53 @@ WHERE CT.ContractId " + contractId+"";
             }
         }
 
+        [HttpPost, Authorize]
+        public JsonResult SaveMasterlcclause(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                //con.OpenDataSetThroughAdapter("select * from dbo.MasterLCAddInfo where Description='" + data["Description"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                //if (dsMaster.Tables[0].Rows.Count > 0)
+                //    throw new Exception("Description already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from dbo.lcclauses where MasterLCId='" + data["MasterLCId"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "lcclauses", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Error = false, Sequence = clsCon.GetSequence(_Id), Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
         [HttpGet, Authorize]
         public JsonResult GetAutoSequence(string masterLcId)
         {

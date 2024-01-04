@@ -94,6 +94,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.doubleShift = function (e) {
         $scope.ModelNew.ShiftId = e.data.ShiftId;
         $scope.ModelNew.Shift = e.data.ShiftDefination;
+        $scope.getFiltersData();
         angular.element(document.querySelector('#ShiftPop')).modal('hide');
     }
 
@@ -152,8 +153,8 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
                         if ($scope.ModelNew.Minute > 0) {
                             $http({
                                 method: 'POST',
-                                url: 'Attendances/GoodWork/LoadEmployeelist?userGroupId=' + $scope.ModelNew.UserGroupId,
-                                data: { 'parameters': $scope.parameters },
+                                url: 'Attendances/GoodWork/LoadEmployeelist',
+                                data: { 'parameters': $scope.parameters, 'userGroupId': $scope.ModelNew.UserGroupId, 'shiftId': $scope.ModelNew.ShiftId, 'workDate': $scope.ModelNew.WorkDate},
                                 dataType: 'JSON'
                             }).then(function successCallback(response) {
                                 if (response.data.Error === true) {
@@ -497,7 +498,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         try {
             $http({
                 method: 'GET',
-                url: $scope.path + 'getFiltersData?userGroupId=' + $scope.ModelNew.UserGroupId,
+                url: $scope.path + 'getFiltersData?userGroupId=' + $scope.ModelNew.UserGroupId + '&shiftId=' + $scope.ModelNew.ShiftId,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.filters = response.data;

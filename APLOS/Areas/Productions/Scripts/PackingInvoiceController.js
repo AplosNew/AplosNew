@@ -2238,8 +2238,18 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         location.href = "SalesManagements/Sales/CertificateofOrigin?salesId=" + data.Id;
         //  $scope.CommercialInvoicePackingListReport(data);
     };
+
     $scope.BankLatter = function (data) {
-        location.href = "SalesManagements/Sales/BankLatter?salesId=" + data.Id + '&BankName=' + data.BankName;
+        try {
+            if (baseService.isUndefinedOrNull(data.BankName))
+                throw "Bank Is Not Selected";
+                location.href = "SalesManagements/Sales/BankLatter?salesId=" + data.Id + '&BankName=' + data.BankName;
+
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
+       
         //  $scope.CommercialInvoicePackingListReport(data);
     };
     $scope.CommercialInvoicePackingListReport = function (data) {
