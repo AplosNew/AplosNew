@@ -193,7 +193,7 @@ namespace Aplos.Areas.QMS.Controllers
             }
         }
 
-        [HttpGet]
+        [Authorize, HttpGet]
         public ActionResult GetCustomerQualityLotWiseUpdateJobCardReport(string CustomerId, string InvoiceId, string ProductionOrderId, string LotNumber)
         {
             try
@@ -202,7 +202,7 @@ namespace Aplos.Areas.QMS.Controllers
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 IWorkbook workbook = app.GetCustomerQualityLotWiseUpdateJobCardReport(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, CustomerId, InvoiceId, ProductionOrderId, LotNumber);
-                var reportFileName = DateTime.Now.ToString("yyMMdd") + "Job Card Report";
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + "Quality Test Report";
                 return RenderReportAsExcel(workbook, reportFileName);
 
             }

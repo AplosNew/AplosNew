@@ -197,7 +197,7 @@ namespace Aplos.Areas.QMS.Controllers
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 IWorkbook workbook = app.GetCustomerQualityLotWiseJobCardReport(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, CustomerId, InvoiceId, ProductionOrderId, LotNumber);
-                var reportFileName = DateTime.Now.ToString("yyMMdd") + "Job Card Report";
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + "Quality Test Report";
                 return RenderReportAsExcel(workbook, reportFileName);
 
             }
