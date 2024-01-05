@@ -1877,7 +1877,7 @@ namespace Library.Accounting.Accounts
                         JOIN TRN.VoucherDetail VD ON VD.Id=BRM.VoucherDetailId 
                         JOIN TRN.Voucher V ON V.Id=VD.VoucherId WHERE V.IsPark=1 AND V.SourceType='CustomerAdvance'";
             var customerAdvanceTemp = _sqlRepository.GetData(sql);
-            if (null != customerAdvanceTemp || customerAdvanceTemp.Count > 0)
+            if (null != sql || customerAdvanceTemp.Count > 0)
                 throw new CustomException("Please post voucher No "+customerAdvanceTemp["VoucherNo"]+" First!");
 
             return customerAdvanceTemp;
@@ -1889,7 +1889,19 @@ namespace Library.Accounting.Accounts
                         JOIN TRN.VoucherDetail VD ON VD.Id=BRM.VoucherDetailId 
                         JOIN TRN.Voucher V ON V.Id=VD.VoucherId WHERE V.IsPark=1 AND V.SourceType='CustomerReceipt'";
             var customerAdvanceTemp = _sqlRepository.GetData(sql);
-            if (null != customerAdvanceTemp || customerAdvanceTemp.Count > 0)
+            if (null != sql || customerAdvanceTemp.Count > 0)
+                throw new CustomException("Please post voucher No " + customerAdvanceTemp["VoucherNo"] + " First!");
+
+            return customerAdvanceTemp;
+        }
+        public Dictionary<string, object> CheckParkExpensesPaymentPending()
+        {
+
+            var sql = @"SELECT TOP(1) * FROM [TRN].[BankReconciliationMap] BRM 
+                        JOIN TRN.VoucherDetail VD ON VD.Id=BRM.VoucherDetailId 
+                        JOIN TRN.Voucher V ON V.Id=VD.VoucherId WHERE V.IsPark=1 AND V.SourceType='BankJournal'";
+            var customerAdvanceTemp = _sqlRepository.GetData(sql);
+            if (customerAdvanceTemp.Count > 0)
                 throw new CustomException("Please post voucher No " + customerAdvanceTemp["VoucherNo"] + " First!");
 
             return customerAdvanceTemp;

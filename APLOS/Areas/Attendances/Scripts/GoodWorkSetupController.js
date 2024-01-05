@@ -589,46 +589,56 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         try {
             var data = data.data;
             var ob = {};
+
             if ($scope.tabName == 'Authority') {
-                if (checkDoubleAuthorityCode($scope.authorizationList, data.EmployeeCode) === false) {
-                    ob.AuthorityId = data.SystemId;
-                    ob.EmployeeName = data.EmployeeName;
-                    ob.EmployeeCode = data.EmployeeCode;
-                    ob.CompanyId = data.CompanyId;
-                    ob.Company = data.Company;
-                    ob.Plant = data.Plant;
-                    ob.Designation = data.LegalDesignation;
-                    ob.Department = data.Department;
-                    ob.Section = data.Section;
-                    ob.SubSection = data.SubSection;
-                    ob.Line = data.Line;
-
-                    $scope.authorizationList.push(ob);
-                    $scope.AuthoritySave();
-                    ob = {};
-                }
-                angular.element(document.querySelector('#popUpEmp')).modal('hide');
-            }
-            else {
                 if (checkDoubleAuthorityCode($scope.CheckByList, data.EmployeeCode) === false) {
-                    ob.CheckById = data.SystemId;
-                    ob.EmployeeName = data.EmployeeName;
-                    ob.EmployeeCode = data.EmployeeCode;
-                    ob.CompanyId = data.CompanyId;
-                    ob.Company = data.Company;
-                    ob.Plant = data.Plant;
-                    ob.Designation = data.LegalDesignation;
-                    ob.Department = data.Department;
-                    ob.Section = data.Section;
-                    ob.SubSection = data.SubSection;
-                    ob.Line = data.Line;
+                        if (checkDoubleAuthorityCode($scope.authorizationList, data.EmployeeCode) === false) {
+                            ob.AuthorityId = data.SystemId;
+                            ob.EmployeeName = data.EmployeeName;
+                            ob.EmployeeCode = data.EmployeeCode;
+                            ob.CompanyId = data.CompanyId;
+                            ob.Company = data.Company;
+                            ob.Plant = data.Plant;
+                            ob.Designation = data.LegalDesignation;
+                            ob.Department = data.Department;
+                            ob.Section = data.Section;
+                            ob.SubSection = data.SubSection;
+                            ob.Line = data.Line;
 
-                    $scope.CheckByList.push(ob);
-                    $scope.CheckBySave();
-                    ob = {};
+                            $scope.authorizationList.push(ob);
+                            $scope.AuthoritySave();
+                            ob = {};
+                        }
+                        angular.element(document.querySelector('#popUpEmp')).modal('hide');
+                    }
+                    else {
+                        throw "This Employee already added in Checked By List" 
                 }
-                angular.element(document.querySelector('#popUpEmp')).modal('hide');
+            }
+            else { 
+                    if (checkDoubleAuthorityCode($scope.authorizationList, data.EmployeeCode) === false) {
+                        if (checkDoubleAuthorityCode($scope.CheckByList, data.EmployeeCode) === false) {
+                            ob.CheckById = data.SystemId;
+                            ob.EmployeeName = data.EmployeeName;
+                            ob.EmployeeCode = data.EmployeeCode;
+                            ob.CompanyId = data.CompanyId;
+                            ob.Company = data.Company;
+                            ob.Plant = data.Plant;
+                            ob.Designation = data.LegalDesignation;
+                            ob.Department = data.Department;
+                            ob.Section = data.Section;
+                            ob.SubSection = data.SubSection;
+                            ob.Line = data.Line;
 
+                            $scope.CheckByList.push(ob);
+                            $scope.CheckBySave();
+                            ob = {};
+                        }
+                        angular.element(document.querySelector('#popUpEmp')).modal('hide');
+                    }
+                    else {
+                        throw "This Employee already added in Approved By List"
+                    } 
             }
         } catch (e) {
             ShowResult(e, 'failure');
