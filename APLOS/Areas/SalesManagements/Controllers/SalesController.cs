@@ -434,6 +434,13 @@ namespace Aplos.Areas.SalesManagements.Controllers
             _salesReportService.CertificateofOrigin(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, salesId);
             return View();
         }
+        public ActionResult BeneficiaryCertificate(string salesId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _salesReportService.BeneficiaryCertificate(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, salesId);
+            return View();
+        }
         [Authorize, HttpGet]
         public ActionResult BankLatter(string salesId , string BankName)
         {

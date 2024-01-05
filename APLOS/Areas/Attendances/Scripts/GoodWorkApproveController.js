@@ -42,7 +42,7 @@ function GoodWorkApproveController(cboService, commonMessage, $scope, $rootScope
         UserGroup: null,
         CheckedStatus: null,
         OverStay: null,
-        DayStatus:null
+        DayStatus: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -378,7 +378,12 @@ function GoodWorkApproveController(cboService, commonMessage, $scope, $rootScope
 
 
     $scope.SaveGoodWorkApproved = function () {
-        try { 
+        try {
+            for (var i = 0; i < $scope.GoodWorkList.length; i++) {
+                if ($scope.GoodWorkList[i].Minute > $scope.ModelNew.Minute) {
+                    throw "Minute can not be greater than Calculated Minute!";
+                }
+            }
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -529,7 +534,7 @@ function GoodWorkApproveController(cboService, commonMessage, $scope, $rootScope
             ShowResult(e, 'failure');
         }
     }
-   
+
 
     $scope.parameters = [];
     $scope.filterComplete = function () {
@@ -562,14 +567,13 @@ function GoodWorkApproveController(cboService, commonMessage, $scope, $rootScope
         return string;
     }
 
-
-    $scope.checkedByList = [];
+    $scope.approvedByList = [];
     $scope.GetSupervisorCboList = function () {
         $http({
             method: 'GET',
-            url: 'Attendances/GoodWork/GetGoodWorkCheckByCbo'
+            url: 'Attendances/GoodWork/GetGoodWorkApprovedByCbo'
         }).then(function successCallback(response) {
-            $scope.checkedByList = response.data;
+            $scope.approvedByList = response.data;
         });
     }
     $scope.GetSupervisorCboList();

@@ -1,7 +1,7 @@
 ﻿'use strict';
 GoodWorkCheckedController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', "$controller"];
 function GoodWorkCheckedController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
-    $rootScope.s = 'Good Work Check';
+    $rootScope.title = 'Good Work Check';
     $scope.ModelList = [];
     $scope.path = 'Attendances/GoodWork/';
     $scope.saveUrl = $scope.path + 'CreateGoodWorkChecked';
@@ -379,6 +379,11 @@ function GoodWorkCheckedController(cboService, commonMessage, $scope, $rootScope
 
     $scope.SaveGoodWorkChecked = function () {
         try {
+            for (var i = 0; i < $scope.GoodWorkList.length; i++) {
+                if ($scope.GoodWorkList[i].Minute > $scope.ModelNew.Minute) {
+                    throw "Minute can not be greater than Calculated Minute!";
+                }
+            }
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -563,13 +568,13 @@ function GoodWorkCheckedController(cboService, commonMessage, $scope, $rootScope
     }
 
 
-    $scope.checkedByList = [];
+    $scope.approvedByList = [];
     $scope.GetSupervisorCboList = function () {
         $http({
             method: 'GET',
-            url: 'Attendances/GoodWork/GetGoodWorkCheckByCbo'
+            url: 'Attendances/GoodWork/GetGoodWorkApprovedByCbo'
         }).then(function successCallback(response) {
-            $scope.checkedByList = response.data;
+            $scope.approvedByList = response.data;
         });
     }
     $scope.GetSupervisorCboList();

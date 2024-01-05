@@ -8,6 +8,7 @@
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="AddInfo" role="tab" data-toggle="tab">Add Info</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="T&C" role="tab" data-toggle="tab">T&C</a></li>
                 <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">Opening Bank</a></li>
+                <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" data-toggle="tab">LC Clauses</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -45,10 +46,10 @@
                             <label class="col-sm-4 control-label">Advising Bank</label>
                             <div class="col-sm-8">
                                 @*<div class="select-style">
-                                        <select name="Lein Bank" class="form-control" ng-model="masterLC.LeinBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="5">
-                                            <option value="">--Select--</option>
-                                        </select>
-                                    </div>*@
+                                <select name="Lein Bank" class="form-control" ng-model="masterLC.LeinBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="5">
+                                    <option value="">--Select--</option>
+                                </select>
+                            </div>*@
                                 <input type="text" name="Advising Bank" ng-model="masterLC.LeinBank" class="form-control" tabindex="5" maxlength="50">
                             </div>
                         </div>
@@ -380,8 +381,8 @@
                                     <div e-column e-field="Description" e-headertext="Description" e-width="150"></div>
                                     <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
                                     @*<div e-column e-headertext="Actions" e-width="20">
-                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.deleteModal($event);" style="margin: -6px;"></i></button>
-                                        </div>*@
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.deleteModal($event);" style="margin: -6px;"></i></button>
+                                </div>*@
                                 </div>
                             </div>
                         </div>
@@ -466,6 +467,117 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+                <div ng-form="LCClauseForm">
+                    <div class="row">
+
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Clause1</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="3" ng-model="LCClause.Clause1" maxlength="1000" tabindex="102"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Clause2</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="3" ng-model="LCClause.Clause2" maxlength="1000" tabindex="102"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Clause3</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="3" ng-model="LCClause.Clause3" maxlength="1000" tabindex="102"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Clause4</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="3" ng-model="LCClause.Clause4" maxlength="1000" tabindex="102"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Clause5</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="3" ng-model="LCClause.Clause5" maxlength="1000" tabindex="102"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Clause6</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="3" ng-model="LCClause.Clause6" maxlength="1000" tabindex="102"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Clause7</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="3" ng-model="LCClause.Clause7" maxlength="1000" tabindex="102"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Clause8</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="3" ng-model="LCClause.Clause8" maxlength="1000" tabindex="102"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Clause9</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="3" ng-model="LCClause.Clause9" maxlength="1000" tabindex="102"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Clause10</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="3" ng-model="LCClause.Clause10" maxlength="1000" tabindex="102"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12">
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="SaveMasterlcclause();" ng-disabled="masterLC.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionAddLC}}</button></li>
+                                   @* <li> <button ng-click="Clearlcclause();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+                                </ul>
+                            </div>
+                        </div>
+                        <!--<div class="col-xs-12">
+                            <div style="color:black;" id="GridAddInfo" ej-grid e-datasource="masterLCAddInfoList" e-gridlines="vertical" e-allowfiltering="true"
+                                 e-recorddoubleclick="GetAddInfo" e-allowpaging="true" e-allowsorting="true" e-allowselection="true" e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-field="Sequence" e-headertext="Sequence" e-width="50"></div>
+                                    <div e-column e-field="Description" e-headertext="Description" e-width="150"></div>
+                                    <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>-->
+                                    @*<div e-column e-headertext="Actions" e-width="20">
+                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.deleteModal($event);" style="margin: -6px;"></i></button>
+                    </div>*@
+                                <!--</div>
+                            </div>
+                        </div>-->
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
