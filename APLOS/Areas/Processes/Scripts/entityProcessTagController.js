@@ -28,7 +28,8 @@ function EntityProcessTagController(commonMessage, $scope, $rootScope, baseServi
                     $scope.entityProcess.IsSKU1 = $scope.entityProcessTagList[i].IsSKU1;
                     $scope.entityProcess.IsSKU2 = $scope.entityProcessTagList[i].IsSKU2;
                     $scope.entityProcess.IsSKU3 = $scope.entityProcessTagList[i].IsSKU3;
-                    
+                    $scope.entityProcess.IsScanApplicable = $scope.entityProcessTagList[i].IsScanApplicable;
+
                 }
             });
     };
@@ -51,6 +52,7 @@ function EntityProcessTagController(commonMessage, $scope, $rootScope, baseServi
         , IsSKU1:false
         , IsSKU2:false
         , IsSKU3:false
+        , IsScanApplicable:false
     };
 
     $scope.entityProcess = {
