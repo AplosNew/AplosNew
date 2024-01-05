@@ -1165,6 +1165,21 @@ LEFT JOIN HKP.TermsAndConditions TC ON TC.Id=CT.TermsAndConditionsId
             }
         }
 
+        public IEnumerable<object> GetMasterLCLCClausesList(string masTerLCId)
+        {
+            try
+            {
+                string sql = @"SELECT CT.*
+FROM [dbo].[LCClauses] CT
+                            WHERE CT.MasTerLCId='" + masTerLCId + "'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> GetGoodWorkEntitySetupData(string goodWorkSetupId)
         {
             try

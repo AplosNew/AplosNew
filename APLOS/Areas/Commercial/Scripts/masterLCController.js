@@ -423,6 +423,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
     function ClearFields() {
         $scope.masterLC = {
             Id: null, CustomerId: null, ContractId: null, BenificiaryBankId: null, OpeningBankId: null, OpeningDescription: null, LeinBankId: null, LeinDescription: null, LCRef: null, LCDate: null, ExpiryDate: null, Amount: null, Type: null, Tenure: null, FinalDestinationId: null, PortOfLandingId: null, CurrencyId: null, IsClose: false, Remarks: null
+
         };
         $scope.masterLCNew = {};
         $scope.savedcontractList = [];
@@ -435,6 +436,28 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
             $scope.currencyList = result;
             $scope.masterLCNew.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
         });
+        $scope.LCClause = {
+            Id : null,
+            MasterLCId: null,
+            Clause1: null,
+            Clause2: null,
+            Clause3: null,
+            Clause4: null,
+            Clause5: null,
+            Clause6: null,
+            Clause7: null,
+            Clause8: null,
+            Clause9: null,
+            Clause10: null,
+            Remarks: null,
+            AddedBy: null,
+            AddedDate: null,
+            AddedFromIP: null,
+            UpdatedBy: null,
+            UpdatedDate: null,
+            UpdatedFromIP: null,
+        }
+        $scope.ActionAddLC = 'Save';
     }
 
     $scope.AddModel = { Id: null, MasterLCId: null, Sequence: 0, Description: null, Remarks: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
@@ -488,7 +511,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
             $scope.LCClause.MasterLCId = $scope.masterLCNew.Id;
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.LCClauseForm.$valid) {
-
+                
                 $http({
                     method: 'POST',
                     url: $scope.saveLCclauseLCUrl,
@@ -503,8 +526,8 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.GetMasterLCAddInfoData();
-                        $scope.ClearAddInfo();
+                        $scope.GetMasterLCLCClausesList();
+                        
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -550,6 +573,47 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
             url: 'Commercial/Contract/GetMasterLCTermsAndConditionsList?masTerLCId=' + $scope.masterLCNew.Id
         }).then(function successCallback(response) {
             $scope.TermsAndConditionsList = response.data;
+            $scope.GetMasterLCLCClausesList();
+        });
+    }
+
+    $scope.LCClause = {
+        Id: null,
+        MasterLCId: null,
+        Clause1: null,
+        Clause2: null,
+        Clause3: null,
+        Clause4: null,
+        Clause5: null,
+        Clause6: null,
+        Clause7: null,
+        Clause8: null,
+        Clause9: null,
+        Clause10: null,
+        Remarks: null,
+        AddedBy: null,
+        AddedDate: null,
+        AddedFromIP: null,
+        UpdatedBy: null,
+        UpdatedDate: null,
+        UpdatedFromIP: null,
+}
+
+    $scope.GetMasterLCLCClausesList = function () {
+        $http({
+            method: 'GET',
+            url: 'Commercial/Contract/GetMasterLCLCClausesList?masTerLCId=' + $scope.masterLCNew.Id
+        }).then(function successCallback(response) {
+            $scope.LCClause = response.data[0];
+            if (response.data.length > 0)
+            {
+                $scope.ActionAddLC = 'Update';
+            }
+               
+            else
+            {
+                $scope.ActionAddLC = 'Save';
+            }
         });
     }
 
