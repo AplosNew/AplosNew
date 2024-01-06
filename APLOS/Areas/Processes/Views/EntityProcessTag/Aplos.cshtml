@@ -98,6 +98,7 @@
                 <th>Lot No. Mandatory</th>
                 <th>Is Parameter Based</th>
                 <th>ToClose Allowed</th>
+                <th>IsScan Applicable</th>
                 <th>Remove</th>
             </tr>
         </thead>
@@ -122,7 +123,7 @@
                 </td>
                 <td>
                     <div class="select-style">
-                        <select class="form-control" ng-model="x.ProductionBookingLevel" ng-options="item.Value as item.Text for item in productionBookingLevelList"style="width: 130px;">
+                        <select class="form-control" ng-model="x.ProductionBookingLevel" ng-options="item.Value as item.Text for item in productionBookingLevelList" style="width: 130px;">
                             <option value=""></option>
                         </select>
                     </div>
@@ -175,10 +176,18 @@
                         </label>
                     </div>
                 </td>
-                 <td>
+                <td>
                     <div class="checkbox-site">
                         <label>
                             <input type="checkbox" ng-model="x.ToCloseAllowed">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </td>
+                <td>
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="x.IsScanApplicable">
                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                         </label>
                     </div>

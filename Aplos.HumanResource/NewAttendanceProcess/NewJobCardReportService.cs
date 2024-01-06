@@ -2377,7 +2377,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                     xlsCol = 1;
                                     xlsRow = 2;
-                                    sheet1.Range[xlsRow, xlsCol].Text = "LOT WISE QUALITY REPORT";
+                                    sheet1.Range[xlsRow, xlsCol].Text = "Lot Wise Quality Report";
                                     sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].CellStyle.Font.Bold = true;
                                     sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2544,33 +2544,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet1.IsDisplayZeros = false;
 
                             #region ******************Report Header******************
-                            try
-                            {
-                                string strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), companyId + ".jpg");  // IDCardEng.xlsx
-                                Image companyLogo = Image.FromFile(strPath);
-                                if (companyLogo != null)
-                                {
-                                    double totalWidth = sheet1.GetColumnWidth(1);
-                                    int totalWidthPixel = (int)(totalWidth * 7.5);
-                                    int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2)) * 1.50);
-
-                                    companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
-                                    IPictureShape pic = null;
-
-                                    pic = sheet1.Pictures.AddPicture(1, 1, companyLogo);
-
-
-                                }
-
-
-                            }
-                            catch (Exception)
-                            {
-
-
-                            }
+                           
                             xlsRow = 1;
-                            xlsCol = 2;
+                            xlsCol = 1;
 
 
                             FactoryName = string.Empty;
@@ -2586,13 +2562,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 CmpName = "";
                             }
                             sheet1.Range[xlsRow, xlsCol].Text = CmpName;
-                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].Merge();
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].Merge();
                             sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
-                            sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 20;
-                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].RowHeight = 25;
-                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
 
                             #endregion ******************Report Header******************
@@ -2601,7 +2575,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                             sheet1.UsedRange.WrapText = true;
                             sheet1.UsedRange.CellStyle.Font.Size = 8;
-                            sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                            sheet1.Range["A1"].CellStyle.Font.Size = 10;
                             sheet1.Range["A2"].CellStyle.Font.Size = 10;
                             sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
 
@@ -2671,7 +2645,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             ExcelEngine excelEngine = null;
             IApplication application = null;
-            var workbook = oru.GetWorkbook(ref excelEngine, 2);
+            var workbook = oru.GetWorkbook(ref excelEngine, 1);
             workbook.Version = ExcelVersion.Excel2013;
             IWorksheet sheet = null;
             IWorksheet sheet1 = null;
@@ -2705,7 +2679,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     }
                     excelEngine = new ExcelEngine();
                     application = excelEngine.Excel;
-                    workbook = application.Workbooks.Create(2);
+                    workbook = application.Workbooks.Create(1);
                     for (int Ec = 0; Ec < sEmpCodeColl.Count; Ec++)
                     {
                         dvBioDvAC = new DataView();
@@ -2731,7 +2705,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                     xlsCol = 1;
                                     xlsRow = 2;
-                                    sheet1.Range[xlsRow, xlsCol].Text = "LOT WISE QUALITY REPORT";
+                                    sheet1.Range[xlsRow, xlsCol].Text = "Lot Wise Quality Report";
                                     sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].CellStyle.Font.Bold = true;
                                     sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2898,33 +2872,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet1.IsDisplayZeros = false;
 
                             #region ******************Report Header******************
-                            try
-                            {
-                                string strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), companyId + ".jpg");  // IDCardEng.xlsx
-                                Image companyLogo = Image.FromFile(strPath);
-                                if (companyLogo != null)
-                                {
-                                    double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(2);
-                                    int totalWidthPixel = (int)(totalWidth * 7.5);
-                                    int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2) + sheet1.GetRowHeight(3) + sheet1.GetRowHeight(3)) * 1.50);
-
-                                    companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
-                                    IPictureShape pic = null;
-
-                                    pic = sheet1.Pictures.AddPicture(1, 1, companyLogo);
-
-
-                                }
-
-
-                            }
-                            catch (Exception)
-                            {
-
-
-                            }
+                          
                             xlsRow = 1;
-                            xlsCol = 2;
+                            xlsCol = 1;
 
 
                             FactoryName = string.Empty;
@@ -2940,14 +2890,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 CmpName = "";
                             }
                             sheet1.Range[xlsRow, xlsCol].Text = CmpName;
-                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].Merge();
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].Merge();
                             sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
-                            sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 20;
-                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].RowHeight = 25;
-                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                             #endregion ******************Report Header******************
 
@@ -2955,7 +2902,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                             sheet1.UsedRange.WrapText = true;
                             sheet1.UsedRange.CellStyle.Font.Size = 8;
-                            sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                            sheet1.Range["A1"].CellStyle.Font.Size = 10;
                             sheet1.Range["A2"].CellStyle.Font.Size = 10;
                             sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
 
@@ -3025,7 +2972,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             ExcelEngine excelEngine = null;
             IApplication application = null;
-            var workbook = oru.GetWorkbook(ref excelEngine, 2);
+            var workbook = oru.GetWorkbook(ref excelEngine, 1);
             workbook.Version = ExcelVersion.Excel2013;
             IWorksheet sheet = null;
             IWorksheet sheet1 = null;
@@ -3059,7 +3006,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     }
                     excelEngine = new ExcelEngine();
                     application = excelEngine.Excel;
-                    workbook = application.Workbooks.Create(2);
+                    workbook = application.Workbooks.Create(1);
                     for (int Ec = 0; Ec < sEmpCodeColl.Count; Ec++)
                     {
                         dvBioDvAC = new DataView();
@@ -3085,7 +3032,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                                     xlsCol = 1;
                                     xlsRow = 2;
-                                    sheet1.Range[xlsRow, xlsCol].Text = "LOT WISE QUALITY REPORT";
+                                    sheet1.Range[xlsRow, xlsCol].Text = "Lot Wise Quality Report";
                                     sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].CellStyle.Font.Bold = true;
                                     sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -3252,33 +3199,9 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet1.IsDisplayZeros = false;
 
                             #region ******************Report Header******************
-                            try
-                            {
-                                string strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), companyId + ".jpg");  // IDCardEng.xlsx
-                                Image companyLogo = Image.FromFile(strPath);
-                                if (companyLogo != null)
-                                {
-                                    double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(2);
-                                    int totalWidthPixel = (int)(totalWidth * 7.5);
-                                    int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2) + sheet1.GetRowHeight(3) + sheet1.GetRowHeight(3)) * 1.50);
-
-                                    companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
-                                    IPictureShape pic = null;
-
-                                    pic = sheet1.Pictures.AddPicture(1, 1, companyLogo);
-
-
-                                }
-
-
-                            }
-                            catch (Exception)
-                            {
-
-
-                            }
+                           
                             xlsRow = 1;
-                            xlsCol = 2;
+                            xlsCol = 1;
 
 
                             FactoryName = string.Empty;
@@ -3294,14 +3217,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 CmpName = "";
                             }
                             sheet1.Range[xlsRow, xlsCol].Text = CmpName;
-                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].Merge();
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].Merge();
                             sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
-                            sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 20;
-                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].RowHeight = 25;
-                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 2].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 3].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                             #endregion ******************Report Header******************
 
@@ -3309,7 +3229,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                             sheet1.UsedRange.WrapText = true;
                             sheet1.UsedRange.CellStyle.Font.Size = 8;
-                            sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                            sheet1.Range["A1"].CellStyle.Font.Size = 10;
                             sheet1.Range["A2"].CellStyle.Font.Size = 10;
                             sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
 

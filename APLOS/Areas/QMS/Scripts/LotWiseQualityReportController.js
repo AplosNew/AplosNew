@@ -13,8 +13,8 @@ function LotWiseQualityReportController(cboService, commonMessage, $scope, $root
         InvoiceId: null,
         ProductionOrderId: null,
         LotNo: null,
-        ByWhomId: null,
-        ByWhom: null,
+        ByWhomId: $window.employeeId,
+        ByWhom: $window.employeeName,
         UserName: null,
         Remarks: null,
         SpecialRemarks: null,
@@ -87,16 +87,26 @@ function LotWiseQualityReportController(cboService, commonMessage, $scope, $root
     $scope.selectPONo();
 
     $scope.LotNumberLists = [];
-    $scope.GetLotNumberLists = function () {
+    $scope.selectLotNo = function () {
         $scope.LotNumberLists = [];
         $http({
             method: 'GET',
             url: 'QMS/LotWiseQualityReport/GetLotNumberLists?POId=' + $scope.statusNew.ProductionOrderId
         }).then(function successCallback(response) {
             $scope.LotNumberLists = response.data;
+            angular.element(document.querySelector('#LotNumberPopup')).modal('show');
         });
     }
-    $scope.GetLotNumberLists();
+   
+    $scope.doubleLotNumber = function (e) {
+        $scope.statusNew.LotNo = e.data.LotNumber;
+        $scope.statusNew.ProductionOrderId = e.data.PONo;
+        angular.element(document.querySelector('#LotNumberPopup')).modal('hide');
+    }
+
+    $scope.closeLotNumberPopup = function () {
+        angular.element(document.querySelector('#LotNumberPopup')).modal('hide');
+    }
 
     $scope.LWQRList = [];
     $scope.View = function () {
@@ -120,8 +130,8 @@ function LotWiseQualityReportController(cboService, commonMessage, $scope, $root
                         $scope.statusNew.LotNo = $scope.LWQRList[0].LotNo;
                         $scope.statusNew.InvoiceNo = $scope.LWQRList[0].InvoiceId;
                         $scope.statusNew.UserName = $scope.LWQRList[0].UserName;
-                        $scope.statusNew.ByWhomId = $scope.LWQRList[0].ByWhomId;
-                        $scope.statusNew.ByWhom = $scope.LWQRList[0].ByWhom;
+                        //$scope.statusNew.ByWhomId = $scope.LWQRList[0].ByWhomId;
+                        //$scope.statusNew.ByWhom = $scope.LWQRList[0].ByWhom;
                         $scope.statusNew.Remarks = $scope.LWQRList[0].Remarks;
                         $scope.statusNew.Id = $scope.LWQRList[0].CQRHeaderId;
                     });

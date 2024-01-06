@@ -272,23 +272,23 @@ function LWQRUpdateController(cboService, commonMessage, $scope, $rootScope, bas
 
     $scope.JobCardCQReportFunc = function () {
         try {
-            var gridObj = $("#GridCustomerQualityReport").ejGrid("instance");
-            var filtereddata = gridObj.getFilteredRecords();
-            if (filtereddata.length == 0) {
-                filtereddata = $scope.LWQRList;
-            }
-            $scope.LWQRListNew = [];
-            for (var i = 0; i < filtereddata.length; i++) {
-                $scope.LWQRListNew.push(filtereddata[i]);
-            }
+            //var gridObj = $("#GridCustomerQualityReport").ejGrid("instance");
+            //var filtereddata = gridObj.getFilteredRecords();
+            //if (filtereddata.length == 0) {
+            //    filtereddata = $scope.LWQRList;
+            //}
+            //$scope.LWQRListNew = [];
+            //for (var i = 0; i < filtereddata.length; i++) {
+            //    $scope.LWQRListNew.push(filtereddata[i]);
+            //}
 
-            if ($scope.LWQRListNew.length > 500) {
-                throw "Maximum 50 'Job card' can be downloded at a time";
-            }
-            else {
+            //if ($scope.LWQRListNew.length > 500) {
+            //    throw "Maximum 50 'Job card' can be downloded at a time";
+            //}
+            //else {
                 var url = $scope.path + '/GetCustomerQualityLotWiseUpdateJobCardReport?CustomerId=' + $scope.statusNew.CustomerId + '&InvoiceId=' + $scope.statusNew.InvoiceId + '&ProductionOrderId=' + $scope.statusNew.ProductionOrderId + '&LotNumber=' + $scope.statusNew.LotNo;
                 $rootScope.report(url);
-            }
+           /* }*/
         } catch (e) {
             ShowResult(e, 'failure');
         }
