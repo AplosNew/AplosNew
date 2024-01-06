@@ -222,7 +222,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.GetSelectedEmployeeList = function () {
         try {
             for (var i = 0; i < $scope.EmployeeList.length; i++) {
-                if ($scope.EmployeeList[i].DayStatus != 'A') {
+                if ($scope.EmployeeList[i].DayStatus != 'A' || $scope.EmployeeList[i].DayStatus != 'HDP') {
                     if (checkItemExist($scope.GoodWorkList, $scope.EmployeeList[i].SystemId) === false) {
                         if ($scope.EmployeeList[i].CheckBoxSelect === true) {
                             $scope.EmployeeList[i].FromTime = $scope.ModelNew.FromTime;
@@ -379,9 +379,8 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
 
 
     $scope.Save = function () {
-        try {
-            for (var i = 0; i < $scope.ModelList.length; i++) {
-                if ($scope.ModelList[i].CheckedStatus != 'Checked' || $scope.ModelList[i].ApprovedStatus != 'Approved') { 
+        try { 
+            if ($scope.ModelNew.CheckedStatus != 'Checked' || $scope.ModelNew.ApprovedStatus != 'Approved') {
                     $http({
                         method: 'POST',
                         url: $scope.saveUrl,
@@ -402,8 +401,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
                 }
                 else {
                     throw "Checked Or Approved data can't be updated!";
-                }
-            }
+                } 
         } catch (e) {
             ShowResult(e, 'failure');
         }
