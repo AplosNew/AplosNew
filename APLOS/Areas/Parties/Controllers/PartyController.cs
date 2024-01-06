@@ -1292,24 +1292,24 @@ namespace Aplos.Areas.Parties.Controllers
         }
 
         [HttpPost]
-        public JsonResult PartyApprovalUpdate(Dictionary<string, object> data, string PartyId)
+        public JsonResult PartyApprovalUpdate(Dictionary<string, object> data)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("SELECT * FROM HKP.Party WHERE Id='" + PartyId + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM HKP.Party WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 DataView dv = new DataView(dsMaster.Tables[0]);
-                dv.RowFilter = "Id='" + PartyId + "'";
+                dv.RowFilter = "Id='" + data["Id"] + "'";
                 if (dv.Count > 0) 
                 {
                     DataRow drmo = dv[0].Row;
                     data["Active"] = true;
                     data["IsApproved"] = data["IsApproved"].ToString();
                     data["ApprovedBy"] = identity.EmployeeId;
-                    data["ApprovedDate"] = data["ApprovedDate"].ToString();
+                    data["ApprovedDate"] =DateTime.Now;
                     EditRow(drmo, data);
                 }
                  
