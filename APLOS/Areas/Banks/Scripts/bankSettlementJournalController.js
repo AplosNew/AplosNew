@@ -123,6 +123,7 @@ function bankSettlementJournalController(bankService, accountService, cboService
             $scope.voucher.ActivityId = $scope.bankUploadInfoList[0].ActivityId;
             $scope.voucher.CurrencyId = $scope.bankUploadInfoList[0].CurrencyId;
             $scope.voucher.BankReferenceNo = $scope.bankUploadInfoList[0].BankRefNo;
+            $scope.voucher.Narration = $scope.bankUploadInfoList[0].Narration;
             $scope.voucher.BankMasterId = $scope.bankUploadInfoList[0].BankMasterId;
             $scope.voucher.BankReconciliationUploadedDataId = $scope.bankUploadInfoList[0].BankReconciliationUploadedDataId;
             $scope.voucher.PostingDate = $filter("dateFiltering")($scope.bankUploadInfoList[0].PostingDate);
@@ -360,8 +361,8 @@ function bankSettlementJournalController(bankService, accountService, cboService
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
-                $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
-                $scope.voucher.DocDate = $scope.voucher.PostingDate;
+                /*$scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);*/
+                /*$scope.voucher.DocDate = $scope.voucher.PostingDate;*/
                 $scope.GetCurrencyExchangeRateList();
             }
         });
@@ -373,8 +374,8 @@ function bankSettlementJournalController(bankService, accountService, cboService
             return item.Value === voucherTypeId;
         })[0];
         $scope.voucher.VoucherTypeId = data.Value;
-        $scope.voucher.PostingDate = $filter("dateFiltering")(data.LastPostingDate);
-        $scope.voucher.DocDate = $scope.voucher.PostingDate;
+        //$scope.voucher.PostingDate = $filter("dateFiltering")(data.LastPostingDate);
+        //$scope.voucher.DocDate = $scope.voucher.PostingDate;
     };
 
     $scope.save = function () {

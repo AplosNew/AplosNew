@@ -11,6 +11,7 @@ using Library.ViewModel.Banks;
 using Library.ViewModel.Invoices;
 using Library.ViewModel.OrderManagements;
 using Library.ViewModel.Vouchers;
+using Syncfusion.XlsIO;
 using System.Collections.Generic;
 
 namespace Library.Service.Invoices
@@ -79,7 +80,6 @@ namespace Library.Service.Invoices
                 , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList);
         void DeleteAdjustmentNoteWriteOff(string invoiceWriteOffId, string voucherId);
         string DeleteMultipleVendorRow(IEnumerable<MultiplePayment> multiplePaymentlist, IEnumerable<MultiplePaymentDetail> multiplePaymentDetailList);
-        List<Dictionary<string, object>> GetGatePaymentAdviceData(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string BankMasterId);
-        string PaymentAdviceReportxlx(List<Dictionary<string, object>> data, string reportFileName);
+        IWorkbook PaymentAdviceReportxlx(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string adviceNo);
     }
 }

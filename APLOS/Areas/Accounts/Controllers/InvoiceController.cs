@@ -1856,28 +1856,29 @@ namespace Aplos.Areas.Accounts.Controllers
         #endregion
 
         #region Payment Advice
-        [Authorize, HttpGet]
-        public JsonResult GatePaymentAdviceData(string fromDate, string toDate, string BankMasterId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //[Authorize, HttpGet]
+        //public JsonResult GatePaymentAdviceData(string fromDate, string toDate, string BankMasterId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            var jsondata = Json(_invoiceWriteOffService.GetGatePaymentAdviceData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, BankMasterId), JsonRequestBehavior.AllowGet);
-            jsondata.MaxJsonLength = int.MaxValue;
-            return jsondata;
-        }
+        //    var jsondata = Json(_invoiceWriteOffService.GetGatePaymentAdviceData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, BankMasterId), JsonRequestBehavior.AllowGet);
+        //    jsondata.MaxJsonLength = int.MaxValue;
+        //    return jsondata;
+        //}
 
         [HttpPost, Authorize]
-        public ActionResult GetPaymentAdviceReport(List<Dictionary<string, object>> data, string reportFileName)
+        public ActionResult GetPaymentAdviceReport(ReportFormat reportFormat, string adviceNo)
         {
-            try
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _invoiceWriteOffService.PaymentAdviceReportxlx(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, adviceNo);
+            switch (reportFormat)
             {
-                string fileName = "";
-                fileName = _invoiceWriteOffService.PaymentAdviceReportxlx(data, reportFileName);
-                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+                case ReportFormat.Pdf:
+                    return RenderReportAsExcel(workbook, reportFileName);
+                default:
+                    return View();
             }
         }
 
