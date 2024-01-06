@@ -104,7 +104,10 @@ function partyApprovalController(addressService, commonMessage, $scope, $rootSco
         PartyCategoryId: null,
         PartySubCategoryId: null,
         Latitude: null,
-        Longitude: null
+        Longitude: null,
+        IsApproved: false,
+        ApprovedBy: null,
+        ApprovedDate: new Date()
     };
 
     $scope.contactMaster = {
@@ -172,7 +175,7 @@ function partyApprovalController(addressService, commonMessage, $scope, $rootSco
         IsDefault: false,
         Active: true,
         PartyType: null
-    }; 
+    };
 
     $scope.partyPlant = {
         Id: null,
@@ -191,12 +194,12 @@ function partyApprovalController(addressService, commonMessage, $scope, $rootSco
     };
     $scope.partyPlantNew = Object.assign({}, $scope.partyPlant);
 
-    $scope.partyUpd = {
-        IsApproved: false,
-        ApprovedBy: null,
-        ApprovedDate: new Date(),
-    };
-    $scope.PartyUpdate = Object.assign({}, $scope.partyUpd);
+    //$scope.partyUpd = {
+    //    IsApproved: false,
+    //    ApprovedBy: null,
+    //    ApprovedDate: new Date(),
+    //};
+    //$scope.PartyUpdate = Object.assign({}, $scope.partyUpd);
 
     // #region  getPartyContact
     $scope.getPartyContact = function () {
@@ -1232,21 +1235,24 @@ function partyApprovalController(addressService, commonMessage, $scope, $rootSco
     //#region Update
     $scope.Save = function () {
         try {
-            $http({
-                method: 'POST',
-                url: 'Parties/party/PartyApprovalUpdate',
-                data: { 'data': $scope.PartyUpdate, 'PartyId': $scope.parties.Id},
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
+            if (!baseService.isUndefinedOrNull($scope.party.Id)) {
+                $http({
+                    method: 'POST',
+                    url: 'Parties/party/PartyApprovalUpdate',
+                    data: { 'data': $scope.party },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.getData();
+                        $scope.Clear();
+                    }
+                }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.getData();
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
             }
         } catch (e) {
             ShowResult(e, 'failure');
@@ -1255,7 +1261,7 @@ function partyApprovalController(addressService, commonMessage, $scope, $rootSco
 
     //#endregion
 
-    
+
     $scope.showContactMaster = true;
 
     // #region Clear
@@ -1746,7 +1752,7 @@ function partyApprovalController(addressService, commonMessage, $scope, $rootSco
         };
         $scope.fileNew = Object.assign({}, obj);
         $scope.partyBank = Object.assign({}, $scope.fileNew);
-        
+
     };
 
     $scope.confirmPartyBankDelete = function (data) {
@@ -1794,5 +1800,5 @@ function partyApprovalController(addressService, commonMessage, $scope, $rootSco
 
     // #endregion
 
-  
+
 }
