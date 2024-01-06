@@ -1687,7 +1687,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                 /////////////////////
                 ///
 
-                DocToPDFConverter converter = new DocToPDFConverter();
+                /*DocToPDFConverter converter = new DocToPDFConverter();
 
                 //Converts Word document into PDF document
                 PdfDocument pdfDocument = converter.ConvertToPDF(document);
@@ -1703,7 +1703,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
 
                 pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
                 //Closes the instance of document objects
-                pdfDocument.Close(true);
+                pdfDocument.Close(true);*/
                 document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 document.Close();
             }
@@ -3540,7 +3540,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                 /////////////////////
                 ///
 
-                DocToPDFConverter converter = new DocToPDFConverter();
+                /*DocToPDFConverter converter = new DocToPDFConverter();
 
                 //Converts Word document into PDF document
                 PdfDocument pdfDocument = converter.ConvertToPDF(document);
@@ -3556,7 +3556,8 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
 
                 pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
                 //Closes the instance of document objects
-                pdfDocument.Close(true);
+                pdfDocument.Close(true);*/
+                fileName = "PackingList-" + salesId + ".docx";
                 document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 document.Close();
             }
@@ -3588,6 +3589,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
     ,BASECRNC.Code AS BaseCurrencyName,PayTerm.UserName PaymentTerm,MM.UserName MaterialMaster,MGM.UserName MaterialGroupMaster
     ,Article=CASE WHEN ISNULL(MOI.LCArticle,'')<>'' THEN MOI.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
      ,POTransactionQty=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.NetWeight END) 
+    ,POTransactionQtyGWT=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.GWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.GWeight END)
     ,CONVERT(NUMERIC(10,4),IRD.TransactionRate, 4) TransactionRate
 	,TrnAmount=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN ROUND((IRD.TransactionQty * IRD.TransactionRate), 2) ELSE ROUND((SCN.NetWeight * IRD.TransactionRate), 2) END)
 	--,SumTrnAmount =  sum(ROUND((SCN.NetWeight * IRD.TransactionRate), 2))
@@ -3897,6 +3899,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
 ,FORMAT(PSI.ShippingBillDate,'dd-MMM-yyyy')ShippingBillDate
 ,FORMAT(PSI.ShipmentDate,'dd-MMM-yyyy')ShipmentDate
 ,CONVERT(numeric(10,2) , SAI.Value) AdvanceRevceive
+,PSI.ExportRefNo EPN
 
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
@@ -6718,18 +6721,18 @@ left join SalesAdditionalInfo SAI on SAI.SalesId = IR.Id and SAI.AdditionalInfoI
             int colHSN = COL; COL++;
             wTable.Rows[ROW].Cells[colHSN].Width = 60;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("QUANTITY NET WEIGHT IN(KGS.)");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("NET WEIGHT(KGS.)");
             range.ApplyCharacterFormat(FontBold);
             int colQty = COL; COL++;
             wTable.Rows[ROW].Cells[colQty].Width = 60;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("CARTON  SERIAL NOS.");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("No of Cartons");
             range.ApplyCharacterFormat(FontBold);
             int colCartons = COL; COL++;
             wTable.Rows[ROW].Cells[colCartons].Width = 50;
 
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("GROSS WEIGHT IN KGS.");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("GROSS WEIGHT(KGS.)");
             range.ApplyCharacterFormat(FontBold);
             range.ApplyCharacterFormat(DFontSize);
             int colGW = COL;
@@ -6760,8 +6763,8 @@ left join SalesAdditionalInfo SAI on SAI.SalesId = IR.Id and SAI.AdditionalInfoI
                 TROW.Cells[colLot].AddParagraph().AppendText(dsOrderMaster.Rows[i]["LotNo"].ToString()).ApplyCharacterFormat(DFontSize);
                 TROW.Cells[colCartons].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Cartons"].ToString()).ApplyCharacterFormat(DFontSize);
                 TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString()).ApplyCharacterFormat(DFontSize);
-                TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["NetWeights"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
-                TROW.Cells[colGW].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["GrossWeights"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colGW].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQtyGWT"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
                 
             }
 
