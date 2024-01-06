@@ -3628,14 +3628,14 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     FOR XML PATH('')
                     ), 1, 1, '')
 ,LcAmount= (
-                    SELECT CONVERT(NUMERIC(10,2) , LC.Amount)
+                    SELECT sum(CONVERT(NUMERIC(10,2) , LC.Amount))
                     FROM dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
                     LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
 					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
                     WHERE SM.SalesId=IR.Id)
 ,LcAmountBL = (
-                    SELECT CONVERT(NUMERIC(10,2) , LC.Amount)
+                    SELECT sum(CONVERT(NUMERIC(10,2) , LC.Amount))
                     FROM dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
                     LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
@@ -3943,7 +3943,8 @@ left join mst.BankMaster NEGBNKMT on NEGBNKMT.Id = PSI.BankMasterId
 left join hkp.Bank NEGBNK on NEGBNK.Id = NEGBNKMT.BankId
 left join hkp.BankBranch NEGBB on NEGBB.Id = NEGBNKMT.BankBranchId
 left join MST.AddressMaster NEGADD on NEGADD.Id = NEGBB.AddressMasterId
-left join SalesAdditionalInfo SAI on SAI.SalesId = IR.Id and SAI.AdditionalInfoId = 'AI18'
+left join SalesAdditionalInfo SAI on SAI.SalesId = IR.Id 
+left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName = 'Advance'
                        WHERE IR.Id ='" + SalesId + "' AND SCN.Bags<>''";
 
                 return _sqlRepository.GetDataTable(strSQL);
@@ -4015,14 +4016,14 @@ left join SalesAdditionalInfo SAI on SAI.SalesId = IR.Id and SAI.AdditionalInfoI
                     FOR XML PATH('')
                     ), 1, 1, '')
 ,LcAmount= (
-                    SELECT CONVERT(NUMERIC(10,2) , LC.Amount)
+                    SELECT sum(CONVERT(NUMERIC(10,2) , LC.Amount))
                     FROM dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
                     LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
 					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
                     WHERE SM.SalesId=IR.Id)
 ,LcAmountBL = (
-                    SELECT CONVERT(NUMERIC(10,2) , LC.Amount)
+                    SELECT sum(CONVERT(NUMERIC(10,2) , LC.Amount))
                     FROM dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
                     LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
@@ -4484,7 +4485,8 @@ left join mst.BankMaster NEGBNKMT on NEGBNKMT.Id = PSI.BankMasterId
 left join hkp.Bank NEGBNK on NEGBNK.Id = NEGBNKMT.BankId
 left join hkp.BankBranch NEGBB on NEGBB.Id = NEGBNKMT.BankBranchId
 left join MST.AddressMaster NEGADD on NEGADD.Id = NEGBB.AddressMasterId
-left join SalesAdditionalInfo SAI on SAI.SalesId = IR.Id and SAI.AdditionalInfoId = 'AI18'
+left join SalesAdditionalInfo SAI on SAI.SalesId = IR.Id 
+left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName = 'Advance'
                        WHERE IR.Id ='" + SalesId + "' AND SCN.Bags<>''";
 
                 return _sqlRepository.GetDataTable(strSQL);
