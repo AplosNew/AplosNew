@@ -3675,6 +3675,17 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
+,OPC=Stuff((
+                    SELECT distinct',' + DelCN.UserName
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+					LEFT JOIN SCS.Country DelCN ON DelCN.Id=NB.CountryId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
 ,LcOpeningBank=Stuff((
                     SELECT distinct',' + NB.UserName
                     FROM dbo.MasterLC LC 
@@ -4068,6 +4079,17 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                     FROM dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
 					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,OPC=Stuff((
+                    SELECT distinct',' + DelCN.UserName
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+					LEFT JOIN SCS.Country DelCN ON DelCN.Id=NB.CountryId
                     LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
 					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
                     WHERE SM.SalesId=IR.Id
