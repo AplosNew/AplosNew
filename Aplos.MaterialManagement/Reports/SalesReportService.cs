@@ -1446,11 +1446,15 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             WCharacterFormat DFontSize = new WCharacterFormat(document);
             FontBold.Bold = true;
             DFontSize.FontSize = 8f;
-            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Terms And Conditions");
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
             range.ApplyCharacterFormat(FontBold);
             range.ApplyCharacterFormat(DFontSize);
             int colTermsAndCondition = COL; COL++;
             wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 580;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
 
             #endregion column headers
             double totalValue = 0;
@@ -1532,11 +1536,11 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             FontBold.Bold = true;
             DFontSize.FontSize = 8f;
 
-            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Additional Info");
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
             range.ApplyCharacterFormat(FontBold);
             range.ApplyCharacterFormat(DFontSize);
             int colTermsAndCondition = COL; COL++;
-            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 600;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 550;
             wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
             wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
             wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
@@ -3496,7 +3500,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                 var addInfo = makeaddInfo(salesId, document, dsaddInfo);   // {makeaddInfo}
                 var TermsAndCondition = makeTermsAndCondition(salesId, document, dsConditions);   // {conditions}
                
-                document.Replace("{GrandTotal}", (MaterialTotal).ToString("#,##0.00"), true, true);
+                document.Replace("{GrandTotal}", (MaterialTotal).ToString(), true, true);
                
                 //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2"), true, true);
                 //document.Replace("{TotalInWords}", ru.InWord((MaterialTotal), dsOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
@@ -3807,6 +3811,16 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     FOR XML PATH('')
                     ), 1, 1, '')
 ,PortOfDelivary=Stuff((
+                    SELECT distinct',' + PL.UserName
+                    FROM  dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.[Port] AS PL ON PL.Id = LC.PortOfLandingId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,Countryoffinal=Stuff((
                     SELECT distinct',' + PL.UserName
                     FROM  dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
@@ -4195,6 +4209,16 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                     FOR XML PATH('')
                     ), 1, 1, '')
 ,PortOfDelivary=Stuff((
+                    SELECT distinct',' + PL.UserName
+                    FROM  dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.[Port] AS PL ON PL.Id = LC.PortOfLandingId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,Countryoffinal=Stuff((
                     SELECT distinct',' + PL.UserName
                     FROM  dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
@@ -6794,7 +6818,15 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                         value += clsStdLib.dbl(item.Text);
                     }
                 }
-                _TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
+                if(C == colCartons)
+                {
+                    _TROW.Cells[C].AddParagraph().AppendText(value.ToString()).ApplyCharacterFormat(FontBold);
+                }
+                else
+                {
+                    _TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
+                }
+                
             }
             #endregion Total
 
