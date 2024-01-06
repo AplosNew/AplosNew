@@ -333,9 +333,9 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
                     ShowResult('Leave Duration is greater then balance.', 'failure');
                 }
 
-                if ($scope.LeaveBalanceList[i].LeaveDays - (($scope.LeaveBalanceList[i].Applied - $scope.LeaveBalanceList[i].Rejected) + diffDays) < 0) {
-                    throw 'Leave Duration is greater then balance.';
-                }
+                //if ($scope.LeaveBalanceList[i].LeaveDays - (($scope.LeaveBalanceList[i].Applied - $scope.LeaveBalanceList[i].Rejected) + diffDays) < 0) {
+                //    throw 'Leave Duration is greater then balance.';
+                //}
                 if ($scope.LeaveBalanceList[i].LeaveDays - (($scope.LeaveBalanceList[i].Applied - $scope.LeaveBalanceList[i].Rejected) + diffDays) >= $scope.LeaveBalanceList[i].Balance) {
                     throw 'Leave Duration is greater then balance.';
                 }
