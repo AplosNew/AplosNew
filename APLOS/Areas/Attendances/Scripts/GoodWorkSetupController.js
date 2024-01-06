@@ -371,6 +371,13 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
             baseService.paginationBase($scope.popUpUrl, pageno, $scope.budgetpopUpParameters)
                 .then(function (result) {
                     $scope.popUpDataList = result.Rows;
+                    for (var j = 0; j < $scope.BudgetCodeList.length; j++) {
+                        for (var i = 0; i < $scope.popUpDataList.length; i++) {
+                            if ($scope.BudgetCodeList[j].BudgetId == $scope.popUpDataList[i].Id) {
+                                $scope.popUpDataList.splice(i, 1);
+                            }
+                        }
+                    }
                     $scope.budgetpopUpParameters.total_count = result.Total;
                     if (baseService.arrayLength($scope.popUpList) === 0) {
                         baseService.getDDLSearchColumn(result.Rows, $scope.popUpList);
