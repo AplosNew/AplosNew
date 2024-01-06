@@ -129,7 +129,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 throw new Exception(ex.Message);
             }
 
-            var data = _sqlRepository.GetDataCollection(sql);
+            var data = _sqlRepository.GetDataCollection(sql) ;
             JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
