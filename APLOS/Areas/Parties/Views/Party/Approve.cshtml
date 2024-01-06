@@ -232,7 +232,7 @@
                                 <div class="col-sm-2">
                                     <div class="checkbox-site">
                                         <label>
-                                            <input type="checkbox" ng-model="PartyUpdate.IsApproved" tabindex="26">
+                                            <input type="checkbox" ng-model="party.IsApproved" tabindex="26">
                                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                         </label>
                                     </div>
@@ -1115,6 +1115,7 @@
                 <th>Standard Name</th>
                 <th>User Define Name</th>
                 <th>Active</th>
+                <th>Approved</th>
             </tr>
         </thead>
         <tbody>
@@ -1126,6 +1127,7 @@
                 <td>{{x.StandardName}}</td>
                 <td>{{x.UserName}}</td>
                 <td>{{x.Active? 'Yes':'No'}}</td>
+                <td>{{x.IsApproved? 'Yes':'No'}}</td>
             </tr>
         </tbody>
     </table>

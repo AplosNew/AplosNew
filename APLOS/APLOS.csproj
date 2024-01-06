@@ -4893,6 +4893,7 @@
     <Content Include="Areas\Commercial\Views\Contract\LCPendingReport.cshtml" />
     <Content Include="Areas\Attendances\Views\GoodWork\GoodWorkCheck.cshtml" />
     <Content Include="Areas\Attendances\Views\GoodWork\GoodWorkApprove.cshtml" />
+    <Content Include="Areas\Accounts\Views\SalaryDisbursement\SalaryDisbursementPost.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

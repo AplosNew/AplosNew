@@ -350,92 +350,239 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         search: null,
         serverPagination: true
     };
-    $scope.popUpBudgetCode = function () {
-        var entityCode = "";
-        if ($scope.selectedEntityList.length > 0) {
-            var uniqueEntityId = removeDuplicates($scope.selectedEntityList, 'EntityId');
-            var entityCode = "";
-            if (uniqueEntityId.length > 0) {
-                entityCode = "IN(";
-                entityCode += Array.prototype.map.call(uniqueEntityId, function (item) { return "'" + item.EntityId + "'"; }).join(",") + ")";
-            }
-            $scope.sqlInStatement = entityCode;
-        }
-        $scope.popUpDataList = [];
-        $scope.popUpList = [];
-        $scope.budgetpopUpParameters.sort = 'Code';
-        $scope.budgetpopUpParameters.searchBy = 'Code';
-        $scope.popUpUrl = 'employees/recruitment/GetManpowerBudgetListByEntitySql?entityids=' + $scope.sqlInStatement;
-        baseService.setCurrentPage('dataList');
-        $scope.getPopUpData = function (pageno) {
-            baseService.paginationBase($scope.popUpUrl, pageno, $scope.budgetpopUpParameters)
-                .then(function (result) {
-                    $scope.popUpDataList = result.Rows;
-                    $scope.budgetpopUpParameters.total_count = result.Total;
-                    if (baseService.arrayLength($scope.popUpList) === 0) {
-                        baseService.getDDLSearchColumn(result.Rows, $scope.popUpList);
-                    }
-                    //$scope.popUpParameters.sort = 'Code';
-                    //$scope.popUpParameters.searchBy = 'Code';
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, 'failure', 'popUpId');
-                }).finally(function () {
-                });
-        };
-        angular.element(document.querySelector('#popUpId')).modal('show');
-        $scope.getPopUpData();
-    };
+    //$scope.popUpBudgetCode = function () {
+    //    var entityCode = "";
+    //    if ($scope.selectedEntityList.length > 0) {
+    //        var uniqueEntityId = removeDuplicates($scope.selectedEntityList, 'EntityId');
+    //        var entityCode = "";
+    //        if (uniqueEntityId.length > 0) {
+    //            entityCode = "IN(";
+    //            entityCode += Array.prototype.map.call(uniqueEntityId, function (item) { return "'" + item.EntityId + "'"; }).join(",") + ")";
+    //        }
+    //        $scope.sqlInStatement = entityCode;
+    //    }
+    //    $scope.popUpDataList = [];
+    //    $scope.popUpList = [];
+    //    $scope.budgetpopUpParameters.sort = 'Code';
+    //    $scope.budgetpopUpParameters.searchBy = 'Code';
+    //    $scope.popUpUrl = 'employees/recruitment/GetManpowerBudgetListByEntitySql?entityids=' + $scope.sqlInStatement;
+    //    baseService.setCurrentPage('dataList');
+    //    $scope.getPopUpData = function (pageno) {
+    //        baseService.paginationBase($scope.popUpUrl, pageno, $scope.budgetpopUpParameters)
+    //            .then(function (result) {
+    //                $scope.popUpDataList = result.Rows;
+    //                for (var j = 0; j < $scope.BudgetCodeList.length; j++) {
+    //                    for (var i = 0; i < $scope.popUpDataList.length; i++) {
+    //                        if ($scope.BudgetCodeList[j].BudgetId == $scope.popUpDataList[i].Id) {
+    //                            $scope.popUpDataList.splice(i, 1);
+    //                        }
+    //                    }
+    //                }
+    //                $scope.budgetpopUpParameters.total_count = result.Total;
+    //                if (baseService.arrayLength($scope.popUpList) === 0) {
+    //                    baseService.getDDLSearchColumn(result.Rows, $scope.popUpList);
+    //                }
+    //                //$scope.popUpParameters.sort = 'Code';
+    //                //$scope.popUpParameters.searchBy = 'Code';
+    //            }, function () {
+    //                ShowResult(commonMessage.NetworkError, 'failure', 'popUpId');
+    //            }).finally(function () {
+    //            });
+    //    };
+    //    angular.element(document.querySelector('#popUpId')).modal('show');
+    //    $scope.getPopUpData();
+    //};
 
     function removeDuplicates(myArr, prop) {
         return myArr.filter((obj, pos, arr) => {
             return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
         });
     }
-
-
-    $scope.BudgetCodeList = [];
-    $scope.selectDoubleClick = function (data) {
+    $scope.popUpDataList = [];
+    $scope.popUpBudgetCode = function () {
         try {
-            var ob = {};
-            if (checkDoubleBudgetCode($scope.BudgetCodeList, data.Id) === false) {
-                ob.BudgetId = data.Id;
-                ob.Entity = data.EntityName;
-                ob.Division = data.Division;
-                ob.Department = data.Department;
-                ob.Section = data.Section;
-                ob.SubSection = data.SubSection;
-                ob.EmployeeType = data.EmployeeType;
-                ob.Designation = data.Designation;
-                ob.Activity = data.Activity;
-                ob.UserGroup = data.UserGroup;
-                ob.Process = data.Process;
-                ob.BudgetCode = data.Code;
-                //ob.IsOTEntitled = data.IsOTEntitled;
-                if (data.IsOTEntitled == 0) {
-                    ob.IsOTEntitled = 'No';
-                } else
-                    ob.IsOTEntitled = 'Yes'
-                ob.IsGoodWorkApplicable = false,
-                    ob.IsCompensatoryApplicable = false,
-                    ob.IsEmployeeApplicable = false,
-                    ob.GoodWorkCategory = null,
-                    ob.Remarks = null,
-                    $scope.BudgetCodeList.push(ob);
-                ob = {};
+            var entityCode = "";
+            if ($scope.selectedEntityList.length > 0) {
+                var uniqueEntityId = removeDuplicates($scope.selectedEntityList, 'EntityId');
+                var entityCode = "";
+                if (uniqueEntityId.length > 0) {
+                    entityCode = "IN(";
+                    entityCode += Array.prototype.map.call(uniqueEntityId, function (item) { return "'" + item.EntityId + "'"; }).join(",") + ")";
+                }
+                $scope.sqlInStatement = entityCode;
             }
-            angular.element(document.querySelector('#popUpId')).modal('hide');
+            $scope.popUpUrl = 'employees/recruitment/GetManpowerBudgetListByEntitySql?entityids=' + $scope.sqlInStatement;
+
+            $scope.popUpEmpDataList = [];
+            $http({
+                method: 'GET',
+                url: $scope.popUpUrl
+
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+                for (var j = 0; j < $scope.BudgetCodeList.length; j++) {
+                    for (var i = 0; i < $scope.popUpDataList.length; i++) {
+                        if ($scope.BudgetCodeList[j].BudgetId == $scope.popUpDataList[i].Id) {
+                            $scope.popUpDataList.splice(i, 1);
+                        }
+                    }
+                }
+            });
+            angular.element(document.querySelector('#popUpId')).modal('show');
         } catch (e) {
             ShowResult(e, 'failure');
         }
     };
-    function checkDoubleBudgetCode(list, Id) {
+
+
+    $scope.BudgetCodeList = [];
+    //$scope.selectDoubleClick = function (data) {
+    //    try {
+    //        var ob = {};
+    //        if (checkDoubleBudgetCode($scope.BudgetCodeList, data.Id) === false) {
+    //            ob.BudgetId = data.Id;
+    //            ob.Entity = data.EntityName;
+    //            ob.Division = data.Division;
+    //            ob.Department = data.Department;
+    //            ob.Section = data.Section;
+    //            ob.SubSection = data.SubSection;
+    //            ob.EmployeeType = data.EmployeeType;
+    //            ob.Designation = data.Designation;
+    //            ob.Activity = data.Activity;
+    //            ob.UserGroup = data.UserGroup;
+    //            ob.Process = data.Process;
+    //            ob.BudgetCode = data.Code;
+    //            //ob.IsOTEntitled = data.IsOTEntitled;
+    //            if (data.IsOTEntitled == 0) {
+    //                ob.IsOTEntitled = 'No';
+    //            } else
+    //                ob.IsOTEntitled = 'Yes'
+    //            ob.IsGoodWorkApplicable = false,
+    //                ob.IsCompensatoryApplicable = false,
+    //                ob.IsEmployeeApplicable = false,
+    //                ob.GoodWorkCategory = null,
+    //                ob.Remarks = null,
+    //                $scope.BudgetCodeList.push(ob);
+    //            ob = {};
+    //        }
+    //        angular.element(document.querySelector('#popUpId')).modal('hide');
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //};
+    //function checkDoubleBudgetCode(list, Id) {
+    //    for (var i = 0; i < list.length; i++) {
+    //        if (list[i].BudgetId === Id) {
+    //            return true;
+    //        }
+    //    }
+    //    return false;
+    //}
+
+
+    $scope.popUpDataList = [];
+    //$scope.selectDoubleClick = function () {
+    //    if (baseService.arrayLength($scope.popUpDataList) > 0) {
+    //        angular.forEach($scope.popUpDataList, function (a) {
+    //            if (checkExistBudgetTempList($scope.BudgetCodeList, a.Id) === false) {
+    //                if (a.Flag) {
+    //                    $scope.BudgetCodeList.push({
+    //                        Id: null
+    //                        , BudgetId: a.Id
+    //                        , Entity: a.EntityName
+    //                        , Division: a.Division
+    //                        , Department: a.Department
+    //                        , Section: a.Section
+    //                        , SubSection: a.SubSection
+    //                        , EmployeeType: a.EmployeeType
+    //                        , Designation: a.Designation
+    //                        , Activity: a.Activity
+    //                        , UserGroup: a.UserGroup
+    //                        , Process: a.Process
+    //                        , BudgetCode: a.Code
+    //                        //    , if(a.IsOTEntitled == 0) {
+    //                        //     IsOTEntitled = 'No';
+    //                        //} 
+    //                        //else
+    //                        // IsOTEntitled = 'Yes',
+    //                        , IsGoodWorkApplicable : false,
+    //                        IsCompensatoryApplicable:false,
+    //                        IsEmployeeApplicable :false,
+    //                        GoodWorkCategory: null,
+    //                        Remarks :null
+    //                    });
+    //                }
+    //            }
+
+    //        });
+    //    }
+    //    else
+    //        $scope.BudgetCodeList = [];
+    //    angular.forEach($scope.BudgetCodeList, function (a) {
+    //        if (!baseService.valueCheckInList($scope.popUpDataList, 'Id', a.Id))
+    //            $scope.BudgetCodeList.splice(a, 1);
+    //    });
+    //    $scope.closePopUp();
+    //};
+    //function checkExistBudgetTempList(list, Id) {
+    //    for (var i = 0; i < list.length; i++) {
+    //        if (list[i].Id === Id) {
+    //            return true;
+    //        }
+    //    }
+    //    return false;
+    //}
+
+
+    $scope.refreshTemplate = function (args) {
+        $("#headchkGWS").ejCheckBox({ "change": CheckBoxSelectGWS });
+    };
+    function CheckBoxSelectGWS(e) { 
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridpopUpId").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.popUpDataList.length; i++) {
+                $scope.popUpDataList[i].isSelected = ChkOrUnchk;
+            }
+        }
+        else { 
+            for (var j = 0; j < filtered.length; j++) { 
+                filtered[j].isSelected = ChkOrUnchk;
+            } 
+        }
+        var gridObj = $("#GridpopUpId").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+     
+    $scope.selectDoubleClick = function () {
+        try { 
+            for (var i = 0; i < $scope.popUpDataList.length; i++) {
+                if ($scope.popUpDataList[i].isSelected == true) {
+                    if (checkDoubleGWS($scope.BudgetCodeList, $scope.popUpDataList[i].Id) === false) {
+                        $scope.BudgetCodeList.push($scope.popUpDataList[i]);
+                    }
+                }
+            } 
+            angular.element(document.querySelector('#popUpId')).modal('hide');
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    function checkDoubleGWS(list, Id) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].BudgetId === Id) {
+            if (list[i].Id === Id) {
                 return true;
             }
         }
         return false;
     }
+
 
     $scope.clearCode = function () {
         $scope.employeeNew.BudgetCode = null;
@@ -565,17 +712,17 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         , SystemId: null
 
     };
-    $scope.popUpDataList = [];
+    $scope.popUpEmpDataList = [];
     $scope.popUpEmployee = function (obj) {
         try {
             $scope.tabName = obj;
-            $scope.popUpDataList = [];
+            $scope.popUpEmpDataList = [];
             $http({
                 method: 'GET',
                 url: 'employees/authorizationconfig/getallemployeedata'
 
             }).then(function successCallback(response) {
-                $scope.popUpDataList = response.data;
+                $scope.popUpEmpDataList = response.data;
             });
             angular.element(document.querySelector('#popUpEmp')).modal('show');
         } catch (e) {
@@ -589,46 +736,56 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         try {
             var data = data.data;
             var ob = {};
-            if ($scope.tabName == 'Authority') {
-                if (checkDoubleAuthorityCode($scope.authorizationList, data.EmployeeCode) === false) {
-                    ob.AuthorityId = data.SystemId;
-                    ob.EmployeeName = data.EmployeeName;
-                    ob.EmployeeCode = data.EmployeeCode;
-                    ob.CompanyId = data.CompanyId;
-                    ob.Company = data.Company;
-                    ob.Plant = data.Plant;
-                    ob.Designation = data.LegalDesignation;
-                    ob.Department = data.Department;
-                    ob.Section = data.Section;
-                    ob.SubSection = data.SubSection;
-                    ob.Line = data.Line;
 
-                    $scope.authorizationList.push(ob);
-                    $scope.AuthoritySave();
-                    ob = {};
+            if ($scope.tabName == 'Authority') {
+                if (checkDoubleAuthorityCode($scope.CheckByList, data.EmployeeCode) === false) {
+                    if (checkDoubleAuthorityCode($scope.authorizationList, data.EmployeeCode) === false) {
+                        ob.AuthorityId = data.SystemId;
+                        ob.EmployeeName = data.EmployeeName;
+                        ob.EmployeeCode = data.EmployeeCode;
+                        ob.CompanyId = data.CompanyId;
+                        ob.Company = data.Company;
+                        ob.Plant = data.Plant;
+                        ob.Designation = data.LegalDesignation;
+                        ob.Department = data.Department;
+                        ob.Section = data.Section;
+                        ob.SubSection = data.SubSection;
+                        ob.Line = data.Line;
+
+                        $scope.authorizationList.push(ob);
+                        $scope.AuthoritySave();
+                        ob = {};
+                    }
+                    angular.element(document.querySelector('#popUpEmp')).modal('hide');
                 }
-                angular.element(document.querySelector('#popUpEmp')).modal('hide');
+                else {
+                    throw "This Employee already added in Checked By List"
+                }
             }
             else {
-                if (checkDoubleAuthorityCode($scope.CheckByList, data.EmployeeCode) === false) {
-                    ob.CheckById = data.SystemId;
-                    ob.EmployeeName = data.EmployeeName;
-                    ob.EmployeeCode = data.EmployeeCode;
-                    ob.CompanyId = data.CompanyId;
-                    ob.Company = data.Company;
-                    ob.Plant = data.Plant;
-                    ob.Designation = data.LegalDesignation;
-                    ob.Department = data.Department;
-                    ob.Section = data.Section;
-                    ob.SubSection = data.SubSection;
-                    ob.Line = data.Line;
+                if (checkDoubleAuthorityCode($scope.authorizationList, data.EmployeeCode) === false) {
+                    if (checkDoubleAuthorityCode($scope.CheckByList, data.EmployeeCode) === false) {
+                        ob.CheckById = data.SystemId;
+                        ob.EmployeeName = data.EmployeeName;
+                        ob.EmployeeCode = data.EmployeeCode;
+                        ob.CompanyId = data.CompanyId;
+                        ob.Company = data.Company;
+                        ob.Plant = data.Plant;
+                        ob.Designation = data.LegalDesignation;
+                        ob.Department = data.Department;
+                        ob.Section = data.Section;
+                        ob.SubSection = data.SubSection;
+                        ob.Line = data.Line;
 
-                    $scope.CheckByList.push(ob);
-                    $scope.CheckBySave();
-                    ob = {};
+                        $scope.CheckByList.push(ob);
+                        $scope.CheckBySave();
+                        ob = {};
+                    }
+                    angular.element(document.querySelector('#popUpEmp')).modal('hide');
                 }
-                angular.element(document.querySelector('#popUpEmp')).modal('hide');
-
+                else {
+                    throw "This Employee already added in Approved By List"
+                }
             }
         } catch (e) {
             ShowResult(e, 'failure');

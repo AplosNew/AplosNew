@@ -2239,6 +2239,11 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         //  $scope.CommercialInvoicePackingListReport(data);
     };
 
+    $scope.BeneficiaryCertificate = function (data) {
+        location.href = "SalesManagements/Sales/BeneficiaryCertificate?salesId=" + data.Id;
+        //  $scope.CommercialInvoicePackingListReport(data);
+    };
+
     $scope.BankLatter = function (data) {
         try {
             if (baseService.isUndefinedOrNull(data.BankName))

@@ -100,7 +100,17 @@
         </div>
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-                <div class="row">
+                <div class="row" ng-show="empGrid">
+                    <div class="col-sm-12">
+                        <div class="inputBtnSection common-btn">
+                            <label class="fileUpload col-sm-4 ">
+                                <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                            </label>
+                            <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportData()" />
+                        </div>
+                    </div>
+
+                    <div class="clearfix"></div>
                     <div class="col-md-12">
                         <div id="empInfoGridSalaryUnDisbursed" ng-init="chkinit()" ej-grid e-datasource="BonusUnDisburseList" e-recorddoubleclick="Get" e-allowscrolling="true" e-pageSettings-pageSize="15"
                              e-actioncomplete="actionCompleteSelected" e-templaterefresh="refreshTemplateSalaryUnDisbursed"
@@ -142,7 +152,7 @@
                         </div>
 
                         <script type="text/template" id="checkboxTemplate">
-                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" e-enabled="{{data.IsDisbursed == true && data.DisbursementVoucherId != '' ?'false':'true'}}" />
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect"/>
                         </script>
 
                         <script type="text/x-jsrender" id="headerTemplate">

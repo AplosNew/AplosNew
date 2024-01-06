@@ -186,7 +186,7 @@
                             </div>
                         </div>
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Port <span style="text-transform:lowercase">Of</span> Landing<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Port <span style="text-transform:lowercase">Of</span> Discharge<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="select-style">
                                     <select name="Port Of Landing" class="form-control" ng-model="masterLC.PortOfLandingId" ng-options="item.Value as item.Text for item in portList" tabindex="14">
@@ -476,7 +476,7 @@
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Clause1</label>
                                 <div class="col-sm-8">
-                                    <textarea class="form-control" rows="2" ng-model="LCClause.Clause1" maxlength="1000" tabindex="102"></textarea>
+                                    <textarea class="form-control" rows="3" ng-model="LCClause.Clause1" maxlength="1000" tabindex="102"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -484,7 +484,7 @@
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Clause2</label>
                                 <div class="col-sm-8">
-                                    <textarea class="form-control" rows="2" ng-model="LCClause.Clause2" maxlength="1000" tabindex="102"></textarea>
+                                    <textarea class="form-control" rows="3" ng-model="LCClause.Clause2" maxlength="1000" tabindex="102"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -492,7 +492,7 @@
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Clause3</label>
                                 <div class="col-sm-8">
-                                    <textarea class="form-control" rows="2" ng-model="LCClause.Clause3" maxlength="1000" tabindex="102"></textarea>
+                                    <textarea class="form-control" rows="3" ng-model="LCClause.Clause3" maxlength="1000" tabindex="102"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -500,7 +500,7 @@
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Clause4</label>
                                 <div class="col-sm-8">
-                                    <textarea class="form-control" rows="2" ng-model="LCClause.Clause4" maxlength="1000" tabindex="102"></textarea>
+                                    <textarea class="form-control" rows="3" ng-model="LCClause.Clause4" maxlength="1000" tabindex="102"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -508,7 +508,7 @@
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Clause5</label>
                                 <div class="col-sm-8">
-                                    <textarea class="form-control" rows="2" ng-model="LCClause.Clause5" maxlength="1000" tabindex="102"></textarea>
+                                    <textarea class="form-control" rows="3" ng-model="LCClause.Clause5" maxlength="1000" tabindex="102"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -516,7 +516,7 @@
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Clause6</label>
                                 <div class="col-sm-8">
-                                    <textarea class="form-control" rows="2" ng-model="LCClause.Clause6" maxlength="1000" tabindex="102"></textarea>
+                                    <textarea class="form-control" rows="3" ng-model="LCClause.Clause6" maxlength="1000" tabindex="102"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -524,7 +524,7 @@
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Clause7</label>
                                 <div class="col-sm-8">
-                                    <textarea class="form-control" rows="2" ng-model="LCClause.Clause7" maxlength="1000" tabindex="102"></textarea>
+                                    <textarea class="form-control" rows="3" ng-model="LCClause.Clause7" maxlength="1000" tabindex="102"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -533,7 +533,7 @@
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Clause8</label>
                                 <div class="col-sm-8">
-                                    <textarea class="form-control" rows="2" ng-model="LCClause.Clause8" maxlength="1000" tabindex="102"></textarea>
+                                    <textarea class="form-control" rows="3" ng-model="LCClause.Clause8" maxlength="1000" tabindex="102"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -541,7 +541,7 @@
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Clause9</label>
                                 <div class="col-sm-8">
-                                    <textarea class="form-control" rows="2" ng-model="LCClause.Clause9" maxlength="1000" tabindex="102"></textarea>
+                                    <textarea class="form-control" rows="3" ng-model="LCClause.Clause9" maxlength="1000" tabindex="102"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -549,7 +549,7 @@
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Clause10</label>
                                 <div class="col-sm-8">
-                                    <textarea class="form-control" rows="2" ng-model="LCClause.Clause10" maxlength="1000" tabindex="102"></textarea>
+                                    <textarea class="form-control" rows="3" ng-model="LCClause.Clause10" maxlength="1000" tabindex="102"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -558,7 +558,7 @@
                             <div class="common-btn">
                                 <ul class="list-inline text-right">
                                     <li> <button ng-click="SaveMasterlcclause();" ng-disabled="masterLC.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionAddLC}}</button></li>
-                                    <li> <button ng-click="Clearlcclause();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                   @* <li> <button ng-click="Clearlcclause();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
                                 </ul>
                             </div>
                         </div>

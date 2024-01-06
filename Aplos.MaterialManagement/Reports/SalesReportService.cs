@@ -1446,11 +1446,15 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             WCharacterFormat DFontSize = new WCharacterFormat(document);
             FontBold.Bold = true;
             DFontSize.FontSize = 8f;
-            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Terms And Conditions");
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
             range.ApplyCharacterFormat(FontBold);
             range.ApplyCharacterFormat(DFontSize);
             int colTermsAndCondition = COL; COL++;
             wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 580;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
 
             #endregion column headers
             double totalValue = 0;
@@ -1532,11 +1536,11 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             FontBold.Bold = true;
             DFontSize.FontSize = 8f;
 
-            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Additional Info");
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
             range.ApplyCharacterFormat(FontBold);
             range.ApplyCharacterFormat(DFontSize);
             int colTermsAndCondition = COL; COL++;
-            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 600;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 550;
             wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
             wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
             wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
@@ -1687,7 +1691,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                 /////////////////////
                 ///
 
-                DocToPDFConverter converter = new DocToPDFConverter();
+                /*DocToPDFConverter converter = new DocToPDFConverter();
 
                 //Converts Word document into PDF document
                 PdfDocument pdfDocument = converter.ConvertToPDF(document);
@@ -1703,7 +1707,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
 
                 pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
                 //Closes the instance of document objects
-                pdfDocument.Close(true);
+                pdfDocument.Close(true);*/
                 document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 document.Close();
             }
@@ -1895,7 +1899,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                 /////////////////////
                 ///
 
-                DocToPDFConverter converter = new DocToPDFConverter();
+               /* DocToPDFConverter converter = new DocToPDFConverter();
 
                 //Converts Word document into PDF document
                 PdfDocument pdfDocument = converter.ConvertToPDF(document);
@@ -1911,7 +1915,138 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
 
                 pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
                 //Closes the instance of document objects
-                pdfDocument.Close(true);
+                pdfDocument.Close(true);*/
+                document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
+                document.Close();
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+
+            document.Close();
+        }
+
+        public void BeneficiaryCertificate(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId)
+        {
+            var fileName = "";
+            var strPath = "";
+            var File = "";
+
+            ReportUtility ru = new ReportUtility();
+            fileName = "BeneficiaryCertificate.docx";
+
+            strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
+            File = strPath;
+            if (!System.IO.File.Exists(strPath))
+            {
+                throw new CustomException("File <" + fileName + "> Not Found.");
+            }
+
+            WordDocument document = new WordDocument(File, FormatType.Docx);
+
+            try
+            {
+                WSection section = document.Sections[0];
+
+                DataTable dsOrderMaster, dsConditions, dsaddInfo, dsaddInfo1, dsaddInfo2, dsaddInfo3, dsaddInfo4, dsaddInfo5, dsaddInfo6, dsaddInfo7, dsaddInfo8, dsaddInfo9;
+
+                dsOrderMaster = GetloadCommercialLocalTaxMaterialMasterBC(salesId);
+                dsConditions = TermsAndConditionSQL(salesId);
+                dsaddInfo = GetAddinfo(salesId);
+                dsaddInfo1 = GetAddinfo(salesId);
+                dsaddInfo2 = GetAddinfo(salesId);
+                dsaddInfo3 = GetAddinfo(salesId);
+                dsaddInfo4 = GetAddinfo(salesId);
+                dsaddInfo5 = GetAddinfo(salesId);
+                dsaddInfo6 = GetAddinfo(salesId);
+                dsaddInfo7 = GetAddinfo(salesId);
+                dsaddInfo8 = GetAddinfo(salesId);
+                dsaddInfo9 = GetAddinfo(salesId);
+                Dictionary<string, string> columns = new Dictionary<string, string>();
+
+                foreach (DataColumn item in dsOrderMaster.Columns)
+                    columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
+
+                var MaterialTotal = makeCommercialInvoiceService(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {materialItems}
+                var addInfo = makeaddInfoBE(salesId, document, dsaddInfo);   // {makeaddInfo}
+                var addInfo1 = makeaddInfoBE1(salesId, document, dsaddInfo1);   // {makeaddInfo}
+                var addInfo2 = makeaddInfoBE2(salesId, document, dsaddInfo2);   // {makeaddInfo}
+                var addInfo3 = makeaddInfoBE3(salesId, document, dsaddInfo3);   // {makeaddInfo}
+                var addInfo4 = makeaddInfoBE4(salesId, document, dsaddInfo4);   // {makeaddInfo}
+                var addInfo5 = makeaddInfoBE5(salesId, document, dsaddInfo5);   // {makeaddInfo}
+                var addInfo6 = makeaddInfoBE6(salesId, document, dsaddInfo6);   // {makeaddInfo}
+                var addInfo7 = makeaddInfoBE7(salesId, document, dsaddInfo7);   // {makeaddInfo}
+                var addInfo8 = makeaddInfoBE8(salesId, document, dsaddInfo8);   // {makeaddInfo}
+                var addInfo9 = makeaddInfoBE9(salesId, document, dsaddInfo9);   // {makeaddInfo}
+                var TermsAndCondition = makeTermsAndCondition(salesId, document, dsConditions);   // {conditions}
+                var totalQty = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(POTransactionQty)", "CustomerNo='" + dsOrderMaster.Rows[0]["CustomerNo"].ToString() + "'"));
+                var FREIGHTVALUE = totalQty * clsStaticInfo.dbl(dsOrderMaster.Rows[0]["AdditionalFrieghtValue"].ToString());
+                var FCAVALUE = MaterialTotal - FREIGHTVALUE;
+                document.Replace("{GrandTotal}", (MaterialTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{GrandTotals}", (MaterialTotal).ToString("#,##0.00"), true, true);
+                document.Replace("{FREIGHTVALUE}", (FREIGHTVALUE).ToString("#,##0.00"), true, true);
+                document.Replace("{FCAVALUE}", (FCAVALUE).ToString("#,##0.00"), true, true);
+                //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2"), true, true);
+                document.Replace("{TotalInWords}", ru.InWordNew(clsStaticInfo.dbl(dsOrderMaster.Rows[0]["NoCartons"].ToString()), null), true, true);
+
+                Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
+
+                TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
+
+                //creating secondary array to prevent memory leak and accidental over-writing (Tarek Talukder-26-May-2019)
+                List<string> strReplace = new List<string>();
+                for (int i = 0; i < allresult.Length; i++)
+                    strReplace.Add(allresult[i].SelectedText.ToString().ToUpper());
+
+                for (int i = 0; i < strReplace.Count; i++)
+                {
+                    string text = strReplace[i].ToUpper();
+                    ReplaceInfo.Add(text, 0);
+                    if (columns.ContainsKey(text.ToUpper()))
+                    {
+                        //ReplaceInfo[text] = document.Replace(text, dsOrderMaster.Tables[0].Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+                        document.Replace(text, dsOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+                    }
+                    if (text == "{PRINTEDBY}")
+                    {
+                        document.Replace(text, Name, false, false);
+                    }
+                    if (text == "{DT}")
+                    {
+                        document.Replace(text, DateTime.Now.ToString("dd-MMM-yyyy h:mm tt"), false, false);
+                    }
+                }
+
+                document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
+
+                foreach (var item in ReplaceInfo.Keys)
+                {
+                    if (ReplaceInfo[item.ToString()] == 0)
+                        document.Replace(item.ToString(), "N/A", false, false);
+                }
+
+                /////////////////////
+                ///
+
+                /* DocToPDFConverter converter = new DocToPDFConverter();
+
+                 //Converts Word document into PDF document
+                 PdfDocument pdfDocument = converter.ConvertToPDF(document);
+                 pdfDocument.PageSettings.Width = 1200;
+                 pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
+                 //Releases all resources used by DocToPDFConverter
+                 converter.Dispose();
+
+                 //Closes the instance of document objects
+
+                 //Saves the PDF file 
+                 string Prefix = "LRDraft" + plantId;
+
+                 pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
+                 //Closes the instance of document objects
+                 pdfDocument.Close(true);*/
                 document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 document.Close();
             }
@@ -2018,6 +2153,865 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
 
             return 0;
         }
+
+        #region Add Info 
+        public double makeaddInfoBE1(string salesId, WordDocument document, DataTable dsaddInfo)
+        {
+            string replaceString = "{addInfo1}";
+
+
+            IWParagraphStyle arightAlign = document.AddParagraphStyle("addrightAlign1");
+            //Sets the formatting of the style
+            arightAlign.CharacterFormat.FontSize = 8f;
+            arightAlign.CharacterFormat.TextColor = Color.Black;
+            arightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+            int LasColumnIndex = 1;
+            WTable wTable = new WTable(document);
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex);
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
+            FontBold.Bold = true;
+            DFontSize.FontSize = 8f;
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+            range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
+            int colTermsAndCondition = COL; COL++;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
+
+            #endregion column headers
+            double totalValue = 0;
+            int sl = 0;
+            int startRow = 0;
+            for (int i = 0; i < dsaddInfo.Rows.Count; i++)
+            {
+                ROW++;
+                sl++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsaddInfo.Rows[i]["Description"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+
+            }
+            ROW++;
+
+            #region Total
+            //int TotalRow = ROW;
+            //wTable.AddRow();
+            //WTableRow _TROW = wTable.LastRow;
+
+            //range.ApplyCharacterFormat(FontBold);
+            #endregion Total
+            ROW++;
+            #region paragrpath formats
+
+            IWParagraphStyle myaddStyle1 = document.AddParagraphStyle("AddinfoStyle1");
+            //Sets the formatting of the style
+            myaddStyle1.CharacterFormat.FontSize = 8f;
+            myaddStyle1.CharacterFormat.TextColor = Color.Black;
+            myaddStyle1.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            #endregion paragrpath formats
+
+            #region merging section
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            ROW++;
+            #endregion merging section
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+
+            return 0;
+        }
+
+        public double makeaddInfoBE2(string salesId, WordDocument document, DataTable dsaddInfo)
+        {
+            string replaceString = "{addInfo2}";
+
+
+            IWParagraphStyle arightAlign = document.AddParagraphStyle("addrightAlign2");
+            //Sets the formatting of the style
+            arightAlign.CharacterFormat.FontSize = 8f;
+            arightAlign.CharacterFormat.TextColor = Color.Black;
+            arightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+            int LasColumnIndex = 1;
+            WTable wTable = new WTable(document);
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex);
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
+            FontBold.Bold = true;
+            DFontSize.FontSize = 8f;
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+            range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
+            int colTermsAndCondition = COL; COL++;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
+
+            #endregion column headers
+            double totalValue = 0;
+            int sl = 0;
+            int startRow = 0;
+            for (int i = 0; i < dsaddInfo.Rows.Count; i++)
+            {
+                ROW++;
+                sl++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsaddInfo.Rows[i]["Description"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+
+            }
+            ROW++;
+
+            #region Total
+            //int TotalRow = ROW;
+            //wTable.AddRow();
+            //WTableRow _TROW = wTable.LastRow;
+
+            //range.ApplyCharacterFormat(FontBold);
+            #endregion Total
+            ROW++;
+            #region paragrpath formats
+
+            IWParagraphStyle myaddStyle2 = document.AddParagraphStyle("AddinfoStyle2");
+            //Sets the formatting of the style
+            myaddStyle2.CharacterFormat.FontSize = 8f;
+            myaddStyle2.CharacterFormat.TextColor = Color.Black;
+            myaddStyle2.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            #endregion paragrpath formats
+
+            #region merging section
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            ROW++;
+            #endregion merging section
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+
+            return 0;
+        }
+
+        public double makeaddInfoBE3(string salesId, WordDocument document, DataTable dsaddInfo)
+        {
+            string replaceString = "{addInfo3}";
+
+
+            IWParagraphStyle arightAlign = document.AddParagraphStyle("addrightAlign3");
+            //Sets the formatting of the style
+            arightAlign.CharacterFormat.FontSize = 8f;
+            arightAlign.CharacterFormat.TextColor = Color.Black;
+            arightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+            int LasColumnIndex = 1;
+            WTable wTable = new WTable(document);
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex);
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
+            FontBold.Bold = true;
+            DFontSize.FontSize = 8f;
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+            range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
+            int colTermsAndCondition = COL; COL++;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
+
+            #endregion column headers
+            double totalValue = 0;
+            int sl = 0;
+            int startRow = 0;
+            for (int i = 0; i < dsaddInfo.Rows.Count; i++)
+            {
+                ROW++;
+                sl++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsaddInfo.Rows[i]["Description"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+
+            }
+            ROW++;
+
+            #region Total
+            //int TotalRow = ROW;
+            //wTable.AddRow();
+            //WTableRow _TROW = wTable.LastRow;
+
+            //range.ApplyCharacterFormat(FontBold);
+            #endregion Total
+            ROW++;
+            #region paragrpath formats
+
+            IWParagraphStyle myaddStyle3 = document.AddParagraphStyle("AddinfoStyle3");
+            //Sets the formatting of the style
+            myaddStyle3.CharacterFormat.FontSize = 8f;
+            myaddStyle3.CharacterFormat.TextColor = Color.Black;
+            myaddStyle3.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            #endregion paragrpath formats
+
+            #region merging section
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            ROW++;
+            #endregion merging section
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+
+            return 0;
+        }
+
+        public double makeaddInfoBE4(string salesId, WordDocument document, DataTable dsaddInfo)
+        {
+            string replaceString = "{addInfo4}";
+
+
+            IWParagraphStyle arightAlign = document.AddParagraphStyle("addrightAlign4");
+            //Sets the formatting of the style
+            arightAlign.CharacterFormat.FontSize = 8f;
+            arightAlign.CharacterFormat.TextColor = Color.Black;
+            arightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+            int LasColumnIndex = 1;
+            WTable wTable = new WTable(document);
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex);
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
+            FontBold.Bold = true;
+            DFontSize.FontSize = 8f;
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+            range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
+            int colTermsAndCondition = COL; COL++;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
+
+            #endregion column headers
+            double totalValue = 0;
+            int sl = 0;
+            int startRow = 0;
+            for (int i = 0; i < dsaddInfo.Rows.Count; i++)
+            {
+                ROW++;
+                sl++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsaddInfo.Rows[i]["Description"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+
+            }
+            ROW++;
+
+            #region Total
+            //int TotalRow = ROW;
+            //wTable.AddRow();
+            //WTableRow _TROW = wTable.LastRow;
+
+            //range.ApplyCharacterFormat(FontBold);
+            #endregion Total
+            ROW++;
+            #region paragrpath formats
+
+            IWParagraphStyle myaddStyle4 = document.AddParagraphStyle("AddinfoStyle4");
+            //Sets the formatting of the style
+            myaddStyle4.CharacterFormat.FontSize = 8f;
+            myaddStyle4.CharacterFormat.TextColor = Color.Black;
+            myaddStyle4.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            #endregion paragrpath formats
+
+            #region merging section
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            ROW++;
+            #endregion merging section
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+
+            return 0;
+        }
+
+        public double makeaddInfoBE5(string salesId, WordDocument document, DataTable dsaddInfo)
+        {
+            string replaceString = "{addInfo5}";
+
+
+            IWParagraphStyle arightAlign = document.AddParagraphStyle("addrightAlign5");
+            //Sets the formatting of the style
+            arightAlign.CharacterFormat.FontSize = 8f;
+            arightAlign.CharacterFormat.TextColor = Color.Black;
+            arightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+            int LasColumnIndex = 1;
+            WTable wTable = new WTable(document);
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex);
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
+            FontBold.Bold = true;
+            DFontSize.FontSize = 8f;
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+            range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
+            int colTermsAndCondition = COL; COL++;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
+
+            #endregion column headers
+            double totalValue = 0;
+            int sl = 0;
+            int startRow = 0;
+            for (int i = 0; i < dsaddInfo.Rows.Count; i++)
+            {
+                ROW++;
+                sl++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsaddInfo.Rows[i]["Description"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+
+            }
+            ROW++;
+
+            #region Total
+            //int TotalRow = ROW;
+            //wTable.AddRow();
+            //WTableRow _TROW = wTable.LastRow;
+
+            //range.ApplyCharacterFormat(FontBold);
+            #endregion Total
+            ROW++;
+            #region paragrpath formats
+
+            IWParagraphStyle myaddStyle5 = document.AddParagraphStyle("AddinfoStyle5");
+            //Sets the formatting of the style
+            myaddStyle5.CharacterFormat.FontSize = 8f;
+            myaddStyle5.CharacterFormat.TextColor = Color.Black;
+            myaddStyle5.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            #endregion paragrpath formats
+
+            #region merging section
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            ROW++;
+            #endregion merging section
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+
+            return 0;
+        }
+
+        public double makeaddInfoBE6(string salesId, WordDocument document, DataTable dsaddInfo)
+        {
+            string replaceString = "{addInfo6}";
+
+
+            IWParagraphStyle arightAlign = document.AddParagraphStyle("addrightAlign6");
+            //Sets the formatting of the style
+            arightAlign.CharacterFormat.FontSize = 8f;
+            arightAlign.CharacterFormat.TextColor = Color.Black;
+            arightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+            int LasColumnIndex = 1;
+            WTable wTable = new WTable(document);
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex);
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
+            FontBold.Bold = true;
+            DFontSize.FontSize = 8f;
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+            range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
+            int colTermsAndCondition = COL; COL++;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
+
+            #endregion column headers
+            double totalValue = 0;
+            int sl = 0;
+            int startRow = 0;
+            for (int i = 0; i < dsaddInfo.Rows.Count; i++)
+            {
+                ROW++;
+                sl++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsaddInfo.Rows[i]["Description"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+
+            }
+            ROW++;
+
+            #region Total
+            //int TotalRow = ROW;
+            //wTable.AddRow();
+            //WTableRow _TROW = wTable.LastRow;
+
+            //range.ApplyCharacterFormat(FontBold);
+            #endregion Total
+            ROW++;
+            #region paragrpath formats
+
+            IWParagraphStyle myaddStyle6 = document.AddParagraphStyle("AddinfoStyle6");
+            //Sets the formatting of the style
+            myaddStyle6.CharacterFormat.FontSize = 8f;
+            myaddStyle6.CharacterFormat.TextColor = Color.Black;
+            myaddStyle6.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            #endregion paragrpath formats
+
+            #region merging section
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            ROW++;
+            #endregion merging section
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+
+            return 0;
+        }
+
+        public double makeaddInfoBE7(string salesId, WordDocument document, DataTable dsaddInfo)
+        {
+            string replaceString = "{addInfo7}";
+
+
+            IWParagraphStyle arightAlign = document.AddParagraphStyle("addrightAlign7");
+            //Sets the formatting of the style
+            arightAlign.CharacterFormat.FontSize = 8f;
+            arightAlign.CharacterFormat.TextColor = Color.Black;
+            arightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+            int LasColumnIndex = 1;
+            WTable wTable = new WTable(document);
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex);
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
+            FontBold.Bold = true;
+            DFontSize.FontSize = 8f;
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+            range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
+            int colTermsAndCondition = COL; COL++;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
+
+            #endregion column headers
+            double totalValue = 0;
+            int sl = 0;
+            int startRow = 0;
+            for (int i = 0; i < dsaddInfo.Rows.Count; i++)
+            {
+                ROW++;
+                sl++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsaddInfo.Rows[i]["Description"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+
+            }
+            ROW++;
+
+            #region Total
+            //int TotalRow = ROW;
+            //wTable.AddRow();
+            //WTableRow _TROW = wTable.LastRow;
+
+            //range.ApplyCharacterFormat(FontBold);
+            #endregion Total
+            ROW++;
+            #region paragrpath formats
+
+            IWParagraphStyle myaddStyle7 = document.AddParagraphStyle("AddinfoStyle7");
+            //Sets the formatting of the style
+            myaddStyle7.CharacterFormat.FontSize = 8f;
+            myaddStyle7.CharacterFormat.TextColor = Color.Black;
+            myaddStyle7.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            #endregion paragrpath formats
+
+            #region merging section
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            ROW++;
+            #endregion merging section
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+
+            return 0;
+        }
+
+        public double makeaddInfoBE8(string salesId, WordDocument document, DataTable dsaddInfo)
+        {
+            string replaceString = "{addInfo8}";
+
+
+            IWParagraphStyle arightAlign = document.AddParagraphStyle("addrightAlign8");
+            //Sets the formatting of the style
+            arightAlign.CharacterFormat.FontSize = 8f;
+            arightAlign.CharacterFormat.TextColor = Color.Black;
+            arightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+            int LasColumnIndex = 1;
+            WTable wTable = new WTable(document);
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex);
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
+            FontBold.Bold = true;
+            DFontSize.FontSize = 8f;
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+            range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
+            int colTermsAndCondition = COL; COL++;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
+
+            #endregion column headers
+            double totalValue = 0;
+            int sl = 0;
+            int startRow = 0;
+            for (int i = 0; i < dsaddInfo.Rows.Count; i++)
+            {
+                ROW++;
+                sl++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsaddInfo.Rows[i]["Description"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+
+            }
+            ROW++;
+
+            #region Total
+            //int TotalRow = ROW;
+            //wTable.AddRow();
+            //WTableRow _TROW = wTable.LastRow;
+
+            //range.ApplyCharacterFormat(FontBold);
+            #endregion Total
+            ROW++;
+            #region paragrpath formats
+
+            IWParagraphStyle myaddStyle8 = document.AddParagraphStyle("AddinfoStyle8");
+            //Sets the formatting of the style
+            myaddStyle8.CharacterFormat.FontSize = 8f;
+            myaddStyle8.CharacterFormat.TextColor = Color.Black;
+            myaddStyle8.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            #endregion paragrpath formats
+
+            #region merging section
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            ROW++;
+            #endregion merging section
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+
+            return 0;
+        }
+
+        public double makeaddInfoBE9(string salesId, WordDocument document, DataTable dsaddInfo)
+        {
+            string replaceString = "{addInfo9}";
+
+
+            IWParagraphStyle arightAlign = document.AddParagraphStyle("addrightAlign9");
+            //Sets the formatting of the style
+            arightAlign.CharacterFormat.FontSize = 8f;
+            arightAlign.CharacterFormat.TextColor = Color.Black;
+            arightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+            int LasColumnIndex = 1;
+            WTable wTable = new WTable(document);
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex);
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
+            FontBold.Bold = true;
+            DFontSize.FontSize = 8f;
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+            range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
+            int colTermsAndCondition = COL; COL++;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
+
+            #endregion column headers
+            double totalValue = 0;
+            int sl = 0;
+            int startRow = 0;
+            for (int i = 0; i < dsaddInfo.Rows.Count; i++)
+            {
+                ROW++;
+                sl++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsaddInfo.Rows[i]["Description"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+
+            }
+            ROW++;
+
+            #region Total
+            //int TotalRow = ROW;
+            //wTable.AddRow();
+            //WTableRow _TROW = wTable.LastRow;
+
+            //range.ApplyCharacterFormat(FontBold);
+            #endregion Total
+            ROW++;
+            #region paragrpath formats
+
+            IWParagraphStyle myaddStyle9 = document.AddParagraphStyle("AddinfoStyle9");
+            //Sets the formatting of the style
+            myaddStyle9.CharacterFormat.FontSize = 8f;
+            myaddStyle9.CharacterFormat.TextColor = Color.Black;
+            myaddStyle9.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            #endregion paragrpath formats
+
+            #region merging section
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            ROW++;
+            #endregion merging section
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+
+            return 0;
+        }
+
+       
+        #endregion Add Info 
 
         public void BillofExchange(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId)
         {
@@ -2353,11 +3347,11 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             {
                 if (BankName == "HDFC 59265400002289")
                 {
-                    fileName = "HDFC.docx";
+                    fileName = "REQUEST-LETTER-HDFC.docx";
                 }
                 if (BankName == "ICICI Bank Limited")
                 {
-                    fileName = "ICICI.docx";
+                    fileName = "REQUEST-LETTER-ICICI.docx";
                 }
                 strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
                 File = strPath;
@@ -2506,7 +3500,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                 var addInfo = makeaddInfo(salesId, document, dsaddInfo);   // {makeaddInfo}
                 var TermsAndCondition = makeTermsAndCondition(salesId, document, dsConditions);   // {conditions}
                
-                document.Replace("{GrandTotal}", (MaterialTotal).ToString("#,##0.00"), true, true);
+                document.Replace("{GrandTotal}", (MaterialTotal).ToString(), true, true);
                
                 //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2"), true, true);
                 //document.Replace("{TotalInWords}", ru.InWord((MaterialTotal), dsOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
@@ -2550,7 +3544,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                 /////////////////////
                 ///
 
-                DocToPDFConverter converter = new DocToPDFConverter();
+                /*DocToPDFConverter converter = new DocToPDFConverter();
 
                 //Converts Word document into PDF document
                 PdfDocument pdfDocument = converter.ConvertToPDF(document);
@@ -2566,7 +3560,8 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
 
                 pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
                 //Closes the instance of document objects
-                pdfDocument.Close(true);
+                pdfDocument.Close(true);*/
+                fileName = "PackingList-" + salesId + ".docx";
                 document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 document.Close();
             }
@@ -2598,6 +3593,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
     ,BASECRNC.Code AS BaseCurrencyName,PayTerm.UserName PaymentTerm,MM.UserName MaterialMaster,MGM.UserName MaterialGroupMaster
     ,Article=CASE WHEN ISNULL(MOI.LCArticle,'')<>'' THEN MOI.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
      ,POTransactionQty=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.NetWeight END) 
+    ,POTransactionQtyGWT=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.GWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.GWeight END)
     ,CONVERT(NUMERIC(10,4),IRD.TransactionRate, 4) TransactionRate
 	,TrnAmount=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN ROUND((IRD.TransactionQty * IRD.TransactionRate), 2) ELSE ROUND((SCN.NetWeight * IRD.TransactionRate), 2) END)
 	--,SumTrnAmount =  sum(ROUND((SCN.NetWeight * IRD.TransactionRate), 2))
@@ -2636,14 +3632,14 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     FOR XML PATH('')
                     ), 1, 1, '')
 ,LcAmount= (
-                    SELECT CONVERT(NUMERIC(10,2) , LC.Amount)
+                    SELECT sum(CONVERT(NUMERIC(10,2) , LC.Amount))
                     FROM dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
                     LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
 					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
                     WHERE SM.SalesId=IR.Id)
 ,LcAmountBL = (
-                    SELECT CONVERT(NUMERIC(10,2) , LC.Amount)
+                    SELECT sum(CONVERT(NUMERIC(10,2) , LC.Amount))
                     FROM dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
                     LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
@@ -2674,6 +3670,17 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     FROM dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
 					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,OPC=Stuff((
+                    SELECT distinct',' + DelCN.UserName
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+					LEFT JOIN SCS.Country DelCN ON DelCN.Id=NB.CountryId
                     LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
 					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
                     WHERE SM.SalesId=IR.Id
@@ -2818,6 +3825,16 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     SELECT distinct',' + PL.UserName
                     FROM  dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.[Port] AS PL ON PL.Id = LC.PortOfLandingId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,Countryoffinal=Stuff((
+                    SELECT distinct',' + PL.UserName
+                    FROM  dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
 					LEFT JOIN MST.[Port] AS PL ON PL.Id = LC.FinalDestinationId
 					LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
 					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
@@ -2887,6 +3904,17 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
+,Clause1 =Stuff((
+                    SELECT distinct',' + LLc.Clause1
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+					left join LCClauses LLc on LLc.MasterLCId = LC.id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
 ,PSI.RFIDSealNo 
 ,PSI.LineSealNo
 ,NEGADD.Address1 NegotiationBankAdd
@@ -2896,6 +3924,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
 ,FORMAT(PSI.ShippingBillDate,'dd-MMM-yyyy')ShippingBillDate
 ,FORMAT(PSI.ShipmentDate,'dd-MMM-yyyy')ShipmentDate
 ,CONVERT(numeric(10,2) , SAI.Value) AdvanceRevceive
+,PSI.ExportRefNo EPN
 
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
@@ -2939,7 +3968,571 @@ left join mst.BankMaster NEGBNKMT on NEGBNKMT.Id = PSI.BankMasterId
 left join hkp.Bank NEGBNK on NEGBNK.Id = NEGBNKMT.BankId
 left join hkp.BankBranch NEGBB on NEGBB.Id = NEGBNKMT.BankBranchId
 left join MST.AddressMaster NEGADD on NEGADD.Id = NEGBB.AddressMasterId
-left join SalesAdditionalInfo SAI on SAI.SalesId = IR.Id and SAI.AdditionalInfoId = 'AI18'
+left join SalesAdditionalInfo SAI on SAI.SalesId = IR.Id 
+left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName = 'Advance'
+                       WHERE IR.Id ='" + SalesId + "' AND SCN.Bags<>''";
+
+                return _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }
+
+        public DataTable GetloadCommercialLocalTaxMaterialMasterBC(string SalesId)
+        {
+            string strSQL;
+
+            try
+            {
+                strSQL = @"SELECT IR.Id CustomerNo,CRNC.Code,cmp.BaseCurrencyId,IR.CurrencyId,p.UserName Customer,P.UserName Buyer,P.TINNO CustomerGSTNo,p.VATResistrationNo AS CustomerPANNo
+    ,Addres.Address1 VendorAddress,ISNULL(HSNC.Code,MHSN.Code) HSNCode,Plant.GSTIN,Plant.VATResistrationNo AS PlantPANNo,DPARTYPL.GSTIN ShipGSTIN
+    ,INVPARTYPL.GSTIN BillGSTIN,IR.DocRefNo,IR.InvoiceNo , IR.InvoiceNo InvoiceNoNew
+    ,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS DocDate
+    ,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate
+	,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDateNew
+    ,REPLACE(Convert(VARCHAR(11), IR.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate
+    ,REPLACE(Convert(VARCHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate   
+    ,INVPARTYPL.UserName InvoiceParty,INVPARTYPL.UserName InvoiceParty2,IR.InvoicingByAddress AS ConsigneeAddress,IR.DeliveryByAddress,DPARTYPL.UserName DeliveryParty 
+    ,PSI.PreCarriageBy,PSI.PlaceOfReceiptByPreCarriage,PSI.CNFContainerNo,PSI.CNFVesselName,PSI.CNFVesselTrackingNo,CRNC.Code AS CurrencyName,IR.ToCurrencyRate
+    ,BASECRNC.Code AS BaseCurrencyName,PayTerm.UserName PaymentTerm,MM.UserName MaterialMaster,MGM.UserName MaterialGroupMaster
+    ,Article=CASE WHEN ISNULL(MOI.LCArticle,'')<>'' THEN MOI.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
+     ,POTransactionQty=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.NetWeight END) 
+    ,CONVERT(NUMERIC(10,4),IRD.TransactionRate, 4) TransactionRate
+	,TrnAmount=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN ROUND((IRD.TransactionQty * IRD.TransactionRate), 2) ELSE ROUND((SCN.NetWeight * IRD.TransactionRate), 2) END)
+	--,SumTrnAmount =  sum(ROUND((SCN.NetWeight * IRD.TransactionRate), 2))
+	,BaseAmount=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.BaseAmount ELSE ROUND((SCN.NetWeight * IRD.TransactionRate), 2) END)
+   ,BooksCurrencyTransactionAmount=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.BooksCurrencyTransactionAmount ELSE ROUND((SCN.NetWeight * CONVERT(NUMERIC(10,4),IRD.BooksCurrencyBaseRate)), 4) END)	
+    ,CONVERT(NUMERIC(10,2),IRD.BooksCurrencyTaxAmount)BooksCurrencyTaxAmount
+    ,CONVERT(NUMERIC(10,4),IRD.BooksCurrencyBaseRate)BooksCurrencyBaseRate
+    ,TUoM.UserName AS TransactionUoM
+    ,PONumber = REPLACE(REPLACE(STUFF((
+                    SELECT DISTINCT ', ' + CPO.PONumber
+                    FROM TRN.SalesMaterial SM
+                    JOIN TRN.SalesOrder SO ON SO.Id = SM.SalesOrderId
+                    JOIN TRN.CustomerPO CPO ON CPO.id = SO.CustomerPOId
+                    WHERE IR.Id = SM.SalesId
+                    FOR XML path('')
+                        ,TYPE
+                    ).value('.', 'VARCHAR(MAX)'), 1, 1, ''), '&amp;', '&'), 'amp;', '')
+    
+    ,IR.ComercialInvoiceNo,IR.BLNumber,FORMAT(IR.BLDate, 'dd-MMM-yyyy') BLDate,IR.EXPFromNo,FORMAT(IR.EXPDate, 'dd-MMM-yyyy') EXPDate,IR.ItemDescription
+    ,PSI.TransportVehicleNo,PSI.TransportDriverName,PSI.TransportDriverNo,PPSI.UserName TransporterName,BM.AccountTitle,BM.AccountNumber,BMA.Address1
+    ,PSI.TransportDocRefNo,FORMAT(PSI.TransportDocDate, 'dd-MMM-yyyy') CNFBLAWBDate,B.UserName AS Bank,BB.UserName AS BankBranch
+	,(SELECT Stuff((
+                    SELECT distinct',' + pla.AttributeValue
+                    FROM dbo.ProductLibraryAttribute pla
+                    WHERE pla.ProductLibraryId = MOI.ProductLibraryId
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+        ) AS ProdDetails,SCN.Bags Cartons, SCN.LotNo, CONVERT(NUMERIC(10,2),SCN.GWeight)GWeight, MO.Type,MO.MasterOrderNo,SO.Id SalesOrderNo,MO.BuyerReferenceNo,BB.IFSCCode
+,LcNo=Stuff((
+                    SELECT distinct',' + LC.LCRef
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,LcAmount= (
+                    SELECT sum(CONVERT(NUMERIC(10,2) , LC.Amount))
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id)
+,LcAmountBL = (
+                    SELECT sum(CONVERT(NUMERIC(10,2) , LC.Amount))
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id)
+,LcNoNew=Stuff((
+                    SELECT distinct',' + LC.LCRef
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,BenificiaryBank=Stuff((
+                    SELECT distinct',' + B.UserName
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.BankMaster OB on OB.Id = LC.BenificiaryBankId
+					LEFT JOIN HKP.Bank B on B.Id = OB.BankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,OpeningBank=Stuff((
+                    SELECT distinct',' + NB.UserName
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,OPC=Stuff((
+                    SELECT distinct',' + DelCN.UserName
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+					LEFT JOIN SCS.Country DelCN ON DelCN.Id=NB.CountryId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,LcOpeningBank=Stuff((
+                    SELECT distinct',' + NB.UserName
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,LcOpeningBankBE=Stuff((
+                    SELECT distinct',' + NB.UserName
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,LcOpeningBankfirst=Stuff((
+                    SELECT distinct',' + NB.BankAddress
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,LcOpeningBanksecond=Stuff((
+                    SELECT distinct',' + NB.BankAddress
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,LCDate=Stuff((
+                    SELECT distinct',' + FORMAT(LC.LCDate, 'dd-MMM-yyyy')
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,LCShipingdate=Stuff((
+                    SELECT distinct',' + FORMAT(LC.LCShipmentDate, 'dd-MMM-yyyy')
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,LCExpirydate=Stuff((
+                    SELECT distinct',' + FORMAT(LC.ExpiryDate, 'dd-MMM-yyyy')
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,BenificiaryBankDescription=Stuff((
+                    SELECT distinct',' + OA.Address1
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.BankMaster OB on OB.Id = LC.BenificiaryBankId
+					LEFT JOIN HKP.Bank B on B.Id = OB.BankId
+					LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,OpeningBankAddress=Stuff((
+                    SELECT distinct',' + LC.OpeningDescription
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,ContractNo=Stuff((
+                    SELECT distinct',' + C.Id
+                    FROM  dbo.[Contract] C 
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+
+,ContractDate=Stuff((
+                    SELECT distinct',' + FORMAT(C.AddedDate,'dd-MMM-yyyy')
+                    FROM  dbo.[Contract] C 
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,ShipmentMode=Stuff((
+                    SELECT distinct',' + SHM.UserName
+                    FROM  dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.ShipMode SHM ON SHM.Id=LC.ShipmentModeId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,PortOfLoading=Stuff((
+                    SELECT distinct',' + PL.UserName
+                    FROM  dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.[Port] AS PL ON PL.Id = LC.PortOfLoadingId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,PortOfDischarge=Stuff((
+                    SELECT distinct',' + PL.UserName
+                    FROM  dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.[Port] AS PL ON PL.Id = LC.PortOfLandingId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,PortOfDelivary=Stuff((
+                    SELECT distinct',' + PL.UserName
+                    FROM  dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.[Port] AS PL ON PL.Id = LC.PortOfLandingId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,Countryoffinal=Stuff((
+                    SELECT distinct',' + PL.UserName
+                    FROM  dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.[Port] AS PL ON PL.Id = LC.FinalDestinationId
+					LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,NetWeights =convert(NUMERIC(10,2), (select sum(NetWeight) from Itemscanchild 
+				where SalesId = IR.Id
+				))
+,NoCartons =convert(NUMERIC(10,0), (select COUNT(RefNo) from Itemscanchild 
+				where SalesId = IR.Id
+				))
+,NoCartonss =convert(NUMERIC(10,0), (select COUNT(RefNo) from Itemscanchild 
+				where SalesId = IR.Id
+				))
+,GrossWeights=convert(NUMERIC(10,2), (select sum(GWeight) from Itemscanchild 
+				where SalesId = IR.Id
+				))
+,PSI.PreCarriageDocRef LRCopy 
+,FORMAT(PSI.PreCarriageDocDate,'dd-MMM-yyyy') LRDate
+
+,DelCN.UserName INVOICEDILEVERYPLANTCOUNTRY,IR.AdditionalFrieghtValue
+,DelCN.UserName INVOICEDILEVERYPLANTCOUNTRYNew
+,DelCN.UserName INVOICEDILEVERYPLANTCOUNTRYBE
+
+,SumTrnAmount = (select sum(CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCNS.NetWeight,0)=0 THEN ROUND((IRDS.TransactionQty * IRDS.TransactionRate), 2)
+					ELSE ROUND((SCNS.NetWeight * IRDS.TransactionRate), 2) END))
+					from trn.SalesMaterial IRDS
+					LEFT JOIN (SELECT distinct LotNo, SalesId,SalesMaterialId,  COUNT(RefNo) Bags, 
+								SUM(NetWeight)NetWeight,SUM(GWeight)GWeight FROM ItemScanChild 
+								group by SalesId ,SalesMaterialId, LotNo) SCNS on  SCNS.SalesMaterialId=IRDS.Id
+								WHERE IRDS.SalesId = IR.Id)
+,SumTrnAmountNew = (select sum(CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCNS.NetWeight,0)=0 THEN ROUND((IRDS.TransactionQty * IRDS.TransactionRate), 2)
+					ELSE ROUND((SCNS.NetWeight * IRDS.TransactionRate), 2) END))
+					from trn.SalesMaterial IRDS
+					LEFT JOIN (SELECT distinct LotNo, SalesId,SalesMaterialId,  COUNT(RefNo) Bags, 
+								SUM(NetWeight)NetWeight,SUM(GWeight)GWeight FROM ItemScanChild 
+								group by SalesId ,SalesMaterialId, LotNo) SCNS on  SCNS.SalesMaterialId=IRDS.Id
+								WHERE IRDS.SalesId = IR.Id)
+,CurrentDate = format(GETDATE(),'dd-MM-yyyy')
+,LCDateNew=Stuff((
+                    SELECT distinct',' + FORMAT(LC.LCDate, 'yyMMdd')
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,LCDateBE=Stuff((
+                    SELECT distinct',' + FORMAT(LC.LCDate, 'yyMMdd')
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,PTD.NoOfDay PaymentTermDays
+,SwiftCode =Stuff((
+                    SELECT distinct',' + NB.SWIFTCode
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,Clause1 =Stuff((
+                    SELECT distinct',' + LLc.Clause1
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+					left join LCClauses LLc on LLc.MasterLCId = LC.id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,PSI.RFIDSealNo 
+,PSI.LineSealNo
+,NEGADD.Address1 NegotiationBankAdd
+,NEGBB.SWIFTCode NegotiatingBankSwiftCode
+,PSI.ShippingBillNo
+,PSI.PortCode
+,FORMAT(PSI.ShippingBillDate,'dd-MMM-yyyy')ShippingBillDate
+,FORMAT(PSI.ShipmentDate,'dd-MMM-yyyy')ShipmentDate
+,CONVERT(numeric(10,2) , SAI.Value) AdvanceRevceive
+,Clause2 =Stuff((
+                    SELECT distinct',' + LLc.Clause2
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+					left join LCClauses LLc on LLc.MasterLCId = LC.id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,Clause3 =Stuff((
+                    SELECT distinct',' + LLc.Clause3
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+					left join LCClauses LLc on LLc.MasterLCId = LC.id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,Clause4 =Stuff((
+                    SELECT distinct',' + LLc.Clause4
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+					left join LCClauses LLc on LLc.MasterLCId = LC.id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,Clause5 =Stuff((
+                    SELECT distinct',' + LLc.Clause5
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+					left join LCClauses LLc on LLc.MasterLCId = LC.id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,Clause6 =Stuff((
+                    SELECT distinct',' + LLc.Clause6
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+					left join LCClauses LLc on LLc.MasterLCId = LC.id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,Clause7 =Stuff((
+                    SELECT distinct',' + LLc.Clause7
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+					left join LCClauses LLc on LLc.MasterLCId = LC.id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,Clause8 =Stuff((
+                    SELECT distinct',' + LLc.Clause8
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+					left join LCClauses LLc on LLc.MasterLCId = LC.id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,Clause9 =Stuff((
+                    SELECT distinct',' + LLc.Clause9
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+					left join LCClauses LLc on LLc.MasterLCId = LC.id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,Clause10 =Stuff((
+                    SELECT distinct',' + LLc.Clause10
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN [dbo].NegotiatingBank NB ON NB.Id=LC.OpeningBankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+					left join LCClauses LLc on LLc.MasterLCId = LC.id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,CurrentDate1 = format(GETDATE(),'dd-MM-yyyy')
+,CurrentDate2 = format(GETDATE(),'dd-MM-yyyy')
+,CurrentDate3 = format(GETDATE(),'dd-MM-yyyy')
+,CurrentDate4 = format(GETDATE(),'dd-MM-yyyy')
+,CurrentDate5 = format(GETDATE(),'dd-MM-yyyy')
+,CurrentDate6 = format(GETDATE(),'dd-MM-yyyy')
+,CurrentDate7 = format(GETDATE(),'dd-MM-yyyy')
+,CurrentDate8 = format(GETDATE(),'dd-MM-yyyy')
+,CurrentDate9 = format(GETDATE(),'dd-MM-yyyy')
+
+,p.UserName Customer1
+,Addres.Address1 VendorAddress1
+,p.UserName Customer2
+,Addres.Address1 VendorAddress2
+,p.UserName Customer3
+,Addres.Address1 VendorAddress3
+,p.UserName Customer4
+,Addres.Address1 VendorAddress4
+,p.UserName Customer5
+,Addres.Address1 VendorAddress5
+,p.UserName Customer6
+,Addres.Address1 VendorAddress6
+,p.UserName Customer7
+,Addres.Address1 VendorAddress7
+,p.UserName Customer8
+,Addres.Address1 VendorAddress8
+,p.UserName Customer9
+,Addres.Address1 VendorAddress9
+
+,IR.InvoiceNo  InvoiceNo1
+,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate1
+,FORMAT(PSI.ShipmentDate,'dd-MMM-yyyy')ShipmentDate1
+,IR.InvoiceNo InvoiceNo2
+,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate2
+,FORMAT(PSI.ShipmentDate,'dd-MMM-yyyy')ShipmentDate2
+,IR.InvoiceNo InvoiceNo3
+,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate3
+,FORMAT(PSI.ShipmentDate,'dd-MMM-yyyy')ShipmentDate3
+,IR.InvoiceNo InvoiceNo4
+,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate4
+,FORMAT(PSI.ShipmentDate,'dd-MMM-yyyy')ShipmentDate4
+,IR.InvoiceNo InvoiceNo5
+,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate5
+,FORMAT(PSI.ShipmentDate,'dd-MMM-yyyy')ShipmentDate5
+,IR.InvoiceNo InvoiceNo6
+,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate6
+,FORMAT(PSI.ShipmentDate,'dd-MMM-yyyy')ShipmentDate6
+,IR.InvoiceNo InvoiceNo7
+,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate7
+,FORMAT(PSI.ShipmentDate,'dd-MMM-yyyy')ShipmentDate7
+,IR.InvoiceNo InvoiceNo8
+,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate8
+,FORMAT(PSI.ShipmentDate,'dd-MMM-yyyy')ShipmentDate8
+,IR.InvoiceNo InvoiceNo9
+,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate9
+,FORMAT(PSI.ShipmentDate,'dd-MMM-yyyy')ShipmentDate9
+
+FROM TRN.Sales IR
+LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
+LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
+LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
+LEFT JOIN dbo.PostSalesInvoice PSI ON PSI.SalesId = IR.Id
+LEFT JOIN SCS.Currency CRNC ON CRNC.Id = IR.CurrencyId
+LEFT JOIN SCS.Currency BASECRNC ON BASECRNC.Id = cmp.BaseCurrencyId
+LEFT JOIN MST.PaymentTerm PayTerm ON PayTerm.Id = IR.PaymentTermId
+left join mst.PaymentTermDetail PTD on PTD.PaymentTermId = PayTerm.Id and PTD.Sequence = 3
+LEFT JOIN HKP.PartyPlant INVPARTYPL ON INVPARTYPL.Id = IR.InvoicingPartyPlantId
+LEFT JOIN HKP.PartyPlant DPARTYPL ON DPARTYPL.Id = IR.DeliveryPartyPlantId
+LEFT JOIN HKP.Party P ON P.Id = IR.PartyId
+LEFT JOIN [MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
+LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
+LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
+LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+LEFT JOIN [MST].[AddressMaster] DelAddres ON DelAddres.Id = DPARTYPL.AddressMasterId
+LEFT JOIN SCS.Country DelCN ON DelCN.Id=DelAddres.CountryId
+left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
+left join ProductLibrary PLA on PLA.Id = MOI.ProductLibraryId
+LEFT JOIN (SELECT distinct LotNo, SalesId,SalesMaterialId,  COUNT(RefNo) Bags, 
+            SUM(NetWeight)NetWeight,SUM(GWeight)GWeight FROM ItemScanChild 
+			group by SalesId ,SalesMaterialId, LotNo) SCN on SCN.SalesId = IR.Id AND SCN.SalesMaterialId=IRD.Id
+
+LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
+LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
+LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
+LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id
+LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
+LEFT JOIN [HKP].[HSNCode] AS MHSN ON MHSN.ID = MM.HSNCodeId
+LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID = MMA.HSNCodeId
+
+LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId = TUoM.Id
+LEFT JOIN HKP.Party PPSI ON PPSI.Id = PSI.TransportAgentId
+LEFT JOIN MST.BankMaster BM ON BM.Id = IR.PaymentToReceiveBankId
+LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
+LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId AND BB.Id = BM.BankBranchId
+LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
+left join mst.BankMaster NEGBNKMT on NEGBNKMT.Id = PSI.BankMasterId
+left join hkp.Bank NEGBNK on NEGBNK.Id = NEGBNKMT.BankId
+left join hkp.BankBranch NEGBB on NEGBB.Id = NEGBNKMT.BankBranchId
+left join MST.AddressMaster NEGADD on NEGADD.Id = NEGBB.AddressMasterId
+left join SalesAdditionalInfo SAI on SAI.SalesId = IR.Id 
+left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName = 'Advance'
                        WHERE IR.Id ='" + SalesId + "' AND SCN.Bags<>''";
 
                 return _sqlRepository.GetDataTable(strSQL);
@@ -5176,18 +6769,18 @@ left join SalesAdditionalInfo SAI on SAI.SalesId = IR.Id and SAI.AdditionalInfoI
             int colHSN = COL; COL++;
             wTable.Rows[ROW].Cells[colHSN].Width = 60;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("QUANTITY NET WEIGHT IN(KGS.)");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("NET WEIGHT(KGS.)");
             range.ApplyCharacterFormat(FontBold);
             int colQty = COL; COL++;
             wTable.Rows[ROW].Cells[colQty].Width = 60;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("CARTON  SERIAL NOS.");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("No of Cartons");
             range.ApplyCharacterFormat(FontBold);
             int colCartons = COL; COL++;
             wTable.Rows[ROW].Cells[colCartons].Width = 50;
 
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("GROSS WEIGHT IN KGS.");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("GROSS WEIGHT(KGS.)");
             range.ApplyCharacterFormat(FontBold);
             range.ApplyCharacterFormat(DFontSize);
             int colGW = COL;
@@ -5218,8 +6811,8 @@ left join SalesAdditionalInfo SAI on SAI.SalesId = IR.Id and SAI.AdditionalInfoI
                 TROW.Cells[colLot].AddParagraph().AppendText(dsOrderMaster.Rows[i]["LotNo"].ToString()).ApplyCharacterFormat(DFontSize);
                 TROW.Cells[colCartons].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Cartons"].ToString()).ApplyCharacterFormat(DFontSize);
                 TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString()).ApplyCharacterFormat(DFontSize);
-                TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["NetWeights"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
-                TROW.Cells[colGW].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["GrossWeights"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colGW].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQtyGWT"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
                 
             }
 
@@ -5247,7 +6840,15 @@ left join SalesAdditionalInfo SAI on SAI.SalesId = IR.Id and SAI.AdditionalInfoI
                         value += clsStdLib.dbl(item.Text);
                     }
                 }
-                _TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
+                if(C == colCartons)
+                {
+                    _TROW.Cells[C].AddParagraph().AppendText(value.ToString()).ApplyCharacterFormat(FontBold);
+                }
+                else
+                {
+                    _TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
+                }
+                
             }
             #endregion Total
 

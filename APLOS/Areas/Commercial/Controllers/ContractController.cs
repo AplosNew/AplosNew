@@ -3418,6 +3418,12 @@ WHERE CT.ContractId " + contractId+"";
             return Json(clsCon.GetMasterLCTermsAndConditionsList(masTerLCId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetMasterLCLCClausesList(string masTerLCId)
+        {
+            return Json(clsCon.GetMasterLCLCClausesList(masTerLCId), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpPost]
         public ActionResult DeleteMasterLCTermsAndConditions(string id)
         {

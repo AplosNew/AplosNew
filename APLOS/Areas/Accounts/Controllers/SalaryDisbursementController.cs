@@ -89,6 +89,10 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return View("~/Areas/Accounts/Views/SalaryDisbursement/BonusDisbursementPost.cshtml");
         }
+        public ActionResult SalaryDisbursementPost()
+        {
+            return View("~/Areas/Accounts/Views/SalaryDisbursement/SalaryDisbursementPost.cshtml");
+        }
 
         [Authorize, HttpGet]
         public JsonResult GetSalaryLockDataList(string yearNo, string monthNo, string employeeId, bool isActive, bool isSeperated, bool isMaternity)
@@ -1638,10 +1642,10 @@ Where HeadCategory='Net Payable' ";
 
             wcEmpStatus += ")";
 
-            string sql = @"select [isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'),* FROM (  SELECT   dISTINCT   
+            string sql = @"select [isSelect] = Convert(bit, 'False'),[isToBeSelect] = Convert(bit, 'False'),* FROM (  SELECT   dISTINCT   
                                      isnull(e.SystemId,'') EmpSystemId
 									,ISNULL(e.EmployeeId,'')  EmployeeId 
-	                                ,sl.Id,CheckBoxSelect=case when  sl.Id is null then  CONVERT(bit,0) when sl.IsBonusDisbursed <> 1  then CONVERT(bit,0) else  CONVERT(bit,1) end   
+	                                ,sl.Id,CheckBoxSelect= CONVERT(bit,0)   
 									,SPM.MonthNo
 									,CASE WHEN SPM.MonthNo=1 THEN 'January'
 									        WHEN SPM.MonthNo=2 THEN 'February'
@@ -1779,10 +1783,10 @@ Where HeadCategory='Net Payable' ";
 
             wcEmpStatus += ")";
 
-            string sql = @"select [isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'),* FROM (  SELECT   dISTINCT   
+            string sql = @"select [isSelect] = Convert(bit, 'False'),[isToBeSelect] = Convert(bit, 'False'),* FROM (  SELECT   dISTINCT   
                                      isnull(e.SystemId,'') EmpSystemId
 									,ISNULL(e.EmployeeId,'')  EmployeeId 
-	                                ,sl.Id,CheckBoxSelect=case when  sl.Id is null then  CONVERT(bit,0) when sl.IsBonusDisbursed <> 1  then CONVERT(bit,0) else  CONVERT(bit,1) end   
+	                                ,sl.Id,CheckBoxSelect= CONVERT(bit,0)   
 									,SPM.MonthNo
 									,CASE WHEN SPM.MonthNo=1 THEN 'January'
 								            WHEN SPM.MonthNo=2 THEN 'February'
@@ -2070,6 +2074,80 @@ Where HeadCategory='Net Payable' ";
             catch (Exception ex)
             {
                 return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult ImportBonusData()
+        {
+            string path;
+            clsTemplateReadProfile objR = null;
+            try
+            {
+                objR = new clsTemplateReadProfile();
+                var file = Request.Files["file"];
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                SaveFiles(out path);
+                var data = ReadBonusData(identity.PlantId, path);
+                JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        public List<BonusDisburseTemplate> ReadBonusData(string plantid, string path)
+        {
+            List<BonusDisburseTemplate> data = null;
+            //string path = "";
+            DataSet dsExcel = null;
+            try
+            {
+                data = new List<BonusDisburseTemplate>();
+                ReadBonusFile(path, out dsExcel);
+                Validation(dsExcel, plantid);
+                data = dsExcel.Tables[0].ToList<BonusDisburseTemplate>();
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void ReadBonusFile(string path, out DataSet dsExcel)
+        {
+            FileInfo docFile;
+            dsExcel = null;
+            try
+            {
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = excelEngine.Excel.Workbooks.Open(path);
+                DataTable dt = workbook.Worksheets[0].ExportDataTable(5, 1, 5000, 28, ExcelExportDataTableOptions.ColumnNames);
+                dt.DefaultView.RowFilter = "isnull(EmployeeCode,'')<>''";
+                dt = dt.DefaultView.ToTable();
+
+                dsExcel = new DataSet();
+                dsExcel.Tables.Add(dt);
+                docFile = new FileInfo(path);
+                if (docFile.Exists)
+                {
+                    docFile.Delete();
+                }
+            }
+            catch (Exception ex)
+            {
+                docFile = new FileInfo(path);
+                if (docFile.Exists)
+                {
+                    docFile.Delete();
+                }
+                throw (ex);
             }
         }
 
@@ -2394,5 +2472,13 @@ Where HeadCategory='Net Payable' ";
         //public string IsDisburse { get; set; }
         //public string NetPayment { get; set; }
         
+    }
+    public class BonusDisburseTemplate
+    {
+        public string Id { get; set; }
+        public string EmployeeCode { get; set; }
+        public string EmployeeName { get; set; }
+        
+
     }
 }

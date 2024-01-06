@@ -77,11 +77,7 @@ function bonusDisbursementController(commonMessage, $scope, $rootScope, baseServ
                 data: parameters
             }).then(function successCallback(response) {
                 if (response.data.empdata.length > 0) {
-                    $scope.empGrid = true;
-                    $scope.EmployeeListDefault = response.data.empdata.filter(d => d.isSelect == true);
-                    $scope.EmployeeList = $scope.EmployeeListDefault;
-                    $scope.EmployeeListTemp = $scope.EmployeeListDefault;
-                    $scope.EmployeeListTemp = response.data.empdata
+                    $scope.EmployeeListTemp = response.data.empdata;
 
                 }
 
@@ -143,7 +139,7 @@ function bonusDisbursementController(commonMessage, $scope, $rootScope, baseServ
 
             $http({
                 method: 'POST',
-                url: 'Accounts/SalaryDisbursement/ImportData',
+                url: 'Accounts/SalaryDisbursement/ImportBonusData',
                 headers: { 'Content-Type': undefined },
                 transformRequest: function (data) {
                     picData.append("modelNew", angular.toJson(data.modelNew));
@@ -159,8 +155,8 @@ function bonusDisbursementController(commonMessage, $scope, $rootScope, baseServ
                 }
                 else {
 
-                    for (var i = 0; i < $scope.EmployeeListTemp.length; i++) {
-                        $scope.EmployeeListTemp[i].CheckBoxSelect = getActive(response.data, $scope.EmployeeListTemp[i].EmployeeCode);
+                    for (var i = 0; i < $scope.BonusUnDisburseList.length; i++) {
+                        $scope.BonusUnDisburseList[i].CheckBoxSelect = getActive(response.data, $scope.BonusUnDisburseList[i].Id);
                     }
                     $scope.ShowSaveBtn = true;
                 }
@@ -176,9 +172,9 @@ function bonusDisbursementController(commonMessage, $scope, $rootScope, baseServ
         }
     };
 
-    function getActive(list, EmployeeCode) {
+    function getActive(list, Id) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].EmployeeCode === EmployeeCode) {
+            if (list[i].Id === Id) {
                 return true;
             }
         }
@@ -273,11 +269,11 @@ function bonusDisbursementController(commonMessage, $scope, $rootScope, baseServ
             }).then(function successCallback(response) {
                 if (response.data.length > 0) {
                     $scope.BonusUnDisburseList = response.data;
-                    $scope.EmployeeList = $scope.EmployeeListDefault;
-                    $scope.EmployeeListTemp = $scope.EmployeeListDefault;
                     $scope.saveBtnDisable = false;
+                    $scope.empGrid = true;
                 }
                 else {
+                    $scope.empGrid = false;
                     ShowResult("No Data Found", 'failure');
                    
                 }
@@ -328,6 +324,7 @@ function bonusDisbursementController(commonMessage, $scope, $rootScope, baseServ
         for (let i = 0; i < dataListUnDisbursed.length; i++) {
             obj.YearNo = dataListUnDisbursed[i].YearNo;
             obj.MonthName = dataListUnDisbursed[i].MonthName;
+            obj.Id = dataListUnDisbursed[i].Id;
             obj.SalaryProcId = dataListUnDisbursed[i].SalaryProcId;
             obj.EmployeeCode = dataListUnDisbursed[i].EmployeeCode;
             obj.EmployeeName = dataListUnDisbursed[i].EmployeeName;
@@ -404,6 +401,7 @@ function bonusDisbursementController(commonMessage, $scope, $rootScope, baseServ
             obj.MonthName = dataList[i].MonthName;
             obj.BonusDisbursementAdviceId = dataList[i].BonusDisbursementAdviceId;
             obj.Remarks = dataList[i].Remarks;
+            obj.Id = dataList[i].Id;
             obj.SalaryProcId = dataList[i].SalaryProcId;
             obj.AddedBy = dataList[i].AddedBy;
             obj.EmployeeCode = dataList[i].EmployeeCode;

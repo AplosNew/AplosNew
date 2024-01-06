@@ -24,7 +24,7 @@ namespace Library.Service.Employees
         IEnumerable<PreRecruitmentEmployee> GetMasterlist(string PKs);
 
         GridModel GetBudgetCodeList(GridParameter parameters, string plantId);
-        GridModel GetManpowerBudgetListByEntitySql(GridParameter parameters, string plantId, string entityids);
+        IEnumerable<object> GetManpowerBudgetListByEntitySql(string CompanyGroupId, string CompanyId, string plantId, string entityids);
         GridModel GetCbo();
     }
 }

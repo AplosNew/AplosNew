@@ -52,19 +52,19 @@ namespace Aplos.Areas.QMS.Controllers
         [Authorize, HttpGet]
         public ActionResult GetCustomerList()
         {
-            return Json(_productionSummaryData.GetCustomerList(), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetSummaryCustomerList(), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
         public ActionResult GetInvoiceList(string PartyId)
         {
-            return Json(_productionSummaryData.GetInvoiceList(PartyId), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetSummaryInvoiceList(PartyId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
         public ActionResult GetPOList(string InvoiceId)
         {
-            return Json(_productionSummaryData.GetInvoicePOList(InvoiceId), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetSummaryInvoicePOList(InvoiceId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
@@ -82,7 +82,7 @@ namespace Aplos.Areas.QMS.Controllers
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 IWorkbook workbook = app.GetCustomerLWQSummaryJobCardReport(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, CustomerId, InvoiceId, ProductionOrderId, LotNumber);
-                var reportFileName = DateTime.Now.ToString("yyMMdd") + "Job Card Report";
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + "Quality Test Report";
                 return RenderReportAsExcel(workbook, reportFileName);
 
             }

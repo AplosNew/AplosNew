@@ -1165,6 +1165,21 @@ LEFT JOIN HKP.TermsAndConditions TC ON TC.Id=CT.TermsAndConditionsId
             }
         }
 
+        public IEnumerable<object> GetMasterLCLCClausesList(string masTerLCId)
+        {
+            try
+            {
+                string sql = @"SELECT CT.*
+FROM [dbo].[LCClauses] CT
+                            WHERE CT.MasTerLCId='" + masTerLCId + "'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> GetGoodWorkEntitySetupData(string goodWorkSetupId)
         {
             try
@@ -1187,12 +1202,11 @@ LEFT JOIN HKP.TermsAndConditions TC ON TC.Id=CT.TermsAndConditionsId
         public IEnumerable<object> GetGoodWorkBudgetCodeSetupData(string goodWorkSetupId)
         {
             try
-            {
-
+            { 
                 var sql = @"SELECT GWB.*,E.Id EntityId,E.UserName Entity,MB.IsOTEntitled,D.Id DivisionId,D.UserName Division,DP.Id DepartmentId
 					,DP.UserName Department,S.Id SectionId,S.UserName Section,SS.Id SubSectionId,SS.UserName SubSection
 					,DE.Id DesignationId,DE.UserName Designation,P.Activity,P.UserReportGroup UserGroup,PR.Id ProcessId
-					,PR.UserName Process,EC.UserName EmployeeType,MB.Code BudgetCode 
+					,PR.UserName Process,EC.UserName EmployeeType,MB.Id BudgetId,MB.Code BudgetCode 
 					FROM dbo.GoodWorkSetup GWS
 					left join dbo.GoodWorkBudgetSetup GWB on GWB.GoodWorkSetUpId=GWS.Id
 					left join mst.ManpowerBudget MB on MB.Id=GWB.BudgetId
