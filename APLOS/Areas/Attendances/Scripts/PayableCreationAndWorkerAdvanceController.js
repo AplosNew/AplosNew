@@ -4,6 +4,8 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $rootScope.title = 'Payable Creation & Multiple Employee advance';
     $rootScope.titleTab1 = 'Payable Creation';
     $rootScope.titleTab2 = 'Multiple Employee Payment';
+    $rootScope.titleTab3 = 'Good Work';
+    $rootScope.titleTab4 = 'Extra OT';
     $scope.WorkerAdvanceList = [];
     $scope.path = 'Attendances/GoodWork/';
     $scope.saveUrl = $scope.path + 'CreateWorkerAdvance';
@@ -27,6 +29,14 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         return $scope.tab === tabNum;
     };
 
+    $scope.tab2 = 1;
+    $scope.setTab2 = function (newTab2) {
+        $scope.tab2 = newTab2;
+    };
+
+    $scope.isSet2 = function (tabNum2) {
+        return $scope.tab2 === tabNum2;
+    };
     //***********************************Worker Advance Start ********************************************************//
     $scope.ModelTemp = {
         Id: null,
