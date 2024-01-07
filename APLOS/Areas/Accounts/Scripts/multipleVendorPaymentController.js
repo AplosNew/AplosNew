@@ -861,4 +861,27 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
     }
     $scope.GetapprovedByListCboList();
 
+
+    $scope.onClickDownloadPaymentAdvice = function (adviceNo) {
+        var reportFormat = "Excel";
+        $window.open('Accounts/Invoice/GetPaymentAdviceReport?reportFormat=' + reportFormat + '&adviceNo=' + adviceNo , '_blank');
+
+    };
+
+    $scope.commandPDF = [{
+        type: "details", buttonOptions: {
+            text: "PDF",
+            width: "50",
+            height: "20",
+            click: $scope.onClickDownloadPaymentAdvice
+        }
+    }];
+
+    $scope.reportFormat = 'Excel';
+    $scope.AllTabPrint = function (z) {
+        var x = "#" + z;
+        var gridObj = $(x).data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        location.href = " Accounts/Invoice/MultipleVendorPaymentReport?reportFormat=" + $scope.reportFormat + '&mvpId=' + data.Id;
+    };
 }

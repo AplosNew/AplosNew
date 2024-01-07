@@ -4938,12 +4938,13 @@ order by SAI.SalesId";
         public DataTable GetMultipleVendorPaymentDetailReportData(string mvpId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"select MPD.Id MultiplePaymentDetailId,EI.EmployeeName PartyName,I.DocRefNo,C.Name Currency,MPD.Amount
-									,Status= case when MPD.IsPark=0 then 'Posted' else 'Parked' end
+            var sql = @"select MPD.Id MultiplePaymentDetailId,I.DocRefNo,C.Name Currency,MPD.Amount
+									,Status= case when MPD.IsPark=0 then 'Posted' else 'Parked' end,P.UserName PartyName
 									from TRN.MultiplePaymentDetail MPD
 									left join EmployeeInformation EI on EI.SystemId=MPD.PartyId
 									left join TRN.Invoice I on I.Id=MPD.InvoiceId
 									left join SCS.Currency C on C.Id=I.CurrencyId
+									LEFT JOIN HKP.Party P ON P.Id=I.PartyId
 							where MPD.MultiplePaymentId='" + mvpId + @"'";
             return _sqlRepository.GetDataTable(sql);
         }
