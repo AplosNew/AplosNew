@@ -159,6 +159,22 @@ namespace Library.Service.Vouchers
                 throw ex;
             }
         }
+        public IWorkbook EntityWiseExpenseAndEarningreportDateWiseActivityLevel(string companyId, string PlantId, string plantName, string fromDate, string toDate, string entityId, string entity, string[] parallelCurrencies)
+        {
+            try
+            {
+                var obj = new ReportGeneralVoucher();
+                using (ExcelEngine excelEngine = new ExcelEngine())
+                {
+                    var workbook = obj.EntityWiseExpenseandEarning_Report_DateRange_ActivityLevel(excelEngine, companyId, PlantId, plantName, fromDate, toDate, entityId, entity, parallelCurrencies);
+                    return workbook;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         #region balance sheet Date Range
         public IWorkbook GetBalanceSheetReportDateWise(string companyId, string plantName, string fromDate, string toDate)
