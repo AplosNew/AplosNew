@@ -1866,7 +1866,7 @@ namespace Aplos.Areas.Accounts.Controllers
         //    return jsondata;
         //}
 
-        [HttpPost, Authorize]
+        [HttpGet, Authorize]
         public ActionResult GetPaymentAdviceReport(ReportFormat reportFormat, string adviceNo)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

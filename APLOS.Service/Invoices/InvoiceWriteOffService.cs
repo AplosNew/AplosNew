@@ -9277,34 +9277,19 @@ namespace Library.Service.Invoices
 
         private DataTable GetGatePaymentAdviceData(string companyGroupId, string companyId, string plantId, string adviceNo)
         {
-            var sql = @"SELECT co.UserName SendersName,bm.AccountNumber SendersACNumber,SUM(IWD.Amount) AS TransactionAmount,P.Code AS BeneficiaryCode, P.UserName AS BeneficiaryName
-									,ISNULL(PB.BankAccountNo,NULL) BeneficiaryACNo,ISNULL(PB.IFSCCode,NULL) ReceiverIFSC,aw.narration,AM.Email,0 ChequeNo,0 ChequeDate
-									,AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id,format(AW.PostingDate,'dd-MMM-yyyy') PostingDate
-									,format(AW.DocDate,'dd-MMM-yyyy')DocDate,AW.DocRefNo, C.Code AS CurrencyCode
-                                    ,AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.IsPark, AW.BankJournalId,IWD.MultiplePaymentNo
-                                    ,Status=case when AW.IsPark=1 then 'Parked' else 'Posted' end,AW.BankMasterId
+            var sql = @"SELECT co.UserName SendersName,bm.AccountNumber SendersACNumber,MPD.Amount AS TransactionAmount,P.Code AS BeneficiaryCode, P.UserName AS BeneficiaryName
+									,ISNULL(PB.BankAccountNo,NULL) BeneficiaryACNo,ISNULL(PB.IFSCCode,NULL) ReceiverIFSC,I.Narration,AM.Email,0 ChequeNo,0 ChequeDate,MP.Id AdviceNo
 									
-                                    FROM [TRN].[InvoiceWriteOff] AS AW
-									LEFT JOIN (SELECT WD.Id,WD.InvoiceWriteOffId,MPD.MultiplePaymentId MultiplePaymentNo,SUM(WD.Amount) Amount 
-											FROM [TRN].[InvoiceWriteOffDetail] WD 
-											LEFT JOIN TRN.Invoice IV ON WD.InvoiceId=IV.Id
-											LEFT JOIN TRN.MultiplePaymentDetail MPD ON MPD.InvoiceId=IV.Id
-											Group BY WD.Id,WD.InvoiceWriteOffId,IV.Id ,MPD.MultiplePaymentId) AS IWD ON IWD.InvoiceWriteOffId=AW.Id
-									LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceWriteOffDetailId=IWD.Id
-                                    LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
-                                    LEFT JOIN [HKP].[Party] AS P ON P.Id=AW.PartyId
-                                    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AW.PartyPlantId
-                                    LEFT JOIN [SCS].[Currency] AS C ON C.Id=AW.CurrencyId 
-									LEFT JOIN ORG.Company CO ON CO.Id=V.CompanyId
-									left join mst.BankMaster bm on bm.Id=aw.BankMasterId
+                                    FROM TRN.MultiplePaymentDetail MPD 
+									JOIN TRN.MultiplePayment MP ON MP.Id=MPD.MultiplePaymentId
+									LEFT JOIN TRN.Invoice I ON I.Id=MPD.InvoiceId
+									LEFT JOIN TRN.InvoiceDetail IVD ON IVD.InvoiceId=I.Id
+									LEFT JOIN ORG.Company CO ON CO.Id=I.CompanyId
+									left join mst.BankMaster bm on bm.Id=MP.BankMasterId
+									LEFT JOIN [HKP].[Party] AS P ON P.Id=I.PartyId
 									LEFT join HKP.PartyBank PB on PB.CompanyPartyId=P.Id
 									left join mst.AddressMaster AM on AM.Id=P.AddressMasterId
-                                    WHERE AW.Archive=0 AND V.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + "' AND AW.PlantId='" + plantId + @"' 
-                                    AND AW.BankMasterId = '" + adviceNo + @"' 
-
-                                    Group BY co.UserName,AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id, P.Code , P.UserName, AW.PostingDate,aw.Narration,bm.AccountNumber
-									, AW.DocDate, AW.DocRefNo, C.Code, AW.PartyPlantId, PP.UserName, AW.IsPark, AW.BankJournalId, IWD.MultiplePaymentNo,AW.BankMasterId,PB.BankAccountNo
-									,PB.IFSCCode,AM.Email";
+                                    WHERE MP.Id='" + adviceNo+"'";
             return _sqlRepository.GetDataTable(sql);
         }
 
@@ -9326,28 +9311,28 @@ namespace Library.Service.Invoices
                 #region columns
 
                 sheet[ROW, COL].Text = "Sender's A/C Number";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].ColumnWidth = 20;
                 int ColSendersACNumber = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Sender's  Name";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].ColumnWidth = 25;
                 int ColSendersName = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Transaction Amount";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].ColumnWidth = 10;
                 int ColAmount = COL;
                 COL++;
 
 
                 sheet[ROW, COL].Text = "Beneficiary Name";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].ColumnWidth = 40;
                 int ColPartyName = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Beneficiary A/C No";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].ColumnWidth = 20;
                 int ColBeneficiaryACNo = COL;
                 COL++;
 
@@ -9358,7 +9343,7 @@ namespace Library.Service.Invoices
                 COL++;
 
                 sheet[ROW, COL].Text = "Narration 1";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].ColumnWidth = 40;
                 int ColNarration = COL;
                 COL++;
 
@@ -9411,13 +9396,14 @@ namespace Library.Service.Invoices
                     {
                         sheet[ROW, ColReceiverIFSC].Text = dsLocal.Rows[i]["ReceiverIFSC"].ToString();
                     }
-                    sheet[ROW, ColNarration].Text = dsLocal.Rows[i]["narration"].ToString();
+                    sheet[ROW, ColNarration].Text = dsLocal.Rows[i]["Narration"].ToString();
                     if (dsLocal.Rows[i]["Email"] !=null)
                     {
                     sheet[ROW, ColEMail].Text = dsLocal.Rows[i]["Email"].ToString();
                     }
                     sheet[ROW, ColChequeNo].Text = dsLocal.Rows[i]["ChequeNo"].ToString();
                     sheet[ROW, ColChequeDate].Text = dsLocal.Rows[i]["ChequeDate"].ToString();
+                    sheet[ROW, ColMultiplePaymentNo].Text = dsLocal.Rows[i]["AdviceNo"].ToString();
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
