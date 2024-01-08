@@ -1,7 +1,7 @@
 ﻿"use strict";
 salaryPayableDisbursementController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller"];
 function salaryPayableDisbursementController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
-    $rootScope.title = "Salary Disbursement";
+    $rootScope.title = "Disbursement Posting";
     $scope.Action = "Park";
     $scope.CAction = "Add";
     $scope.isPartyListing = false;
@@ -136,6 +136,16 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
         CrAmount: 0,
         Type: null
     };
+
+    // #region TAB CHANGE Main
+    $scope.tabMain = 1;
+    $scope.setTabMain = function (newTab) {
+        $scope.tabMain = newTab;
+    };
+    $scope.isSetMain = function (tabNum) {
+        return $scope.tabMain === tabNum;
+    };
+    // #endregion TAB CHANGE Main
 
     $scope.GetCurrencyExchangeRateList = function () {
         if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {

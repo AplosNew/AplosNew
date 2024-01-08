@@ -129,7 +129,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 throw new Exception(ex.Message);
             }
 
-            var data = _sqlRepository.GetDataCollection(sql);
+            var data = _sqlRepository.GetDataCollection(sql) ;
             JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
@@ -728,14 +728,23 @@ namespace Aplos.Areas.Attendances.Controllers
             string sql = string.Empty;
             try
             {
-                sql = @"select gwpd.Id,wa.Id WorkerAdvanceId,wad.Id WorkerAdvanceDetailId,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName
-                                ,FORMAT(wa.FromDate,'dd-MMM-yyy')FromDate,FORMAT(wa.ToDate,'dd-MMM-yyy')ToDate,wad.Amount
-                                  from [dbo].[WorkerAdvance] wa
-								  LEFT JOIN [dbo].[WorkerAdvanceDetail] wad on wa.Id=wad.WorkerAdvanceId 
-								  left join EmployeeInformation ei on ei.SystemId=wad.EmpSystemId
-								  left join GoodworkpaymentDetail gwpd on gwpd.WorkerAdvanceId=wa.Id and gwpd.EmpSystemId=wad.EmpSystemId
-                                  where wa.FromDate between '" + fromDate + @"' and '" + toDate + @"'
-								  and wa.ToDate between '" + fromDate + @"' and '" + toDate + @"'";
+                sql = @"select gw.Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,(sum(gw.Minute)/60) Hours,g.Gross,g.RatePerDay,g.RatePerHour
+                                 ,Amount=g.Basic/26*wad.PayDays*wa.Percentage
+								 ,Amount=(sum(gw.Minute)/60)*g.RatePerHour
+                                  from [dbo].[GoodWork] gw
+								  LEFT JOIN [dbo].[GoodWorkDetail] GWD on GWD.GoodWorkId=gw.Id  
+								  left join EmployeeInformation ei on ei.SystemId=GWD.EmpSystemId 
+								  LEFT JOIN [dbo].[WorkerAdvanceDetail] wad on wad.EmpSystemId=ei.SystemId
+								  LEFT JOIN [dbo].[WorkerAdvance] wa on wa.Id=wad.WorkerAdvanceId
+								  LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
+								  LEFT JOIN(SELECT SID.DefineAmount Basic,((SID.DefineAmount/208)*2) RatePerHour,(((SID.DefineAmount/208)*2)*2) RatePerDay,SH.SalaryHead,SID.SalaryID,SID.DefineAmount Gross
+                                      FROM SalaryInfoDefine SID 
+								  LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+                                    WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
+                                   
+								  where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"'
+								  group by gw.Id,ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerDay,g.RatePerHour
+								  ,g.Basic,wad.PayDays,wa.Percentage";
             }
             catch (Exception ex)
             {

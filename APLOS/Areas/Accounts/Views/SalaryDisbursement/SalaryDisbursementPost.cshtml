@@ -99,7 +99,7 @@
                 <div ng-form="tabForm1">
 
                     <fieldset class="scheduler-border">
-                        <legend class="scheduler-border">Bonus Disbursement</legend>
+                        <legend class="scheduler-border">Disbursement</legend>
                         <div class="col-xs-10  col-sm-6 col-md-12" ng-show="empGrid">
                             <div id="empInfoGrid" ng-init="chkinit()" ej-grid e-datasource="employeeDisbursementDataList"  e-allowscrolling="true" e-pageSettings-pageSize="15"
                                  e-actioncomplete="actionCompleteSelected" e-templaterefresh="refreshTemplateEmployee"
@@ -156,7 +156,7 @@
                                     <th>GL</th>
                                     <th>Budget</th>
                                     <th>Activity</th>
-                                    <th class="text-right">Cr</th>
+                                    <th class="text-right">Dr</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -240,6 +240,7 @@
                     <td>{{x.IsPark?'Parked':'Posted'}}</td>
                     <td class="text-right">
                         <ul class="list-inline action-list">
+                            <li ng-show="x.IsPark"><a ng-click="confirmPost(x.PayableVoucherId);" href="" class="btn btn-action tooltip-here">Post</a></li>
                             <li ng-show="x.IsPark"><a ng-click="confirmDelete(x);" href="" class="btn btn-action tooltip-here">Delete</a></li>
                             <li><a class="btn btn-action" href="Accounts/SalaryDisbursement/GetSalaryDisbursementVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.PayableVoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                             <li><a class="btn btn-action" href="Accounts/SalaryDisbursement/GetSalaryDisbursementVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.PayableVoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
@@ -267,6 +268,7 @@
                             <div e-column e-field="Status" e-headertext="Status" e-width="80"></div>
                             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
                             <div e-column e-field="PaymentMode" e-headertext="Payment Mode" e-width="80"></div>
+                            <div e-column e-field="DisbursementAmount" e-headertext="Disbursement Amount" e-width="80" e-type="numeric" e-format="{0:0.00}" e-textalign="right"></div>
                         </div>
                     </div>
                 </div>
@@ -277,7 +279,7 @@
         </div>
     </div>
 </div>
-<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(payableId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(voucherId)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="deleteSalaryDisbursement(voucherId,DelMonthNo,DelYearNo)"></confirm-archive-generic>
 
 @Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")

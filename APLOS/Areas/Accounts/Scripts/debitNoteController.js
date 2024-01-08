@@ -159,6 +159,10 @@ function debitNoteController(accountService, cboService, commonMessage, $scope, 
         {
             "name": "Currency",
             "value": "CurrencyCode"
+        },
+        {
+            "name": "Status",
+            "value": "Status"
         }
     ];
 

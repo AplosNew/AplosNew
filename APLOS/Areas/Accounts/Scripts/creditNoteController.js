@@ -163,6 +163,10 @@ function creditNoteController(accountService, cboService, commonMessage, $scope,
         {
             "name": "Currency",
             "value": "Currency"
+        },
+        {
+            "name": "Status",
+            "value": "Status"
         }
     ];
 
