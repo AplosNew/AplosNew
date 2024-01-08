@@ -7,7 +7,7 @@ function entityWiseExpenseAndEarningController(cboService, commonMessage, $scope
     $scope.incomeStatementReport = {
         Date: $filter('dateFiltering')(Date.now()),
        // CutOffDate: $filter('dateFiltering')(Date.now()), 
-        //Type: 'AsOnDate',
+        Type: 'Statement',
         FromDate: $filter('dateFiltering')(Date.now()),
         ToDate: $filter('dateFiltering')(Date.now()),
 
@@ -82,7 +82,13 @@ function entityWiseExpenseAndEarningController(cboService, commonMessage, $scope
             manualValidation('div_WDToDate', true, "To Date is required.");
         }
         else {
-            location.href = 'accounts/voucher/EntityWiseExpenseAndEarningreportDateWise?fromDate=' + $scope.incomeStatementReport.FromDate + '&toDate=' + $scope.incomeStatementReport.ToDate + '&entityId=' + $scope.incomeStatementReport.EntityId + '&entity=' + $scope.Entiy +  '&parallelCurrency=' + JSON.stringify(listOfCurrencyId($scope.currencyIds));
+            if ($scope.incomeStatementReport.Type === "Statement") {
+                location.href = 'accounts/voucher/EntityWiseExpenseAndEarningreportDateWise?fromDate=' + $scope.incomeStatementReport.FromDate + '&toDate=' + $scope.incomeStatementReport.ToDate + '&entityId=' + $scope.incomeStatementReport.EntityId + '&entity=' + $scope.Entiy + '&parallelCurrency=' + JSON.stringify(listOfCurrencyId($scope.currencyIds));
+            }
+            else {
+                location.href = 'accounts/voucher/EntityWiseExpenseAndEarningreportDateWiseActivityLevel?fromDate=' + $scope.incomeStatementReport.FromDate + '&toDate=' + $scope.incomeStatementReport.ToDate + '&entityId=' + $scope.incomeStatementReport.EntityId + '&entity=' + $scope.Entiy + '&parallelCurrency=' + JSON.stringify(listOfCurrencyId($scope.currencyIds));
+            }
+            
 
             //var url = 'Accounts/Voucher/DateRangeWiseTrialBalanceReport?reportFormat=' + $scope.report.ReportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&isBudgetLevel=' + $scope.report.IsBudgetLevel + '&isActivityLevel=' + $scope.report.IsActivityLevel;
             //$window.open(url, '_blank');
