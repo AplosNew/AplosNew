@@ -222,7 +222,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.GetSelectedEmployeeList = function () {
         try {
             for (var i = 0; i < $scope.EmployeeList.length; i++) {
-                if ($scope.EmployeeList[i].DayStatus != 'A' || $scope.EmployeeList[i].DayStatus != 'HDP') {
+                if ($scope.EmployeeList[i].DayStatus == 'P' || $scope.EmployeeList[i].DayStatus == 'L') {
                     if (checkItemExist($scope.GoodWorkList, $scope.EmployeeList[i].SystemId) === false) {
                         if ($scope.EmployeeList[i].CheckBoxSelect === true) {
                             $scope.EmployeeList[i].FromTime = $scope.ModelNew.FromTime;
@@ -235,13 +235,8 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
                         }
                     }
 
-                } angular.element(document.querySelector("#dialogEmployeeInfo")).modal("hide");
-                //    }
-                //    else {
-                //    throw "This employee already added in that Date";
-                //}
-            }
-
+                } angular.element(document.querySelector("#dialogEmployeeInfo")).modal("hide"); 
+            } 
         }
         catch (e) {
             ShowResult(e, "failure");
@@ -430,6 +425,10 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
 
     $scope.GetDblClick = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
+        //var todayDate=datetime
+        //if ($scope.ModelNew.WorkDate == ) {
+
+        //}
         $scope.GetGoodWorkDetailCenter();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
@@ -535,7 +534,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
             ShowResult(e, 'failure');
         }
     }
-
+    $scope.getFiltersData();
 
     $scope.parameters = [];
     $scope.filterComplete = function () {
