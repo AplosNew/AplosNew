@@ -4938,7 +4938,7 @@ order by SAI.SalesId";
         public DataTable GetMultipleVendorPaymentDetailReportData(string mvpId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"select MPD.Id MultiplePaymentDetailId,I.DocRefNo,C.Name Currency,MPD.Amount
+            var sql = @"select MPD.Id MultiplePaymentDetailId,I.DocRefNo,C.Code Currency,MPD.Amount
 									,Status= case when MPD.IsPark=0 then 'Posted' else 'Parked' end,P.UserName PartyName
 									from TRN.MultiplePaymentDetail MPD
 									left join EmployeeInformation EI on EI.SystemId=MPD.PartyId

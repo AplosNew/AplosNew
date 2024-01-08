@@ -1894,7 +1894,8 @@ namespace Aplos.Areas.Accounts.Controllers
             {
                 sql = @"SELECT MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,Replace(CONVERT(VARCHAR(11), MP.DueUpToDate, 106), ' ', '-') DueUpToDate
                             ,Replace(CONVERT(VARCHAR(11), MP.TentativeDate, 106), ' ', '-') TentativeDate
-                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle, 0 flag ,P.UserName PartyName,MPD.PartyId,SUM(MPD.Amount) Amount
+                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle, 0 flag --,P.UserName PartyName,MPD.PartyId
+                            ,SUM(MPD.Amount) Amount
 							,ParkStatus=case when MP.IsPark=1 then 'Parked' else 'Posted' end
                             FROM TRN.MultiplePaymentDetail MPD 
 							LEFT JOIN TRN.MultiplePayment MP ON MP.Id=MPD.MultiplePaymentId
@@ -1903,7 +1904,7 @@ namespace Aplos.Areas.Accounts.Controllers
 							where  MP.PlantId='" + identity.PlantId + @"' and MP.ApprovedBy='" + identity.EmployeeId + @"' and MP.ApprovalStatus='Pending'
 							group by MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,MP.DueUpToDate
                             , MP.TentativeDate,MPD.MultiplePaymentId
-                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle,P.UserName,MPD.PartyId ";
+                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle ";
 
             }
             else if (tabType == "HoldRejectList")
