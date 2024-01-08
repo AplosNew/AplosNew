@@ -95,7 +95,7 @@ namespace Library.Service.Processes
 										, PSD.Archive, PSD.MaterialMasterId, MM.UserName AS MaterialMasterName
 	                                    , PSD.ArticleId, ART.StandardName AS ArticleName,Qty=CASE WHEN PSD.Qty=0 THEN 100 ELSE PSD.Qty END,PSD.UOMId
 										, P.IsProductionProcess,TG.ProductionBookingLevel
-										,IsInventory=CAST(CASE WHEN M.Id IS NOT NULL THEN 1 ELSE 0 END AS BIT)
+										,IsInventory= CAST(CASE	WHEN P.IsLast=1 THEN 1 WHEN M.Id IS NOT NULL THEN 1 ELSE 0 END AS BIT)
 								FROM HKP.ProcessSetDetail AS PSD
 								LEFT JOIN HKP.ProcessSet AS PS ON PSD.ProcessSetId=PS.Id
 								LEFT JOIN HKP.Process AS P ON PSD.ProcessId=P.Id
