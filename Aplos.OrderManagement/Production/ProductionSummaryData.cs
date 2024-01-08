@@ -7379,8 +7379,13 @@ where CQH.CustomerId not in ('null')";
 
         public IEnumerable<object> GetInvoiceList(string PartyId)
         {
-            string sql = @"select I.Id InvoiceId,P.UserName Party,Format(I.AddedDate,'dd-MMM-yyyy') InvoiceDate from TRN.Sales I
+            string sql = @"select I.Id InvoiceId,P.UserName Party,Format(I.AddedDate,'dd-MMM-yyyy') InvoiceDate,isnull(POD.ProductionOrderId,'') PONo from TRN.Sales I
 left join HKP.Party P on P.Id=I.PartyId
+LEFT join SalesPacking SP on SP.SalesId=I.Id
+LEFT join TRN.Packing PK on PK.PackingId=SP.PackingId
+LEFT join TRN.PackingLineItem PLI on PLI.PackingId=PK.PackingId
+LEFT join TRN.SalesOrder SO on SO.Id=PLI.SOId
+LEFT JOIN TRN.ProductionOrderDetail POD on POD.SalesOrderId=SO.Id
 where PartyId='" + PartyId + "' order by I.AddedDate desc";
             return _sqlRepository.GetDataCollection(sql, null);
         }
@@ -7415,7 +7420,7 @@ LEFT join TRN.PackingLineItem PLI on PLI.PackingId=P.PackingId
 LEFT join TRN.SalesOrder SO on SO.Id=PLI.SOId
 LEFT JOIN TRN.ProductionOrderDetail POD on POD.SalesOrderId=SO.Id
 LEFT JOIN TRN.ProductionOrder PO on PO.Id=POD.ProductionOrderId
-where S.Id='" + InvoiceId + "'";
+where S.Id='" + InvoiceId + "' and ProductionOrderId is not null";
             }
             else
             {
