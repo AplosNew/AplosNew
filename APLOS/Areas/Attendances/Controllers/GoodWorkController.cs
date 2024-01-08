@@ -728,8 +728,7 @@ namespace Aplos.Areas.Attendances.Controllers
             string sql = string.Empty;
             try
             {
-                sql = @"select gw.Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,(sum(gw.Minute)/60) Hours,g.Gross,g.RatePerDay,g.RatePerHour
-                                 ,Amount=g.Basic/26*wad.PayDays*wa.Percentage
+                sql = @"select gw.Id,wa.Id WorkerAdvanceId,wad.Id WorkerAdvanceDetailId,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,(sum(gw.Minute)/60) Hours,g.Gross,g.RatePerHour
 								 ,Amount=(sum(gw.Minute)/60)*g.RatePerHour
                                   from [dbo].[GoodWork] gw
 								  LEFT JOIN [dbo].[GoodWorkDetail] GWD on GWD.GoodWorkId=gw.Id  
@@ -737,14 +736,15 @@ namespace Aplos.Areas.Attendances.Controllers
 								  LEFT JOIN [dbo].[WorkerAdvanceDetail] wad on wad.EmpSystemId=ei.SystemId
 								  LEFT JOIN [dbo].[WorkerAdvance] wa on wa.Id=wad.WorkerAdvanceId
 								  LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
-								  LEFT JOIN(SELECT SID.DefineAmount Basic,((SID.DefineAmount/208)*2) RatePerHour,(((SID.DefineAmount/208)*2)*2) RatePerDay,SH.SalaryHead,SID.SalaryID,SID.DefineAmount Gross
+								  LEFT JOIN(SELECT SID.DefineAmount Basic,((SID.DefineAmount/208)*2) RatePerHour,SH.SalaryHead
+								  ,SID.SalaryID,SID.DefineAmount Gross
                                       FROM SalaryInfoDefine SID 
 								  LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                     WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
                                    
 								  where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"'
-								  group by gw.Id,ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerDay,g.RatePerHour
-								  ,g.Basic,wad.PayDays,wa.Percentage";
+								  group by gw.Id,ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour
+								  ,g.Basic,wad.PayDays,wa.Percentage,wa.Id,wad.Id";
             }
             catch (Exception ex)
             {
