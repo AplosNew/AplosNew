@@ -198,6 +198,7 @@ function BankSettlementCustomerAdvanceController(cboService, baseService, factor
     GetByBankUpload($routeParams.id);
     $scope.Back = function () {
         $window.history.back();
+
     };
 
 
