@@ -2756,6 +2756,15 @@ namespace Aplos.Areas.Accounts.Controllers
             workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.PromptDialog);
             return null;
         }
+        [Authorize]
+        public ActionResult EntityWiseExpenseAndEarningreportDateWiseActivityLevel(string fromDate, string toDate, string entityId, string entity, string parallelCurrency)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var fileName = "EntityWiseExpenseAndEarning Report " + DateTime.Now.ToString("ddMMMyyyy") + ".xlsx";
+            var workbook = _voucharReportService.EntityWiseExpenseAndEarningreportDateWiseActivityLevel(identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, entityId, entity, new JavaScriptSerializer().Deserialize<string[]>(parallelCurrency));
+            workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.PromptDialog);
+            return null;
+        }
 
 
         #region BalanceSheet

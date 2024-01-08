@@ -179,7 +179,7 @@ namespace Library.Service.Processes
 								--, PP.UserName ProductionProcessGroup
                                 --, EPT.ProductionProcessGroupId
                                 , EPT.ProductionBookingLevel
-								, CAST(0 as BIT) AS Archive,EPT.IsSKU1,EPT.IsSKU2,EPT.IsSKU3,EPT.ToCloseAllowed
+								, CAST(0 as BIT) AS Archive,EPT.IsSKU1,EPT.IsSKU2,EPT.IsSKU3,EPT.ToCloseAllowed,EPT.IsScanApplicable
 					FROM [HKP].[EntityProcessTag] AS EPT
 					LEFT JOIN HKP.Process AS P ON EPT.ProcessId=P.Id
 					LEFT JOIN HKP.MaterialType AS MT ON P.MaterialTypeId=MT.Id

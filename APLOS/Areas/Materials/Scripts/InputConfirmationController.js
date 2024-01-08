@@ -227,7 +227,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
 
     $scope.GetTotalQty = function (obj) {
 
-        obj.data.TotalQty = obj.data.RequestedQty + obj.data.OtherQty + obj.data.WasteQty;
+        obj.data.TotalQty = parseFloat(obj.data.RequestedQty + obj.data.OtherQty + obj.data.WasteQty).toFixed(2);
         var gridObj = $("#SOGrid").data("ejGrid");
         gridObj.refreshContent(true);
         gridObj.refreshTemplate();
@@ -314,14 +314,19 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
     $scope.Save = function () {
 
         try {
-            var db4day = new Date().setDate(new Date().getDate() - 2);
+            var db4day = new Date().setDate(new Date().getDate() - 15);
             $scope.db4day = $filter('dateFiltering')(new Date(db4day), 'dd-MM-yyyy');
             var today = $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
             if (new Date($scope.ModelNew.ConfirmationDate) < new Date(today)) {
                 if (new Date($scope.ModelNew.ConfirmationDate) < new Date($scope.db4day)) {
                     $scope.disbtn = false;
-                    throw "Day Before YesterDay is not allowed.";
+                    //throw "Day Before YesterDay is not allowed.";
+                    throw "Only 15 days back date is allowed.";
                 }
+            }
+
+            if (new Date($scope.ModelNew.ConfirmationDate) > new Date(today)) {
+                throw "Future date is not allowed.";
             }
 
             if (baseService.isUndefinedOrNull($scope.ModelNew.ResponsiblePersonId)) {

@@ -182,9 +182,23 @@
                 <div e-column e-field="TentativeDate" e-headertext="TentativeDate" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                 <div e-column e-field="Amount" e-headertext="Amount" e-width="100"></div>
                 <div e-column e-field="ParkStatus" e-headertext="ParkStatus" e-width="80" textAlign='Center'></div>
+                <div e-column e-headertext="Action" e-template="#ReportTemplate" e-width="100"></div>
             </div>
         </div>
-
+        <script id="ReportTemplate" type="text/template">
+            <div class="common-btn">
+                <ul class="common-btn list-inline text-center">
+                    <li>
+                        <button ng-click="$parent.onClickDownloadPaymentAdvice(data.Id);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Payment Advice">
+                            <i class="fa fa-file-pdf-o"></i>
+                        </button>
+                        <button ng-click="$parent.AllTabPrint('MultiplePaymentGrid');" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
+                            <i class="fa fa-file-excel-o"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </script>
     </div>
     <i>**Showing top 300  List</i>
 </div>

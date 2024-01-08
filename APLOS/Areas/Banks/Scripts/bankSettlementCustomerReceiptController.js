@@ -101,6 +101,7 @@ function bankSettlementCustomerReceiptController(bankService, cboService, common
             $scope.voucher.CurrencyId = $scope.bankUploadInfoList[0].CurrencyId;
             $scope.voucher.BankReferenceNo = $scope.bankUploadInfoList[0].BankRefNo;
             $scope.voucher.BankMasterId = $scope.bankUploadInfoList[0].BankMasterId;
+            $scope.voucher.Narration = $scope.bankUploadInfoList[0].Narration;
             $scope.voucher.BankReconciliationUploadedDataId = $scope.bankUploadInfoList[0].BankReconciliationUploadedDataId;
             $scope.voucher.PostingDate = $filter("dateFiltering")($scope.bankUploadInfoList[0].PostingDate);
             $scope.voucher.DocDate = $filter("dateFiltering")($scope.bankUploadInfoList[0].DocDate);

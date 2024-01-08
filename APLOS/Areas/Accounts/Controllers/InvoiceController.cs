@@ -1856,28 +1856,29 @@ namespace Aplos.Areas.Accounts.Controllers
         #endregion
 
         #region Payment Advice
-        [Authorize, HttpGet]
-        public JsonResult GatePaymentAdviceData(string fromDate, string toDate, string BankMasterId)
+        //[Authorize, HttpGet]
+        //public JsonResult GatePaymentAdviceData(string fromDate, string toDate, string BankMasterId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+        //    var jsondata = Json(_invoiceWriteOffService.GetGatePaymentAdviceData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, BankMasterId), JsonRequestBehavior.AllowGet);
+        //    jsondata.MaxJsonLength = int.MaxValue;
+        //    return jsondata;
+        //}
+
+        [HttpGet, Authorize]
+        public ActionResult GetPaymentAdviceReport(ReportFormat reportFormat, string adviceNo)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            var jsondata = Json(_invoiceWriteOffService.GetGatePaymentAdviceData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, BankMasterId), JsonRequestBehavior.AllowGet);
-            jsondata.MaxJsonLength = int.MaxValue;
-            return jsondata;
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult GetPaymentAdviceReport(List<Dictionary<string, object>> data, string reportFileName)
-        {
-            try
+            var workbook = _invoiceWriteOffService.PaymentAdviceReportxlx(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, adviceNo);
+            switch (reportFormat)
             {
-                string fileName = "";
-                fileName = _invoiceWriteOffService.PaymentAdviceReportxlx(data, reportFileName);
-                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+                case ReportFormat.Pdf:
+                    return RenderReportAsExcel(workbook, reportFileName);
+                default:
+                    return View();
             }
         }
 
@@ -1893,7 +1894,8 @@ namespace Aplos.Areas.Accounts.Controllers
             {
                 sql = @"SELECT MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,Replace(CONVERT(VARCHAR(11), MP.DueUpToDate, 106), ' ', '-') DueUpToDate
                             ,Replace(CONVERT(VARCHAR(11), MP.TentativeDate, 106), ' ', '-') TentativeDate
-                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle, 0 flag ,P.UserName PartyName,MPD.PartyId,SUM(MPD.Amount) Amount
+                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle, 0 flag --,P.UserName PartyName,MPD.PartyId
+                            ,SUM(MPD.Amount) Amount
 							,ParkStatus=case when MP.IsPark=1 then 'Parked' else 'Posted' end
                             FROM TRN.MultiplePaymentDetail MPD 
 							LEFT JOIN TRN.MultiplePayment MP ON MP.Id=MPD.MultiplePaymentId
@@ -1902,7 +1904,7 @@ namespace Aplos.Areas.Accounts.Controllers
 							where  MP.PlantId='" + identity.PlantId + @"' and MP.ApprovedBy='" + identity.EmployeeId + @"' and MP.ApprovalStatus='Pending'
 							group by MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,MP.DueUpToDate
                             , MP.TentativeDate,MPD.MultiplePaymentId
-                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle,P.UserName,MPD.PartyId ";
+                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle ";
 
             }
             else if (tabType == "HoldRejectList")

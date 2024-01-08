@@ -108,7 +108,7 @@ namespace Library.Service.Invoices
         public GridModel Query(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
             parameters.CmdText = @"SELECT V.VoucherNo, A.Id, A.Id AS AdjustmentNoteId, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.VoucherId, A.PostingDate, A.DocDate
-                                , A.DocRefNo, A.CurrencyId, C.Code AS CurrencyCode, A.Amount, A.IsPark, A.PartyType
+                                , A.DocRefNo, A.CurrencyId, C.Code AS CurrencyCode, A.Amount, A.IsPark, A.PartyType,[Status]=case when A.IsPark=0 Then 'Posted' Else 'Parked' END
                                 ,IsExpenseDistribution=CASE WHEN ISNULL((select COUNT(ID.Id) from TRN.InvoiceDetailCharges ID
 										INNER JOIN TRN.VoucherDetail VD ON VD.Id=ID.VoucherDetailId
 										WHERE VD.VoucherId=A.VoucherId),0)>0 THEN 1 ELSE 0 END

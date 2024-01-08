@@ -151,13 +151,14 @@ namespace Library.Service.Employees
             }
         }
 
-        public GridModel GetManpowerBudgetListByEntitySql(GridParameter parameters, string plantId,string entityids)
+        public IEnumerable<object> GetManpowerBudgetListByEntitySql(string CompanyGroupId,string CompanyId, string plantId,string entityids)
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                parameters.CmdText = _manpowerBudgetService.GetManpowerBudgetListByEntitySql(identity.CompanyGroupId, identity.CompanyId, plantId,entityids);
-                return _sqlRepository.GetGridData(parameters);
+                GridParameter parameters = new GridParameter(); 
+                parameters.CmdText = _manpowerBudgetService.GetManpowerBudgetListByEntitySql(CompanyGroupId, CompanyId, plantId,entityids);
+                //return _sqlRepository.GetGridData(parameters);
+                return _sqlRepository.GetDataCollection(parameters.CmdText);
             }
             catch (Exception ex)
             {
