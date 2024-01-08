@@ -563,7 +563,7 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         try { 
             for (var i = 0; i < $scope.popUpDataList.length; i++) {
                 if ($scope.popUpDataList[i].isSelected == true) {
-                    if (checkDoubleGWS($scope.BudgetCodeList, $scope.popUpDataList[i].Id) === false) {
+                    if (checkDoubleGWS($scope.BudgetCodeList, $scope.popUpDataList[i].BudgetId) === false) {
                         $scope.BudgetCodeList.push($scope.popUpDataList[i]);
                     }
                 }
@@ -576,7 +576,7 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
 
     function checkDoubleGWS(list, Id) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].Id === Id) {
+            if (list[i].BudgetId === Id) {
                 return true;
             }
         }

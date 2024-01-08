@@ -2257,6 +2257,10 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
        
         //  $scope.CommercialInvoicePackingListReport(data);
     };
+    $scope.InsuranceCoverLetter = function (data) {
+        location.href = "SalesManagements/Sales/InsuranceCoverLetter?salesId=" + data.Id;
+        //  $scope.CommercialInvoicePackingListReport(data);
+    };
     $scope.CommercialInvoicePackingListReport = function (data) {
         location.href = "SalesManagements/Sales/CommercialInvoicePackingList?salesId=" + data.Id;
     };
