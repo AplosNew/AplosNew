@@ -222,7 +222,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.GetSelectedEmployeeList = function () {
         try {
             for (var i = 0; i < $scope.EmployeeList.length; i++) {
-                if ($scope.EmployeeList[i].DayStatus == 'P' || $scope.EmployeeList[i].DayStatus == 'L') {
+                if ($scope.EmployeeList[i].DayStatus == 'P' || $scope.EmployeeList[i].DayStatus == 'L' || $scope.EmployeeList[i].DayStatus == 'W') {
                     if (checkItemExist($scope.GoodWorkList, $scope.EmployeeList[i].SystemId) === false) {
                         if ($scope.EmployeeList[i].CheckBoxSelect === true) {
                             $scope.EmployeeList[i].FromTime = $scope.ModelNew.FromTime;
