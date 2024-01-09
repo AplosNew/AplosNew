@@ -1297,7 +1297,7 @@ WHERE  PLI.PackingId ='" + packingId + "' ORDER BY MMA.StandardName";
             }
         }
 
-        public DataTable getGroupFinishedStocksReport(string Loc,string FromDate,string ToDate)
+        public DataTable getGroupFinishedStocksReport(string Loc, string FromDate, string ToDate)
         {
             try
             {
@@ -1312,11 +1312,12 @@ WHERE  PLI.PackingId ='" + packingId + "' ORDER BY MMA.StandardName";
                 {
                     loc = " AND R.ToStorageLocId = '" + Loc + "' ";
                 }
-                if(!string.IsNullOrEmpty(FromDate) && !string.IsNullOrEmpty(ToDate))
+                if (!string.IsNullOrEmpty(FromDate) && !string.IsNullOrEmpty(ToDate))
                 {
                     tempDate = " AND convert(Date,S.AddedDate) between '" + FromDate + "' AND '" + ToDate + @"' ";
                     tempCurrentDate = " AND convert(Date,S.AddedDate) between '" + FromDate + "' AND '" + DateTime.Now.ToString() + @"' ";
-                } else if (string.IsNullOrEmpty(FromDate) && !string.IsNullOrEmpty(ToDate))
+                }
+                else if (string.IsNullOrEmpty(FromDate) && !string.IsNullOrEmpty(ToDate))
                 {
                     tempDate = " AND convert(Date,S.AddedDate) <= '" + ToDate + @"' ";
                     tempCurrentDate = " AND convert(Date,S.AddedDate) <= '" + DateTime.Now.ToString() + @"' ";
@@ -1452,6 +1453,29 @@ Group By A.POId,A.LotNo,A.EntityId,A.WorkDate,A.ShiftId,A.Grade,A.ProcessId
             }
         }
 
+        public void GetItemScanChildData(string fromDate, string toDate, string PurposeId, out DataSet dtOrder)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                string purposeId = "'" + PurposeId.Replace(",", "','") + "'";//replaced with ""
+                string sql = @"Select * from ItemScanChild Where Id IN(
+select S.Id FROM ItemScanChild S 
+LEFT JOIN ItemScan ISM ON ISM.Id = S.MasterId
+LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
+LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
+LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId
+LEFT JOIN HKP.MaterialMovementPurpose MP ON MP.Id=R.PurposeId
+WHERE R.PurposeId IN (" + purposeId + ") AND ISM.WorkDate between '" + fromDate + @"' and '" + toDate + @"')";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dtOrder, false, false, "", "1");
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public DataTable getAllFinishedStocksReport(string Loc, string ToDate, string FromDate)
         {
             try
@@ -1494,16 +1518,28 @@ Group By A.POId,A.LotNo,A.EntityId,A.WorkDate,A.ShiftId,A.Grade,A.ProcessId
             {
                 DataTable data = null;
                 DataSet dsProductionSummary = null;
+                DataSet dsIsInventory = null;
+                DataSet dsItemScanChild = null;
                 GetFinishedGoodsPackingData(fromDate, toDate, PurposeId, out data);
+                GetItemScanChildData(fromDate, toDate, PurposeId, out dsItemScanChild);
+                bool IsInventory = false;
+                string psId = "";
                 #region ProductionSummary
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                 if (data.Rows.Count > 0)
-                    {
+                {
                     for (int i = 0; i < data.Rows.Count; i++)
                     {
-                        string pssql = @"SELECT * FROM TRN.ProductionSummary WHERE ProductionDate between '" +Convert.ToDateTime(data.Rows[i]["ProductionDate"]).ToString("dd-MMM-yyyy") + @"' AND '" + Convert.ToDateTime(data.Rows[i]["ProductionDate"]).ToString("dd-MMM-yyyy") + @"' AND ProductionOrderId='" + data.Rows[i]["ProductionOrderId"].ToString() + @"' AND EntityId='" + data.Rows[i]["EntityId"].ToString() + @"' AND ProcessId='" + data.Rows[i]["ProcessId"].ToString() + @"' AND LotNumber='" + data.Rows[i]["LotNumber"].ToString() + @"'";
+                        string pssql = @"SELECT * FROM TRN.ProductionSummary WHERE ProductionDate between '" + Convert.ToDateTime(data.Rows[i]["ProductionDate"]).ToString("dd-MMM-yyyy") + @"' AND '" + Convert.ToDateTime(data.Rows[i]["ProductionDate"]).ToString("dd-MMM-yyyy") + @"' AND ProductionOrderId='" + data.Rows[i]["ProductionOrderId"].ToString() + @"' AND EntityId='" + data.Rows[i]["EntityId"].ToString() + @"' AND ProcessId='" + data.Rows[i]["ProcessId"].ToString() + @"' AND LotNumber='" + data.Rows[i]["LotNumber"].ToString() + @"'";
                         con.OpenDataSetThroughAdapter(pssql, out dsProductionSummary, false, "1");
+
+                        string invsql = "Select  IsInventory from TRN.ProductionOrderProcessSet where ProductionOrderId='" + data.Rows[i]["ProductionOrderId"].ToString() + @"' AND ProcessId='" + data.Rows[i]["ProcessId"].ToString() + "'";
+                        con.OpenDataSetThroughAdapter(invsql, out dsIsInventory, false, "1");
+                        if (dsIsInventory.Tables[0].Rows.Count > 0)
+                        {
+                            IsInventory = Convert.ToBoolean(dsIsInventory.Tables[0].Rows[0]["IsInventory"]);
+                        }
 
                         dsProductionSummary.Tables[0].DefaultView.RowFilter = "ProductionDate='" + data.Rows[i]["ProductionDate"].ToString() + "' AND ProductionOrderId = '" + data.Rows[i]["ProductionOrderId"] + "' AND EntityId = '" + data.Rows[i]["EntityId"].ToString() + "' AND ProcessId = '" + data.Rows[i]["ProcessId"].ToString() + "'AND LotNumber = '" + data.Rows[i]["LotNumber"].ToString() + "'";
 
@@ -1513,8 +1549,11 @@ Group By A.POId,A.LotNo,A.EntityId,A.WorkDate,A.ShiftId,A.Grade,A.ProcessId
                             DataRow dr = dsProductionSummary.Tables[0].DefaultView[0].Row;
 
                             dr.BeginEdit();
+                            psId = dr["Id"].ToString();
                             dr["ScanQty"] = data.Rows[i]["Quantity"].ToString();
                             dr["Quantity"] = data.Rows[i]["Quantity"].ToString();
+                            dr["IsInventory"] = IsInventory;
+                            dr["SourceType"] = "Scan";
                             dr["UpdatedBy"] = identity.UpdatedBy;
                             dr["UpdatedDate"] = DateTime.Now.ToString();
                             dr["UpdatedFromIP"] = identity.UpdatedFromIP;
@@ -1528,6 +1567,7 @@ Group By A.POId,A.LotNo,A.EntityId,A.WorkDate,A.ShiftId,A.Grade,A.ProcessId
 
                             DataRow drProductionSummary = dsProductionSummary.Tables[0].NewRow();
                             drProductionSummary["Id"] = "PS" + sID;
+                            psId = "PS" + sID;
                             drProductionSummary["PlantId"] = identity.PlantId;
                             drProductionSummary["EntityId"] = data.Rows[i]["EntityId"].ToString();
                             drProductionSummary["ProcessId"] = data.Rows[i]["ProcessId"].ToString();
@@ -1538,19 +1578,45 @@ Group By A.POId,A.LotNo,A.EntityId,A.WorkDate,A.ShiftId,A.Grade,A.ProcessId
                             drProductionSummary["ProductionShiftId"] = data.Rows[i]["ShiftId"].ToString();
                             drProductionSummary["ProductionGrade"] = data.Rows[i]["Grade"].ToString();
                             drProductionSummary["LotNumber"] = data.Rows[i]["LotNumber"].ToString();
-
+                            drProductionSummary["IsInventory"] = IsInventory;
+                            drProductionSummary["SourceType"] = "Scan";
                             drProductionSummary["AddedBy"] = identity.AddedBy;
                             drProductionSummary["AddedDate"] = DateTime.Now;
                             drProductionSummary["AddedFromIP"] = identity.AddedFromIP;
 
                             dsProductionSummary.Tables[0].Rows.Add(drProductionSummary);
                         }
-                        clsStaticInfo _info = new clsStaticInfo();
-                        _info.SaveDataSets(dsProductionSummary);
+
+
+                        #region ItemScanChild
+                        if (dsItemScanChild.Tables[0].Rows.Count > 0)
+                        {
+                            for (int j = 0; j < dsItemScanChild.Tables[0].Rows.Count; j++)
+                            {
+                                dsItemScanChild.Tables[0].DefaultView.RowFilter = "Id='" + dsItemScanChild.Tables[0].Rows[j]["Id"].ToString() + "' AND POId = '" + data.Rows[i]["ProductionOrderId"] + "' AND LotNo = '" + data.Rows[i]["LotNumber"] + "'";
+
+                                if (dsItemScanChild.Tables[0].DefaultView.Count > 0)
+                                {
+                                    //edit
+                                    DataRow drsc = dsItemScanChild.Tables[0].DefaultView[0].Row;
+                                    drsc.BeginEdit();
+
+                                    drsc["ProductionSummaryId"] = psId;
+                                    drsc["UpdatedBy"] = identity.UpdatedBy;
+                                    drsc["UpdatedDate"] = DateTime.Now.ToString();
+                                    drsc.EndEdit();
+                                }
+                            }
+                        }
+                        #endregion
+
+
 
                     }
-                    
-                   
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(dsProductionSummary, dsItemScanChild);
+
+
                 }
 
 

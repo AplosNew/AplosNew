@@ -891,7 +891,7 @@ namespace Aplos.Areas.Attendances.Controllers
         [Authorize, HttpGet]
         public JsonResult GetGoodWorkCheckByCbo()
         {
-            var sql = @"select E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text  
+            var sql = @"select distinct E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text  
                           from dbo.GoodWorkCheckBySetUp A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.CheckById 
                           where E.EmployeeStatus='Active' ";
@@ -901,7 +901,7 @@ namespace Aplos.Areas.Attendances.Controllers
         [Authorize, HttpGet]
         public JsonResult GetGoodWorkApprovedByCbo()
         {
-            var sql = @"select E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text  
+            var sql = @"select distinct E.SystemId As Value,(E.EmployeeCode+'-'+ E.EmployeeName) Text  
                           from dbo.GoodWorkAuthoritySetUp A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.AuthorityId 
                           where E.EmployeeStatus='Active'";

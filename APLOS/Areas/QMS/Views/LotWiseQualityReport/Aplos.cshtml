@@ -329,14 +329,15 @@
                 <div class="col-md-12">
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
                         <p>Double click to Select an Invoice</p>
-                        <div style="color:black;" id="GridCustomerPopup" ej-grid e-datasource="InvoiceList"
+                        <div style="color:black;" id="GridInvoicePopup" ej-grid e-datasource="InvoiceList"
                              e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
                              e-recorddoubleclick="doubleInvoice">
                             <div e-columns>
-                                <div e-column e-field="InvoiceId" e-headertext="Invoice Id" e-width="120"></div>
-                                <div e-column e-field="Party" e-headertext="Customer Name" e-width="120"></div>
-                                <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="120"></div>
+                                <div e-column e-field="InvoiceId" e-headertext="Invoice Id" e-width="100"></div>
+                                <div e-column e-field="Party" e-headertext="Customer Name" e-width="100"></div>
+                                <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="100"></div>
+                                <div e-column e-field="PONo" e-headertext="PO No" e-width="100"></div>
                             </div>
                         </div>
                     </div>

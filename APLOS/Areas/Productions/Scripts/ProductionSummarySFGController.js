@@ -73,7 +73,9 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         FromId: null,
         ToWorkCenterMasterId: null, FromSFGInventoryId: null, ToSFGInventoryId: null, ToProcessId: null,
         LotNumber: null,
-        ToEntityId: null
+        ToEntityId: null,
+        IsInventory: false,
+        SourceType: 'PB'
     };
     $scope.productionSummaryNew = Object.assign({}, $scope.productionSummary);
 
@@ -1552,13 +1554,16 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
                 $scope.productionSummaryNew.QtyWithoutScan = $scope.ProdQty;
                 $scope.productionSummaryNew.Quantity = $scope.ProdQty;
                 $scope.productionSummaryNew.SKUQty = $scope.ProdQty;
+                $scope.productionSummaryNew.SourceType = "SKU";
             }
             if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
                 if ($scope.ProdQty === 0) {
                     throw "SKU Qty is required.";
                 }
             }
-
+            if (baseService.isUndefinedOrNull($scope.productionSummaryNew.SourceType)) {
+                $scope.productionSummaryNew.SourceType = "PB";
+            }
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,

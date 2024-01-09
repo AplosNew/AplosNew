@@ -3937,21 +3937,21 @@ namespace Library.Service.Accounts
                 var headreColIndex = 1;
                 var mainColIndex = 1;
                 int colAccountName = headreColIndex;
-                oRU.SetHeaderText(ref sheet, _rowL, colAccountName, "Account Type", 15); headreColIndex++;
+                oRU.SetHeaderText(ref sheet, _rowL, colAccountName, "Account Type", 25); headreColIndex++;
                 int colBudgetCategory = headreColIndex;
-                oRU.SetHeaderText(ref sheet, _rowL, colBudgetCategory, "Budget Category", 25); headreColIndex++;
+                oRU.SetHeaderText(ref sheet, _rowL, colBudgetCategory, "Budget Category", 20); headreColIndex++;
                 int colBudgetSubCategory = headreColIndex;
-                oRU.SetHeaderText(ref sheet, _rowL, colBudgetSubCategory, "Budget Sub Category", 25); headreColIndex++;
+                oRU.SetHeaderText(ref sheet, _rowL, colBudgetSubCategory, "Budget Sub Category", 20); headreColIndex++;
                 int colBudget = headreColIndex;
-                oRU.SetHeaderText(ref sheet, _rowL, colBudget, "Budget", 25); headreColIndex++;
+                oRU.SetHeaderText(ref sheet, _rowL, colBudget, "Budget", 20); headreColIndex++;
                 int colActivity = headreColIndex;
-                oRU.SetHeaderText(ref sheet, _rowL, colActivity, "Activity", 25); headreColIndex++;
+                oRU.SetHeaderText(ref sheet, _rowL, colActivity, "Activity", 20); headreColIndex++;
                 int colControlId = headreColIndex;
-                oRU.SetHeaderText(ref sheet, _rowL, colControlId, "ControlId", 15); headreColIndex++;
+                oRU.SetHeaderText(ref sheet, _rowL, colControlId, "ControlId", 10); headreColIndex++;
                 int colForTheDay = headreColIndex;
-                oRU.SetHeaderText(ref sheet, _rowL, colForTheDay, "For The Day", 25); headreColIndex++;
+                oRU.SetHeaderText(ref sheet, _rowL, colForTheDay, "For The Day", 15); headreColIndex++;
                 int colForThePeriod = headreColIndex;
-                oRU.SetHeaderText(ref sheet, _rowL, colForThePeriod, "For The Period", 25); headreColIndex++;
+                oRU.SetHeaderText(ref sheet, _rowL, colForThePeriod, "For The Period", 15); headreColIndex++;
                 int colForTheFiscalYear = headreColIndex;
                 oRU.SetHeaderText(ref sheet, _rowL, colForTheFiscalYear, "For The FiscalYear", 15); 
 
@@ -4000,9 +4000,9 @@ namespace Library.Service.Accounts
                     oRU.SetText(ref sheet, _rowL, colBudget, dtCr.Rows[n]["Budget"].ToString());
                     oRU.SetText(ref sheet, _rowL, colActivity, dtCr.Rows[n]["Activity"].ToString()); 
                     oRU.SetText(ref sheet, _rowL, colControlId, dtCr.Rows[n]["ControlId"].ToString()); 
-                    oRU.SetText(ref sheet, _rowL, colForTheDay, dtCr.Rows[n]["ForTheDay"].ToString()); 
-                    oRU.SetText(ref sheet, _rowL, colForThePeriod, dtCr.Rows[n]["CRcumulative"].ToString()); 
-                    oRU.SetText(ref sheet, _rowL, colForTheFiscalYear, dtCr.Rows[n]["ForTheFiscalYear"].ToString()); 
+                    oRU.SetText(ref sheet, _rowL, colForTheDay, Convert.ToDouble(dtCr.Rows[n]["ForTheDay"].ToString())); 
+                    oRU.SetText(ref sheet, _rowL, colForThePeriod, Convert.ToDouble(dtCr.Rows[n]["CRcumulative"].ToString())); 
+                    oRU.SetText(ref sheet, _rowL, colForTheFiscalYear, Convert.ToDouble(dtCr.Rows[n]["ForTheFiscalYear"].ToString())); 
 
 
                     //if (BudgetMasterId != "")
@@ -4081,13 +4081,13 @@ namespace Library.Service.Accounts
                 Row_Total_End = _rowL;
 
                 //TotalRevenue_DateRange(ref sheet, oRU, dtParallelCurrency, colOpeningBalance - 1, RowTotal_current, Row_Total_Start, Row_Total_End);
-                //for (int CL = colOpeningBalance; CL <= colHeaderClosingBalance; CL++)
-                //{
-                //    sheet.Range[RowTotal_current, CL].Formula = "=SUM(" + oRU.GetColumnNameForXls(CL) + Row_Total_Start + ":" + oRU.GetColumnNameForXls(CL) + Row_Total_End + ")";
-                //    sheet.Range[RowTotal_current, CL].NumberFormat = oRU.NumberFormatDecimalTwo();
-                //    sheet.Range[RowTotal_current, CL].CellStyle.Font.Bold = true;
+                for (int CL = colForTheDay; CL <= colForTheFiscalYear; CL++)
+                {
+                    sheet.Range[RowTotal_current, CL].Formula = "=SUM(" + oRU.GetColumnNameForXls(CL) + Row_Total_Start + ":" + oRU.GetColumnNameForXls(CL) + Row_Total_End + ")";
+                    sheet.Range[RowTotal_current, CL].NumberFormat = oRU.NumberFormatDecimalTwo();
+                    sheet.Range[RowTotal_current, CL].CellStyle.Font.Bold = true;
 
-                //}
+                }
 
                 //_rowL++;
 
@@ -4121,9 +4121,9 @@ namespace Library.Service.Accounts
                     oRU.SetText(ref sheet, _rowL, colBudget, dtDr.Rows[n]["Budget"].ToString()); 
                     oRU.SetText(ref sheet, _rowL, colActivity, dtDr.Rows[n]["Activity"].ToString()); 
                     oRU.SetText(ref sheet, _rowL, colControlId, dtDr.Rows[n]["ControlId"].ToString()); 
-                    oRU.SetText(ref sheet, _rowL, colForTheDay, dtDr.Rows[n]["ForTheDay"].ToString()); 
-                    oRU.SetText(ref sheet, _rowL, colForThePeriod, dtDr.Rows[n]["DRcumulative"].ToString()); 
-                    oRU.SetText(ref sheet, _rowL, colForTheFiscalYear, dtDr.Rows[n]["ForTheFiscalYear"].ToString());
+                    oRU.SetText(ref sheet, _rowL, colForTheDay, Convert.ToDouble(dtDr.Rows[n]["ForTheDay"].ToString())); 
+                    oRU.SetText(ref sheet, _rowL, colForThePeriod, Convert.ToDouble(dtDr.Rows[n]["DRcumulative"].ToString())); 
+                    oRU.SetText(ref sheet, _rowL, colForTheFiscalYear, Convert.ToDouble(dtDr.Rows[n]["ForTheFiscalYear"].ToString()));
 
                     //if (BudgetMasterId != "")
                     //{
@@ -4205,12 +4205,12 @@ namespace Library.Service.Accounts
 
                 //TotalExpense_DateRange(ref sheet, oRU, dtParallelCurrency, colOpeningBalance - 1, RowTotal_current2, Row_Total_Start2, Row_Total_End2);
 
-                //for (int CL = colOpeningBalance; CL <= colHeaderClosingBalance; CL++)
-                //{
-                //    sheet.Range[RowTotal_current2, CL].Formula = "=SUM(" + oRU.GetColumnNameForXls(CL) + Row_Total_Start2 + ":" + oRU.GetColumnNameForXls(CL) + Row_Total_End2.ToString() + ")";
-                //    sheet.Range[RowTotal_current2, CL].NumberFormat = oRU.NumberFormatDecimalTwo();
-                //    sheet.Range[RowTotal_current2, CL].CellStyle.Font.Bold = true;
-                //}
+                for (int CL = colForTheDay; CL <= colForTheFiscalYear; CL++)
+                {
+                    sheet.Range[RowTotal_current2, CL].Formula = "=SUM(" + oRU.GetColumnNameForXls(CL) + Row_Total_Start2 + ":" + oRU.GetColumnNameForXls(CL) + Row_Total_End2.ToString() + ")";
+                    sheet.Range[RowTotal_current2, CL].NumberFormat = oRU.NumberFormatDecimalTwo();
+                    sheet.Range[RowTotal_current2, CL].CellStyle.Font.Bold = true;
+                }
 
                 //#region sumCalc
 
@@ -4222,27 +4222,27 @@ namespace Library.Service.Accounts
                 sheet.Range[_rowL, sumdrcrCol].BorderAround(ExcelLineStyle.Hair);
 
 
-                //for (int CL = colOpeningBalance; CL <= colHeaderClosingBalance; CL++)
-                //{
-                //    sheet.Range[_rowL, CL].Formula = oRU.GetColumnNameForXls(CL) + RowTotal_current + "-" + oRU.GetColumnNameForXls(CL) + RowTotal_current2.ToString();
-                //    sheet.Range[_rowL, CL].NumberFormat = oRU.NumberFormatDecimalTwo();
-                //    sheet.Range[_rowL, CL].CellStyle.Font.Bold = true;
+                for (int CL = colForTheDay; CL <= colForTheFiscalYear; CL++)
+                {
+                    sheet.Range[_rowL, CL].Formula = oRU.GetColumnNameForXls(CL) + RowTotal_current + "-" + oRU.GetColumnNameForXls(CL) + RowTotal_current2.ToString();
+                    sheet.Range[_rowL, CL].NumberFormat = oRU.NumberFormatDecimalTwo();
+                    sheet.Range[_rowL, CL].CellStyle.Font.Bold = true;
 
-                //}
+                }
                 //sheet.Range[RowTotal_current, colHeaderClosingBalance].Formula = oRU.GetColumnNameForXls(colOpeningBalance) + (RowTotal_current) + "+" + oRU.GetColumnNameForXls(colHeaderForThePeriod) + RowTotal_current;
                 //sheet[RowTotal_current, colHeaderClosingBalance].VerticalAlignment = ExcelVAlign.VAlignTop;
                 ////sheet.Range[_rowL, colHeaderClosingBalance].NumberFormat = reportUtility.NumberFormatDecimalTwo(); //col++;
                 //sheet.Range[RowTotal_current, colHeaderClosingBalance].NumberFormat = oRU.NumberFormatDecimalTwo();
                 //sheet.Range[RowTotal_current, colHeaderClosingBalance].CellStyle.Font.Bold = true;
 
-                for (int s = 0; s < dtParallelCurrency.Rows.Count; s++)
-                {
-                    sumdrcrCol++;
-                    sheet.Range[_rowL, sumdrcrCol].Formula = oRU.GetColumnNameForXls(sumdrcrCol) + RowTotal_current + "-" + oRU.GetColumnNameForXls(sumdrcrCol) + RowTotal_current2;
-                    sheet.Range[_rowL, sumdrcrCol].NumberFormat = oRU.NumberFormatDecimalTwo();
-                    sheet.Range[_rowL, sumdrcrCol].CellStyle.Font.Bold = true;
-                    sheet.Range[_rowL, sumdrcrCol].BorderAround(ExcelLineStyle.Hair);
-                }
+                //for (int s = 0; s < dtParallelCurrency.Rows.Count; s++)
+                //{
+                //    sumdrcrCol++;
+                //    sheet.Range[_rowL, sumdrcrCol].Formula = oRU.GetColumnNameForXls(sumdrcrCol) + RowTotal_current + "-" + oRU.GetColumnNameForXls(sumdrcrCol) + RowTotal_current2;
+                //    sheet.Range[_rowL, sumdrcrCol].NumberFormat = oRU.NumberFormatDecimalTwo();
+                //    sheet.Range[_rowL, sumdrcrCol].CellStyle.Font.Bold = true;
+                //    sheet.Range[_rowL, sumdrcrCol].BorderAround(ExcelLineStyle.Hair);
+                //}
 
 
                 //shet2EndxlsCol = drcrCol2;

@@ -1422,6 +1422,7 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                     ob_fromDB.Remarks = ps.Remarks;
                     ob_fromDB.CheckedBy = ps.CheckedBy;
                     ob_fromDB.PPQFlag = ps.PPQFlag;
+                    ob_fromDB.SourceType = ps.SourceType;
 
 
                     ob_fromDB.ModelState = ModelState.Modified;
@@ -1544,6 +1545,8 @@ LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId f
                     ob_fromDB.Remarks = ps.Remarks;
                     ob_fromDB.CheckedBy = ps.CheckedBy;
                     ob_fromDB.PPQFlag = ps.PPQFlag;
+                    ob_fromDB.SourceType = ps.SourceType;
+
 
                     ob_fromDB.ModelState = ModelState.Modified;
                     AuditService.UpdatedLog(ob_fromDB);
