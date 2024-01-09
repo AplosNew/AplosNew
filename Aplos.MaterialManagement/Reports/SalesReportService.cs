@@ -10215,25 +10215,20 @@ Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
             return total;
         }
         public DataTable loadSalesReturnMasterTax(string salesReturnId)
-
         {
             string strSQL;
             try
             {
-                strSQL = @"select 
-                                    PO.SalesId,PO.Id SalesMaterialId,
-                                    IRT.Id AS SalesTax,tg.Code AS TaxCode,
-                                    s.tocurrencyRate,
-                                    IRT.Percentage,
-                                    (IRT.Amount ) as TaxAmount
-                                   	 ,ROUND(ISNULL(IRT.Amount* s.tocurrencyRate,0),2) BooksCurrencyTransactionAmount
+                strSQL = @"select  PO.SalesId,PO.Id SalesMaterialId, IRT.Id AS SalesTax,tg.Code AS TaxCode,
+                                    S.ToCurrencyRate, IRT.Percentage, (IRT.Amount ) as TaxAmount
+                                   	,ROUND(ISNULL(IRT.Amount* s.tocurrencyRate,0),2) BooksCurrencyTransactionAmount
 									,ISNULL(po.BooksCurrencyTaxAmount,0) BooksCurrencyTaxAmount
 									,ISNULL(po.BooksCurrencyBaseRate,0) BooksCurrencyBaseRate
 
 							    from TRN.[SalesReturnDetail] PO
                                Inner join trn.SalesReturnTax IRT ON IRT.SalesReturnDetailId = PO.Id 
                                LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=IRT.TaxCategoryId
-							   left outer join trn.sales as s on s.id=po.salesId
+							   left outer join trn.sales as S on S.id=po.salesId
                                  WHERE PO.SalesReturnId='" + salesReturnId + @"'
 								 and IRT.SalesReturnDetailId  IS NOT NULL
 								 ORDER BY tg.[Sequence]";
