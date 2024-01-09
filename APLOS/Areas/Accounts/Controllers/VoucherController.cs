@@ -296,6 +296,13 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = AplosMessage.Posted });
         }
 
+        [HttpPost]
+        public JsonResult PostPFESICDisbursement(string id)
+        {
+            _voucharService.PostJournalVoucher(id);
+            return Json(new { Message = AplosMessage.Posted });
+        }
+
         [HttpGet, Authorize]
         public JsonResult GetAdvanceJournalList(GridParameter parameters)
         {
@@ -309,6 +316,58 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             FiscalYearCloseService _fiscalYearCloseService = new FiscalYearCloseService(_sqlRepository);
             return Json(_fiscalYearCloseService.GetPFESICDisbursementList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+        public void DeletePFESICDisbursement(string companyId, string plantId, string voucherId)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucharService.FindVoucher(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+
+                vendorAdWrsql = @"delete from trn.GLTransactionDetail where VoucherDetailId in (select Id from TRN.VoucherDetail  where VoucherId in (select Id from TRN.Voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.PFESICDisbursement.ToString() + "' AND Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.VoucherDetailCurrency where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.PFESICDisbursement.ToString() + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.VoucherDetail where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.PFESICDisbursement.ToString() + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.voucher  where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.PFESICDisbursement.ToString() + "' AND Id = '" + voucherId + "'";
+                vendorAdWr.Append(vendorAdWrsql);
+                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+        [HttpPost]
+        public JsonResult DeletePFESICDisbursement(string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            DeletePFESICDisbursement(identity.CompanyId, identity.PlantId, voucherId);
+            return Json(new { Message = AplosMessage.Deleted });
         }
 
         [HttpGet, Authorize]
