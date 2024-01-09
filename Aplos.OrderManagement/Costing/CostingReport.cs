@@ -1367,7 +1367,7 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colValue].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Value"].ToString());
                     sheet[ROW, colRate].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Rate"].ToString());
                     sheet[ROW, colAmount].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Amount"].ToString());
-                    sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Amount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
+                    sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalOrderCost"].ToString());
                     sheet[ROW, colCurrency2].Text = dtComponentRelatedItems.DefaultView[M]["Currency"].ToString();
 
                     //sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
@@ -2161,14 +2161,15 @@ namespace Library.OrderManagement.Costing
             ,ISNULL(pc.ExecutionType,'Fixed') as [Type],ccg.UserName CostingCategory
 			,OCMT.Id as OrderCostingMasterTemplateId,cc.UserName as CostingComponentName
 			,ISNULL(pc.Value,0) AS Value,ISNULL(pc.Rate,0) AS Rate,ISNULL(pc.Amount,0) AS Amount
-			,C.Code as Currency,EI.EmployeeName as ResponsiblePerson
-			,TotalOrderCost=ISNULL(pc.Amount,0)*(select sum(TotalQty) from  trn.MasterOrderItem where OrderCostingMasterTemplateId=PC.OrderCostingMasterTemplateId)
+			,C.Code as Currency ,moi.TotalQty OrderQty,EI.EmployeeName as ResponsiblePerson
+			,TotalOrderCost=ISNULL(pc.Amount,0)*moi.TotalQty
 			
-			FROM " + TableName + @" AS pc   
+			FROM " + TableName + @" AS pc 
 			LEFT JOIN HKP.CostingItem I on i.Id=PC.CostingItemId 
 			LEFT JOIN HKP.CostingComponent CC on CC.Id=I.CostingComponentId
 			LEFT JOIN OrderCostingMasterTemplate OCMT on OCMT.Id=PC.OrderCostingMasterTemplateId
 			LEFT JOIN SCS.Currency C on C.Id=OCMT.CurrencyId
+            LEFT JOIN trn.MasterOrderItem AS moi ON moi.OrderCostingMasterTemplateId=ocmt.Id
 			LEFT JOIN EmployeeInformation EI on EI.SystemId=pc.ResponsiblePersonId
 			LEFT JOIN [HKP].[CostingCategory] AS ccg ON ccg.Id = I.CostingCategoryId
 

@@ -235,8 +235,8 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
                         }
                     }
 
-                } angular.element(document.querySelector("#dialogEmployeeInfo")).modal("hide"); 
-            } 
+                } angular.element(document.querySelector("#dialogEmployeeInfo")).modal("hide");
+            }
         }
         catch (e) {
             ShowResult(e, "failure");
@@ -374,30 +374,62 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
 
 
     $scope.Save = function () {
-        try { 
-            if ($scope.ModelNew.CheckedStatus != 'Checked' || $scope.ModelNew.ApprovedStatus != 'Approved') {
-                    $http({
-                        method: 'POST',
-                        url: $scope.saveUrl,
-                        data: { 'data': $scope.ModelNew, 'goodWorkDetail': $scope.GoodWorkList },
-                        dataType: 'JSON'
-                    }).then(function successCallback(response) {
-                        if (response.data.Error === true) {
+        try {
+            for (var i = 0; i < $scope.GoodWorkList.length; i++) {
+                if ($scope.GoodWorkList[i].Minute > $scope.GoodWorkList[i].OverStay) {
+                    if ($scope.ModelNew.CheckedStatus != 'Checked' || $scope.ModelNew.ApprovedStatus != 'Approved') {
+                        $scope.GoodWorkList[i].Minute = $scope.GoodWorkList[i].OverStay;
+
+                        $http({
+                            method: 'POST',
+                            url: $scope.saveUrl,
+                            data: { 'data': $scope.ModelNew, 'goodWorkDetail': $scope.GoodWorkList },
+                            dataType: 'JSON'
+                        }).then(function successCallback(response) {
+                            if (response.data.Error === true) {
+                                ShowResult(response.data.Message, 'failure');
+                            }
+                            else {
+                                ShowResult(response.data.Message, 'success');
+                                $scope.Clear();
+                                $scope.getData();
+                            }
+                        }), function errorCallBack(response) {
                             ShowResult(response.data.Message, 'failure');
                         }
-                        else {
-                            ShowResult(response.data.Message, 'success');
-                            $scope.Clear();
-                            $scope.getData();
-                        }
-                    }), function errorCallBack(response) {
-                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        throw "Checked Or Approved data can't be updated!";
                     }
                 }
-                else {
-                    throw "Checked Or Approved data can't be updated!";
-                } 
-        } catch (e) {
+                else if ($scope.GoodWorkList[i].Minute == $scope.GoodWorkList[i].OverStay || $scope.GoodWorkList[i].Minute < $scope.GoodWorkList[i].OverStay) {
+
+                    if ($scope.ModelNew.CheckedStatus != 'Checked' || $scope.ModelNew.ApprovedStatus != 'Approved') {
+                        $http({
+                            method: 'POST',
+                            url: $scope.saveUrl,
+                            data: { 'data': $scope.ModelNew, 'goodWorkDetail': $scope.GoodWorkList },
+                            dataType: 'JSON'
+                        }).then(function successCallback(response) {
+                            if (response.data.Error === true) {
+                                ShowResult(response.data.Message, 'failure');
+                            }
+                            else {
+                                ShowResult(response.data.Message, 'success');
+                                $scope.Clear();
+                                $scope.getData();
+                            }
+                        }), function errorCallBack(response) {
+                            ShowResult(response.data.Message, 'failure');
+                        }
+                    }
+                    else {
+                        throw "Checked Or Approved data can't be updated!";
+                    }
+                }
+            }
+        }
+        catch (e) {
             ShowResult(e, 'failure');
         }
     };
@@ -425,10 +457,14 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
 
     $scope.GetDblClick = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
-        //var todayDate=datetime
-        //if ($scope.ModelNew.WorkDate == ) {
 
+        //$scope.todayDate = $filter('date')(new Date(), 'dd-MMM-yyyy');
+        //$scope.previousDate = $filter('date')(new Date() - 1, 'dd-MMM-yyyy');
+
+        //if ($scope.ModelNew.WorkDate != $scope.todayDate || $scope.ModelNew.WorkDate != $scope.previousDate) {
+        //    $scope.ModelNew.WorkDate = $scope.ModelNew.WorkDate;
         //}
+
         $scope.GetGoodWorkDetailCenter();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {

@@ -29,6 +29,8 @@ namespace Library.Model.Productions.ProductionBooking
         public string InChargeId { get; set; }
         public string ProductionInChargeId { get; set; }
         public bool PPQFlag { get; set; }
+        public bool IsInventory { get; set; }
+        public string SourceType { get; set; }
 
         #endregion Scalar Properties
 

@@ -625,7 +625,11 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                 $scope.btndisable = false;
                 throw 'Please select at least one material';
             }
-
+            var getRow = $filter("filter")($scope.prdProcessSetList, { "IsInventory": true });
+            if (getRow.length == 0) {
+                $scope.btndisable = false;
+                throw "Please select IsInventory for Process Set.";
+            }
 
             daysSortValidation($scope.prdProcessSetList);
             isJobWorkType($scope.prdProcessSetList);
@@ -1214,7 +1218,13 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
     $scope.setIsInventory = function (event, index) {
         for (var i = 0; i <= $scope.prdProcessSetList.length - 1; i++) {
-            if (i === index) {
+            if (i < index) {
+                $scope.prdProcessSetList[i].IsInventory = false;
+            }
+            else if (i > index) {
+                $scope.prdProcessSetList[i].IsInventory = false;
+            }
+            else if (i === index) {
                 $scope.prdProcessSetList[i].IsInventory = true;
             }
         }
