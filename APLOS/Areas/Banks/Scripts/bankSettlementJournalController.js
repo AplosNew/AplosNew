@@ -721,5 +721,4 @@ function bankSettlementJournalController(bankService, accountService, cboService
         $scope.message_delete_confirmation = "Are you sure to Delete?";
         angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
     };
-
 }
