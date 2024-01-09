@@ -10225,8 +10225,8 @@ Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
                                     IRT.Id AS SalesTax,tg.Code AS TaxCode,
                                     s.tocurrencyRate,
                                     IRT.Percentage,
-                                    (IRT.Amount * s.tocurrencyRate) as TaxAmount
-                                   	,ISNULL(IRT.Amount,0) BooksCurrencyTransactionAmount
+                                    (IRT.Amount ) as TaxAmount
+                                   	 ,ROUND(ISNULL(IRT.Amount* s.tocurrencyRate,0),2) BooksCurrencyTransactionAmount
 									,ISNULL(po.BooksCurrencyTaxAmount,0) BooksCurrencyTaxAmount
 									,ISNULL(po.BooksCurrencyBaseRate,0) BooksCurrencyBaseRate
 
