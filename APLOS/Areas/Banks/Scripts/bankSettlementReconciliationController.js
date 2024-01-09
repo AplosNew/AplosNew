@@ -65,6 +65,8 @@ function bankSettlementReconciliationController(commonMessage, $scope, $rootScop
         $scope.bankIndex = -1;
     };
 
+
+
     function selectBankRow() {
         var bank = $scope.bankList[$scope.bankIndex];
         if (bank.GLGeneralInfoId === null) {
@@ -315,9 +317,18 @@ function bankSettlementReconciliationController(commonMessage, $scope, $rootScop
         angular.element(document.querySelector('#drUploadPopUp')).modal('show');
     }
 
+
     $scope.selectedDrUploadDataList = [];
     $scope.selectDRUploadData = function (x) {
         $scope.selectedDrUploadDataList.push(x.data);
+        $rootScope.FromDate = $scope.bankReconciliationNew.FromDate;
+        $rootScope.ToDate = $scope.bankReconciliationNew.ToDate;
+        $rootScope.BankBranch = $scope.bankReconciliationNew.BankBranch;
+        $rootScope.BankAccount = $scope.bankReconciliationNew.BankAccount;
+        $rootScope.BankGL = $scope.bankReconciliationNew.BankGL;
+        $rootScope.BankMasterId = $scope.bankReconciliationNew.BankMasterId;
+        $rootScope.BankName = $scope.bankReconciliationNew.BankName;
+
         $scope.hideDRUploadPopUp();
     };
     $scope.hideDRUploadPopUp = function () {
@@ -417,38 +428,6 @@ function bankSettlementReconciliationController(commonMessage, $scope, $rootScop
         }
     }
 
-    
-
-
-    $scope.clear = function () {
-        $scope.bankDrReconAmount = 0;
-        $scope.bankDrReconUploadedDataAmount = 0;
-        $scope.bankDrTempList = [];
-        $scope.bankDrUploadedDataTempList = [];
-        $scope.bankCrReconAmount = 0;
-        $scope.bankCrReconUploadedDataAmount = 0;
-        $scope.bankCrTempList = [];
-        $scope.bankCrUploadedDataTempList = [];
-        $scope.TempList = [];
-        $scope.saveBtnDisable = false;
-    }
-    $scope.invalidDocDate = false;
-    $scope.checkDocDate = function () {
-        var msg = "";
-        if (new Date($scope.bankReconciliationNew.ToDate) > new Date()) {
-            $scope.invalidDocDate = true;
-            msg = "Doc date must be below or equal to current Date!";
-        }
-        if (new Date($scope.bankReconciliationNew.ToDate) < new Date($scope.bankReconciliationNew.FromDate)) {
-            msg = "To date must be below or equal to From Date!";
-            $scope.invalidDocDate = true;
-        }
-        
-        else $scope.invalidDocDate = false;
-        
-        return manualValidation("div_ToDate", $scope.invalidDocDate, msg);
-    };
-    
     $scope.bankDrReconUploadedDataList = [];
     $scope.getBankReconciliationUploadedDrData = function () {
         try {
@@ -470,29 +449,6 @@ function bankSettlementReconciliationController(commonMessage, $scope, $rootScop
         }
 
         catch (e) {
-
-        }
-    }
-    
-    $scope.CRREconcileReport = function () {
-        try {
-
-            var file_src = 'banks/bankreconciliation/CRReconcilePendingReport?bankMasterId=' + $scope.bankReconciliationNew.BankMasterId + '&fromDate=' + $scope.bankReconciliationNew.FromDate + '&toDate=' + $scope.bankReconciliationNew.ToDate 
-            $rootScope.report(file_src);
-
-        } catch (e) {
-
-        }
-    }
-
-
-    $scope.DRREconcileReport = function () {
-        try {
-
-            var file_src = 'banks/bankreconciliation/DRReconcilePendingReport?BankMasterID=' + $scope.bankReconciliationNew.BankMasterId + '&fromDate=' + $scope.bankReconciliationNew.FromDate + '&toDate=' + $scope.bankReconciliationNew.ToDate 
-            $rootScope.report(file_src);
-
-        } catch (e) {
 
         }
     }
@@ -518,6 +474,101 @@ function bankSettlementReconciliationController(commonMessage, $scope, $rootScop
         }
 
         catch (e) {
+
+        }
+    }
+    $scope.bankCrReconUploadedDataList = [];
+    $scope.getBankReconciliationUploadedCrData = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetAvailableBankReconciliationUploadedDrDataList",
+                data: {
+                    bankMasterId: $scope.bankReconciliationNew.BankMasterId,
+                    fromDate: $scope.bankReconciliationNew.FromDate,
+                    toDate: $scope.bankReconciliationNew.ToDate
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.bankCrReconUploadedDataList = response.data.DATA;
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
+
+        catch (e) {
+
+        }
+    }
+
+    $scope.clear = function () {
+        $scope.bankDrReconAmount = 0;
+        $scope.bankDrReconUploadedDataAmount = 0;
+        $scope.bankDrTempList = [];
+        $scope.bankDrUploadedDataTempList = [];
+        $scope.bankCrReconAmount = 0;
+        $scope.bankCrReconUploadedDataAmount = 0;
+        $scope.bankCrTempList = [];
+        $scope.bankCrUploadedDataTempList = [];
+        $scope.TempList = [];
+        $scope.saveBtnDisable = false;
+    }
+
+    $scope.getBackData = function () {
+        if ($rootScope.BankMasterId != null) {
+            $scope.bankReconciliationNew.FromDate = $rootScope.FromDate;
+            $scope.bankReconciliationNew.ToDate = $rootScope.ToDate;
+            $scope.bankReconciliationNew.BankBranch = $rootScope.BankBranch;
+            $scope.bankReconciliationNew.BankAccount = $rootScope.BankAccount;
+            $scope.bankReconciliationNew.BankGL = $rootScope.BankGL;
+            $scope.bankReconciliationNew.BankMasterId = $rootScope.BankMasterId;
+            $scope.bankReconciliationNew.BankName = $rootScope.BankName;
+            $scope.getBnkReconList();
+        }
+    }
+
+    $scope.getBackData();
+
+
+  
+    $scope.invalidDocDate = false;
+    $scope.checkDocDate = function () {
+        var msg = "";
+        if (new Date($scope.bankReconciliationNew.ToDate) > new Date()) {
+            $scope.invalidDocDate = true;
+            msg = "Doc date must be below or equal to current Date!";
+        }
+        if (new Date($scope.bankReconciliationNew.ToDate) < new Date($scope.bankReconciliationNew.FromDate)) {
+            msg = "To date must be below or equal to From Date!";
+            $scope.invalidDocDate = true;
+        }
+        
+        else $scope.invalidDocDate = false;
+        
+        return manualValidation("div_ToDate", $scope.invalidDocDate, msg);
+    };
+    
+   
+    $scope.CRREconcileReport = function () {
+        try {
+
+            var file_src = 'banks/bankreconciliation/CRReconcilePendingReport?bankMasterId=' + $scope.bankReconciliationNew.BankMasterId + '&fromDate=' + $scope.bankReconciliationNew.FromDate + '&toDate=' + $scope.bankReconciliationNew.ToDate 
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+
+
+    $scope.DRREconcileReport = function () {
+        try {
+
+            var file_src = 'banks/bankreconciliation/DRReconcilePendingReport?BankMasterID=' + $scope.bankReconciliationNew.BankMasterId + '&fromDate=' + $scope.bankReconciliationNew.FromDate + '&toDate=' + $scope.bankReconciliationNew.ToDate 
+            $rootScope.report(file_src);
+
+        } catch (e) {
 
         }
     }
@@ -595,30 +646,7 @@ function bankSettlementReconciliationController(commonMessage, $scope, $rootScop
             ShowResult(e, "failure");
         }
     }
-    $scope.bankCrReconUploadedDataList = [];
-    $scope.getBankReconciliationUploadedCrData = function () {
-        try {
-            $http({
-                method: 'POST',
-                url: $scope.path + "GetAvailableBankReconciliationUploadedDrDataList",
-                data: {
-                    bankMasterId: $scope.bankReconciliationNew.BankMasterId,
-                    fromDate: $scope.bankReconciliationNew.FromDate,
-                    toDate: $scope.bankReconciliationNew.ToDate
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.bankCrReconUploadedDataList = response.data.DATA;
-            }),
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-        }
 
-        catch (e) {
-
-        }
-    }
    
     $scope.onClickDeletePopUp = function (x) {
         var data = x;
