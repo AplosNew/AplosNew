@@ -161,6 +161,10 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/voucher/NormalJournal",
             controller: "normalJournalController"
         })
+        .when("/pfesi-disbursement", {
+            templateUrl: "Accounts/voucher/PFESICDisbursement",
+            controller: "pfesiDisbursementController"
+        })
         .when("/exchange-voucher", {
             templateUrl: "Accounts/voucher/exchangevoucher",
             controller: "exchangeVoucherController"

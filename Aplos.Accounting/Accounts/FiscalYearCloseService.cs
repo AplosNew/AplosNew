@@ -171,6 +171,25 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
             }
         }
+        public GridModel GetPFESICDisbursementList(GridParameter parameters, string companyGroupId, string companyId, string plantId)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT V.Id, V.VoucherDate, V.PostingDate, V.DocRefNo, V.VoucherTypeId, V.CurrencyId, V.DocDate, V.EntityId, C.Code AS CurrencyCode, VD.DrAmount, V.VoucherNo, V.IsPark, V.Narration
+                                    FROM TRN.[Voucher] AS V
+                                    LEFT JOIN SCS.Currency AS C ON C.Id = V.CurrencyId
+                                    LEFT JOIN (SELECT SUM(VD.DrAmount) AS DrAmount, VD.VoucherId FROM [TRN].[VoucherDetail] AS VD WHERE VD.DrAmount <> 0 GROUP BY VD.VoucherId
+                                    ) AS VD ON VD.VoucherId=V.Id
+                                    WHERE V.Archive=0 AND V.CompanyGroupId='" + companyGroupId + "'AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + "' AND V.SourceType='" + SourceType.PFESICDisbursement + "'";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
         public List<Dictionary<string, object>> CheckYearClosedByDate(System.DateTime date)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
