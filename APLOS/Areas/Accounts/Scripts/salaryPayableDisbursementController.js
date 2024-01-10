@@ -1,6 +1,6 @@
 ﻿"use strict";
-salaryPayableDisbursementController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller"];
-function salaryPayableDisbursementController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
+salaryPayableDisbursementController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller", "$window"];
+function salaryPayableDisbursementController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, $window) {
     $rootScope.title = "Disbursement Posting";
     $scope.Action = "Park";
     $scope.CAction = "Add";
@@ -843,6 +843,86 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
             }
         }
         $scope.getSalaryLockPayableGL();
+    };
+
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+
+    $scope.XlsSalaryDisbursement = function () {
+        var dataList = [];
+        var newDataList = [];
+        var g = $("#empInfoGrid").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        var obj = {};
+
+        if (dataList.length == 0) {
+
+            dataList = $scope.employeeDisbursementDataList;
+        }
+
+        for (let i = 0; i < dataList.length; i++) {
+            obj.DisbursementAdviceId = dataList[i].DisbursementAdviceId;
+            obj.Remarks = dataList[i].Remarks;
+            obj.SalaryProcId = dataList[i].SalaryProcId;
+            obj.AddedBy = dataList[i].AddedBy;
+            obj.Year = dataList[i].YearNo;
+            obj.Month = dataList[i].MonthName;
+            obj.EmployeeCode = dataList[i].EmployeeCode;
+            obj.EmployeeName = dataList[i].EmployeeName;
+            obj.Designation = dataList[i].Designation;
+            obj.Department = dataList[i].Department;
+            obj.Division = dataList[i].Division;
+            obj.EmployeeCategory = dataList[i].EmployeeCategory;
+            obj.Plant = dataList[i].Plant;
+            obj.Section = dataList[i].Section;
+            obj.SubSection = dataList[i].SubSection;
+            obj.Unit = dataList[i].Unit;
+            obj.DOJ = dataList[i].DOJ;
+            obj.DOS = dataList[i].DOS;
+            obj.CurrentMonthEmployeeStatus = dataList[i].CurrentMonthEmployeeStatus;
+            obj.EmployeeStatus = dataList[i].EmployeeStatus;
+            obj.AccountsGroup = dataList[i].AccountsGroup;
+            obj.SalaryProcFlag = dataList[i].SalaryProcFlag;
+            obj.PayRollGroup = dataList[i].PayRollGroup;
+            obj.JobLocation = dataList[i].JobLocation;
+            obj.PaymentMode = dataList[i].PaymentMode;
+            obj.BankName = dataList[i].BankName;
+            obj.VoucherNo = dataList[i].VoucherNo;
+            obj.PayableVoucherNo = dataList[i].PayableVoucherNo;
+            obj.DisbursementVoucherNo = dataList[i].DisbursementVoucherNo;
+            obj.IsLock = dataList[i].IsLock;
+            obj.IsDisburse = dataList[i].IsDisburse;
+            obj.NetPayment = dataList[i].Amount;
+            newDataList.push(obj);
+            obj = {};
+        }
+        $scope.fileName = 'SalaryDisbursement';
+        $http({
+            method: "POST",
+            url: $scope.exportgriddataUrl,
+            data: {
+                'data': newDataList,
+                'reportFileName': $scope.fileName,
+
+            },
+
+            dataType: 'JSON',
+
+        })
+            .then(function successCallback(response) {
+
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
     };
 
 }
