@@ -198,6 +198,38 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return View("~/Areas/Accounts/Views/NormalJournal.cshtml");
         }
+        public ActionResult PFESICDisbursement()
+        {
+            return View("~/Areas/Accounts/Views/PFESICDisbursement.cshtml");
+        }
+
+        [HttpPost]
+        public JsonResult ParkPFESICDisbursement(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.IsPark = true;
+            voucherVM.SourceType = SourceType.PFESICDisbursement.ToString();
+            if (voucherVM.CompanyCurrencyRate == 0)
+                throw new CustomException("Rate can not Empty!");
+            if (voucherVM.CurrencyId == null)
+                throw new CustomException("Please Select Currency!");
+            if (voucherDetailVMList == null)
+                throw new CustomException("Please Add Item.");
+            if (voucherDetailVMList.Sum(r => r.DrAmount) != voucherDetailVMList.Sum(r => r.CrAmount))
+                throw new CustomException("Dr Cr not match!");
+
+            foreach (var item in voucherDetailVMList)
+            {
+                if (item.PartyType != "Director" && item.PartyId != null && item.PartyPlantId == null)
+                    throw new CustomException("Please select Location!");
+                if ((item.DrAmount + item.CrAmount == 0) || (item.DrAmount + item.CrAmount < 0))
+                    throw new CustomException("Please input amount !");
+            }
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _voucharService.InsertAdvanceJournal(voucherVM, voucherDetailVMList)) });
+        }
 
         [HttpPost]
         public JsonResult ParkAdvanceJournal(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
@@ -207,6 +239,7 @@ namespace Aplos.Areas.Accounts.Controllers
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
             voucherVM.IsPark = true;
+            voucherVM.SourceType = SourceType.AdvanceJournalVoucher.ToString();
             if (voucherVM.CompanyCurrencyRate == 0)
                 throw new CustomException("Rate can not Empty!");
             if (voucherVM.CurrencyId == null)
@@ -263,6 +296,13 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = AplosMessage.Posted });
         }
 
+        [HttpPost]
+        public JsonResult PostPFESICDisbursement(string id)
+        {
+            _voucharService.PostJournalVoucher(id);
+            return Json(new { Message = AplosMessage.Posted });
+        }
+
         [HttpGet, Authorize]
         public JsonResult GetAdvanceJournalList(GridParameter parameters)
         {
@@ -270,12 +310,65 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_voucharService.GetAdvanceJournalVoucherList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
-        //[HttpGet, Authorize]
-        //public JsonResult GetAdvanceJournalList()
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    return Json(_voucharService.GetAdvanceJournalVoucherList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
-        //}
+        [HttpGet, Authorize]
+        public JsonResult GetPFESICDisbursementList(GridParameter parameters)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            FiscalYearCloseService _fiscalYearCloseService = new FiscalYearCloseService(_sqlRepository);
+            return Json(_fiscalYearCloseService.GetPFESICDisbursementList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+        public void DeletePFESICDisbursement(string companyId, string plantId, string voucherId)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucharService.FindVoucher(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+
+                vendorAdWrsql = @"delete from trn.GLTransactionDetail where VoucherDetailId in (select Id from TRN.VoucherDetail  where VoucherId in (select Id from TRN.Voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.PFESICDisbursement.ToString() + "' AND Id = '" + voucherId + "'))";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.VoucherDetailCurrency where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.PFESICDisbursement.ToString() + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.VoucherDetail where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.PFESICDisbursement.ToString() + "' AND Id = '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.voucher  where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.PFESICDisbursement.ToString() + "' AND Id = '" + voucherId + "'";
+                vendorAdWr.Append(vendorAdWrsql);
+                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+        [HttpPost]
+        public JsonResult DeletePFESICDisbursement(string voucherId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            DeletePFESICDisbursement(identity.CompanyId, identity.PlantId, voucherId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
 
         [HttpGet, Authorize]
         public JsonResult GetAdvanceJournalVoucherDetailList(GridParameter parameters, string voucherId)

@@ -2721,7 +2721,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return View("~/Areas/Accounts/Views/VendorChargeWriteOff.cshtml");
         }
-        [HttpGet]
+        [HttpGet, Authorize]
         public JsonResult GetVendorInvoiceChargeWriteOffList(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

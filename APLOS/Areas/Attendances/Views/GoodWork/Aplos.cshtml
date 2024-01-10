@@ -8,7 +8,8 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Work Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Date" ng-model="ModelNew.WorkDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="1">
+                <input type="text" name="Date" ng-model="ModelNew.WorkDate" datepicker class="form-control datepicker"  ng-show="" placeholder="dd-Mmm-yyyy" tabindex="1">
+                @*<label class="col-sm-4 control-label" ng-show="">{{ModelNew.WorkDate}}</label>*@
             </div>
         </div>
          

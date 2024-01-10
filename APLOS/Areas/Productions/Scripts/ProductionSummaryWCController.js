@@ -95,7 +95,9 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         CheckedByName: null,
         LotNumber: null,
         DetentionSum: 0,
-        PPQFlag: false
+        PPQFlag: false,
+        IsInventory: false,
+        SourceType: 'PB'
     };
     $scope.productionSummaryNew = Object.assign({}, $scope.productionSummary);
 
@@ -1629,11 +1631,16 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 $scope.productionSummaryNew.Quantity = $scope.ProdQty;
                 $scope.productionSummaryNew.QtyWithoutScan = $scope.ProdQty;
                 $scope.productionSummaryNew.SKUQty = $scope.ProdQty;
+                $scope.productionSummaryNew.SourceType = "SKU";
             }
             if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
                 if ($scope.ProdQty === 0) {
                     throw "SKU Qty is required.";
                 }
+            }
+
+            if (baseService.isUndefinedOrNull($scope.productionSummaryNew.SourceType)) {
+                $scope.productionSummaryNew.SourceType = "PB";
             }
 
             //if ($scope.IsFirst == false) {
@@ -1877,6 +1884,8 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 }
                 $scope.productionSummaryNew.Quantity = $scope.ProdQty;
                 $scope.productionSummaryNew.QtyWithoutScan = $scope.ProdQty;
+                $scope.productionSummaryNew.SKUQty = $scope.ProdQty;
+                $scope.productionSummaryNew.SourceType = "SKU";
             }
             if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
                 if ($scope.ProdQty === 0) {
