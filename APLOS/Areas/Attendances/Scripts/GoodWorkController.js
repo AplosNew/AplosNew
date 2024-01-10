@@ -15,6 +15,8 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.Action = 'Save';
     $scope.passwordShow = true;
     $controller("employeeBaseController", { $scope: $scope, $http: $http });
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+
     //***********************************Good Work ********************************************************//
 
     $scope.ModelTemp = {
@@ -446,26 +448,32 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.getData = function () {
         $http({
             method: 'Get',
-            url: $scope.path + "GetGoodWorkList",
+            url: $scope.path + "GetGoodWorkList?workDate=" + $scope.WorkDates,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
         });
     }
-    $scope.getData();
+    //$scope.getData();
 
 
     $scope.GetDblClick = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
 
-        //$scope.todayDate = $filter('date')(new Date(), 'dd-MMM-yyyy');
-        //$scope.previousDate = $filter('date')(new Date() - 1, 'dd-MMM-yyyy');
+        $scope.faruque = false;
+        $scope.todayDate = $filter('date')(new Date(), 'dd-MMM-yyyy');
 
-        //if ($scope.ModelNew.WorkDate != $scope.todayDate || $scope.ModelNew.WorkDate != $scope.previousDate) {
-        //    $scope.ModelNew.WorkDate = $scope.ModelNew.WorkDate;
-        //}
+        $scope.yesterday = new Date();
+        $scope.yesterday.setDate($scope.yesterday.getDate() - 1);
 
-        $scope.GetGoodWorkDetailCenter();
+        if ($scope.ModelNew.WorkDate != $scope.todayDate || $scope.ModelNew.WorkDate != $scope.yesterday) {
+            $scope.faruque = false;
+        }
+        else {
+            $scope.faruque = true;
+        }
+        $scope.getFiltersData();
+        //$scope.doubleShift(data);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -570,7 +578,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
             ShowResult(e, 'failure');
         }
     }
-    $scope.getFiltersData();
+   /* $scope.getFiltersData();*/
 
     $scope.parameters = [];
     $scope.filterComplete = function () {
@@ -625,5 +633,25 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         });
     }
     $scope.GetUserGroupList();
+
+    $scope.GoodWorkReport = function () {  
+        $scope.fileName = "GoodWorkReport.xlsx";
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetGoodWorkReport",
+            data: {'reportFileName': $scope.fileName},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
 
 }
