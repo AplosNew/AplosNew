@@ -1476,7 +1476,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     }
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
-                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsTermsAndCondition.Rows[i]["RoWNo"].ToString() + "." + dsTermsAndCondition.Rows[i]["UserName"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsTermsAndCondition.Rows[i]["UserName"].ToString()).ApplyCharacterFormat(DFontSize);
                 TROW.Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
                 TROW.Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
                 TROW.Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
