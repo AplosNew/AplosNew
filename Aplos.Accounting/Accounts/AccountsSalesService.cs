@@ -2708,8 +2708,8 @@ namespace Library.Accounting.Accounts
 						SELECT  'Material' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId,MM.FixedAssetMasterId
 							,  IRD.PostCrGLGeneralInfoId  GLGeneralInfoId , GL.AccountCode  GLGeneralInfoCode  ,GL.UserName GLGeneralInfoName
 							,IRD.PostCrBudgetMasterId BudgetMasterId  ,B.Code BudgetCode  ,B.UserName BudgetName  ,IRD.PostCrActivityId ActivityId,A.Code ActivityCode 
-							,A.UserName ActivityName  , SUM(PRD.BooksCurrencyTransactionAmount) AS Dr , NULL Cr
-							, SUM(PRD.BooksCurrencyTransactionAmount) AS Amount
+							,A.UserName ActivityName  , SUM(PRD.TransactionAmount) AS Dr , NULL Cr
+							, SUM(PRD.TransactionAmount) AS Amount
                             ,MM.IsAsset,IRD.Id AS  InventoryReceiveDetailId
 						FROM TRN.SalesReturnDetail PRD
 						JOIN [TRN].[SalesMaterial] AS IRD ON IRD.Id=PRD.SalesMaterialId
@@ -2738,8 +2738,8 @@ namespace Library.Accounting.Accounts
 						SELECT  'Return' AS OtherName, 'Cr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId,NULL FixedAssetMasterId
 							,  MGGL.CreditNoteGLId  GLGeneralInfoId , GL.AccountCode  GLGeneralInfoCode  ,GL.UserName GLGeneralInfoName
 							,MGGL.CreditNoteBudgetMasterId BudgetMasterId  ,B.Code BudgetCode  ,B.UserName BudgetName  ,MGGL.CreditNoteActivityId ActivityId,A.Code ActivityCode 
-							,A.UserName ActivityName , NULL Dr , SUM(SRD.BooksCurrencyTransactionAmount+ISNULL(SRD.TaxAmount,0)) AS Cr
-							, SUM(SRD.BooksCurrencyTransactionAmount+ISNULL(SRD.TaxAmount,0) ) AS Amount ,MM.IsAsset , NULL InventoryReceiveDetailId,SRD.SalesReturnId
+							,A.UserName ActivityName , NULL Dr , SUM(SRD.TransactionAmount+ISNULL(SRD.TaxAmount,0)) AS Cr
+							, SUM(SRD.TransactionAmount+ISNULL(SRD.TaxAmount,0) ) AS Amount ,MM.IsAsset , NULL InventoryReceiveDetailId,SRD.SalesReturnId
 						FROM TRN.SalesReturnDetail SRD
 						LEFT JOIN [MST].[MaterialMaster] AS MM ON SRD.MaterialMasterId=MM.Id
 						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
