@@ -211,7 +211,7 @@ namespace Library.Accounting.Accounts
                             FROM  [TRN].[Voucher] AS V 
                             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
 							LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
-                            WHERE V.Archive=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + "' AND V.Id='" + voucherId + "' AND V.SourceType='" + sourceType + "'";
+                            WHERE V.Archive=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + "' AND V.Id='" + voucherId + "' ";
             return _sqlRepository.GetData(cmdText);
         }
 
