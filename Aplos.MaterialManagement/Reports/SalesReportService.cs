@@ -4037,6 +4037,17 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
+,PLCountry=Stuff((
+                    SELECT distinct',' + CC.UserName
+                    FROM  dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.[Port] AS PL ON PL.Id = LC.PortOfLoadingId
+					left join  scs.country CC on CC.Id = PL.CountryId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
 ,PortOfDischarge=Stuff((
                     SELECT distinct',' + PL.UserName
                     FROM  dbo.MasterLC LC 
@@ -4047,11 +4058,34 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
+,PDcountry=Stuff((
+                    SELECT distinct',' + CC.UserName
+                    FROM  dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.[Port] AS PL ON PL.Id = LC.PortOfLandingId
+					left join  scs.country CC on CC.Id = PL.CountryId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+
 ,PortOfDelivary=Stuff((
                     SELECT distinct',' + PL.UserName
                     FROM  dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
 					LEFT JOIN MST.[Port] AS PL ON PL.Id = LC.PortOfLandingId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,PDLCountry=Stuff((
+                    SELECT distinct',' + CC.UserName
+                    FROM  dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.[Port] AS PL ON PL.Id = LC.PortOfLandingId
+					left join  scs.country CC on CC.Id = PL.CountryId
                     LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
 					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
                     WHERE SM.SalesId=IR.Id
