@@ -23,15 +23,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         Id: null,
         WorkDate: null,
         EmployeeCategoryId: null,
-        EmployeeCategory: null,
-        DepartmentId: null,
-        Department: null,
-        SubSectionId: null,
-        SubSection: null,
-        SectionId: null,
-        Section: null,
-        DesignationId: null,
-        Designation: null,
+        EmployeeCategory: null, 
         Purpose: null,
         PurposeCategory: null,
         ShiftId: null,
@@ -42,9 +34,8 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         Reason: null,
         Remarks: null,
         UserGroup: null,
-        CheckedStatus: null,
-        OverStay: null,
-        DayStatus: null
+        CheckedStatus: null, 
+        WD:true
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -441,9 +432,11 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.GoodWorkList = [];
+        $scope.DT = [];
         return true;
     };
 
+    $scope.WorkDates = $filter('date')(new Date(), 'dd-MMM-yyyy');
 
     $scope.getData = function () {
         $http({
@@ -454,26 +447,23 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
             $scope.ModelList = response.data;
         });
     }
-    //$scope.getData();
-
-
+    $scope.getData();
+    $scope.DT = null;
+    $scope.dateControlShow = true;
+    $scope.LBLShow = false;
     $scope.GetDblClick = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
-
-        $scope.faruque = false;
-        $scope.todayDate = $filter('date')(new Date(), 'dd-MMM-yyyy');
-
-        $scope.yesterday = new Date();
-        $scope.yesterday.setDate($scope.yesterday.getDate() - 1);
-
-        if ($scope.ModelNew.WorkDate != $scope.todayDate || $scope.ModelNew.WorkDate != $scope.yesterday) {
-            $scope.faruque = false;
+        if ($scope.ModelNew.WD) {
+            $scope.dateControlShow = true;
+            $scope.LBLShow = false;
         }
         else {
-            $scope.faruque = true;
+            $scope.DT = $scope.ModelNew.WorkDate;
+            $scope.LBLShow = true;
+            $scope.dateControlShow = false;
         }
-        $scope.getFiltersData();
-        //$scope.doubleShift(data);
+        $scope.GetGoodWorkDetailCenter();
+        $scope.getFiltersData(); 
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -578,7 +568,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
             ShowResult(e, 'failure');
         }
     }
-   /* $scope.getFiltersData();*/
+    /* $scope.getFiltersData();*/
 
     $scope.parameters = [];
     $scope.filterComplete = function () {
@@ -634,13 +624,13 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     }
     $scope.GetUserGroupList();
 
-    $scope.GoodWorkReport = function () {  
+    $scope.GoodWorkReport = function () {
         $scope.fileName = "GoodWorkReport.xlsx";
 
         $http({
             method: 'POST',
             url: $scope.path + "GetGoodWorkReport",
-            data: {'reportFileName': $scope.fileName},
+            data: { 'reportFileName': $scope.fileName },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {

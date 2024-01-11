@@ -295,6 +295,9 @@ namespace Aplos.Areas.Attendances.Controllers
         { 
             string sql = @"select GW.Id,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,gw.ShiftId,S.UserName Shift,GW.Remarks,GWS.UserName UserGroup,GWS.Id UserGroupId,gw.Reason
                                     ,format(GW.FromTime,'hh:mm') FromTime,format(GW.ToTime,'hh:mm') ToTime,gw.Minute,gw.CheckedBy,gw.CheckedStatus,GW.ApprovedStatus
+                                    ,cast(case when format(GW.WorkDate,'dd-MMM-yyyy')=format(GETDATE(),'dd-MMM-yyyy') 
+									or format(GW.WorkDate,'dd-MMM-yyyy')=format(dateadd(day,-1,getdate()),'dd-MMM-yyyy')
+									then 1 else 0 end as bit) WD
                                     from GoodWork GW
                                     left join ShiftDefination S on S.SystemId=GW.ShiftId
 									left join [dbo].[GoodWorkSetup] GWS on GWS.Id=GW.UserGroupId
@@ -641,7 +644,8 @@ namespace Aplos.Areas.Attendances.Controllers
 							LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
 							LEFT JOIN ORG.Position PR1 ON PR1.Id=PR.GoodWorkPositionCodeId
 							left join hkp.Designation D on D.Id=ei.GivenDesignationId
-							left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate=GW.WorkDate";
+							left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate=GW.WorkDate
+                            where APD.DayStatus <> 'A'";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception e)
