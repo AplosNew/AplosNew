@@ -187,7 +187,6 @@
                     <th>Budget</th>
                     <th>Activity</th>
                     <th>Particular</th>
-                    <th>Detail</th>
                     <th class="text-center">Dr</th>
                     <th class="text-center">Cr</th>
                     <th class="text-right">Action</th>
@@ -200,9 +199,6 @@
                     <td>{{x.BudgetName}}</td>
                     <td>{{x.ActivityName}}</td>
                     <td>{{x.ParticularName}}</td>
-                    <td>
-                        <select class="form-control" ng-disabled="x.PartyId==null" ng-model="x.PartyPlantId" ng-options="item.Value as item.Text for item in partyPlantList| filter:{ PartyId: x.PartyId }:true"></select>
-                    </td>
                     <td><input type="text" ng-disabled="x.PartyType=='Bank'" class="form-control text-right" id="vdDrAmount" ng-model="x.DrAmount " n-decimals="2" tabindex="11" ng-change="checkDrAmount($index)" autocomplete="off"></td>
                     <td><input type="text" class="form-control text-right" id="vdCrAmount" ng-model="x.CrAmount " n-decimals="2" tabindex="12" ng-change="checkCrAmount($index)" autocomplete="off"></td>
                     <td class="text-right">

@@ -299,7 +299,7 @@
                                 <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="50"></div>
                                 <div e-column e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
                                 <div e-column e-field="Code" e-headertext="Code" e-width="50"></div>
-                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                <div e-column e-field="Group" e-headertext="Group" e-width="80"></div>
                                 <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="140"></div>
                                 <div e-column e-template="#UserName" e-headertext="UserName" e-width="140"></div>
                                 <div e-column e-field="Description" e-headertext="Description" e-width="140"></div>
@@ -333,7 +333,7 @@
                         <input type="text" name="UserName" ng-model="data.UserName" class="form-control" tabindex="3" maxlength="50">
                     </script>
                     <script type="text/template" id="Remarks">
-                        <textarea class="form-control" rows="2" ng-model="data.Remarks" tabindex="2" maxlength="250"></textarea>
+                        <textarea class="form-control" rows="1" ng-model="data.Remarks" tabindex="2" maxlength="250"></textarea>
                     </script>
                 </div>
             </div>
@@ -716,11 +716,11 @@
              e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="false"
              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-allowResizing="true">
             <div e-columns>
-                <div e-column e-headertext="IsVarified" e-template="#checkboxIsVarified" e-textalign="center" e-width="50"></div>
+                @*<div e-column e-headertext="IsVarified" e-template="#checkboxIsVarified" e-textalign="center" e-width="50"></div>*@
                 <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
                 <div e-column e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
                 <div e-column e-field="Code" e-headertext="Code" e-width="50"></div>
-                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                <div e-column e-field="Group" e-headertext="Group" e-width="80"></div>
                 <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="140"></div>
                 <div e-column e-field="UserName" e-headertext="User Name" e-width="140"></div>
                 <div e-column e-field="Description" e-headertext="Description" e-width="140"></div>
@@ -733,9 +733,9 @@
                 </div>
             </script>
         </div>
-        <script type="text/template" id="checkboxIsVarified">
+        @*<script type="text/template" id="checkboxIsVarified">
             <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsVarified" />
-        </script>
+        </script>*@
         <script type="text/template" id="checkboxTemplate">
             <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
         </script>

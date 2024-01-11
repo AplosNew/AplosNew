@@ -101,7 +101,7 @@
                     <fieldset class="scheduler-border">
                         <legend class="scheduler-border">Disbursement</legend>
                         <div class="col-xs-10  col-sm-6 col-md-12" ng-show="empGrid">
-                            <div id="empInfoGrid" ng-init="chkinit()" ej-grid e-datasource="employeeDisbursementDataList"  e-allowscrolling="true" e-pageSettings-pageSize="15"
+                            <div id="empInfoGrid" ng-init="chkinit()" ej-grid e-datasource="employeeDisbursementDataList" e-allowscrolling="true" e-pageSettings-pageSize="15"
                                  e-actioncomplete="actionCompleteSelected" e-templaterefresh="refreshTemplateEmployee"
                                  e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
                                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowsorting="true" style="margin-left:1%">
@@ -140,6 +140,15 @@
                             <script type="text/x-jsrender" id="headerTemplate">
                                 <input type="checkbox" id="headchk" />
                             </script>
+                        </div>
+                        <div class="col-sm-12" ng-show="empGrid">
+                            <div class="col-sm-6">
+                                <div class="common-btn">
+                                    <ul style="display:flex; justify-content:space-between">
+                                        <li> <button ng-click="XlsSalaryDisbursement();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </fieldset>
                 </div>
