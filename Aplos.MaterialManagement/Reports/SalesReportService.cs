@@ -3353,6 +3353,10 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                 {
                     fileName = "REQUEST-LETTER-ICICI.docx";
                 }
+                if (BankName == "Standard Chartered Bank (Ludhiana)")
+                {
+                    fileName = "SCB.docx";
+                }
                 strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
                 File = strPath;
                 if (!System.IO.File.Exists(strPath))
@@ -3880,6 +3884,26 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
+,LcAdvisingBankDS = Stuff((
+                    SELECT distinct',' + LC.LeinDescription
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,BenificiaryACCNO = Stuff((
+                    SELECT distinct',' + OB.AccountNumber
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.BankMaster OB on OB.Id = LC.BenificiaryBankId
+					LEFT JOIN HKP.Bank B on B.Id = OB.BankId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
 ,BenificiaryBank=Stuff((
                     SELECT distinct',' + B.UserName
                     FROM dbo.MasterLC LC 
@@ -4185,6 +4209,8 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
 ,FORMAT(PSI.ShipmentDate,'dd-MMM-yyyy')ShipmentDate
 ,CONVERT(numeric(10,2) , SAI.Value) AdvanceRevceive
 ,PSI.ExportRefNo EPN
+,NEGBNKMT.AccountNumber NegotiatingAccNo
+,FORMAT(PSI.ShipmentDate + 2,'dd-MM-yyyy')ShipmentDateNew
 
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
@@ -4543,7 +4569,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
 								SUM(NetWeight)NetWeight,SUM(GWeight)GWeight FROM ItemScanChild 
 								group by SalesId ,SalesMaterialId, LotNo) SCNS on  SCNS.SalesMaterialId=IRDS.Id
 								WHERE IRDS.SalesId = IR.Id)
-,CurrentDate = format(GETDATE(),'dd-MM-yyyy')
+,CurrentDate = format(PSI.ShipmentDate + 2,'dd-MM-yyyy')
 ,LCDateNew=Stuff((
                     SELECT distinct',' + FORMAT(LC.LCDate, 'yyMMdd')
                     FROM dbo.MasterLC LC 
@@ -4692,15 +4718,15 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                     WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
-,CurrentDate1 = format(GETDATE(),'dd-MM-yyyy')
-,CurrentDate2 = format(GETDATE(),'dd-MM-yyyy')
-,CurrentDate3 = format(GETDATE(),'dd-MM-yyyy')
-,CurrentDate4 = format(GETDATE(),'dd-MM-yyyy')
-,CurrentDate5 = format(GETDATE(),'dd-MM-yyyy')
-,CurrentDate6 = format(GETDATE(),'dd-MM-yyyy')
-,CurrentDate7 = format(GETDATE(),'dd-MM-yyyy')
-,CurrentDate8 = format(GETDATE(),'dd-MM-yyyy')
-,CurrentDate9 = format(GETDATE(),'dd-MM-yyyy')
+,CurrentDate1 = format(PSI.ShipmentDate + 2,'dd-MM-yyyy')
+,CurrentDate2 = format(PSI.ShipmentDate + 2,'dd-MM-yyyy')
+,CurrentDate3 = format(PSI.ShipmentDate + 2,'dd-MM-yyyy')
+,CurrentDate4 = format(PSI.ShipmentDate + 2,'dd-MM-yyyy')
+,CurrentDate5 = format(PSI.ShipmentDate + 2,'dd-MM-yyyy')
+,CurrentDate6 = format(PSI.ShipmentDate + 2,'dd-MM-yyyy')
+,CurrentDate7 = format(PSI.ShipmentDate + 2,'dd-MM-yyyy')
+,CurrentDate8 = format(PSI.ShipmentDate + 2,'dd-MM-yyyy')
+,CurrentDate9 = format(PSI.ShipmentDate + 2,'dd-MM-yyyy')
 
 ,p.UserName Customer1
 ,Addres.Address1 VendorAddress1
@@ -6930,7 +6956,15 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                         value += clsStdLib.dbl(item.Text);
                     }
                 }
-                _TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
+
+                if (C == colCartons)
+                {
+                    _TROW.Cells[C].AddParagraph().AppendText(value.ToString()).ApplyCharacterFormat(FontBold);
+                }
+                else
+                {
+                    _TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
+                }
             }
             #endregion Total
 
