@@ -745,7 +745,7 @@ namespace Library.MaterialManagement.Reports
                 {
                     if (string.IsNullOrEmpty(dsOrderMaster.Rows[0]["Email"].ToString()))
                     {
-                        throw new Exception("Recipient mailId not found.");
+                        throw new Exception("Customer mailId not found.");
                     }
                 }
                 Dictionary<string, string> columns = new Dictionary<string, string>();
@@ -850,7 +850,7 @@ namespace Library.MaterialManagement.Reports
             }
             catch (Exception ex)
             {
-                //throw ex;
+                throw ex;
             }
 
             document.Close();
