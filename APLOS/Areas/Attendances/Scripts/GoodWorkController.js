@@ -139,6 +139,9 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.EmployeeList = [];
     $scope.getEmploymeeList = function () {
         try {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.WorkDate)) {
+                $scope.ModelNew.WorkDate = $scope.DT;
+            }
             $scope.filterComplete();
             if (!baseService.isUndefinedOrNull($scope.ModelNew.FromTime)) {
                 if (!baseService.isUndefinedOrNull($scope.ModelNew.ToTime)) {
@@ -215,7 +218,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.GetSelectedEmployeeList = function () {
         try {
             for (var i = 0; i < $scope.EmployeeList.length; i++) {
-                if ($scope.EmployeeList[i].DayStatus == 'P' || $scope.EmployeeList[i].DayStatus == 'L' || $scope.EmployeeList[i].DayStatus == 'W') {
+                if ($scope.EmployeeList[i].DayStatus == 'P' || $scope.EmployeeList[i].DayStatus == 'L' || $scope.EmployeeList[i].DayStatus == 'W' && $scope.EmployeeList[i].OverStay !=null) {
                     if (checkItemExist($scope.GoodWorkList, $scope.EmployeeList[i].SystemId) === false) {
                         if ($scope.EmployeeList[i].CheckBoxSelect === true) {
                             $scope.EmployeeList[i].FromTime = $scope.ModelNew.FromTime;
@@ -228,7 +231,11 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
                         }
                     }
 
-                } angular.element(document.querySelector("#dialogEmployeeInfo")).modal("hide");
+                }
+                //else if ($scope.EmployeeList[i].DayStatus == 'W' && $scope.EmployeeList[i].OverStay==0) {
+                //    throw "Can't Add When DayStatus is Weekend & OverStay is O!";
+                //}
+                angular.element(document.querySelector("#dialogEmployeeInfo")).modal("hide");
             }
         }
         catch (e) {
@@ -371,56 +378,56 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
             for (var i = 0; i < $scope.GoodWorkList.length; i++) {
                 if ($scope.GoodWorkList[i].Minute > $scope.GoodWorkList[i].OverStay) {
                     if ($scope.ModelNew.CheckedStatus != 'Checked' || $scope.ModelNew.ApprovedStatus != 'Approved') {
-                        $scope.GoodWorkList[i].Minute = $scope.GoodWorkList[i].OverStay;
-
-                        $http({
-                            method: 'POST',
-                            url: $scope.saveUrl,
-                            data: { 'data': $scope.ModelNew, 'goodWorkDetail': $scope.GoodWorkList },
-                            dataType: 'JSON'
-                        }).then(function successCallback(response) {
-                            if (response.data.Error === true) {
-                                ShowResult(response.data.Message, 'failure');
-                            }
-                            else {
-                                ShowResult(response.data.Message, 'success');
-                                $scope.Clear();
-                                $scope.getData();
-                            }
-                        }), function errorCallBack(response) {
-                            ShowResult(response.data.Message, 'failure');
-                        }
-                    }
-                    else {
-                        throw "Checked Or Approved data can't be updated!";
-                    }
-                }
-                else if ($scope.GoodWorkList[i].Minute == $scope.GoodWorkList[i].OverStay || $scope.GoodWorkList[i].Minute < $scope.GoodWorkList[i].OverStay) {
-
-                    if ($scope.ModelNew.CheckedStatus != 'Checked' || $scope.ModelNew.ApprovedStatus != 'Approved') {
-                        $http({
-                            method: 'POST',
-                            url: $scope.saveUrl,
-                            data: { 'data': $scope.ModelNew, 'goodWorkDetail': $scope.GoodWorkList },
-                            dataType: 'JSON'
-                        }).then(function successCallback(response) {
-                            if (response.data.Error === true) {
-                                ShowResult(response.data.Message, 'failure');
-                            }
-                            else {
-                                ShowResult(response.data.Message, 'success');
-                                $scope.Clear();
-                                $scope.getData();
-                            }
-                        }), function errorCallBack(response) {
-                            ShowResult(response.data.Message, 'failure');
-                        }
+                        $scope.GoodWorkList[i].Minute = $scope.GoodWorkList[i].OverStay; 
                     }
                     else {
                         throw "Checked Or Approved data can't be updated!";
                     }
                 }
             }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'data': $scope.ModelNew, 'goodWorkDetail': $scope.GoodWorkList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.Clear();
+                    $scope.getData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            //    else if ($scope.GoodWorkList[i].Minute == $scope.GoodWorkList[i].OverStay || $scope.GoodWorkList[i].Minute < $scope.GoodWorkList[i].OverStay) {
+
+            //        if ($scope.ModelNew.CheckedStatus != 'Checked' || $scope.ModelNew.ApprovedStatus != 'Approved') {
+            //            $http({
+            //                method: 'POST',
+            //                url: $scope.saveUrl,
+            //                data: { 'data': $scope.ModelNew, 'goodWorkDetail': $scope.GoodWorkList },
+            //                dataType: 'JSON'
+            //            }).then(function successCallback(response) {
+            //                if (response.data.Error === true) {
+            //                    ShowResult(response.data.Message, 'failure');
+            //                }
+            //                else {
+            //                    ShowResult(response.data.Message, 'success');
+            //                    $scope.Clear();
+            //                    $scope.getData();
+            //                }
+            //            }), function errorCallBack(response) {
+            //                ShowResult(response.data.Message, 'failure');
+            //            }
+            //        }
+            //        else {
+            //            throw "Checked Or Approved data can't be updated!";
+            //        }
+            //    }
+            //}
         }
         catch (e) {
             ShowResult(e, 'failure');
@@ -430,9 +437,11 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
 
     $scope.Clear = function () {
         $scope.Action = 'Save';
-        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.GoodWorkList = [];
         $scope.DT = [];
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+        $scope.dateControlShow = true;
+        $scope.LBLShow = false;
         return true;
     };
 
@@ -630,7 +639,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         $http({
             method: 'POST',
             url: $scope.path + "GetGoodWorkReport",
-            data: { 'reportFileName': $scope.fileName },
+            data: { 'reportFileName': $scope.fileName, 'workDate': $scope.WorkDates},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {

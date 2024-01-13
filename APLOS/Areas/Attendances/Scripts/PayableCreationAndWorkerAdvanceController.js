@@ -9,7 +9,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.WorkerAdvanceList = [];
     $scope.path = 'Attendances/GoodWork/';
     $scope.saveUrl = $scope.path + 'CreateWorkerAdvance';
-    $scope.savePCUrl = $scope.path + 'CreatePayableCreationWorkerAdvance';
+    $scope.savePCUrl = $scope.path + 'PayableCreationSave';
     $scope.UpdateUrl = $scope.path + 'UpdateGoodWorkDetailEdit';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
