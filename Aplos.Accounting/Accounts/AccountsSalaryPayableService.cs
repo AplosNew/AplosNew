@@ -2377,15 +2377,15 @@ namespace Library.Accounting.Accounts
                                     LEFT JOIN (SELECT SUM(VD.DrAmount) AS DrAmount, VD.VoucherId,VD.BankMasterId FROM [TRN].[VoucherDetail] AS VD WHERE VD.DrAmount <> 0 
 									GROUP BY VD.VoucherId,VD.BankMasterId
                                     ) AS VD ON VD.VoucherId=V.Id
-									left join (select distinct sl.DisbursementVoucherId,sl.MonthNo,sl.YearNo
+									left join (select distinct sl.BonusDisbursementVoucherId,sl.MonthNo,sl.YearNo
 									from dbo.SalaryLock sl
-									where sl.DisbursementVoucherId<>'' and sl.IsDisbursed=1 
-									) sl on sl.DisbursementVoucherId=v.Id
+									where sl.BonusDisbursementVoucherId<>'' and sl.IsBonusDisbursed=1 
+									) sl on sl.BonusDisbursementVoucherId=v.Id
 									LEFT JOIN TRN.VoucherDetail XVD ON XVD.VoucherId=V.Id AND XVD.BankMasterId<>''
 									LEFT JOIN TRN.VoucherDetail XVDC ON XVDC.VoucherId=V.Id AND  XVDC.CashMasterId<>''
 									left join MST.BankMaster BM ON BM.Id=XVD.BankMasterId
 									left join MST.CashMaster CM ON CM.Id=XVDC.CashMasterId
-                                    WHERE  V.Archive=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + "'AND V.CompanyId='" + identity.CompanyId + "' AND V.PlantId='" + identity.PlantId + "' AND V.SourceType='" + SourceType.SalaryDisbursement + "'";
+                                    WHERE  V.Archive=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + "'AND V.CompanyId='" + identity.CompanyId + "' AND V.PlantId='" + identity.PlantId + "' AND V.SourceType='" + SourceType.BonusDisbursement + "'";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)

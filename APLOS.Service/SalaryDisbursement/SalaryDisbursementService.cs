@@ -955,7 +955,7 @@ namespace Library.Service.SalaryDisbursement
                 flag = true;
                 if (directJVList != null)
                 {
-                    voucherVM.DocRefNo = yearNo + '-' + monthNo;
+                    voucherVM.DocRefNo = disbursementAdviceId;
                     voucherVM.Narration = "Salary disbursement for the month of " + monthName + " " + yearNo;
                     var voucher = _voucherService.InsertVoucher(voucherVM);
                     directVoucherId = voucher.Id;
@@ -1147,7 +1147,7 @@ namespace Library.Service.SalaryDisbursement
                 flag = true;
                 if (directJVList != null)
                 {
-                    voucherVM.DocRefNo = yearNo + '-' + monthNo;
+                    voucherVM.DocRefNo = disbursementAdviceId;
                     voucherVM.Narration = "Bonus disbursement for the month of " + monthName + " " + yearNo;
                     var voucher = _voucherService.InsertVoucher(voucherVM);
                     directVoucherId = voucher.Id;

@@ -367,8 +367,8 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = null;
-                sql = @" select isSelected = Convert(bit, 'True'),sl.EmpSystemId,sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,spd.PaymentMode,spd.BankAccNo
-                        ,DirectManpowerCost=case when po.DirectManpowerCost=0 then 'No' when po.DirectManpowerCost=1 then 'Yes' end ,b.UserName Bank,v.VoucherNo PayableVoucherNo
+                sql = @" select isSelected = Convert(bit, 'True'),sl.EmpSystemId,sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,spd.PaymentMode,spd.BankAccNo,spd.IFSCCode
+                        ,DirectManpowerCost=case when po.DirectManpowerCost=0 then 'No' when po.DirectManpowerCost=1 then 'Yes' end ,b.UserName BankName,v.VoucherNo PayableVoucherNo
                         ,spc.DisbusmentAmount Amount,spd.Id
 						,Department.UserName Department,Department.Id DepartmentId
 						,EmpC.UserName EmployeeCategory, EmpC.Id EmpCategoryId
@@ -398,6 +398,8 @@ namespace Aplos.Areas.Accounts.Controllers
 			                    WHEN sl.MonthNo=11 THEN 'November'
 			                    WHEN sl.MonthNo=12 THEN 'December'
 			                    ELSE '' END MonthName
+                        ,ISNULL(REPLACE(CONVERT(VARCHAR(11), DA.AddedDate, 106), ' ', '-'),'') AdviceDate
+                        ,CASE WHEN MONTH(DOS) =  sl.MonthNo  AND YEAR(DOS) = sl.YearNo then 'Separated' else 'Active' end Emp_CurrentStatus
                         from [dbo].[SalaryLock] sl 
                         left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
@@ -429,7 +431,7 @@ namespace Aplos.Areas.Accounts.Controllers
 						 and ISNULL(sh.SalaryHead, '')  in ('Net Pay')";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
-
+        
         [HttpGet, Authorize]
         public JsonResult GetBankList(string yearNo, string monthNo)
         {
@@ -2002,21 +2004,14 @@ Where HeadCategory='Net Payable' ";
         public JsonResult GetBonusDisbursementAdviceData()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"SELECT  [Id], [YearNo], [MonthNo], [Status], [Remarks], [PaymentMode]
-                          ,CASE WHEN [MonthNo]=1 THEN 'January'
-			                    WHEN [MonthNo]=2 THEN 'February'
-			                    WHEN [MonthNo]=3 THEN 'March'
-			                    WHEN [MonthNo]=4 THEN 'April'
-			                    WHEN [MonthNo]=5 THEN 'May'
-			                    WHEN [MonthNo]=6 THEN 'June'
-			                    WHEN [MonthNo]=7 THEN 'July'
-			                    WHEN [MonthNo]=8 THEN 'August'
-			                    WHEN [MonthNo]=9 THEN 'September'
-			                    WHEN [MonthNo]=10 THEN 'October'
-			                    WHEN [MonthNo]=11 THEN 'November'
-			                    WHEN [MonthNo]=12 THEN 'December'
-			                    ELSE '' END MonthName
-                        FROM [dbo].[BonusDisbursementAdvice]  WHERE Status<>'Close' ";
+            var sql = @"SELECT  [Id],  [Status], [Remarks], [PaymentMode],CONCAT(DATENAME(mm, DA.FromDate), '-', DATEPART(yy, DA.FromDate))FromDate
+						 ,CONCAT(DATENAME(mm, DA.ToDate), '-', DATEPART(yy, DA.ToDate))ToDate
+                         ,(SELECT SUM(spc.DisbusmentAmount)DisbursementAmount from [dbo].[SalaryLock] sl 
+                            left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
+                            left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+						    left join dbo.SalaryHead sh on sh.SalaryHeadID = spc.SalaryHeadID
+						    WHERE sl.BonusDisbursementAdviceId=DA.Id and ISNULL(SH.HeadCategory, '')  in ('Monthly Bonus Retain') and spc.DisbusmentAmount != 0)DisbursementAmount
+                        FROM [dbo].[BonusDisbursementAdvice] DA WHERE DA.Status<>'Close'  ";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 
         }
@@ -2044,7 +2039,7 @@ Where HeadCategory='Net Payable' ";
             if (voucherVM.PostingDate > dt)
                 throw new CustomException("Posting Date must in the selected month of " + monthName);
             voucherVM.Amount = directJVList.Sum(r => r.CrAmount);
-            voucherVM.SourceType = SourceType.SalaryDisbursement.ToString();
+            voucherVM.SourceType = SourceType.BonusDisbursement.ToString();
 
             string empSystemIds = "";
             if (employeeListNew != null)

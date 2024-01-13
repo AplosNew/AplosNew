@@ -7,9 +7,9 @@
                 <label class="col-sm-4 control-label">Master Id<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="input-group">
-                        <input type="text" ng-model="voucher.DisbursementAdviceId" class="form-control" readonly>
+                        <input type="text" ng-model="voucherBonus.BonusDisbursementAdviceId" class="form-control" readonly>
                         <span class="input-group-btn">
-                            <button ng-click="getMasterData();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                            <button ng-click="getBonusMasterData();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
                         </span>
                     </div>
                 </div>
@@ -17,17 +17,17 @@
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Year</label>
+                <label class="col-sm-4 control-label">From</label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" ng-maxlength="50" name="Year" ng-model="voucher.YearNo" class="form-control" tabindex="7" readonly autocomplete="off">
+                    <input type="text" ng-maxlength="50" name="Year" ng-model="voucherBonus.FromDate" class="form-control" tabindex="7" readonly autocomplete="off">
                 </div>
             </div>
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Month</label>
+                <label class="col-sm-4 control-label">To</label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" ng-maxlength="50" name="Month" ng-model="voucher.MonthName" class="form-control" tabindex="7" readonly autocomplete="off">
+                    <input type="text" ng-maxlength="50" name="Month" ng-model="voucherBonus.ToDate" class="form-control" tabindex="7" readonly autocomplete="off">
                 </div>
             </div>
         </div>
@@ -38,45 +38,37 @@
                 <label class="col-sm-2 control-label">Payment Mode</label>
                 <div class="col-sm-4">
                     <div class="select-style">
-                        <select id="PaymentModeId" class="form-control" name="Payment Mode" ng-change="changePaymentMode()" ng-model="voucher.PaymentMode" tabindex="5" disabled>
+                        <select id="PaymentModeId" class="form-control" name="Payment Mode" ng-change="changePaymentMode()" ng-model="voucherBonus.PaymentMode" tabindex="5" disabled>
                             <option value="">--Select--</option>
                             <option ng-repeat="option in paymentModeList" value="{{option.Value}}">{{option.Text}}</option>
                         </select>
                     </div>
                 </div>
-                <label class="col-sm-2 control-label" ng-show="voucher.PaymentMode=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">Payment Bank<sup>*</sup></label>
-                <div class="col-sm-4 show-message" ng-show="voucher.PaymentMode=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">
+                <label class="col-sm-2 control-label" ng-show="voucherBonus.PaymentMode=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">Payment Bank<sup>*</sup></label>
+                <div class="col-sm-4 show-message" ng-show="voucherBonus.PaymentMode=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">
                     <div class="input-group">
-                        <input type="text" name="BankName" ng-model="voucher.BankName" class="form-control" readonly data-toggle="tooltip" data-placement="top" title="{{voucher.BankName}}" tooltip>
+                        <input type="text" name="BankNameBonus" ng-model="voucherBonus.BankName" class="form-control" readonly data-toggle="tooltip" data-placement="top" title="{{voucherBonus.BankName}}" tooltip>
                         <span class="input-group-btn">
                             <button ng-click="showBankPopUp();" class="btn single-small-btn" tabindex="23"><i class="glyphicon glyphicon-search"></i></button>
                         </span>
                     </div>
                 </div>
-                <label class="col-sm-2 control-label" ng-show="voucher.PaymentMode=='@Library.Model.Payments.PaymentSource.Cash.ToString()'">Payment Cash<sup>*</sup></label>
-                <div class="col-sm-4 show-message" ng-show="voucher.PaymentMode=='@Library.Model.Payments.PaymentSource.Cash.ToString()'">
+                <label class="col-sm-2 control-label" ng-show="voucherBonus.PaymentMode=='@Library.Model.Payments.PaymentSource.Cash.ToString()'">Payment Cash<sup>*</sup></label>
+                <div class="col-sm-4 show-message" ng-show="voucherBonus.PaymentMode=='@Library.Model.Payments.PaymentSource.Cash.ToString()'">
                     <div class="input-group">
-                        <input type="text" name="CashName" ng-model="voucher.CashName" class="form-control" readonly>
+                        <input type="text" name="CashName" ng-model="voucherBonus.CashName" class="form-control" readonly>
                         <span class="input-group-btn">
-                            <button ng-click="showCashPopUp(null, voucher.EntityId);" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                            <button ng-click="showCashPopUp(null, voucherBonus.EntityId);" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
                         </span>
                     </div>
                 </div>
-
-                @*<div class="form-group" style="padding-left: 10px;">
-                    <div class="common-btn">
-                        <button ng-click="GetEmployeeSalaryProcessedReportSalaryLogWiseInVoucher();" class="btn"> <i class="glyphicon glyphicon-file"></i>download</button>
-                    </div>
-                </div>*@
-
-
             </div>
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
             <div id="div_PostingDate" class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Posting Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input required datepicker="getFiscalYearPeriod(voucher.PostingDate);getTaxCodeByTaxYear(voucher.PostingDate);" id="postingDate" type="text" name="PostingDate" ng-model="voucher.PostingDate" class="form-control" tabindex="1">
+                    <input required datepicker="getFiscalYearPeriod(voucherBonus.PostingDate);getTaxCodeByTaxYear(voucherBonus.PostingDate);" id="postingDateBonus" type="text" name="PostingDateBonus" ng-model="voucherBonus.PostingDate" class="form-control" tabindex="1">
                 </div>
             </div>
         </div>
@@ -101,7 +93,7 @@
                     <fieldset class="scheduler-border">
                         <legend class="scheduler-border">Bonus Disbursement</legend>
                         <div class="col-xs-10  col-sm-6 col-md-12" ng-show="empGrid">
-                            <div id="empInfoGrid" ng-init="chkinit()" ej-grid e-datasource="employeeDisbursementDataList"  e-allowscrolling="true" e-pageSettings-pageSize="15"
+                            <div id="empInfoGrid" ng-init="chkinit()" ej-grid e-datasource="employeeDisbursementDataList" e-allowscrolling="true" e-pageSettings-pageSize="15"
                                  e-actioncomplete="actionCompleteSelected" e-templaterefresh="refreshTemplateEmployee"
                                  e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
                                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowsorting="true" style="margin-left:1%">
@@ -140,6 +132,15 @@
                             <script type="text/x-jsrender" id="headerTemplate">
                                 <input type="checkbox" id="headchk" />
                             </script>
+                        </div>
+                        <div class="col-sm-12" ng-show="empGrid">
+                            <div class="col-sm-6">
+                                <div class="common-btn">
+                                    <ul style="display:flex; justify-content:space-between">
+                                        <li> <button ng-click="XlsSalaryDisbursement();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </fieldset>
                 </div>
@@ -196,16 +197,16 @@
                 <div class="row">
                     <div class="col-xs-12 col-sm-3 col-md-3">
                         <div class="select-style">
-                            <select ng-model="$root.parameters.searchBy">
+                            <select ng-model="bonusParameters.searchBy">
                                 <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
                             </select>
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-7 col-md-7">
-                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="bonusParameters.search" ng-enter="getBonusData()">
                     </div>
                     <div class="col-xs-12 col-sm-2 col-md-2">
-                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                        <button type="button" ng-click="getBonusData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                     </div>
                 </div>
             </div>
@@ -228,7 +229,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr dir-paginate="x in salaryPayables |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="getById(x.Id);">
+                <tr dir-paginate="x in bonusPayables |itemsPerPage:bonusParameters.pageSize" total-items="bonusParameters.total_count" ng-dblclick="getById(x.Id);">
                     <td>{{x.VoucherNo}}</td>
                     <td>{{x.DocRefNo}}</td>
                     <td>{{x.DocDate | dateFiltering}}</td>
@@ -240,6 +241,7 @@
                     <td>{{x.IsPark?'Parked':'Posted'}}</td>
                     <td class="text-right">
                         <ul class="list-inline action-list">
+                            <li ng-show="x.IsPark"><a ng-click="confirmPost(x.PayableVoucherId);" href="" class="btn btn-action tooltip-here">Post</a></li>
                             <li ng-show="x.IsPark"><a ng-click="confirmDelete(x);" href="" class="btn btn-action tooltip-here">Delete</a></li>
                             <li><a class="btn btn-action" href="Accounts/SalaryDisbursement/GetSalaryDisbursementVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.PayableVoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                             <li><a class="btn btn-action" href="Accounts/SalaryDisbursement/GetSalaryDisbursementVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.PayableVoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
@@ -248,22 +250,22 @@
                 </tr>
             </tbody>
         </table>
-        <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+        <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getBonusData(newPageNumber)"></dir-pagination-controls>
     </div>
 </div>
 <confirm-modal></confirm-modal>
-<div class="modal fade site-modal in" id="DisbursementAdvicepopUp" role="dialog" data-backdrop="static">
+<div class="modal fade site-modal in" id="BonusDisbursementAdvicepopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify1">
         <div class="modal-content">
-            <div class="modal-header"> Disbursement Advice <button type="button" class="close" ng-click="closePopUp();">&times;</button></div>
+            <div class="modal-header">Bonus Disbursement Advice <button type="button" class="close" ng-click="closeBonusPopUp();">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-12">
-                    <div style="color:black;" id="GridMaster" ej-grid e-datasource="masterList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-recorddoubleclick="SelectMaster" e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div style="color:black;" id="GridBonusMaster" ej-grid e-datasource="bonusmasterList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="SelectBonusMaster" e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-field="Id" e-headertext="Master Id" e-width="80"></div>
-                            <div e-column e-field="YearNo" e-headertext="Year" e-width="80"></div>
-                            <div e-column e-field="MonthName" e-headertext="Month" e-width="80"></div>
+                            <div e-column e-field="FromDate" e-headertext="From" e-width="80"></div>
+                            <div e-column e-field="ToDate" e-headertext="To" e-width="80"></div>
                             <div e-column e-field="Status" e-headertext="Status" e-width="80"></div>
                             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
                             <div e-column e-field="PaymentMode" e-headertext="Payment Mode" e-width="80"></div>
@@ -271,16 +273,16 @@
                     </div>
                 </div>
                 <ul class="common-btn list-inline text-right">
-                    <li><button ng-click="closePopUp();" class="btn"> Close</button></li>
+                    <li><button ng-click="closeBonusPopUp();" class="btn"> Close</button></li>
                 </ul>
             </div>
         </div>
     </div>
 </div>
-<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(payableId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(voucherId)"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="deleteSalaryDisbursement(voucherId,DelMonthNo,DelYearNo)"></confirm-archive-generic>
 
-@Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
+@*@Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")
 @Html.Partial("~/Areas/Banks/Views/_CashPopUp.cshtml")
-@Html.Partial("~/Areas/Accounts/Views/SalaryDisbursement/_BankPopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/SalaryDisbursement/_BankPopUp.cshtml")*@
