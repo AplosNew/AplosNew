@@ -651,7 +651,6 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
                 if (CostingStage == "PRE")
                 {
                     _stage.Add("PRE");
-                    _stage.Add("PROCUREMENT");
                 }
 
 
