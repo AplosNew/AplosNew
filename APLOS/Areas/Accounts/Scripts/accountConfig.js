@@ -1062,5 +1062,9 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/Invoice/paymentadvice",
             controller: "PaymentAdviceController"
         })
+        .when("/petty-cash", {
+            templateUrl: "Accounts/PettyCashMaster/Aplos",
+            controller: "PettyCashMasterController"
+        })
         ;
 } 

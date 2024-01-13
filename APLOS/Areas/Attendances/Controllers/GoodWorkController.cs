@@ -12,13 +12,16 @@ using Library.HumanResource.Payroll.Allowance;
 using Library.Model.Setups;
 using Library.OrderManagement.Sales;
 using Library.Service.Enums;
+using Library.Service.Helpers;
 using Library.Service.Logs;
 using Library.Service.Setups;
 using Newtonsoft.Json;
 using OTSBD;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -184,6 +187,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 DataSet dsMaster;
                 DataSet dsDetail;
+                DataSet dsDD = null;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from GoodWork where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
@@ -214,7 +218,8 @@ namespace Aplos.Areas.Attendances.Controllers
 
                 string _MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
                 con.OpenDataSetThroughAdapter("select * from GoodWorkDetail where GoodWorkId='" + _MasterId + "'", out dsDetail, false, "1");
-                int ccount = 0;
+                con.OpenDataSetThroughAdapter("select count(Id) countId from GoodWorkDetail where GoodWorkId='" + _MasterId + "'", out dsDD, false, "1");
+                int ccount = Convert.ToInt32(dsDD.Tables[0].Rows[0]["countId"].ToString());
                 if (goodWorkDetail != null)
                 {
                     foreach (var item in goodWorkDetail)
@@ -238,28 +243,22 @@ namespace Aplos.Areas.Attendances.Controllers
                             materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
                         }
                         if (dv.Count > 0)
-                        {
-                            ccount++;
-                            string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
+                        { 
                             DataRow drmo = dv[0].Row;
-                            drmo.BeginEdit();
-                            drmo["Id"] = detailid;
+                            drmo.BeginEdit(); 
                             drmo["FromTime"] = item["FromTime"];
                             drmo["ToTime"] = item["ToTime"];
                             drmo["Minute"] = item["Minute"];
                             drmo["Purpose"] = item["Purpose"];
                             drmo["PurposeCategory"] = item["PurposeCategory"];
                             drmo["Remark"] = item["Remark"];
-                            drmo.EndEdit();
-
+                            drmo.EndEdit(); 
                         }
                     }
-                }
-
+                } 
                 #endregion Good Work Detail
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsDetail);
-
+                _info.SaveDataSets(dsMaster, dsDetail); 
                 return Json(new { Error = false, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
@@ -288,14 +287,18 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetGoodWorkList()
+        public ActionResult GetGoodWorkList(string workDate)
         { 
-            string sql = @"select GW.Id,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,S.UserName Shift,GW.Remarks,GWS.UserName UserGroup,GWS.Id UserGroupId,gw.Reason
+            string sql = @"select GW.Id,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,gw.ShiftId,S.UserName Shift,GW.Remarks,GWS.UserName UserGroup,GWS.Id UserGroupId,gw.Reason
                                     ,format(GW.FromTime,'hh:mm') FromTime,format(GW.ToTime,'hh:mm') ToTime,gw.Minute,gw.CheckedBy,gw.CheckedStatus,GW.ApprovedStatus
+                                    ,cast(case when format(GW.WorkDate,'dd-MMM-yyyy')=format(GETDATE(),'dd-MMM-yyyy') 
+									or format(GW.WorkDate,'dd-MMM-yyyy')=format(dateadd(day,-1,getdate()),'dd-MMM-yyyy')
+									then 1 else 0 end as bit) WD
                                     from GoodWork GW
                                     left join ShiftDefination S on S.SystemId=GW.ShiftId
 									left join [dbo].[GoodWorkSetup] GWS on GWS.Id=GW.UserGroupId
-									left join EmployeeInformation ei on ei.SystemId=gw.CheckedBy";
+									left join EmployeeInformation ei on ei.SystemId=gw.CheckedBy
+                                    where GW.WorkDate= '" + workDate + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -474,6 +477,177 @@ namespace Aplos.Areas.Attendances.Controllers
 
             dr.EndEdit();
         }
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetGoodWorkReport(string reportFileName,string workDate)
+        {
+            try
+            {
+                string fileName = "";
+                fileName = GoodWorkReportxlx("", reportFileName, workDate);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string GoodWorkReportxlx(string ReportHeader, string reportFileName,string workDate)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Good Work Report";
+                sheet = workbook.Worksheets[0]; 
+                int ROW = 5; int COL = 1;
+                DataTable data = getGWReportData(workDate);
+
+                #region columns
+                sheet[ROW, COL].Text = "Employee Code";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColEmployeeCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Employee Name";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int ColEmployeeName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Section";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColSection = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Department";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColDepartment = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Work Date";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int ColWorkDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Over Time";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColOverTime = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Over Stay";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColOverStay = COL;
+                COL++;
+                 
+                sheet[ROW, COL].Text = "Day Status";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColDayStatus = COL;
+
+                #endregion columns
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                ROW++;
+
+                int startRow = ROW;
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, ColEmployeeCode].Text = data.Rows[i]["EmployeeCode"].ToString();
+                    sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
+                    sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
+                    sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
+                    sheet[ROW, ColWorkDate].Text = data.Rows[i]["WorkDate"].ToString();
+                    sheet[ROW, ColOverTime].Number = clsStaticInfo.dbl(data.Rows[i]["OverTime"].ToString());
+                    sheet[ROW, ColOverTime].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColOverStay].Number = clsStaticInfo.dbl(data.Rows[i]["OverStay"].ToString());
+                    sheet[ROW, ColOverStay].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColDayStatus].Text = data.Rows[i]["DayStatus"].ToString(); 
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                } 
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Good Work Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+                 
+                //#endregion ******************Report Header******************
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8; 
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true; 
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+         
+        public DataTable getGWReportData(string workDate)
+        {
+            try
+            {
+                var sql = @"select format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,EI.EmployeeCode,EI.EmployeeName,EC.UserName EmployeeCategory,S.UserName Section
+							,DEPT.UserName Department,GWD.Minute OverTime,APD.OverStay,APD.DayStatus
+                            from GoodWork GW 
+                            left join GoodworkDetail GWD on GW.Id=GWD.GoodWorkId
+                            left join EmployeeInformation EI on EI.SystemId=GWD.EmpSystemId 
+							LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
+                            LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            LEFT JOIN ORG.Department DEPT ON EI.DepartmentId=DEPT.Id
+							LEFT join MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
+							LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
+							LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+							LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+							LEFT JOIN ORG.Position PR1 ON PR1.Id=PR.GoodWorkPositionCodeId
+							left join hkp.Designation D on D.Id=ei.GivenDesignationId
+							left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate=GW.WorkDate
+                            where GW.WorkDate ='" + workDate + "' and APD.DayStatus <> 'A'";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
 
         #region Payable Creation and Worker Advance
 
