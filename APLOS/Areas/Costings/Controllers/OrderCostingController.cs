@@ -418,37 +418,33 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
         }
 
         [HttpGet, Authorize]
-        public ActionResult OrderBudgetReport(string OrderCostingId, string preCosting, string ProcurementCosting, string MOIId)
+        public ActionResult OrderBudgetReport(string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, string MOIId)
         {
             try
             {
                 Library.OrderManagement.Costing.CostingReport Report = new Library.OrderManagement.Costing.CostingReport();
-                Report.OrderBudgetReport(OrderCostingId, preCosting, ProcurementCosting, MOIId);
-
+                Report.OrderBudgetReport(OrderCostingId, orderBudget, preCosting, ProcurementCosting, MOIId); 
                 return null;
             }
             catch (Exception ex)
             {
                 throw ex;
-            }
-
+            } 
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetOrderCostingReport(string OrderCostingId, string preCosting, string ProcurementCosting, string MOIId)
+        public ActionResult GetOrderCostingReport(string OrderCostingId,string orderBudget,string preCosting, string ProcurementCosting, string MOIId)
         {
             try
             {
                 Library.OrderManagement.Costing.CostingReport Report = new Library.OrderManagement.Costing.CostingReport();
-                Report.GetOrderCostingReport(OrderCostingId, preCosting, ProcurementCosting, MOIId);
-
+                Report.GetOrderCostingReport(OrderCostingId, orderBudget, preCosting, ProcurementCosting, MOIId); 
                 return null;
             }
             catch (Exception ex)
             {
                 throw ex;
-            }
-
+            } 
         }
 
         [HttpPost, Authorize]
@@ -655,7 +651,6 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
                 if (CostingStage == "PRE")
                 {
                     _stage.Add("PRE");
-                    _stage.Add("PROCUREMENT");
                 }
 
 

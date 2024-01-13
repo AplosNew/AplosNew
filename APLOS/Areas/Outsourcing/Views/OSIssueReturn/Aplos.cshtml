@@ -123,12 +123,17 @@
 
 
                                 <div class="col-xs-12">
-                                    <input type="hidden" ng-model="Issue.Id">
                                     <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Issue No<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" name="Id" ng-model="Issue.Id"  class="form-control" disabled tabindex="2">
+                                            </div>
+                                        </div>
                                         <div class="form-group" show-errors>
                                             <label class="col-sm-4 control-label">Issue Date<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
-                                                <input type="text" name="Date" ng-model="Issue.IssueDate"  datepicker class="form-control" required tabindex="2">
+                                                <input type="text" name="Date" ng-model="Issue.IssueDate" datepicker class="form-control" required tabindex="2">
                                             </div>
                                         </div>
 
@@ -173,17 +178,17 @@
                                         </div>
 
                                         @*<div class="form-group" show-errors>
-                                                <label class="col-sm-4 control-label">Issue/ Return<sup>*</sup></label>
-                                                <div class="col-sm-8 show-message">
-                                                    <div class="select-style">
-                                                        <select class="form-control" ng-model="Issue.IssueReturn" name="Issue/ Return" required tabindex="5">
-                                                            <option value="">--Select--</option>
-                                                            <option value="Issue">Issue</option>
-                                                            <option value="Return">Return</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>*@
+            <label class="col-sm-4 control-label">Issue/ Return<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="Issue.IssueReturn" name="Issue/ Return" required tabindex="5">
+                        <option value="">--Select--</option>
+                        <option value="Issue">Issue</option>
+                        <option value="Return">Return</option>
+                    </select>
+                </div>
+            </div>
+        </div>*@
 
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Remarks</label>
@@ -194,6 +199,18 @@
 
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Issue Category<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="Issue.IssueCategory" name="Issue Type" required tabindex="5">
+                                                        <option value="">--Select--</option>
+                                                        <option value="Revenue">Inventory</option>
+                                                        <option value="Capital">Process</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div class="form-group" show-errors>
                                             <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
@@ -226,16 +243,16 @@
 
 
                                         @*<div class="form-group" show-errors>
-                                                <label class="col-sm-4 control-label">Location<sup>*</sup></label>
-                                                <div class="col-sm-8 show-message">
-                                                    <div class="select-style">
-                                                        <select class="form-control" ng-model="Issue.JobWorkLocationId" name="Customer" required
-                                                                ng-options="item.Value as item.Text for item in JobWorkLocationList" tabindex="3">
-                                                            <option value="">--Select--</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>*@
+            <label class="col-sm-4 control-label">Location<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="Issue.JobWorkLocationId" name="Customer" required
+                            ng-options="item.Value as item.Text for item in JobWorkLocationList" tabindex="3">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>*@
 
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Reference No</label>
@@ -529,8 +546,13 @@
                                 </div>
 
                                 <div class="col-xs-12">
-                                    <input type="hidden" ng-model="IssueTransformation.Id">
                                     <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Issue No<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" name="Id" ng-model="IssueTransformation.Id" class="form-control" disabled tabindex="2">
+                                            </div>
+                                        </div>
                                         <div class="form-group" show-errors>
                                             <label class="col-sm-4 control-label">Issue Date<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
@@ -538,17 +560,17 @@
                                             </div>
                                         </div>
                                         @*<div class="form-group" show-errors>
-                                                <label class="col-sm-4 control-label">Issue/ Return<sup>*</sup></label>
-                                                <div class="col-sm-8 show-message">
-                                                    <div class="select-style">
-                                                        <select class="form-control" ng-model="IssueTransformation.Types" name="Issue/ Return" required tabindex="5">
-                                                            <option value="">--Select--</option>
-                                                            <option value="InventoryJWIssue">Issue</option>
-                                                            <option value="InventoryJWReturn">Return</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>*@
+            <label class="col-sm-4 control-label">Issue/ Return<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="IssueTransformation.Types" name="Issue/ Return" required tabindex="5">
+                        <option value="">--Select--</option>
+                        <option value="InventoryJWIssue">Issue</option>
+                        <option value="InventoryJWReturn">Return</option>
+                    </select>
+                </div>
+            </div>
+        </div>*@
 
                                         <div class="form-group" show-errors>
                                             <label class="col-sm-4 control-label">Job Work Location<sup>*</sup></label>
@@ -599,6 +621,18 @@
 
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Issue Category<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="IssueTransformation.IssueCategory" name="Issue Type" ng-disabled="detailList.length" required tabindex="5">
+                                                        <option value="">--Select--</option>
+                                                        <option value="Revenue">Inventory</option>
+                                                        <option value="Capital">Process</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div class="form-group" show-errors>
                                             <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
@@ -678,7 +712,7 @@
                             <div class="common-btn" style="padding-right: 15px;">
                                 <ul class="list-inline text-right">
                                     <li>
-                                        <button ng-click="SelectMaterialPlanning();" @*ng-disabled="IssueTransformation.Id==null"*@ tabindex="17" class="btn">Select</button>
+                                        <button ng-click="SelectMaterialPlanning();" ng-disabled="IssueTransformation.IssueCategory==null" tabindex="17" class="btn">Select</button>
 
                                     </li>
                                 </ul>

@@ -1723,9 +1723,9 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                         $scope.OrderCostingItemList[i].Value = data.Value;
                     }
                     if ($scope.OrderCostingItemList[i].CostingSegment == 'DirectMaterial') {
-                        data.GrossConsumption = data.Consumption / ((100 - data.ValueLoss) / 100); // (data.Consumption * data.ValueLoss / 100) + data.Consumption;
-                        data.GrossAmount = data.GrossConsumption * data.Rate;
-                        $scope.OrderCostingItemList[i].TotalGrossAmount = data.GrossConsumption * data.Rate;
+                        data.GrossConsumption = parseFloat(data.Consumption / ((100 - data.ValueLoss) / 100)).toFixed(4); // (data.Consumption * data.ValueLoss / 100) + data.Consumption;
+                        data.GrossAmount = parseFloat(data.GrossConsumption * data.Rate).toFixed(4);
+                        $scope.OrderCostingItemList[i].TotalGrossAmount = parseFloat(data.GrossConsumption * data.Rate).toFixed(4);
 
 
                     }
@@ -1764,9 +1764,9 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                                 data.Value = 0;
                             }
                             if ($scope.OrderCostingItemList[i].CalculationMethod.toUpperCase() == "CUMULATIVE")
-                                $scope.OrderCostingItemList[i].TotalGrossAmount = totalPre * (data.Value / 100);
+                                $scope.OrderCostingItemList[i].TotalGrossAmount = parseFloat(totalPre * (data.Value / 100)).toFixed(4);
                             else
-                                $scope.OrderCostingItemList[i].TotalGrossAmount = ((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * (data.Value / 100);
+                                $scope.OrderCostingItemList[i].TotalGrossAmount = parseFloat(((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * (data.Value / 100)).toFixed(4);
 
                         }
                         data.Amount = $scope.OrderCostingItemList[i].TotalGrossAmount;
@@ -1785,9 +1785,9 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                                 data.Value = 0;
                             }
                             if ($scope.OrderCostingItemList[i].CalculationMethod.toUpperCase() == "CUMULATIVE")
-                                $scope.OrderCostingItemList[i].TotalGrossAmount = totalPre * (data.Value / 100);
+                                $scope.OrderCostingItemList[i].TotalGrossAmount = parseFloat(totalPre * (data.Value / 100)).toFixed(4);
                             else
-                                $scope.OrderCostingItemList[i].TotalGrossAmount = ((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * (data.Value / 100);
+                                $scope.OrderCostingItemList[i].TotalGrossAmount = parseFloat(((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * (data.Value / 100)).toFixed(4);
 
 
                             //var totalPre = getFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
@@ -1811,9 +1811,9 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                                 data.Value = 0;
                             }
                             if ($scope.OrderCostingItemList[i].CalculationMethod.toUpperCase() == "CUMULATIVE")
-                                $scope.OrderCostingItemList[i].TotalGrossAmount = totalPre * (data.Value / 100);
+                                $scope.OrderCostingItemList[i].TotalGrossAmount = parseFloat(totalPre * (data.Value / 100)).toFixed(4);
                             else
-                                $scope.OrderCostingItemList[i].TotalGrossAmount = ((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * (data.Value / 100);
+                                $scope.OrderCostingItemList[i].TotalGrossAmount = parseFloat(((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * (data.Value / 100)).toFixed(4);
 
                             //var totalPre = getFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
 
@@ -1855,7 +1855,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                         if ($scope.OrderCostingItemList[i].CalculationMethod.toUpperCase() == "CUMULATIVE")
                             $scope.OrderCostingItemList[i].TotalGrossAmount = totalPre * ($scope.OrderCostingItemList[i].Value / 100);
                         else
-                            $scope.OrderCostingItemList[i].TotalGrossAmount = ((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * ($scope.OrderCostingItemList[i].Value / 100);
+                            $scope.OrderCostingItemList[i].TotalGrossAmount = parseFloat(((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * ($scope.OrderCostingItemList[i].Value / 100)).toFixed(4);
 
                         //var totalPre = getFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
 
@@ -1876,7 +1876,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                         if ($scope.OrderCostingItemList[i].CalculationMethod.toUpperCase() == "CUMULATIVE")
                             $scope.OrderCostingItemList[i].TotalGrossAmount = totalPre * ($scope.OrderCostingItemList[i].Value / 100);
                         else
-                            $scope.OrderCostingItemList[i].TotalGrossAmount = ((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * ($scope.OrderCostingItemList[i].Value / 100);
+                            $scope.OrderCostingItemList[i].TotalGrossAmount = parseFloat(((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * ($scope.OrderCostingItemList[i].Value / 100)).toFixed(4);
 
                         //var totalPre = getFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
 
@@ -1901,7 +1901,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                         if ($scope.OrderCostingItemList[i].CalculationMethod.toUpperCase() == "CUMULATIVE")
                             $scope.OrderCostingItemList[i].TotalGrossAmount = totalPre * ($scope.OrderCostingItemList[i].Value / 100);
                         else
-                            $scope.OrderCostingItemList[i].TotalGrossAmount = ((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * ($scope.OrderCostingItemList[i].Value / 100);
+                            $scope.OrderCostingItemList[i].TotalGrossAmount = parseFloat(((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * ($scope.OrderCostingItemList[i].Value / 100)).toFixed(4);
 
                     }
                 }
@@ -2002,9 +2002,9 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                         $scope.OrderCostingItemList[i].ProcurementValue = data.Value;
                     }
                     if ($scope.OrderCostingItemList[i].CostingSegment == 'DirectMaterial') {
-                        data.GrossConsumption = data.Consumption / ((100 - data.ValueLoss) / 100); //(data.Consumption * data.ValueLoss / 100) + data.Consumption;
-                        data.GrossAmount = data.GrossConsumption * data.Rate;
-                        $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = data.GrossConsumption * data.Rate;
+                        data.GrossConsumption = parseFloat(data.Consumption / ((100 - data.ValueLoss) / 100)).toFixed(4);//(data.Consumption * data.ValueLoss / 100) + data.Consumption;
+                        data.GrossAmount = parseFloat(data.GrossConsumption * data.Rate).toFixed(4);
+                        $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = parseFloat(data.GrossConsumption * data.Rate).toFixed(4);
 
 
                     }
@@ -2020,7 +2020,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
 
                         var totalPre = getProcurementFixedAmountDirectMaterial();
 
-                        $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = (totalPre / ((100 - data.Value) / 100)) - totalPre;// totalPre * (data.Value / 100)
+                        $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = parseFloat((totalPre / ((100 - data.Value) / 100)) - totalPre).toFixed(4);// totalPre * (data.Value / 100)
                         $scope.OrderCostingItemList[i].TotalProcurementGrossAmount += data.Rate;
 
                         $scope.OrderCostingItemList[i].ProcurementRate = data.Rate;
@@ -2045,7 +2045,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                             if ($scope.OrderCostingItemList[i].CalculationMethod.toUpperCase() == "CUMULATIVE")
                                 $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = totalPre * (data.Value / 100);
                             else
-                                $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = ((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * (data.Value / 100);
+                                $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = parseFloat(((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * (data.Value / 100)).toFixed(4);
 
                         }
                         data.Amount = $scope.OrderCostingItemList[i].TotalProcurementGrossAmount;
@@ -2067,7 +2067,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                             if ($scope.OrderCostingItemList[i].CalculationMethod.toUpperCase() == "CUMULATIVE")
                                 $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = totalPre * (data.Value / 100);
                             else
-                                $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = ((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * (data.Value / 100);
+                                $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = parseFloat(((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * (data.Value / 100)).toFixed(4);
 
 
                             //var totalPre = getProcurementFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
@@ -2094,7 +2094,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                             if ($scope.OrderCostingItemList[i].CalculationMethod.toUpperCase() == "CUMULATIVE")
                                 $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = totalPre * (data.Value / 100);
                             else
-                                $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = ((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * (data.Value / 100);
+                                $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = parseFloat(((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * (data.Value / 100)).toFixed(4);
 
                             //var totalPre = getProcurementFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
 
@@ -2117,7 +2117,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
 
                     var totalPre = getProcurementFixedAmountDirectMaterial();
 
-                    $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = (totalPre / ((100 - $scope.OrderCostingItemList[i].ProcurementValue) / 100)) - totalPre;//totalPre * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
+                    $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = parseFloat((totalPre / ((100 - $scope.OrderCostingItemList[i].ProcurementValue) / 100)) - totalPre).toFixed(4);//totalPre * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
                     $scope.OrderCostingItemList[i].TotalProcurementGrossAmount += $scope.OrderCostingItemList[i].ProcurementRate;
 
                 }
@@ -2133,9 +2133,9 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                         var totalPercent = getProcurementCurrentPercent($scope.OrderCostingItemList[i].ComponentSequence);
 
                         if ($scope.OrderCostingItemList[i].CalculationMethod.toUpperCase() == "CUMULATIVE")
-                            $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = totalPre * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
+                            $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = parseFloat(totalPre * ($scope.OrderCostingItemList[i].ProcurementValue / 100)).toFixed(4);
                         else
-                            $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = ((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
+                            $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = parseFloat(((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * ($scope.OrderCostingItemList[i].ProcurementValue / 100)).toFixed(4);
 
                         //var totalPre = getProcurementFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
 
@@ -2156,7 +2156,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                         if ($scope.OrderCostingItemList[i].CalculationMethod.toUpperCase() == "CUMULATIVE")
                             $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = totalPre * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
                         else
-                            $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = ((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
+                            $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = parseFloat(((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * ($scope.OrderCostingItemList[i].ProcurementValue / 100)).toFixed(4);
 
                         //var totalPre = getProcurementFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
 
@@ -2181,7 +2181,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                         if ($scope.OrderCostingItemList[i].CalculationMethod.toUpperCase() == "CUMULATIVE")
                             $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = totalPre * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
                         else
-                            $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = ((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
+                            $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = parseFloat(((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * ($scope.OrderCostingItemList[i].ProcurementValue / 100)).toFixed(4);
 
                     }
                 }
@@ -2486,16 +2486,24 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                     $scope.DirectMaterialList[i].MaterialMasterId = null;
                     $scope.DirectMaterialList[i].ArticleId = null;
                 }
-                //if ($scope.DirectMaterialList[i].Consumption == 0 || baseService.isUndefinedOrNull($scope.DirectMaterialList[i].Consumption) || $scope.DirectMaterialList[i].Consumption == 'NaN') {
-                //    ShowResult("Consumption is required for '" + $scope.DirectMaterialList[i].UserName + "'.", 'failure');
-                //    return false;
-                //}
+                if (baseService.isUndefinedOrNull($scope.DirectMaterialList[i].Consumption) || $scope.DirectMaterialList[i].Consumption == 'NaN') {
+                    ShowResult("Consumption is required for '" + $scope.DirectMaterialList[i].UserName + "'.", 'failure');
+                    return false;
+                }
 
-                //if ($scope.DirectMaterialList[i].Rate == 0 || baseService.isUndefinedOrNull($scope.DirectMaterialList[i].Rate) || $scope.DirectMaterialList[i].Rate == 'NaN') {
-                //    ShowResult("Rate is required for '" + $scope.DirectMaterialList[i].UserName + "'.", 'failure');
-                //    return false;
-                //}
+                if (baseService.isUndefinedOrNull($scope.DirectMaterialList[i].Rate) || $scope.DirectMaterialList[i].Rate == 'NaN') {
+                    ShowResult("Rate is required for '" + $scope.DirectMaterialList[i].UserName + "'.", 'failure');
+                    return false;
+                }
 
+                if (baseService.isUndefinedOrNull($scope.DirectMaterialList[i].BOQCriteria)) {
+                    ShowResult("BOQCriteria is required for '" + $scope.DirectMaterialList[i].UserName + "'.", 'failure');
+                    return false;
+                }
+                if (baseService.isUndefinedOrNull($scope.DirectMaterialList[i].POCriteria)) {
+                    ShowResult("POCriteria is required for '" + $scope.DirectMaterialList[i].UserName + "'.", 'failure');
+                    return false;
+                }
             }
         }
 
@@ -2526,6 +2534,14 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                 if ($scope.DirectProcurementCostingMaterialList[i].IsGeneric == false) {
                     $scope.DirectProcurementCostingMaterialList[i].MaterialMasterId = null;
                     $scope.DirectProcurementCostingMaterialList[i].ArticleId = null;
+                }
+                if (baseService.isUndefinedOrNull($scope.DirectProcurementCostingMaterialList[i].BOQCriteria)) {
+                    ShowResult("BOQCriteria is required for '" + $scope.DirectProcurementCostingMaterialList[i].UserName + "'.", 'failure');
+                    return false;
+                }
+                if (baseService.isUndefinedOrNull($scope.DirectProcurementCostingMaterialList[i].POCriteria)) {
+                    ShowResult("POCriteria is required for '" + $scope.DirectProcurementCostingMaterialList[i].UserName + "'.", 'failure');
+                    return false;
                 }
             }
         }
@@ -5155,7 +5171,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     $scope.OrderBudgetReport = function (x) {
         try {
             var data = x;
-            var file_src = 'Costings/OrderCosting/OrderBudgetReport?OrderCostingId=' + data.Id + '&preCosting=' + 1 + '&MOIId=' + data.MOIId;
+            var file_src = 'Costings/OrderCosting/OrderBudgetReport?OrderCostingId=' + data.Id + '&orderBudget=' + 1 + '&MOIId=' + data.MOIId;
             $rootScope.report(file_src);
 
         } catch (e) {

@@ -598,7 +598,6 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 					$scope.IssueTransformation.MaterialStorageId = $scope.JobWorkLocList[0].Value;
 					$scope.IssueTransformation.StorageLocation = $scope.JobWorkLocList[0].StorageLocation;
 					$scope.IssueTransformation.MaterialStorageIdInventory = $scope.JobWorkLocList[0].Value;
-					$scope.SelectMaterialPlanning();
 				}
 			});
 		}

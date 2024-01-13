@@ -24,7 +24,7 @@ namespace Library.OrderManagement.Costing
             _sqlRepository = new SqlRepository();
             identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
         }
-        public void GetOrderCostingReport(string OrderCostingId, string preCosting, string ProcurementCosting, string MOIId)
+        public void GetOrderCostingReport(string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, string MOIId)
         {
             try
             {
@@ -477,7 +477,7 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, COL].CellStyle.Font.Size = 15;
                 sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Dark_blue;
                 sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
-                sheet.Range[ROW, COL, ROW, COL + 6].Merge();
+                sheet.Range[ROW, COL, ROW, COL + 13].Merge();
                 ROW++;
 
                 sheet[ROW, COL].Text = "Sl No.";
@@ -569,12 +569,12 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].ColumnWidth = 8;
 
                 int CostingDetailEndCol = COL;
-                sheet.Range[ROW, 1, ROW, CostingDetailEndCol - 1].CellStyle.Font.Bold = true;
-                sheet.Range[ROW, 1, ROW, CostingDetailEndCol - 1].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
-                sheet.Range[ROW - 2, 1, ROW - 2, CostingDetailEndCol - 1].Merge();
+                sheet.Range[ROW, 1, ROW, CostingDetailEndCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, CostingDetailEndCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
+                sheet.Range[ROW - 2, 1, ROW - 2, CostingDetailEndCol].Merge();
 
-                sheet.Range[ROW, 1, ROW, CostingDetailEndCol - 1].BorderAround(ExcelLineStyle.Hair);
-                sheet.Range[ROW, 1, ROW, CostingDetailEndCol - 1].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
                 ROW++;
 
 
@@ -628,8 +628,8 @@ namespace Library.OrderManagement.Costing
                         sheet[ROW, colDifferenceTotalPrePro].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) * orderquantity -
                         clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) * orderquantity;
                     }
-                    sheet.Range[ROW, 1, ROW, CostingDetailEndCol - 1].BorderAround(ExcelLineStyle.Hair);
-                    sheet.Range[ROW, 1, ROW, CostingDetailEndCol - 1].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
 
                     ROW++;
                     var endRow = ROW;
@@ -661,8 +661,8 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, colProcCostingPer].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colProcCostingPer) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colProcCostingPer) + (ROW - 1) + ")";
                 sheet.Range[ROW, colProcCostingPer].CellStyle.Font.Bold = true;
 
-                sheet.Range[ROW, 1, ROW, CostingDetailEndCol - 1].BorderAround(ExcelLineStyle.Hair);
-                sheet.Range[ROW, 1, ROW, CostingDetailEndCol - 1].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.IsGridLinesVisible = false;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[CostingDetailStartRow, 1, ROW, CostingDetailEndCol].CellStyle.Font.Size = 11f;
@@ -676,12 +676,12 @@ namespace Library.OrderManagement.Costing
                 ROW++;
                 int CostingComponentEndcol = 0;
 
-                DirectMateterial(sheet, ref ROW, OrderCostingId, preCosting, ProcurementCosting, dtMOICostingInfo);
-                DirectProcess(sheet, ref ROW, OrderCostingId, preCosting, ProcurementCosting, dtMOICostingInfo);
-                Operation(sheet, ref ROW, OrderCostingId, preCosting, ProcurementCosting, dtMOICostingInfo);
-                ValueLoss(sheet, ref ROW, OrderCostingId, preCosting, ProcurementCosting, dtMOICostingInfo);
-                Profit(sheet, ref ROW, OrderCostingId, preCosting, ProcurementCosting, dtMOICostingInfo);
-                SalesExpense(sheet, ref ROW, OrderCostingId, preCosting, ProcurementCosting, dtMOICostingInfo);
+                DirectMateterial(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
+                DirectProcess(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
+                Operation(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
+                ValueLoss(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
+                Profit(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
+                SalesExpense(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
 
                 sheet.IsGridLinesVisible = false;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
@@ -710,7 +710,7 @@ namespace Library.OrderManagement.Costing
             }
         }
 
-        public void OrderBudgetReport(string OrderCostingId, string preCosting, string ProcurementCosting, string MOIId)
+        public void OrderBudgetReport(string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, string MOIId)
         {
             try
             {
@@ -1054,14 +1054,14 @@ namespace Library.OrderManagement.Costing
                 //ROW++;
                 int CostingComponentEndcol = 0;
 
-                DirectMateterial(sheet, ref ROW, OrderCostingId, preCosting, ProcurementCosting, dtMOICostingInfo);
+                DirectMateterial(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
                 int fundROW = ROW;
-                DirectProcess(sheet, ref ROW, OrderCostingId, preCosting, ProcurementCosting, dtMOICostingInfo);
-                FundRequired(sheet, ref fundROW, OrderCostingId, preCosting, ProcurementCosting, dtMOICostingInfo);
-                Operation(sheet, ref ROW, OrderCostingId, preCosting, ProcurementCosting, dtMOICostingInfo);
-                ValueLoss(sheet, ref ROW, OrderCostingId, preCosting, ProcurementCosting, dtMOICostingInfo);
-                Profit(sheet, ref ROW, OrderCostingId, preCosting, ProcurementCosting, dtMOICostingInfo);
-                SalesExpense(sheet, ref ROW, OrderCostingId, preCosting, ProcurementCosting, dtMOICostingInfo);
+                DirectProcess(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
+                FundRequired(sheet, ref fundROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
+                Operation(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
+                ValueLoss(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
+                Profit(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
+                SalesExpense(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
 
                 sheet.IsGridLinesVisible = false;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
@@ -1086,10 +1086,10 @@ namespace Library.OrderManagement.Costing
         }
 
 
-        private void DirectMateterial(IWorksheet sheet, ref int ROW, string OrderCostingId, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
+        private void DirectMateterial(IWorksheet sheet, ref int ROW, string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
         {
             ReportUtility reportUtility = new ReportUtility();
-            String CostingDirectMaterialSQL = OrderPreCostingDirectMaterialSQL(OrderCostingId, preCosting, ProcurementCosting);
+            String CostingDirectMaterialSQL = OrderPreCostingDirectMaterialSQL(OrderCostingId, orderBudget, preCosting, ProcurementCosting);
 
             DataTable dtOrderCostingDirectMaterial = _sqlRepository.GetDataTable(CostingDirectMaterialSQL);
             if (dtOrderCostingDirectMaterial.Rows.Count == 0)
@@ -1278,10 +1278,10 @@ namespace Library.OrderManagement.Costing
             }
         }
 
-        private void DirectProcess(IWorksheet sheet, ref int ROW, string OrderCostingId, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
+        private void DirectProcess(IWorksheet sheet, ref int ROW, string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
         {
             ReportUtility reportUtility = new ReportUtility();
-            String CostingDirectProcessSQL = OrderPreCostingDirectProcessSQL(OrderCostingId, preCosting, ProcurementCosting);
+            String CostingDirectProcessSQL = OrderPreCostingDirectProcessSQL(OrderCostingId, orderBudget, preCosting, ProcurementCosting);
             DataTable dtOrderCostingDirectProcess = _sqlRepository.GetDataTable(CostingDirectProcessSQL);
 
             if (dtOrderCostingDirectProcess.Rows.Count == 0)
@@ -1367,7 +1367,14 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colValue].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Value"].ToString());
                     sheet[ROW, colRate].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Rate"].ToString());
                     sheet[ROW, colAmount].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Amount"].ToString());
-                    sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalOrderCost"].ToString());
+                    if (preCosting == "1" || ProcurementCosting == "1")
+                    {
+                        sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Amount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
+                    }
+                    if (orderBudget == "1")
+                    {
+                        sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalOrderCost"].ToString());
+                    }
                     sheet[ROW, colCurrency2].Text = dtComponentRelatedItems.DefaultView[M]["Currency"].ToString();
 
                     //sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
@@ -1405,10 +1412,10 @@ namespace Library.OrderManagement.Costing
             }
         }
 
-        private void Operation(IWorksheet sheet, ref int ROW, string OrderCostingId, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
+        private void Operation(IWorksheet sheet, ref int ROW, string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
         {
             ReportUtility reportUtility = new ReportUtility();
-            String CostingOperationSQL = OrderPreCostingOperationSQL(OrderCostingId, preCosting, ProcurementCosting);
+            String CostingOperationSQL = OrderPreCostingOperationSQL(OrderCostingId, orderBudget, preCosting, ProcurementCosting);
             DataTable dtOrderCostingOperation = _sqlRepository.GetDataTable(CostingOperationSQL);
 
             if (dtOrderCostingOperation.Rows.Count == 0)
@@ -1470,9 +1477,15 @@ namespace Library.OrderManagement.Costing
                 {
                     sheet[ROW, colCostingItem].Text = dtComponentRelatedItems.DefaultView[M]["CostingItem"].ToString();
                     sheet[ROW, colValue].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Value"].ToString());
-                    sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Value"].ToString()) * clsStaticInfo.dbl(OrderQTY);
+                    if (orderBudget == "1")
+                    {
+                        sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalOrderCost"].ToString());
+                    }
+                    if (preCosting == "1" || ProcurementCosting == "1")
+                    {
+                        sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Value"].ToString()) * clsStaticInfo.dbl(OrderQTY);
+                    }
                     sheet[ROW, colCurrency].Text = dtComponentRelatedItems.DefaultView[M]["Currency"].ToString();
-
                     //sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
                     sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderInside(ExcelLineStyle.Hair);
@@ -1482,9 +1495,9 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, 1].Text = "Total:";
                 sheet.Range[ROW, 1].CellStyle.Font.Bold = true;
 
-                sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 2].Merge();
-                sheet.Range[ROW, colValue, ROW, colValue].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colValue) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(colValue) + CostingComponentEndRow + ")";
-                sheet.Range[ROW, colValue].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
+                //sheet.Range[ROW, colValue, ROW, colValue].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colValue) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(colValue) + CostingComponentEndRow + ")";
+                //sheet.Range[ROW, colValue].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, colTotalOrderCost].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colTotalOrderCost) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(colTotalOrderCost) + CostingComponentEndRow + ")";
                 sheet.Range[ROW, colTotalOrderCost].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, colCurrency].Formula = reportUtility.GetColumnNameForXls(colCurrency) + (ROW - 1);
@@ -1502,13 +1515,13 @@ namespace Library.OrderManagement.Costing
             }
         }
 
-        private void FundRequired(IWorksheet sheet, ref int ROW, string OrderCostingId, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
+        private void FundRequired(IWorksheet sheet, ref int ROW, string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
         {
             ReportUtility reportUtility = new ReportUtility();
-            String CostingDirectMaterialSQL = OrderPreCostingDirectMaterialSQL(OrderCostingId, preCosting, ProcurementCosting);
+            String CostingDirectMaterialSQL = OrderPreCostingDirectMaterialSQL(OrderCostingId, orderBudget, preCosting, ProcurementCosting);
             DataTable dtFundRequired = _sqlRepository.GetDataTable(CostingDirectMaterialSQL);
 
-            String CostingDirectProcessSQL = OrderPreCostingDirectProcessSQL(OrderCostingId, preCosting, ProcurementCosting);
+            String CostingDirectProcessSQL = OrderPreCostingDirectProcessSQL(OrderCostingId, orderBudget, preCosting, ProcurementCosting);
             DataTable dtFundRequiredWash = _sqlRepository.GetDataTable(CostingDirectProcessSQL);
 
             if (dtFundRequired.Rows.Count == 0)
@@ -1623,10 +1636,10 @@ namespace Library.OrderManagement.Costing
             //sheet.Range[CostingComponentStartRow, colTotalOrderCost, ROW, colTotalOrderCost].NumberFormat = clsStaticInfo.NumberFormat(2);
         }
 
-        private void ValueLoss(IWorksheet sheet, ref int ROW, string OrderCostingId, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
+        private void ValueLoss(IWorksheet sheet, ref int ROW, string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
         {
             ReportUtility reportUtility = new ReportUtility();
-            String CostingValueLossSQL = OrderPreCostingValueLossSQL(OrderCostingId, preCosting, ProcurementCosting);
+            String CostingValueLossSQL = OrderPreCostingValueLossSQL(OrderCostingId, orderBudget, preCosting, ProcurementCosting);
             DataTable dtOrderCostingValueLoss = _sqlRepository.GetDataTable(CostingValueLossSQL);
             if (dtOrderCostingValueLoss.Rows.Count == 0)
                 return;
@@ -1698,7 +1711,14 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colType].Text = dtComponentRelatedItems.DefaultView[M]["Type"].ToString();
                     sheet[ROW, colValue].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Value"].ToString());
                     sheet[ROW, colAmount].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Amount"].ToString());
-                    sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Amount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
+                    if (preCosting == "1" || orderBudget == "1")
+                    {
+                        sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Amount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
+                    }
+                    if (orderBudget == "1")
+                    {
+                        sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalOrderCost"].ToString());
+                    }
                     sheet[ROW, colCurrency].Text = dtComponentRelatedItems.DefaultView[M]["Currency"].ToString();
 
                     //sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
@@ -1737,10 +1757,10 @@ namespace Library.OrderManagement.Costing
             }
         }
 
-        private void Profit(IWorksheet sheet, ref int ROW, string OrderCostingId, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
+        private void Profit(IWorksheet sheet, ref int ROW, string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
         {
             ReportUtility reportUtility = new ReportUtility();
-            String CostingProfitSQL = OrderPreCostingProfitSQL(OrderCostingId, preCosting, ProcurementCosting);
+            String CostingProfitSQL = OrderPreCostingProfitSQL(OrderCostingId, orderBudget, preCosting, ProcurementCosting);
             DataTable dtOrderCostingProfit = _sqlRepository.GetDataTable(CostingProfitSQL);
 
             if (dtOrderCostingProfit.Rows.Count == 0)
@@ -1814,7 +1834,14 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colType].Text = dtComponentRelatedItems.DefaultView[M]["Type"].ToString();
                     sheet[ROW, colAmount].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Amount"].ToString());
                     sheet[ROW, colValue].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Value"].ToString());
-                    sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Amount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
+                    if (preCosting == "1" || ProcurementCosting == "1")
+                    {
+                        sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Amount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
+                    }
+                    if (orderBudget == "1")
+                    {
+                        sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalOrderCost"].ToString());
+                    }
                     sheet[ROW, colCurrency].Text = dtComponentRelatedItems.DefaultView[M]["Currency"].ToString();
 
                     //sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
@@ -1853,10 +1880,10 @@ namespace Library.OrderManagement.Costing
             }
         }
 
-        private void SalesExpense(IWorksheet sheet, ref int ROW, string OrderCostingId, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
+        private void SalesExpense(IWorksheet sheet, ref int ROW, string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
         {
             ReportUtility reportUtility = new ReportUtility();
-            String CostingSalesExpenseSQL = OrderPreCostingSalesExpenseSQL(OrderCostingId, preCosting, ProcurementCosting);
+            String CostingSalesExpenseSQL = OrderPreCostingSalesExpenseSQL(OrderCostingId, orderBudget, preCosting, ProcurementCosting);
             DataTable dtOrderCostingSalesExpense = _sqlRepository.GetDataTable(CostingSalesExpenseSQL);
 
             if (dtOrderCostingSalesExpense.Rows.Count == 0)
@@ -1932,7 +1959,14 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colType].Text = dtComponentRelatedItems.DefaultView[M]["Type"].ToString();
                     sheet[ROW, colAmount].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Amount"].ToString());
                     sheet[ROW, colValue].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Value"].ToString());
-                    sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Amount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
+                    if (preCosting == "1" || ProcurementCosting == "1")
+                    {
+                        sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Amount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
+                    }
+                    if (orderBudget == "1")
+                    {
+                        sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalOrderCost"].ToString());
+                    }
                     sheet[ROW, colCurrency].Text = dtComponentRelatedItems.DefaultView[M]["Currency"].ToString();
 
                     //sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
@@ -1945,11 +1979,9 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, 1].Text = "Total:";
                 sheet.Range[ROW, 1].CellStyle.Font.Bold = true;
 
-                sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 3].Merge();
-                sheet.Range[ROW, colValue, ROW, colValue + 1].Merge();
-
-                sheet.Range[ROW, colValue].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colValue) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(colValue) + CostingComponentEndRow + ")";
-                sheet.Range[ROW, colValue].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 2].Merge();
+                sheet.Range[ROW, colValue, ROW, colValue].Merge();
+                 
                 sheet.Range[ROW, colAmount].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colAmount) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(colAmount) + CostingComponentEndRow + ")";
                 sheet.Range[ROW, colAmount].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, colTotalOrderCost].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colTotalOrderCost) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(colTotalOrderCost) + CostingComponentEndRow + ")";
@@ -2092,12 +2124,12 @@ namespace Library.OrderManagement.Costing
 
 
 
-        private string OrderPreCostingDirectMaterialSQL(string OrderCostingId, string preCosting, string ProcurementCosting)
+        private string OrderPreCostingDirectMaterialSQL(string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string TableName = "";
 
-            if (preCosting == "1")
+            if (preCosting == "1" || orderBudget == "1")
             {
                 TableName = "OrderPreCostingDirectMaterial";
             }
@@ -2142,7 +2174,7 @@ namespace Library.OrderManagement.Costing
 
         }
 
-        private string OrderPreCostingDirectProcessSQL(string OrderCostingId, string preCosting, string ProcurementCosting)
+        private string OrderPreCostingDirectProcessSQL(string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting)
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -2157,19 +2189,57 @@ namespace Library.OrderManagement.Costing
             {
                 TableName = "OrderProcurementCostingDirectProcess";
             }
-            return @"SELECT pc.Id,I.Id as CostingId,pc.Sequence,I.UserName as CostingItem,I.CostingComponentId
+            if (orderBudget == "1")
+            {
+                TableName = "OrderPreCostingDirectProcess";
+                return @"SELECT pc.Id,I.Id as CostingId,pc.Sequence,I.UserName as CostingItem,I.CostingComponentId
             ,ISNULL(pc.ExecutionType,'Fixed') as [Type],ccg.UserName CostingCategory
 			,OCMT.Id as OrderCostingMasterTemplateId,cc.UserName as CostingComponentName
-			,ISNULL(pc.Value,0) AS Value,ISNULL(pc.Rate,0) AS Rate,ISNULL(pc.Amount,0) AS Amount
-			,C.Code as Currency ,moi.TotalQty OrderQty,EI.EmployeeName as ResponsiblePerson
-			,TotalOrderCost=ISNULL(pc.Amount,0)*moi.TotalQty
+			,ISNULL(pc.Value,0) AS Value,ISNULL(pc.Rate,0) AS Rate
+			,C.Code as Currency ,EI.EmployeeName as ResponsiblePerson
+			
+            ,OrderQty=(select sum(moi.TotalQty)
+			from trn.MasterOrderItem moi 
+			where moi.OrderCostingMasterTemplateId=OCMT.Id
+			group by moi.OrderCostingMasterTemplateId)
+
+			,Amount=(select sum(pc.Amount)
+			from " + TableName + @" pc
+			where pc.OrderCostingMasterTemplateId=OCMT.Id) 
+			 
+			,TotalOrderCost= (select sum(moi.TotalQty)
+			from trn.MasterOrderItem moi 
+			where moi.OrderCostingMasterTemplateId=OCMT.Id
+			group by moi.OrderCostingMasterTemplateId)
+			*(select sum(pc.Amount)
+			from " + TableName + @" pc
+			where pc.OrderCostingMasterTemplateId=OCMT.Id) 
+			
 			
 			FROM " + TableName + @" AS pc 
 			LEFT JOIN HKP.CostingItem I on i.Id=PC.CostingItemId 
 			LEFT JOIN HKP.CostingComponent CC on CC.Id=I.CostingComponentId
 			LEFT JOIN OrderCostingMasterTemplate OCMT on OCMT.Id=PC.OrderCostingMasterTemplateId
+			LEFT JOIN SCS.Currency C on C.Id=OCMT.CurrencyId 
+			LEFT JOIN EmployeeInformation EI on EI.SystemId=pc.ResponsiblePersonId
+			LEFT JOIN [HKP].[CostingCategory] AS ccg ON ccg.Id = I.CostingCategoryId
+
+			where pc.OrderCostingMasterTemplateId='" + OrderCostingId + @"'
+			order by pc.Sequence";
+            }
+
+            return @"SELECT pc.Id,I.Id as CostingId,pc.Sequence,I.UserName as CostingItem,I.CostingComponentId
+            ,ISNULL(pc.ExecutionType,'Fixed') as [Type],ccg.UserName CostingCategory
+			,OCMT.Id as OrderCostingMasterTemplateId,cc.UserName as CostingComponentName
+			,ISNULL(pc.Value,0) AS Value,ISNULL(pc.Rate,0) AS Rate,ISNULL(pc.Amount,0) AS Amount
+			,C.Code as Currency,EI.EmployeeName as ResponsiblePerson
+			,TotalOrderCost=ISNULL(pc.Amount,0)*(select sum(TotalQty) from  trn.MasterOrderItem where OrderCostingMasterTemplateId=PC.OrderCostingMasterTemplateId)
+			
+			FROM " + TableName + @" AS pc   
+			LEFT JOIN HKP.CostingItem I on i.Id=PC.CostingItemId 
+			LEFT JOIN HKP.CostingComponent CC on CC.Id=I.CostingComponentId
+			LEFT JOIN OrderCostingMasterTemplate OCMT on OCMT.Id=PC.OrderCostingMasterTemplateId
 			LEFT JOIN SCS.Currency C on C.Id=OCMT.CurrencyId
-            LEFT JOIN trn.MasterOrderItem AS moi ON moi.OrderCostingMasterTemplateId=ocmt.Id
 			LEFT JOIN EmployeeInformation EI on EI.SystemId=pc.ResponsiblePersonId
 			LEFT JOIN [HKP].[CostingCategory] AS ccg ON ccg.Id = I.CostingCategoryId
 
@@ -2177,7 +2247,7 @@ namespace Library.OrderManagement.Costing
 			order by pc.Sequence";
         }
 
-        private string OrderPreCostingOperationSQL(string OrderCostingId, string preCosting, string ProcurementCosting)
+        private string OrderPreCostingOperationSQL(string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -2190,6 +2260,27 @@ namespace Library.OrderManagement.Costing
             if (ProcurementCosting == "1")
             {
                 TableName = "OrderProcurementCostingOperation ";
+            }
+            if (orderBudget == "1")
+            {
+                TableName = "OrderPreCostingOperation ";
+                return @"SELECT pc.Id,I.Id as CostingId,I.UserName as CostingItem,I.CostingComponentId,pc.Sequence
+				,ISNULL(pc.Value,0) AS Value,OCMT.Id as OrderCostingMasterTemplateId
+				,cc.UserName as CostingComponentName,c.Code as Currency 
+				,ISNULL(pc.Value,0) AS Amount, sum(ISNULL(moi.TotalQty,0)) TotalQty
+				,TotalOrderCost=ISNULL(pc.Value,0)*sum(ISNULL(moi.TotalQty,0))
+
+				FROM " + TableName + @" AS pc       
+				LEFT JOIN HKP.CostingItem I on i.Id=PC.CostingItemId 
+				LEFT JOIN HKP.CostingComponent CC on CC.Id=I.CostingComponentId
+				LEFT JOIN OrderCostingMasterTemplate OCMT on OCMT.Id=PC.OrderCostingMasterTemplateId 
+				LEFT JOIN SCS.Currency C on C.Id=OCMT.CurrencyId
+				LEFT JOIN trn.MasterOrderItem AS moi ON moi.OrderCostingMasterTemplateId=ocmt.Id
+
+				where pc.OrderCostingMasterTemplateId='" + OrderCostingId + @"'
+				group by pc.Id,pc.CostingItemId,I.Id,I.UserName,I.CostingComponentId,pc.Sequence
+				,pc.Value,OCMT.Id,cc.UserName,c.Code
+                order by pc.Sequence";
             }
 
             return @"SELECT pc.Id,I.Id as CostingId,I.UserName as CostingItem,I.CostingComponentId,pc.Sequence
@@ -2207,7 +2298,7 @@ namespace Library.OrderManagement.Costing
 				order by pc.Sequence";
         }
 
-        private string OrderPreCostingValueLossSQL(string OrderCostingId, string preCosting, string ProcurementCosting)
+        private string OrderPreCostingValueLossSQL(string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -2220,6 +2311,39 @@ namespace Library.OrderManagement.Costing
             if (ProcurementCosting == "1")
             {
                 TableName = "OrderProcurementCostingValueLoss";
+            }
+            if (orderBudget == "1")
+            {
+                TableName = "OrderPreCostingValueLoss";
+                return @"SELECT pc.Id,I.Id as CostingId,I.UserName as CostingItem,I.CostingComponentId,pc.Sequence
+			                        ,OCMT.Id as OrderCostingMasterTemplateId,ISNULL(pc.Type,'Fixed') as [Type],ISNULL(pc.Value,0) AS Value
+			                        ,C.Code as Currency,cc.UserName as CostingComponentName 
+                                    ,OrderQty=(select sum(moi.TotalQty)
+									from trn.MasterOrderItem moi 
+									where moi.OrderCostingMasterTemplateId=OCMT.Id
+									group by moi.OrderCostingMasterTemplateId)
+
+									,Amount=(select sum(pc.Amount)
+									from " + TableName + @" pc
+									where pc.OrderCostingMasterTemplateId=OCMT.Id) 
+			 
+									,TotalOrderCost= (select sum(moi.TotalQty)
+									from trn.MasterOrderItem moi 
+									where moi.OrderCostingMasterTemplateId=OCMT.Id
+									group by moi.OrderCostingMasterTemplateId)
+									*(select sum(pc.Amount)
+									from " + TableName + @" pc
+									where pc.OrderCostingMasterTemplateId=OCMT.Id) 
+
+			FROM " + TableName + @" AS pc 
+			LEFT JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
+			LEFT JOIN HKP.CostingComponent CC on CC.Id=I.CostingComponentId
+			LEFT JOIN OrderCostingMasterTemplate OCMT on OCMT.Id=PC.OrderCostingMasterTemplateId 
+			LEFT JOIN SCS.Currency C on C.Id=OCMT.CurrencyId 
+			LEFT JOIN trn.MasterOrderItem AS moi ON moi.OrderCostingMasterTemplateId=ocmt.Id
+			
+			where pc.OrderCostingMasterTemplateId='" + OrderCostingId + @"'
+			order by pc.Sequence";
             }
 
             return @"SELECT		pc.Id,I.Id as CostingId,I.UserName as CostingItem,I.CostingComponentId,pc.Sequence
@@ -2238,7 +2362,7 @@ namespace Library.OrderManagement.Costing
 			order by pc.Sequence";
         }
 
-        private string OrderPreCostingProfitSQL(string OrderCostingId, string preCosting, string ProcurementCosting)
+        private string OrderPreCostingProfitSQL(string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string TableName = "";
@@ -2251,7 +2375,40 @@ namespace Library.OrderManagement.Costing
             {
                 TableName = "OrderProcurementCostingProfit";
             }
+            if (orderBudget == "1")
+            {
+                TableName = "OrderPreCostingProfit";
+                return @"SELECT pc.Id,I.Id as CostingId,pc.Sequence,I.UserName as CostingItem,I.CostingComponentId
+			                            ,ISNULL(pc.Type,'Fixed') as [Type],ISNULL(pc.Value,0) AS Value,C.Code as Currency
+			                            ,OCMT.CurrencyId,PC.OrderCostingMasterTemplateId,cc.UserName as CostingComponentName  
+			                            
+										,OrderQty=(select sum(moi.TotalQty)
+										from trn.MasterOrderItem moi 
+										where moi.OrderCostingMasterTemplateId=OCMT.Id
+										group by moi.OrderCostingMasterTemplateId)
 
+										,Amount=(select sum(pc.Amount)
+										from " + TableName + @" pc
+										where pc.OrderCostingMasterTemplateId=OCMT.Id) 
+			 
+										,TotalOrderCost= (select sum(moi.TotalQty)
+										from trn.MasterOrderItem moi 
+										where moi.OrderCostingMasterTemplateId=OCMT.Id
+										group by moi.OrderCostingMasterTemplateId)
+										*(select sum(pc.Amount)
+										from " + TableName + @" pc
+										where pc.OrderCostingMasterTemplateId=OCMT.Id)	 
+
+			                            FROM " + TableName + @" AS pc 
+			                            LEFT JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
+			                            LEFT JOIN HKP.CostingComponent CC on CC.Id=I.CostingComponentId
+			                            LEFT JOIN OrderCostingMasterTemplate OCMT on OCMT.Id=PC.OrderCostingMasterTemplateId 
+			                            LEFT JOIN SCS.Currency C on C.Id=OCMT.CurrencyId 
+			                            LEFT JOIN trn.MasterOrderItem AS moi ON moi.OrderCostingMasterTemplateId=ocmt.Id
+
+			where pc.OrderCostingMasterTemplateId='" + OrderCostingId + @"'
+			order by pc.Sequence";
+            }
             return @"SELECT		 pc.Id,I.Id as CostingId,pc.Sequence,I.UserName as CostingItem,I.CostingComponentId
 			,ISNULL(pc.Type,'Fixed') as [Type],ISNULL(pc.Value,0) AS Value,ISNULL(pc.Amount,0) AS Amount,C.Code as Currency
 			,OCMT.CurrencyId,PC.OrderCostingMasterTemplateId,cc.UserName as CostingComponentName  
@@ -2265,12 +2422,10 @@ namespace Library.OrderManagement.Costing
 			
 			where pc.OrderCostingMasterTemplateId='" + OrderCostingId + @"'
 			order by pc.Sequence";
-
-
         }
 
 
-        private string OrderPreCostingSalesExpenseSQL(string OrderCostingId, string preCosting, string ProcurementCosting)
+        private string OrderPreCostingSalesExpenseSQL(string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string TableName = "";
@@ -2283,7 +2438,28 @@ namespace Library.OrderManagement.Costing
             {
                 TableName = "OrderProcurementCostingSalesExpense ";
             }
+            if (orderBudget == "1")
+            {
+                TableName = "OrderPreCostingSalesExpense";
+                return @" SELECT pc.Id,I.Id as CostingId,pc.Sequence,I.UserName as CostingItem,I.CostingComponentId
+		                            ,ISNULL(pc.Type,'Fixed') as [Type],ISNULL(pc.Value,0) Value ,C.Code as Currency
+		                            ,cc.UserName as CostingComponentName
+                                     ,ISNULL(pc.Value,0) AS Amount, sum(ISNULL(moi.TotalQty,0)) TotalQty
+									,TotalOrderCost=ISNULL(pc.Value,0)*sum(ISNULL(moi.TotalQty,0))
 
+		                            FROM " + TableName + @" AS pc    
+		                            LEFT JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
+		                            LEFT JOIN HKP.CostingComponent CC on CC.Id=I.CostingComponentId
+		                            LEFT JOIN OrderCostingMasterTemplate OCMT on OCMT.Id=PC.OrderCostingMasterTemplateId 
+		                            LEFT JOIN SCS.Currency C on C.Id=OCMT.CurrencyId
+		                            LEFT JOIN EmployeeInformation EI on EI.SystemId=pc.ResponsiblePersonId 
+									LEFT JOIN trn.MasterOrderItem AS moi ON moi.OrderCostingMasterTemplateId=ocmt.Id
+
+		                            where pc.OrderCostingMasterTemplateId='" + OrderCostingId + @"'
+                                    group by pc.Id,I.Id,pc.Sequence,I.UserName,I.CostingComponentId,pc.Type
+									,pc.Value,OCMT.Id,cc.UserName,c.Code
+		                            order by pc.Sequence";
+            }
             return @"SELECT pc.Id,I.Id as CostingId,pc.Sequence,I.UserName as CostingItem,I.CostingComponentId
 		,ISNULL(pc.Type,'Fixed') as [Type],ISNULL(pc.Value,0) AS Value,ISNULL(pc.Amount,0) AS Amount,C.Code as Currency
 		,cc.UserName as CostingComponentName

@@ -4,6 +4,7 @@ using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Model.Addresses;
+using Library.Model.Logs;
 using Library.Service.Currencies;
 using Library.Service.Extension;
 using Library.Service.Helpers;
@@ -23,6 +24,8 @@ using System.Linq;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Library.Core;
+using Library.Data.UnitOfWorks;
 
 namespace Library.MaterialManagement.Reports
 {
@@ -31,15 +34,21 @@ namespace Library.MaterialManagement.Reports
         private readonly IRepositoryAsync<SMTPConfiguration> _smtpConfigurationRepository;
         private readonly ISqlRepository _sqlRepository;//
         private readonly ICompanyParallelCurrencyService _companyParallelCurrencyService;
+        private readonly IRepositoryAsync<MailLog> _mailLogRepository;
+        private readonly IUnitOfWork _unitOfWork;
         public SalesReportService(
             ISqlRepository sqlRepository
             , ICompanyParallelCurrencyService companyParallelCurrencyService
                 , IRepositoryAsync<SMTPConfiguration> smtpConfigurationRepository
+             , IRepositoryAsync<MailLog> mailLogRepository
+             , IUnitOfWork unitOfWork
             )
         {
             _sqlRepository = sqlRepository;
             _companyParallelCurrencyService = companyParallelCurrencyService;
             _smtpConfigurationRepository = smtpConfigurationRepository;
+            _mailLogRepository = mailLogRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public IWorkbook GetSalesReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string salesId)
@@ -745,7 +754,7 @@ namespace Library.MaterialManagement.Reports
                 {
                     if (string.IsNullOrEmpty(dsOrderMaster.Rows[0]["Email"].ToString()))
                     {
-                        throw new Exception("Recipient mailId not found.");
+                        throw new Exception("Customer mailId not found.");
                     }
                 }
                 Dictionary<string, string> columns = new Dictionary<string, string>();
@@ -847,12 +856,31 @@ namespace Library.MaterialManagement.Reports
                 message.Attachments.Add(file);
                 email.Send(message);
 
+
             }
             catch (Exception ex)
             {
-                //throw ex;
+                throw ex;
             }
 
+            MailLog log = new MailLog();
+
+            log.AddedBy = UserId;
+            log.AddedDate = DateTime.Now;
+            log.AddedFromIP = "";
+            log.AppVersion = "";
+            log.CompanyGroupId = companyGroupId;
+            log.ModelState = ModelState.Added;
+            log.RecordTime = DateTime.Now;
+            log.ServiceName = "TaxInvoiceMailToCustomer";
+            log.UserId = UserId;
+            log.AttachmentName = fileName;
+            log.IsSuccess = false;
+            log.SenderName = null;
+            log.MailGenerator = "";
+            log.Remarks = "" + salesId + " Tax Invoice mail to Customer";
+            _mailLogRepository.Insert(log);
+            _unitOfWork.SaveChanges();
             document.Close();
         }
 
@@ -1408,7 +1436,7 @@ from [dbo].[MasterLCAddInfo] MA
 LEFT JOIN dbo.[Contract] C ON C.MasterLcId=MA.MasterLcId
 LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
 LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
-Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
+Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }
@@ -1442,7 +1470,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             #region column headers
             document.EnsureMinimal();
 
-            WCharacterFormat FontBold = new WCharacterFormat(document); 
+            WCharacterFormat FontBold = new WCharacterFormat(document);
             WCharacterFormat DFontSize = new WCharacterFormat(document);
             FontBold.Bold = true;
             DFontSize.FontSize = 8f;
@@ -1485,7 +1513,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             ROW++;
 
             #region Total
-           
+
             #endregion Total
             ROW++;
             #region paragrpath formats
@@ -1532,7 +1560,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             document.EnsureMinimal();
 
             WCharacterFormat FontBold = new WCharacterFormat(document);
-             WCharacterFormat DFontSize = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
             FontBold.Bold = true;
             DFontSize.FontSize = 8f;
 
@@ -1591,7 +1619,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             myaddStyle.CharacterFormat.FontSize = 8f;
             myaddStyle.CharacterFormat.TextColor = Color.Black;
             myaddStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
-  
+
             #endregion paragrpath formats
 
             #region merging section
@@ -1642,7 +1670,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                 var MaterialTotal = makeCommercialInvoiceService(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {materialItems}
                 var addInfo = makeaddInfo(salesId, document, dsaddInfo);   // {makeaddInfo}
                 var TermsAndCondition = makeTermsAndCondition(salesId, document, dsConditions);   // {conditions}
-                var totalQty= clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(POTransactionQty)", "CustomerNo='" + dsOrderMaster.Rows[0]["CustomerNo"].ToString() + "'"));
+                var totalQty = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(POTransactionQty)", "CustomerNo='" + dsOrderMaster.Rows[0]["CustomerNo"].ToString() + "'"));
                 var FREIGHTVALUE = totalQty * clsStaticInfo.dbl(dsOrderMaster.Rows[0]["AdditionalFrieghtValue"].ToString());
                 var FCAVALUE = MaterialTotal - FREIGHTVALUE;
                 document.Replace("{GrandTotal}", (MaterialTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
@@ -1858,7 +1886,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                 document.Replace("{FREIGHTVALUE}", (FREIGHTVALUE).ToString("#,##0.00"), true, true);
                 document.Replace("{FCAVALUE}", (FCAVALUE).ToString("#,##0.00"), true, true);
                 //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2"), true, true);
-                document.Replace("{TotalInWords}", ru.InWordNew(clsStaticInfo.dbl(dsOrderMaster.Rows[0]["NoCartons"].ToString()),null), true, true);
+                document.Replace("{TotalInWords}", ru.InWordNew(clsStaticInfo.dbl(dsOrderMaster.Rows[0]["NoCartons"].ToString()), null), true, true);
 
                 Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
 
@@ -1899,23 +1927,23 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                 /////////////////////
                 ///
 
-               /* DocToPDFConverter converter = new DocToPDFConverter();
+                /* DocToPDFConverter converter = new DocToPDFConverter();
 
-                //Converts Word document into PDF document
-                PdfDocument pdfDocument = converter.ConvertToPDF(document);
-                pdfDocument.PageSettings.Width = 1200;
-                pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
-                //Releases all resources used by DocToPDFConverter
-                converter.Dispose();
+                 //Converts Word document into PDF document
+                 PdfDocument pdfDocument = converter.ConvertToPDF(document);
+                 pdfDocument.PageSettings.Width = 1200;
+                 pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
+                 //Releases all resources used by DocToPDFConverter
+                 converter.Dispose();
 
-                //Closes the instance of document objects
+                 //Closes the instance of document objects
 
-                //Saves the PDF file 
-                string Prefix = "LRDraft" + plantId;
+                 //Saves the PDF file 
+                 string Prefix = "LRDraft" + plantId;
 
-                pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
-                //Closes the instance of document objects
-                pdfDocument.Close(true);*/
+                 pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
+                 //Closes the instance of document objects
+                 pdfDocument.Close(true);*/
                 document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 document.Close();
             }
@@ -3010,7 +3038,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             return 0;
         }
 
-       
+
         #endregion Add Info 
 
         public void BillofExchange(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId)
@@ -3336,7 +3364,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             document.Close();
         }
 
-        public void BankLatter(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId , string BankName)
+        public void BankLatter(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId, string BankName)
         {
             var fileName = "";
             var strPath = "";
@@ -3369,7 +3397,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                 throw new CustomException("Bank Is not Selected");
             }
 
-            
+
 
             WordDocument document = new WordDocument(File, FormatType.Docx);
 
@@ -3729,9 +3757,9 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                 var MaterialTotal = makeCommercialInvoicePackingListService(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {materialItems}
                 var addInfo = makeaddInfo(salesId, document, dsaddInfo);   // {makeaddInfo}
                 var TermsAndCondition = makeTermsAndCondition(salesId, document, dsConditions);   // {conditions}
-               
+
                 document.Replace("{GrandTotal}", (MaterialTotal).ToString(), true, true);
-               
+
                 //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2"), true, true);
                 //document.Replace("{TotalInWords}", ru.InWord((MaterialTotal), dsOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
 
@@ -6835,7 +6863,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
             string replaceString = "{materialItems}";
 
             DataTable sales, materialTax;
-            
+
             int LasColumnIndex = 8;
 
             WTable wTable = new WTable(document);
@@ -7109,7 +7137,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                 TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString()).ApplyCharacterFormat(DFontSize);
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
                 TROW.Cells[colGW].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQtyGWT"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
-                
+
             }
 
             ROW++;
@@ -7136,7 +7164,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                         value += clsStdLib.dbl(item.Text);
                     }
                 }
-                if(C == colCartons)
+                if (C == colCartons)
                 {
                     _TROW.Cells[C].AddParagraph().AppendText(value.ToString()).ApplyCharacterFormat(FontBold);
                 }
@@ -7144,14 +7172,14 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                 {
                     _TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
                 }
-                
+
             }
             #endregion Total
 
             ROW++;
             #region Sub Total
 
-           double total = clsStdLib.dbl(dsOrderMaster.Compute("SUM(Cartons)", "").ToString());
+            double total = clsStdLib.dbl(dsOrderMaster.Compute("SUM(Cartons)", "").ToString());
 
             #endregion Total
 
