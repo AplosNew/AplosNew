@@ -1039,6 +1039,12 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, colTotalPreCosting].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colTotalPreCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colTotalPreCosting) + (ROW - 1) + ")";
                 sheet.Range[ROW, colTotalPreCosting].CellStyle.Font.Bold = true;
 
+                //double TotalExecutionTC = clsStaticInfo.dbl("SUM(" + reportUtility.GetColumnNameForXls(colTotalPreCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colTotalPreCosting) + (ROW - 1) + ")");
+
+                double TotalExecutionTC = clsStaticInfo.dbl(dtCostingDetailInfo.Compute("SUM(TotalGrossAmount)", null)) * orderquantity;
+
+
+
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol - 1].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol - 1].BorderInside(ExcelLineStyle.Hair);
                 sheet.IsGridLinesVisible = false;
@@ -1057,7 +1063,7 @@ namespace Library.OrderManagement.Costing
                 DirectMateterial(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
                 int fundROW = ROW;
                 DirectProcess(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
-                FundRequired(sheet, ref fundROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
+                FundRequired(sheet, ref fundROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo, TotalExecutionTC);
                 Operation(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
                 ValueLoss(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
                 Profit(sheet, ref ROW, OrderCostingId, orderBudget, preCosting, ProcurementCosting, dtMOICostingInfo);
@@ -1515,7 +1521,7 @@ namespace Library.OrderManagement.Costing
             }
         }
 
-        private void FundRequired(IWorksheet sheet, ref int ROW, string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
+        private void FundRequired(IWorksheet sheet, ref int ROW, string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo, double TotalExecutionTC)
         {
             ReportUtility reportUtility = new ReportUtility();
             String CostingDirectMaterialSQL = OrderPreCostingDirectMaterialSQL(OrderCostingId, orderBudget, preCosting, ProcurementCosting);
@@ -1537,7 +1543,7 @@ namespace Library.OrderManagement.Costing
             sheet.Range[ROW, COL].CellStyle.Font.Size = 15;
             sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Dark_blue;
             sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
-            sheet.Range[ROW, COL, ROW, COL + 1].Merge();
+            sheet.Range[ROW, COL, ROW, COL + 2].Merge();
             ROW++;
 
             int StartRow = ROW;
@@ -1547,6 +1553,10 @@ namespace Library.OrderManagement.Costing
             COL++;
 
             sheet[ROW, COL].Text = "Amount";
+            sheet[ROW, COL].ColumnWidth = 18;
+            COL++;
+
+            sheet[ROW, COL].Text = "% of Total FOB";
             sheet[ROW, COL].ColumnWidth = 18;
 
             ROW++;
@@ -1568,10 +1578,10 @@ namespace Library.OrderManagement.Costing
             int colWashingCost = COL;
 
             int ColEnd = COL;
-            sheet.Range[StartRow, COLFinal, ROW, COLFinal + 1].BorderAround(ExcelLineStyle.Hair);
-            sheet.Range[StartRow, COLFinal, ROW, COLFinal + 1].BorderInside(ExcelLineStyle.Hair);
-            sheet.Range[StartRow, COLFinal, StartRow, COLFinal + 1].CellStyle.Font.Bold = true;
-            sheet.Range[StartRow, COLFinal, StartRow, COLFinal + 1].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_yellow;
+            sheet.Range[StartRow, COLFinal, ROW, COLFinal + 2].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[StartRow, COLFinal, ROW, COLFinal + 2].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[StartRow, COLFinal, StartRow, COLFinal + 2].CellStyle.Font.Bold = true;
+            sheet.Range[StartRow, COLFinal, StartRow, COLFinal + 2].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_yellow;
 
             ROW = StartRow;
             ROW++;
@@ -1616,24 +1626,70 @@ namespace Library.OrderManagement.Costing
             sheet.Range[ROW, COL].NumberFormat = clsStaticInfo.NumberFormat(2);
             sheet.Range[ROW, COL, ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet.Range[ROW, COL, ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
             ROW++;
 
+            ROW = StartRow;
+            ROW++;
+            COL++;
+            int FOBStartRow = ROW;
+
+            double totalFabricCostFOB = (MTotalOtherFabricOrderCost + MTotalMainFabricOrderCost) / TotalExecutionTC * 100;
+            sheet.Range[ROW, COL].Number = totalFabricCostFOB;
+            sheet.Range[ROW, COL].NumberFormat = clsStaticInfo.NumberFormat(2);
+            sheet.Range[ROW, COL, ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[ROW, COL, ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            ROW++;
+
+
+            double MTotalFOBTrimsCost = MTotalTrimsOrderCost / TotalExecutionTC * 100;
+            sheet.Range[ROW, COL].Number = MTotalFOBTrimsCost;
+            sheet.Range[ROW, COL].NumberFormat = clsStaticInfo.NumberFormat(2);
+            sheet.Range[ROW, COL, ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[ROW, COL, ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            ROW++;
+
+            double MTotalFOBAccessoriesCost = MTotalAccessoriesOrderCost / TotalExecutionTC * 100;
+            sheet.Range[ROW, COL].Number = MTotalFOBAccessoriesCost;
+            sheet.Range[ROW, COL].NumberFormat = clsStaticInfo.NumberFormat(2);
+            sheet.Range[ROW, COL, ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[ROW, COL, ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            ROW++;
+
+            double totalFOBWashingCost = (totalWashingCost + totalDirectWashingCost) / TotalExecutionTC * 100;
+            sheet.Range[ROW, COL].Number = totalFOBWashingCost;
+            sheet.Range[ROW, COL].NumberFormat = clsStaticInfo.NumberFormat(2);
+            sheet.Range[ROW, COL, ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[ROW, COL, ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+            ROW++;
 
             int CostingComponentEndRow = ROW - 1;
-            sheet[ROW, COL - 1].Text = "Total:";
-            sheet.Range[ROW, COL - 1].CellStyle.Font.Bold = true;
+            sheet[ROW, COL - 2].Text = "Total:";
+            sheet.Range[ROW, COL - 2].CellStyle.Font.Bold = true;
 
-            sheet.Range[ROW, COL, ROW, COL].Formula = "SUM(" + reportUtility.GetColumnNameForXls(COL) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(COL) + CostingComponentEndRow + ")";
+            sheet.Range[ROW, COL - 1, ROW, COL - 1].Formula = "SUM(" + reportUtility.GetColumnNameForXls(COL - 1) + FOBStartRow + ":" + reportUtility.GetColumnNameForXls(COL - 1) + CostingComponentEndRow + ")";
+            sheet.Range[ROW, COL - 1].CellStyle.Font.Bold = true;
+            sheet.Range[ROW, COL - 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[ROW, COL - 1].NumberFormat = clsStaticInfo.NumberFormat(2);
+
+            sheet.Range[ROW, COL, ROW, COL].Formula = "SUM(" + reportUtility.GetColumnNameForXls(COL) + FOBStartRow + ":" + reportUtility.GetColumnNameForXls(COL) + CostingComponentEndRow + ")";
             sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
             sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[ROW, COL].NumberFormat = clsStaticInfo.NumberFormat(2);
 
-            sheet.Range[ROW, COL - 1, ROW, COL].BorderAround(ExcelLineStyle.Hair);
-            sheet.Range[ROW, COL - 1, ROW, COL].BorderInside(ExcelLineStyle.Hair);
-            ROW++;
+            sheet.Range[ROW, COL - 2, ROW, COL].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[ROW, COL - 2, ROW, COL].BorderInside(ExcelLineStyle.Hair);
+            ROW = ROW + 2;
 
+            sheet[ROW, COL - 2].Text = "Note: 68% of FOB:";
+            sheet.Range[ROW, COL - 2].CellStyle.Font.Bold = true;
 
-            //sheet.Range[CostingComponentStartRow, colValue, ROW, colValue].NumberFormat = clsStaticInfo.NumberFormat(2);
-            //sheet.Range[CostingComponentStartRow, colTotalOrderCost, ROW, colTotalOrderCost].NumberFormat = clsStaticInfo.NumberFormat(2);
+            sheet.Range[ROW, COL - 1].Number = TotalExecutionTC * 68 / 100;
+            sheet.Range[ROW, COL - 1].CellStyle.Font.Bold = true;
+            sheet.Range[ROW, COL - 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[ROW, COL - 1].NumberFormat = clsStaticInfo.NumberFormat(2);
+            sheet.Range[ROW, COL - 2, ROW, COL - 1].CellStyle.Interior.ColorIndex = ExcelKnownColors.Yellow;
         }
 
         private void ValueLoss(IWorksheet sheet, ref int ROW, string OrderCostingId, string orderBudget, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
@@ -1981,7 +2037,7 @@ namespace Library.OrderManagement.Costing
 
                 sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 2].Merge();
                 sheet.Range[ROW, colValue, ROW, colValue].Merge();
-                 
+
                 sheet.Range[ROW, colAmount].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colAmount) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(colAmount) + CostingComponentEndRow + ")";
                 sheet.Range[ROW, colAmount].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, colTotalOrderCost].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colTotalOrderCost) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(colTotalOrderCost) + CostingComponentEndRow + ")";
