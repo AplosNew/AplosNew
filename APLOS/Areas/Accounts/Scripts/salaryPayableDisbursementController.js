@@ -877,7 +877,8 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
             obj.Unit = dataList[i].Unit;
             obj.DOJ = dataList[i].DOJ;
             obj.DOS = dataList[i].DOS;
-            obj.Emp_CurrentStatus = dataList[i].Emp_CurrentStatus;
+            obj.CurrentMonthEmployeeStatus = dataList[i].CurrentMonthEmployeeStatus;
+            obj.EmployeeStatus = dataList[i].EmployeeStatus;
             obj.PaymentMode = dataList[i].PaymentMode;
             obj.BankName = dataList[i].BankName;
             obj.BankAccNo = dataList[i].BankAccNo;
@@ -915,6 +916,29 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
                 ShowResult(response.data.Message, 'failure');
             });
 
+    };
+
+    $scope.summaryfileName = "Salary Disbursement.xlsx"
+    $scope.XlsSalaryDisbursementVoucherWiseReport = function (PayableVoucherId) {
+        var parameters = {
+            'voucherId': PayableVoucherId
+        };
+        $http({
+            method: "POST",
+            dataType: 'JSON',
+            url: 'Accounts/SalaryDisbursement/GetEmployeeSalaryDisbursementVoucherWise',
+            data: parameters
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.summaryfileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
     };
 
     //Start Bonus Disbursement Posting
