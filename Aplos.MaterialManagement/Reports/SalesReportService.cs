@@ -6864,7 +6864,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
 
             DataTable sales, materialTax;
 
-            int LasColumnIndex = 8;
+            int LasColumnIndex = 7;
 
             WTable wTable = new WTable(document);
             int ROW = 0; int COL = 0;
@@ -6878,12 +6878,13 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
             WCharacterFormat FontBold = new WCharacterFormat(document);
             WCharacterFormat DFontSize = new WCharacterFormat(document);
             FontBold.Bold = true;
+            FontBold.FontSize = 8.5f;
             DFontSize.FontSize = 8f;
 
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 140;
+            wTable.Rows[ROW].Cells[colArticle].Width = 160;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Details");
             range.ApplyCharacterFormat(FontBold);
@@ -6919,7 +6920,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate(USD)");
             range.ApplyCharacterFormat(FontBold);
             int colRate = COL; COL++;
-            wTable.Rows[ROW].Cells[colRate].Width = 45;
+            wTable.Rows[ROW].Cells[colRate].Width = 50;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Amount" + "(" + "" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + "" + ")" + "");
             range.ApplyCharacterFormat(FontBold);
