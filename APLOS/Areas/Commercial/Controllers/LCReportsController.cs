@@ -127,7 +127,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 { 
 					sql = @"select convert(bit,0) AS isSelected,
 				 isnull(PLC.Id,'') PurchaseLCId 
-				,BN.UserName Bank
+				,BN.AccountTitle Bank
 				,ISNULL(mlc.LCRef,'') as MasterLCRefNo
                     ,PurchaseLCRef= isnull(STUFF((select distinct ','+XVD.LCRef 
                     from dbo.PurchaseLC XVD 
@@ -207,7 +207,7 @@ namespace Aplos.Areas.Commercial.Controllers
                             left join contractfund as cf on cf.ContractId= c.Id and cf.FundUtilization='Purchase'
                             left join contractfund as cfc on cfc.ContractId= c.Id and cfc.FundUtilization='LessCommission'
                             LEFT JOIN SCS.Currency XC ON XC.Id=PLC.CurrencyId
-							left join HKP.Bank BN on BN.Id=c.BankId
+							LEFT JOIN MST.BankMaster BN ON BN.Id=C.BankId
 					                left outer join (select po.PurchaseLCId,SUM(pod.TransactionQty*pod.TransactionRate) AS POValue from trn.PurchaseOrder PO
 									Left outer join  trn.PurchaseOrderDetail POD on pod.InventoryReceiveId=po.Id
 					                group by po.PurchaseLCId) AS PO on po.PurchaseLCId=plc.Id
@@ -223,7 +223,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 {
                     sql = @"select convert(bit,0) AS isSelected,
 				 PLC.Id PurchaseLCId 
-                ,PLC.LCRef PurchaseLCRefNo ,BN.UserName Bank
+                ,PLC.LCRef PurchaseLCRefNo ,BN.AccountTitle Bank
 				,ISNULL(mlc.LCRef,'') as MasterLCRefNo
                     ,PurchaseLCRef= STUFF((select distinct ','+XVD.LCRef 
                     from dbo.PurchaseLC XVD 
@@ -325,7 +325,7 @@ namespace Aplos.Areas.Commercial.Controllers
                             left outer join hkp.Bank b on b.id= bm.BankId
                            -- left outer join mst.Destination fd on fd.id= PLC.FinalDestinationId
                             left outer join hkp.Party as P on P.Id=PLC.VendorId
-							left join HKP.Bank BN on BN.Id=c.BankId
+							LEFT JOIN MST.BankMaster BN ON BN.Id=C.BankId
                             left join contractfund as cf on cf.ContractId= c.Id and cf.FundUtilization='Purchase'
                             left join contractfund as cfc on cfc.ContractId= c.Id and cfc.FundUtilization='LessCommission'
 
@@ -359,7 +359,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 else
                 {
                     sql = @"select convert(bit,0) AS isSelected
-				         ,PLC.Id PurchaseLCId ,BN.UserName Bank
+				         ,PLC.Id PurchaseLCId ,BN.AccountTitle Bank
 				        ,ISNULL(mlc.LCRef,'') as MasterLCRefNo
                             ,PurchaseLCRef= STUFF((select distinct ','+XVD.LCRef 
                             from dbo.PurchaseLC XVD 
@@ -422,7 +422,7 @@ namespace Aplos.Areas.Commercial.Controllers
 							left join dbo.MasterLC MLC on MLC.Id=c.MasterLCId
 							left join HKP.Party XCU ON XCU.Id=c.CustomerId
 							LEFT JOIN SCS.Currency XC ON XC.Id=PLC.CurrencyId
-							left join HKP.Bank BN on BN.Id=c.BankId
+							LEFT JOIN MST.BankMaster BN ON BN.Id=C.BankId
                             left join contractfund as cf on cf.ContractId= c.Id and cf.FundUtilization='Purchase'
                             left join contractfund as cfc on cfc.ContractId= c.Id and cfc.FundUtilization='LessCommission'
 
