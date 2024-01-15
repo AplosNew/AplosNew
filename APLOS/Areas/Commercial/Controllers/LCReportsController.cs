@@ -108,8 +108,19 @@ namespace Aplos.Areas.Commercial.Controllers
                     if (Convert.ToDateTime(FromDate) > Convert.ToDateTime(ToDate))
                         throw new Exception("To date cannot be earlier than from date");
 
-                    datePic = "where c.AddedDate between '" + FromDate + @"' and '" + ToDate + @"' ";
-                }
+					if (lcType == "contract")
+					{
+                        datePic = "where c.AddedDate between '" + FromDate + @"' and '" + ToDate + @"' "; 
+                    }
+					else if (lcType == "masterLC")
+					{
+						datePic = "where MLC.AddedDate between '" + FromDate + @"' and '" + ToDate + @"' ";
+					}
+                    else
+                    {
+						datePic = "where PLC.AddedDate between '" + FromDate + @"' and '" + ToDate + @"' ";
+					}
+				}
 
                 string sql = "";
                 if (lcType == "contract")
@@ -359,6 +370,7 @@ namespace Aplos.Areas.Commercial.Controllers
 				         ,Format( PLC.ExpiryDate, 'dd-MMM-yyyy')as ExpiryDate				 
 		                    ,XC.Code PurchaseCurrency 
  							,ISNULL( PLC.Amount,0) as PurchaseLCAmount
+							,AmendmentAmount = case when PLC.Version=1 then 0 else PLC.Amount end
 							,ISNULL( plc.Rate,0)Rate
                            , PLC.Type, PLC.Tenure
 							,isnull( bm.AccountTitle ,'')OpeningBank
