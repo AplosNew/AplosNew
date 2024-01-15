@@ -367,8 +367,8 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = null;
-                sql = @" select isSelected = Convert(bit, 'True'),sl.EmpSystemId,sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,spd.PaymentMode,spd.BankAccNo
-                        ,DirectManpowerCost=case when po.DirectManpowerCost=0 then 'No' when po.DirectManpowerCost=1 then 'Yes' end ,b.UserName Bank,v.VoucherNo PayableVoucherNo
+                sql = @" select isSelected = Convert(bit, 'True'),sl.EmpSystemId,sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,spd.PaymentMode,spd.BankAccNo,spd.IFSCCode
+                        ,DirectManpowerCost=case when po.DirectManpowerCost=0 then 'No' when po.DirectManpowerCost=1 then 'Yes' end ,b.UserName BankName,v.VoucherNo PayableVoucherNo
                         ,spc.DisbusmentAmount Amount,spd.Id
 						,Department.UserName Department,Department.Id DepartmentId
 						,EmpC.UserName EmployeeCategory, EmpC.Id EmpCategoryId
@@ -398,6 +398,9 @@ namespace Aplos.Areas.Accounts.Controllers
 			                    WHEN sl.MonthNo=11 THEN 'November'
 			                    WHEN sl.MonthNo=12 THEN 'December'
 			                    ELSE '' END MonthName
+                        ,ISNULL(REPLACE(CONVERT(VARCHAR(11), DA.AddedDate, 106), ' ', '-'),'') AdviceDate
+                        ,CASE WHEN MONTH(DOS) =  sl.MonthNo  AND YEAR(DOS) = sl.YearNo then 'Separated' else 'Active' end CurrentMonthEmployeeStatus
+						,ISNULL(ei.EmployeeStatus,'') EmployeeStatus
                         from [dbo].[SalaryLock] sl 
                         left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
@@ -429,7 +432,7 @@ namespace Aplos.Areas.Accounts.Controllers
 						 and ISNULL(sh.SalaryHead, '')  in ('Net Pay')";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
-
+        
         [HttpGet, Authorize]
         public JsonResult GetBankList(string yearNo, string monthNo)
         {
@@ -1099,6 +1102,74 @@ Where HeadCategory='Net Payable' ";
                                     ) DD " + wcEmpStatus + @" ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
             data = _sqlRepository.GetDataTable(sql);
         }
+        public void SalaryDisbursementVoucherWiseQry(string voucherId, out DataTable data)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select isSelected = Convert(bit, 'True'),sl.EmpSystemId,sl.YearNo,sl.MonthNo,ei.EmployeeCode,ei.EmployeeName,d.UserName Designation,spd.PaymentMode,spd.BankAccNo,spd.IFSCCode
+                        ,DirectManpowerCost=case when po.DirectManpowerCost=0 then 'No' when po.DirectManpowerCost=1 then 'Yes' end ,b.UserName BankName,v.VoucherNo PayableVoucherNo
+                        ,spc.DisbusmentAmount Amount,spd.Id
+						,Department.UserName Department,Department.Id DepartmentId
+						,EmpC.UserName EmployeeCategory, EmpC.Id EmpCategoryId
+						,Section.UserName Section,Section.Id SectionId
+						,SubSection.UserName SubSection,SubSection.Id SubSectionId
+						,isnull(L.Id,'') LineId,isnull(L.UserName,'') Line
+						,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
+						,ISNULL(vl.VoucherNo,'') as DisbursementVoucherNo,ISNULL(sl.DisbursementVoucherId,'') DisbursementVoucherId
+						,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end
+						,ISNULL(REPLACE(CONVERT(VARCHAR(11), ei.DOJ, 106), ' ', '-'),'') DOJ
+						,ISNULL(PG.UserName,'') PayRollGroup
+						,ISNULL(jl.JobLocation, '') JobLocation
+                        ,ISNULL(REPLACE(CONVERT(VARCHAR(11), ei.DOS, 106), ' ', '-'),'') DOS
+						,Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag
+                        ,ISNULL(Division.UserName,'') Division ,ISNULL(Division.Id,'') DivisionId
+                        ,sl.DisbursementAdviceId,DA.Remarks,SPM.SystemID SalaryProcId,SPM.AddedBy
+                        ,CASE WHEN sl.MonthNo=1 THEN 'January'
+			                    WHEN sl.MonthNo=2 THEN 'February'
+			                    WHEN sl.MonthNo=3 THEN 'March'
+			                    WHEN sl.MonthNo=4 THEN 'April'
+			                    WHEN sl.MonthNo=5 THEN 'May'
+			                    WHEN sl.MonthNo=6 THEN 'June'
+			                    WHEN sl.MonthNo=7 THEN 'July'
+			                    WHEN sl.MonthNo=8 THEN 'August'
+			                    WHEN sl.MonthNo=9 THEN 'September'
+			                    WHEN sl.MonthNo=10 THEN 'October'
+			                    WHEN sl.MonthNo=11 THEN 'November'
+			                    WHEN sl.MonthNo=12 THEN 'December'
+			                    ELSE '' END MonthName
+                        ,ISNULL(REPLACE(CONVERT(VARCHAR(11), DA.AddedDate, 106), ' ', '-'),'') AdviceDate
+                        ,CASE WHEN MONTH(DOS) =  sl.MonthNo  AND YEAR(DOS) = sl.YearNo then 'Separated' else 'Active' end CurrentMonthEmployeeStatus
+						,ISNULL(ei.EmployeeStatus,'') EmployeeStatus
+                        from [dbo].[SalaryLock] sl 
+                        left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
+                        left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+						left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
+                        left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						left join ORG.Position PO on PO.Id=MPB.PositionId
+                        LEFT OUTER JOIN ORG.Entity EN ON MPB.EntityId=EN.Id
+						LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+						LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = ei.GivenDesignationId
+                        LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+						LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+                        LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
+						LEFT JOIN ORG.Line AS L ON L.Id= MPB.LineId
+                        LEFT JOIN [ORG].[Division] ON Division.Id = EN.DivisionId
+						left join dbo.SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+						left join hkp.Designation d on d.Id=spd.DesignationId
+						Left outer join MST.PayrollGroupMaster PGM ON PGM.employeeid = ei.SystemId
+						Left outer join HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
+						Left Join [dbo].[JobLocation] jl on jl.SystemID = ei.JobLocationID
+						left join hkp.Bank b on spd.BankSystemID=b.Id
+						left join trn.Voucher v on v.Id=sl.PayableVoucherId
+                        LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
+                        LEFT JOIN [dbo].[DisbursementAdvice]  DA ON DA.Id=sl.DisbursementAdviceId
+                        where sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NOT NULL and sl.IsDisbursed=1 
+                        and sl.DisbursementVoucherId='" + voucherId + @"'
+                         and spc.DisbusmentAmount!=0  
+                        and spd.PlantId='" + identity.PlantId + @"' 
+						 and ISNULL(sh.SalaryHead, '')  in ('Net Pay') ";
+            data = _sqlRepository.GetDataTable(sql);
+        }
         [HttpPost, Authorize]
         public ActionResult GetEmployeeSalaryUnDisbursed(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity, string paymentMode)
         {
@@ -1351,6 +1422,255 @@ Where HeadCategory='Net Payable' ";
                 throw ex;
             }
         }
+
+        [HttpPost, Authorize]
+        public ActionResult GetEmployeeSalaryDisbursementVoucherWise(string voucherId)
+        {
+            try
+            {
+                string fileName = "";
+                fileName = GetEmployeeSalaryDisbursementVoucherWiseXlsReport(voucherId, "SalaryDisbursement");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public string GetEmployeeSalaryDisbursementVoucherWiseXlsReport(string voucherId, string SheetName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+
+            try
+            {
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "SalaryDisbursement";
+                sheet = workbook.Worksheets[0];
+                DataTable data;
+                SalaryDisbursementVoucherWiseQry(voucherId, out data);
+
+                int ROW = 6; int COL = 1;
+
+                #region Columns
+
+
+                sheet[ROW, COL].Text = "DisbursementAdviceId";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColDisbursementAdviceId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "AdviceDate";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColAdviceDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Remarks";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColRemarks = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "AddedBy";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColAddedBy = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Year";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColYear = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Month";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColMonth = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "EmployeeCode";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColEC = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "EmployeeName";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColEN = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Designation";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColDesg = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Department";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColDep = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "EmployeeCategory";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColEcg = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Section";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColSec = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SubSection";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColSS = COL;
+                COL++;
+                
+                sheet[ROW, COL].Text = "DOJ";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColDOJ = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "DOS";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColDOS = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "CurrentMonthEmployeeStatus";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColCurrentMonthEmployeeStatus = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "EmployeeStatus";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColEmployeeStatus = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PayableVoucherNo";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColPblVhrNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "DisbursementVoucherNo";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColDVNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PaymentMode";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColPM = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Bank";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColBank = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Bank Account No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColBAN = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "IFSC Code";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColIFSC = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "NetPayable";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColNetPay = COL;
+
+
+                
+
+                #endregion Columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+                int startRow = ROW;
+                double[] arr = new double[3];
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+
+                    sheet[ROW, ColDisbursementAdviceId].Text = data.Rows[i]["DisbursementAdviceId"].ToString();
+                    sheet[ROW, ColAdviceDate].DateTime = Convert.ToDateTime(data.Rows[i]["AdviceDate"].ToString());
+                    sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
+                    sheet[ROW, ColAddedBy].Text = data.Rows[i]["AddedBy"].ToString();
+                    sheet[ROW, ColYear].Text = data.Rows[i]["YearNo"].ToString();
+                    sheet[ROW, ColMonth].Text = data.Rows[i]["MonthName"].ToString();
+                    sheet[ROW, ColEC].Text = data.Rows[i]["EmployeeCode"].ToString();
+                    sheet[ROW, ColEN].Text = data.Rows[i]["EmployeeName"].ToString();
+                    sheet[ROW, ColDesg].Text = data.Rows[i]["Designation"].ToString();
+                    sheet[ROW, ColDep].Text = data.Rows[i]["Department"].ToString();
+                    sheet[ROW, ColEcg].Text = data.Rows[i]["EmployeeCategory"].ToString();
+                    sheet[ROW, ColSec].Text = data.Rows[i]["Section"].ToString();
+                    sheet[ROW, ColSS].Text = data.Rows[i]["SubSection"].ToString();
+                    sheet[ROW, ColDOJ].DateTime = Convert.ToDateTime(data.Rows[i]["DOJ"].ToString());
+                    sheet[ROW, ColDOS].Text = data.Rows[i]["DOS"].ToString();
+                    sheet[ROW, ColCurrentMonthEmployeeStatus].Text = data.Rows[i]["CurrentMonthEmployeeStatus"].ToString();
+                    sheet[ROW, ColEmployeeStatus].Text = data.Rows[i]["EmployeeStatus"].ToString();
+                    sheet[ROW, ColPblVhrNo].Text = data.Rows[i]["PayableVoucherNo"].ToString();
+                    sheet[ROW, ColDVNo].Text = data.Rows[i]["DisbursementVoucherNo"].ToString();
+                    sheet[ROW, ColPM].Text = data.Rows[i]["PaymentMode"].ToString();
+                    sheet[ROW, ColBank].Text = data.Rows[i]["BankName"].ToString();
+                    sheet[ROW, ColBAN].Text = data.Rows[i]["BankAccNo"].ToString();
+                    sheet[ROW, ColIFSC].Text = data.Rows[i]["IFSCCode"].ToString();
+                    sheet[ROW, ColNetPay].Number = Convert.ToDouble(data.Rows[i]["Amount"].ToString());
+
+                    ROW++;
+                }
+
+
+
+                sheet.UsedRange.WrapText = false;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Salary Disbursement Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = false;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = true;
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion Report
 
         #endregion Salary UnDisbursed
@@ -2002,21 +2322,14 @@ Where HeadCategory='Net Payable' ";
         public JsonResult GetBonusDisbursementAdviceData()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"SELECT  [Id], [YearNo], [MonthNo], [Status], [Remarks], [PaymentMode]
-                          ,CASE WHEN [MonthNo]=1 THEN 'January'
-			                    WHEN [MonthNo]=2 THEN 'February'
-			                    WHEN [MonthNo]=3 THEN 'March'
-			                    WHEN [MonthNo]=4 THEN 'April'
-			                    WHEN [MonthNo]=5 THEN 'May'
-			                    WHEN [MonthNo]=6 THEN 'June'
-			                    WHEN [MonthNo]=7 THEN 'July'
-			                    WHEN [MonthNo]=8 THEN 'August'
-			                    WHEN [MonthNo]=9 THEN 'September'
-			                    WHEN [MonthNo]=10 THEN 'October'
-			                    WHEN [MonthNo]=11 THEN 'November'
-			                    WHEN [MonthNo]=12 THEN 'December'
-			                    ELSE '' END MonthName
-                        FROM [dbo].[BonusDisbursementAdvice]  WHERE Status<>'Close' ";
+            var sql = @"SELECT  [Id],  [Status], [Remarks], [PaymentMode],CONCAT(DATENAME(mm, DA.FromDate), '-', DATEPART(yy, DA.FromDate))FromDate
+						 ,CONCAT(DATENAME(mm, DA.ToDate), '-', DATEPART(yy, DA.ToDate))ToDate
+                         ,(SELECT SUM(spc.DisbusmentAmount)DisbursementAmount from [dbo].[SalaryLock] sl 
+                            left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
+                            left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
+						    left join dbo.SalaryHead sh on sh.SalaryHeadID = spc.SalaryHeadID
+						    WHERE sl.BonusDisbursementAdviceId=DA.Id and ISNULL(SH.HeadCategory, '')  in ('Monthly Bonus Retain') and spc.DisbusmentAmount != 0)DisbursementAmount
+                        FROM [dbo].[BonusDisbursementAdvice] DA WHERE DA.Status<>'Close'  ";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 
         }
@@ -2044,7 +2357,7 @@ Where HeadCategory='Net Payable' ";
             if (voucherVM.PostingDate > dt)
                 throw new CustomException("Posting Date must in the selected month of " + monthName);
             voucherVM.Amount = directJVList.Sum(r => r.CrAmount);
-            voucherVM.SourceType = SourceType.SalaryDisbursement.ToString();
+            voucherVM.SourceType = SourceType.BonusDisbursement.ToString();
 
             string empSystemIds = "";
             if (employeeListNew != null)

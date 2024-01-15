@@ -187,6 +187,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 DataSet dsMaster;
                 DataSet dsDetail;
+                DataSet dsDD = null;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from GoodWork where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
@@ -217,7 +218,8 @@ namespace Aplos.Areas.Attendances.Controllers
 
                 string _MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
                 con.OpenDataSetThroughAdapter("select * from GoodWorkDetail where GoodWorkId='" + _MasterId + "'", out dsDetail, false, "1");
-                int ccount = 0;
+                con.OpenDataSetThroughAdapter("select count(Id) countId from GoodWorkDetail where GoodWorkId='" + _MasterId + "'", out dsDD, false, "1");
+                int ccount = Convert.ToInt32(dsDD.Tables[0].Rows[0]["countId"].ToString());
                 if (goodWorkDetail != null)
                 {
                     foreach (var item in goodWorkDetail)
@@ -241,28 +243,22 @@ namespace Aplos.Areas.Attendances.Controllers
                             materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
                         }
                         if (dv.Count > 0)
-                        {
-                            ccount++;
-                            string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
+                        { 
                             DataRow drmo = dv[0].Row;
-                            drmo.BeginEdit();
-                            drmo["Id"] = detailid;
+                            drmo.BeginEdit(); 
                             drmo["FromTime"] = item["FromTime"];
                             drmo["ToTime"] = item["ToTime"];
                             drmo["Minute"] = item["Minute"];
                             drmo["Purpose"] = item["Purpose"];
                             drmo["PurposeCategory"] = item["PurposeCategory"];
                             drmo["Remark"] = item["Remark"];
-                            drmo.EndEdit();
-
+                            drmo.EndEdit(); 
                         }
                     }
-                }
-
+                } 
                 #endregion Good Work Detail
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsDetail);
-
+                _info.SaveDataSets(dsMaster, dsDetail); 
                 return Json(new { Error = false, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
@@ -295,6 +291,9 @@ namespace Aplos.Areas.Attendances.Controllers
         { 
             string sql = @"select GW.Id,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,gw.ShiftId,S.UserName Shift,GW.Remarks,GWS.UserName UserGroup,GWS.Id UserGroupId,gw.Reason
                                     ,format(GW.FromTime,'hh:mm') FromTime,format(GW.ToTime,'hh:mm') ToTime,gw.Minute,gw.CheckedBy,gw.CheckedStatus,GW.ApprovedStatus
+                                    ,cast(case when format(GW.WorkDate,'dd-MMM-yyyy')=format(GETDATE(),'dd-MMM-yyyy') 
+									or format(GW.WorkDate,'dd-MMM-yyyy')=format(dateadd(day,-1,getdate()),'dd-MMM-yyyy')
+									then 1 else 0 end as bit) WD
                                     from GoodWork GW
                                     left join ShiftDefination S on S.SystemId=GW.ShiftId
 									left join [dbo].[GoodWorkSetup] GWS on GWS.Id=GW.UserGroupId
@@ -481,12 +480,12 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
         [HttpPost, Authorize]
-        public ActionResult GetGoodWorkReport(string reportFileName)
+        public ActionResult GetGoodWorkReport(string reportFileName,string workDate)
         {
             try
             {
                 string fileName = "";
-                fileName = GoodWorkReportxlx("", reportFileName);
+                fileName = GoodWorkReportxlx("", reportFileName, workDate);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -495,7 +494,7 @@ namespace Aplos.Areas.Attendances.Controllers
             }
         }
 
-        public string GoodWorkReportxlx(string ReportHeader, string reportFileName)
+        public string GoodWorkReportxlx(string ReportHeader, string reportFileName,string workDate)
         {
             ExcelEngine excelEngine = null;
             IApplication application = null;
@@ -510,7 +509,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 workbook.Worksheets[0].Name = "Good Work Report";
                 sheet = workbook.Worksheets[0]; 
                 int ROW = 5; int COL = 1;
-                DataTable data = getGWReportData();
+                DataTable data = getGWReportData(workDate);
 
                 #region columns
                 sheet[ROW, COL].Text = "Employee Code";
@@ -519,7 +518,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 COL++;
 
                 sheet[ROW, COL].Text = "Employee Name";
-                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].ColumnWidth = 20;
                 int ColEmployeeName = COL;
                 COL++;
 
@@ -592,8 +591,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 ReportUtility reportUtility = new ReportUtility();
                 reportUtility.PlantHeader(ref sheet, endCol, "Good Work Report", identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
@@ -622,13 +620,12 @@ namespace Aplos.Areas.Attendances.Controllers
             }
         }
          
-        public DataTable getGWReportData()
+        public DataTable getGWReportData(string workDate)
         {
             try
             {
-                var sql = @"select GW.Id,GW.WorkDate,GWD.Id GoodworkDetailId,EI.SystemId,EI.EmployeeCode,EI.EmployeeName,ec.Id EmployeeCategoryId,EC.UserName EmployeeCategory,S.Id SectionId,S.UserName Section
-							,DEPT.Id DepartmentId,DEPT.UserName Department,GWD.Minute OverTime
-                            ,APD.OverStay,APD.DayStatus
+                var sql = @"select format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,EI.EmployeeCode,EI.EmployeeName,EC.UserName EmployeeCategory,S.UserName Section
+							,DEPT.UserName Department,GWD.Minute OverTime,APD.OverStay,APD.DayStatus
                             from GoodWork GW 
                             left join GoodworkDetail GWD on GW.Id=GWD.GoodWorkId
                             left join EmployeeInformation EI on EI.SystemId=GWD.EmpSystemId 
@@ -641,7 +638,8 @@ namespace Aplos.Areas.Attendances.Controllers
 							LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
 							LEFT JOIN ORG.Position PR1 ON PR1.Id=PR.GoodWorkPositionCodeId
 							left join hkp.Designation D on D.Id=ei.GivenDesignationId
-							left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate=GW.WorkDate";
+							left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate=GW.WorkDate
+                            where GW.WorkDate ='" + workDate + "' and APD.DayStatus <> 'A'";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception e)
@@ -1046,13 +1044,108 @@ namespace Aplos.Areas.Attendances.Controllers
             }
         }
 
+        [HttpPost]
+        public JsonResult CreateGoodWorkPayableCreation(Dictionary<string, object> data, List<Dictionary<string, object>> goodWorkPaymentAdviseDetail)
+        {
+            try
+            {
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+                DataSet dsMaster;
+                DataSet dsDetail;
+                DataSet dsDD = null;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from [dbo].[GoodWorkPaymentAdvise] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                string _Id = "";
+
+                #region data update Good Work Payment Advise
+                if (dsMaster.Tables[0].DefaultView.Count == 0)
+                {
+                    if (_Id == "")
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("GoodWorkPaymentAdvise", out _Id);
+                    }
+                    data["Id"] = _Id; 
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    data["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);
+                }
+
+                #endregion data update Good Work Payment Advise
+
+                #region  Good Work Payment Advise Detail
+
+                string _MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                con.OpenDataSetThroughAdapter("select * from [dbo].[GoodWorkPaymentAdvisedetail] where PaymentAdviseId='" + _MasterId + "'", out dsDetail, false, "1");
+                con.OpenDataSetThroughAdapter("select count(Id) countId from [dbo].[GoodWorkPaymentAdvisedetail] where PaymentAdviseId='" + _MasterId + "'", out dsDD, false, "1");
+                int ccount = Convert.ToInt32(dsDD.Tables[0].Rows[0]["countId"].ToString());
+
+                if (goodWorkPaymentAdviseDetail != null)
+                {
+                    foreach (var item in goodWorkPaymentAdviseDetail)
+                    {
+                        DataView dv = new DataView(dsDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            ccount++;
+                            string detailId = materialCommonService.MakePK(_MasterId, ccount, 2);
+
+                            item["Id"] = detailId;
+                            item["PaymentAdviseId"] = _MasterId;
+                            item["EmpSystemId"] = item["EmpSystemId"];
+                            item["Hour"] = item["Hours"];
+                            item["Rate"] = item["RatePerHour"];
+                            item["Amount"] = item["Amount"];
+                            item["Remarks"] = item["Remarks"];
+
+                            materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
+                        }
+                        else
+                        {
+                            ccount++;
+                            string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
+                            DataRow drmo = dv[0].Row;
+                            drmo.BeginEdit();
+                            drmo["Remarks"] = item["Remarks"];
+                            drmo.EndEdit();
+                        } 
+                    }
+                }
+
+                #endregion  Good Work Payment Advise Detail
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, dsDetail); 
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetGoodWorkPaymentList()
         {
             string sql = @"select ei.EmployeeCode,ei.EmployeeName ByWhom,gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
-						,gwp.UserName,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwp.Remarks
-						from GoodWorkPayment gwp 
+						,gwp.UserRef,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwp.Remarks
+						from GoodWorkPaymentAdvise gwp 
 						left join EmployeeInformation ei on ei.SystemId=gwp.ByWhomId";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetGoodWorkPaymentAdviseDetailList(string paymentAdviseId)
+        {
+            string sql = @"select gwpad.Id,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour Hours,gwpad.Rate RatePerHour,gwpad.Amount,gwpad.Remarks
+                            from GoodWorkPaymentAdviseDetail gwpad
+                            left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
+							left join GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
+                            where gwpa.Id='" + paymentAdviseId + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

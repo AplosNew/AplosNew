@@ -13,8 +13,6 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
     $scope.path = "accounts/salarydisbursement/";
     $scope.getListUrl = $scope.path + "GetSalaryPayableDisbursementVoucherList";
     $scope.saveUrl = $scope.path + "ParkSalaryPayableDisbursement";
-    $scope.updateUrl = $scope.path + "UpdateEmployeePayable";
-    $scope.deleteUrl = $scope.path + "delete/";
     $scope.postUrl = $scope.path + "PostSalarydisbursement";
     $scope.hideSource = true;
     $scope.isWriteOff = true;
@@ -155,6 +153,7 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
             }).then(function successCallback(response) {
                 $scope.currencyExchangeRate = response.data;
                 $scope.voucher.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
+                $scope.voucherBonus.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
             });
         }
         else {
@@ -862,8 +861,8 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
 
         for (let i = 0; i < dataList.length; i++) {
             obj.DisbursementAdviceId = dataList[i].DisbursementAdviceId;
+            obj.AdviceDate = dataList[i].AdviceDate;
             obj.Remarks = dataList[i].Remarks;
-            obj.SalaryProcId = dataList[i].SalaryProcId;
             obj.AddedBy = dataList[i].AddedBy;
             obj.Year = dataList[i].YearNo;
             obj.Month = dataList[i].MonthName;
@@ -871,7 +870,6 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
             obj.EmployeeName = dataList[i].EmployeeName;
             obj.Designation = dataList[i].Designation;
             obj.Department = dataList[i].Department;
-            obj.Division = dataList[i].Division;
             obj.EmployeeCategory = dataList[i].EmployeeCategory;
             obj.Plant = dataList[i].Plant;
             obj.Section = dataList[i].Section;
@@ -881,17 +879,12 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
             obj.DOS = dataList[i].DOS;
             obj.CurrentMonthEmployeeStatus = dataList[i].CurrentMonthEmployeeStatus;
             obj.EmployeeStatus = dataList[i].EmployeeStatus;
-            obj.AccountsGroup = dataList[i].AccountsGroup;
-            obj.SalaryProcFlag = dataList[i].SalaryProcFlag;
-            obj.PayRollGroup = dataList[i].PayRollGroup;
-            obj.JobLocation = dataList[i].JobLocation;
             obj.PaymentMode = dataList[i].PaymentMode;
             obj.BankName = dataList[i].BankName;
+            obj.BankAccNo = dataList[i].BankAccNo;
+            obj.IFSCCode = dataList[i].IFSCCode;
             obj.VoucherNo = dataList[i].VoucherNo;
             obj.PayableVoucherNo = dataList[i].PayableVoucherNo;
-            obj.DisbursementVoucherNo = dataList[i].DisbursementVoucherNo;
-            obj.IsLock = dataList[i].IsLock;
-            obj.IsDisburse = dataList[i].IsDisburse;
             obj.NetPayment = dataList[i].Amount;
             newDataList.push(obj);
             obj = {};
@@ -924,5 +917,150 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
             });
 
     };
+
+    $scope.summaryfileName = "Salary Disbursement.xlsx"
+    $scope.XlsSalaryDisbursementVoucherWiseReport = function (PayableVoucherId) {
+        var parameters = {
+            'voucherId': PayableVoucherId
+        };
+        $http({
+            method: "POST",
+            dataType: 'JSON',
+            url: 'Accounts/SalaryDisbursement/GetEmployeeSalaryDisbursementVoucherWise',
+            data: parameters
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.summaryfileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+    };
+
+    //Start Bonus Disbursement Posting
+    $scope.getBonusListUrl = $scope.path + "GetBonusDisbursementVoucherList";
+    $scope.saveBonusUrl = $scope.path + "SaveBonusDisbursementPosting";
+    $scope.postBonusUrl = $scope.path + "PostSalarydisbursement";
+    $scope.deleteBonusUrl = "Accounts/SalaryDisbursement/DeleteSalaryDisbursementVoucher";
+
+    $scope.voucherBonus = {
+        Id: null,
+        CompanyGroupId: null,
+        CompanyId: null,
+        ExpenseBookingId: null,
+        EmployeeId: null,
+        EmployeeName: null,
+        EmployeeCodeName: null,
+        PartyGLGeneralInfoId: null,
+        EmployeeTransactionTypeId: null,
+        GLGeneralInfoId: null,
+        CurrencyId: null,
+        EntityId: null,
+        PlantId: null,
+        CurrencyCode: null,
+        VoucherTypeId: null,
+        PartyType: "Employee",
+        Type: null,
+        VoucherNo: null,
+        VoucherDate: $filter("dateFiltering")(Date.now()),
+        PostingDate: $filter("dateFiltering")(Date.now()),
+        DocRefNo: null,
+        DocDate: $filter("dateFiltering")(Date.now()),
+        FiscalYearId: null,
+        FiscalYearName: null,
+        FiscalYearPeriodId: null,
+        FiscalYearPeriodName: null,
+        IsExcludingTax: false,
+        VoucherDetailId: null,
+        Amount: null,
+        BaseOnDueDate: $filter("dateFiltering")(Date.now()),
+        BaseNoOfDays: null,
+        PaymentTermId: null,
+        Narration: null,
+        Remarks: null,
+        BankName: null,
+        BankAccountNumber: null,
+        BankGL: null,
+        BankGLGeneralInfoId: null,
+        PaymentMode: '',
+        IsActive: true,
+        IsSeperated: false,
+        IsMaternity: false,
+        BonusDisbursementAdviceId: null,
+        FromDate: null,
+        ToDate: null
+
+
+    };
+
+    $scope.bonusParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'DESC',
+        sort: 'PostingDate DESC, VoucherNo',
+        searchBy: 'VoucherNo',
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.getBonusData = function (pageno) {
+        baseService.paginationBase($scope.getBonusListUrl, pageno, $scope.bonusParameters)
+            .then(function (result) {
+                $scope.bonusPayables = result.Rows;
+                $scope.bonusParameters.total_count = result.Total;
+            }, function () {
+                ShowResult(commonMessage.NetworkError, "failure");
+            }).finally(function () {
+            });
+    };
+    $scope.getBonusData();
+    $scope.getCboVoucherTypeBonusDisbursementList = function () {
+        cboService.getCboVoucherTypeBonusDisbursementList(function (result) {
+            $scope.voucherTypeListBonus = result;
+            if ($scope.voucherTypeListBonus.length === 1) {
+                $scope.voucherBonus.VoucherTypeId = $scope.voucherTypeListBonus[0].Value;
+                $scope.voucherBonus.PostingDate = $filter("dateFiltering")($scope.voucherTypeListBonus[0].LastPostingDate);
+            }
+        });
+    }
+    $scope.getCboVoucherTypeBonusDisbursementList();
+
+    $scope.bonusmasterList = [];
+    $scope.getBonusMasterData = function () {
+        $scope.bonusmasterList = [];
+        $http.get("Accounts/SalaryDisbursement/GetBonusDisbursementAdviceData")
+            .then(
+                function successCallback(response) {
+                    $scope.bonusmasterList = response.data;
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        angular.element(document.querySelector('#BonusDisbursementAdvicepopUp')).modal('show');
+    };
+
+    $scope.closeBonusPopUp = function () {
+        angular.element(document.querySelector('#BonusDisbursementAdvicepopUp')).modal('hide');
+    }
+
+    $scope.SelectBonusMaster = function (x) {
+        var data = x.data;
+        $scope.voucherBonus.BonusDisbursementAdviceId = data.Id;
+        $scope.voucherBonus.FromDate = data.FromDate;
+        $scope.voucherBonus.ToDate = data.ToDate;
+        $scope.voucherBonus.PaymentMode = data.PaymentMode;
+        $scope.voucherBonus.PaymentSource = data.PaymentMode;
+
+        $scope.GetemployeeDisbursement();
+        $scope.getSalaryLockPayableGL();
+
+        angular.element(document.querySelector('#BonusDisbursementAdvicepopUp')).modal('hide');
+    };
+    //End Bonus Disbursement Posting
 
 }

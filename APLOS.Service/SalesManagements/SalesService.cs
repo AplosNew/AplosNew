@@ -397,7 +397,7 @@ namespace Library.Service.SalesManagements
                 sales.BaseOnDueDate = voucherVM.BaseOnDueDate;
                 sales.BaseNoOfDays = voucherVM.BaseNoOfDays;
                 sales.MatureDate = voucherVM.MatureDate;
-                sales.InvoiceNo = voucherVM.Narration;
+                sales.Narration = voucherVM.Narration;
                 sales.ModelState = ModelState.Modified;
                 AuditService.UpdatedLog(sales);
                 _salesRepository.Update(sales);

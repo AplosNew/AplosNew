@@ -355,6 +355,7 @@
     <Compile Include="Areas\Accounts\Controllers\BalanceSheetSchedulingController.cs" />
     <Compile Include="Areas\Accounts\Controllers\CommonAccountsController.cs" />
     <Compile Include="Areas\Accounts\Controllers\AdjustmentNoteController.cs" />
+    <Compile Include="Areas\Accounts\Controllers\PettyCashMasterController.cs" />
     <Compile Include="Areas\Accounts\Controllers\FiscalYearCloseController.cs" />
     <Compile Include="Areas\Accounts\Controllers\ManagementChartAccountSetupController.cs" />
     <Compile Include="Areas\Accounts\Controllers\PostInvoiceController.cs" />
@@ -1824,6 +1825,7 @@
     <Compile Include="SqlServerTypes\Loader.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Areas\Accounts\Scripts\PettyCashMasterController.js" />
     <Content Include="Areas\Accounts\Scripts\pfesiDisbursementController.js" />
     <Content Include="Areas\Accounts\Scripts\multipleVPController.js" />
     <Content Include="Areas\Accounts\Scripts\bonusDisbursementController.js" />
@@ -4896,6 +4898,7 @@
     <Content Include="Areas\Attendances\Views\GoodWork\GoodWorkApprove.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\SalaryDisbursementPost.cshtml" />
     <Content Include="Areas\Accounts\Views\PFESICDisbursement.cshtml" />
+    <Content Include="Areas\Accounts\Views\PettyCashMaster\Aplos.cshtml" />
     <Content Include="Areas\Outsourcing\Views\OSIssueReturn\_ProductionSummaryProcessPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

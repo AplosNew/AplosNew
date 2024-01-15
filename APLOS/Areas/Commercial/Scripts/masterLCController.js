@@ -39,6 +39,12 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         }
     }
 
+    $scope.bankMasterList = [];
+    bankService.GetNegotiatingBankMasterCboListByPlant(function (result) {
+        $scope.bankMasterList = result;
+
+    });
+
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
 
     $scope.ShowCustomerPopUpNew = function () {

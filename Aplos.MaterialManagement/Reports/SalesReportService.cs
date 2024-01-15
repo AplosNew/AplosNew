@@ -4239,6 +4239,8 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
 ,PSI.ExportRefNo EPN
 ,NEGBNKMT.AccountNumber NegotiatingAccNo
 ,FORMAT(PSI.ShipmentDate + 2,'dd-MM-yyyy')ShipmentDateNew
+,DelCN.UserName DeliveryCountry
+, case when IR.InvoicingPartyPlantId = IR.DeliveryPartyPlantId then '' else  DPARTYPL.UserName end DelivertyPT
 
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
@@ -4597,7 +4599,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
 								SUM(NetWeight)NetWeight,SUM(GWeight)GWeight FROM ItemScanChild 
 								group by SalesId ,SalesMaterialId, LotNo) SCNS on  SCNS.SalesMaterialId=IRDS.Id
 								WHERE IRDS.SalesId = IR.Id)
-,CurrentDate = format(PSI.ShipmentDate + 2,'dd-MM-yyyy')
+,CurrentDate = format(GETDATE(),'dd-MM-yyyy')
 ,LCDateNew=Stuff((
                     SELECT distinct',' + FORMAT(LC.LCDate, 'yyMMdd')
                     FROM dbo.MasterLC LC 
@@ -4746,15 +4748,15 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                     WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
-,CurrentDate1 = format(PSI.ShipmentDate + 2,'dd-MM-yyyy')
-,CurrentDate2 = format(PSI.ShipmentDate + 2,'dd-MM-yyyy')
-,CurrentDate3 = format(PSI.ShipmentDate + 2,'dd-MM-yyyy')
-,CurrentDate4 = format(PSI.ShipmentDate + 2,'dd-MM-yyyy')
-,CurrentDate5 = format(PSI.ShipmentDate + 2,'dd-MM-yyyy')
-,CurrentDate6 = format(PSI.ShipmentDate + 2,'dd-MM-yyyy')
-,CurrentDate7 = format(PSI.ShipmentDate + 2,'dd-MM-yyyy')
-,CurrentDate8 = format(PSI.ShipmentDate + 2,'dd-MM-yyyy')
-,CurrentDate9 = format(PSI.ShipmentDate + 2,'dd-MM-yyyy')
+,CurrentDate1 = format(GETDATE(),'dd-MM-yyyy')
+,CurrentDate2 = format(GETDATE(),'dd-MM-yyyy')
+,CurrentDate3 = format(GETDATE(),'dd-MM-yyyy')
+,CurrentDate4 = format(GETDATE(),'dd-MM-yyyy')
+,CurrentDate5 = format(GETDATE(),'dd-MM-yyyy')
+,CurrentDate6 = format(GETDATE(),'dd-MM-yyyy')
+,CurrentDate7 = format(GETDATE(),'dd-MM-yyyy')
+,CurrentDate8 = format(GETDATE(),'dd-MM-yyyy')
+,CurrentDate9 = format(GETDATE(),'dd-MM-yyyy')
 
 ,p.UserName Customer1
 ,Addres.Address1 VendorAddress1
@@ -6862,7 +6864,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
 
             DataTable sales, materialTax;
 
-            int LasColumnIndex = 8;
+            int LasColumnIndex = 7;
 
             WTable wTable = new WTable(document);
             int ROW = 0; int COL = 0;
@@ -6876,12 +6878,13 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
             WCharacterFormat FontBold = new WCharacterFormat(document);
             WCharacterFormat DFontSize = new WCharacterFormat(document);
             FontBold.Bold = true;
+            FontBold.FontSize = 8.5f;
             DFontSize.FontSize = 8f;
 
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 140;
+            wTable.Rows[ROW].Cells[colArticle].Width = 160;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Details");
             range.ApplyCharacterFormat(FontBold);
@@ -6904,20 +6907,20 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
             int colCartons = COL; COL++;
             wTable.Rows[ROW].Cells[colCartons].Width = 50;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty(KGS)");
             range.ApplyCharacterFormat(FontBold);
             int colQty = COL; COL++;
             wTable.Rows[ROW].Cells[colQty].Width = 60;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UoM");
+           /* range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UoM");
             range.ApplyCharacterFormat(FontBold);
             int colUoM = COL; COL++;
-            wTable.Rows[ROW].Cells[colUoM].Width = 35;
+            wTable.Rows[ROW].Cells[colUoM].Width = 35;*/
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate(USD)");
             range.ApplyCharacterFormat(FontBold);
             int colRate = COL; COL++;
-            wTable.Rows[ROW].Cells[colRate].Width = 45;
+            wTable.Rows[ROW].Cells[colRate].Width = 50;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Amount" + "(" + "" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + "" + ")" + "");
             range.ApplyCharacterFormat(FontBold);
@@ -6953,7 +6956,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                 TROW.Cells[colCartons].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Cartons"].ToString()).ApplyCharacterFormat(DFontSize);
                 TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString()).ApplyCharacterFormat(DFontSize);
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
-                TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString()).ApplyCharacterFormat(DFontSize); ; ;
+               /* TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString()).ApplyCharacterFormat(DFontSize); ; ;*/
                 TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("#,##0.0000")).ApplyCharacterFormat(DFontSize);
                 TROW.Cells[colAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
 
@@ -6972,7 +6975,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
                 //|| dicTaxes.ContainsValue(C)
-                if (C == colArticle || C == colHSN || C == colUoM || C == colRate || C == colChar1 || C == colLot)
+                if (C == colArticle || C == colHSN ||  C == colRate ||  C == colChar1 || C == colLot)
                     continue;
 
                 double value = 0;

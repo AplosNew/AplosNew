@@ -7,9 +7,11 @@
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Work Date<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Date" ng-hide="faruque==true" ng-model="ModelNew.WorkDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="1">
-                <label class="col-sm-4 control-label" ng-show="faruque==false">{{ModelNew.WorkDate}}</label>
+            <div class="col-sm-8 show-message" ng-show="dateControlShow==true">
+                <input type="text" name="Date" ng-model="ModelNew.WorkDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="1">
+            </div>
+            <div class="col-sm-8" ng-show="LBLShow==true">
+                <label class="control-label">{{DT}}</label>
             </div>
         </div>
 
@@ -179,7 +181,7 @@
 
     <div class="common-btn">
         <ul class="list-inline text-right">
-            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button ng-click="Save();" ng-disabled="ModelNew.CheckedStatus=='Checked' || ModelNew.ApprovedStatus=='Approved'" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
             <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
@@ -188,23 +190,31 @@
 <confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteRow()"></confirm-archive-generic>
 
 <div class="table-responsive aplos-grid-toggle">
-    <div class="col-xs-6 col-sm-6 col-md-6">
+    <div class="col-xs-12 col-sm-12 col-md-12">
         <div class="form-group">
-            <label class="col-sm-4 control-label">Work Date</label>
-            <div class="col-sm-8 show-message">
-                <div class="col-sm-6">
+            <label class="col-sm-1 control-label">Work Date</label>
+            <div class="col-sm-11 show-message">
+                <div class="col-sm-4">
                     <input type="text" name="Date" ng-model="WorkDates" datepicker class="form-control" placeholder="dd-Mmm-yyyy" tabindex="1">
                 </div>
-                <div class="col-sm-2">
+                <div class="col-sm-1">
                     <div class="common-btn">
                         <ul class="list-inline text-right">
                             <li> <button ng-click="getData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy"></i> Go</button></li>
                         </ul>
                     </div>
                 </div>
+                <div class="col-sm-7">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button data-toggle="modal" ng-click="GoodWorkReport();" class="btn" tabindex="10"><i class="glyphicon glyphicon-cloud-download"></i>Download</button></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
     <div class="col-xs-12 col-sm-12 col-md-12">
         <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="ModelList" e-recorddoubleclick="GetDblClick"
              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
@@ -216,13 +226,6 @@
                 <div e-column e-field="ApprovedStatus" e-headertext="Approved Status" e-width="3"></div>
                 <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
             </div>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <div class="common-btn">
-            <ul class="list-inline text-right">
-                <li> <button data-toggle="modal" ng-click="GoodWorkReport();" class="btn" tabindex="10"><i class="glyphicon glyphicon-cloud-download"></i>Download</button></li>
-            </ul>
         </div>
     </div>
 </div>
