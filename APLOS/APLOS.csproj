@@ -4899,6 +4899,7 @@
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\SalaryDisbursementPost.cshtml" />
     <Content Include="Areas\Accounts\Views\PFESICDisbursement.cshtml" />
     <Content Include="Areas\Accounts\Views\PettyCashMaster\Aplos.cshtml" />
+    <Content Include="Areas\Outsourcing\Views\OSIssueReturn\_ProductionSummaryProcessPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

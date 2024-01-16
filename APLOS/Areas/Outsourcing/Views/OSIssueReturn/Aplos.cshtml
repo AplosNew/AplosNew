@@ -127,7 +127,7 @@
                                         <div class="form-group" show-errors>
                                             <label class="col-sm-4 control-label">Issue No<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
-                                                <input type="text" name="Id" ng-model="Issue.Id"  class="form-control" disabled tabindex="2">
+                                                <input type="text" name="Id" ng-model="Issue.Id" class="form-control" disabled tabindex="2">
                                             </div>
                                         </div>
                                         <div class="form-group" show-errors>
@@ -178,17 +178,17 @@
                                         </div>
 
                                         @*<div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Issue/ Return<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-model="Issue.IssueReturn" name="Issue/ Return" required tabindex="5">
-                        <option value="">--Select--</option>
-                        <option value="Issue">Issue</option>
-                        <option value="Return">Return</option>
-                    </select>
-                </div>
-            </div>
-        </div>*@
+                                                <label class="col-sm-4 control-label">Issue/ Return<sup>*</sup></label>
+                                                <div class="col-sm-8 show-message">
+                                                    <div class="select-style">
+                                                        <select class="form-control" ng-model="Issue.IssueReturn" name="Issue/ Return" required tabindex="5">
+                                                            <option value="">--Select--</option>
+                                                            <option value="Issue">Issue</option>
+                                                            <option value="Return">Return</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>*@
 
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Remarks</label>
@@ -205,8 +205,8 @@
                                                 <div class="select-style">
                                                     <select class="form-control" ng-model="Issue.IssueCategory" name="Issue Type" required tabindex="5">
                                                         <option value="">--Select--</option>
-                                                        <option value="Revenue">Inventory</option>
-                                                        <option value="Capital">Process</option>
+                                                        <option value="Inventory">Inventory</option>
+                                                        <option value="Process">Process</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -243,16 +243,16 @@
 
 
                                         @*<div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Location<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-model="Issue.JobWorkLocationId" name="Customer" required
-                            ng-options="item.Value as item.Text for item in JobWorkLocationList" tabindex="3">
-                        <option value="">--Select--</option>
-                    </select>
-                </div>
-            </div>
-        </div>*@
+                                                <label class="col-sm-4 control-label">Location<sup>*</sup></label>
+                                                <div class="col-sm-8 show-message">
+                                                    <div class="select-style">
+                                                        <select class="form-control" ng-model="Issue.JobWorkLocationId" name="Customer" required
+                                                                ng-options="item.Value as item.Text for item in JobWorkLocationList" tabindex="3">
+                                                            <option value="">--Select--</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>*@
 
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">Reference No</label>
@@ -349,7 +349,7 @@
                                                     </td>*@
                                                 @*<td>{{x.Material}}</td>*@
                                                 @*<td>{{x.ArticleName}}</td>*@
-                                            <td>{{x.OSTransformationPODetailId}}</td>
+                                                <td>{{x.OSTransformationPODetailId}}</td>
                                                 @*<td>{{x.Id}}</td>*@
 
 
@@ -560,17 +560,17 @@
                                             </div>
                                         </div>
                                         @*<div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Issue/ Return<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-model="IssueTransformation.Types" name="Issue/ Return" required tabindex="5">
-                        <option value="">--Select--</option>
-                        <option value="InventoryJWIssue">Issue</option>
-                        <option value="InventoryJWReturn">Return</option>
-                    </select>
-                </div>
-            </div>
-        </div>*@
+                                                <label class="col-sm-4 control-label">Issue/ Return<sup>*</sup></label>
+                                                <div class="col-sm-8 show-message">
+                                                    <div class="select-style">
+                                                        <select class="form-control" ng-model="IssueTransformation.Types" name="Issue/ Return" required tabindex="5">
+                                                            <option value="">--Select--</option>
+                                                            <option value="InventoryJWIssue">Issue</option>
+                                                            <option value="InventoryJWReturn">Return</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>*@
 
                                         <div class="form-group" show-errors>
                                             <label class="col-sm-4 control-label">Job Work Location<sup>*</sup></label>
@@ -627,8 +627,8 @@
                                                 <div class="select-style">
                                                     <select class="form-control" ng-model="IssueTransformation.IssueCategory" name="Issue Type" ng-disabled="detailList.length" required tabindex="5">
                                                         <option value="">--Select--</option>
-                                                        <option value="Revenue">Inventory</option>
-                                                        <option value="Capital">Process</option>
+                                                        <option value="Inventory">Inventory</option>
+                                                        <option value="Process">Process</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -1107,7 +1107,7 @@
                 <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
                 <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="120"></div>
                 @*<div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="120"></div>
-                <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>*@
+                    <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>*@
                 <div e-column e-field="TotalQuantity" e-headertext="Issued Quantity" textAlign='Right' e-width="120"></div>
                 <div e-column e-field="TotalAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
 
@@ -1215,19 +1215,19 @@
                         </div>
 
                         @*<script id="tabGridContents" type="text/x-jsrender">
-                            <div class="tabcontrol" id="Test">
-                                <ul>
-                                    <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
-                                    <li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
-                                </ul>
-                                <div id="gridTab{{:Id}}">
-                                    <div id="detailGrid"></div>
+                                <div class="tabcontrol" id="Test">
+                                    <ul>
+                                        <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
+                                        <li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
+                                    </ul>
+                                    <div id="gridTab{{:Id}}">
+                                        <div id="detailGrid"></div>
+                                    </div>
+                                    <div id="gridTab1{{:Id}}">
+                                        <div id="detailGrid1" style="width:800px;"></div>
+                                    </div>
                                 </div>
-                                <div id="gridTab1{{:Id}}">
-                                    <div id="detailGrid1" style="width:800px;"></div>
-                                </div>
-                            </div>
-                        </script>*@
+                            </script>*@
 
                         <script id="tabGridContents" type="text/x-jsrender">
                             <div class="tabcontrol" id="Test">
@@ -2374,6 +2374,7 @@
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_CharacteristicsValuePopUp.cshtml")
 @Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
+@Html.Partial("~/Areas/Outsourcing/Views/OSIssueReturn/_ProductionSummaryProcessPopUp.cshtml")
 @Html.Partial("~/Areas/Outsourcing/Views/OSIssueReturn/_StockPopUp.cshtml")
 @Html.Partial("~/Areas/Products/Views/InventoryIssue/_ApprovedStockPopUp.cshtml")
 @Html.Partial("~/Areas/Products/Views/InventoryIssue/_UnApprovedStockPopUp.cshtml")

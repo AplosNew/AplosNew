@@ -1729,6 +1729,31 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             }
         }
 
+        public IEnumerable<object> GetProductionSummaryProcess(string articleId)
+        {
+            try
+            {
+                string sql = @"select MT.UserName MaterialType,mm.UserName MaterialMaster,mma.StandardName Article,PS.ScanQty,PS.Quantity,PS.Quantity RequisitionQty,PS.LotNumber,PR.UserName Process,PS.Id ProductionSummaryId,0 Flag
+                        from TRN.ProductionSummary PS
+	                    JOIN (select distinct ProductionSummaryId from itemscanchild where ProductionSummaryId<>'' ) isc ON isc.ProductionSummaryId=PS.Id
+	                    LEFT JOIN trn.ProductionOrderDetail POD ON POD.ProductionOrderId=PS.ProductionOrderId
+	                    LEFT JOIN trn.SalesOrder SO ON SO.Id=POD.SalesOrderId
+	                    LEFT JOIN trn.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
+	                    LEFT JOIN MST.MaterialMasterArticle mma on mma.Id=MOI.ArticleId
+	                    LEFT JOIN MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
+	                    LEFT JOIN MST.MaterialGroupMaster MG on MG.Id=mm.MaterialGroupMasterId
+	                    LEFT JOIN HKP.MaterialType MT on MT.Id=MG.MaterialTypeId
+	                    LEFT JOIN hkp.Process pr ON pr.Id=PS.ProcessId
+	                    WHERE moi.ArticleId='" + articleId + @"' ";
+
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }
 public class MaterialPlanning
