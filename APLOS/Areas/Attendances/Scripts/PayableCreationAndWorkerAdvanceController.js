@@ -538,11 +538,11 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.GetLoadEmployeeInformation = function (obj) {
         $scope.TabName = obj;
         if ($scope.TabName == "GoodWork") {
-            if ($scope.ModelOTNew.ToDate === "" || $scope.ModelOTNew.ToDate === null || $scope.ModelOTNew.ToDate === undefined) {
+            if ($scope.ModelPCNew.ToDate === "" || $scope.ModelPCNew.ToDate === null || $scope.ModelPCNew.ToDate === undefined) {
                 ShowResult('Select To Date', 'failure');
                 return false;
             }
-            if ($scope.ModelOTNew.FromDate === "" || $scope.ModelOTNew.FromDate === null || $scope.ModelOTNew.FromDate === undefined) {
+            if ($scope.ModelPCNew.FromDate === "" || $scope.ModelPCNew.FromDate === null || $scope.ModelPCNew.FromDate === undefined) {
                 ShowResult('Select From Date', 'failure');
                 return false;
             }
@@ -580,10 +580,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.PayableCreationSave = function () {
         try {
             $scope.FD = $filter('dateFiltering')(new Date($scope.ModelNew.FromDate), 'dd-MM-yyyy');
-            $scope.TD = $filter('dateFiltering')(new Date($scope.ModelNew.ToDate), 'dd-MM-yyyy');
-
-            $scope.$broadcast('show-errors-check-validity');
-
+            $scope.TD = $filter('dateFiltering')(new Date($scope.ModelNew.ToDate), 'dd-MM-yyyy'); 
             $http({
                 method: 'POST',
                 url: $scope.savePCUrl,
@@ -643,6 +640,15 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         $scope.PCEmployeeList = [];
         return true;
     };
+
+
+    $scope.ClearPayableCreationOT = function () {
+        $scope.Action = 'Save';
+        $scope.ModelOTNew = Object.assign({}, $scope.ModelOTemp);
+        $scope.PCOTEmployeeList = [];
+        return true;
+    };
+
 
     $scope.GoodWorkPayableCreationSave = function (obj) {
         try {
@@ -710,8 +716,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         Remarks: null
     };
     $scope.ModelOTNew = Object.assign({}, $scope.ModelOTemp);
-
-
+     
     $scope.ClearOTPayableCreation = function () {
         $scope.Action = 'Save';
         $scope.ModelOTNew = Object.assign({}, $scope.ModelOTemp);
