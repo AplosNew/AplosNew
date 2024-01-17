@@ -1832,7 +1832,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 	var SelectedOutputMaterialdata = [];
 	$scope.IssueChildList = [];
 	$scope.SaveSlipIssue = function () {
-
+		var SelectedMaterialInputdata = [];
 		if ($scope.ModelNew.TabType == "Transformation") {
 			var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.specificStockList), 'RequisitionQty');
 		//	$scope.selectedRowQty1 = $filter('sumByKey')($filter('filter')($scope.detailList), 'TransactionQty');
@@ -1926,7 +1926,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 				/*if ($scope.detailList[i].isSelectedMatInput == true && !baseService.isUndefinedOrNull($scope.detailList[i].MaterialMasterId) && !baseService.isUndefinedOrNull($scope.detailList[i].ArticleId)) {*/
 				if ($scope.detailList[i].isSelectedMatInput == true && !baseService.isUndefinedOrNull($scope.detailList[i].ArticleId)) {
 
-					if ($scope.detailList[i].TransactionQty > $scope.detailList[i].PostingQty) {
+					if ($scope.IssueTransformation.IssueCategory == "Inventory" &&  $scope.detailList[i].TransactionQty > $scope.detailList[i].PostingQty) {
 						ShowResult("Issue qty can not gaterthen  Ready for issue Qty");
 						return false;
 					}
@@ -2059,10 +2059,14 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 		if ($scope.Action === "Save") {
 			if ($scope.ModelNew.TabType == "Transformation") {
 				if (SelectedMaterialInputdata.length > 0) {
-					
+					if ($scope.IssueTransformation.IssueCategory == "Inventory") {
+						$scope.insertURL = 'Products/InventoryIssue/JWIssueCreate';
+					} else {
+						$scope.insertURL = 'Outsourcing/OSIssueReturn/SaveProcessIssueTransformation';
+                    }
 					$http({
 						method: 'POST'
-						, url: 'Products/InventoryIssue/JWIssueCreate'
+						, url: $scope.insertURL
 						, data: {
 							entities: SelectedMaterialInputdata
 							, specificStockList: $scope.specificStockList
@@ -2092,7 +2096,6 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 						method: 'POST'
 						, url: 'Products/InventoryIssue/JWIssueCreate'
 						, data: {
-							//	entities: $scope.detailList
 							entities: SelectedOutputMaterialdata
 							, specificStockList: $scope.specificStockList
 							, inventoryIssue: $scope.Issue
@@ -2707,29 +2710,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 			JWOutPutQuery(Id, JWContractId, IssueDate, MaterialStorageId);
 			$scope.CostCenterLoad();
 
-	//	JWByProductQuery(Id);
-
-		//if (baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
-		//	$scope.CheckedByStatusForNoti = false;
-		//	$scope.ApprovedByStatusForNoti = true;
-		//	$scope.Issue.CheckedBy = x.data.ApprovedById;
-		//}
-		//else if (!baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
-		//	$scope.CheckedByStatusForNoti = true;
-		//	$scope.ApprovedByStatusForNoti = true;
-		//	$scope.Issue.CheckedBy = x.data.CheckedById;
-		//}
-	//	$scope.GetCheckedByAndApprovedBy1();
-		//if (baseService.isUndefinedOrNull(x.data.CheckedById) && !baseService.isUndefinedOrNull(x.data.ApprovedById)) {
-
-		//	$scope.Issue.CheckedBy = x.data.ApprovedById;
-		//	$scope.Issue.labelCheckAndApproved = 'To be approved by';
-		//}
-		//else if (!baseService.isUndefinedOrNull(x.data.CheckedById) && baseService.isUndefinedOrNull(x.data.ApprovedById)) {
-
-		//	$scope.Issue.CheckedBy = x.data.CheckedById;
-		//	$scope.Issue.labelCheckAndApproved = 'To be checked by';
-		//}
+	
         }
 
 	
@@ -2807,7 +2788,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 				var row = $scope.specificStockList[i];
 				for (var t = 0; t < baseService.arrayLength($scope.materialStockList); t++) {
 					var newRow = $scope.materialStockList[t];
-					if (row.InventoryReceiveDetailId === newRow.InventoryReceiveDetailId) { // update or delete
+					if (row.ProductionSummaryId === newRow.ProductionSummaryId) { // update or delete
 						if (newRow.Flag) row.RequisitionQty = newRow.RequisitionQty;
 						else $scope.specificStockList.splice(i, 1);
 					}
@@ -2817,7 +2798,7 @@ function OSIssueReturnController($window, cboService, commonMessage, $scope, $ro
 				var nRow = $scope.materialStockList[n];
 				nRow.BaseQty = $scope.materialStockList[n].BaseQty;
 				nRow.BaseIssueQty = $scope.materialStockList[n].BaseIssueQty;
-				if (!baseService.valueCheckInList($scope.specificStockList, 'InventoryReceiveDetailId', nRow.InventoryReceiveDetailId) && nRow.Flag)
+				if (!baseService.valueCheckInList($scope.specificStockList, 'ProductionSummaryId', nRow.ProductionSummaryId) && nRow.Flag)
 					//$scope.detailModel.IsSpecific = true;
 					$scope.specificStockList.push(nRow);
 			}

@@ -12,6 +12,9 @@ using OTSBD;
 using Library.MaterialManagement.JobWork;
 using Library.Model.Enums;
 using Syncfusion.XlsIO;
+using Library.ViewModel.Materials;
+using System.Linq;
+using Library.Model.Inventory;
 
 namespace Aplos.Areas.Outsourcing.Controllers
 {
@@ -2237,12 +2240,12 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
         }
 
         [HttpPost]
-        public JsonResult SaveProcessIssueTransformation(Dictionary<string, object> data, string ContractId, string ContractType, IEnumerable<JobWorkTransformationIssueReturnChild> SelectedQuantityData)
+        public JsonResult SaveProcessIssueTransformation(IEnumerable<IssueProcessDetail> entities, IEnumerable<IssueProcessWIP> specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus, IEnumerable<InventoryMaterialViewModel> entitiesAll, string TabType)
         {
             try
             {
-                JWTIR.SaveIssueTransformation(data, ContractId, ContractType, SelectedQuantityData);
-                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+                JWTIR.SaveProcessIssueTransformation(entities, specificStockList, inventoryIssue, IssueTypeStatus, entitiesAll);
+                return Json(new { Error = false, Data = inventoryIssue, Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
@@ -5473,6 +5476,8 @@ public class JobWorkIssueReturnChild
 
     #endregion Scalar Properties
 }
+
+
 
 //public class JobWorkTransformationIssueReturnChild
 //{
