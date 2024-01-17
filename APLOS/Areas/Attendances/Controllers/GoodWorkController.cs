@@ -897,18 +897,17 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [HttpPost]
-        public ActionResult LoadPCEmployeelist(string fromDate, string toDate)
+        public ActionResult LoadPCEmployeelist(string fromDate, string toDate,string tabName)
         {
             string sql = string.Empty;
             try
             {
-                sql = @"select gw.Id,wa.Id WorkerAdvanceId,wad.Id WorkerAdvanceDetailId,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,(sum(gw.Minute)/60) Hours,g.Gross,g.RatePerHour
-								 ,Amount=(sum(gw.Minute)/60)*g.RatePerHour
-                                  from [dbo].[GoodWork] gw
-								  LEFT JOIN [dbo].[GoodWorkDetail] GWD on GWD.GoodWorkId=gw.Id  
-								  left join EmployeeInformation ei on ei.SystemId=GWD.EmpSystemId 
-								  LEFT JOIN [dbo].[WorkerAdvanceDetail] wad on wad.EmpSystemId=ei.SystemId
-								  LEFT JOIN [dbo].[WorkerAdvance] wa on wa.Id=wad.WorkerAdvanceId
+                if (tabName== "GoodWork")
+                {
+                    sql = @"select distinct ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,(sum(apd.OverStay)/60) Hours,g.Gross,g.RatePerHour
+								 ,Amount=(sum(apd.OverStay)/60)*g.RatePerHour
+                                  from [dbo].[AttdnProcessData] apd 
+								  left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID  
 								  LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
 								  LEFT JOIN(SELECT SID.DefineAmount Basic,((SID.DefineAmount/208)*2) RatePerHour,SH.SalaryHead
 								  ,SID.SalaryID,SID.DefineAmount Gross
@@ -916,9 +915,36 @@ namespace Aplos.Areas.Attendances.Controllers
 								  LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                     WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
                                    
-								  where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"'
+								  where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"'  and apd.OverStay<>0 and g.Gross<>0
+                                  and apd.EmpSystemID not in (select distinct EmpSystemId
+									from GoodWorkPaymentAdvise gwpa
+									left join GoodWorkPaymentAdviseDetail gwpad on gwpad.PaymentAdviseId=gwpa.Id
+									where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"')
+
 								  group by gw.Id,ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour
-								  ,g.Basic,wad.PayDays,wa.Percentage,wa.Id,wad.Id";
+								  ,g.Basic"; 
+                }
+               else
+                {
+                    sql = @"select ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,(sum(apd.OverStay)/60) Hours,g.Gross,g.RatePerHour
+								 ,Amount=(sum(apd.OverStay)/60)*g.RatePerHour
+                                  from [dbo].[AttdnProcessData] apd 
+								  left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID  
+								  LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
+								  LEFT JOIN(SELECT SID.DefineAmount Basic,((SID.DefineAmount/208)*2) RatePerHour,SH.SalaryHead
+								  ,SID.SalaryID,SID.DefineAmount Gross
+                                      FROM SalaryInfoDefine SID 
+								  LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+                                    WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
+                                   
+								  where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and apd.OverStay<>0 and g.Gross<>0
+                                  and apd.EmpSystemID not in (select distinct EmpSystemId
+									from GoodWorkPaymentAdvise gwpa
+									left join GoodWorkPaymentAdviseDetail gwpad on gwpad.PaymentAdviseId=gwpa.Id
+									where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"')
+
+								 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour";
+                }
             }
             catch (Exception ex)
             {
@@ -1129,17 +1155,41 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetGoodWorkPaymentList()
+        public ActionResult GetGoodWorkPaymentList(string paymentSource)
         {
             string sql = @"select ei.EmployeeCode,ei.EmployeeName ByWhom,gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
 						,gwp.UserRef,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwp.Remarks
 						from GoodWorkPaymentAdvise gwp 
-						left join EmployeeInformation ei on ei.SystemId=gwp.ByWhomId";
+						left join EmployeeInformation ei on ei.SystemId=gwp.ByWhomId
+                        where gwp.PaymentSource='" + paymentSource + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+      //  [HttpGet, Authorize]
+      //  public ActionResult GetGoodWorkOTPaymentList(string paymentSource)
+      //  {
+      //      string sql = @"select ei.EmployeeCode,ei.EmployeeName ByWhom,gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
+						//,gwp.UserRef,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwp.Remarks
+						//from GoodWorkPaymentAdvise gwp 
+						//left join EmployeeInformation ei on ei.SystemId=gwp.ByWhomId
+      //                  where gwp.PaymentSource='"+ paymentSource + "'";
+
+      //      return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+      //  }
+        [HttpGet, Authorize]
+        public ActionResult GetGoodWorkPaymentAdviseDetailList(string paymentAdviseId)
+        {
+            string sql = @"select gwpad.Id,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour Hours,gwpad.Rate RatePerHour,gwpad.Amount,gwpad.Remarks
+                            from GoodWorkPaymentAdviseDetail gwpad
+                            left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
+							left join GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
+                            where gwpa.Id='" + paymentAdviseId + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
-        public ActionResult GetGoodWorkPaymentAdviseDetailList(string paymentAdviseId)
+        public ActionResult GetGoodWorkPaymentAdviseOTDetailList(string paymentAdviseId)
         {
             string sql = @"select gwpad.Id,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour Hours,gwpad.Rate RatePerHour,gwpad.Amount,gwpad.Remarks
                             from GoodWorkPaymentAdviseDetail gwpad

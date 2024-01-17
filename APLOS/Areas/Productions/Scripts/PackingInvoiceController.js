@@ -1131,6 +1131,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         var ObjPt = { Value: null, Text: null, BaseLineDate: null, NoOfDay: 0, PaymentTermCode: null };
         $scope.salesOrderList = [];
         $scope.salesMaterialList = [];
+        $scope.paymentTermList = [];
         $scope.selectedMasterOrderItemTempList = [];
         $scope.uoMList = [];
         $http({
@@ -1146,6 +1147,14 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                 ObjPt.BaseLineDate = $scope.salesMaterialList[i].BaseLineDate;
                 $scope.paymentTermList.push(ObjPt);
                 ObjPt = { Value: null, Text: null, BaseLineDate: null, NoOfDay: 0, PaymentTermCode: null };
+            }
+            if (baseService.isUndefinedOrNull($scope.salesVM.PaymentTermId)) {
+                $scope.salesVM.PaymentTermId = $scope.PTermId;
+            }
+            for (var p = 0; p < $scope.paymentTermList.length; p++) {
+                if ($scope.paymentTermList[p].Value == $scope.salesVM.PaymentTermId) {
+                    $scope.salesVM.PaymentTermId = $scope.paymentTermList[p].Value; break;
+                }
             }
 
             $scope.salesOrderList = response.data;
@@ -1297,7 +1306,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             if (baseService.isUndefinedOrNull($scope.salesVM.BaseOnDueDate) && $scope.BaseLineDate !== 'postingdate') {
                 throw "Due Date BaseOn is required.";
             }
-
+            $scope.PTermId = $scope.salesVM.PaymentTermId;
             $scope.BLDate = $scope.salesVM.BLDate;
             $scope.EXPDate = $scope.salesVM.EXPDate;
             $scope.BaseDate = $scope.salesVM.BaseOnDueDate;
@@ -1351,9 +1360,9 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                             $scope.salesVM.MatureDate = $scope.MDate;
                             $scope.salesVM.PostingDate = $scope.PDate;
                             $scope.salesVM.VoucherDate = $scope.VDate;
-
+                            $scope.salesVM.PaymentTermId = $scope.PTermId;
                             getPartyPlantEditList($scope.salesVM.InvoicingPartyPlantId, $scope.salesVM.InvoicingByAddress, $scope.salesVM.DeliveryPartyPlantId, $scope.salesVM.DeliveryByAddress, $scope.salesVM.DeliveryState, $scope.salesVM.DeliveryGSTIN);
-                            $scope.GetSalesMaterialData($scope.salesVM.Id);
+                            //$scope.GetSalesMaterialData($scope.salesVM.Id);
                             $scope.GetSalesPackingData($scope.salesVM.Id);
                             $scope.getPostSalesData();
 
@@ -1397,9 +1406,9 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                             $scope.salesVM.MatureDate = $scope.MDate;
                             $scope.salesVM.PostingDate = $scope.PDate;
                             $scope.salesVM.VoucherDate = $scope.VDate;
-
+                            $scope.salesVM.PaymentTermId = $scope.PTermId;
                             getPartyPlantEditList($scope.salesVM.InvoicingPartyPlantId, $scope.salesVM.InvoicingByAddress, $scope.salesVM.DeliveryPartyPlantId, $scope.salesVM.DeliveryByAddress, $scope.salesVM.DeliveryState, $scope.salesVM.DeliveryGSTIN);
-                            $scope.GetSalesMaterialData($scope.salesVM.Id);
+                            //$scope.GetSalesMaterialData($scope.salesVM.Id);
                             $scope.GetSalesPackingData($scope.salesVM.Id);
                             $scope.getPostSalesData();
 
@@ -2248,13 +2257,13 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         try {
             if (baseService.isUndefinedOrNull(data.BankName))
                 throw "Bank Is Not Selected";
-                location.href = "SalesManagements/Sales/BankLatter?salesId=" + data.Id + '&BankName=' + data.BankName;
+            location.href = "SalesManagements/Sales/BankLatter?salesId=" + data.Id + '&BankName=' + data.BankName;
 
         }
         catch (e) {
             ShowResult(e, 'failure');
         }
-       
+
         //  $scope.CommercialInvoicePackingListReport(data);
     };
     $scope.InsuranceCoverLetter = function (data) {
