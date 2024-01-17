@@ -598,8 +598,8 @@ namespace Library.OrderManagement.Costing
                         POUoMId,
                         1);
 
-                    if (POUOMFactor > 0)
-                        dsBOQCompact.Tables[0].DefaultView[j]["Rate"] = clsStaticInfo.dbl(dsBOQCompact.Tables[0].DefaultView[j]["Rate"]) / POUOMFactor;
+                    //if (POUOMFactor > 0 )
+                    //    dsBOQCompact.Tables[0].DefaultView[j]["Rate"] = clsStaticInfo.dbl(dsBOQCompact.Tables[0].DefaultView[j]["Rate"]) / POUOMFactor;
 
                     dsBOQCompact.Tables[0].DefaultView[j]["ItemRefNo"] = _masterId + "/" + (j + 1).ToString();
                 }

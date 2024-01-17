@@ -228,12 +228,15 @@ function salaryLockController(commonMessage, $scope, $rootScope, baseService, $r
         if (baseService.arrayLength(dataList) > 0) {
             for (var i = 0; i < dataList.length; i++) {
                 if (dataList[i].isToBeSelect) {
-                    $scope.EmployeeListNew.push(dataList[i]);
+                    if (dataList[i].IsDisburse == 'Not Disbursed' && baseService.isUndefinedOrNull(dataList[i].PayableVoucherNo)) {
+                        $scope.EmployeeListNew.push(dataList[i]);
+                    }
                 }
             }
         }
-
     }
+
+
 
     $scope.SalaryLock = function () {
         try {
@@ -247,7 +250,7 @@ function salaryLockController(commonMessage, $scope, $rootScope, baseService, $r
                 throw "Please Select Employee";
             }
 
-           // var data = ej.DataManager(EmployeeListNew).executeLocal(ej.Query().select(["EmpSystemId", "PayableVoucherId", "DisbursementVoucherId", "Id", "Flag", "CheckBoxSelect", "SalaryStructureId", "EmployeeCode"]));
+            // var data = ej.DataManager(EmployeeListNew).executeLocal(ej.Query().select(["EmpSystemId", "PayableVoucherId", "DisbursementVoucherId", "Id", "Flag", "CheckBoxSelect", "SalaryStructureId", "EmployeeCode"]));
 
             $scope.$broadcast('show-errors-check-validity');
             $http({
