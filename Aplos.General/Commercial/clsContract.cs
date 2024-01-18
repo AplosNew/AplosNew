@@ -375,7 +375,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                                 ,so.Rate,So.UpCharge
 								,so.Qty
 								,(so.Rate*so.Qty) as Amount
-                                ,mm.UserName MaterialDescription,Article=CASE WHEN ISNULL(moi.LCArticle,'')<>'' THEN moi.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END,h.Code as HSNCode
+                                ,mm.UserName MaterialDescription,Article=CASE WHEN ISNULL(moi.LCArticle,'')<>'' THEN moi.LCArticle WHEN ISNULL(AA.ArticlePartyName,'')<>'' THEN AA.ArticlePartyName ELSE MMA.StandardName END,h.Code as HSNCode
                                 ,c.description as Reference,
                                 pc.UserName as CustomerName,u.UserName as UoM,
                                 pbt.UserName as ConsigneeBilltoName,
@@ -397,8 +397,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                                 LEFT JOIN MST.Destination DS ON DS.Id=SO.DestinationId
                                 left join MST.MaterialMaster as mm on mm.Id=moi.MaterialMasterId
                                 left join MST.MaterialMasterArticle as mma on mma.MaterialMasterId=mm.Id AND MOI.ArticleId=MMA.Id
-                                LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id
-                                LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
+                                LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id AND AA.MasterOrderItemID=MOI.Id
                                 left join HKP.HSNCode as h on h.Id=mma.HSNCodeId
                                 left join TRN.MasterOrder as mo on mo.id=moi.MasterOrderId
                                 left join SCS.UnitOfMeasurement as u on u.Id=mo.TotalQtyUOMId
