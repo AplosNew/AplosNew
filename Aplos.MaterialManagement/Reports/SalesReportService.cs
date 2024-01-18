@@ -7612,25 +7612,14 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
 
 
             materialTax = loadPackingSalesServiceTaxData(salesId);
-            //if (materialTax.Rows.Count == 0)
-            //{
-            //    document.Replace("{ServiceCaption}", "", false, false);
-            //    document.Replace(replaceString, "", false, false);
-            //    return 0;
-
-            //}
+            
             #region SalesTax
-            //WTable wTable = new WTable(document);
-            //int ROW = 0; int COL = 0;
-            //wTable.ResetCells(1, LasColumnIndex + 1);
 
-            //WTableRow TemplateRow = wTable.Rows[0].Clone();
-
-            int LasColumnIndex = 8;
-            int TaxLasColumnIndex = 4;
+            int TaxLasColumnIndex = 5;
 
             WCharacterFormat FontBold = new WCharacterFormat(document);
             FontBold.Bold = true;
+            FontBold.FontSize = 6f;
 
             WTable wTaxTable = new WTable(document);
             int TXROW = 0; int TXCOL = 0;
@@ -7639,18 +7628,18 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
             IWTextRange trange = wTaxTable.Rows[TXROW].Cells[TXCOL].AddParagraph().AppendText("Service Name");
             trange.ApplyCharacterFormat(FontBold);
             int colService = TXCOL; TXCOL++;
-            wTaxTable.Rows[TXROW].Cells[colService].Width = 80;
+            wTaxTable.Rows[TXROW].Cells[colService].Width = 100;
 
 
             trange = wTaxTable.Rows[TXROW].Cells[TXCOL].AddParagraph().AppendText("Tax & Rate");
             trange.ApplyCharacterFormat(FontBold);
             int colTaxCode = TXCOL; TXCOL++;
-            wTaxTable.Rows[TXROW].Cells[colTaxCode].Width = 60;
+            wTaxTable.Rows[TXROW].Cells[colTaxCode].Width = 30;
 
             trange = wTaxTable.Rows[TXROW].Cells[TXCOL].AddParagraph().AppendText("Per.(%)");
             trange.ApplyCharacterFormat(FontBold);
             int colPercentage = TXCOL; TXCOL++;
-            wTaxTable.Rows[TXROW].Cells[colPercentage].Width = 50;
+            wTaxTable.Rows[TXROW].Cells[colPercentage].Width = 30;
 
             trange = wTaxTable.Rows[TXROW].Cells[TXCOL].AddParagraph().AppendText("TaxON");
             trange.ApplyCharacterFormat(FontBold);
@@ -7659,8 +7648,13 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
 
             trange = wTaxTable.Rows[TXROW].Cells[TXCOL].AddParagraph().AppendText("TaxAmount");
             trange.ApplyCharacterFormat(FontBold);
-            int colTaxAmount = TXCOL;
-            wTaxTable.Rows[TXROW].Cells[colTaxAmount].Width = 70;
+            int colTaxAmount = TXCOL; TXCOL++;
+            wTaxTable.Rows[TXROW].Cells[colTaxAmount].Width = 50;
+
+            trange = wTaxTable.Rows[TXROW].Cells[TXCOL].AddParagraph().AppendText("TotalAmount");
+            trange.ApplyCharacterFormat(FontBold);
+            int colTotalAmount = TXCOL;
+            wTaxTable.Rows[TXROW].Cells[colTotalAmount].Width = 50;
 
             for (int i = 0; i < materialTax.Rows.Count; i++)
             {
@@ -7683,11 +7677,13 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                 IWTextRange textRangeP = TAXROW.Cells[colPercentage].AddParagraph().AppendText(materialTax.Rows[i]["Percentage"].ToString());
                 IWTextRange textRangeT = TAXROW.Cells[colTaxON].AddParagraph().AppendText(materialTax.Rows[i]["TaxON"].ToString());
                 IWTextRange textRangeTA = TAXROW.Cells[colTaxAmount].AddParagraph().AppendText(materialTax.Rows[i]["TaxAmount"].ToString());
-                textRangeS.CharacterFormat.FontSize = 8;
-                textRange.CharacterFormat.FontSize = 8;
-                textRangeP.CharacterFormat.FontSize = 8;
-                textRangeT.CharacterFormat.FontSize = 8;
-                textRangeTA.CharacterFormat.FontSize = 8;
+                IWTextRange textRangeTOA = TAXROW.Cells[colTotalAmount].AddParagraph().AppendText(materialTax.Rows[i]["TotalAmount"].ToString());
+                textRangeS.CharacterFormat.FontSize = 6;
+                textRange.CharacterFormat.FontSize = 6;
+                textRangeP.CharacterFormat.FontSize = 6;
+                textRangeT.CharacterFormat.FontSize = 6;
+                textRangeTA.CharacterFormat.FontSize = 6;
+                textRangeTOA.CharacterFormat.FontSize = 6;
 
             }
             //   trange.CharacterFormat.FontSize = 8;
@@ -9413,12 +9409,13 @@ Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
 ,ST.SalesId,ST.TaxCategoryId,TC.Code TaxCode,CONVERT(NUMERIC(10,2),ST.Percentage)Percentage
 ,CONVERT(NUMERIC(10,2),SUM(SS.BooksCurrencyTransactionAmount)) TaxON
 ,TaxAmount=CONVERT(NUMERIC(10,2),(SUM(SS.BooksCurrencyTransactionAmount)*ST.Percentage)/100)
+,TotalAmount=CONVERT(NUMERIC(10,2),SUM(SS.BooksCurrencyTransactionAmount))+CONVERT(NUMERIC(10,2),(SUM(SS.BooksCurrencyTransactionAmount)*ST.Percentage)/100)
 from TRN.SalesTax ST
 left join TRN.SalesService SS  ON ST.SalesServiceId=SS.Id
 INNER JOIN HKP.ServiceMaster SM ON SS.ServiceMasterId = SM.Id 
 left join TRN.Sales S ON S.Id=SS.SalesId
 LEFT JOIN MST.TaxCategory TC ON TC.Id=ST.TaxCategoryId
-Where ST.SalesId='"+ SalesId + @"'
+Where ST.SalesId='" + SalesId + @"'
 Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage,SM.UserName";
 
                 return _sqlRepository.GetDataTable(strSQL);

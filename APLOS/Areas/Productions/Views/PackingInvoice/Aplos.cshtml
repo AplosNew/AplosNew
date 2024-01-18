@@ -400,7 +400,7 @@
                                                     <strong>{{chargesList | sumByKey : 'TaxAmount'| setDecimal:2| number:2 }}</strong>
                                                 </td>
                                                 <td class="text-right">
-                                                    <strong>{{chargesList | sumByKey : 'Amount'| setDecimal:2| number:2 }}</strong>
+                                                    <strong>{{chargesList | sumByKey : 'NetAmount'| setDecimal:2| number:2 }}</strong>
                                                 </td>
                                                 <td class="text-right"></td>
                                             </tr>
