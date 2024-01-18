@@ -549,11 +549,14 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
 
             $http({
                 method: 'POST',
-                url: $scope.path + "LoadPCEmployeelist", 
-                data: { 'fromDate': $scope.ModelPCNew.FromDate, 'toDate': $scope.ModelPCNew.ToDate, 'tabName': $scope.TabName},
+                url: $scope.path + "LoadPCEmployeelist",
+                data: { 'fromDate': $scope.ModelPCNew.FromDate, 'toDate': $scope.ModelPCNew.ToDate, 'tabName': $scope.TabName },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.PCEmployeeList = response.data;
+                for (var i = 0; i < $scope.PCEmployeeList.length; i++) {
+                    $scope.PCEmployeeList[i].Remarks = $scope.ModelPCNew.Remarks;
+                }
             });
         }
         else {
@@ -569,10 +572,13 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
             $http({
                 method: 'POST',
                 url: $scope.path + "LoadPCEmployeelist",
-                data: { 'fromDate': $scope.ModelOTNew.FromDate, 'toDate': $scope.ModelOTNew.ToDate, 'tabName': $scope.TabName},
+                data: { 'fromDate': $scope.ModelOTNew.FromDate, 'toDate': $scope.ModelOTNew.ToDate, 'tabName': $scope.TabName },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.PCOTEmployeeList = response.data;
+                for (var i = 0; i < $scope.PCOTEmployeeList.length; i++) {
+                    $scope.PCOTEmployeeList[i].Remarks = $scope.ModelOTNew.Remarks;
+                }
             });
         }
     }
@@ -580,7 +586,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
     $scope.PayableCreationSave = function () {
         try {
             $scope.FD = $filter('dateFiltering')(new Date($scope.ModelNew.FromDate), 'dd-MM-yyyy');
-            $scope.TD = $filter('dateFiltering')(new Date($scope.ModelNew.ToDate), 'dd-MM-yyyy'); 
+            $scope.TD = $filter('dateFiltering')(new Date($scope.ModelNew.ToDate), 'dd-MM-yyyy');
             $http({
                 method: 'POST',
                 url: $scope.savePCUrl,
@@ -716,7 +722,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
         Remarks: null
     };
     $scope.ModelOTNew = Object.assign({}, $scope.ModelOTemp);
-     
+
     $scope.ClearOTPayableCreation = function () {
         $scope.Action = 'Save';
         $scope.ModelOTNew = Object.assign({}, $scope.ModelOTemp);

@@ -930,7 +930,7 @@ namespace Aplos.Areas.Attendances.Controllers
             {
                 if (tabName == "GoodWork")
                 {
-                    sql = @"select gw.Id GoodWorkId,'' Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,(sum(gw.Minute)/60) Hour,format(g.Gross,'N2') Gross,format(g.RatePerHour,'N2') Rate,Amount=format((sum(gw.Minute)/60)*g.RatePerHour,'N2')
+                    sql = @"select gw.Id GoodWorkId,'' Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,gw.Minute,(sum(gw.Minute)/60) Hour,format(g.Gross,'N2') Gross,format(g.RatePerHour,'N2') Rate,Amount=format((sum(gw.Minute)/60)*g.RatePerHour,'N2')
                                   from [dbo].[GoodWork] gw
 								  LEFT JOIN [dbo].[GoodWorkDetail] GWD on GWD.GoodWorkId=gw.Id  
 								  left join EmployeeInformation ei on ei.SystemId=GWD.EmpSystemId  
@@ -946,12 +946,11 @@ namespace Aplos.Areas.Attendances.Controllers
 									from GoodWorkPaymentAdvise gwpa
 									left join GoodWorkPaymentAdviseDetail gwpad on gwpad.PaymentAdviseId=gwpa.Id
 									where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"') 
-								  group by gw.Id,ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour";
+								  group by gw.Id,ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,gw.Minute";
                 }
                 else
                 {
-                    sql = @"select distinct ei.SystemId EmpSystemId,'' Id,ei.EmployeeCode,ei.EmployeeName,format((sum(apd.OverStay)/60),'N2') Hour,format(g.Gross,'N2') Gross
-								 ,format(g.RatePerHour,'N2') Rate,Amount=format((sum(apd.OverStay)/60)*g.RatePerHour,'N2') 
+                    sql = @"select distinct ei.SystemId EmpSystemId,'' Id,ei.EmployeeCode,ei.EmployeeName,apd.OverStay Minute,format((sum(apd.OverStay)/60),'N2') Hour,format(g.Gross,'N2') Gross,format(g.RatePerHour,'N2') Rate,Amount=format((sum(apd.OverStay)/60)*g.RatePerHour,'N2') 
                                   from [dbo].[AttdnProcessData] apd 
 								  left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID  
 								  LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
@@ -972,7 +971,7 @@ namespace Aplos.Areas.Attendances.Controllers
 									left join GoodWorkPaymentAdviseDetail gwpad on gwpad.PaymentAdviseId=gwpa.Id
 									where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"')
 
-								 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour";
+								 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.OverStay";
                 }
             }
             catch (Exception ex)
@@ -1198,7 +1197,7 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult GetGoodWorkPaymentAdviseDetailList(string paymentAdviseId)
         {
-            string sql = @"select gwpad.Id,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour,gwpad.Rate,gwpad.Amount,gwpad.Remarks
+            string sql = @"select gwpad.Id,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.Remarks
                             from GoodWorkPaymentAdviseDetail gwpad
                             left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
 							left join GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
@@ -1209,7 +1208,7 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult GetGoodWorkPaymentAdviseOTDetailList(string paymentAdviseId)
         {
-            string sql = @"select gwpad.Id,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour Hour,gwpad.Rate Rate,gwpad.Amount,gwpad.Remarks
+            string sql = @"select gwpad.Id,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.Remarks
                             from GoodWorkPaymentAdviseDetail gwpad
                             left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
 							left join GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId

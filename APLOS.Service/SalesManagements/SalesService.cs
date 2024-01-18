@@ -1497,7 +1497,7 @@ namespace Library.Service.SalesManagements
 
         public List<Dictionary<string, object>> GetSalesServiceData(string companyGroupId, string companyId, string plantId, string salesId)
         {
-            var cmdText = @"SELECT SS.Id, SS.SalesId, SS.ServiceMasterId, SS.Amount, SS.TaxAmount, SS.NetAmount, SM.UserName AS ChargeName, NULL ServiceTaxList 
+            var cmdText = @"SELECT SS.Id, SS.SalesId, SS.ServiceMasterId, SS.Amount, SS.TaxAmount, NetAmount=SS.Amount+ SS.TaxAmount, SM.UserName AS ChargeName, NULL ServiceTaxList 
 								FROM TRN.SalesService AS SS 
 								LEFT JOIN TRN.Sales AS SA ON SA.Id=SS.SalesId
                                 LEFT JOIN HKP.ServiceMaster SM ON SM.Id=SS.ServiceMasterId
