@@ -59,6 +59,7 @@
                                         <th>GL</th>
                                         <th>Budget</th>
                                         <th>Activity</th>
+                                        <th>Particulars</th>
                                         <th>Dr</th>
                                         <th>Cr</th>
                                     </tr>
@@ -68,11 +69,12 @@
                                         <td>{{x.GLName}}</td>
                                         <td>{{x.BudgetName}}</td>
                                         <td>{{x.ActivityName}}</td>
+                                        <td>{{x.Particulars}}</td>
                                         <td class="text-right">{{x.DrAmount | number| setDecimal:4}}</td>
                                         <td class="text-right">{{x.CrAmount | number| setDecimal:4}}</td>
                                     </tr>
                                     <tr>
-                                        <td colspan="3"></td>
+                                        <td colspan="4"></td>
                                         <td class="text-right"><strong>{{additionalTaxDetailList | sumByKey : 'DrAmount' | number| setDecimal:4}}</strong></td>
                                         <td class="text-right"><strong>{{additionalTaxDetailList | sumByKey : 'CrAmount' | number| setDecimal:4}}</strong></td>
                                     </tr>

@@ -863,7 +863,7 @@ namespace Library.Service.SalaryDisbursement
 
                 _unitOfWork.BeginTransaction();
                 flag = true;
-                if (directVoucherId != null)
+                if (directVoucherId != null && directVoucherId != "")
                 {
                     var direct = new System.Text.StringBuilder();
                     var directsql = "";
@@ -1127,7 +1127,7 @@ namespace Library.Service.SalaryDisbursement
                     _unitOfWork.Rollback();
             }
         }
-        public string SaveBonusDisbursementPosting(VoucherViewModel voucherVM, string yearNo, string monthNo, string monthName, string pMode, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, string empSystemIds)
+        public string SaveBonusDisbursementPosting(VoucherViewModel voucherVM, string fromDate, string toDate, string pMode, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, string empSystemIds)
         {
             var flag = false;
             try
@@ -1148,7 +1148,7 @@ namespace Library.Service.SalaryDisbursement
                 if (directJVList != null)
                 {
                     voucherVM.DocRefNo = disbursementAdviceId;
-                    voucherVM.Narration = "Bonus disbursement for the month of " + monthName + " " + yearNo;
+                    voucherVM.Narration = "Bonus disbursement from " + fromDate + " to " + toDate;
                     var voucher = _voucherService.InsertVoucher(voucherVM);
                     directVoucherId = voucher.Id;
                     var currentVoucherDetailId = 0;
@@ -1260,7 +1260,7 @@ namespace Library.Service.SalaryDisbursement
                 {
                     var direct = new System.Text.StringBuilder();
                     var directsql = "";
-                    directsql = @"update [dbo].[SalaryLock] set DisbursementVoucherId='" + directVoucherId + @"' where Id in (
+                    directsql = @"update [dbo].[SalaryLock] set BonusDisbursementVoucherId='" + directVoucherId + @"' where Id in (
                         select sl.Id
                         from [dbo].[SalaryLock] sl 
                         left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
@@ -1273,13 +1273,13 @@ namespace Library.Service.SalaryDisbursement
 						left join hkp.Designation d on d.Id=spd.DesignationId
 						left join hkp.Bank b on spd.BankSystemID=b.Id
 						left join trn.Voucher v on v.Id=sl.PayableVoucherId
-                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL and sl.IsDisbursed=1 
-                        and sl.EmpSystemId IN (" + empSystemIds + @") and sl.DisbursementAdviceId='" + disbursementAdviceId + @"'
+                        where sl.PayableVoucherId<>'' AND sl.BonusDisbursementVoucherId IS NULL and sl.IsBonusDisbursed=1  
+                        and sl.Id IN (" + empSystemIds + @") and sl.BonusDisbursementAdviceId='" + disbursementAdviceId + @"'
                         and spc.DisbusmentAmount!=0  
 						and ISNULL(sh.SalaryHead, '')  in ('Net Pay'))";
                     direct.Append(directsql);
                     directsql = @"
-                        UPDATE  [dbo].[DisbursementAdvice] SET Status=CASE WHEN (select COUNT(sl.Id)Id
+                        UPDATE  [dbo].[BonusDisbursementAdvice] SET Status=CASE WHEN (select COUNT(sl.Id)Id
                         from [dbo].[SalaryLock] sl 
                         left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
                         left join dbo.SalaryProcChild spc on spc.SlrProcMstSystemID=spm.SystemID and sl.EmpSystemId=spc.EmpInfoSystemID
@@ -1291,8 +1291,8 @@ namespace Library.Service.SalaryDisbursement
 						left join hkp.Designation d on d.Id=spd.DesignationId
 						left join hkp.Bank b on spd.BankSystemID=b.Id
 						left join trn.Voucher v on v.Id=sl.PayableVoucherId
-                        where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId<>'' AND sl.DisbursementVoucherId IS NULL and sl.IsDisbursed=1 
-                        and sl.DisbursementAdviceId='" + disbursementAdviceId + @"'
+                        where sl.PayableVoucherId<>'' AND sl.BonusDisbursementVoucherId IS NULL and sl.IsBonusDisbursed=1 
+                        and sl.BonusDisbursementAdviceId='" + disbursementAdviceId + @"'
                         and spc.DisbusmentAmount!=0 and ISNULL(sh.SalaryHead, '')  in ('Net Pay'))>0
                         THEN 'InProgress' ELSE 'Close' END WHERE Id='" + disbursementAdviceId + @"'";
                     direct.Append(directsql);
@@ -1320,6 +1320,80 @@ namespace Library.Service.SalaryDisbursement
             }
         }
 
+        public void DeleteBonusDisbursementVoucher(string plantId, string voucherId)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var direct = new System.Text.StringBuilder();
+                var directsql = "";
+
+                directsql = @"UPDATE DA SET DA.Status='InProgress' FROM [dbo].[BonusDisbursementAdvice] DA
+						      INNER JOIN [dbo].[SalaryLock] sl ON sl.BonusDisbursementAdviceId=DA.Id
+                              where sl.BonusDisbursementVoucherId='" + voucherId + @"' ";
+                direct.Append(directsql);
+                directsql = @"
+                                update [dbo].[SalaryLock] set BonusDisbursementVoucherId=NULL where Id in (
+                                select sl.Id     from [dbo].[SalaryLock] sl 
+						        left join dbo.SalaryProcMaster spm on   spm.MonthNo=sl.MonthNo and spm.YearNo=sl.YearNo
+						        left join dbo.SalaryProcessLogDetail spd on   spd.EmpSystemId=sl.EmpSystemId and spm.SystemID=spd.SalaryProcessId
+                                left join dbo.EmployeeInformation ei on ei.SystemId=sl.EmpSystemId
+						        left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+						        left join ORG.Position PO on PO.Id=MPB.PositionId
+                                where spd.PlantId='" + plantId + @"'  and sl.BonusDisbursementVoucherId='" + voucherId + @"' )";
+                direct.Append(directsql);
+                _sqlRepository.ExecuteSqlCommand(direct.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var voucher = _voucherService.FindVoucher(voucherId);
+                if (voucher.IsPark == false)
+                    throw new CustomException("Delete is not allow after post ! ");
+
+
+                var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                foreach (var item in voucherdetailcurrnecy)
+                {
+                    _voucherDetailCurrencyRepository.Delete(item.Id);
+                }
+
+                foreach (var item in voucherdetail)
+                {
+                    var glTransactionDetail = _gLTransactionDetailRepository.Query(r => r.VoucherDetailId == item.Id).Select().FirstOrDefault();
+                    if (glTransactionDetail != null)
+                    {
+                        _gLTransactionDetailRepository.Delete(item.Id);
+                    }
+                    _voucherDetailRepository.Delete(item.Id);
+                }
+
+                _voucherRepository.Delete(voucherId);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
         public void DeleteSalaryPayable(string plantId, string voucherId, string monthNo, string yearNo)
         {
             var flag = false;
