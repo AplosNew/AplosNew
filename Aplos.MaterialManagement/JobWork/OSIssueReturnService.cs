@@ -5,11 +5,13 @@ using System.Data;
 using OTSBD;
 using Library.Crosscutting.Security;
 using System.Threading;
-
+using System.Linq;
 using Library.Data;
 using Library.Service.Enums;
 using Library.Service.Logs;
 using System.Reflection;
+using Library.ViewModel.Materials;
+using Library.Model.Inventory;
 
 namespace Library.MaterialManagement.JobWork
 {
@@ -113,7 +115,7 @@ namespace Library.MaterialManagement.JobWork
 
                 if (OrderSpecific == "Yes" && string.IsNullOrEmpty(TransIssueId))
                 {
-                    
+
                     sql = @"select mi.Id,mi.Id OSTransformationPOInputMaterialId,
                             mi.OSTransformationPODetailId --mi.OSTransformationPODetailId OSTransformationPOId
 ,mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId ,uom.UserName as MMUnit
@@ -295,16 +297,16 @@ group by uom.Id --,mi.Id
 ";
 
                 }
-                else if(string.IsNullOrEmpty(TransIssueId))
+                else if (string.IsNullOrEmpty(TransIssueId))
                 {
 
                     sql = @"SELECT mi.Id,mi.Id OSTransformationPOInputMaterialId,mi.OSTransformationPODetailId
                     , jwi.UserName as JWOutputItem,jwii.Id as JWInputItemId,jwii.UserName as JWInputItem
                     , mm.Id as InputMaterialId,mm.Id MaterialMasterId,mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName,mma.Id ArticleId, uom.UserName as MMUnit
                     , RequiredQuantity=(mp.Quantity * mi.GrossConsumption)
-                    , BalanceToIssue=case when mi.ArticleId is not null then (mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity,'0')) else (mp.Quantity * mi.GrossConsumption)-(ISNULL(BB.TotalQty,'0')) End
+                    , BalanceToIssue=case when mi.ArticleId is not null then (mp.Quantity * mi.GrossConsumption)-(ISNULL(kk.TotalQuantity ,'0')+ISNULL(IPD.IssuedQty,'0')) else (mp.Quantity * mi.GrossConsumption)-(ISNULL(BB.TotalQty+IPD.IssuedQty,'0')) End
                     , TIRCTotalQty=case when mi.ArticleId is not null then kk.TotalQuantity else BB.TotalQty End
-                    , Sum(0) PlannedQty,0 IssuedQty,0 BalanceQty,JWL.StoreLocationId MaterialStorageId
+                    , Sum(0) PlannedQty,ISNULL(kk.TotalQuantity,0)+IPD.IssuedQty IssuedQty,0 BalanceQty,JWL.StoreLocationId MaterialStorageId
                     , TransactionUoMId=case when mi.ArticleId is not null then uom.Id else uomm.Id End
                     , BaseUoMId=case when mi.ArticleId is not null then uom.Id else uomm.Id End
                     , TransactionUoM=case when mi.ArticleId is not null then uom.UserName else uomm.UserName End
@@ -322,6 +324,7 @@ group by uom.Id --,mi.Id
                     LEFT JOIN dbo.OSTransformationPO OSPO on OSPO.Id=mp.OSTransformationPOId
                     LEFT JOIN HKP.JobWorkItem jwi on jwi.Id=mp.JobWorkItemMasterId
                     LEFT JOIN trn.InventoryMaterial IM ON IM.MaterialMasterId=mma.MaterialMasterId and IM.ArticleId=mi.ArticleId
+					LEFT JOIN (SELECT OSTransformationPOInputMaterialId,SUM(Qty) IssuedQty FROM [TRN].[IssueProcessDetail] group by OSTransformationPOInputMaterialId) IPD ON IPD.OSTransformationPOInputMaterialId=mi.Id
                     LEFT JOIN (SELECT iid.InventoryMaterialId, SUM(iid.TransactionQty) as TotalQuantity, II.JWContractId, iid.OSTransformationPOId
                     			FROM TRN.InventoryIssueDetail iid 
                     			LEFT JOIN TRN.InventoryIssue II on iid.InventoryIssueId=II.Id 
@@ -350,13 +353,13 @@ group by uom.Id --,mi.Id
                     ) PQ ON   PQ.ArticleId=IM.ArticleId AND PQ.MaterialStorageId=JWL.StoreLocationId
                     
                     WHERE mi.OSTransformationPODetailId IN (" + MPId + @")
-                    GROUP BY  uom.Id ,mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity
+                    GROUP BY  uom.Id ,mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity,IPD.IssuedQty
                     ,mi.Id,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName,mma.Id
                     ,jwii.Id,mi.ArticleId,uomm.Id,uomm.UserName,BB.TotalQty ,JWL.StoreLocationId,OSPO.PlantId,mp.MaterialMasterId,mp.ArticleId,PQ.PostingQty
  ";
                 }
 
-                else if(OrderSpecific == "Yes" && !string.IsNullOrEmpty(TransIssueId))
+                else if (OrderSpecific == "Yes" && !string.IsNullOrEmpty(TransIssueId))
                 {
                     sql = @"select --mi.Id,
                            IID.Id as InventoryIssueDetailId, II.Id as IssueId
@@ -541,7 +544,8 @@ group by uom.Id --,mi.Id
 ,IID.Id, II.Id,IID.TransactionQty,IID.CostCenterId";
                 }
 
-                else {
+                else
+                {
                     sql = @"select IID.Id as InventoryIssueDetailId, II.Id as IssueId
 						   ,IID.TransactionQty,IID.CostCenterId, mi.OSTransformationPODetailId --mi.OSTransformationPODetailId OSTransformationPOId
 , jwi.UserName as JWOutputItem,jwii.Id as JWInputItemId,jwii.UserName as JWInputItem
@@ -804,13 +808,13 @@ left join(select SUM(iid.TransactionQty) as TotalQty, II.JWContractId, iid.OSTra
 ,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName ,mma.Id,jwii.Id,mi.ArticleId,uomm.Id,uomm.UserName,BB.TotalQty
                         )gh on gh.MaterialMasterId=jwii.MaterialMasterId and gh.ArticleId=mi.ArticleId
 
-where mi.OSTransformationPODetailId IN (" + MPId + @") and IID.InventoryIssueId='"+ TransIssueId + @"'
+where mi.OSTransformationPODetailId IN (" + MPId + @") and IID.InventoryIssueId='" + TransIssueId + @"'
 group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.TotalQty,uom.Id ,mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity
 ,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName,mma.Id
 ,jwii.Id,mi.ArticleId,uomm.Id,uomm.UserName,BB.TotalQty
 ,IID.Id, II.Id,IID.TransactionQty,IID.CostCenterId";
                 }
-               
+
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -841,11 +845,11 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                                         left join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId
                                         left join MST.MaterialMaster mm on mm.Id=IM.MaterialMasterId
                                         left join MST.MaterialMasterArticle mma on mma.Id=IM.ArticleId
-										where II.JWContractId='"+ ContractId + @"'
+										where II.JWContractId='" + ContractId + @"'
 										group by IID.InventoryMaterialId,IM.MaterialMasterId,IM.ArticleId)
 										KK on KK.MaterialMasterId=mm.Id
-							 where mp.OSTransformationPOId='"+ ContractId + @"' and 
-							 KK.MaterialMasterId='"+ MaterialId + @"' and KK.ArticleId='"+ ArticleId + @"' and mi.Id='"+ MaterialInputId + @"'
+							 where mp.OSTransformationPOId='" + ContractId + @"' and 
+							 KK.MaterialMasterId='" + MaterialId + @"' and KK.ArticleId='" + ArticleId + @"' and mi.Id='" + MaterialInputId + @"'
 							 group by uom.Id ,mi.Id, mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,KK.TotalIssuedQty,mi.OSTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code   ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
@@ -930,7 +934,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                 string sql = @"select MS.Id as Value, JL.LocationName as Text, MS.UserName as StorageLocation 
                                from 
 							   HKP.MaterialStorage MS left join HKP.JobWorkLocation JL on MS.Id=JL.StoreLocationId
-                               where JL.Id='"+ JLId + @"' ";
+                               where JL.Id='" + JLId + @"' ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -983,7 +987,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string sql = @"select Id,InventoryIssueDetailId,InventoryReceiveDetailId,Qty from TRN.InventoryIssueHistory 
-                               where InventoryIssueDetailId='"+ InventoryIssueDetailId + @"' ";
+                               where InventoryIssueDetailId='" + InventoryIssueDetailId + @"' ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -1119,7 +1123,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                     OtMatId += ",'" + empitem.OSTransformationPOId + "' ";
 
                 }
-                con.OpenDataSetThroughAdapter("select * from TRN.InventoryIssueDetail where OSTransformationPOId IN ( " + OtMatId + ") and JWTCInputId IN ("+ JWItemId + ") and InventoryIssueId='" + MasterId + "'  ", out ExistOrNot, false, "1");
+                con.OpenDataSetThroughAdapter("select * from TRN.InventoryIssueDetail where OSTransformationPOId IN ( " + OtMatId + ") and JWTCInputId IN (" + JWItemId + ") and InventoryIssueId='" + MasterId + "'  ", out ExistOrNot, false, "1");
 
                 foreach (var item in SelectedQuantityData)
                 {
@@ -1129,13 +1133,13 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                     if (ExistOrNot.Tables[0].DefaultView.Count == 0)
                     {
                         DataRow dr = ExistOrNot.Tables[0].NewRow();
-                //        dr["Id"] = "TC" + GetTransformationChildPK();
+                        //        dr["Id"] = "TC" + GetTransformationChildPK();
                         dr["Id"] = GetTransformationChildPK();
 
                         dr["InventoryIssueId"] = MasterId;
 
-                      //  dr["MaterialInputId"] = item.Id;
-                //        dr["MaterialMasterId"] = item.InputMaterialId;
+                        //  dr["MaterialInputId"] = item.Id;
+                        //        dr["MaterialMasterId"] = item.InputMaterialId;
                         dr["TransactionQty"] = item.TransactionQty;
                         dr["TransactionUoMId"] = item.TransactionUoMId;
                         dr["BaseUOMId"] = item.BaseUoMId;
@@ -1200,14 +1204,14 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                             dr.EndEdit();
                         }
 
-                        
+
                     }
 
                 }
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(ExistOrNot);
 
-       //         return Json(new { Error = false, Message = AplosMessage.Updated });
+                //         return Json(new { Error = false, Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
@@ -1217,6 +1221,302 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
         }
 
         // New Changes
+
+        //public void SaveProcessIssueTransformation(Dictionary<string, object> data, string ContractId, string ContractType, IEnumerable<IssueProcessWIP> SelectedQuantityData)
+        private string GetIssueProcessDetailPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "IssueProcessDetail", out sID);
+            return sID;
+        }
+        public void SaveProcessIssueTransformation(IEnumerable<IssueProcessDetail> issueProcessDetaillist, IEnumerable<IssueProcessWIP> specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus, IEnumerable<InventoryMaterialViewModel> entitiesAll)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from trn.InventoryIssue where Id='" + inventoryIssue.Id + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+                    dr["Id"] = GetTransformationPK();
+
+                    dr["IssueDate"] = inventoryIssue.IssueDate;
+                    dr["EmployeeId"] = inventoryIssue.EmployeeId;
+                    dr["Types"] = inventoryIssue.Types;
+                    dr["IssueType"] = inventoryIssue.IssueType;
+                    dr["MaterialStorageId"] = inventoryIssue.MaterialStorageId;
+                    //dr["IsConfirmed"] = inventoryIssue.IsConfirmed;
+                    dr["Remarks"] = inventoryIssue.Remarks;
+                    dr["EntityId"] = inventoryIssue.EntityId;
+                    dr["JWContractId"] = inventoryIssue.JWContractId;
+                    dr["ContractType"] = inventoryIssue.ContractType;
+                    dr["IssueCategory"] = inventoryIssue.IssueCategory;
+
+                    dr["CompanyGroupId"] = identity.CompanyGroupId;
+                    dr["CompanyId"] = identity.CompanyId;
+                    dr["PlantId"] = identity.PlantId;
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+
+
+                    dsMaster.Tables[0].Rows.Add(dr);
+                }
+                else
+                {
+                    //edit
+                    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                    dr.BeginEdit();
+
+                    dr["IssueDate"] = inventoryIssue.IssueDate;
+                    dr["EmployeeId"] = inventoryIssue.EmployeeId;
+                    dr["Types"] = inventoryIssue.Types;
+                    dr["IssueType"] = inventoryIssue.IssueType;
+                    dr["MaterialStorageId"] = inventoryIssue.MaterialStorageId;
+                    //dr["IsConfirmed"] = inventoryIssue.IsConfirmed;
+                    dr["Remarks"] = inventoryIssue.Remarks;
+                    dr["EntityId"] = inventoryIssue.EntityId;
+                    dr["JWContractId"] = inventoryIssue.JWContractId;
+                    dr["ContractType"] = inventoryIssue.ContractType;
+                    dr["IssueCategory"] = inventoryIssue.IssueCategory;
+
+                    dr["CompanyGroupId"] = identity.CompanyGroupId;
+                    dr["CompanyId"] = identity.CompanyId;
+                    dr["PlantId"] = identity.PlantId;
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+
+
+                    dr.EndEdit();
+                }
+                inventoryIssue.Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                #endregion data update
+
+                DataSet ExistOrNot;
+                DataSet dsIssueProWIP = null;
+                DataSet dsItemScanChild = null;
+                string tempIssueProDetailId = null;
+
+                con.OpenDataSetThroughAdapter("select * from TRN.IssueProcessDetail where InventoryIssueId='" + dsMaster.Tables[0].Rows[0]["Id"].ToString() + "'  ", out ExistOrNot, false, "1");
+
+
+                foreach (var item in issueProcessDetaillist)
+                {
+                    ExistOrNot.Tables[0].DefaultView.RowFilter = "InventoryIssueId='" + dsMaster.Tables[0].Rows[0]["Id"].ToString() + "' ";
+
+                    if (ExistOrNot.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = ExistOrNot.Tables[0].NewRow();
+                        dr["Id"] = GetIssueProcessDetailPK();
+
+                        dr["InventoryIssueId"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                        dr["OSTransformationPOInputMaterialId"] = item.OSTransformationPOInputMaterialId;
+                        dr["MaterialMasterId"] = item.MaterialMasterId;
+                        dr["ArticleId"] = item.ArticleId;
+                        dr["Qty"] = item.TransactionQty;
+                        dr["Source"] = item.Source;
+                        dr["Remarks"] = item.Remarks;
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                       
+                        ExistOrNot.Tables[0].Rows.Add(dr);
+                        tempIssueProDetailId = dr["Id"].ToString();
+                    }
+
+                    else
+                    {
+                        //edit
+                        DataRow dr = ExistOrNot.Tables[0].DefaultView[0].Row;
+
+                        dr.BeginEdit();
+
+                        dr["InventoryIssueId"] = dsMaster.Tables[0].Rows[0]["Id"].ToString(); 
+                        dr["OSTransformationPOInputMaterialId"] = item.OSTransformationPOInputMaterialId;
+                        dr["MaterialMasterId"] = item.MaterialMasterId;
+                        dr["ArticleId"] = item.ArticleId;
+                        dr["Qty"] = item.Qty;
+                        dr["Source"] = item.Source;
+                        dr["Remarks"] = item.Remarks;
+
+                        dr["Remarks"] = item.Remarks;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+
+                        dr.EndEdit();
+                    }
+                    con.OpenDataSetThroughAdapter("select * from TRN.IssueProcessWIP where 1=2", out dsIssueProWIP, false, "1");
+                    foreach (var itemwip in specificStockList.Where(r => r.MaterialMasterId == item.MaterialMasterId && r.ArticleId == item.ArticleId))
+                    {
+
+                        DataRow drwip = dsIssueProWIP.Tables[0].NewRow();
+                        drwip["Id"] = GetIssueProcessDetailPK();
+
+                        drwip["IssueProcessDetailId"] = tempIssueProDetailId;
+                        drwip["ProductionSummaryId"] = itemwip.ProductionSummaryId;
+                        drwip["ProductionOrderId"] = itemwip.ProductionOrderId;
+                        drwip["LotNumber"] = itemwip.LotNumber;
+                        drwip["Qty"] = itemwip.RequisitionQty;
+                        drwip["Source"] = itemwip.Source;
+                        drwip["Remarks"] = itemwip.Remarks;
+                        drwip["AddedBy"] = identity.Name;
+                        drwip["AddedDate"] = System.DateTime.Now.ToString();
+                        drwip["AddedFromIP"] = identity.IPAddress;
+
+                        dsIssueProWIP.Tables[0].Rows.Add(drwip);
+                        if (itemwip.Source == "Scan")
+                        {
+                            con.OpenDataSetThroughAdapter("select * from itemscanchild where ProductionSummaryId='" + itemwip.ProductionSummaryId + "'", out dsItemScanChild, false, "1");
+                            if (dsItemScanChild.Tables[0].Rows.Count > 0)
+                            {
+                                for (int s = 0; s < dsItemScanChild.Tables[0].Rows.Count; s++)
+                                {
+                                    DataView dv = new DataView(dsItemScanChild.Tables[0]);
+                                    dv.RowFilter = "Id='" + dsItemScanChild.Tables[0].Rows[s]["Id"] + "'";
+
+                                    if (dv.Count > 0)
+                                    {
+                                        DataRow drmo = dv[0].Row;
+                                        drmo.BeginEdit();
+
+                                        drmo["IsDispatch"] = true;
+
+                                        drmo.EndEdit();
+
+                                    }
+                                }
+                            }
+                        }
+                        
+                        
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster,ExistOrNot, dsIssueProWIP, dsItemScanChild);
+               
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void SaveIssueProcessWIPTransformationChild(IEnumerable<IssueProcessDetail> SelectedQuantityData, string MasterId, IEnumerable<IssueProcessWIP> specificStockList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                DataSet ExistOrNot;
+                DataSet dsIssueProWIP=null;
+                string tempIssueProDetailId=null;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from TRN.IssueProcessDetail where InventoryIssueId='" + MasterId + "'  ", out ExistOrNot, false, "1");
+                
+
+                foreach (var item in SelectedQuantityData)
+                {
+                    ExistOrNot.Tables[0].DefaultView.RowFilter = "InventoryIssueId='" + MasterId + "' ";
+
+                    if (ExistOrNot.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = ExistOrNot.Tables[0].NewRow();
+                        dr["Id"] = GetIssueProcessDetailPK();
+
+                        dr["InventoryIssueId"] = MasterId;
+                        dr["OSTransformationPOInputMaterialId"] = item.OSTransformationPOInputMaterialId;
+                        dr["MaterialMasterId"] = item.MaterialMasterId;
+                        dr["ArticleId"] = item.ArticleId;
+                        dr["Qty"] = item.TransactionQty;
+                        dr["Source"] = item.Source;
+                        dr["Remarks"] = item.Remarks;
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        //dr["UpdatedBy"] = identity.Name;
+                        //dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        //dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        ExistOrNot.Tables[0].Rows.Add(dr);
+                        tempIssueProDetailId = dr["Id"].ToString();
+                    }
+
+                    else
+                    {
+                        //edit
+                        DataRow dr = ExistOrNot.Tables[0].DefaultView[0].Row;
+
+                        dr.BeginEdit();
+
+                        dr["InventoryIssueId"] = MasterId;
+                        dr["OSTransformationPOInputMaterialId"] = item.OSTransformationPOInputMaterialId;
+                        dr["MaterialMasterId"] = item.MaterialMasterId;
+                        dr["ArticleId"] = item.ArticleId;
+                        dr["Qty"] = item.Qty;
+                        dr["Source"] = item.Source;
+                        dr["Remarks"] = item.Remarks;
+
+                        dr["Remarks"] = item.Remarks;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+
+                        dr.EndEdit();
+                    }
+                    con.OpenDataSetThroughAdapter("select * from TRN.IssueProcessWIP where 1=2", out dsIssueProWIP, false, "1");
+                    foreach (var itemwip in specificStockList.Where(r=>r.MaterialMasterId==item.MaterialMasterId && r.ArticleId== item.ArticleId))
+                    {
+                       
+                        DataRow drwip = dsIssueProWIP.Tables[0].NewRow();
+                        drwip["Id"] = GetIssueProcessDetailPK();
+
+                        drwip["IssueProcessDetailId"] = tempIssueProDetailId;
+                        drwip["ProductionSummaryId"] = itemwip.ProductionSummaryId;
+                        drwip["ProductionOrderId"] = itemwip.ProductionOrderId;
+                        drwip["LotNumber"] = itemwip.LotNumber;
+                        drwip["Qty"] = itemwip.RequisitionQty;
+                        drwip["Source"] = itemwip.Source;
+                        drwip["Remarks"] = itemwip.Remarks;
+                        drwip["AddedBy"] = identity.Name;
+                        drwip["AddedDate"] = System.DateTime.Now.ToString();
+                        drwip["AddedFromIP"] = identity.IPAddress;
+
+                        dsIssueProWIP.Tables[0].Rows.Add(drwip);
+
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(ExistOrNot, dsIssueProWIP);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         public IEnumerable<object> GetCostCenterLoadNewFun(string EntityId)
         {
@@ -1242,9 +1542,9 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             try
             {
                 var sql = "";
-                if(GRNbyPOCheckStatus == "ForChecked")
+                if (GRNbyPOCheckStatus == "ForChecked")
                 {
-                     sql = @"SELECT E.UserName AS Entity 
+                    sql = @"SELECT E.UserName AS Entity 
 							,isnull(II.IssueType,'') IssueType
 							, II.Id, II.CompanyGroupId
 							, II.CompanyId, II.PlantId
@@ -1287,7 +1587,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 						Order BY II.IssueDate DESC";
                 }
 
-                if(GRNbyPOCheckStatus == "Posted")
+                if (GRNbyPOCheckStatus == "Posted")
                 {
                     sql = @"SELECT E.UserName AS Entity 
 							,isnull(II.IssueType,'') IssueType
@@ -1329,7 +1629,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 						Order BY II.IssueDate DESC";
                 }
 
-              
+
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -1684,7 +1984,7 @@ left join (select vcc.Id,vcc.OSTransformationPOId,vcc.MaterialMasterId,vcc.Artic
 						 ,vcc.ThirdCharacteristicsId,vcc.ThirdCharacteristicsValueId--,IM.Id
 )gh on gh.MaterialMasterId=vcc.MaterialMasterId and gh.ArticleId=vcc.ArticleId
 
-where vcc.OSTransformationPOId='" + PKId + @"' and IID.InventoryIssueId='"+ IssueId + @"'
+where vcc.OSTransformationPOId='" + PKId + @"' and IID.InventoryIssueId='" + IssueId + @"'
 group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.TotalQty,uom.Id ,mm.Id, mm.UserName,vcc.Quantity--,mi.GrossConsumption
 ,kk.TotalQuantity
 ,vcc.OSTransformationPOId,jwi.UserName
@@ -1719,7 +2019,64 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                                 from HKP.MaterialStorage MS left join HKP.JobWorkLocation JL on MS.Id=JL.StoreLocationId
                                 left join TRN.InventoryIssue II on II.MaterialStorageId=MS.Id
                                -- left join dbo.EmployeeInformation emp on emp.SystemId=II.EmployeeId       
-                                where JL.StoreLocationId='" + MaterialStorageIdInventory + @"' and II.Id='"+ IssueId + @"' ";
+                                where JL.StoreLocationId='" + MaterialStorageIdInventory + @"' and II.Id='" + IssueId + @"' ";
+
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public IEnumerable<object> GetProductionSummaryProcess(string articleId)
+        {
+            try
+            {
+                string sql = @"SELECT MT.UserName MaterialType,PS.SourceType Source,mm.UserName MaterialMaster,mma.MaterialMasterId,mma.StandardName Article,moi.ArticleId,NULL SKU1,NULL SKU2,PS.ScanQty,PS.Quantity
+						,PS.Quantity RequisitionQty,PS.LotNumber,PR.UserName Process,PS.Id ProductionSummaryId ,PS.ProductionOrderId,NULL Characteristics1ValueId,NULL Characteristics2ValueId
+                        FROM TRN.ProductionSummary PS
+	                    JOIN (select distinct ProductionSummaryId from itemscanchild where ProductionSummaryId<>'' ) isc ON isc.ProductionSummaryId=PS.Id
+	                    LEFT JOIN [TRN].[ProductionOrderDetail] POD ON POD.ProductionOrderId=PS.ProductionOrderId
+	                    LEFT JOIN [TRN].[SalesOrder] SO ON SO.Id=POD.SalesOrderId
+	                    LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id=SO.MasterOrderItemId
+	                    LEFT JOIN [MST].[MaterialMasterArticle] mma on mma.Id=MOI.ArticleId
+	                    LEFT JOIN [MST].[MaterialMaster] mm on mm.Id=mma.MaterialMasterId
+	                    LEFT JOIN [MST].[MaterialGroupMaster] MG on MG.Id=mm.MaterialGroupMasterId
+	                    LEFT JOIN [HKP].[MaterialType] MT on MT.Id=MG.MaterialTypeId
+	                    LEFT JOIN [HKP].[Process] pr ON pr.Id=PS.ProcessId
+	                    WHERE moi.ArticleId='" + articleId + @"' AND  PS.SourceType='Scan' AND PS.Id NOT IN (SELECT ProductionSummaryId FROM [TRN].[IssueProcessWIP])
+                        UNION ALL
+						SELECT MT.UserName MaterialType,PS.SourceType Source,mm.UserName MaterialMaster,mma.MaterialMasterId,mma.StandardName Article,moi.ArticleId,NULL SKU1,NULL SKU2,PS.ScanQty,PS.Quantity,PS.Quantity RequisitionQty
+						,PS.LotNumber,PR.UserName Process,PS.Id ProductionSummaryId ,PS.ProductionOrderId,NULL Characteristics1ValueId,NULL Characteristics2ValueId
+						FROM TRN.ProductionSummary PS
+	                    LEFT JOIN [TRN].[ProductionOrderDetail] POD ON POD.ProductionOrderId=PS.ProductionOrderId
+	                    LEFT JOIN [TRN].[SalesOrder] SO ON SO.Id=POD.SalesOrderId
+	                    LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id=SO.MasterOrderItemId
+	                    LEFT JOIN [MST].[MaterialMasterArticle] mma on mma.Id=MOI.ArticleId
+	                    LEFT JOIN [MST].[MaterialMaster] mm on mm.Id=mma.MaterialMasterId
+	                    LEFT JOIN [MST].[MaterialGroupMaster] MG on MG.Id=mm.MaterialGroupMasterId
+	                    LEFT JOIN [HKP].[MaterialType] MT on MT.Id=MG.MaterialTypeId
+	                    LEFT JOIN [HKP].[Process] pr ON pr.Id=PS.ProcessId
+	                    WHERE moi.ArticleId='" + articleId + @"'  AND  PS.SourceType='PB' AND PS.Id NOT IN (SELECT ProductionSummaryId FROM [TRN].[IssueProcessWIP])
+						UNION ALL
+						SELECT MT.UserName MaterialType,PS.SourceType Source,mm.UserName MaterialMaster,mma.MaterialMasterId,mma.StandardName Article,moi.ArticleId,CV1.UserName SKU1,CV2.UserName SKU2
+						,PS.ScanQty,PSD.Qty Quantity,PSD.Qty RequisitionQty,PS.LotNumber,PR.UserName Process,PS.Id ProductionSummaryId ,PS.ProductionOrderId
+						,PSD.Characteristics1ValueId,PSD.Characteristics2ValueId
+						FROM TRN.ProductionSummary PS
+						LEFT JOIN TRN.ProductionSummaryDetail PSD ON PSD.ProductionSummaryId=PS.Id
+	                    LEFT JOIN [TRN].[ProductionOrderDetail] POD ON POD.ProductionOrderId=PS.ProductionOrderId
+	                    LEFT JOIN [TRN].[SalesOrder] SO ON SO.Id=POD.SalesOrderId
+	                    LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id=SO.MasterOrderItemId
+	                    LEFT JOIN [MST].[MaterialMasterArticle] mma on mma.Id=MOI.ArticleId
+	                    LEFT JOIN [MST].[MaterialMaster] mm on mm.Id=mma.MaterialMasterId
+	                    LEFT JOIN [MST].[MaterialGroupMaster] MG on MG.Id=mm.MaterialGroupMasterId
+	                    LEFT JOIN [HKP].[MaterialType] MT on MT.Id=MG.MaterialTypeId
+	                    LEFT JOIN [HKP].[Process] pr ON pr.Id=PS.ProcessId
+						LEFT JOIN HKP.CharacteristicsValue CV1 ON CV1.Id=PSD.Characteristics1ValueId
+						LEFT JOIN HKP.CharacteristicsValue CV2 ON CV2.Id=PSD.Characteristics2ValueId
+	                    WHERE moi.ArticleId='" + articleId + @"'  AND  PS.SourceType='SKU'
+";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -1746,9 +2103,9 @@ public class MaterialPlanning
     public string OrderSpecific { get; set; }
     public string MaterialLocation { get; set; }
 
-    public string MaterialStorageIdInventory { get; set; } 
-    public string JWTransformationPODetailId { get; set; } 
-    
+    public string MaterialStorageIdInventory { get; set; }
+    public string JWTransformationPODetailId { get; set; }
+
 
     #endregion Scalar Properties
 }
@@ -1775,4 +2132,33 @@ public class JobWorkTransformationIssueReturnChild
 
 
     #endregion Scalar Properties
+}
+
+public class IssueProcessDetail
+{
+    public string Id { get; set; }
+    public string InventoryIssueId { get; set; }
+    public string OSTransformationPOInputMaterialId { get; set; }
+    public string MaterialMasterId { get; set; }
+    public string ArticleId { get; set; }
+    public string Qty { get; set; }
+    public string TransactionQty { get; set; }
+    public string Source { get; set; }
+    public string Remarks { get; set; }
+    public bool Active { get; set; }
+}
+
+public class IssueProcessWIP
+{
+    public string Id { get; set; }
+    public string IssueProcessDetailId { get; set; }
+    public string ProductionSummaryId { get; set; }
+    public string ProductionOrderId { get; set; }
+    public string MaterialMasterId { get; set; }
+    public string ArticleId { get; set; }
+    public string LotNumber { get; set; }
+    public string Qty { get; set; }
+    public string RequisitionQty { get; set; }
+    public string Source { get; set; }
+    public string Remarks { get; set; }
 }

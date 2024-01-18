@@ -1246,6 +1246,7 @@ WHERE CT.ContractId " + contractId+"";
                     dr["TermsandConditionVarify"] = data.TermsandConditionVarify;
                     dr["PaymentTermVarify"] = data.PaymentTermVarify;
                     dr["AdditionalInfoVarify"] = data.AdditionalInfoVarify;
+                    dr["NegotiatingBankId"] = data.NegotiatingBankId;
 
 
                     dr["AddedBy"] = identity.Name;
@@ -1286,6 +1287,7 @@ WHERE CT.ContractId " + contractId+"";
                     dr["TermsandConditionVarify"] = data.TermsandConditionVarify;
                     dr["PaymentTermVarify"] = data.PaymentTermVarify;
                     dr["AdditionalInfoVarify"] = data.AdditionalInfoVarify;
+                    dr["NegotiatingBankId"] = data.NegotiatingBankId;
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
@@ -4249,6 +4251,7 @@ WHERE CT.ContractId IN(" + id + ") AND TermsAndConditionsId NOT IN(SELECT TermsA
         public string UpdatedBy { get; set; }
         public DateTime UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
+        public string NegotiatingBankId { get; set; }
     }
 
     public class ContractFund : BaseModel
