@@ -120,8 +120,7 @@
                              e-allowselection="false" e-filtersettings-filterType="excel">
                             <div e-columns>
                                 <div e-column e-headertext="All" e-headertemplateid="#headerTemplateRemove" e-template="#checkRemove" e-textalign="center" e-width="30"></div>
-
-                                <div e-column e-headertext="Remove" e-headertemplateid="#headerTemplate" e-template="#DeleteBudgetCode" e-textalign="center" e-width="60"></div>
+                                @*<div e-column e-headertext="Remove" e-headertemplateid="#headerTemplate" e-template="#DeleteBudgetCode" e-textalign="center" e-width="60"></div>*@
                                 <div e-column e-type="string" e-field="EntityName" e-headertext="Entity" e-width="80"></div>
                                 <div e-column e-type="string" e-field="Code" e-headertext="Budget Code" e-width="100"></div>
                                 <div e-column e-type="string" e-field="Division" e-headertext="Division" e-width="80"></div>
@@ -193,21 +192,21 @@
                         <script type="text/template" id="REcheckboxTemplate">
                             <input type="text" name="Remarks" ng-model="data.Remarks" class="form-control" tabindex="6" maxlength="50">
                         </script>
-                        <script type="text/template" id="DeleteBudgetCode">
-                            <div class="common-btn">
-                                <ul class="list-inline action-list">
-                                    <li>
-                                        <button ng-click="$parent.removeBudgetCode(this);" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-trash" tabindex="119"></i></button>
-                                    </li>
-                                </ul>
-                            </div>
-                        </script>
+                        @*<script type="text/template" id="DeleteBudgetCode">
+                                <div class="common-btn">
+                                    <ul class="list-inline action-list">
+                                        <li>
+                                            <button ng-click="$parent.removeBudgetCode(this);" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-trash" tabindex="119"></i></button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </script>*@
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
                             <li> <button ng-click="BCSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{BCAction}}</button></li>
                             <li>
-                                <button ng-click="removeBudgetCode();" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-trash" tabindex="119"></i></button>
+                                <button ng-click="removeBudgetCode();" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-trash" tabindex="119"></i> Delete</button>
                             </li>
                         </ul>
                     </div>
@@ -477,7 +476,7 @@
             <div class="modal-body">
                 <div class="content-container-fluid" style="color:black;">
                     <div style="color:black;" id="GridpopUpId" ej-grid e-datasource="popUpDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-recorddoubleclick="selectDoubleClick" e-allowselection="true" e-filtersettings-filterType="excel"  e-templaterefresh="refreshTemplate">
+                         e-recorddoubleclick="selectDoubleClick" e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplate">
                         <div e-columns>
                             <div e-column e-field="Id" e-headertext="Id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
                             <div e-column e-headertext="All" e-headertemplateid="#headerTemplateGWS" e-template="#checkGWS" e-textalign="center" e-width="30"></div>

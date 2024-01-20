@@ -806,16 +806,28 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         gridObj.refreshContent();
     };
 
+
+    var getString = function (data) {
+        var string = "''";
+        var collection = [];
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i]) == false) {
+                string += ",'" + data[i] + "'";
+                collection.push(data[i]);
+            }
+        } 
+        return string;
+    }
+
+
     $scope.removeBudgetCode = function () {
         try {
-            $scope.NewBudgetCodeId = [];
+            $scope.NewBudgetCodeIds = [];
             for (var i = 0; i < $scope.BudgetCodeList.length; i++) {
                 if ($scope.BudgetCodeList[i].isSelected == true) {
-                    //$scope.tempId = $scope.BudgetCodeList[i].BudgetId
-                    $scope.NewBudgetCodeId.push($scope.BudgetCodeList[i].BudgetId);
+                    $scope.NewBudgetCodeIds.push($scope.BudgetCodeList[i].BudgetId);
                 }
-            }
-             
+            } 
             $scope.message_confirmation = "Are you sure want to permanent delete ?";
             angular.element(document.querySelector('#confirmBudgetCodeRemovePopUps')).modal('show');
         }
@@ -824,10 +836,11 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         }
     };
     $scope.removeBudgetCodeRows = function () {
+        var deletedIds = getString($scope.NewBudgetCodeIds);
         $http({
             method: 'POST',
             url: 'Attendances/GoodWorkSetup/BudgetCodeDelete',
-            data: { 'Id': $scope.NewBudgetCodeId},
+            data: { 'Id': deletedIds},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
