@@ -1102,7 +1102,8 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 var sql = @"select distinct FORMAT(D.WorkDate,'yyyy-MMM-dd')WorkDate,
                     LT.PlantID,LT.EmpSystemID,
                     Format(D.WorkDate,'yyyyMMdd')+LT.EmpSystemID AS RowId, 
-                    D.LeaveDuration,lt.LTSystemID,LTP.Code
+                    D.LeaveDuration,lt.LTSystemID,
+                    Case when D.LeaveDuration = '0.5' then  ('HD' + LTP.Code) else	LTP.Code end Code
                     from LeaveTransactionDetails D 
                     LEFT JOIN LeaveTransaction LT ON LT.SystemID=D.LvTrnsSystemID
 					left join LeaveType ltp on ltp.Id=LT.LTSystemID
