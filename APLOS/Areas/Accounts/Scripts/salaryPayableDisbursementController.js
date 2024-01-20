@@ -944,8 +944,8 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
     //Start Bonus Disbursement Posting
     $scope.getBonusListUrl = $scope.path + "GetBonusDisbursementVoucherList";
     $scope.saveBonusUrl = $scope.path + "SaveBonusDisbursementPosting";
-    $scope.postBonusUrl = $scope.path + "PostSalarydisbursement";
-    $scope.deleteBonusUrl = "Accounts/SalaryDisbursement/DeleteSalaryDisbursementVoucher";
+    $scope.postBonusUrl = $scope.path + "PostBonusDisbursement";
+    $scope.deleteBonusUrl = "Accounts/SalaryDisbursement/DeleteBonusDisbursementVoucher";
 
     $scope.voucherBonus = {
         Id: null,
@@ -1056,10 +1056,352 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
         $scope.voucherBonus.PaymentMode = data.PaymentMode;
         $scope.voucherBonus.PaymentSource = data.PaymentMode;
 
-        $scope.GetemployeeDisbursement();
-        $scope.getSalaryLockPayableGL();
+        $scope.GetemployeeBonusDisbursement();
+        $scope.getBonusLockPayableGL();
 
         angular.element(document.querySelector('#BonusDisbursementAdvicepopUp')).modal('hide');
+    };
+    $scope.employeeBonusDisbursementDataList = [];
+    $scope.EmployeeBonusListNew = [];
+    $scope.GetemployeeBonusDisbursement = function () {
+        $scope.employeeBonusDisbursementDataList = [];
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: 'Accounts/SalaryDisbursement/GetEmployeeBonusDisbursementDataList?disbursementAdviceId=' + $scope.voucherBonus.BonusDisbursementAdviceId,
+
+        }).then(function successCallback(response) {
+            if (response.data.length > 0) {
+                $scope.empBonusGrid = true;
+                $scope.employeeBonusDisbursementDataList = response.data;
+                $scope.EmployeeBonusListNew = response.data;
+            }
+            else {
+                ShowResult("No Data Found", 'failure');
+                $scope.empBonusGrid = false;
+            }
+        });
+    };
+    $scope.bonusLockPayableGLData = [];
+    $scope.getBonusLockPayableGL = function () {
+
+        $scope.bonusLockPayableGLData = [];
+        $http({
+            method: "POST",
+            url: "Accounts/SalaryDisbursement/GetDirectBonusPayableDisbursementDataList",
+            data: { 'disbursementAdviceId': $scope.voucherBonus.BonusDisbursementAdviceId, 'employeeListNew': $scope.EmployeeBonusListNew },
+            dataType: 'JSON'
+            , contentType: "application/json charset=utf-8"
+        }).then(function successCallback(response) {
+            $scope.bonusLockPayableGLData = response.data;
+        });
+    };
+    
+    $scope.pushInTempListforBonusProcess = function (event, data) {
+        try {
+            if (event.currentTarget.checked) {
+                if (checkExistTempListforBonusConfirm($scope.EmployeeBonusListNew, data.Id) === false) {
+                    $scope.EmployeeBonusListNew.push(data);
+                }
+                else {
+                    for (var i = 0; i < baseService.arrayLength($scope.EmployeeBonusListNew); i++) {
+                        if ($scope.EmployeeBonusListNew[i].Id === data.Id) {
+                            $scope.EmployeeBonusListNew.splice(i, 1);
+                            break;
+                        }
+                    }
+
+                    $scope.EmployeeBonusListNew.push(data);
+                }
+            }
+            else {
+                for (var t = 0; t < baseService.arrayLength($scope.EmployeeBonusListNew); t++) {
+                    if ($scope.EmployeeBonusListNew[t].Id === data.Id) {
+                        $scope.EmployeeBonusListNew.splice(t, 1);
+                        break;
+                    }
+                }
+            }
+            $scope.getBonusLockPayableGL();
+        } catch (e) {
+            event.currentTarget.checked = false;
+            ShowResult(e, "failure");
+        }
+    }
+
+    function checkExistTempListforBonusConfirm(list, Id) {
+        for (var i = 0; i < baseService.arrayLength(list); i++) {
+            if (list[i].Id === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+    $scope.refreshTemplateEmployeeBonus = function (args) {
+        $("#headchkBonus").ejCheckBox({ "change": CheckBoxSelectAllEmployeeBonus });
+    };
+
+    function CheckBoxSelectAllEmployeeBonus(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+
+        }
+
+        var filtered = $("#empInfoBonusGrid").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.employeeBonusDisbursementDataList.length; i++) {
+                $scope.employeeBonusDisbursementDataList[i].isSelected = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].isSelected = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#empInfoBonusGrid").data("ejGrid");
+        gridObj.refreshContent();
+        $scope.EmployeeBonusListNew = [];
+        for (var i = 0; i < $scope.employeeBonusDisbursementDataList.length; i++) {
+            if ($scope.employeeBonusDisbursementDataList[i].isSelected) {
+                $scope.EmployeeBonusListNew.push($scope.employeeBonusDisbursementDataList[i]);
+            }
+        }
+        $scope.getBonusLockPayableGL();
+    };
+
+    $scope.XlsBonusDisbursement = function () {
+        var dataList = [];
+        var newDataList = [];
+        var g = $("#empInfoBonusGrid").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        var obj = {};
+
+        if (dataList.length == 0) {
+
+            dataList = $scope.employeeBonusDisbursementDataList;
+        }
+
+        for (let i = 0; i < dataList.length; i++) {
+            obj.DisbursementAdviceId = dataList[i].DisbursementAdviceId;
+            obj.AdviceDate = dataList[i].AdviceDate;
+            obj.Remarks = dataList[i].Remarks;
+            obj.AddedBy = dataList[i].AddedBy;
+            obj.Year = dataList[i].YearNo;
+            obj.Month = dataList[i].MonthName;
+            obj.EmployeeCode = dataList[i].EmployeeCode;
+            obj.EmployeeName = dataList[i].EmployeeName;
+            obj.Designation = dataList[i].Designation;
+            obj.Department = dataList[i].Department;
+            obj.EmployeeCategory = dataList[i].EmployeeCategory;
+            obj.Plant = dataList[i].Plant;
+            obj.Section = dataList[i].Section;
+            obj.SubSection = dataList[i].SubSection;
+            obj.Unit = dataList[i].Unit;
+            obj.DOJ = dataList[i].DOJ;
+            obj.DOS = dataList[i].DOS;
+            obj.CurrentMonthEmployeeStatus = dataList[i].CurrentMonthEmployeeStatus;
+            obj.EmployeeStatus = dataList[i].EmployeeStatus;
+            obj.PaymentMode = dataList[i].PaymentMode;
+            obj.BankName = dataList[i].BankName;
+            obj.BankAccNo = dataList[i].BankAccNo;
+            obj.IFSCCode = dataList[i].IFSCCode;
+            obj.VoucherNo = dataList[i].VoucherNo;
+            obj.PayableVoucherNo = dataList[i].PayableVoucherNo;
+            obj.NetPayment = dataList[i].Amount;
+            newDataList.push(obj);
+            obj = {};
+        }
+        $scope.fileName = 'BonusDisbursement';
+        $http({
+            method: "POST",
+            url: $scope.exportgriddataUrl,
+            data: {
+                'data': newDataList,
+                'reportFileName': $scope.fileName,
+
+            },
+
+            dataType: 'JSON',
+
+        })
+            .then(function successCallback(response) {
+
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+    };
+    
+    $scope.XlsBonusDisbursementVoucherWiseReport = function (PayableVoucherId) {
+        $scope.summaryfileName = "Bonus Disbursement.xlsx"
+        var parameters = {
+            'voucherId': PayableVoucherId
+        };
+        $http({
+            method: "POST",
+            dataType: 'JSON',
+            url: 'Accounts/SalaryDisbursement/GetEmployeeSalaryDisbursementVoucherWise',
+            data: parameters
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.summaryfileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+    };
+    $scope.SaveBonus = function () {
+        if ($scope.EmployeeBonusListNew.length === 0) {
+            ShowResult("Please select Employee!", "failure");
+            return true;
+        }
+        if (baseService.isUndefinedOrNull($scope.voucherBonus.PaymentMode)) {
+            ShowResult("Please select Payment Mode!", "failure");
+            return true;
+        }
+        if ($scope.voucherBonus.PaymentMode === "Bank") {
+            if ($scope.voucherBonus.BankName === "" || baseService.isUndefinedOrNull($scope.voucherBonus.BankMasterId)) {
+                ShowResult("Please select Bank!", "failure");
+                return true;
+            }
+        }
+        if ($scope.voucherBonus.PaymentMode === "Cash") {
+            if ($scope.voucherBonus.CashName === "" || baseService.isUndefinedOrNull($scope.voucherBonus.CashMasterId)) {
+                ShowResult("Please select Cash!", "failure");
+                return true;
+            }
+        }
+
+        $scope.$broadcast("show-errors-check-validity");
+        $scope.saveBtnDisable = true;
+        try {
+            if ($scope.form0.$valid) {
+                if ($scope.Action === "Park") {
+                    $http({
+                        method: "POST",
+                        url: $scope.saveBonusUrl,
+                        data: {
+                            "voucherVM": $scope.voucherBonus,
+                            "fromDate": $scope.voucherBonus.FromDate,
+                            "toDate": $scope.voucherBonus.ToDate,
+                            "pMode": $scope.voucherBonus.PaymentMode,
+                            "directJVList": $scope.salaryLockPayableGLData,
+                            "disbursementAdviceId": $scope.voucherBonus.DisbursementAdviceId,
+                            "employeeListNew": $scope.EmployeeBonusListNew
+                        },
+                        dataType: "JSON"
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            $scope.saveBtnDisable = false;
+                            ShowResult(response.data.Message, "failure");
+                        }
+                        else {
+                            ShowResult(response.data.Message, "success");
+                            $scope.getBonusData();
+                            $scope.ClearBonus();
+                        }
+                    }, function errorCallback(response) {
+                        ShowResult(response.status.Message, "failure");
+                    });
+                    return true;
+                }
+            }
+        } catch (e) {
+            throw ShowResult(e, "failure");
+        }
+        return true;
+    };
+
+    $scope.confirmPostBonus = function (voucherId) {
+        $scope.voucherId = voucherId;
+        $scope.message_confirmation = "Are you sure to Post?";
+        angular.element(document.querySelector("#confirmPostBonusPopUp")).modal("show");
+    };
+
+    $scope.postBonus = function (voucherId) {
+        $http({
+            method: "POST",
+            url: $scope.postBonusUrl,
+            data: {
+                "voucherId": voucherId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getBonusData();
+                $scope.ClearBonus();
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.ClearBonus = function () {
+        ClearBonusFields();
+    };
+
+    function ClearBonusFields() {
+        $scope.Action = "Park";
+        $scope.voucherBonus = {};
+        $scope.voucherBonus.PaymentMode = '';
+        $scope.getCboVoucherTypeBonusDisbursementList();
+        $scope.voucherBonus.Active = true;
+        $scope.voucherBonus.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
+        $scope.voucherBonus.DocRefNo = null;
+        $scope.employeeBonusDisbursementDataList = [];
+        $scope.bonusLockPayableGLData = [];
+        $scope.EmployeeBonusListNew = [];
+        $scope.saveBtnDisable = false;
+
+    }
+    $scope.deleteBonusDisbursement = function (voucherId) {
+        $http({
+            method: "POST",
+            url: $scope.deleteBonusUrl,
+            data: {
+                "voucherId": voucherId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getBonusData();
+                $scope.ClearBonus();
+                $scope.voucherId = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.confirmDeleteBonus = function (data) {
+        $scope.voucherId = data.PayableVoucherId;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector("#confirmDeleteBonusPopUp")).modal("show");
     };
     //End Bonus Disbursement Posting
 

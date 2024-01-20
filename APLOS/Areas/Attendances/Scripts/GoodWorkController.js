@@ -288,13 +288,15 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     }
 
     $scope.getMinute = function () {
-        try {
+        try { 
+            //$scope.ModelNew.YesterDay = $filter('dateFiltering')(new Date($scope.ModelNew.WorkDate).setDate(new Date($scope.ModelNew.WorkDate).getDate() + 1), 'dd-MM-yyyy');
+             
             if (!baseService.isUndefinedOrNull($scope.ModelNew.FromTime) && !baseService.isUndefinedOrNull($scope.ModelNew.ToTime)) {
                 $scope.MinuteUrl = 'Attendances/GoodWork/GetMinute'
                 $http({
                     method: 'POST',
                     url: $scope.MinuteUrl,
-                    data: { 'data': $scope.ModelNew },
+                    data: { 'data': $scope.ModelNew},
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
 

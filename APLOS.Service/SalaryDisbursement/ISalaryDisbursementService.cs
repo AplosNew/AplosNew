@@ -18,7 +18,7 @@ namespace Library.Service.SalaryDisbursement
         string ParkSalaryPayable(VoucherViewModel voucherVM, string yearNo, string monthNo,string monthName
             , IEnumerable<VoucherDetailViewModel> directJVList, IEnumerable<VoucherDetailViewModel> inDirectJVList, IEnumerable<VoucherDetailViewModel> directSalaryLockList, IEnumerable<VoucherDetailViewModel> indirectSalaryLockList);
         string ParkSalaryPayableDisbursement(VoucherViewModel voucherVM, string yearNo, string monthNo, string monthName, string pMode, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, string empSystemIds);
-        string SaveBonusDisbursementPosting(VoucherViewModel voucherVM, string yearNo, string monthNo, string monthName, string pMode, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, string empSystemIds);
+        string SaveBonusDisbursementPosting(VoucherViewModel voucherVM, string fromDate, string toDate, string pMode, IEnumerable<VoucherDetailViewModel> directJVList, string disbursementAdviceId, string empSystemIds);
          GridModel GetSalaryPayableVoucherList(GridParameter parameters);
 
         IWorkbook GetEmployeeSalaryProcessedReportSalaryLogWiseInVoucher(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool isTopSheet, string voucherId);
@@ -26,6 +26,7 @@ namespace Library.Service.SalaryDisbursement
         IWorkbook GetEmployeeSalaryProcessedReportSalaryLogWiseSalaryPayableInVoucher(string companyGroupId, string companyId, string plantId, string userId, string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity, bool isTopSheet, string voucherId);
         void DeleteSalaryPayable(string plantId, string voucherId, string monthNo, string yearNo);
         void DeleteSalaryDisbursementVoucher(string plantId, string voucherId, string monthNo, string yearNo);
+        void DeleteBonusDisbursementVoucher(string plantId, string voucherId);
         void PostSalarydisbursement(string voucherId);
     }
 }
