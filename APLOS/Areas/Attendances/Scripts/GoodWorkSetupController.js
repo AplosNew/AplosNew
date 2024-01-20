@@ -349,49 +349,7 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         total_count: 0,
         search: null,
         serverPagination: true
-    };
-    //$scope.popUpBudgetCode = function () {
-    //    var entityCode = "";
-    //    if ($scope.selectedEntityList.length > 0) {
-    //        var uniqueEntityId = removeDuplicates($scope.selectedEntityList, 'EntityId');
-    //        var entityCode = "";
-    //        if (uniqueEntityId.length > 0) {
-    //            entityCode = "IN(";
-    //            entityCode += Array.prototype.map.call(uniqueEntityId, function (item) { return "'" + item.EntityId + "'"; }).join(",") + ")";
-    //        }
-    //        $scope.sqlInStatement = entityCode;
-    //    }
-    //    $scope.popUpDataList = [];
-    //    $scope.popUpList = [];
-    //    $scope.budgetpopUpParameters.sort = 'Code';
-    //    $scope.budgetpopUpParameters.searchBy = 'Code';
-    //    $scope.popUpUrl = 'employees/recruitment/GetManpowerBudgetListByEntitySql?entityids=' + $scope.sqlInStatement;
-    //    baseService.setCurrentPage('dataList');
-    //    $scope.getPopUpData = function (pageno) {
-    //        baseService.paginationBase($scope.popUpUrl, pageno, $scope.budgetpopUpParameters)
-    //            .then(function (result) {
-    //                $scope.popUpDataList = result.Rows;
-    //                for (var j = 0; j < $scope.BudgetCodeList.length; j++) {
-    //                    for (var i = 0; i < $scope.popUpDataList.length; i++) {
-    //                        if ($scope.BudgetCodeList[j].BudgetId == $scope.popUpDataList[i].Id) {
-    //                            $scope.popUpDataList.splice(i, 1);
-    //                        }
-    //                    }
-    //                }
-    //                $scope.budgetpopUpParameters.total_count = result.Total;
-    //                if (baseService.arrayLength($scope.popUpList) === 0) {
-    //                    baseService.getDDLSearchColumn(result.Rows, $scope.popUpList);
-    //                }
-    //                //$scope.popUpParameters.sort = 'Code';
-    //                //$scope.popUpParameters.searchBy = 'Code';
-    //            }, function () {
-    //                ShowResult(commonMessage.NetworkError, 'failure', 'popUpId');
-    //            }).finally(function () {
-    //            });
-    //    };
-    //    angular.element(document.querySelector('#popUpId')).modal('show');
-    //    $scope.getPopUpData();
-    //};
+    }; 
 
     function removeDuplicates(myArr, prop) {
         return myArr.filter((obj, pos, arr) => {
@@ -436,108 +394,12 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
 
 
     $scope.BudgetCodeList = [];
-    //$scope.selectDoubleClick = function (data) {
-    //    try {
-    //        var ob = {};
-    //        if (checkDoubleBudgetCode($scope.BudgetCodeList, data.Id) === false) {
-    //            ob.BudgetId = data.Id;
-    //            ob.Entity = data.EntityName;
-    //            ob.Division = data.Division;
-    //            ob.Department = data.Department;
-    //            ob.Section = data.Section;
-    //            ob.SubSection = data.SubSection;
-    //            ob.EmployeeType = data.EmployeeType;
-    //            ob.Designation = data.Designation;
-    //            ob.Activity = data.Activity;
-    //            ob.UserGroup = data.UserGroup;
-    //            ob.Process = data.Process;
-    //            ob.BudgetCode = data.Code;
-    //            //ob.IsOTEntitled = data.IsOTEntitled;
-    //            if (data.IsOTEntitled == 0) {
-    //                ob.IsOTEntitled = 'No';
-    //            } else
-    //                ob.IsOTEntitled = 'Yes'
-    //            ob.IsGoodWorkApplicable = false,
-    //                ob.IsCompensatoryApplicable = false,
-    //                ob.IsEmployeeApplicable = false,
-    //                ob.GoodWorkCategory = null,
-    //                ob.Remarks = null,
-    //                $scope.BudgetCodeList.push(ob);
-    //            ob = {};
-    //        }
-    //        angular.element(document.querySelector('#popUpId')).modal('hide');
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
-    //};
-    //function checkDoubleBudgetCode(list, Id) {
-    //    for (var i = 0; i < list.length; i++) {
-    //        if (list[i].BudgetId === Id) {
-    //            return true;
-    //        }
-    //    }
-    //    return false;
-    //}
-
-
     $scope.popUpDataList = [];
-    //$scope.selectDoubleClick = function () {
-    //    if (baseService.arrayLength($scope.popUpDataList) > 0) {
-    //        angular.forEach($scope.popUpDataList, function (a) {
-    //            if (checkExistBudgetTempList($scope.BudgetCodeList, a.Id) === false) {
-    //                if (a.Flag) {
-    //                    $scope.BudgetCodeList.push({
-    //                        Id: null
-    //                        , BudgetId: a.Id
-    //                        , Entity: a.EntityName
-    //                        , Division: a.Division
-    //                        , Department: a.Department
-    //                        , Section: a.Section
-    //                        , SubSection: a.SubSection
-    //                        , EmployeeType: a.EmployeeType
-    //                        , Designation: a.Designation
-    //                        , Activity: a.Activity
-    //                        , UserGroup: a.UserGroup
-    //                        , Process: a.Process
-    //                        , BudgetCode: a.Code
-    //                        //    , if(a.IsOTEntitled == 0) {
-    //                        //     IsOTEntitled = 'No';
-    //                        //} 
-    //                        //else
-    //                        // IsOTEntitled = 'Yes',
-    //                        , IsGoodWorkApplicable : false,
-    //                        IsCompensatoryApplicable:false,
-    //                        IsEmployeeApplicable :false,
-    //                        GoodWorkCategory: null,
-    //                        Remarks :null
-    //                    });
-    //                }
-    //            }
-
-    //        });
-    //    }
-    //    else
-    //        $scope.BudgetCodeList = [];
-    //    angular.forEach($scope.BudgetCodeList, function (a) {
-    //        if (!baseService.valueCheckInList($scope.popUpDataList, 'Id', a.Id))
-    //            $scope.BudgetCodeList.splice(a, 1);
-    //    });
-    //    $scope.closePopUp();
-    //};
-    //function checkExistBudgetTempList(list, Id) {
-    //    for (var i = 0; i < list.length; i++) {
-    //        if (list[i].Id === Id) {
-    //            return true;
-    //        }
-    //    }
-    //    return false;
-    //}
-
 
     $scope.refreshTemplate = function (args) {
         $("#headchkGWS").ejCheckBox({ "change": CheckBoxSelectGWS });
     };
-    function CheckBoxSelectGWS(e) { 
+    function CheckBoxSelectGWS(e) {
         var ChkOrUnchk = false;
         if (e.model.checkState === "check") {
             ChkOrUnchk = true;
@@ -549,25 +411,25 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
                 $scope.popUpDataList[i].isSelected = ChkOrUnchk;
             }
         }
-        else { 
-            for (var j = 0; j < filtered.length; j++) { 
+        else {
+            for (var j = 0; j < filtered.length; j++) {
                 filtered[j].isSelected = ChkOrUnchk;
-            } 
+            }
         }
         var gridObj = $("#GridpopUpId").data("ejGrid");
         gridObj.refreshContent();
     };
 
-     
+
     $scope.selectDoubleClick = function () {
-        try { 
+        try {
             for (var i = 0; i < $scope.popUpDataList.length; i++) {
                 if ($scope.popUpDataList[i].isSelected == true) {
                     if (checkDoubleGWS($scope.BudgetCodeList, $scope.popUpDataList[i].BudgetId) === false) {
                         $scope.BudgetCodeList.push($scope.popUpDataList[i]);
                     }
                 }
-            } 
+            }
             angular.element(document.querySelector('#popUpId')).modal('hide');
         } catch (e) {
             ShowResult(e, "failure");
@@ -658,7 +520,6 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
             ShowResult(response.data.Message, 'failure');
         }
     };
-
 
     $scope.GetGoodWorkBudgetCodeData = function () {
         $http({
@@ -921,6 +782,66 @@ function GoodWorkSetupController(cboService, commonMessage, $scope, $rootScope, 
         });
     };
 
+    $scope.refreshTemplateRemove = function (args) {
+        $("#headchkRemove").ejCheckBox({ "change": CheckBoxSelectRemove });
+    };
+    function CheckBoxSelectRemove(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridBC").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.BudgetCodeList.length; i++) {
+                $scope.BudgetCodeList[i].isSelected = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].isSelected = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridBC").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.removeBudgetCode = function () {
+        try {
+            $scope.NewBudgetCodeId = [];
+            for (var i = 0; i < $scope.BudgetCodeList.length; i++) {
+                if ($scope.BudgetCodeList[i].isSelected == true) {
+                    //$scope.tempId = $scope.BudgetCodeList[i].BudgetId
+                    $scope.NewBudgetCodeId.push($scope.BudgetCodeList[i].BudgetId);
+                }
+            }
+             
+            $scope.message_confirmation = "Are you sure want to permanent delete ?";
+            angular.element(document.querySelector('#confirmBudgetCodeRemovePopUps')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+    $scope.removeBudgetCodeRows = function () {
+        $http({
+            method: 'POST',
+            url: 'Attendances/GoodWorkSetup/BudgetCodeDelete',
+            data: { 'Id': $scope.NewBudgetCodeId},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetGoodWorkBudgetCodeData();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
     //#endregion
 
 }

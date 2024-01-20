@@ -92,14 +92,14 @@
 
                     <fieldset class="scheduler-border">
                         <legend class="scheduler-border">Bonus Disbursement</legend>
-                        <div class="col-xs-10  col-sm-6 col-md-12" ng-show="empGrid">
-                            <div id="empInfoGrid" ng-init="chkinit()" ej-grid e-datasource="employeeDisbursementDataList" e-allowscrolling="true" e-pageSettings-pageSize="15"
-                                 e-actioncomplete="actionCompleteSelected" e-templaterefresh="refreshTemplateEmployee"
+                        <div class="col-xs-10  col-sm-6 col-md-12" ng-show="empBonusGrid">
+                            <div id="empInfoBonusGrid" ng-init="chkinit()" ej-grid e-datasource="employeeBonusDisbursementDataList" e-allowscrolling="true" e-pageSettings-pageSize="15"
+                                 e-actioncomplete="actionCompleteSelected" e-templaterefresh="refreshTemplateEmployeeBonus"
                                  e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
                                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowsorting="true" style="margin-left:1%">
 
                                 <div e-columns>
-                                    <div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkDisbursementProcess" e-textalign="center" e-width="30"></div>
+                                    <div e-column e-headertext="All" e-headertemplateid="#headerTemplateBonus" e-template="#checkDisbursementBonusProcess" e-textalign="center" e-width="30"></div>
                                     <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
                                     <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
                                     <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>
@@ -108,36 +108,32 @@
                                     <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-allowediting="false" e-width="80"></div>
                                     <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="80"></div>
                                     <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
-                                    <div e-column e-field="Line" e-headertext="Line" e-allowediting="false" e-width="80"></div>
-                                    <div e-column e-field="PayableVoucherNo" e-headertext="Payable Voucher No" e-allowediting="false" e-width="80"></div>
-                                    <div e-column e-field="IsLock" e-headertext="Lock" e-allowediting="false" e-width="80"></div>
-                                    <div e-column e-field="PaymentMode" e-headertext="PaymentMode" e-allowediting="false" e-width="80"></div>
-                                    <div e-column e-field="DisbursementVoucherNo" e-headertext="Disbursement Voucher No" e-allowediting="false" e-width="80"></div>
-                                    <div e-column e-field="IsDisburse" e-headertext="Disbursed" e-allowediting="false" e-width="80"></div>
-                                    <div e-column e-field="Bank" e-headertext="Bank Name" e-allowediting="false" e-width="80"></div>
-                                    <div e-column e-field="BankAccNo" e-headertext="BankAccNo" e-allowediting="false" e-width="80"></div>
-                                    <div e-column e-field="DirectManpowerCost" e-headertext="DirectManpowerCost" e-allowediting="false" e-width="80"></div>
-                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Amount" e-headertext="Amount" e-width="80" e-textalign="right" style="height: 20px;"></div>
                                     <div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="80"></div>
-                                    <div e-column e-field="PayRollGroup" e-headertext="PayRoll Gruop" e-allowediting="false" e-width="80"></div>
-                                    <div e-column e-field="JobLocation" e-headertext="Job Location" e-allowediting="false" e-width="80"></div>
                                     <div e-column e-field="DOS" e-headertext="DOS" e-allowediting="false" e-width="80"></div>
-                                    <div e-column e-field="SalaryProcFlag" e-headertext="EmployeeStatus" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="CurrentMonthEmployeeStatus" e-headertext="Current Month Employee Status" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="EmployeeStatus" e-headertext="Employee Status" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="PayableVoucherNo" e-headertext="Payable Voucher No" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="PaymentMode" e-headertext="PaymentMode" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="BankName" e-headertext="Bank Name" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="BankAccNo" e-headertext="BankAccNo" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="IFSCCode" e-headertext="IFSCCode" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Amount" e-headertext="Amount" e-width="80" e-textalign="right" style="height: 20px;"></div>
+
 
                                 </div>
                             </div>
-                            <script type="text/template" id="checkDisbursementProcess">
-                                <input type="checkbox" ng-model="data.isSelected" ng-checked="data.isSelected" ng-click="$parent.pushInTempListforProcess($event,data);">
+                            <script type="text/template" id="checkDisbursementBonusProcess">
+                                <input type="checkbox" ng-model="data.isSelected" ng-checked="data.isSelected" ng-click="$parent.pushInTempListforBonusProcess($event,data);">
                             </script>
-                            <script type="text/x-jsrender" id="headerTemplate">
-                                <input type="checkbox" id="headchk" />
+                            <script type="text/x-jsrender" id="headerTemplateBonus">
+                                <input type="checkbox" id="headchkBonus" />
                             </script>
                         </div>
-                        <div class="col-sm-12" ng-show="empGrid">
+                        <div class="col-sm-12" ng-show="empBonusGrid">
                             <div class="col-sm-6">
                                 <div class="common-btn">
                                     <ul style="display:flex; justify-content:space-between">
-                                        <li> <button ng-click="XlsSalaryDisbursement();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
+                                        <li> <button ng-click="XlsBonusDisbursement();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
                                     </ul>
                                 </div>
                             </div>
@@ -161,17 +157,17 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr ng-repeat="x in salaryLockPayableGLData">
+                                <tr ng-repeat="x in bonusLockPayableGLData">
                                     <td>{{x.GLName}}</td>
                                     <td>{{x.BudgetName}}</td>
                                     <td>{{x.ActivityName}}</td>
                                     <td class="text-right">{{x.CrAmount}}</td>
                                 </tr>
                             </tbody>
-                            <tfoot ng-show="salaryLockPayableGLData.length">
+                            <tfoot ng-show="bonusLockPayableGLData.length">
                                 <tr>
                                     <td colspan="3" class="text-right"><b> Total</b></td>
-                                    <td class="text-right"><b>{{ salaryLockPayableGLData | sumByKey : 'CrAmount' }}</b></td>
+                                    <td class="text-right"><b>{{ bonusLockPayableGLData | sumByKey : 'CrAmount' }}</b></td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -185,8 +181,8 @@
 
     <div class="common-btn">
         <ul class="list-inline text-right">
-            <li><button ng-click="Save();" class="btn" ng-disabled="saveBtnDisable==true"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            <li><button ng-click="SaveBonus();" class="btn" ng-disabled="saveBtnDisable==true"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li><button ng-click="ClearBonus();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
 </div>
@@ -241,8 +237,9 @@
                     <td>{{x.IsPark?'Parked':'Posted'}}</td>
                     <td class="text-right">
                         <ul class="list-inline action-list">
-                            <li ng-show="x.IsPark"><a ng-click="confirmPost(x.PayableVoucherId);" href="" class="btn btn-action tooltip-here">Post</a></li>
-                            <li ng-show="x.IsPark"><a ng-click="confirmDelete(x);" href="" class="btn btn-action tooltip-here">Delete</a></li>
+                            <li><a ng-click="XlsBonusDisbursementVoucherWiseReport(x.PayableVoucherId);" class="btn btn-action" title="Bonus Disbursement Report"><i class="fa fa-file-excel-o"></i></a></li>
+                            <li ng-show="x.IsPark"><a ng-click="confirmPostBonus(x.PayableVoucherId);" href="" class="btn btn-action tooltip-here">Post</a></li>
+                            <li ng-show="x.IsPark"><a ng-click="confirmDeleteBonus(x);" href="" class="btn btn-action tooltip-here">Delete</a></li>
                             <li><a class="btn btn-action" href="Accounts/SalaryDisbursement/GetSalaryDisbursementVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.PayableVoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
                             <li><a class="btn btn-action" href="Accounts/SalaryDisbursement/GetSalaryDisbursementVoucherReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.PayableVoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
                         </ul>
@@ -279,8 +276,8 @@
         </div>
     </div>
 </div>
-<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="post(voucherId)"></confirm-archive-generic>
-<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="deleteSalaryDisbursement(voucherId,DelMonthNo,DelYearNo)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmPostBonusPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="postBonus(voucherId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeleteBonusPopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="deleteBonusDisbursement(voucherId)"></confirm-archive-generic>
 
 @*@Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")

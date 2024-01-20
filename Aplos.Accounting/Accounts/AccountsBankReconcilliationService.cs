@@ -860,6 +860,7 @@ namespace Library.Accounting.Accounts
                     Narration = voucherVM.Narration,
                     PostingDate = voucherVM.PostingDate,
                     SourceType = SourceType.BankJournal.ToString(),
+                    IsPark = voucherVM.IsPark,
                     VoucherTypeId = voucherVM.VoucherTypeId
                 };
                 _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);

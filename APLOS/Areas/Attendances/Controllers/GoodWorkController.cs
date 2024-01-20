@@ -63,7 +63,7 @@ namespace Aplos.Areas.Attendances.Controllers
         }
         //Load Employee
         [HttpPost]
-        public ActionResult LoadEmployeelist(Dictionary<string, string> parameters, string userGroupId,string shiftId, string workDate)
+        public ActionResult LoadEmployeelist(Dictionary<string, string> parameters, string userGroupId, string shiftId, string workDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = string.Empty;
@@ -120,7 +120,7 @@ namespace Aplos.Areas.Attendances.Controllers
                          LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
                          LEFT JOIN GoodWorkDetail GWD on GWD.EmpSystemId=EI.SystemId
                          left join GoodWork GW on GW.Id=GWD.GoodWorkId
-						 left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate='" + workDate +@"'
+						 left join dbo.AttdnProcessData APD on APD.EmpSystemID=EI.SystemId and APD.WorkDate='" + workDate + @"'
 
                          WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec + @"  " + dep + @"  " + sec + @"   " + subsec + @"   " + des + @" " + userGr + @"
                          and ei.SystemId in (select EmpSystemID from EmployeeShiftAssign where FixSystemID='" + shiftId + @"')  
@@ -132,7 +132,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 throw new Exception(ex.Message);
             }
 
-            var data = _sqlRepository.GetDataCollection(sql) ;
+            var data = _sqlRepository.GetDataCollection(sql);
             JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
@@ -203,12 +203,12 @@ namespace Aplos.Areas.Attendances.Controllers
                         genid.GenID("GoodWork", out _Id);
                     }
                     data["Id"] = _Id;
-                    data["CheckedStatus"] = "To Be Checked"; 
+                    data["CheckedStatus"] = "To Be Checked";
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
-                    data["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString(); 
+                    data["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
                     EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);
                 }
 
@@ -243,22 +243,22 @@ namespace Aplos.Areas.Attendances.Controllers
                             materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
                         }
                         if (dv.Count > 0)
-                        { 
+                        {
                             DataRow drmo = dv[0].Row;
-                            drmo.BeginEdit(); 
+                            drmo.BeginEdit();
                             drmo["FromTime"] = item["FromTime"];
                             drmo["ToTime"] = item["ToTime"];
                             drmo["Minute"] = item["Minute"];
                             drmo["Purpose"] = item["Purpose"];
                             drmo["PurposeCategory"] = item["PurposeCategory"];
                             drmo["Remark"] = item["Remark"];
-                            drmo.EndEdit(); 
+                            drmo.EndEdit();
                         }
                     }
-                } 
+                }
                 #endregion Good Work Detail
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsDetail); 
+                _info.SaveDataSets(dsMaster, dsDetail);
                 return Json(new { Error = false, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
@@ -288,7 +288,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
         [HttpGet, Authorize]
         public ActionResult GetGoodWorkList(string workDate)
-        { 
+        {
             string sql = @"select GW.Id,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,gw.ShiftId,S.UserName Shift,GW.Remarks,GWS.UserName UserGroup,GWS.Id UserGroupId,gw.Reason
                                     ,format(GW.FromTime,'hh:mm') FromTime,format(GW.ToTime,'hh:mm') ToTime,gw.Minute,gw.CheckedBy,gw.CheckedStatus,GW.ApprovedStatus
                                     ,cast(case when format(GW.WorkDate,'dd-MMM-yyyy')=format(GETDATE(),'dd-MMM-yyyy') 
@@ -306,8 +306,32 @@ namespace Aplos.Areas.Attendances.Controllers
         [Authorize, HttpPost]
         public ActionResult GetMinute(GoodWorkTransaction data)
         {
-            var ts = data.ToTime.Subtract(data.FromTime);
-            return Json(ts.TotalMinutes, JsonRequestBehavior.AllowGet);
+            var tst = data.ToTime.Subtract(data.FromTime);
+            int f = (int)tst.TotalMinutes;
+            if (f < 0)
+            {
+
+                DateTime FromDt = Convert.ToDateTime(data.FromTime);
+                DateTime ToDt = Convert.ToDateTime(data.ToTime);
+                //TimeSpan t = ToDt.Subtract(FromDt);
+                //int N = t.Days;
+
+                TimeSpan ts;
+                DateTime date1 = Convert.ToDateTime(data.FromTime); 
+                DateTime date2 = Convert.ToDateTime(data.ToTime);
+                //DateTime NextDayDate = date2.AddDays(N);
+                if (FromDt == ToDt)
+                {
+                    ts = date2 - date1;
+                }
+                else
+                {
+                    DateTime NextDayDate2 = date2.AddDays(1);
+                    ts = NextDayDate2 - date1;
+                }
+                f = (int)ts.TotalMinutes;
+            } 
+            return Json(f, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -356,7 +380,7 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult getFiltersData(string userGroupId,string shiftId)
+        public ActionResult getFiltersData(string userGroupId, string shiftId)
         {
             try
             {
@@ -373,7 +397,7 @@ namespace Aplos.Areas.Attendances.Controllers
 						 LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
                          LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
                          LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-						 where EI.EmployeeStatus='Active' and ei.SystemId in (select EmpSystemID from EmployeeShiftAssign where FixSystemID='"+ shiftId + @"') and EI.BudgetCode in (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup where GoodWorkSetUpId= '" + userGroupId + @"')";
+						 where EI.EmployeeStatus='Active' and ei.SystemId in (select EmpSystemID from EmployeeShiftAssign where FixSystemID='" + shiftId + @"') and EI.BudgetCode in (SELECT BudgetId FROM dbo.GoodWorkBudgetSetup where GoodWorkSetUpId= '" + userGroupId + @"')";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -386,6 +410,8 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             #region Scalar Properties
 
+            public DateTime WorkDate { get; set; }
+            public DateTime YesterDay { get; set; }
             public DateTime FromTime { get; set; }
             public DateTime ToTime { get; set; }
             public int Minute { get; set; }
@@ -480,7 +506,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
         [HttpPost, Authorize]
-        public ActionResult GetGoodWorkReport(string reportFileName,string workDate)
+        public ActionResult GetGoodWorkReport(string reportFileName, string workDate)
         {
             try
             {
@@ -494,7 +520,7 @@ namespace Aplos.Areas.Attendances.Controllers
             }
         }
 
-        public string GoodWorkReportxlx(string ReportHeader, string reportFileName,string workDate)
+        public string GoodWorkReportxlx(string ReportHeader, string reportFileName, string workDate)
         {
             ExcelEngine excelEngine = null;
             IApplication application = null;
@@ -507,7 +533,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(1);
                 workbook.Worksheets[0].Name = "Good Work Report";
-                sheet = workbook.Worksheets[0]; 
+                sheet = workbook.Worksheets[0];
                 int ROW = 5; int COL = 1;
                 DataTable data = getGWReportData(workDate);
 
@@ -546,7 +572,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet[ROW, COL].ColumnWidth = 15;
                 int ColOverStay = COL;
                 COL++;
-                 
+
                 sheet[ROW, COL].Text = "Day Status";
                 sheet[ROW, COL].ColumnWidth = 15;
                 int ColDayStatus = COL;
@@ -574,13 +600,13 @@ namespace Aplos.Areas.Attendances.Controllers
                     sheet[ROW, ColOverTime].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     sheet[ROW, ColOverStay].Number = clsStaticInfo.dbl(data.Rows[i]["OverStay"].ToString());
                     sheet[ROW, ColOverStay].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    sheet[ROW, ColDayStatus].Text = data.Rows[i]["DayStatus"].ToString(); 
+                    sheet[ROW, ColDayStatus].Text = data.Rows[i]["DayStatus"].ToString();
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                     ROW++;
-                } 
+                }
 
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
@@ -596,17 +622,17 @@ namespace Aplos.Areas.Attendances.Controllers
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.IsGridLinesVisible = false;
-                 
+
                 //#endregion ******************Report Header******************
                 sheet.PageSetup.TopMargin = 0.2;
-                sheet.PageSetup.BottomMargin = 0.8; 
+                sheet.PageSetup.BottomMargin = 0.8;
                 sheet.PageSetup.LeftMargin = 0.2;
                 sheet.PageSetup.RightMargin = 0.2;
                 sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
                 sheet.PageSetup.FitToPagesTall = 0;
                 sheet.PageSetup.FitToPagesWide = 1;
                 sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
-                sheet.PageSetup.CenterHorizontally = true; 
+                sheet.PageSetup.CenterHorizontally = true;
 
                 filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
                 workbook.SaveAs(filePath);
@@ -619,7 +645,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 throw ex;
             }
         }
-         
+
         public DataTable getGWReportData(string workDate)
         {
             try
@@ -897,17 +923,17 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [HttpPost]
-        public ActionResult LoadPCEmployeelist(string fromDate, string toDate,string tabName)
+        public ActionResult LoadPCEmployeelist(string fromDate, string toDate, string tabName)
         {
             string sql = string.Empty;
             try
             {
-                if (tabName== "GoodWork")
+                if (tabName == "GoodWork")
                 {
-                    sql = @"select distinct ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,(sum(apd.OverStay)/60) Hours,g.Gross,g.RatePerHour
-								 ,Amount=(sum(apd.OverStay)/60)*g.RatePerHour
-                                  from [dbo].[AttdnProcessData] apd 
-								  left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID  
+                    sql = @"select gw.Id GoodWorkId,'' Id,ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,gw.Minute,(sum(gw.Minute)/60) Hour,format(g.Gross,'N2') Gross,format(g.RatePerHour,'N2') Rate,Amount=format((sum(gw.Minute)/60)*g.RatePerHour,'N2')
+                                  from [dbo].[GoodWork] gw
+								  LEFT JOIN [dbo].[GoodWorkDetail] GWD on GWD.GoodWorkId=gw.Id  
+								  left join EmployeeInformation ei on ei.SystemId=GWD.EmpSystemId  
 								  LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
 								  LEFT JOIN(SELECT SID.DefineAmount Basic,((SID.DefineAmount/208)*2) RatePerHour,SH.SalaryHead
 								  ,SID.SalaryID,SID.DefineAmount Gross
@@ -915,19 +941,16 @@ namespace Aplos.Areas.Attendances.Controllers
 								  LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                     WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
                                    
-								  where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"'  and apd.OverStay<>0 and g.Gross<>0
-                                  and apd.EmpSystemID not in (select distinct EmpSystemId
+								  where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and gw.Minute<>0 and g.Gross<>0
+                                  and gwd.EmpSystemId not in (select distinct EmpSystemId
 									from GoodWorkPaymentAdvise gwpa
 									left join GoodWorkPaymentAdviseDetail gwpad on gwpad.PaymentAdviseId=gwpa.Id
-									where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"')
-
-								  group by gw.Id,ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour
-								  ,g.Basic"; 
+									where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"') 
+								  group by gw.Id,ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,gw.Minute";
                 }
-               else
+                else
                 {
-                    sql = @"select ei.SystemId EmpSystemId,ei.EmployeeCode,ei.EmployeeName,(sum(apd.OverStay)/60) Hours,g.Gross,g.RatePerHour
-								 ,Amount=(sum(apd.OverStay)/60)*g.RatePerHour
+                    sql = @"select distinct ei.SystemId EmpSystemId,'' Id,ei.EmployeeCode,ei.EmployeeName,apd.OverStay Minute,format((sum(apd.OverStay)/60),'N2') Hour,format(g.Gross,'N2') Gross,format(g.RatePerHour,'N2') Rate,Amount=format((sum(apd.OverStay)/60)*g.RatePerHour,'N2') 
                                   from [dbo].[AttdnProcessData] apd 
 								  left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID  
 								  LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
@@ -937,13 +960,18 @@ namespace Aplos.Areas.Attendances.Controllers
 								  LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                     WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
                                    
-								  where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and apd.OverStay<>0 and g.Gross<>0
+                                    left join (SELECT C.IsOTEntitled,D.Id FROM SCS.DesignationMasterConfiguration C
+                                    LEFT JOIN MST.DesignationMaster M ON M.Id=C.DesignationMasterId
+                                    LEFT JOIN HKP.Designation D ON D.Id=M.DesignationId
+							        )D on D.Id=ei.GivenDesignationId
+
+								  where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and D.IsOTEntitled=1 and apd.OverStay<>0 and g.Gross<>0
                                   and apd.EmpSystemID not in (select distinct EmpSystemId
 									from GoodWorkPaymentAdvise gwpa
 									left join GoodWorkPaymentAdviseDetail gwpad on gwpad.PaymentAdviseId=gwpa.Id
 									where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"')
 
-								 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour";
+								 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.OverStay";
                 }
             }
             catch (Exception ex)
@@ -1091,7 +1119,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID("GoodWorkPaymentAdvise", out _Id);
                     }
-                    data["Id"] = _Id; 
+                    data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -1123,11 +1151,11 @@ namespace Aplos.Areas.Attendances.Controllers
 
                             item["Id"] = detailId;
                             item["PaymentAdviseId"] = _MasterId;
-                            item["EmpSystemId"] = item["EmpSystemId"];
-                            item["Hour"] = item["Hours"];
-                            item["Rate"] = item["RatePerHour"];
-                            item["Amount"] = item["Amount"];
-                            item["Remarks"] = item["Remarks"];
+                            //item["EmpSystemId"] = item["EmpSystemId"];
+                            //item["Hour"] = item["Hours"];
+                            //item["Rate"] = item["RatePerHour"];
+                            //item["Amount"] = item["Amount"];
+                            //item["Remarks"] = item["Remarks"];
 
                             materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
                         }
@@ -1139,13 +1167,13 @@ namespace Aplos.Areas.Attendances.Controllers
                             drmo.BeginEdit();
                             drmo["Remarks"] = item["Remarks"];
                             drmo.EndEdit();
-                        } 
+                        }
                     }
                 }
 
                 #endregion  Good Work Payment Advise Detail
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsDetail); 
+                _info.SaveDataSets(dsMaster, dsDetail);
                 return Json(new { Error = false, Message = AplosMessage.Updated });
             }
             catch (Exception ex)
@@ -1165,22 +1193,11 @@ namespace Aplos.Areas.Attendances.Controllers
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
-
-      //  [HttpGet, Authorize]
-      //  public ActionResult GetGoodWorkOTPaymentList(string paymentSource)
-      //  {
-      //      string sql = @"select ei.EmployeeCode,ei.EmployeeName ByWhom,gwp.Id,FORMAT(gwp.FromDate,'dd-MMM-yyy') FromDate,FORMAT(gwp.ToDate,'dd-MMM-yyy')ToDate
-						//,gwp.UserRef,FORMAT(gwp.PaymentDate,'dd-MMM-yyy') PaymentDate,gwp.Remarks
-						//from GoodWorkPaymentAdvise gwp 
-						//left join EmployeeInformation ei on ei.SystemId=gwp.ByWhomId
-      //                  where gwp.PaymentSource='"+ paymentSource + "'";
-
-      //      return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-      //  }
+         
         [HttpGet, Authorize]
         public ActionResult GetGoodWorkPaymentAdviseDetailList(string paymentAdviseId)
         {
-            string sql = @"select gwpad.Id,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour Hours,gwpad.Rate RatePerHour,gwpad.Amount,gwpad.Remarks
+            string sql = @"select gwpad.Id,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.Remarks
                             from GoodWorkPaymentAdviseDetail gwpad
                             left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
 							left join GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
@@ -1191,11 +1208,15 @@ namespace Aplos.Areas.Attendances.Controllers
         [HttpGet, Authorize]
         public ActionResult GetGoodWorkPaymentAdviseOTDetailList(string paymentAdviseId)
         {
-            string sql = @"select gwpad.Id,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour Hours,gwpad.Rate RatePerHour,gwpad.Amount,gwpad.Remarks
+            string sql = @"select gwpad.Id,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.Remarks
                             from GoodWorkPaymentAdviseDetail gwpad
                             left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
 							left join GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
-                            where gwpa.Id='" + paymentAdviseId + "'";
+                            left join (SELECT C.IsOTEntitled,D.Id FROM SCS.DesignationMasterConfiguration C
+                            LEFT JOIN MST.DesignationMaster M ON M.Id=C.DesignationMasterId
+                            LEFT JOIN HKP.Designation D ON D.Id=M.DesignationId
+							)D on D.Id=ei.GivenDesignationId
+                            where gwpa.Id='" + paymentAdviseId + "' and D.IsOTEntitled=1";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -1456,7 +1477,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
                 #region data update
                 if (dsMaster.Tables[0].DefaultView.Count > 0)
-                { 
+                {
                     data["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
                     data["ApprovedStatus"] = "Approved";
                     EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);

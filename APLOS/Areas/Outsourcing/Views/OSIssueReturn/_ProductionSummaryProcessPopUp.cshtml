@@ -55,15 +55,18 @@
                                     <th>Material Type</th>
                                     <th>Material</th>
                                     <th>Article</th>
+                                    <th>SKU1</th>
+                                    <th>SKU2</th>
                                     <th>LotNumber</th>
                                     <th>Process</th>
+                                    <th>Source </th>
                                     <th>ProductionSummaryId</th>
                                     <th>Qty</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr ng-repeat="x in materialStockList">
-                                   
+
                                     <td ng-hide="productNew.Id!=null">
                                         <div class="checkbox-site">
                                             <label>
@@ -75,8 +78,11 @@
                                     <td>{{x.MaterialType}}</td>
                                     <td>{{x.MaterialMaster}}</td>
                                     <td>{{x.Article}}</td>
+                                    <td>{{x.SKU1}}</td>
+                                    <td>{{x.SKU2}}</td>
                                     <td>{{x.LotNumber}}</td>
                                     <td>{{x.Process}}</td>
+                                    <td>{{x.Source}}</td>
                                     <td>{{x.ProductionSummaryId}}</td>
                                     <td>{{x.RequisitionQty}}</td>
                                 </tr>
