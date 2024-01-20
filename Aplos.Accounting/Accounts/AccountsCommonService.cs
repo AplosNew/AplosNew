@@ -1899,7 +1899,7 @@ namespace Library.Accounting.Accounts
 
             var sql = @"SELECT TOP(1) * FROM [TRN].[BankReconciliationMap] BRM 
                         JOIN TRN.VoucherDetail VD ON VD.Id=BRM.VoucherDetailId 
-                        JOIN TRN.Voucher V ON V.Id=VD.VoucherId WHERE V.IsPark=1 AND V.SourceType='BankJournal'";
+                        JOIN TRN.Voucher V ON V.Id=VD.VoucherId WHERE V.IsPark=1 AND V.SourceType='BankJournal' and Convert(Date,V.VoucherDate) < Convert(Date,GetDate())";
             var customerAdvanceTemp = _sqlRepository.GetData(sql);
             if (customerAdvanceTemp.Count > 0)
                 throw new CustomException("Please post voucher No " + customerAdvanceTemp["VoucherNo"] + " First!");
