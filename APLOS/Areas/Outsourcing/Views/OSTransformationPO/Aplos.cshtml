@@ -470,18 +470,14 @@
             <legend class="scheduler-border">Basic Info</legend>
             <div class="row">
                 <div class="col-xs-4 col-sm-4 col-md-4">
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Order Specific</label>
-                        <div class="col-sm-8">
-                            <div class="radio">
-                                <label>
-                                    <input type="radio" name="OrderSpecific" ng-model="productNew.OrderSpecific" value="No" ng-click="hide();ClearList('No');" ng-disabled="productNew.Id.length>0">
-                                    <span class="cr"><i class="cr-icon"></i></span>No
-                                </label>
-                                <label>
-                                    <input type="radio" name="OrderSpecific" ng-model="productNew.OrderSpecific" value="Yes" ng-click="show();ClearList('Yes');" ng-disabled="productNew.Id.length>0">
-                                    <span class="cr"><i class="cr-icon"></i></span>Yes
-                                </label>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="productNew.EntityId" name="Entity"
+                                        ng-options="item.Value as item.Text for item in EntityList" required tabindex="12">
+                                    <option value=""></option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -705,19 +701,7 @@
         <fieldset class="scheduler-border">
             <legend class="scheduler-border">Other's Info</legend>
             <div class="row">
-                <div class="col-xs-4 col-sm-4 col-md-4">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="select-style">
-                                <select class="form-control" ng-model="productNew.EntityId" name="Entity"
-                                        ng-options="item.Value as item.Text for item in EntityList" required tabindex="12">
-                                    <option value=""></option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                
                 <div class="col-xs-4 col-sm-4 col-md-4">
                     <div class="form-group" id="div_CCDate" show-errors>
                         <label class="col-sm-4 control-label">Contract Closing Date<sup>*</sup></label>
