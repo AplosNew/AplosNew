@@ -8505,7 +8505,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
     ,P.UserName Buyer 
     ,P.TINNO CustomerGSTNo
     ,p.VATResistrationNo AS CustomerPANNo
-    ,Addres.Address1 VendorAddress,Addres.Email
+    ,Addres.Address1 VendorAddress,ISNULL(DAddres.Email,Addres.Email)Email
     ,ISNULL(HSNC.Code,MHSN.Code) HSNCode
     ,Plant.GSTIN
     ,Plant.VATResistrationNo AS PlantPANNo
@@ -8610,6 +8610,7 @@ LEFT JOIN SCS.Currency BASECRNC ON BASECRNC.Id = cmp.BaseCurrencyId
 LEFT JOIN MST.PaymentTerm PayTerm ON PayTerm.Id = IR.PaymentTermId
 LEFT JOIN HKP.PartyPlant INVPARTYPL ON INVPARTYPL.Id = IR.InvoicingPartyPlantId
 LEFT JOIN HKP.PartyPlant DPARTYPL ON DPARTYPL.Id = IR.DeliveryPartyPlantId
+LEFT JOIN [MST].[AddressMaster] DAddres ON DAddres.Id = DPARTYPL.AddressMasterId
 LEFT JOIN HKP.Party P ON P.Id = IR.PartyId
 LEFT JOIN [MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
 LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
