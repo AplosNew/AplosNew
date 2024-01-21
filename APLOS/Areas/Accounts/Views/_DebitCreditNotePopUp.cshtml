@@ -12,16 +12,16 @@
                             <div class="row">
                                 <div class="col-xs-12 col-sm-3 col-md-3">
                                     <div class="select-style">
-                                        <select ng-model="customerInvoiceParameters.searchBy">
-                                            <option ng-repeat="option in customerInvoiceSearchList" value="{{option.Value}}">{{option.Text}}</option>
+                                        <select ng-model="debitNoteParameters.searchBy">
+                                            <option ng-repeat="option in debitNoteSearchList" value="{{option.Value}}">{{option.Text}}</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="customerInvoiceParameters.search" ng-enter="customerreceivableGLData()">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="debitNoteParameters.search" ng-enter="debitNoteGLData()">
                                 </div>
                                 <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="customerreceivableGLData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    <button type="button" ng-click="debitNoteGLData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                                 </div>
                             </div>
                         </div>
@@ -45,7 +45,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr dir-paginate="x in customerreceivableList |itemsPerPage:customerInvoiceParameters.pageSize" pagination-id="metaData.name + 'customerreceivableList'" total-items="customerInvoiceParameters.total_count">
+                            <tr dir-paginate="x in debitNoteList |itemsPerPage:debitNoteParameters.pageSize" pagination-id="metaData.name + 'debitNoteList'" total-items="debitNoteParameters.total_count">
                                 <td>
                                     <div class="checkbox-site">
                                         <label>
@@ -68,7 +68,7 @@
                         </tbody>
                     </table>
                 </div>
-                <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'customerreceivableList'" direction-links="true" boundary-links="true" on-page-change="customerreceivableGLData(newPageNumber)"></dir-pagination-controls>
+                <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'debitNoteList'" direction-links="true" boundary-links="true" on-page-change="debitNoteGLData(newPageNumber)"></dir-pagination-controls>
             </div>
             <div class="modal-footer common-btn">
                 <button type="button" class="btn btn-default" ng-click="closedebitCreditNotePopUpselected()">Select</button>

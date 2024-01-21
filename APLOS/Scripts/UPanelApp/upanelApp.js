@@ -14,6 +14,7 @@ upanelApp.controller("accessControllerEmployeeTagController", accessControllerEm
 upanelApp.controller("AdminAttendanceControlController", AdminAttendanceControlController);
 upanelApp.controller("accountDashboardController", accountDashboardController);
 upanelApp.controller("advanceJournalController", advanceJournalController);
+upanelApp.controller("pfesiDisbursementController", pfesiDisbursementController);
 upanelApp.controller("NewAttendanceProcessController", NewAttendanceProcessController);
 upanelApp.controller("NewAttendanceProcessAuditReportController", NewAttendanceProcessAuditReportController);
 upanelApp.controller("NewAttendanceProcessPlantWiseController", NewAttendanceProcessPlantWiseController);
@@ -1249,6 +1250,7 @@ upanelApp.controller("LWQRUpdateController", LWQRUpdateController)
 upanelApp.controller("LCPendingReportController", LCPendingReportController)
 upanelApp.controller("GoodWorkCheckedController", GoodWorkCheckedController)
 upanelApp.controller("GoodWorkApproveController", GoodWorkApproveController)
+upanelApp.controller("PettyCashMasterController", PettyCashMasterController)
           
 
 

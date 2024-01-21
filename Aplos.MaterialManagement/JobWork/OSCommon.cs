@@ -167,7 +167,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
-						WHERE  IR.PlantId='"+ plantId + @"' 
+						WHERE  IR.PlantId='" + plantId + @"' 
                         --AND IR.POType='OSTransformationPO'  --IR.AddedBy='Shashank' And
                         --AND IR.CheckedBy IS NOT NULL 
 						AND IR.CheckedByStatus='Pending' 
@@ -248,7 +248,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						Where IR.Id not in(Select distinct POId from trn.InventoryReceiveDetail where POId is not null)--and RequisitionId='110232'
 						AND IR.CheckedByStatus IS NULL 
 						AND IR.AuthorizedByStatus IS NULL						
-						 And IR.PlantId='"+ plantId + @"' 
+						 And IR.PlantId='" + plantId + @"' 
                        --AND IR.POType='OSTransformationPO'--AND IR.AddedBy='Shashank'
 
                         AND isnull(IR.IsClosed,0)=0 
@@ -326,7 +326,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						left join ORG.Entity E on E.Id=IR.EntityId
 						Where IR.CheckedByStatus is null				
 						AND IR.AuthorizedByStatus='For Approval'						
-						And IR.PlantId='"+ plantId + @"' 
+						And IR.PlantId='" + plantId + @"' 
                         --AND IR.POType='OSTransformationPO'	--AND IR.AddedBy='Shashank'	
                         AND isnull(IR.IsClosed,0)=0 
 						) x
@@ -336,7 +336,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 }
                 else if (POTypeStatus == "CheckedHoldRej")
                 {
-                    Sql = @"--DECLARE @plantId VARCHAR(10)='"+ plantId + @"';
+                    Sql = @"--DECLARE @plantId VARCHAR(10)='" + plantId + @"';
                          SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
                                     --,IR.PODate
@@ -414,7 +414,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                         JOIN (SELECT SUBSTRING(Id,PATINDEX('%[0-9]%', Id), LEN(Id)) Col, Id from dbo.OSTransformationPO) BD ON BD.Id=IR.Id 
                         WHERE  IR.PlantId='" + plantId + @"' AND IR.CheckedBy IS NOT NULL AND IR.AuthorizedBy IS NOT NULL AND IR.CheckedByStatus='Hold' OR IR.CheckedByStatus='Reject' 
                         --AND IR.POType='OSTransformationPO' 
-                        AND IR.PlantId='"+ plantId + @"'   AND isnull(IR.IsClosed,0)=0 
+                        AND IR.PlantId='" + plantId + @"'   AND isnull(IR.IsClosed,0)=0 
                         --Order by IR.PODate DESC
                          ORDER BY CONVERT(int,Col) desc";//IR.AddedBy='" + identity.Name + "' And
 
@@ -906,7 +906,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
                         left join ORG.Entity E on E.Id=IR.EntityId
-                        WHERE IR.PlantId='"+ plantId + @"'  AND IR.CheckedBy IS NOT NULL AND IR.CheckedByStatus='Checked' 
+                        WHERE IR.PlantId='" + plantId + @"'  AND IR.CheckedBy IS NOT NULL AND IR.CheckedByStatus='Checked' 
 						AND IR.AuthorizedBy IS NOT NULL  AND IR.AuthorizedByStatus<>'Approved'  AND IR.AuthorizedByStatus <> 'For Approval'   
 						AND isnull(IR.IsClosed,0)=0 Order by IR.PODate ASC ";
 
@@ -1283,7 +1283,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                             ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
                     }
                 }
-              
+
             }
             else if (IsOwnVendor == "OtherVendor")
             {
@@ -1596,153 +1596,153 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                     //                  --and POMAP.Id='"+ JWPODId + @"'
                     //ORDER BY JWPOBOQMAP.BOQDetailId DESC, b.Sequence, b.SalesOrderId";//b.MaterialMasterId,
 
-      //              sql = @"SELECT NULL AS uoMList,NULL as BOQserviceCboList, b.Id BOQId,b.Sequence Sequence1
-						//,b.MasterOrderItemId
-						//,moi.MasterOrderId
-						//,ISNULL(mo.OwnReferenceNo,'') OwnOrderReferenceNo
-						//,ISNULL(mo.BuyerReferenceNo,'') BuyerOrderReferenceNo
+                    //              sql = @"SELECT NULL AS uoMList,NULL as BOQserviceCboList, b.Id BOQId,b.Sequence Sequence1
+                    //,b.MasterOrderItemId
+                    //,moi.MasterOrderId
+                    //,ISNULL(mo.OwnReferenceNo,'') OwnOrderReferenceNo
+                    //,ISNULL(mo.BuyerReferenceNo,'') BuyerOrderReferenceNo
 
-						//,ISNULL(moi.OwnReferenceNo,'') OwnItemReferenceNo
-						//,ISNULL(moi.BuyerReferenceNo,'') BuyerItemReferenceNo
-						//, b.VendorId
-						//,b.SalesOrderId
-						//,mm.Id MaterialMasterId,mma.Id ArticleId
-						//,IsNULL(mm.UserName,'') AS UserName
-						//,IsNULL(mma.StandardName,'') AS StandardName
-						//,IsNULL(p.UserName,'') AS Vendor
-						//,IsNULL(v1.UserName,'') AS FirstCharacteristicsValue
-						//,IsNULL(v2.UserName,'') AS SecondCharacteristicsValue
-						//,IsNULL(v3.UserName,'') AS ThirdCharacteristicsValue
+                    //,ISNULL(moi.OwnReferenceNo,'') OwnItemReferenceNo
+                    //,ISNULL(moi.BuyerReferenceNo,'') BuyerItemReferenceNo
+                    //, b.VendorId
+                    //,b.SalesOrderId
+                    //,mm.Id MaterialMasterId,mma.Id ArticleId
+                    //,IsNULL(mm.UserName,'') AS UserName
+                    //,IsNULL(mma.StandardName,'') AS StandardName
+                    //,IsNULL(p.UserName,'') AS Vendor
+                    //,IsNULL(v1.UserName,'') AS FirstCharacteristicsValue
+                    //,IsNULL(v2.UserName,'') AS SecondCharacteristicsValue
+                    //,IsNULL(v3.UserName,'') AS ThirdCharacteristicsValue
 
-						//,b.FirstCharacteristicsValueId,FC.Id FirstCharacteristicsId
-						//,b.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
-						//,b.ThirdCharacteristicsValueId,TC.Id ThirdCharacteristicsId
-						//,RequiredQtyApproved=Case When CONVERT(BIT, isnull(b.RequiredQtyApproved,0))=0 Then 'No' ELSE 'Yes' END
-						//,IncompleteMaterial=CASE WHEN CONVERT(BIT, isnull(b.IncompleteMaterial,0))=1 THEN 'Yes' ELSE 'No' END 
-						//,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
-						//b.BOMQty--,C.Id
-						//,CONVERT(BIT,CASE WHEN ISNULL(JWPOBOQMAP.Id,'')<>'' THEN 1 ELSE 0 END) CheckedStatus ,NULL TaxList,MM.HSNCodeId	,MM.IsOriginApplicable
-						
-						//,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
-						//,ISNULL(cpo.PONumber,'') PONumber
-						//,b.RequiredQty
-						//,uom.UserName BOQUOM
-						//,b.POUoMId FromPoUomId
-					 //   ,b.POUoMId
-						//,b.RequiredQtyPO 
-						//,b.RequiredQtyPO RequiredQtyPOOrginal
-						//,TransactionUoMId=CASE WHEN b.POUoMId IS NULL THEN b.UoMId ELSE b.POUoMId END
-						//,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '-' + ISNULL(mo.BuyerReferenceNo,'') +'-'+ ISNULL(moi.OwnReferenceNo,'')+'-'+ISNULL(moi.BuyerReferenceNo,'')
-						//,mm.BaseUOMId
-						//,POMAP.RatePerUnit as TransactionRate
-						//, IsEditMode=1
-						//,POMAP.ServiceId
-						//,Sum(Isnull(POMAP.TransactionQty,0)) PORaisedQry
-						//--,Sum(ISNULL(OtherPOData.TransactionQty,0)) OtherPOQty
-						//--,Sum(ISNULL(OtherPOData.TransactionQty,0)) OtherPOQtyOrginal
-						//--,Sum(JWPOBOQMAP.TransactionQty) TransactionQty
-      //                  ,POMAP.TransactionQty--,BalanceQuantity=b.RequiredQtyPO - ISNULL(OtherPOData.TransactionQty,0)
-      //                  ,BalanceQuantity=b.RequiredQtyPO - ISNULL(kk.OtherPOQuantity,0)
-						//,ISNULL(kk.OtherPOQuantity,'0') as OtherPOQty
-      //                  ,ISNULL(kk.OtherPOQuantity,'0') as OtherPOQtyOrginal
-						//FROM BOQ AS b
-						//LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
-						//LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
-						//LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
-						//LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
-						//LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
-						//LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
-						//LEFT OUTER JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
-						//left outer join [TRN].[CustomerPO] cpo On cpo.Id=so.CustomerPOId
+                    //,b.FirstCharacteristicsValueId,FC.Id FirstCharacteristicsId
+                    //,b.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
+                    //,b.ThirdCharacteristicsValueId,TC.Id ThirdCharacteristicsId
+                    //,RequiredQtyApproved=Case When CONVERT(BIT, isnull(b.RequiredQtyApproved,0))=0 Then 'No' ELSE 'Yes' END
+                    //,IncompleteMaterial=CASE WHEN CONVERT(BIT, isnull(b.IncompleteMaterial,0))=1 THEN 'Yes' ELSE 'No' END 
+                    //,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
+                    //b.BOMQty--,C.Id
+                    //,CONVERT(BIT,CASE WHEN ISNULL(JWPOBOQMAP.Id,'')<>'' THEN 1 ELSE 0 END) CheckedStatus ,NULL TaxList,MM.HSNCodeId	,MM.IsOriginApplicable
 
-						//LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
-						//LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
-						//LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
+                    //,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
+                    //,ISNULL(cpo.PONumber,'') PONumber
+                    //,b.RequiredQty
+                    //,uom.UserName BOQUOM
+                    //,b.POUoMId FromPoUomId
+                    //   ,b.POUoMId
+                    //,b.RequiredQtyPO 
+                    //,b.RequiredQtyPO RequiredQtyPOOrginal
+                    //,TransactionUoMId=CASE WHEN b.POUoMId IS NULL THEN b.UoMId ELSE b.POUoMId END
+                    //,RefferenceNo=ISNULL(mo.OwnReferenceNo,'') + '-' + ISNULL(mo.BuyerReferenceNo,'') +'-'+ ISNULL(moi.OwnReferenceNo,'')+'-'+ISNULL(moi.BuyerReferenceNo,'')
+                    //,mm.BaseUOMId
+                    //,POMAP.RatePerUnit as TransactionRate
+                    //, IsEditMode=1
+                    //,POMAP.ServiceId
+                    //,Sum(Isnull(POMAP.TransactionQty,0)) PORaisedQry
+                    //--,Sum(ISNULL(OtherPOData.TransactionQty,0)) OtherPOQty
+                    //--,Sum(ISNULL(OtherPOData.TransactionQty,0)) OtherPOQtyOrginal
+                    //--,Sum(JWPOBOQMAP.TransactionQty) TransactionQty
+                    //                  ,POMAP.TransactionQty--,BalanceQuantity=b.RequiredQtyPO - ISNULL(OtherPOData.TransactionQty,0)
+                    //                  ,BalanceQuantity=b.RequiredQtyPO - ISNULL(kk.OtherPOQuantity,0)
+                    //,ISNULL(kk.OtherPOQuantity,'0') as OtherPOQty
+                    //                  ,ISNULL(kk.OtherPOQuantity,'0') as OtherPOQtyOrginal
+                    //FROM BOQ AS b
+                    //LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
+                    //LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
+                    //LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
+                    //LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
+                    //LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
+                    //LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
+                    //LEFT OUTER JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
+                    //left outer join [TRN].[CustomerPO] cpo On cpo.Id=so.CustomerPOId
 
-						//LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
-						//LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
-						//LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
+                    //LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
+                    //LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
+                    //LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
 
-						//LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
-						//LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,JWPPOD.Id,sum(POBOQMAP1.TransactionQty) TransactionQty,JWPPOD.RatePerUnit,JWPPOD.ServiceId
-						//					FROM JWPOBOQMAP POBOQMAP1
+                    //LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
+                    //LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
+                    //LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
 
-      //                              LEFT JOIN dbo.OSTransformationPODetail JWPPOD ON JWPPOD.Id=POBOQMAP1.JWPODetailId
-						//			LEFT JOIN OSTransformationPO POM ON POM.Id=JWPPOD.OSTransformationPOId
-						//			where POM.Id ='" + JWPOId + @"'
-						//			GROUP by POBOQMAP1.BOQDetailId,JWPPOD.Id,JWPPOD.RatePerUnit,JWPPOD.ServiceId					
-						//			)POMAP ON POMAP.BOQDetailId=b.Id
-						//LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,JWPPOD.Id,sum(POBOQMAP1.POBOQQty) TransactionQty,JWPPOD.RatePerUnit
-						//					FROM JWPOBOQMAP POBOQMAP1
-      //                              LEFT JOIN OSTransformationPODetail JWPPOD ON JWPPOD.Id=POBOQMAP1.JWPODetailId
-						//			LEFT JOIN OSTransformationPO POM ON POM.Id=JWPPOD.OSTransformationPOId
-						//			where POM.Id !='"+ JWPOId + @"'
-						//			GROUP by POBOQMAP1.BOQDetailId,JWPPOD.Id,JWPPOD.RatePerUnit
-						//		) OtherPOData ON OtherPOData.BOQDetailId=b.Id
-      //                                    left join (select Sum(boqmap.TransactionQty) as OtherPOQuantity,B.MaterialMasterId,B.ArticleId,SO.Id as SalesOrderId,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
-      //                                    ,B.ThirdCharacteristicsValueId
-      //                                    from dbo.JWPOBOQMAP boqmap --left join dbo.OSTransformationPODetail om on om.Id=boqmap.JWPODetailId
-      //                                    left join dbo.BOQ B on B.Id=boqmap.BOQDetailId
-      //                                    left join trn.SalesOrder SO on SO.Id=B.SalesOrderId
-      //                                    group by B.MaterialMasterId,B.ArticleId,SO.Id,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
-      //                                    ,B.ThirdCharacteristicsValueId)
-						//				  kk on kk.SalesOrderId=so.Id
-      //                  LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
-      //                    LEFT JOIN JWPOBOQMAP JWPOBOQMAP ON JWPOBOQMAP.BOQDetailId=b.Id AND JWPOBOQMAP.JWPODetailId IN (select Id from OSTransformationPODetail where OSTransformationPOId='" + JWPOId + @"')
-						//WHERE moi.ContractId='"+ ContractId + @"' AND (b.VendorId='"+ VendorId + @"' OR b.VendorId is null)
-      //                   AND  b.id in(select ParentId from BOQ where ISNULL(ParentId,'')<>'' 
-						//) 
-						//and b.MaterialMasterId='"+ MaterialId + @"' and b.ArticleId='"+ ArticleId + @"'
-      //                  --and POMAP.Id='JWPD49'
-						//--ORDER BY JWPOBOQMAP.BOQDetailId DESC, b.Sequence, b.SalesOrderId
-						//group by
-						// b.Id,b.Sequence 
-						//,b.MasterOrderItemId
-						//,moi.MasterOrderId
-						//,ISNULL(mo.OwnReferenceNo,'') 
-						//,ISNULL(mo.BuyerReferenceNo,'') 
+                    //LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
+                    //LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,JWPPOD.Id,sum(POBOQMAP1.TransactionQty) TransactionQty,JWPPOD.RatePerUnit,JWPPOD.ServiceId
+                    //					FROM JWPOBOQMAP POBOQMAP1
 
-						//,ISNULL(moi.OwnReferenceNo,'') 
-						//,ISNULL(moi.BuyerReferenceNo,'') 
-						//, b.VendorId
-						//,b.SalesOrderId
-						//,mm.Id 
-						//,mma.Id 
-						//,IsNULL(mm.UserName,'')  
-						//,IsNULL(mma.StandardName,'')  
-						//,IsNULL(p.UserName,'')  
-						//,IsNULL(v1.UserName,'')  
-						//,IsNULL(v2.UserName,'')  
-						//,IsNULL(v3.UserName,'')  
+                    //                              LEFT JOIN dbo.OSTransformationPODetail JWPPOD ON JWPPOD.Id=POBOQMAP1.JWPODetailId
+                    //			LEFT JOIN OSTransformationPO POM ON POM.Id=JWPPOD.OSTransformationPOId
+                    //			where POM.Id ='" + JWPOId + @"'
+                    //			GROUP by POBOQMAP1.BOQDetailId,JWPPOD.Id,JWPPOD.RatePerUnit,JWPPOD.ServiceId					
+                    //			)POMAP ON POMAP.BOQDetailId=b.Id
+                    //LEFT JOIN(SELECT  POBOQMAP1.BOQDetailId,JWPPOD.Id,sum(POBOQMAP1.POBOQQty) TransactionQty,JWPPOD.RatePerUnit
+                    //					FROM JWPOBOQMAP POBOQMAP1
+                    //                              LEFT JOIN OSTransformationPODetail JWPPOD ON JWPPOD.Id=POBOQMAP1.JWPODetailId
+                    //			LEFT JOIN OSTransformationPO POM ON POM.Id=JWPPOD.OSTransformationPOId
+                    //			where POM.Id !='"+ JWPOId + @"'
+                    //			GROUP by POBOQMAP1.BOQDetailId,JWPPOD.Id,JWPPOD.RatePerUnit
+                    //		) OtherPOData ON OtherPOData.BOQDetailId=b.Id
+                    //                                    left join (select Sum(boqmap.TransactionQty) as OtherPOQuantity,B.MaterialMasterId,B.ArticleId,SO.Id as SalesOrderId,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
+                    //                                    ,B.ThirdCharacteristicsValueId
+                    //                                    from dbo.JWPOBOQMAP boqmap --left join dbo.OSTransformationPODetail om on om.Id=boqmap.JWPODetailId
+                    //                                    left join dbo.BOQ B on B.Id=boqmap.BOQDetailId
+                    //                                    left join trn.SalesOrder SO on SO.Id=B.SalesOrderId
+                    //                                    group by B.MaterialMasterId,B.ArticleId,SO.Id,B.FirstCharacteristicsValueId,B.SecondCharacteristicsValueId
+                    //                                    ,B.ThirdCharacteristicsValueId)
+                    //				  kk on kk.SalesOrderId=so.Id
+                    //                  LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
+                    //                    LEFT JOIN JWPOBOQMAP JWPOBOQMAP ON JWPOBOQMAP.BOQDetailId=b.Id AND JWPOBOQMAP.JWPODetailId IN (select Id from OSTransformationPODetail where OSTransformationPOId='" + JWPOId + @"')
+                    //WHERE moi.ContractId='"+ ContractId + @"' AND (b.VendorId='"+ VendorId + @"' OR b.VendorId is null)
+                    //                   AND  b.id in(select ParentId from BOQ where ISNULL(ParentId,'')<>'' 
+                    //) 
+                    //and b.MaterialMasterId='"+ MaterialId + @"' and b.ArticleId='"+ ArticleId + @"'
+                    //                  --and POMAP.Id='JWPD49'
+                    //--ORDER BY JWPOBOQMAP.BOQDetailId DESC, b.Sequence, b.SalesOrderId
+                    //group by
+                    // b.Id,b.Sequence 
+                    //,b.MasterOrderItemId
+                    //,moi.MasterOrderId
+                    //,ISNULL(mo.OwnReferenceNo,'') 
+                    //,ISNULL(mo.BuyerReferenceNo,'') 
 
-						//,b.FirstCharacteristicsValueId,FC.Id 
-						//,b.SecondCharacteristicsValueId,SC.Id 
-						//,b.ThirdCharacteristicsValueId,TC.Id 
-						//,b.RequiredQtyApproved
-						//,b.IncompleteMaterial
-						//,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
-						//b.BOMQty--,C.Id
-						//,JWPOBOQMAP.Id  ,MM.HSNCodeId	,MM.IsOriginApplicable
-						
-						//,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-')   
-						//,ISNULL(cpo.PONumber,'') 
-						//,b.RequiredQty
-						//,uom.UserName 
-						//,b.POUoMId 
-					 //   ,b.POUoMId
-						//,b.RequiredQtyPO 
-						//,b.RequiredQtyPO 
-						//,b.POUoMId
-						//,mo.OwnReferenceNo
-						//,mm.BaseUOMId,b.POUoMId,b.UoMId
-						//,POMAP.RatePerUnit  
-					
-						//,POMAP.ServiceId
-      //                  ,POMAP.TransactionQty
-      //                  --,OtherPOData.TransactionQty
-      //                  ,kk.OtherPOQuantity";
+                    //,ISNULL(moi.OwnReferenceNo,'') 
+                    //,ISNULL(moi.BuyerReferenceNo,'') 
+                    //, b.VendorId
+                    //,b.SalesOrderId
+                    //,mm.Id 
+                    //,mma.Id 
+                    //,IsNULL(mm.UserName,'')  
+                    //,IsNULL(mma.StandardName,'')  
+                    //,IsNULL(p.UserName,'')  
+                    //,IsNULL(v1.UserName,'')  
+                    //,IsNULL(v2.UserName,'')  
+                    //,IsNULL(v3.UserName,'')  
 
-                    sql= @"SELECT NULL AS uoMList,NULL as BOQserviceCboList, b.Id BOQId,b.Sequence Sequence1
+                    //,b.FirstCharacteristicsValueId,FC.Id 
+                    //,b.SecondCharacteristicsValueId,SC.Id 
+                    //,b.ThirdCharacteristicsValueId,TC.Id 
+                    //,b.RequiredQtyApproved
+                    //,b.IncompleteMaterial
+                    //,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
+                    //b.BOMQty--,C.Id
+                    //,JWPOBOQMAP.Id  ,MM.HSNCodeId	,MM.IsOriginApplicable
+
+                    //,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-')   
+                    //,ISNULL(cpo.PONumber,'') 
+                    //,b.RequiredQty
+                    //,uom.UserName 
+                    //,b.POUoMId 
+                    //   ,b.POUoMId
+                    //,b.RequiredQtyPO 
+                    //,b.RequiredQtyPO 
+                    //,b.POUoMId
+                    //,mo.OwnReferenceNo
+                    //,mm.BaseUOMId,b.POUoMId,b.UoMId
+                    //,POMAP.RatePerUnit  
+
+                    //,POMAP.ServiceId
+                    //                  ,POMAP.TransactionQty
+                    //                  --,OtherPOData.TransactionQty
+                    //                  ,kk.OtherPOQuantity";
+
+                    sql = @"SELECT NULL AS uoMList,NULL as BOQserviceCboList, b.Id BOQId,b.Sequence Sequence1
 						,b.MasterOrderItemId
 						,moi.MasterOrderId
 						,ISNULL(mo.OwnReferenceNo, '') OwnOrderReferenceNo
@@ -1868,10 +1868,10 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                         LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId = mm.Id
                           LEFT JOIN JWPOBOQMAP JWPOBOQMAP ON JWPOBOQMAP.BOQDetailId = b.Id AND JWPOBOQMAP.JWPODetailId= '" + JWPODId + @"' --IN(select Id from OSTransformationPODetail where OSTransformationPOId = '" + JWPOId + @"')
 
-                        WHERE moi.ContractId = '" + ContractId + @"' AND(b.VendorId = '"+VendorId + @"' OR b.VendorId is null)
+                        WHERE moi.ContractId = '" + ContractId + @"' AND(b.VendorId = '" + VendorId + @"' OR b.VendorId is null)
                          AND b.id in(select ParentId from BOQ where ISNULL(ParentId, '') <> ''
 						) 
-						and b.MaterialMasterId = '" + MaterialId + @"' and b.ArticleId = '"+ArticleId +@"'
+						and b.MaterialMasterId = '" + MaterialId + @"' and b.ArticleId = '" + ArticleId + @"'
                           --and POMAP.Id = 'JWPD49'
                           --ORDER BY JWPOBOQMAP.BOQDetailId DESC, b.Sequence, b.SalesOrderId
                           group by
@@ -2955,7 +2955,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                     }
 
-                    
+
                     data["IsClosed"] = false;
 
                     AddNewRow(dsMaster.Tables[0], data);
@@ -3006,13 +3006,13 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                     }
 
-                    
+
                     data["IsClosed"] = false;
 
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
 
-                      
+
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
@@ -3052,7 +3052,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
 
-                
+
 
                 //   con.executeQuery("delete from JWTransformationPurchaseOrderDetail where OSTransformationPOId='" + id + "'");
                 con.executeQuery("delete from OSTransformationPO where Id='" + id + "'");
@@ -3123,14 +3123,14 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 }
                 else
                 {
-             //       con.executeQuery("delete from dbo.JWPOBOQMAP where JWPODetailId='" + id + @"' ");
+                    //       con.executeQuery("delete from dbo.JWPOBOQMAP where JWPODetailId='" + id + @"' ");
                     con.executeQuery("delete from dbo.OSPOBOQMAP where OSTransformationPODetailId='" + id + @"' ");
                     con.executeQuery("delete from dbo.OSTransformationPOInputMaterial where OSTransformationPODetailId='" + id + @"' ");
                     con.executeQuery("delete from dbo.OSTransformationPOTax where OSTransformationPODetailId='" + id + @"' ");
                     con.executeQuery("delete from dbo.OSTransformationPODetail where Id='" + id + "' ");
                 }
 
-             
+
 
                 con.CommitTransaction();
 
@@ -3470,9 +3470,9 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
         public List<Dictionary<string, object>> detailcreate(List<Dictionary<string, object>> data, string JWPurchaseOrderId, string JWActivityId, string userName, string IPAddress, string OrderSpecific, string type, List<Dictionary<string, object>> taxCategoryList, string JWPOToCurrencyRate, string JWPOIsNonCreditable, string JWPODate, string JWPOType)
         {
-            string  JWOutId = " ";
+            string JWOutId = " ";
             //string  JWBOQId = " ";
-            string  JWBOQId = "' '";
+            string JWBOQId = "' '";
             string ABC = "";
             string JWBOQReqQty = "";
             string TRate = "";
@@ -3506,7 +3506,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                     throw new Exception("Same Material and Article already exist.");
                 }
             }
-            
+
 
             con.OpenDataSetThroughAdapter("SELECT * FROM OSTransformationPODetail WHERE OSTransformationPOId='" + JWPurchaseOrderId + "'", out dsMaster, false, "1");
 
@@ -3528,11 +3528,11 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 {
                     dataBoq = data;
                     detailBoq = data;
-                    if(data[0]["BOQId"] != null)
+                    if (data[0]["BOQId"] != null)
                     {
                         data = MakePodetail(data);
                     }
-                    
+
                     //dataBoq = new List<Dictionary<string, object>>(data);
                     #region Validation
 
@@ -3546,14 +3546,14 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                         if (data[i].ContainsKey("RequiredQty"))
                         {
                             dsMaster.Tables[0].DefaultView.RowFilter = "Id='" + bplib.clsWebLib.RetValidLen(data[i]["Id"]).ToString() + "'";
-                            if(dsMaster.Tables[0].DefaultView.Count == 0)
+                            if (dsMaster.Tables[0].DefaultView.Count == 0)
                             {
                                 if (clsStaticInfo.dbl(data[i]["TransactionQty"].ToString()) + clsStaticInfo.dbl(data[i]["OtherPOQty"].ToString()) > clsStaticInfo.dbl(data[i]["RequiredQty"].ToString()))
                                 {
                                     throw new Exception("Current Qty can't be Greater then Transaction Qty.");
                                 }
                             }
-                  
+
                         }
 
                         var _locUOM = data.Where(ee => ee["TransactionUoMId"].ToString().Trim() != data[i]["TransactionUoMId"].ToString().Trim()).ToList();
@@ -3616,7 +3616,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                             //JWBOQId += ",'" + data[i]["BOQId"].ToString() + "' ";
 
                             JWOutId = data[i]["Id"].ToString();
-                            JWBOQId +=", '"+ data[i]["BOQId"].ToString() + "' ";
+                            JWBOQId += ", '" + data[i]["BOQId"].ToString() + "' ";
                             ABC = data[i]["BOQId"].ToString();
                             JWBOQReqQty = data[i]["RequiredQtyPO"].ToString();
                             TQty = data[i]["TransactionQty"].ToString();
@@ -3685,16 +3685,16 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                             //JWBOQId += ",'" + data[i]["BOQId"].ToString() + "' ";
 
                             JWOutId = data[i]["Id"].ToString();
-                            if (data[i]["BOQId"]!=null)
+                            if (data[i]["BOQId"] != null)
                             {
                                 JWBOQId += ", '" + data[i]["BOQId"].ToString() + "' ";
-                                 ABC = data[i]["BOQId"].ToString();
+                                ABC = data[i]["BOQId"].ToString();
                                 JWBOQReqQty = data[i]["RequiredQtyPO"].ToString();
                                 TQty = data[i]["TransactionQty"].ToString();
                                 TRate = data[i]["RatePerUnit"].ToString();
                                 dataBoq = data;
                             }
-                            
+
 
                             EditRow(dsMaster.Tables[0].DefaultView[0].Row, data[i]);
 
@@ -3706,7 +3706,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                                 SaveJWServiceTaxes(JWOutId, JWPurchaseOrderId, JWPODate, TQty, TRate, JWPOIsNonCreditable);
                                 JPOBOQMAPCreate(dataBoq, JWOutId, userName, IPAddress, out dsPOBOQMap, detailBoq);
                             }
-                           
+
                         }
                     }
 
@@ -3716,14 +3716,14 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                     decimal SumTax = 0;
                     if (taxCategoryList != null)
                     {
-                        
+
                         for (int a = 0; a < taxCategoryList.Count; a++)
                         {
                             decimal T1 = Convert.ToDecimal(taxCategoryList[a]["TaxAmount"]);
                             SumTax = T1 + SumTax;
                         }
                     }
-                       
+
 
                     for (int i = 0; i < data.Count; i++)
                     {
@@ -3731,7 +3731,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                         dsMaster.Tables[0].DefaultView.RowFilter = "Id='" + bplib.clsWebLib.RetValidLen(data[i]["Id"]).ToString() + "'";
                         dsTax.Tables[0].DefaultView.RowFilter = "OSTransformationPODetailId='" + bplib.clsWebLib.RetValidLen(data[i]["Id"]).ToString() + "'";
-                       // dsTax.Tables[0].DefaultView.RowFilter = "Id='" + bplib.clsWebLib.RetValidLen(data[i]["Id"]).ToString() + "'";
+                        // dsTax.Tables[0].DefaultView.RowFilter = "Id='" + bplib.clsWebLib.RetValidLen(data[i]["Id"]).ToString() + "'";
 
                         string _Id = "";
 
@@ -3744,7 +3744,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                             bplib.clsGenID genid = new bplib.clsGenID();
                             genid.GenID("OSTransformationPODetail", out _Id);
-                          //   data[i]["Id"] = "JWPD" + _Id;
+                            //   data[i]["Id"] = "JWPD" + _Id;
                             data[i]["Id"] = "JWPD" + GetOSoutputmatPK();
                             JWPODId = data[i]["Id"].ToString();
                             //data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
@@ -3757,7 +3757,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                             if (JWPOIsNonCreditable == "False")
                             {
-                            //    decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
+                                //    decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
                                 decimal Amt = Convert.ToDecimal(data[i]["TransactionAmount"]);
                                 decimal BAmt = Convert.ToDecimal(Amt);
                                 data[i]["TransactionAmount"] = data[i]["TransactionAmount"];
@@ -3766,7 +3766,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                             if (JWPOIsNonCreditable == "True")
                             {
-                             //   decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
+                                //   decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
                                 decimal Amt = Convert.ToDecimal(data[i]["TransactionAmount"]);
                                 decimal BAmt = Convert.ToDecimal(Amt + SumTax);
                                 data[i]["TransactionAmount"] = data[i]["TransactionAmount"];
@@ -3793,7 +3793,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                             if (JWPOIsNonCreditable == "False")
                             {
-                             //   decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
+                                //   decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
                                 decimal Amt = Convert.ToDecimal(data[i]["TransactionAmount"]);
                                 decimal BAmt = Convert.ToDecimal(Amt);
                                 data[i]["TransactionAmount"] = data[i]["TransactionAmount"];
@@ -3802,7 +3802,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                             if (JWPOIsNonCreditable == "True")
                             {
-                             //   decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
+                                //   decimal PORate = Convert.ToDecimal(JWPOToCurrencyRate);
                                 decimal Amt = Convert.ToDecimal(data[i]["TransactionAmount"]);
                                 decimal BAmt = Convert.ToDecimal(Amt + SumTax);
                                 data[i]["TransactionAmount"] = data[i]["TransactionAmount"];
@@ -3815,87 +3815,87 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                         if (taxCategoryList != null)
                         {
-                        for (int i1 = 0; i1 < taxCategoryList.Count; i1++)
-                        {
-
-
-                            if (dsTax.Tables[0].DefaultView.Count == 0)
+                            for (int i1 = 0; i1 < taxCategoryList.Count; i1++)
                             {
-                                
 
-                                bplib.clsGenID genid = new bplib.clsGenID();
-                                genid.GenID("OSTransformationPOTax", out _Id);
-                               //  taxCategoryList[i1]["Id"] = "JWPDT" + _Id;
+
+                                if (dsTax.Tables[0].DefaultView.Count == 0)
+                                {
+
+
+                                    bplib.clsGenID genid = new bplib.clsGenID();
+                                    genid.GenID("OSTransformationPOTax", out _Id);
+                                    //  taxCategoryList[i1]["Id"] = "JWPDT" + _Id;
                                     taxCategoryList[i1]["Id"] = "JWPDT" + GetOSPOTaxPK();
                                     //JWPODId = taxCategoryList[i1]["Id"].ToString();
                                     //data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
                                     taxCategoryList[i1]["OSTransformationPOId"] = JWPurchaseOrderId;
-                                taxCategoryList[i1]["OSTransformationPODetailId"] = DetailIdid;
-                                //data[i]["Quantity"] = data[i]["TransactionQty"];
-
-                                AddNewRow(dsTax.Tables[0], taxCategoryList[i1]);
-
-
-
-                            }
-
-
-                            else
-                            {
-
-
-
-                                //data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
-                                //taxCategoryList[i1]["OSTransformationPOId"] = JWPurchaseOrderId;
-                                //taxCategoryList[i1]["OSTransformationPODetailId"] = DetailIdid;
-
-                                //taxCategoryList[i1]["TaxCategoryId"] = dsTax.Tables[0].Rows[i1][""];
-                                //taxCategoryList[i1]["Percentage"] = DetailIdid;
-                                //taxCategoryList[i1]["TaxAmount"] = JWPurchaseOrderId;
-                                // taxCategoryList[i1]["Quantity"] = data[i]["TransactionQty"];
-                                // EditRow(dsTax.Tables[0].DefaultView[0].Row, taxCategoryList[i1]);
-
-                                // edit
-
-                                dsTax.Tables[0].DefaultView.RowFilter = "Id ='" + taxCategoryList[i1]["Id"] + "' ";
-                                if(dsTax.Tables[0].DefaultView.Count == 0)
-                                {
-                                    bplib.clsGenID genid = new bplib.clsGenID();
-                                    genid.GenID("OSTransformationPOTax", out _Id);
-                                    taxCategoryList[i1]["Id"] = "JWPDT" + _Id;
-                                    taxCategoryList[i1]["OSTransformationPOId"] = JWPurchaseOrderId;
                                     taxCategoryList[i1]["OSTransformationPODetailId"] = DetailIdid;
+                                    //data[i]["Quantity"] = data[i]["TransactionQty"];
 
                                     AddNewRow(dsTax.Tables[0], taxCategoryList[i1]);
+
+
+
                                 }
+
+
                                 else
                                 {
-                                    DataRow dr = dsTax.Tables[0].DefaultView[0].Row;
 
-                                    dr.BeginEdit();
-                                    dr["OSTransformationPOId"] = JWPurchaseOrderId;
-                                    dr["OSTransformationPODetailId"] = DetailIdid;
-                                    dr["TaxCategoryId"] = taxCategoryList[i1]["TaxCategoryId"];
-                                    dr["Percentage"] = taxCategoryList[i1]["Percentage"];
-                                    dr["TaxAmount"] = taxCategoryList[i1]["TaxAmount"];
-                                    dr["HSNCodeId"] = taxCategoryList[i1]["HSNCodeId"];
 
-                                    dr["AddedBy"] = identity.Name;
-                                    dr["AddedDate"] = DateTime.Now.ToString();
-                                    dr["AddedFromIP"] = identity.IPAddress;
-                                    dr["UpdatedBy"] = identity.Name;
-                                    dr["UpdatedDate"] = DateTime.Now.ToString();
-                                    dr["UpdatedFromIP"] = identity.IPAddress;
 
-                                    dr.EndEdit();
+                                    //data[i]["OSTransformationPOId"] = JWPurchaseOrderId;
+                                    //taxCategoryList[i1]["OSTransformationPOId"] = JWPurchaseOrderId;
+                                    //taxCategoryList[i1]["OSTransformationPODetailId"] = DetailIdid;
+
+                                    //taxCategoryList[i1]["TaxCategoryId"] = dsTax.Tables[0].Rows[i1][""];
+                                    //taxCategoryList[i1]["Percentage"] = DetailIdid;
+                                    //taxCategoryList[i1]["TaxAmount"] = JWPurchaseOrderId;
+                                    // taxCategoryList[i1]["Quantity"] = data[i]["TransactionQty"];
+                                    // EditRow(dsTax.Tables[0].DefaultView[0].Row, taxCategoryList[i1]);
+
+                                    // edit
+
+                                    dsTax.Tables[0].DefaultView.RowFilter = "Id ='" + taxCategoryList[i1]["Id"] + "' ";
+                                    if (dsTax.Tables[0].DefaultView.Count == 0)
+                                    {
+                                        bplib.clsGenID genid = new bplib.clsGenID();
+                                        genid.GenID("OSTransformationPOTax", out _Id);
+                                        taxCategoryList[i1]["Id"] = "JWPDT" + _Id;
+                                        taxCategoryList[i1]["OSTransformationPOId"] = JWPurchaseOrderId;
+                                        taxCategoryList[i1]["OSTransformationPODetailId"] = DetailIdid;
+
+                                        AddNewRow(dsTax.Tables[0], taxCategoryList[i1]);
+                                    }
+                                    else
+                                    {
+                                        DataRow dr = dsTax.Tables[0].DefaultView[0].Row;
+
+                                        dr.BeginEdit();
+                                        dr["OSTransformationPOId"] = JWPurchaseOrderId;
+                                        dr["OSTransformationPODetailId"] = DetailIdid;
+                                        dr["TaxCategoryId"] = taxCategoryList[i1]["TaxCategoryId"];
+                                        dr["Percentage"] = taxCategoryList[i1]["Percentage"];
+                                        dr["TaxAmount"] = taxCategoryList[i1]["TaxAmount"];
+                                        dr["HSNCodeId"] = taxCategoryList[i1]["HSNCodeId"];
+
+                                        dr["AddedBy"] = identity.Name;
+                                        dr["AddedDate"] = DateTime.Now.ToString();
+                                        dr["AddedFromIP"] = identity.IPAddress;
+                                        dr["UpdatedBy"] = identity.Name;
+                                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                                        dr.EndEdit();
+                                    }
+
                                 }
-                                
                             }
-                        }
                         }
 
                     }
-                 
+
                 }
 
                 if (data != null)
@@ -3951,49 +3951,49 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             return sID;
         }
 
-        public void SaveJWBOQChild(string JWOutId, string  JWBOQId, string JWBOQReqQty, string ABC, string JWPOType)
+        public void SaveJWBOQChild(string JWOutId, string JWBOQId, string JWBOQReqQty, string ABC, string JWPOType)
         {
-            
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var JWBOQChildId = "' '";
             var BB = "''";
             BB += ",'" + JWBOQId + "' ";
             try
-            {  
+            {
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (JWPOType == "OSTransformationPO")
                 {
-                DataSet JWBOQ;
-                DataSet JWOutMat;
-                DataSet DelJWMatInput;
+                    DataSet JWBOQ;
+                    DataSet JWOutMat;
+                    DataSet DelJWMatInput;
 
-                if (!string.IsNullOrEmpty(JWOutId))
-                {
-                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.OSTransformationPOInputMaterial where OSTransformationPODetailId='" + JWOutId + "' ", out DelJWMatInput, false, "1");
-                    if (DelJWMatInput.Tables[0].Rows.Count > 0)
+                    if (!string.IsNullOrEmpty(JWOutId))
                     {
-                        // throw new Exception("First Delete Material Output Data");
-                        con.BeginTransaction();
+                        con.OpenDataSetThroughAdapter("SELECT * FROM dbo.OSTransformationPOInputMaterial where OSTransformationPODetailId='" + JWOutId + "' ", out DelJWMatInput, false, "1");
+                        if (DelJWMatInput.Tables[0].Rows.Count > 0)
+                        {
+                            // throw new Exception("First Delete Material Output Data");
+                            con.BeginTransaction();
 
-                        con.executeQuery("delete from dbo.OSTransformationPOInputMaterial where OSTransformationPODetailId='" + JWOutId + @"' ");
+                            con.executeQuery("delete from dbo.OSTransformationPOInputMaterial where OSTransformationPODetailId='" + JWOutId + @"' ");
 
-                        con.CommitTransaction();
+                            con.CommitTransaction();
+                        }
                     }
-                }
 
-                //con.OpenDataSetThroughAdapter("select * from BOQ where ParentId='"+ JWBOQId + @"'  ", out JWBOQ, false, "1");
-                //con.OpenDataSetThroughAdapter("select * from BOQ where ParentId IN ( " + JWBOQId + " )  ", out JWBOQ, false, "1");
-                con.OpenDataSetThroughAdapter("select * from BOQ where ParentId IN (" + ABC + ")  ", out JWBOQ, false, "1");
+                    //con.OpenDataSetThroughAdapter("select * from BOQ where ParentId='"+ JWBOQId + @"'  ", out JWBOQ, false, "1");
+                    //con.OpenDataSetThroughAdapter("select * from BOQ where ParentId IN ( " + JWBOQId + " )  ", out JWBOQ, false, "1");
+                    con.OpenDataSetThroughAdapter("select * from BOQ where ParentId IN (" + ABC + ")  ", out JWBOQ, false, "1");
 
-                for (var i=0;i< JWBOQ.Tables[0].DefaultView.Count; i++)
-                {
-                    JWBOQChildId += ",'" + JWBOQ.Tables[0].Rows[i]["Id"] ;
-                }
-                con.OpenDataSetThroughAdapter("select * from dbo.OSTransformationPOInputMaterial where OSTransformationPODetailId='" + JWOutId + "' ", out JWOutMat, false, "1");
-                string BoqChildId = "";
-                decimal Consumption = 0;
-                decimal WastagePer = 0;
-                string BOQArticleId = "";
+                    for (var i = 0; i < JWBOQ.Tables[0].DefaultView.Count; i++)
+                    {
+                        JWBOQChildId += ",'" + JWBOQ.Tables[0].Rows[i]["Id"];
+                    }
+                    con.OpenDataSetThroughAdapter("select * from dbo.OSTransformationPOInputMaterial where OSTransformationPODetailId='" + JWOutId + "' ", out JWOutMat, false, "1");
+                    string BoqChildId = "";
+                    decimal Consumption = 0;
+                    decimal WastagePer = 0;
+                    string BOQArticleId = "";
 
                     for (var j = 0; j < JWBOQ.Tables[0].DefaultView.Count; j++)
                     {
@@ -4007,91 +4007,91 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                         decimal GrossConsumption = (Consumption * (1 + (WastagePer / 100)));
 
-                    BOQArticleId = JWBOQ.Tables[0].Rows[j]["ArticleId"].ToString();
-
-                    JWOutMat.Tables[0].DefaultView.RowFilter = "OSTransformationPODetailId='" + JWOutId + "' and BOQChildId='" + bplib.clsWebLib.RetValidLen(JWBOQ.Tables[0].Rows[j]["Id"]).ToString() + "' ";
-                    
-
-                    if (JWOutMat.Tables[0].DefaultView.Count == 0)
-                    {
-                        DataRow dr = JWOutMat.Tables[0].NewRow();
-                        dr["Id"] = "MI" + GetMaterialInputPK();
-
-                        dr["OSTransformationPODetailId"] = JWOutId;
-
-                        //dr["JobWorkItemId"] = item.JobWorkItemId;
-                        //dr["ItemSpecification"] = item.ItemSpecification;
-
-                        dr["NetConsumption"] = Consumption;
-                        dr["Rejection"] = 0;
-                        dr["ValueLoss"] = WastagePer;
-                        dr["GrossConsumption"] = GrossConsumption;
-
-                        dr["BOQRequiredQuantity"] = ReqQuantity;
-                        dr["BOQChildId"] = JWBOQ.Tables[0].Rows[j]["Id"];
-                        dr["ArticleId"] = BOQArticleId;
-
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
-                        dr["AddedFromIP"] = identity.IPAddress;
-
-                        JWOutMat.Tables[0].Rows.Add(dr);
-                    }
-                    else
-                    {
-                        //edit
+                        BOQArticleId = JWBOQ.Tables[0].Rows[j]["ArticleId"].ToString();
 
                         JWOutMat.Tables[0].DefaultView.RowFilter = "OSTransformationPODetailId='" + JWOutId + "' and BOQChildId='" + bplib.clsWebLib.RetValidLen(JWBOQ.Tables[0].Rows[j]["Id"]).ToString() + "' ";
 
-                        if(JWOutMat.Tables[0].DefaultView.Count == 0)
+
+                        if (JWOutMat.Tables[0].DefaultView.Count == 0)
                         {
-                            DataRow drr = JWOutMat.Tables[0].NewRow();
-                            drr["Id"] = "MI" + GetMaterialInputPK();
+                            DataRow dr = JWOutMat.Tables[0].NewRow();
+                            dr["Id"] = "MI" + GetMaterialInputPK();
 
-                            drr["OSTransformationPODetailId"] = JWOutId;
+                            dr["OSTransformationPODetailId"] = JWOutId;
 
-                            drr["NetConsumption"] = Consumption;
-                            drr["Rejection"] = 0;
-                            drr["ValueLoss"] = WastagePer;
-                            drr["GrossConsumption"] = GrossConsumption;
-                            drr["BOQRequiredQuantity"] = ReqQuantity;
-                            drr["BOQChildId"] = JWBOQ.Tables[0].Rows[j]["Id"];
-                            drr["ArticleId"] = BOQArticleId;
+                            //dr["JobWorkItemId"] = item.JobWorkItemId;
+                            //dr["ItemSpecification"] = item.ItemSpecification;
 
-                            drr["AddedBy"] = identity.Name;
-                            drr["AddedDate"] = System.DateTime.Now.ToString();
-                            drr["AddedFromIP"] = identity.IPAddress;
+                            dr["NetConsumption"] = Consumption;
+                            dr["Rejection"] = 0;
+                            dr["ValueLoss"] = WastagePer;
+                            dr["GrossConsumption"] = GrossConsumption;
 
-                            JWOutMat.Tables[0].Rows.Add(drr);
+                            dr["BOQRequiredQuantity"] = ReqQuantity;
+                            dr["BOQChildId"] = JWBOQ.Tables[0].Rows[j]["Id"];
+                            dr["ArticleId"] = BOQArticleId;
+
+                            dr["AddedBy"] = identity.Name;
+                            dr["AddedDate"] = System.DateTime.Now.ToString();
+                            dr["AddedFromIP"] = identity.IPAddress;
+
+                            JWOutMat.Tables[0].Rows.Add(dr);
                         }
-                        else if(JWOutMat.Tables[0].DefaultView.Count > 0)
+                        else
                         {
-                            DataRow drr = JWOutMat.Tables[0].DefaultView[0].Row;
+                            //edit
 
-                            drr.BeginEdit();
+                            JWOutMat.Tables[0].DefaultView.RowFilter = "OSTransformationPODetailId='" + JWOutId + "' and BOQChildId='" + bplib.clsWebLib.RetValidLen(JWBOQ.Tables[0].Rows[j]["Id"]).ToString() + "' ";
 
-                            drr["OSTransformationPODetailId"] = JWOutId;
+                            if (JWOutMat.Tables[0].DefaultView.Count == 0)
+                            {
+                                DataRow drr = JWOutMat.Tables[0].NewRow();
+                                drr["Id"] = "MI" + GetMaterialInputPK();
 
-                            drr["NetConsumption"] = Consumption;
-                            drr["Rejection"] = 0;
-                            drr["ValueLoss"] = WastagePer;
-                            drr["GrossConsumption"] = GrossConsumption;
-                            drr["BOQRequiredQuantity"] = ReqQuantity;
-                            drr["BOQChildId"] = JWBOQ.Tables[0].Rows[j]["Id"];
-                            drr["ArticleId"] = BOQArticleId;
+                                drr["OSTransformationPODetailId"] = JWOutId;
 
-                            drr["UpdatedBy"] = identity.Name;
-                            drr["UpdatedDate"] = System.DateTime.Now.ToString();
-                            drr["UpdatedFromIP"] = identity.IPAddress;
+                                drr["NetConsumption"] = Consumption;
+                                drr["Rejection"] = 0;
+                                drr["ValueLoss"] = WastagePer;
+                                drr["GrossConsumption"] = GrossConsumption;
+                                drr["BOQRequiredQuantity"] = ReqQuantity;
+                                drr["BOQChildId"] = JWBOQ.Tables[0].Rows[j]["Id"];
+                                drr["ArticleId"] = BOQArticleId;
 
-                            drr.EndEdit();
+                                drr["AddedBy"] = identity.Name;
+                                drr["AddedDate"] = System.DateTime.Now.ToString();
+                                drr["AddedFromIP"] = identity.IPAddress;
+
+                                JWOutMat.Tables[0].Rows.Add(drr);
+                            }
+                            else if (JWOutMat.Tables[0].DefaultView.Count > 0)
+                            {
+                                DataRow drr = JWOutMat.Tables[0].DefaultView[0].Row;
+
+                                drr.BeginEdit();
+
+                                drr["OSTransformationPODetailId"] = JWOutId;
+
+                                drr["NetConsumption"] = Consumption;
+                                drr["Rejection"] = 0;
+                                drr["ValueLoss"] = WastagePer;
+                                drr["GrossConsumption"] = GrossConsumption;
+                                drr["BOQRequiredQuantity"] = ReqQuantity;
+                                drr["BOQChildId"] = JWBOQ.Tables[0].Rows[j]["Id"];
+                                drr["ArticleId"] = BOQArticleId;
+
+                                drr["UpdatedBy"] = identity.Name;
+                                drr["UpdatedDate"] = System.DateTime.Now.ToString();
+                                drr["UpdatedFromIP"] = identity.IPAddress;
+
+                                drr.EndEdit();
+                            }
                         }
+                        //clsStaticInfo _info = new clsStaticInfo();
+                        //_info.SaveDataSets(JWOutMat);
                     }
-                    //clsStaticInfo _info = new clsStaticInfo();
-                    //_info.SaveDataSets(JWOutMat);
-                }
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(JWOutMat);
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(JWOutMat);
 
                 }
             }
@@ -4118,7 +4118,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-      //      var JWBOQChildId = "' '";
+            //      var JWBOQChildId = "' '";
             try
             {
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -4127,7 +4127,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 DataSet JWOutMatExist;
                 string hsnCodeId = "";
 
-                con.OpenDataSetThroughAdapter("select * from dbo.OSTransformationPOTax where OSTransformationPOId='"+ JWPurchaseOrderId + @"' and OSTransformationPODetailId='"+ JWOutId + @"'  ", out JWTaxExist, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.OSTransformationPOTax where OSTransformationPOId='" + JWPurchaseOrderId + @"' and OSTransformationPODetailId='" + JWOutId + @"'  ", out JWTaxExist, false, "1");
                 con.OpenDataSetThroughAdapter("select * from dbo.OSTransformationPODetail where Id='" + JWOutId + @"' ", out JWOutMatExist, false, "1");
                 //for (var i = 0; i < JWBOQ.Tables[0].DefaultView.Count; i++)
                 //{
@@ -4172,15 +4172,15 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 decimal SumTax = 0;
                 decimal TrAmt = 0;
                 decimal TaxAmt = 0;
-                    //for (int a = 0; a < JWGetSerTaxes.Tables[0].DefaultView.Count; a++)
-                    //{
-                    //    decimal T1 = Convert.ToDecimal(JWGetSerTaxes.Tables[0].Rows[a]["TaxAmount"]);
-                    //    SumTax = T1 + SumTax;
-                    //}
+                //for (int a = 0; a < JWGetSerTaxes.Tables[0].DefaultView.Count; a++)
+                //{
+                //    decimal T1 = Convert.ToDecimal(JWGetSerTaxes.Tables[0].Rows[a]["TaxAmount"]);
+                //    SumTax = T1 + SumTax;
+                //}
 
                 for (var j = 0; j < JWGetSerTaxes.Tables[0].DefaultView.Count; j++)
                 {
-                    if(JWGetSerTaxes.Tables[0].Rows[j]["Percentage"] !=null && Convert.ToDecimal(JWGetSerTaxes.Tables[0].Rows[j]["Percentage"]) != 0)
+                    if (JWGetSerTaxes.Tables[0].Rows[j]["Percentage"] != null && Convert.ToDecimal(JWGetSerTaxes.Tables[0].Rows[j]["Percentage"]) != 0)
                     {
                         decimal P1 = Convert.ToDecimal(JWGetSerTaxes.Tables[0].Rows[j]["Percentage"]);
                         TrAmt = Convert.ToDecimal(TQty) * Convert.ToDecimal(TRate);
@@ -4196,7 +4196,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                     //decimal GrossConsumption = (Consumption * (1 + (WastagePer / 100)));
 
-                    JWTaxExist.Tables[0].DefaultView.RowFilter = "OSTransformationPOId='"+ JWPurchaseOrderId + "' and OSTransformationPODetailId ='" + JWOutId + "' and TaxCategoryId='" + bplib.clsWebLib.RetValidLen(JWGetSerTaxes.Tables[0].Rows[j]["TaxCategoryId"]).ToString() + "' ";
+                    JWTaxExist.Tables[0].DefaultView.RowFilter = "OSTransformationPOId='" + JWPurchaseOrderId + "' and OSTransformationPODetailId ='" + JWOutId + "' and TaxCategoryId='" + bplib.clsWebLib.RetValidLen(JWGetSerTaxes.Tables[0].Rows[j]["TaxCategoryId"]).ToString() + "' ";
 
 
                     if (JWTaxExist.Tables[0].DefaultView.Count == 0)
@@ -4272,7 +4272,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 }
 
                 JWOutMatExist.Tables[0].DefaultView.RowFilter = "Id ='" + JWOutId + "' ";
-                if(JWOutMatExist.Tables[0].DefaultView.Count > 0)
+                if (JWOutMatExist.Tables[0].DefaultView.Count > 0)
                 {
                     DataRow drr = JWOutMatExist.Tables[0].DefaultView[0].Row;
 
@@ -4545,7 +4545,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                 for (int i = 0; i < data.Count; i++)
                 {
-                    if(data[i]["Id"].ToString()== JWPODetailId)
+                    if (data[i]["Id"].ToString() == JWPODetailId)
                     {
                         MaterialId = data[i]["MaterialMasterId"].ToString();
                         ArticleId = data[i]["ArticleId"].ToString();
@@ -4554,7 +4554,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                         {
                             SKU1Id = data[i]["FirstCharacteristicsValueId"].ToString();
                         }
-                        
+
                         if (data[i]["SecondCharacteristicsValueId"] != null)
                         {
                             SKU2Id = data[i]["SecondCharacteristicsValueId"].ToString();
@@ -4565,14 +4565,14 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                             SKU3Id = data[i]["ThirdCharacteristicsValueId"].ToString();
                         }
 
-                        
+
                         SOId = data[i]["SalesOrderId"].ToString();
 
                     }
                 }
 
                 for (int a = 0; a < detailBoq.Count; a++)
-                        {
+                {
 
                     if (detailBoq[a]["FirstCharacteristicsValueId"] != null)
                     {
@@ -4589,63 +4589,63 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                         DetailSKU3Id = detailBoq[a]["ThirdCharacteristicsValueId"].ToString();
                     }
 
-                    if (detailBoq[a]["MaterialMasterId"].ToString()== MaterialId && detailBoq[a]["ArticleId"].ToString() == ArticleId && DetailSKU1Id == SKU1Id && DetailSKU2Id == SKU2Id && DetailSKU3Id == SKU3Id)
-                            {
+                    if (detailBoq[a]["MaterialMasterId"].ToString() == MaterialId && detailBoq[a]["ArticleId"].ToString() == ArticleId && DetailSKU1Id == SKU1Id && DetailSKU2Id == SKU2Id && DetailSKU3Id == SKU3Id)
+                    {
 
                         dsPOboq.Tables[0].DefaultView.RowFilter = "BOQDetailId = '" + detailBoq[a]["BOQId"] + "'  ";
-                      //  dsPOboq.Tables[0].DefaultView.RowFilter = "BOQDetailId IN (" + BOQId + ") ";
+                        //  dsPOboq.Tables[0].DefaultView.RowFilter = "BOQDetailId IN (" + BOQId + ") ";
 
                         if (dsPOboq.Tables[0].DefaultView.Count == 0)
-                    {
-                        if (_poboqId == "")
                         {
-                            bplib.clsGenID id = new bplib.clsGenID();
-                            id.GenID("OSPOBOQMAP", out _poboqId);
-                            _poboqId = "JPB" + _poboqId;
+                            if (_poboqId == "")
+                            {
+                                bplib.clsGenID id = new bplib.clsGenID();
+                                id.GenID("OSPOBOQMAP", out _poboqId);
+                                _poboqId = "JPB" + _poboqId;
 
-                        }
-                        DataRow dr = dsPOboq.Tables[0].NewRow();
-
-                        double conversiongroupListData = conversion.Convert(detailBoq[a]["MaterialMasterId"].ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["TransactionUoMId"]).ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["BaseUOMId"]).ToString(), clsStaticInfo.dbl(detailBoq[a]["TransactionQty"]));
-                        dr["BaseQty"] = Convert.ToDecimal(conversiongroupListData);
-
-                        dr["Id"] = _poboqId + "-" + (a + 1).ToString();
-
-                        dr["OSTransformationPODetailId"] = JWPODetailId;
-                        dr["BOQDetailId"] = detailBoq[a]["BOQId"];
-                        dr["TransactionQty"] = detailBoq[a]["TransactionQty"];
-                        dr["TransactionUoMId"] = detailBoq[a]["TransactionUoMId"];
-
-                        dr["BaseUoMId"] = bplib.clsWebLib.RetValidLen(detailBoq[a]["BaseUOMId"]).ToString() == "" ? null : bplib.clsWebLib.RetValidLen(detailBoq[a]["BaseUOMId"]).ToString();
-                        dr["POBOQQty"] = conversion.Convert(detailBoq[a]["MaterialMasterId"].ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["TransactionUoMId"]).ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["POUoMId"]).ToString(), clsStaticInfo.dbl(detailBoq[a]["TransactionQty"]));
-
-                        dr["POUoMId"] = detailBoq[a]["POUoMId"];
-
-                        dr["AddedBy"] = userName;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
-                        dr["AddedFromIP"] = IPAddress;
-
-                        dsPOboq.Tables[0].Rows.Add(dr);
-                    }
-                    else
-                    {
-                        DataRow dr = dsPOboq.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();
-                        dr["OSTransformationPODetailId"] = JWPODetailId;
-                        dr["BOQDetailId"] = detailBoq[a]["BOQId"];
-                        dr["TransactionQty"] = detailBoq[a]["TransactionQty"];
-                        dr["TransactionUoMId"] = detailBoq[a]["TransactionUoMId"];
-                        dr["BaseUoMId"] = bplib.clsWebLib.RetValidLen(detailBoq[a]["BaseUOMId"]).ToString() == "" ? null : bplib.clsWebLib.RetValidLen(detailBoq[a]["BaseUOMId"]).ToString();
-                        dr["POBOQQty"] = conversion.Convert(detailBoq[a]["MaterialMasterId"].ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["TransactionUoMId"]).ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["POUoMId"]).ToString(), clsStaticInfo.dbl(detailBoq[a]["TransactionQty"]));
-
-                        dr["POUoMId"] = detailBoq[a]["POUoMId"];
-                        dr["UpdatedBy"] = userName;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                        dr["UpdatedFromIP"] = IPAddress;
-                        dr.EndEdit();
-              
                             }
+                            DataRow dr = dsPOboq.Tables[0].NewRow();
+
+                            double conversiongroupListData = conversion.Convert(detailBoq[a]["MaterialMasterId"].ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["TransactionUoMId"]).ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["BaseUOMId"]).ToString(), clsStaticInfo.dbl(detailBoq[a]["TransactionQty"]));
+                            dr["BaseQty"] = Convert.ToDecimal(conversiongroupListData);
+
+                            dr["Id"] = _poboqId + "-" + (a + 1).ToString();
+
+                            dr["OSTransformationPODetailId"] = JWPODetailId;
+                            dr["BOQDetailId"] = detailBoq[a]["BOQId"];
+                            dr["TransactionQty"] = detailBoq[a]["TransactionQty"];
+                            dr["TransactionUoMId"] = detailBoq[a]["TransactionUoMId"];
+
+                            dr["BaseUoMId"] = bplib.clsWebLib.RetValidLen(detailBoq[a]["BaseUOMId"]).ToString() == "" ? null : bplib.clsWebLib.RetValidLen(detailBoq[a]["BaseUOMId"]).ToString();
+                            dr["POBOQQty"] = conversion.Convert(detailBoq[a]["MaterialMasterId"].ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["TransactionUoMId"]).ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["POUoMId"]).ToString(), clsStaticInfo.dbl(detailBoq[a]["TransactionQty"]));
+
+                            dr["POUoMId"] = detailBoq[a]["POUoMId"];
+
+                            dr["AddedBy"] = userName;
+                            dr["AddedDate"] = System.DateTime.Now.ToString();
+                            dr["AddedFromIP"] = IPAddress;
+
+                            dsPOboq.Tables[0].Rows.Add(dr);
                         }
+                        else
+                        {
+                            DataRow dr = dsPOboq.Tables[0].DefaultView[0].Row;
+                            dr.BeginEdit();
+                            dr["OSTransformationPODetailId"] = JWPODetailId;
+                            dr["BOQDetailId"] = detailBoq[a]["BOQId"];
+                            dr["TransactionQty"] = detailBoq[a]["TransactionQty"];
+                            dr["TransactionUoMId"] = detailBoq[a]["TransactionUoMId"];
+                            dr["BaseUoMId"] = bplib.clsWebLib.RetValidLen(detailBoq[a]["BaseUOMId"]).ToString() == "" ? null : bplib.clsWebLib.RetValidLen(detailBoq[a]["BaseUOMId"]).ToString();
+                            dr["POBOQQty"] = conversion.Convert(detailBoq[a]["MaterialMasterId"].ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["TransactionUoMId"]).ToString(), bplib.clsWebLib.RetValidLen(detailBoq[a]["POUoMId"]).ToString(), clsStaticInfo.dbl(detailBoq[a]["TransactionQty"]));
+
+                            dr["POUoMId"] = detailBoq[a]["POUoMId"];
+                            dr["UpdatedBy"] = userName;
+                            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                            dr["UpdatedFromIP"] = IPAddress;
+                            dr.EndEdit();
+
+                        }
+                    }
                 }
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsPOboq);
@@ -4763,7 +4763,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                             left join hkp.ServiceMaster SerM on SerM.Id=JWTPD.ServiceId
                             WHERE " + strkey + "  and JWTPD.OSTransformationPOId = '" + jwpoId + @"'";
             return sql;
-		}
+        }
 
         public string GetJwPoDetailByProduct(string jwPODetailId)
         {
@@ -5062,7 +5062,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             return sql;
         }
 
-    
+
         public IEnumerable<object> GetJWServiceTaxCategoryList(string companyGroupId, string receiveId, string plantId, string hsnCodeId, string PODate)
         {
             try
@@ -5542,7 +5542,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 var sql = "";
                 sql = @"select jl.Id as Value, jl.LocationName as Text, StoreLocationId,ms.UserName as MaterialStorage
                        from HKP.JobWorkLocation jl left join HKP.MaterialStorage ms on ms.Id=jl.StoreLocationId
-                       where jl.Id='"+ JWLocId + @"' order by LocationName ";
+                       where jl.Id='" + JWLocId + @"' order by LocationName ";
 
                 var Data = _sqlRepository.GetDataCollection(sql);
 
@@ -5568,7 +5568,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             {
                 fileName = "JWValAddedPurchaseOrder" + plantId + ".docx";
             }
-          
+
             strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
             File = strPath;
             if (!System.IO.File.Exists(strPath))
@@ -6102,7 +6102,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 wTable.AddRow();
 
             }
- //    #endregion column headers
+            //    #endregion column headers
 
             double totalValue = 0;
             int sl = 0;
@@ -6755,7 +6755,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 								left join (Select ArticleId,SUM(BOQRequiredQuantity) as BOQReqQty, Sum(NetConsumption) as NetConsumption, Sum(Rejection) as Rejection
 								,Sum(ValueLoss) ValueLoss, Sum(GrossConsumption) GrossConsumption from dbo.OSTransformationPOInputMaterial group by ArticleId)
 								KK on KK.ArticleId=mma.Id
-                                where mi.OSTransformationPODetailId='"+ Id + @"'
+                                where mi.OSTransformationPODetailId='" + Id + @"'
 								group by mm.Id,mma.Code,mm.UserName,mma.StandardName,mm.Code,uom.UserName
 								,mm.BaseUOMId,om.Quantity,KK.BOQReqQty,KK.NetConsumption,kk.Rejection,KK.ValueLoss,KK.GrossConsumption
                                 ,mi.NetConsumption,mi.Rejection, mi.ValueLoss, mi.GrossConsumption,mi.BOQRequiredQuantity ";
@@ -6774,7 +6774,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
         {
             try
             {
-         //       DataSet dsMaster;
+                //       DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con2 = new ConnectionManager.DAL.ConManager("1");
 
                 if (string.IsNullOrEmpty(Id))
@@ -6783,23 +6783,23 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
 
-                    //if (!string.IsNullOrEmpty(Id))
-                    //{
-                    //    con2.OpenDataSetThroughAdapter("select * from dbo.OSTransformationPOMasterOrderItem where OSTransformationPODetailId='" + id + "' ", out dsMaster, false, "1");
-                    //    if (dsMaster.Tables[0].Rows.Count > 0)
-                    //    {
-                    //        throw new Exception("First Delete Order Wise Data");
-                    //    }
+                //if (!string.IsNullOrEmpty(Id))
+                //{
+                //    con2.OpenDataSetThroughAdapter("select * from dbo.OSTransformationPOMasterOrderItem where OSTransformationPODetailId='" + id + "' ", out dsMaster, false, "1");
+                //    if (dsMaster.Tables[0].Rows.Count > 0)
+                //    {
+                //        throw new Exception("First Delete Order Wise Data");
+                //    }
 
-                    //    con2.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild3 where OSTransformationPODetailId='" + id + "' ", out dsMaster, false, "1");
-                    //    if (dsMaster.Tables[0].Rows.Count > 0)
-                    //    {
-                    //        throw new Exception("First Delete Material Input Data");
-                    //    }
+                //    con2.OpenDataSetThroughAdapter("select * from dbo.JobWorkTransformationContractChild3 where OSTransformationPODetailId='" + id + "' ", out dsMaster, false, "1");
+                //    if (dsMaster.Tables[0].Rows.Count > 0)
+                //    {
+                //        throw new Exception("First Delete Material Input Data");
+                //    }
 
-                    //}
+                //}
 
-                    con.executeQuery("delete from dbo.JobWorkTransformationContractChild3 where Id='" + Id + @"' ");
+                con.executeQuery("delete from dbo.JobWorkTransformationContractChild3 where Id='" + Id + @"' ");
 
                 con.CommitTransaction();
 
@@ -6873,7 +6873,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 else
                     _sql = @"SELECT Id AS CharacteristicsValueId, CompanyGroupId, CharacteristicsId, MaterialMasterId, SourceType, Code, [Sequence], ShortName, StandardName, UserName, IsDefault, Remarks, [Description], Active
                     FROM HKP.CharacteristicsValue WHERE CompanyGroupId='" + identity.CompanyGroupId + @"' AND CharacteristicsId='" + charId + "' AND MaterialMasterId='" + MaterialMstId + "' AND SourceType='" + assignment + "'";
-          //      return _sqlRepository.GetGridData(parameters);
+                //      return _sqlRepository.GetGridData(parameters);
 
                 return _sqlRepository.GetDataCollection(_sql);
             }
@@ -6885,5 +6885,73 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             }
         }
 
+
+        public IEnumerable<object> GetProductionOredrList(string entityid, string column, string value)
+        {
+            string sql = @"select * from (SELECT Flag=CAST(0 AS BIT), so.Customer,so.Article,so.StyleNo, so.OwnStyleNo, so.Product,
+PO.Id POId,s.UserName AS POStatus,so.SONo,SO.SOQuantity SOQty,ISNULL(PO.Qty,0) AS POQuantity, So.LineItemId,SO.SOStatus
+                            FROM [TRN].[ProductionOrder] AS PO                            
+                           LEFT OUTER  JOIN (select
+                                                    pod.ProductionOrderId, sum(so.Qty) AS SOQuantity,
+                                                    LineItemId=STUFF((select distinct ','+XMOI.Id from 
+								                            trn.MasterOrderItem XMOI 	 
+								                            INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                            INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                            where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+											 					                              
+
+													StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+	                                                
+                                                    OwnStyleNo=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+
+                                                    SONo=STUFF((select distinct ','+sox.Id from 
+								                                trn.MasterOrderItem XMOI 	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+													SOStatus=STUFF((select distinct ','+OS.UserName from 
+								                                 HKP.OrderStatus OS 
+								                                INNER JOIN trn.SalesOrder AS sox on OS.Id=SOX.OrderStatusId
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                                                   
+                                                    Customer=STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													
+                                                     ,Article=STUFF((select distinct ', '+mm.StandardName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join mst.MaterialMasterarticle mm on mm.id=XMOI.ArticleId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													,Product=STUFF((select distinct ', '+Pm.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join mst.MaterialMaster mm on mm.id=XMOI.MaterialMasterId
+															left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+                                                    left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													
+from trn.ProductionOrderDetail AS pod JOIN  trn.SalesOrder SO ON pod.SalesOrderId=so.Id group by pod.ProductionOrderId
+) AS SO ON so.ProductionOrderId=po.Id
+                            LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
+                            WHERE PO.entityid='"+ entityid + @"' AND S.UserName<>'Closed') AS TEMP";
+
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
     }
 }

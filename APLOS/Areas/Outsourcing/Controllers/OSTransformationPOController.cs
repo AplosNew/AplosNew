@@ -793,5 +793,14 @@ namespace Aplos.Areas.Outsourcing.Controllers
 
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetProductionOredrList(string entityid, string column, string value)
+        {
+            JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
+            var jsondata = Json(JobWorkCommon.GetProductionOredrList(entityid, column, value), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
     }
 }

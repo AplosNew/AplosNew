@@ -1553,6 +1553,7 @@ WHERE R.PurposeId IN (" + purposeId + ") AND ISM.WorkDate between '" + fromDate 
                             dr["ScanQty"] = data.Rows[i]["Quantity"].ToString();
                             dr["Quantity"] = data.Rows[i]["Quantity"].ToString();
                             dr["IsInventory"] = IsInventory;
+                            dr["SourceType"] = "Scan";
                             dr["UpdatedBy"] = identity.UpdatedBy;
                             dr["UpdatedDate"] = DateTime.Now.ToString();
                             dr["UpdatedFromIP"] = identity.UpdatedFromIP;
@@ -1578,6 +1579,7 @@ WHERE R.PurposeId IN (" + purposeId + ") AND ISM.WorkDate between '" + fromDate 
                             drProductionSummary["ProductionGrade"] = data.Rows[i]["Grade"].ToString();
                             drProductionSummary["LotNumber"] = data.Rows[i]["LotNumber"].ToString();
                             drProductionSummary["IsInventory"] = IsInventory;
+                            drProductionSummary["SourceType"] = "Scan";
                             drProductionSummary["AddedBy"] = identity.AddedBy;
                             drProductionSummary["AddedDate"] = DateTime.Now;
                             drProductionSummary["AddedFromIP"] = identity.AddedFromIP;

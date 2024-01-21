@@ -68,7 +68,10 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         Remarks: null,
         CheckedBy: null,
         CheckedByName: null,
-        LotNumber: null
+        LotNumber: null,
+        IsInventory: false,
+        SourceType: 'PB'
+
     };
     $scope.productionSummaryNew = Object.assign({}, $scope.productionSummary);
 
@@ -1140,7 +1143,12 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 $scope.productionSummaryNew.Quantity = $scope.ProdQty;
                 $scope.productionSummaryNew.QtyWithoutScan = $scope.ProdQty;
                 $scope.productionSummaryNew.SKUQty = $scope.ProdQty;
+                $scope.productionSummaryNew.SourceType = "SKU";
             }
+            if (baseService.isUndefinedOrNull($scope.productionSummaryNew.SourceType)) {
+                $scope.productionSummaryNew.SourceType = "PB";
+            }
+
             if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
                 if ($scope.ProdQty === 0) {
                     throw "SKU Qty is required.";

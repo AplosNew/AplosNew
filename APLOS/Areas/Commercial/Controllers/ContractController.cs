@@ -93,7 +93,8 @@ namespace Aplos.Areas.Commercial.Controllers
         [HttpGet, Authorize]
         public ActionResult GetTermsAndConditionsList()
         {
-            string sql = @"SELECT *,Flag=Convert(bit, CASE WHEN Mandatory=1 THEN 'true' ELSE 'false' END) FROM [HKP].[TermsAndConditions] Where [Type]='" + TermsAndConditionsEnum.Contract + "'";
+            string sql = @"SELECT TC.Id TermsAndConditionsId,Flag=CAST(0 AS bit),IsVarified=CAST(0 AS bit),TC.Sequence,TC.Code,TC.ShortName,TC.StandardName,TC.UserName,TC.Description,TG.GroupName [Group] FROM [HKP].[TermsAndConditions] TC
+LEFT JOIN dbo.TermsandConditionGroup TG ON TG.Id=TC.GroupId Where [Type]='" + TermsAndConditionsEnum.Contract + "'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -1245,6 +1246,7 @@ WHERE CT.ContractId " + contractId+"";
                     dr["TermsandConditionVarify"] = data.TermsandConditionVarify;
                     dr["PaymentTermVarify"] = data.PaymentTermVarify;
                     dr["AdditionalInfoVarify"] = data.AdditionalInfoVarify;
+                    dr["NegotiatingBankId"] = data.NegotiatingBankId;
 
 
                     dr["AddedBy"] = identity.Name;
@@ -1285,6 +1287,7 @@ WHERE CT.ContractId " + contractId+"";
                     dr["TermsandConditionVarify"] = data.TermsandConditionVarify;
                     dr["PaymentTermVarify"] = data.PaymentTermVarify;
                     dr["AdditionalInfoVarify"] = data.AdditionalInfoVarify;
+                    dr["NegotiatingBankId"] = data.NegotiatingBankId;
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
@@ -1351,15 +1354,32 @@ WHERE CT.ContractId " + contractId+"";
         private void UpdateContractWithMasterLC(IEnumerable<Contract> models, string masterLcId)
         {
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMaster;
+            DataSet dsMaster = null;
+            DataSet dsMLC = null;
+            DataSet dsChild = null;
+            string id = string.Empty;
             try
             {
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 foreach (var item in models)
                 {
+
+                    if (id == "")
+                        id = "'" + item.Id + "'";
+                    else
+                        id = id + ",'" + item.Id + "'";
+
                     string sql = "SELECT * FROM [dbo].[Contract] WHERE Id='" + item.Id + "'";
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                    string mlctcsql = "SELECT * FROM [dbo].[MasterLCTermsAndConditions]  WHERE MasterLCId='"+ masterLcId + "'";
+                    objCon.OpenDataSetThroughAdapter(mlctcsql, out dsMLC, false, "1");
+
+                    objCon.OpenDataSetThroughAdapter(@"SELECT distinct CT.TermsAndConditionsId,TC.Sequence,TC.Code,TC.ShortName,TC.StandardName,TC.UserName FROM dbo.ContractTermsAndConditions CT
+LEFT JOIN HKP.TermsAndConditions TC ON TC.Id = CT.TermsAndConditionsId
+WHERE CT.ContractId IN(" + id + ") AND TermsAndConditionsId NOT IN(SELECT TermsAndConditionsId FROM [dbo].[MasterLCTermsAndConditions] WHERE MasTerLCId='" + masterLcId + "')", out dsChild, false, "1");
 
                     if (dsMaster.Tables[0].Rows.Count > 0)
                     {
@@ -1376,15 +1396,55 @@ WHERE CT.ContractId " + contractId+"";
 
                         dr.EndEdit();
                     }
-                    clsStaticInfo obj = new clsStaticInfo();
-                    obj.SaveDataSets(dsMaster);
 
+                    for (int j = 0; j < dsChild.Tables[0].Rows.Count; j++)
+                    {
+                        DataRow drMLC = dsMLC.Tables[0].NewRow();
+                        CopyRow(dsChild.Tables[0].Rows[j], ref drMLC);
+                        drMLC["Id"] = GetMasterLCTNCPK();
+                        drMLC["MasterLCId"] = masterLcId;
+                        drMLC["UserName"] = dsChild.Tables[0].Rows[j]["UserName"];
+                        dsMLC.Tables[0].Rows.Add(drMLC);
+                    }
                 }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsMLC);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+        }
+
+        private void CopyRow(DataRow drSource, ref DataRow drDestination)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            for (int COL = 0; COL < drSource.Table.Columns.Count; COL++)
+            {
+                try
+                {
+                    drDestination[drSource.Table.Columns[COL].ColumnName] = drSource[drSource.Table.Columns[COL].ColumnName];
+
+                }
+                catch (Exception ex)
+                {
+                }
+                try
+                {
+                    drDestination["AddedBy"] = identity.Name;
+                    drDestination["AddedDate"] = DateTime.Now;
+                    drDestination["AddedFromIP"] = identity.IPAddress;
+                    drDestination["UpdatedBy"] = identity.Name;
+                    drDestination["UpdatedFromIP"] = identity.IPAddress;
+                    drDestination["UpdatedDate"] = DateTime.Now;
+
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+
         }
 
         [HttpPost, Authorize]
@@ -4191,6 +4251,7 @@ WHERE CT.ContractId " + contractId+"";
         public string UpdatedBy { get; set; }
         public DateTime UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
+        public string NegotiatingBankId { get; set; }
     }
 
     public class ContractFund : BaseModel

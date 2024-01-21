@@ -287,13 +287,13 @@ LEFT JOIN dbo.EmployeeInformation E on E.SystemId=G.ResponsiblePersonId) AS TEMP
             {
                 ConnectionManager.DAL.ConManager objCon;
                 DataSet dsMaster;
-                string sqlr = @"select * from GoodWorkBudgetSetUp where Id = '" + Id + @"'";
+                string sqlr = @"select * from GoodWorkBudgetSetUp where BudgetId in (" + Id + @")";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sqlr, out dsMaster, false, "1");
 
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 conC.BeginTransaction();
-                conC.executeQuery("delete from GoodWorkBudgetSetUp where Id ='" + Id + "'");
+                conC.executeQuery("delete from GoodWorkBudgetSetUp where BudgetId in (" + Id + ")");
                 conC.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);

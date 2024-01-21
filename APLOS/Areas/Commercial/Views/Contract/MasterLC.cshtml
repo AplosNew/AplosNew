@@ -46,11 +46,21 @@
                             <label class="col-sm-4 control-label">Advising Bank</label>
                             <div class="col-sm-8">
                                 @*<div class="select-style">
-                                <select name="Lein Bank" class="form-control" ng-model="masterLC.LeinBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="5">
-                                    <option value="">--Select--</option>
-                                </select>
-                            </div>*@
+                                        <select name="Lein Bank" class="form-control" ng-model="masterLC.LeinBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="5">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>*@
                                 <input type="text" name="Advising Bank" ng-model="masterLC.LeinBank" class="form-control" tabindex="5" maxlength="50">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Negotiating Bank<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select name="Negotiating Bank" id="OB" class="form-control" ng-model="masterLC.NegotiatingBankId" ng-options="item.Id as item.AccountTitle for item in bankMasterList" tabindex="7">
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group" show-errors>
@@ -115,17 +125,6 @@
                         </div>
                         <div class="form-group">
                             <div class="col-sm-5"> <button ng-click="GetEditSalesOrderList();" style="background:{{bgcolor}}" class="btn single-small-btn"><i class="glyphicon glyphicon-th-list"></i>LC Article Verify</button></div>
-                            <div class="col-sm-7">
-                                <label class="col-sm-4 control-label">Additional Info Varify</label>
-                                <div class="col-sm-8">
-                                    <div class="checkbox-site">
-                                        <label class="control-label">
-                                            <input type="checkbox" ng-model="masterLC.AdditionalInfoVarify" ng-checked="masterLC.AdditionalInfoVarify">
-                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -195,6 +194,13 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="2" ng-model="masterLC.Remarks" maxlength="250" tabindex="7"></textarea>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">IsClose</label>
                             <div class="col-sm-8">
@@ -207,14 +213,8 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Remarks</label>
-                            <div class="col-sm-8">
-                                <textarea class="form-control" rows="2" ng-model="masterLC.Remarks" maxlength="250" tabindex="7"></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Payment Term Varify</label>
-                            <div class="col-sm-3">
+                            <label class="col-sm-4 control-label">Payment Term Varify</label>
+                            <div class="col-sm-1">
                                 <div class="checkbox-site">
                                     <label class="control-label">
                                         <input type="checkbox" ng-model="masterLC.PaymentTermVarify" ng-checked="masterLC.PaymentTermVarify">
@@ -223,10 +223,21 @@
                                 </div>
                             </div>
                             <label class="col-sm-3 control-label">Terms and Condition Varify</label>
-                            <div class="col-sm-3">
+                            <div class="col-sm-4">
                                 <div class="checkbox-site">
                                     <label class="control-label">
                                         <input type="checkbox" ng-model="masterLC.TermsandConditionVarify" ng-checked="masterLC.TermsandConditionVarify">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Additional Info Varify</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox-site">
+                                    <label class="control-label">
+                                        <input type="checkbox" ng-model="masterLC.AdditionalInfoVarify" ng-checked="masterLC.AdditionalInfoVarify">
                                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                     </label>
                                 </div>
@@ -299,7 +310,7 @@
                                 <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="50"></div>
                                 <div e-column e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
                                 <div e-column e-field="Code" e-headertext="Code" e-width="50"></div>
-                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                                <div e-column e-field="Group" e-headertext="Group" e-width="80"></div>
                                 <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="140"></div>
                                 <div e-column e-template="#UserName" e-headertext="UserName" e-width="140"></div>
                                 <div e-column e-field="Description" e-headertext="Description" e-width="140"></div>
@@ -333,7 +344,7 @@
                         <input type="text" name="UserName" ng-model="data.UserName" class="form-control" tabindex="3" maxlength="50">
                     </script>
                     <script type="text/template" id="Remarks">
-                        <textarea class="form-control" rows="2" ng-model="data.Remarks" tabindex="2" maxlength="250"></textarea>
+                        <textarea class="form-control" rows="1" ng-model="data.Remarks" tabindex="2" maxlength="250"></textarea>
                     </script>
                 </div>
             </div>
@@ -381,8 +392,8 @@
                                     <div e-column e-field="Description" e-headertext="Description" e-width="150"></div>
                                     <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
                                     @*<div e-column e-headertext="Actions" e-width="20">
-                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.deleteModal($event);" style="margin: -6px;"></i></button>
-                                </div>*@
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.deleteModal($event);" style="margin: -6px;"></i></button>
+                                        </div>*@
                                 </div>
                             </div>
                         </div>
@@ -558,7 +569,7 @@
                             <div class="common-btn">
                                 <ul class="list-inline text-right">
                                     <li> <button ng-click="SaveMasterlcclause();" ng-disabled="masterLC.Id==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionAddLC}}</button></li>
-                                   @* <li> <button ng-click="Clearlcclause();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+                                    @* <li> <button ng-click="Clearlcclause();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
                                 </ul>
                             </div>
                         </div>
@@ -569,10 +580,10 @@
                                     <div e-column e-field="Sequence" e-headertext="Sequence" e-width="50"></div>
                                     <div e-column e-field="Description" e-headertext="Description" e-width="150"></div>
                                     <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>-->
-                                    @*<div e-column e-headertext="Actions" e-width="20">
-                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.deleteModal($event);" style="margin: -6px;"></i></button>
-                    </div>*@
-                                <!--</div>
+                        @*<div e-column e-headertext="Actions" e-width="20">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px;" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.deleteModal($event);" style="margin: -6px;"></i></button>
+                            </div>*@
+                        <!--</div>
                             </div>
                         </div>-->
                     </div>
@@ -716,11 +727,11 @@
              e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="false"
              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-allowResizing="true">
             <div e-columns>
-                <div e-column e-headertext="IsVarified" e-template="#checkboxIsVarified" e-textalign="center" e-width="50"></div>
+                @*<div e-column e-headertext="IsVarified" e-template="#checkboxIsVarified" e-textalign="center" e-width="50"></div>*@
                 <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
                 <div e-column e-field="Sequence" e-headertext="Sequence" e-width="40"></div>
                 <div e-column e-field="Code" e-headertext="Code" e-width="50"></div>
-                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="80"></div>
+                <div e-column e-field="Group" e-headertext="Group" e-width="80"></div>
                 <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="140"></div>
                 <div e-column e-field="UserName" e-headertext="User Name" e-width="140"></div>
                 <div e-column e-field="Description" e-headertext="Description" e-width="140"></div>
@@ -733,9 +744,9 @@
                 </div>
             </script>
         </div>
-        <script type="text/template" id="checkboxIsVarified">
-            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsVarified" />
-        </script>
+        @*<script type="text/template" id="checkboxIsVarified">
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsVarified" />
+            </script>*@
         <script type="text/template" id="checkboxTemplate">
             <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
         </script>

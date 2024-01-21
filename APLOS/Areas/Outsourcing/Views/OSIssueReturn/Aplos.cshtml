@@ -123,12 +123,17 @@
 
 
                                 <div class="col-xs-12">
-                                    <input type="hidden" ng-model="Issue.Id">
                                     <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Issue No<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" name="Id" ng-model="Issue.Id" class="form-control" disabled tabindex="2">
+                                            </div>
+                                        </div>
                                         <div class="form-group" show-errors>
                                             <label class="col-sm-4 control-label">Issue Date<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
-                                                <input type="text" name="Date" ng-model="Issue.IssueDate"  datepicker class="form-control" required tabindex="2">
+                                                <input type="text" name="Date" ng-model="Issue.IssueDate" datepicker class="form-control" required tabindex="2">
                                             </div>
                                         </div>
 
@@ -194,6 +199,18 @@
 
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Issue Category<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="Issue.IssueCategory" name="Issue Type" required tabindex="5">
+                                                        <option value="">--Select--</option>
+                                                        <option value="Inventory">Inventory</option>
+                                                        <option value="Process">Process</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div class="form-group" show-errors>
                                             <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
@@ -332,7 +349,7 @@
                                                     </td>*@
                                                 @*<td>{{x.Material}}</td>*@
                                                 @*<td>{{x.ArticleName}}</td>*@
-                                            <td>{{x.OSTransformationPODetailId}}</td>
+                                                <td>{{x.OSTransformationPODetailId}}</td>
                                                 @*<td>{{x.Id}}</td>*@
 
 
@@ -529,8 +546,13 @@
                                 </div>
 
                                 <div class="col-xs-12">
-                                    <input type="hidden" ng-model="IssueTransformation.Id">
                                     <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Issue No<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <input type="text" name="Id" ng-model="IssueTransformation.Id" class="form-control" disabled tabindex="2">
+                                            </div>
+                                        </div>
                                         <div class="form-group" show-errors>
                                             <label class="col-sm-4 control-label">Issue Date<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
@@ -599,6 +621,18 @@
 
                                     </div>
                                     <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group" show-errors>
+                                            <label class="col-sm-4 control-label">Issue Category<sup>*</sup></label>
+                                            <div class="col-sm-8 show-message">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="IssueTransformation.IssueCategory" name="Issue Type" ng-disabled="detailList.length" required tabindex="5">
+                                                        <option value="">--Select--</option>
+                                                        <option value="Inventory">Inventory</option>
+                                                        <option value="Process">Process</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div class="form-group" show-errors>
                                             <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
@@ -678,7 +712,7 @@
                             <div class="common-btn" style="padding-right: 15px;">
                                 <ul class="list-inline text-right">
                                     <li>
-                                        <button ng-click="SelectMaterialPlanning();" @*ng-disabled="IssueTransformation.Id==null"*@ tabindex="17" class="btn">Select</button>
+                                        <button ng-click="SelectMaterialPlanning();" ng-disabled="IssueTransformation.IssueCategory==null" tabindex="17" class="btn">Select</button>
 
                                     </li>
                                 </ul>
@@ -800,7 +834,7 @@
                                                 <td>{{x.PostingQty}}</td>
                                                 <td ng-hide="true">{{x.IssuedQty}}</td>
                                                 <td>{{x.RequestedQty}}</td>
-                                                <td>{{x.TIRCTotalQty}}</td>
+                                                <td>{{x.IssuedQty}}</td>
                                                 <td>{{x.BalanceToIssue}}</td>
                                                 <td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.TransactionQty" ng-disabled="true" ng-change="qtyFunc(x, $index)" ;></td>
                                                 <td class="text-right" ng-hide="false"><input type="text" class="form-control text-right" width="400" ng-model="x.Comments"></td>
@@ -1073,7 +1107,7 @@
                 <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="150"></div>
                 <div e-column e-field="TransactionQty" e-headertext="Qty" textAlign='Right' e-width="120"></div>
                 @*<div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="120"></div>
-                <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>*@
+                    <div e-column e-field="BaseAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>*@
                 <div e-column e-field="TotalQuantity" e-headertext="Issued Quantity" textAlign='Right' e-width="120"></div>
                 <div e-column e-field="TotalAmount" e-headertext="Total Amount" textAlign='Right' e-width="150"></div>
 
@@ -1181,19 +1215,19 @@
                         </div>
 
                         @*<script id="tabGridContents" type="text/x-jsrender">
-                            <div class="tabcontrol" id="Test">
-                                <ul>
-                                    <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
-                                    <li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
-                                </ul>
-                                <div id="gridTab{{:Id}}">
-                                    <div id="detailGrid"></div>
+                                <div class="tabcontrol" id="Test">
+                                    <ul>
+                                        <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
+                                        <li><a href="#gridTab1{{:Id}}">Attached Documents List</a></li>
+                                    </ul>
+                                    <div id="gridTab{{:Id}}">
+                                        <div id="detailGrid"></div>
+                                    </div>
+                                    <div id="gridTab1{{:Id}}">
+                                        <div id="detailGrid1" style="width:800px;"></div>
+                                    </div>
                                 </div>
-                                <div id="gridTab1{{:Id}}">
-                                    <div id="detailGrid1" style="width:800px;"></div>
-                                </div>
-                            </div>
-                        </script>*@
+                            </script>*@
 
                         <script id="tabGridContents" type="text/x-jsrender">
                             <div class="tabcontrol" id="Test">
@@ -2340,6 +2374,7 @@
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_CharacteristicsValuePopUp.cshtml")
 @Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
+@Html.Partial("~/Areas/Outsourcing/Views/OSIssueReturn/_ProductionSummaryProcessPopUp.cshtml")
 @Html.Partial("~/Areas/Outsourcing/Views/OSIssueReturn/_StockPopUp.cshtml")
 @Html.Partial("~/Areas/Products/Views/InventoryIssue/_ApprovedStockPopUp.cshtml")
 @Html.Partial("~/Areas/Products/Views/InventoryIssue/_UnApprovedStockPopUp.cshtml")

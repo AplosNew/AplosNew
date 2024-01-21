@@ -17,6 +17,7 @@ namespace Library.MaterialManagement.Reports
         void CertificateofOrigin(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId);
         void BeneficiaryCertificate(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId);
         void InsuranceCoverLetter(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId);
+        void ANNEXUREReport(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId);
         void BankLatter(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId, string BankName);
         void SalesInvoiceService(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId);
         void GetLotWiseTaxInvoiceServiceReporttoMail(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId);

@@ -547,7 +547,8 @@ namespace Library.Service.Advances
 
         public GridModel Query(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
-            parameters.CmdText = @"SELECT V.VoucherNo, A.Id, A.Id As AdvanceId,BC.Id AS BankChargeId, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.EmployeeId, EI.EmployeeCode
+            parameters.CmdText = @"SELECT V.VoucherNo, A.Id, A.Id As AdvanceId--,BC.Id AS BankChargeId
+                                , A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.EmployeeId, EI.EmployeeCode
                                  , EI.EmployeeName, EIR.EmployeeCode AS ResponsibleCode,EIR.EmployeeName AS ResponsibleName, A.VoucherId, A.PostingDate, A.DocDate, A.DocRefNo
                                  , A.CurrencyId, C.Code AS CurrencyCode, A.Amount, A.IsWrittenOff, A.WrittenOffAmount, A.IsPark, A.IsInterTransaction, A.IsPosted, AD.NetAmount
                                  , Status = case when A.IsPark = 0 then 'Posted' else 'Parked' end,A.AdvanceGroupNo
@@ -558,7 +559,7 @@ namespace Library.Service.Advances
                                  LEFT JOIN [dbo].[EmployeeInformation] AS EIR ON EIR.SystemId=A.ResponsiblePersonId
                                  LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
                                  LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
-                                 LEFT JOIN [TRN].[BankCharge] AS BC ON BC.AdvanceId=A.Id
+                                 --LEFT JOIN [TRN].[BankCharge] AS BC ON BC.AdvanceId=A.Id
                                 LEFT JOIN (SELECT AdvanceId, PartyId, NetAmount FROM [TRN].[AdvanceDetail]
                                 ) AS AD ON AD.AdvanceId=A.Id AND AD.PartyId=A.PartyId
                                 WHERE A.OpeningBalanceId IS NULL AND A.Archive=0 AND V.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + @"' 
@@ -568,7 +569,7 @@ namespace Library.Service.Advances
                                     			[TRN].Voucher xpo
                                     			INNER JOin trn.[Advance] xPDAMAP on xpo.Id=xPDAMAP.VoucherId
                                     			WHERE A.AdvanceGroupNo=xPDAMAP.AdvanceGroupNo for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-												,NULL  Id, NULL AdvanceId,NULL BankChargeId, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.EmployeeId, EI.EmployeeCode
+												,NULL  Id, NULL AdvanceId, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.EmployeeId, EI.EmployeeCode
                                  , EI.EmployeeName, EIR.EmployeeCode AS ResponsibleCode,EIR.EmployeeName AS ResponsibleName, NULL VoucherId, A.PostingDate, A.DocDate, A.DocRefNo
                                  , A.CurrencyId, C.Code AS CurrencyCode, SUM(A.Amount) Amount, A.IsWrittenOff, SUM(A.WrittenOffAmount) WrittenOffAmount, A.IsPark
 								 , A.IsInterTransaction, A.IsPosted, SUM(AD.NetAmount) NetAmount
@@ -581,7 +582,6 @@ namespace Library.Service.Advances
                                  LEFT JOIN [dbo].[EmployeeInformation] AS EIR ON EIR.SystemId=A.ResponsiblePersonId
                                  LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
                                  LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
-                                 --LEFT JOIN [TRN].[BankCharge] AS BC ON BC.AdvanceId=A.Id
                                 LEFT JOIN (SELECT AdvanceId, PartyId, NetAmount FROM [TRN].[AdvanceDetail]
                                 ) AS AD ON AD.AdvanceId=A.Id AND AD.PartyId=A.PartyId
                                 WHERE A.OpeningBalanceId IS NULL AND A.Archive=0 AND V.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + @"' 

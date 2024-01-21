@@ -1092,16 +1092,15 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
                 $scope.newList = [];
                 $scope.inventoryMaterialList = response.data;
                 reArrangeCreditableList($scope.inventoryMaterialList, $scope.newList, $scope.inventoryReceiveDetailList);
-
+                getmasterOrderDetailData(salesId, partyAccountGroup);
             });
-        getmasterOrderDetailData(salesId, partyAccountGroup);
-        getmasterOrderServiceDetailData(salesId, partyAccountGroup);
     }
 
     function getmasterOrderDetailData(salesId, partyAccountGroupId) {
         $http.get('SalesManagements/Sales/GetMasterOrderSalesDetailList?salesId=' + salesId + '&partyAccountGroup=' + partyAccountGroupId)
             .then(function (response) {
                 $scope.salesDetailList = response.data;
+                getmasterOrderServiceDetailData(salesId, partyAccountGroupId);
             });
     }
     function getmasterOrderServiceDetailData(salesId, partyAccountGroupId) {

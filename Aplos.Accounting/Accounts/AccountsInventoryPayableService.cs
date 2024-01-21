@@ -1748,7 +1748,7 @@ UNION
             try
             {
                 var sql = @"SELECT  GL.AccountCode+' - '+ GL.UserName GLName,BU.UserName BudgetName,A.UserName ActivityName,0 DrAmount,ATD.Amount CrAmount,ATD.AdditionalTaxId
-                            ,ATD.GLGeneralInfoId, ATD.BudgetMasterId, ATD.ActivityId,TC.Id TaxCategoryId,ATD.TaxCodeId,ATD.AType
+                            ,ATD.GLGeneralInfoId, ATD.BudgetMasterId, ATD.ActivityId,TC.Id TaxCategoryId,ATD.TaxCodeId,TAC.UserName Particulars,ATD.AType
                             FROM TRN.AdditionalTaxDetail ATD 
                             JOIN TRN.AdditionalTax ATX ON ATX.Id=ATD.AdditionalTaxId
                             LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=ATD.GLGeneralInfoId
@@ -1761,7 +1761,7 @@ UNION
 
                             UNION
 							SELECT  GL.AccountCode+' - '+ GL.UserName GLName,BU.UserName BudgetName,A.UserName ActivityName,ATX.TaxAmount DrAmount,0 CrAmount,ATX.Id AdditionalTaxId
-							,IVD.GLGeneralInfoId, IVD.BudgetMasterId, IVD.ActivityId,NULL TaxCategoryId,NULL TaxCodeId,'Dr' AType
+							,IVD.GLGeneralInfoId, IVD.BudgetMasterId, IVD.ActivityId,NULL TaxCategoryId,NULL TaxCodeId,'' Particulars,'Dr' AType
                             FROM  TRN.AdditionalTax ATX 
 							LEFT JOIN TRN.Invoice IV ON IV.Id=ATX.InvoiceId
 							LEFT JOIN TRN.InvoiceDetail IVD ON IVD.InvoiceId=IV.Id

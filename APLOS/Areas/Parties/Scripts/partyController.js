@@ -101,11 +101,11 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
         PartyCategoryId: null,
         PartySubCategoryId: null,
         Latitude: null,
-        Longitude:null,
+        Longitude: null,
         PartyNature: null,
         ResponsiblePersonId: null,
         ResponsiblePersonCode: null,
-        ResponsiblePerson:null
+        ResponsiblePerson: null
     };
 
     $scope.contactMaster = {
@@ -175,7 +175,7 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
         PartyType: null
     };
 
- 
+
 
     $scope.partyPlant = {
         Id: null,
@@ -1571,6 +1571,7 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
                 $scope.onStateChange($scope.addressMasterPlant.StateId);
                 $scope.onDistictChange($scope.addressMasterPlant.DistrictId);
                 $scope.onCityChange($scope.addressMasterPlant.CityId);
+                $scope.GetPartyPlantContactData();
             });
     };
 
@@ -1650,6 +1651,77 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
         $scope.GetPartyPlantSequence();
         $scope.partyPlantNew.Active = true;
         $scope.addressMasterPlant = {};
+    };
+
+    $scope.PartyPlantContactAction = 'Save';
+
+    $scope.contactMasterPlantmodel = {
+        Id: null,
+        PartyPlantId: null,
+        ContactPerson: null,
+        ContactPersonDesignation: null,
+        Phone1: null,
+        Phone2: null,
+        Phone3: null,
+        Fax: null,
+        Email1: null,
+        Email2: null,
+        Email3: null,
+        Website: null,       
+        Active: true,
+        Archive: false,
+        AddedBy: null,
+        AddedDate: null,
+        AddedFromIP: null,
+        UpdatedBy: null,
+        UpdatedDate: null,
+        UpdatedFromIP: null
+    }
+    $scope.contactMasterPlant = Object.assign({}, $scope.contactMasterPlantmodel);
+
+    $scope.SavePartyPlantContact = function () {
+        $scope.contactMasterPlant.PartyPlantId = $scope.partyPlantNew.Id;
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.partyPlantForm3.$valid) {
+            if ($scope.PartyPlantContactAction === 'Save' || $scope.PartyPlantContactAction === 'Update') {
+                $http({
+                    method: 'POST',
+                    url: 'parties/party/CreatePartyPlantContact',
+                    data: {
+                        'entity': $scope.contactMasterPlant
+                    },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.GetPartyPlantContactData();
+                        $scope.ClearPartyPlantContact();
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                };
+            }
+        }
+    };
+
+    $scope.GetPartyPlantContact = function (data) {
+        $scope.PartyPlantContactAction = 'Update';
+        $scope.contactMasterPlant = Object.assign({}, data);
+    }
+
+    $scope.GetPartyPlantContactData = function () {
+        $http.get('parties/party/GetPartyPlantContactData?PartyPlantId=' + $scope.partyPlantNew.Id)
+            .then(function (response) {
+                $scope.partyPlantContacts = response.data;
+            });
+    };
+
+    $scope.ClearPartyPlantContact = function () {
+        $scope.PartyPlantContactAction = 'Save';
+        $scope.contactMasterPlant = Object.assign({}, $scope.contactMasterPlantmodel);
     };
 
     // #endregion
@@ -1870,7 +1942,7 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
         };
         $scope.fileNew = Object.assign({}, obj);
         $scope.partyBank = Object.assign({}, $scope.fileNew);
-        
+
     };
 
     $scope.confirmPartyBankDelete = function (data) {
@@ -1918,5 +1990,5 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
 
     // #endregion
 
-  
+
 }

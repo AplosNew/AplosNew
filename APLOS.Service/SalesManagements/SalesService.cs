@@ -178,7 +178,7 @@ namespace Library.Service.SalesManagements
                     RowState = RowState.Parked.ToString(),
                     DeliveryByAddress = voucherVM.DeliveryByAddress,
                     InvoicingByAddress = voucherVM.InvoicingByAddress,
-                    IsAdditionalInfoApplicable=voucherVM.IsAdditionalInfoApplicable,
+                    IsAdditionalInfoApplicable = voucherVM.IsAdditionalInfoApplicable,
                     InvoiceStatus = voucherVM.InvoiceStatus,
                     PaymentToReceiveBankId = voucherVM.PaymentToReceiveBankId,
                     SourceType = "Sales",
@@ -225,7 +225,7 @@ namespace Library.Service.SalesManagements
                             TransactionQty = salesMaterialVM.TransactionQty,
                             TransactionAmount = salesMaterialVM.TransactionAmount,
                             //BooksCurrencyTransactionAmount = Math.Round(salesMaterialVM.TransactionAmount * voucherVM.CompanyCurrencyRate),
-                            BooksCurrencyTransactionAmount = Math.Round(salesMaterialVM.TransactionAmount * sales.ToCurrencyRate,2),
+                            BooksCurrencyTransactionAmount = Math.Round(salesMaterialVM.TransactionAmount * sales.ToCurrencyRate, 2),
                             TaxAmount = salesMaterialVM.TaxAmount,
                             //BooksCurrencyTaxAmount = Math.Round(salesMaterialVM.TaxAmount * voucherVM.CompanyCurrencyRate, 2),
                             BooksCurrencyTaxAmount = Math.Round(salesMaterialVM.TaxAmount * sales.ToCurrencyRate, 2),
@@ -240,7 +240,7 @@ namespace Library.Service.SalesManagements
                             UpdatedDate = null,
                             CanceledBy = null,
                             IsCanceled = false,
-                             Remark=null
+                            Remark = null
                         };
                         if (voucherVM.CurrencyId != companyCurrencyId)
                         {
@@ -377,46 +377,28 @@ namespace Library.Service.SalesManagements
                 _unitOfWork.BeginTransaction();
                 flag = true;
 
-                var sales = new Sales
-                {
-                    CompanyGroupId = voucherVM.CompanyGroupId,
-                    CompanyId = voucherVM.CompanyId,
-                    PlantId = voucherVM.PlantId,
-                    EntityId = voucherVM.EntityId,
-                    //DocDate = voucherVM.DocDate,
-                    DocRefNo = voucherVM.DocRefNo,
-                    CurrencyId = voucherVM.CurrencyId,
-                    ToCurrencyRate = voucherVM.CompanyCurrencyRate,
-                    BaseNoOfDays = voucherVM.BaseNoOfDays,
-                    BaseOnDueDate = voucherVM.BaseOnDueDate,
-                    DeliveryPartyPlantId = voucherVM.DeliveryPartyPlantId,
-                    EntryDate = voucherVM.VoucherDate,
-                    InvoiceDate = voucherVM.InvoiceDate,
-                    InvoicingPartyPlantId = voucherVM.InvoicingPartyPlantId,
-                    MatureDate = voucherVM.MatureDate,
-                    PartyId = voucherVM.PartyId,
-                    PartyType = voucherVM.PartyType,
-                    Narration = voucherVM.Narration,
-                    ItemDescription = voucherVM.ItemDescription,
-                    PaymentTermId = voucherVM.PaymentTermId,
-                    RowState = RowState.Parked.ToString(),
 
-                    DeliveryByAddress = voucherVM.DeliveryByAddress,
-                    InvoicingByAddress = voucherVM.InvoicingByAddress,
-                    PaymentToReceiveBankId = voucherVM.PaymentToReceiveBankId,
-                    IsAdditionalInfoApplicable=voucherVM.IsAdditionalInfoApplicable,
-                    AddedBy = voucherVM.AddedBy,
-                    AddedDate = voucherVM.AddedDate,
-                    AddedFromIP = voucherVM.AddedFromIP,
-                    UpdatedBy = voucherVM.UpdatedBy,
-                    UpdatedDate = voucherVM.UpdatedDate,
-                    UpdatedFromIP = voucherVM.UpdatedFromIP,
-                    SourceType = "Sales",
-                    InvoiceStatus = voucherVM.InvoiceStatus,
-                    ModelState = ModelState.Modified,
-                    Id = voucherVM.Id,
-                };
+                var sales = _salesRepository.Find(voucherVM.Id);
+
+                sales.UpdatedBy = voucherVM.UpdatedBy;
+                sales.UpdatedDate = voucherVM.UpdatedDate;
+                sales.UpdatedFromIP = voucherVM.UpdatedFromIP;
+                sales.SourceType = "Sales";
+                sales.InvoiceStatus = voucherVM.InvoiceStatus;
                 sales.InvoiceNo = sales.Id;
+                sales.EntityId = voucherVM.EntityId;
+                sales.InvoiceDate = voucherVM.InvoiceDate;
+                sales.CurrencyId = voucherVM.CurrencyId;
+                sales.ToCurrencyRate = voucherVM.CompanyCurrencyRate;
+                sales.DocRefNo = voucherVM.DocRefNo;
+                sales.ItemDescription = voucherVM.ItemDescription;
+                sales.PaymentToReceiveBankId = voucherVM.PaymentToReceiveBankId;
+                sales.PaymentTermId = voucherVM.PaymentTermId;
+                sales.BaseOnDueDate = voucherVM.BaseOnDueDate;
+                sales.BaseNoOfDays = voucherVM.BaseNoOfDays;
+                sales.MatureDate = voucherVM.MatureDate;
+                sales.Narration = voucherVM.Narration;
+                sales.ModelState = ModelState.Modified;
                 AuditService.UpdatedLog(sales);
                 _salesRepository.Update(sales);
 
@@ -424,7 +406,7 @@ namespace Library.Service.SalesManagements
                 var currentSalesTaxId = _salesMaterialRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 4) AS INT)), 0) Id FROM TRN.SalesTax WHERE SalesId='{sales.Id}'").First();
 
                 var currentSalesServiceId = 0;
-                if (salesMaterialVMList!=null)
+                if (salesMaterialVMList != null)
                 {
                     foreach (var salesMaterialVM in salesMaterialVMList)
                     {
@@ -633,7 +615,7 @@ namespace Library.Service.SalesManagements
                             }
                         }
 
-                    } 
+                    }
                 }
 
                 if (salesServiceVMList != null)
@@ -943,16 +925,16 @@ namespace Library.Service.SalesManagements
 
         public void DeleteSalesMaterial(string Id)
         {
-            string strPSQL, strISCSQL, strBSQL, strOSQL, updatasc=null;
+            string strPSQL, strISCSQL, strBSQL, strOSQL, updatasc = null;
             DataSet dsMaster, dsSC;
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-              var smdata= _salesMaterialRepository.Find(Id);
+                var smdata = _salesMaterialRepository.Find(Id);
                 var secondCharacteristicsData = _secondCharacteristicsRepository.Query(t => t.SalesOrderId == smdata.SalesOrderId && t.Id == smdata.SecondCharacteristicsId).Select(t => t.SalesQty).FirstOrDefault();
-                if (secondCharacteristicsData!=0)
+                if (secondCharacteristicsData != 0)
                 {
-                    updatasc = "Update TRN.SecondCharacteristics set SalesQty=" + secondCharacteristicsData + "-"+ smdata.BaseQty + " WHERE SalesOrderId='" + smdata.SalesOrderId + "' AND Id='" + smdata.SecondCharacteristicsId + "'";
+                    updatasc = "Update TRN.SecondCharacteristics set SalesQty=" + secondCharacteristicsData + "-" + smdata.BaseQty + " WHERE SalesOrderId='" + smdata.SalesOrderId + "' AND Id='" + smdata.SecondCharacteristicsId + "'";
                 }
 
                 strISCSQL = "Update ItemScanChild set SalesMaterialId=NULL,SalesId=NULL,IsDespatch=0 WHERE SalesMaterialId='" + Id + "'";
@@ -990,16 +972,16 @@ namespace Library.Service.SalesManagements
 
         }
 
-        public void CancelSalesMaterial(string Id,string remark)
+        public void CancelSalesMaterial(string Id, string remark)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string strISCSQL, strBSQL, strOSQL = null;
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                
+
                 strOSQL = "Update  TRN.SalesTax set BooksCurrencyTransactionAmount=0,Amount=0 WHERE SalesMaterialId='" + Id + "'";
-                strBSQL = "Update  TRN.SalesMaterial set TaxAmount=0,NetAmount=0,BaseQty=0,BaseAmount=0,TransactionQty=0,TransactionAmount=0,IsCanceled=1,Remark='"+ remark + "',CanceledBy='"+ identity.UserId+ "' WHERE Id='" + Id + "'";
+                strBSQL = "Update  TRN.SalesMaterial set TaxAmount=0,NetAmount=0,BaseQty=0,BaseAmount=0,TransactionQty=0,TransactionAmount=0,IsCanceled=1,Remark='" + remark + "',CanceledBy='" + identity.UserId + "' WHERE Id='" + Id + "'";
                 strISCSQL = "Update  ItemScanChild set SalesMaterialId=NULL,SalesId=NULL,IsDespatch=0 WHERE SalesMaterialId='" + Id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
@@ -1029,7 +1011,7 @@ namespace Library.Service.SalesManagements
             }
 
         }
-        
+
         public void DeleteSalesService(string Id)
         {
             string strPSQL, strBSQL, strOSQL;
@@ -1063,7 +1045,7 @@ namespace Library.Service.SalesManagements
             {
                 objCon = null;
             }
-           
+
         }
 
         public void SalesInvoicePost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> salesJVDetail, IEnumerable<SalesMaterialViewModel> salesMaterialDetailGLList, IEnumerable<SalesServiceViewModel> salesServiceDetailGLList)
@@ -1515,7 +1497,7 @@ namespace Library.Service.SalesManagements
 
         public List<Dictionary<string, object>> GetSalesServiceData(string companyGroupId, string companyId, string plantId, string salesId)
         {
-            var cmdText = @"SELECT SS.Id, SS.SalesId, SS.ServiceMasterId, SS.Amount, SS.TaxAmount, SS.NetAmount, SM.UserName AS ChargeName, NULL ServiceTaxList 
+            var cmdText = @"SELECT SS.Id, SS.SalesId, SS.ServiceMasterId, SS.Amount, SS.TaxAmount, NetAmount=SS.Amount+ SS.TaxAmount, SM.UserName AS ChargeName, NULL ServiceTaxList 
 								FROM TRN.SalesService AS SS 
 								LEFT JOIN TRN.Sales AS SA ON SA.Id=SS.SalesId
                                 LEFT JOIN HKP.ServiceMaster SM ON SM.Id=SS.ServiceMasterId
@@ -1731,9 +1713,9 @@ namespace Library.Service.SalesManagements
                             UpdatedBy = null,
                             UpdatedDate = null,
                             UpdatedFromIP = null,
-                            IsCanceled=false,
-                            CanceledBy=null,
-                            Remark=null
+                            IsCanceled = false,
+                            CanceledBy = null,
+                            Remark = null
                         };
 
                         if (voucherVM.CurrencyId != companyCurrencyId)
@@ -1949,7 +1931,7 @@ namespace Library.Service.SalesManagements
                 sales.SourceType = "MasterOrderSales";
 
                 sales.ModelState = ModelState.Modified;
-                   
+
                 sales.DocRefNo = sales.Id;
                 sales.InvoiceNo = sales.Id;
                 AuditService.UpdatedLog(sales);
@@ -1965,8 +1947,8 @@ namespace Library.Service.SalesManagements
                     foreach (var salesMaterialVM in salesMaterialVMList)
                     {
                         currentSalesMaterialId++;
-                        
-                     
+
+
                         if (string.IsNullOrEmpty(salesMaterialVM.Id))
                         {
                             historyId++;
@@ -2120,7 +2102,8 @@ namespace Library.Service.SalesManagements
                                 UpdatedDate = sales.UpdatedDate,
                                 UpdatedFromIP = sales.UpdatedFromIP,
                                 ModelState = ModelState.Modified
-                                ,IsCanceled=false
+                                ,
+                                IsCanceled = false
                             };
 
                             if (voucherVM.CurrencyId != companyCurrencyId)
@@ -2222,7 +2205,7 @@ namespace Library.Service.SalesManagements
 
                 if (selectedMasterOrderList != null)
                 {
-                     currentSalesOrderItemId = _salesMaterialRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM TRN.SalesOrderItem WHERE SalesId='{sales.Id}'").First();
+                    currentSalesOrderItemId = _salesMaterialRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM TRN.SalesOrderItem WHERE SalesId='{sales.Id}'").First();
                     foreach (var item in selectedMasterOrderList)
                     {
                         if (string.IsNullOrEmpty(item.Id))
@@ -2965,10 +2948,10 @@ namespace Library.Service.SalesManagements
                 var voucher = _voucherService.FindVoucher(voucherId);
                 AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
                 _accountsCommonService.InsertVoucherLogDeleted(voucherId, voucher.VoucherNo, "", "", "", "", "", "", "", "", "", "", salesId, deletedRemarks);
-                
+
                 var writtenOff = _invoiceService.Query(r => r.VoucherId == voucherId && r.WrittenOffAmount > 0).Select().ToList();
 
-                if (writtenOff.Count()>0)
+                if (writtenOff.Count() > 0)
                     throw new CustomException("Delete is not allow,Please delete Customer Payment Receipt First ! ");
 
                 var vendorAdWr = new System.Text.StringBuilder();
@@ -2978,7 +2961,7 @@ namespace Library.Service.SalesManagements
 
                 vendorAdWrsql = @"delete trn.VoucherDetailCurrency where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "')";
                 vendorAdWr.Append(vendorAdWrsql);
-                
+
                 vendorAdWrsql = @"delete from TRN.InvoiceTaxDetail where InvoiceTaxId in(select Id from trn.InvoiceTax where InvoiceId in(select Id from TRN.Invoice where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "')))";
                 vendorAdWr.Append(vendorAdWrsql);
                 vendorAdWrsql = @"delete from TRN.InvoiceTax  where InvoiceId in(select Id from TRN.Invoice where VoucherId in (select Id from trn.voucher where CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND SourceType='" + SourceType.SalesInvoice.ToString() + "' AND Id = '" + voucherId + "'))";
@@ -3000,7 +2983,7 @@ namespace Library.Service.SalesManagements
                 _unitOfWork.Commit();
 
             }
-          
+
             catch (Exception ex)
             {
                 throw new CustomException(ex.Message, ex,
@@ -3203,9 +3186,9 @@ namespace Library.Service.SalesManagements
                             UpdatedBy = null,
                             UpdatedDate = null,
                             UpdatedFromIP = null,
-                            IsCanceled=false,
-                            Remark=null,
-                            CanceledBy=null
+                            IsCanceled = false,
+                            Remark = null,
+                            CanceledBy = null
                         };
 
                         if (voucherVM.CurrencyId != companyCurrencyId)
@@ -3271,11 +3254,11 @@ namespace Library.Service.SalesManagements
 
                         if (dsItemScanData.Tables[0].Rows.Count > 0)
                         {
-                            dsItemScanData.Tables[0].DefaultView.RowFilter="SOId='"+ salesMaterialVM.SalesOrderId + "' AND PackingId='"+ salesMaterialVM.PackingId + "'";
-                            
+                            dsItemScanData.Tables[0].DefaultView.RowFilter = "SOId='" + salesMaterialVM.SalesOrderId + "' AND PackingId='" + salesMaterialVM.PackingId + "'";
+
                             for (int i = 0; i < dsItemScanData.Tables[0].DefaultView.Count; i++)
                             {
-                               var childData= _ItemScanChildDataService.Find(dsItemScanData.Tables[0].DefaultView[i]["Id"].ToString());
+                                var childData = _ItemScanChildDataService.Find(dsItemScanData.Tables[0].DefaultView[i]["Id"].ToString());
                                 childData.SalesMaterialId = salesMaterial.Id;
                                 childData.SalesId = sales.Id;
                                 childData.IsDespatch = true;
@@ -3498,7 +3481,7 @@ namespace Library.Service.SalesManagements
                     PaymentToReceiveBankId = voucherVM.PaymentToReceiveBankId,
                     AdditionalFrieght = voucherVM.AdditionalFrieght,
                     AdditionalFrieghtValue = voucherVM.AdditionalFrieghtValue,
-                    IsAdditionalInfoApplicable=voucherVM.IsAdditionalInfoApplicable,
+                    IsAdditionalInfoApplicable = voucherVM.IsAdditionalInfoApplicable,
                     AddedBy = voucherVM.AddedBy,
                     AddedDate = voucherVM.AddedDate,
                     AddedFromIP = voucherVM.AddedFromIP,
@@ -3750,7 +3733,7 @@ namespace Library.Service.SalesManagements
                             {
                                 var childData = _ItemScanChildDataService.Find(dsItemScanData.Tables[0].DefaultView[i]["Id"].ToString());
                                 childData.SalesMaterialId = salesMaterialVM.Id;
-                                childData.SalesId = sales.Id; 
+                                childData.SalesId = sales.Id;
                                 childData.IsDespatch = true;
                                 childData.ReturnNetWeight = 0;
                                 childData.ModelState = ModelState.Modified;
@@ -4440,7 +4423,7 @@ namespace Library.Service.SalesManagements
                             drmo["UpdatedDate"] = DateTime.Now.ToString();
                             drmo["UpdatedFromIP"] = packingvoucher.AddedFromIP;
                             drmo.EndEdit();
-                        } 
+                        }
                     }
 
                     if (totalPackingAmountDr != totalPackingAmountCr)
@@ -4567,5 +4550,5 @@ namespace Library.Service.SalesManagements
         }
     }
 
-   
+
 }

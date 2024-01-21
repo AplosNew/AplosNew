@@ -4,6 +4,7 @@ using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Model.Addresses;
+using Library.Model.Logs;
 using Library.Service.Currencies;
 using Library.Service.Extension;
 using Library.Service.Helpers;
@@ -23,6 +24,8 @@ using System.Linq;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Library.Core;
+using Library.Data.UnitOfWorks;
 
 namespace Library.MaterialManagement.Reports
 {
@@ -31,15 +34,21 @@ namespace Library.MaterialManagement.Reports
         private readonly IRepositoryAsync<SMTPConfiguration> _smtpConfigurationRepository;
         private readonly ISqlRepository _sqlRepository;//
         private readonly ICompanyParallelCurrencyService _companyParallelCurrencyService;
+        private readonly IRepositoryAsync<MailLog> _mailLogRepository;
+        private readonly IUnitOfWork _unitOfWork;
         public SalesReportService(
             ISqlRepository sqlRepository
             , ICompanyParallelCurrencyService companyParallelCurrencyService
                 , IRepositoryAsync<SMTPConfiguration> smtpConfigurationRepository
+             , IRepositoryAsync<MailLog> mailLogRepository
+             , IUnitOfWork unitOfWork
             )
         {
             _sqlRepository = sqlRepository;
             _companyParallelCurrencyService = companyParallelCurrencyService;
             _smtpConfigurationRepository = smtpConfigurationRepository;
+            _mailLogRepository = mailLogRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public IWorkbook GetSalesReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string salesId)
@@ -745,7 +754,7 @@ namespace Library.MaterialManagement.Reports
                 {
                     if (string.IsNullOrEmpty(dsOrderMaster.Rows[0]["Email"].ToString()))
                     {
-                        throw new Exception("Recipient mailId not found.");
+                        throw new Exception("Customer mailId not found.");
                     }
                 }
                 Dictionary<string, string> columns = new Dictionary<string, string>();
@@ -847,12 +856,31 @@ namespace Library.MaterialManagement.Reports
                 message.Attachments.Add(file);
                 email.Send(message);
 
+
             }
             catch (Exception ex)
             {
-                //throw ex;
+                throw ex;
             }
 
+            MailLog log = new MailLog();
+
+            log.AddedBy = UserId;
+            log.AddedDate = DateTime.Now;
+            log.AddedFromIP = "";
+            log.AppVersion = "";
+            log.CompanyGroupId = companyGroupId;
+            log.ModelState = ModelState.Added;
+            log.RecordTime = DateTime.Now;
+            log.ServiceName = "TaxInvoiceMailToCustomer";
+            log.UserId = UserId;
+            log.AttachmentName = fileName;
+            log.IsSuccess = false;
+            log.SenderName = null;
+            log.MailGenerator = "";
+            log.Remarks = "" + salesId + " Tax Invoice mail to Customer";
+            _mailLogRepository.Insert(log);
+            _unitOfWork.SaveChanges();
             document.Close();
         }
 
@@ -888,7 +916,7 @@ namespace Library.MaterialManagement.Reports
                     columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
 
                 var MaterialTotal = GetLotWiseSalesTaxInvoiceService(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {materialItems}
-                var SalesTotal = makeOrderServiceTable(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {{ServiceItems}}
+                var SalesTotal = makePackingSalesServiceTable(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {{ServiceItems}}
                 var dsInventoryReceiveAdditionalTax = loadLocalTaxInvoiceAdditionalTax(salesId);
 
 
@@ -1408,7 +1436,7 @@ from [dbo].[MasterLCAddInfo] MA
 LEFT JOIN dbo.[Contract] C ON C.MasterLcId=MA.MasterLcId
 LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
 LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
-Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
+Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }
@@ -1442,7 +1470,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             #region column headers
             document.EnsureMinimal();
 
-            WCharacterFormat FontBold = new WCharacterFormat(document); 
+            WCharacterFormat FontBold = new WCharacterFormat(document);
             WCharacterFormat DFontSize = new WCharacterFormat(document);
             FontBold.Bold = true;
             DFontSize.FontSize = 8f;
@@ -1476,7 +1504,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     }
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
-                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsTermsAndCondition.Rows[i]["RoWNo"].ToString() + "." + dsTermsAndCondition.Rows[i]["UserName"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsTermsAndCondition.Rows[i]["UserName"].ToString()).ApplyCharacterFormat(DFontSize);
                 TROW.Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
                 TROW.Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
                 TROW.Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
@@ -1485,7 +1513,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             ROW++;
 
             #region Total
-           
+
             #endregion Total
             ROW++;
             #region paragrpath formats
@@ -1510,8 +1538,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
 
             return 0;
         }
-
-        public double makeaddInfo(string salesId, WordDocument document, DataTable dsaddInfo)
+        public double makeserviceInfo(string salesId, WordDocument document, DataTable dsaddInfo)
         {
             string replaceString = "{addInfo}";
 
@@ -1532,7 +1559,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             document.EnsureMinimal();
 
             WCharacterFormat FontBold = new WCharacterFormat(document);
-             WCharacterFormat DFontSize = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
             FontBold.Bold = true;
             DFontSize.FontSize = 8f;
 
@@ -1591,7 +1618,103 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             myaddStyle.CharacterFormat.FontSize = 8f;
             myaddStyle.CharacterFormat.TextColor = Color.Black;
             myaddStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
-  
+
+            #endregion paragrpath formats
+
+            #region merging section
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            ROW++;
+            #endregion merging section
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+
+            return 0;
+        }
+
+        public double makeaddInfo(string salesId, WordDocument document, DataTable dsaddInfo)
+        {
+            string replaceString = "{addInfo}";
+
+
+            IWParagraphStyle arightAlign = document.AddParagraphStyle("addrightAlign");
+            //Sets the formatting of the style
+            arightAlign.CharacterFormat.FontSize = 8f;
+            arightAlign.CharacterFormat.TextColor = Color.Black;
+            arightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+            int LasColumnIndex = 1;
+            WTable wTable = new WTable(document);
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex);
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
+            FontBold.Bold = true;
+            DFontSize.FontSize = 8f;
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
+            range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
+            int colTermsAndCondition = COL; COL++;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 550;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+
+
+            #endregion column headers
+            double totalValue = 0;
+            int sl = 0;
+            int startRow = 0;
+            for (int i = 0; i < dsaddInfo.Rows.Count; i++)
+            {
+                ROW++;
+                sl++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsaddInfo.Rows[i]["Description"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+
+            }
+            ROW++;
+
+            #region Total
+            //int TotalRow = ROW;
+            //wTable.AddRow();
+            //WTableRow _TROW = wTable.LastRow;
+
+            //range.ApplyCharacterFormat(FontBold);
+            #endregion Total
+            ROW++;
+            #region paragrpath formats
+
+            IWParagraphStyle myaddStyle = document.AddParagraphStyle("AddinfoStyle");
+            //Sets the formatting of the style
+            myaddStyle.CharacterFormat.FontSize = 8f;
+            myaddStyle.CharacterFormat.TextColor = Color.Black;
+            myaddStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
             #endregion paragrpath formats
 
             #region merging section
@@ -1640,9 +1763,10 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
 
                 var MaterialTotal = makeCommercialInvoiceService(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {materialItems}
+                
                 var addInfo = makeaddInfo(salesId, document, dsaddInfo);   // {makeaddInfo}
                 var TermsAndCondition = makeTermsAndCondition(salesId, document, dsConditions);   // {conditions}
-                var totalQty= clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(POTransactionQty)", "CustomerNo='" + dsOrderMaster.Rows[0]["CustomerNo"].ToString() + "'"));
+                var totalQty = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(POTransactionQty)", "CustomerNo='" + dsOrderMaster.Rows[0]["CustomerNo"].ToString() + "'"));
                 var FREIGHTVALUE = totalQty * clsStaticInfo.dbl(dsOrderMaster.Rows[0]["AdditionalFrieghtValue"].ToString());
                 var FCAVALUE = MaterialTotal - FREIGHTVALUE;
                 document.Replace("{GrandTotal}", (MaterialTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
@@ -1858,7 +1982,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                 document.Replace("{FREIGHTVALUE}", (FREIGHTVALUE).ToString("#,##0.00"), true, true);
                 document.Replace("{FCAVALUE}", (FCAVALUE).ToString("#,##0.00"), true, true);
                 //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2"), true, true);
-                document.Replace("{TotalInWords}", ru.InWordNew(clsStaticInfo.dbl(dsOrderMaster.Rows[0]["NoCartons"].ToString()),null), true, true);
+                document.Replace("{TotalInWords}", ru.InWordNew(clsStaticInfo.dbl(dsOrderMaster.Rows[0]["NoCartons"].ToString()), null), true, true);
 
                 Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
 
@@ -1899,23 +2023,23 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                 /////////////////////
                 ///
 
-               /* DocToPDFConverter converter = new DocToPDFConverter();
+                /* DocToPDFConverter converter = new DocToPDFConverter();
 
-                //Converts Word document into PDF document
-                PdfDocument pdfDocument = converter.ConvertToPDF(document);
-                pdfDocument.PageSettings.Width = 1200;
-                pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
-                //Releases all resources used by DocToPDFConverter
-                converter.Dispose();
+                 //Converts Word document into PDF document
+                 PdfDocument pdfDocument = converter.ConvertToPDF(document);
+                 pdfDocument.PageSettings.Width = 1200;
+                 pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
+                 //Releases all resources used by DocToPDFConverter
+                 converter.Dispose();
 
-                //Closes the instance of document objects
+                 //Closes the instance of document objects
 
-                //Saves the PDF file 
-                string Prefix = "LRDraft" + plantId;
+                 //Saves the PDF file 
+                 string Prefix = "LRDraft" + plantId;
 
-                pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
-                //Closes the instance of document objects
-                pdfDocument.Close(true);*/
+                 pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
+                 //Closes the instance of document objects
+                 pdfDocument.Close(true);*/
                 document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 document.Close();
             }
@@ -3010,7 +3134,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             return 0;
         }
 
-       
+
         #endregion Add Info 
 
         public void BillofExchange(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId)
@@ -3336,7 +3460,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             document.Close();
         }
 
-        public void BankLatter(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId , string BankName)
+        public void BankLatter(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId, string BankName)
         {
             var fileName = "";
             var strPath = "";
@@ -3353,6 +3477,10 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                 {
                     fileName = "REQUEST-LETTER-ICICI.docx";
                 }
+                if (BankName == "Standard Chartered Bank (Ludhiana)")
+                {
+                    fileName = "SCB.docx";
+                }
                 strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
                 File = strPath;
                 if (!System.IO.File.Exists(strPath))
@@ -3365,7 +3493,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                 throw new CustomException("Bank Is not Selected");
             }
 
-            
+
 
             WordDocument document = new WordDocument(File, FormatType.Docx);
 
@@ -3577,6 +3705,119 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
             document.Close();
         }
 
+        public void ANNEXUREReport(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId)
+        {
+            var fileName = "";
+            var strPath = "";
+            var File = "";
+
+            ReportUtility ru = new ReportUtility();
+            fileName = "ANNEXURE.docx";
+
+            strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
+            File = strPath;
+            if (!System.IO.File.Exists(strPath))
+            {
+                throw new CustomException("File <" + fileName + "> Not Found.");
+            }
+
+            WordDocument document = new WordDocument(File, FormatType.Docx);
+
+            try
+            {
+                WSection section = document.Sections[0];
+
+                DataTable dsOrderMaster, dsConditions, dsaddInfo;
+
+                dsOrderMaster = GetloadCommercialLocalTaxMaterialMaster(salesId);
+                dsConditions = TermsAndConditionSQL(salesId);
+                dsaddInfo = GetAddinfo(salesId);
+                Dictionary<string, string> columns = new Dictionary<string, string>();
+
+                foreach (DataColumn item in dsOrderMaster.Columns)
+                    columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
+
+                var MaterialTotal = makeCommercialInvoiceService(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {materialItems}
+                var addInfo = makeaddInfoBE(salesId, document, dsaddInfo);   // {makeaddInfo}
+                var TermsAndCondition = makeTermsAndCondition(salesId, document, dsConditions);   // {conditions}
+                var totalQty = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(POTransactionQty)", "CustomerNo='" + dsOrderMaster.Rows[0]["CustomerNo"].ToString() + "'"));
+                var FREIGHTVALUE = totalQty * clsStaticInfo.dbl(dsOrderMaster.Rows[0]["AdditionalFrieghtValue"].ToString());
+                var FCAVALUE = MaterialTotal - FREIGHTVALUE;
+                document.Replace("{GrandTotal}", (MaterialTotal).ToString("#,##0.00") + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString(), true, true);
+                document.Replace("{GrandTotals}", (MaterialTotal).ToString("#,##0.00"), true, true);
+                document.Replace("{FREIGHTVALUE}", (FREIGHTVALUE).ToString("#,##0.00"), true, true);
+                document.Replace("{FCAVALUE}", (FCAVALUE).ToString("#,##0.00"), true, true);
+                //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2"), true, true);
+                document.Replace("{TotalInWords}", ru.InWordNew(clsStaticInfo.dbl(dsOrderMaster.Rows[0]["NoCartons"].ToString()), null), true, true);
+
+                Dictionary<string, int> ReplaceInfo = new Dictionary<string, int>();
+
+                TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
+
+                //creating secondary array to prevent memory leak and accidental over-writing (Tarek Talukder-26-May-2019)
+                List<string> strReplace = new List<string>();
+                for (int i = 0; i < allresult.Length; i++)
+                    strReplace.Add(allresult[i].SelectedText.ToString().ToUpper());
+
+                for (int i = 0; i < strReplace.Count; i++)
+                {
+                    string text = strReplace[i].ToUpper();
+                    ReplaceInfo.Add(text, 0);
+                    if (columns.ContainsKey(text.ToUpper()))
+                    {
+                        //ReplaceInfo[text] = document.Replace(text, dsOrderMaster.Tables[0].Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+                        document.Replace(text, dsOrderMaster.Rows[0][columns[text.ToUpper()]].ToString(), false, false);
+                    }
+                    if (text == "{PRINTEDBY}")
+                    {
+                        document.Replace(text, Name, false, false);
+                    }
+                    if (text == "{DT}")
+                    {
+                        document.Replace(text, DateTime.Now.ToString("dd-MMM-yyyy h:mm tt"), false, false);
+                    }
+                }
+
+                document.Replace("{Date}", System.DateTime.Now.ToString("dd-MMM-yyyy"), false, false);
+
+                foreach (var item in ReplaceInfo.Keys)
+                {
+                    if (ReplaceInfo[item.ToString()] == 0)
+                        document.Replace(item.ToString(), "N/A", false, false);
+                }
+
+                /////////////////////
+                ///
+
+                /*DocToPDFConverter converter = new DocToPDFConverter();
+
+                //Converts Word document into PDF document
+                PdfDocument pdfDocument = converter.ConvertToPDF(document);
+                pdfDocument.PageSettings.Width = 1200;
+                pdfDocument.PageSettings.Orientation = PdfPageOrientation.Landscape;
+                //Releases all resources used by DocToPDFConverter
+                converter.Dispose();
+
+                //Closes the instance of document objects
+
+                //Saves the PDF file 
+                string Prefix = "CertificateofOrigin" + plantId;
+
+                pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
+                //Closes the instance of document objects
+                pdfDocument.Close(true);*/
+                document.Save(fileName, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
+                document.Close();
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+
+            document.Close();
+        }
+
         public void CommercialInvoicePackingListService(string companyGroupId, string companyId, string plantId, string UserId, string Name, string salesId)
         {
             var fileName = "";
@@ -3612,9 +3853,9 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                 var MaterialTotal = makeCommercialInvoicePackingListService(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {materialItems}
                 var addInfo = makeaddInfo(salesId, document, dsaddInfo);   // {makeaddInfo}
                 var TermsAndCondition = makeTermsAndCondition(salesId, document, dsConditions);   // {conditions}
-               
+
                 document.Replace("{GrandTotal}", (MaterialTotal).ToString(), true, true);
-               
+
                 //document.Replace("{GrandTotal}", (materialTotal + serviceTotal).ToString("F2"), true, true);
                 //document.Replace("{TotalInWords}", ru.InWord((MaterialTotal), dsOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
 
@@ -3704,7 +3945,7 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
     ,INVPARTYPL.UserName InvoiceParty,INVPARTYPL.UserName InvoiceParty2,IR.InvoicingByAddress AS ConsigneeAddress,IR.DeliveryByAddress,DPARTYPL.UserName DeliveryParty 
     ,PSI.PreCarriageBy,PSI.PlaceOfReceiptByPreCarriage,PSI.CNFContainerNo,PSI.CNFVesselName,PSI.CNFVesselTrackingNo,CRNC.Code AS CurrencyName,IR.ToCurrencyRate
     ,BASECRNC.Code AS BaseCurrencyName,PayTerm.UserName PaymentTerm,MM.UserName MaterialMaster,MGM.UserName MaterialGroupMaster
-    ,Article=CASE WHEN ISNULL(MOI.LCArticle,'')<>'' THEN MOI.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
+    ,Article=CASE WHEN ISNULL(moi.LCArticle,'')<>'' THEN moi.LCArticle WHEN ISNULL(AA.ArticlePartyName,'')<>'' THEN AA.ArticlePartyName ELSE MMA.StandardName END
      ,POTransactionQty=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.NetWeight END) 
     ,POTransactionQtyGWT=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.GWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.GWeight END)
     ,CONVERT(NUMERIC(10,4),IRD.TransactionRate, 4) TransactionRate
@@ -3762,6 +4003,26 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     SELECT distinct',' + LC.LCRef
                     FROM dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,LcAdvisingBankDS = Stuff((
+                    SELECT distinct',' + LC.LeinDescription
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,BenificiaryACCNO = Stuff((
+                    SELECT distinct',' + OB.AccountNumber
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.BankMaster OB on OB.Id = LC.BenificiaryBankId
+					LEFT JOIN HKP.Bank B on B.Id = OB.BankId
                     LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
 					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
                     WHERE SM.SalesId=IR.Id
@@ -3924,6 +4185,17 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
+,PLCountry=Stuff((
+                    SELECT distinct',' + CC.UserName
+                    FROM  dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.[Port] AS PL ON PL.Id = LC.PortOfLoadingId
+					left join  scs.country CC on CC.Id = PL.CountryId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
 ,PortOfDischarge=Stuff((
                     SELECT distinct',' + PL.UserName
                     FROM  dbo.MasterLC LC 
@@ -3934,11 +4206,34 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
                     WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
+,PDcountry=Stuff((
+                    SELECT distinct',' + CC.UserName
+                    FROM  dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.[Port] AS PL ON PL.Id = LC.PortOfLandingId
+					left join  scs.country CC on CC.Id = PL.CountryId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+
 ,PortOfDelivary=Stuff((
                     SELECT distinct',' + PL.UserName
                     FROM  dbo.MasterLC LC 
 					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
 					LEFT JOIN MST.[Port] AS PL ON PL.Id = LC.PortOfLandingId
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,PDLCountry=Stuff((
+                    SELECT distinct',' + CC.UserName
+                    FROM  dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+					LEFT JOIN MST.[Port] AS PL ON PL.Id = LC.PortOfLandingId
+					left join  scs.country CC on CC.Id = PL.CountryId
                     LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
 					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
                     WHERE SM.SalesId=IR.Id
@@ -4038,6 +4333,10 @@ Where  SM.SalesId='"+ SalesId + @"')A ORDER BY A.Sequence";
 ,FORMAT(PSI.ShipmentDate,'dd-MMM-yyyy')ShipmentDate
 ,CONVERT(numeric(10,2) , SAI.Value) AdvanceRevceive
 ,PSI.ExportRefNo EPN
+,NEGBNKMT.AccountNumber NegotiatingAccNo
+,FORMAT(PSI.ShipmentDate + 2,'dd-MM-yyyy')ShipmentDateNew
+,DelCN.UserName DeliveryCountry
+, case when IR.InvoicingPartyPlantId = IR.DeliveryPartyPlantId then '' else  DPARTYPL.UserName end DelivertyPT
 
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
@@ -4066,8 +4365,7 @@ LEFT JOIN (SELECT distinct LotNo, SalesId,SalesMaterialId,  COUNT(RefNo) Bags,
 LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
 LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
 LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
-LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id
-LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
+LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id AND AA.MasterOrderItemID=MOI.Id
 LEFT JOIN [HKP].[HSNCode] AS MHSN ON MHSN.ID = MM.HSNCodeId
 LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID = MMA.HSNCodeId
 
@@ -4114,7 +4412,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
     ,INVPARTYPL.UserName InvoiceParty,INVPARTYPL.UserName InvoiceParty2,IR.InvoicingByAddress AS ConsigneeAddress,IR.DeliveryByAddress,DPARTYPL.UserName DeliveryParty 
     ,PSI.PreCarriageBy,PSI.PlaceOfReceiptByPreCarriage,PSI.CNFContainerNo,PSI.CNFVesselName,PSI.CNFVesselTrackingNo,CRNC.Code AS CurrencyName,IR.ToCurrencyRate
     ,BASECRNC.Code AS BaseCurrencyName,PayTerm.UserName PaymentTerm,MM.UserName MaterialMaster,MGM.UserName MaterialGroupMaster
-    ,Article=CASE WHEN ISNULL(MOI.LCArticle,'')<>'' THEN MOI.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
+    ,Article=CASE WHEN ISNULL(moi.LCArticle,'')<>'' THEN moi.LCArticle WHEN ISNULL(AA.ArticlePartyName,'')<>'' THEN AA.ArticlePartyName ELSE MMA.StandardName END
      ,POTransactionQty=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.NetWeight END) 
     ,CONVERT(NUMERIC(10,4),IRD.TransactionRate, 4) TransactionRate
 	,TrnAmount=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN ROUND((IRD.TransactionQty * IRD.TransactionRate), 2) ELSE ROUND((SCN.NetWeight * IRD.TransactionRate), 2) END)
@@ -4629,8 +4927,7 @@ LEFT JOIN (SELECT distinct LotNo, SalesId,SalesMaterialId,  COUNT(RefNo) Bags,
 LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
 LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
 LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
-LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id
-LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
+LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id AND AA.MasterOrderItemID=MOI.Id
 LEFT JOIN [HKP].[HSNCode] AS MHSN ON MHSN.ID = MM.HSNCodeId
 LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID = MMA.HSNCodeId
 
@@ -6660,8 +6957,8 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
             string replaceString = "{materialItems}";
 
             DataTable sales, materialTax;
-            
-            int LasColumnIndex = 8;
+
+            int LasColumnIndex = 7;
 
             WTable wTable = new WTable(document);
             int ROW = 0; int COL = 0;
@@ -6675,12 +6972,13 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
             WCharacterFormat FontBold = new WCharacterFormat(document);
             WCharacterFormat DFontSize = new WCharacterFormat(document);
             FontBold.Bold = true;
+            FontBold.FontSize = 8.5f;
             DFontSize.FontSize = 8f;
 
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 140;
+            wTable.Rows[ROW].Cells[colArticle].Width = 160;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Details");
             range.ApplyCharacterFormat(FontBold);
@@ -6703,20 +7001,20 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
             int colCartons = COL; COL++;
             wTable.Rows[ROW].Cells[colCartons].Width = 50;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty(KGS)");
             range.ApplyCharacterFormat(FontBold);
             int colQty = COL; COL++;
             wTable.Rows[ROW].Cells[colQty].Width = 60;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UoM");
+           /* range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UoM");
             range.ApplyCharacterFormat(FontBold);
             int colUoM = COL; COL++;
-            wTable.Rows[ROW].Cells[colUoM].Width = 35;
+            wTable.Rows[ROW].Cells[colUoM].Width = 35;*/
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate(USD)");
             range.ApplyCharacterFormat(FontBold);
             int colRate = COL; COL++;
-            wTable.Rows[ROW].Cells[colRate].Width = 45;
+            wTable.Rows[ROW].Cells[colRate].Width = 50;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Amount" + "(" + "" + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + "" + ")" + "");
             range.ApplyCharacterFormat(FontBold);
@@ -6752,7 +7050,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                 TROW.Cells[colCartons].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Cartons"].ToString()).ApplyCharacterFormat(DFontSize);
                 TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString()).ApplyCharacterFormat(DFontSize);
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
-                TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString()).ApplyCharacterFormat(DFontSize); ; ;
+               /* TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString()).ApplyCharacterFormat(DFontSize); ; ;*/
                 TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("#,##0.0000")).ApplyCharacterFormat(DFontSize);
                 TROW.Cells[colAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
 
@@ -6771,7 +7069,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
                 //|| dicTaxes.ContainsValue(C)
-                if (C == colArticle || C == colHSN || C == colUoM || C == colRate ||  C == colChar1 || C == colLot)
+                if (C == colArticle || C == colHSN ||  C == colRate ||  C == colChar1 || C == colLot)
                     continue;
 
                 double value = 0;
@@ -6783,7 +7081,15 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                         value += clsStdLib.dbl(item.Text);
                     }
                 }
-                _TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
+
+                if (C == colCartons)
+                {
+                    _TROW.Cells[C].AddParagraph().AppendText(value.ToString()).ApplyCharacterFormat(FontBold);
+                }
+                else
+                {
+                    _TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
+                }
             }
             #endregion Total
 
@@ -6860,6 +7166,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
             WCharacterFormat FontBold = new WCharacterFormat(document);
             WCharacterFormat DFontSize = new WCharacterFormat(document);
             FontBold.Bold = true;
+            FontBold.FontSize = 8.5f;
             DFontSize.FontSize = 8f;
 
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("ARTICLE");
@@ -6926,7 +7233,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                 TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString()).ApplyCharacterFormat(DFontSize);
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
                 TROW.Cells[colGW].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQtyGWT"].ToString()).ToString("#,##0.00")).ApplyCharacterFormat(DFontSize);
-                
+
             }
 
             ROW++;
@@ -6953,7 +7260,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                         value += clsStdLib.dbl(item.Text);
                     }
                 }
-                if(C == colCartons)
+                if (C == colCartons)
                 {
                     _TROW.Cells[C].AddParagraph().AppendText(value.ToString()).ApplyCharacterFormat(FontBold);
                 }
@@ -6961,14 +7268,14 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                 {
                     _TROW.Cells[C].AddParagraph().AppendText(value.ToString("#,##0.00")).ApplyCharacterFormat(FontBold);
                 }
-                
+
             }
             #endregion Total
 
             ROW++;
             #region Sub Total
 
-           double total = clsStdLib.dbl(dsOrderMaster.Compute("SUM(Cartons)", "").ToString());
+            double total = clsStdLib.dbl(dsOrderMaster.Compute("SUM(Cartons)", "").ToString());
 
             #endregion Total
 
@@ -7282,6 +7589,111 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
             TextBodyPart textBodyPart = new TextBodyPart(document);
             textBodyPart.BodyItems.Add(wTable);
             document.Replace(replaceString, textBodyPart, true, true);
+
+            return total;
+        }
+
+        public double makePackingSalesServiceTable(string companyGroupId, string companyId, string plantId, string salesId, WordDocument document, DataTable dsOrderMaster)
+        {
+            string replaceString = "{ServiceItems}";
+
+            ReportUtility ru = new ReportUtility();
+
+            DataTable materialTax;
+
+            IWParagraphStyle rightAlign = document.AddParagraphStyle("rightAlign");
+            //Sets the formatting of the style
+            rightAlign.CharacterFormat.FontSize = 8f;
+            rightAlign.CharacterFormat.TextColor = Color.Black;
+            rightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+
+
+            materialTax = loadPackingSalesServiceTaxData(salesId);
+            
+            #region SalesTax
+
+            int TaxLasColumnIndex = 5;
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            FontBold.Bold = true;
+            FontBold.FontSize = 6f;
+
+            WTable wTaxTable = new WTable(document);
+            int TXROW = 0; int TXCOL = 0;
+            wTaxTable.ResetCells(1, TaxLasColumnIndex + 1);
+
+            IWTextRange trange = wTaxTable.Rows[TXROW].Cells[TXCOL].AddParagraph().AppendText("Service Name");
+            trange.ApplyCharacterFormat(FontBold);
+            int colService = TXCOL; TXCOL++;
+            wTaxTable.Rows[TXROW].Cells[colService].Width = 100;
+
+
+            trange = wTaxTable.Rows[TXROW].Cells[TXCOL].AddParagraph().AppendText("Tax & Rate");
+            trange.ApplyCharacterFormat(FontBold);
+            int colTaxCode = TXCOL; TXCOL++;
+            wTaxTable.Rows[TXROW].Cells[colTaxCode].Width = 30;
+
+            trange = wTaxTable.Rows[TXROW].Cells[TXCOL].AddParagraph().AppendText("Per.(%)");
+            trange.ApplyCharacterFormat(FontBold);
+            int colPercentage = TXCOL; TXCOL++;
+            wTaxTable.Rows[TXROW].Cells[colPercentage].Width = 30;
+
+            trange = wTaxTable.Rows[TXROW].Cells[TXCOL].AddParagraph().AppendText("TaxON");
+            trange.ApplyCharacterFormat(FontBold);
+            int colTaxON = TXCOL; TXCOL++;
+            wTaxTable.Rows[TXROW].Cells[colTaxON].Width = 50;
+
+            trange = wTaxTable.Rows[TXROW].Cells[TXCOL].AddParagraph().AppendText("TaxAmount");
+            trange.ApplyCharacterFormat(FontBold);
+            int colTaxAmount = TXCOL; TXCOL++;
+            wTaxTable.Rows[TXROW].Cells[colTaxAmount].Width = 50;
+
+            trange = wTaxTable.Rows[TXROW].Cells[TXCOL].AddParagraph().AppendText("TotalAmount");
+            trange.ApplyCharacterFormat(FontBold);
+            int colTotalAmount = TXCOL;
+            wTaxTable.Rows[TXROW].Cells[colTotalAmount].Width = 50;
+
+            for (int i = 0; i < materialTax.Rows.Count; i++)
+            {
+                TXROW++;
+                wTaxTable.AddRow();
+                WTableRow TAXROW = wTaxTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TAXROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TAXROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TAXROW.Cells[CE].Width = wTaxTable.Rows[0].Cells[CE].Width;
+
+                }
+                IWTextRange textRangeS = TAXROW.Cells[colService].AddParagraph().AppendText(materialTax.Rows[i]["Service"].ToString());
+                IWTextRange textRange = TAXROW.Cells[colTaxCode].AddParagraph().AppendText(materialTax.Rows[i]["TaxCode"].ToString());
+                IWTextRange textRangeP = TAXROW.Cells[colPercentage].AddParagraph().AppendText(materialTax.Rows[i]["Percentage"].ToString());
+                IWTextRange textRangeT = TAXROW.Cells[colTaxON].AddParagraph().AppendText(materialTax.Rows[i]["TaxON"].ToString());
+                IWTextRange textRangeTA = TAXROW.Cells[colTaxAmount].AddParagraph().AppendText(materialTax.Rows[i]["TaxAmount"].ToString());
+                IWTextRange textRangeTOA = TAXROW.Cells[colTotalAmount].AddParagraph().AppendText(materialTax.Rows[i]["TotalAmount"].ToString());
+                textRangeS.CharacterFormat.FontSize = 6;
+                textRange.CharacterFormat.FontSize = 6;
+                textRangeP.CharacterFormat.FontSize = 6;
+                textRangeT.CharacterFormat.FontSize = 6;
+                textRangeTA.CharacterFormat.FontSize = 6;
+                textRangeTOA.CharacterFormat.FontSize = 6;
+
+            }
+            //   trange.CharacterFormat.FontSize = 8;
+
+            #endregion
+
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTaxTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+
+            double total = clsStdLib.dbl(materialTax.Compute("SUM(BooksCurrencyTransactionAmount)", "").ToString())
+                 + clsStdLib.dbl(materialTax.Compute("SUM(TaxON)", "").ToString());
 
             return total;
         }
@@ -8093,7 +8505,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
     ,P.UserName Buyer 
     ,P.TINNO CustomerGSTNo
     ,p.VATResistrationNo AS CustomerPANNo
-    ,Addres.Address1 VendorAddress,Addres.Email
+    ,Addres.Address1 VendorAddress,ISNULL(DAddres.Email,Addres.Email)Email
     ,ISNULL(HSNC.Code,MHSN.Code) HSNCode
     ,Plant.GSTIN
     ,Plant.VATResistrationNo AS PlantPANNo
@@ -8127,7 +8539,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
     ,PayTerm.UserName PaymentTerm
     ,MM.UserName MaterialMaster
     ,MGM.UserName MaterialGroupMaster
-    ,Article=CASE WHEN ISNULL(MOI.LCArticle,'')<>'' THEN MOI.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
+    ,Article=CASE WHEN ISNULL(moi.LCArticle,'')<>'' THEN moi.LCArticle WHEN ISNULL(AA.ArticlePartyName,'')<>'' THEN AA.ArticlePartyName ELSE MMA.StandardName END
    
      ,POTransactionQty=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.NetWeight END) 
     ,CONVERT(NUMERIC(10,4),IRD.TransactionRate, 4) TransactionRate
@@ -8198,6 +8610,7 @@ LEFT JOIN SCS.Currency BASECRNC ON BASECRNC.Id = cmp.BaseCurrencyId
 LEFT JOIN MST.PaymentTerm PayTerm ON PayTerm.Id = IR.PaymentTermId
 LEFT JOIN HKP.PartyPlant INVPARTYPL ON INVPARTYPL.Id = IR.InvoicingPartyPlantId
 LEFT JOIN HKP.PartyPlant DPARTYPL ON DPARTYPL.Id = IR.DeliveryPartyPlantId
+LEFT JOIN [MST].[AddressMaster] DAddres ON DAddres.Id = DPARTYPL.AddressMasterId
 LEFT JOIN HKP.Party P ON P.Id = IR.PartyId
 LEFT JOIN [MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
 LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
@@ -8212,8 +8625,7 @@ LEFT JOIN (SELECT SalesId,SalesMaterialId, LotNo, COUNT(RefNo) Bags,
 LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
 LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
 LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
-LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id
-LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
+LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id AND AA.MasterOrderItemID=MOI.Id
 LEFT JOIN [HKP].[HSNCode] AS MHSN ON MHSN.ID = MM.HSNCodeId
 LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID = MMA.HSNCodeId
 
@@ -8293,7 +8705,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                               , MM.UserName MaterialMaster
                                , MM.MaterialGroupMasterId
 	                          ,MGM.UserName MaterialGroupMaster
-                              ,Article=CASE WHEN ISNULL(MOI.LCArticle,'')<>'' THEN MOI.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
+                              ,Article=CASE WHEN ISNULL(moi.LCArticle,'')<>'' THEN moi.LCArticle WHEN ISNULL(AA.ArticlePartyName,'')<>'' THEN AA.ArticlePartyName ELSE MMA.StandardName END
                                , FC.UserName FirstChar
                                 , FCV.UserName AS FirstCharacteristicsValue
 	                          ,SCV.UserName AS SecondCharacteristicsValue
@@ -8388,8 +8800,7 @@ LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
                          LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
                          LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
                          LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
-LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id
-LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
+LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id AND AA.MasterOrderItemID=MOI.Id
                          LEFT JOIN[HKP].[HSNCode] AS MHSN ON MHSN.ID = STH.HSNCodeId
                          LEFT JOIN[HKP].[HSNCode] AS MHC ON MHC.ID = MMA.HSNCodeId
                          LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
@@ -8484,7 +8895,7 @@ LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
 	,MM.UserName MaterialMaster
 	,MM.MaterialGroupMasterId
 	,MGM.UserName MaterialGroupMaster
-	,Article=CASE WHEN ISNULL(MOI.LCArticle,'')<>'' THEN MOI.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
+	,Article=CASE WHEN ISNULL(moi.LCArticle,'')<>'' THEN moi.LCArticle WHEN ISNULL(AA.ArticlePartyName,'')<>'' THEN AA.ArticlePartyName ELSE MMA.StandardName END
 	,FC.UserName FirstChar
 	,FCV.UserName AS FirstCharacteristicsValue
 	,SCV.UserName AS SecondCharacteristicsValue
@@ -8595,8 +9006,7 @@ left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
 LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
 LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
 LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
-LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id
-LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
+LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id AND AA.MasterOrderItemID=MOI.Id
 LEFT JOIN [HKP].[HSNCode] AS MHSN ON MHSN.ID = MM.HSNCodeId
 LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID = MMA.HSNCodeId
 LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
@@ -8682,7 +9092,7 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
                               , MM.UserName MaterialMaster
                                , MM.MaterialGroupMasterId
 	                          ,MGM.UserName MaterialGroupMaster
-                              ,Article=CASE WHEN ISNULL(MOI.LCArticle,'')<>'' THEN MOI.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END
+                              ,Article=CASE WHEN ISNULL(moi.LCArticle,'')<>'' THEN moi.LCArticle WHEN ISNULL(AA.ArticlePartyName,'')<>'' THEN AA.ArticlePartyName ELSE MMA.StandardName END
                                , FC.UserName FirstChar
                                 , FCV.UserName AS FirstCharacteristicsValue
 	                          ,SCV.UserName AS SecondCharacteristicsValue
@@ -8777,8 +9187,7 @@ LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
                          LEFT JOIN[HKP].[HSNCode] AS MHSN ON MHSN.ID = MM.HSNCodeId
                          LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
                          LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
-LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id
-LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
+LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id AND AA.MasterOrderItemID=MOI.Id
                          LEFT JOIN[HKP].[HSNCode] AS HSNC ON HSNC.ID = MMA.HSNCodeId
                          LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId = FC.Id
                          LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId = SC.Id
@@ -8973,6 +9382,36 @@ Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
                             INNER join trn.SalesService IOS ON IOS.SalesId = IR.Id
                             INNER JOIN HKP.ServiceMaster SM ON IOS.ServiceMasterId = SM.Id 
                             where IR.Id = '" + SalesId + @"'";
+
+                return _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+        }
+
+        public DataTable loadPackingSalesServiceTaxData(string SalesId)
+        {
+            string strSQL;
+            try
+            {
+                strSQL = @"Select SM.UserName  Service,CONVERT(NUMERIC(10,2),SUM(ISNULL(ST.BooksCurrencyTransactionAmount,0))) BooksCurrencyTransactionAmount
+,ST.SalesId,ST.TaxCategoryId,TC.Code TaxCode,CONVERT(NUMERIC(10,2),ST.Percentage)Percentage
+,CONVERT(NUMERIC(10,2),SUM(SS.BooksCurrencyTransactionAmount)) TaxON
+,TaxAmount=CONVERT(NUMERIC(10,2),(SUM(SS.BooksCurrencyTransactionAmount)*ST.Percentage)/100)
+,TotalAmount=CONVERT(NUMERIC(10,2),SUM(SS.BooksCurrencyTransactionAmount))+CONVERT(NUMERIC(10,2),(SUM(SS.BooksCurrencyTransactionAmount)*ST.Percentage)/100)
+from TRN.SalesTax ST
+left join TRN.SalesService SS  ON ST.SalesServiceId=SS.Id
+INNER JOIN HKP.ServiceMaster SM ON SS.ServiceMasterId = SM.Id 
+left join TRN.Sales S ON S.Id=SS.SalesId
+LEFT JOIN MST.TaxCategory TC ON TC.Id=ST.TaxCategoryId
+Where ST.SalesId='" + SalesId + @"'
+Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage,SM.UserName";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }
@@ -10215,25 +10654,20 @@ Group By ST.SalesId,ST.TaxCategoryId,TC.Code,ST.Percentage";
             return total;
         }
         public DataTable loadSalesReturnMasterTax(string salesReturnId)
-
         {
             string strSQL;
             try
             {
-                strSQL = @"select 
-                                    PO.SalesId,PO.Id SalesMaterialId,
-                                    IRT.Id AS SalesTax,tg.Code AS TaxCode,
-                                    s.tocurrencyRate,
-                                    IRT.Percentage,
-                                    (IRT.Amount * s.tocurrencyRate) as TaxAmount
-                                   	,ISNULL(IRT.Amount,0) BooksCurrencyTransactionAmount
+                strSQL = @"select  PO.SalesId,PO.Id SalesMaterialId, IRT.Id AS SalesTax,tg.Code AS TaxCode,
+                                    S.ToCurrencyRate, IRT.Percentage, (IRT.Amount ) as TaxAmount
+                                   	,ROUND(ISNULL(IRT.Amount* s.tocurrencyRate,0),2) BooksCurrencyTransactionAmount
 									,ISNULL(po.BooksCurrencyTaxAmount,0) BooksCurrencyTaxAmount
 									,ISNULL(po.BooksCurrencyBaseRate,0) BooksCurrencyBaseRate
 
 							    from TRN.[SalesReturnDetail] PO
                                Inner join trn.SalesReturnTax IRT ON IRT.SalesReturnDetailId = PO.Id 
                                LEFT OUTER JOIN [MST].[TaxCategory] TG ON tg.Id=IRT.TaxCategoryId
-							   left outer join trn.sales as s on s.id=po.salesId
+							   left outer join trn.sales as S on S.id=po.salesId
                                  WHERE PO.SalesReturnId='" + salesReturnId + @"'
 								 and IRT.SalesReturnDetailId  IS NOT NULL
 								 ORDER BY tg.[Sequence]";

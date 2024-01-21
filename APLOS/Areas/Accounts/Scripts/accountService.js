@@ -9,6 +9,7 @@ function accountService($http) {
         , getCboVoucherTypeReceiptByBankList: getCboVoucherTypeReceiptByBankList
         , getCboVoucherTypeReceiptByCashList: getCboVoucherTypeReceiptByCashList
         , getCboVoucherTypeJournalVoucherList: getCboVoucherTypeJournalVoucherList
+        , getCboVoucherTypePFESICDisbursementVoucherList: getCboVoucherTypePFESICDisbursementVoucherList
         , getCboVoucherTypeLoanList: getCboVoucherTypeLoanList
         , getCboVoucherTypeLoanPaymentList: getCboVoucherTypeLoanPaymentList
         , getCboVoucherTypeInvestmentSetOffList: getCboVoucherTypeInvestmentSetOffList
@@ -53,6 +54,9 @@ function accountService($http) {
     }
     function getCboVoucherTypeJournalVoucherList(callback) {
         base('Accounts/VoucherTypeMatrix/GetCboVoucherTypeJournalVoucherList', callback);
+    }
+    function getCboVoucherTypePFESICDisbursementVoucherList(callback) {
+        base('Accounts/VoucherTypeMatrix/GetCboVoucherTypePFESICDisbursementVoucherList', callback);
     }
     function getCboVoucherTypeLoanList(callback) {
         base('Accounts/VoucherTypeMatrix/GetCboVoucherTypeLoanList', callback);

@@ -39,6 +39,12 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         }
     }
 
+    $scope.bankMasterList = [];
+    bankService.GetNegotiatingBankMasterCboListByPlant(function (result) {
+        $scope.bankMasterList = result;
+
+    });
+
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
 
     $scope.ShowCustomerPopUpNew = function () {
@@ -211,6 +217,7 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
                     else {
                         ShowResult(response.data.Message, 'success');
                         $scope.GetSavedContract($scope.masterLC.Id);
+                        $scope.GetMasterLCTermsAndConditionsList();
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -623,9 +630,17 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
 
         $http({
             method: 'GET',
-            url: 'Commercial/Contract/GetTermsAndConditionsDataList?contractId=' + $scope.sqlInStatement
+            //url: 'Commercial/Contract/GetTermsAndConditionsDataList?contractId=' + $scope.sqlInStatement
+            url: 'Commercial/Contract/GetTermsAndConditionsList'
         }).then(function successCallback(response) {
             $scope.searchdata = response.data;
+            for (var i = 0; i < $scope.TermsAndConditionsList.length; i++) {
+                for (var j = 0; j < $scope.searchdata.length; j++) {
+                    if ($scope.searchdata[j].TermsAndConditionsId == $scope.TermsAndConditionsList[i].TermsAndConditionsId) {
+                        $scope.searchdata.splice(1, j);
+                    }
+                }
+            }
         });
     }
 
@@ -656,11 +671,13 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
             for (var i = 0; i < $scope.searchdata.length; i++) {
                 $scope.searchdata[i].Flag = ChkOrUnchk;
+                $scope.searchdata[i].IsVarified = ChkOrUnchk;
             }
         }
         else {
             for (var j = 0; j < filtered.length; j++) {
                 filtered[j].Flag = ChkOrUnchk;
+                filtered[j].IsVarified = ChkOrUnchk;
             }
         }
         var gridObj = $("#GridTermsAndConditions").data("ejGrid");
@@ -690,12 +707,12 @@ function masterLCController(commonMessage, $scope, $rootScope, baseService, $rou
         try {
             for (var i = 0; i < $scope.searchdata.length; i++) {
                 if ($scope.searchdata[i].Flag == true) {
-                    if ($scope.searchdata[i].IsVarified == false) {
-                        throw "Is Varified is required.";
-                    }
-                    if ($scope.searchdata[i].IsVarified && baseService.isUndefinedOrNull($scope.searchdata[i].Remarks)) {
-                        throw "Remarks is required.";
-                    }
+                    //if ($scope.searchdata[i].IsVarified == false) {
+                    //    throw "Is Varified is required.";
+                    //}
+                    //if ($scope.searchdata[i].IsVarified && baseService.isUndefinedOrNull($scope.searchdata[i].Remarks)) {
+                    //    throw "Remarks is required.";
+                    //}
                     if (checkExists($scope.TermsAndConditionsList, $scope.searchdata[i].TermsAndConditionsId) === false) {
                         var ob = {};
                         ob.Id = null;

@@ -528,10 +528,20 @@ namespace Library.HumanResource.NewAttendanceProcess
                                                 {
                                                     if (FinalStatus != "")
                                                     {
-                                                        DataRow drx = MasterDataSet.Tables[0].NewRow();
-                                                        drx["DayStatus"] = FinalStatus;
-                                                        drx["RowId"] = RowxId;
-                                                        MasterDataSet.Tables[0].Rows.Add(drx);
+                                                        if(FinalStatus == "CL" || FinalStatus == "PL" || FinalStatus == "ML" || FinalStatus == "EM" || FinalStatus == "LWP" || FinalStatus == "CM" || FinalStatus == "SL" )
+                                                        {
+                                                            DataRow drx = MasterDataSet.Tables[0].NewRow();
+                                                            drx["DayStatus"] = FinalStatus;
+                                                            drx["RowId"] = RowxId;
+                                                            MasterDataSet.Tables[0].Rows.Add(drx);
+                                                        }
+                                                        else
+                                                        {
+                                                            DataRow drx = MasterDataSet.Tables[0].NewRow();
+                                                            drx["DayStatus"] = "A";
+                                                            drx["RowId"] = RowxId;
+                                                            MasterDataSet.Tables[0].Rows.Add(drx);
+                                                        }
                                                     }
                                                 }
                                             }

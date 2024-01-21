@@ -1094,21 +1094,18 @@
                 <td>{{x.CurrencyCode}}</td>
                 <td>{{x.RowState}}</td>
                 <td class="text-left">
-                    <ul class="list-inline action-list">
-                        <li><a class="btn btn-action" ng-click="SendMailToParty(x);" title="Mail" href="" target="_blank"><i class=""></i>Mail</a></li>
-                        <li><a class="btn btn-action" ng-click="CommercialInvoicePackingListReport(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Commercial Invoice Packing List" href="" target="_blank"><i class=""></i>PK</a></li>
-                        <li><a class="btn btn-action" ng-click="GetLotWiseTaxInvoice(x);" title="Lot Wise Tax Invoice" href="" target="_blank"><i class=""></i>L-TI</a></li>
-                        <li><a class="btn btn-action" ng-click="CommercialInvoiceReport(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Commercial Invoice" href="" target="_blank"><i class=""></i>CI</a></li>
-                        <li><a class="btn btn-action" ng-click="LRDraft(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="LR Draft" href="" target="_blank"><i class=""></i>Draft</a></li>
-                        <li><a class="btn btn-action" ng-click="BillofExchange(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Bill of Exchange" href="" target="_blank"><i class=""></i>BE</a></li>
-                        <li><a class="btn btn-action" ng-click="CertificateofOrigin(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Certificate of Origin" href="" target="_blank"><i class=""></i>CTO</a></li>
-                        <li><a class="btn btn-action" ng-click="BankLatter(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Bank Letter" href="" target="_blank"><i class=""></i>BL</a></li>
-                        <li><a class="btn btn-action" ng-click="BeneficiaryCertificate(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Beneficiary Certificate" href="" target="_blank"><i class=""></i>BC</a></li>
-                        <li><a class="btn btn-action" ng-click="InsuranceCoverLetter(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Insurance Cover Letter" href="" target="_blank"><i class=""></i>ICL</a></li>
-                        @* <li><a class="btn btn-action" ng-click="LocalTaxInvoiceReport(x);" title="Tax Invoice" href="" target="_blank"><i class=""></i>TI</a></li>*@
-                        @*<li><a class="btn btn-action" ng-click="LocalTaxInvoiceWithProductDetailService(x);" title="Tax Invoice With Product Detail" href="" target="_blank"><i class=""></i>TI</a></li>
-        <li><a class="btn btn-action" ng-click="LocalTaxInvoiceWithoutSUIReport(x);" title="Tax Invoice Without SKU" href="" target="_blank"><i class=""></i>TI</a></li>*@
-                    </ul>
+                    <button type="button" ng-click="SendMailToParty(x);" ng-disabled="x.IsMail" title="Mail" class="btn"><i class="glyphicon glyphicon-envelope"></i></button>
+                    <button type="button" ng-click="CommercialInvoicePackingListReport(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Commercial Invoice Packing List" class="btn"><i class=""></i>PK</button>
+                    <button type="button" ng-click="GetLotWiseTaxInvoice(x);" title="Lot Wise Tax Invoice" class="btn"><i class=""></i>L-TI</button>
+                    <button type="button" ng-click="CommercialInvoiceReport(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Commercial Invoice" class="btn"><i class=""></i>CI</button>
+                    <button type="button" ng-click="LRDraft(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="LR Draft" class="btn"><i class=""></i>Draft</button>
+                    <button type="button" ng-click="BillofExchange(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Bill of Exchange" class="btn"><i class=""></i>BE</button>
+                    <button type="button" ng-click="CertificateofOrigin(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Certificate of Origin" class="btn"><i class=""></i>CTO</button>
+                    <button type="button" ng-click="BankLatter(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Bank Letter" class="btn"><i class=""></i>BL</button>
+                    <button type="button" ng-click="BeneficiaryCertificate(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Beneficiary Certificate" class="btn"><i class=""></i>BC</button>
+                    <button type="button" ng-click="InsuranceCoverLetter(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="Insurance Cover Letter" class="btn"><i class=""></i>INS</button>
+                    <button type="button" ng-click="ANNEXUREReport(x);" ng-hide="x.CurrencyId==x.BaseCurrencyId" title="ANNEXURE" class="btn"><i class=""></i>AX</button>
+                    
                 </td>
             </tr>
         </tbody>

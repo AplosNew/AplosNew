@@ -428,7 +428,7 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
         });
     };
 
-    $scope.customerInvoiceSearchList = [
+    $scope.debitNoteSearchList = [
         {
             "Text": "VoucherNo",
             "Value": "VoucherNo"
@@ -455,7 +455,7 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
         }
     ];
 
-    $scope.customerInvoiceParameters = {
+    $scope.debitNoteParameters = {
         limit: 10,
         offset: 0,
         order: "ASC",
@@ -466,15 +466,19 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
         search: null,
         serverPagination: true
     };
-
-    $scope.getPopupCustomerReceivableList = function () {
-        $scope.customerreceivableGLData = function (pageno) {
+    $scope.debitNoteList = [];
+    $scope.getPopupDebitNoteList = function () {
+        $scope.debitNoteGLData = function (pageno) {
+            $scope.debitNoteList = [];
             $scope.customerReceivableGLUrl1 = "accounts/AdjustmentNote/GetDebitNoteAvailableList?partyId=" + $scope.voucher.PartyId + '&partyType=' + $scope.partyType;
-            baseService.paginationBase($scope.customerReceivableGLUrl1, pageno, $scope.customerInvoiceParameters)
+            baseService.paginationBase($scope.customerReceivableGLUrl1, pageno, $scope.debitNoteParameters)
                 .then(function (result) {
                     try {
-                        $scope.customerreceivableList = result.Rows;
-                        $scope.customerInvoiceParameters.total_count = result.Total;
+                        $scope.debitNoteList = result.Rows;
+                        $scope.debitNoteParameters.total_count = result.Total;
+                        if (baseService.arrayLength($scope.debitNoteSearchList) === 0) {
+                            baseService.getDDLSearchColumn($scope.debitNoteList, $scope.debitNoteSearchList);
+                        }
                     } catch (e) {
                         ShowResult(e, "Error");
                     }
@@ -484,7 +488,7 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
                 });
         };
         angular.element(document.querySelector("#debitCreditNotePopUp")).modal("show");
-        $scope.customerreceivableGLData();
+        $scope.debitNoteGLData();
     };
 
     $scope.closePopUp = function () {
@@ -492,7 +496,7 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
     };
 
     $scope.closedebitCreditNotePopUpselected = function () {
-        angular.forEach($scope.customerreceivableList, function (data, i) {
+        angular.forEach($scope.debitNoteList, function (data, i) {
             if (data.Active === true) {
                 data.TrnType = "Dr";
                 data.PartyPlantName = data.PartyPlantName;

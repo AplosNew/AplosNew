@@ -57,6 +57,7 @@ namespace Library.Model.Inventory
 
         public string JobWorkContractId { get; set; }
         public bool IsPostingRequired { get; set; }
+        public string IssueCategory { get; set; }
 
         #endregion Scalar Properties
 

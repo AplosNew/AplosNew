@@ -313,7 +313,6 @@ namespace Aplos.Areas.HumanResource.Controllers
                     dr["YearNo"] = sps.YearNo;
                     dr["MonthNo"] = sps.MonthNo;
                     dr["IsLocked"] = true;
-                    dr["IsDisbursed"] = false;
                     dr["GivenDesignationId"] = sps.GivenDesignationId;
                     dr["AccountsGroupId"] = sps.AccountsGroupId;
                     dr["BudgetId"] = sps.BudgetId;
@@ -330,7 +329,6 @@ namespace Aplos.Areas.HumanResource.Controllers
                     dr["YearNo"] = sps.YearNo;
                     dr["MonthNo"] = sps.MonthNo;
                     dr["IsLocked"] = true;
-                    dr["IsDisbursed"] = false;
                     dr["SalaryStructureId"] = sps.SalaryStructureId;
                     dr["GivenDesignationId"] = sps.GivenDesignationId;
                     dr["AccountsGroupId"] = sps.AccountsGroupId;

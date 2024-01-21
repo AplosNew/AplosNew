@@ -297,7 +297,7 @@ namespace Library.Service.Invoices
 
                 reportUtility.SetSignatureText(ref sheet, row - 1, 3, header["PostedBy"].ToString());
                 sheet.Range[row, 3].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                reportUtility.SetTextMiddle(ref sheet, row, 3, "Checked By", true);
+                reportUtility.SetTextMiddle(ref sheet, row, 3, "Checked/Posted By", true);
                 sheet[row, 3].ColumnWidth = 25;
 
                 sheet.Range[row, 5].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
@@ -730,7 +730,7 @@ namespace Library.Service.Invoices
 
                 reportUtility.SetSignatureText(ref sheet, row - 1, 3, header["PostedBy"].ToString());
                 sheet.Range[row, 3].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                reportUtility.SetTextMiddle(ref sheet, row, 3, "Checked By", true);
+                reportUtility.SetTextMiddle(ref sheet, row, 3, "Checked/Posted By", true);
                 sheet[row, 3].ColumnWidth = 25;
 
                 sheet.Range[row, 5].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
@@ -1241,7 +1241,7 @@ namespace Library.Service.Invoices
 
                 reportUtility.SetSignatureText(ref sheet, row - 1, 2, header["PostedBy"].ToString());
                 sheet.Range[row, 2].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                reportUtility.SetTextMiddle(ref sheet, row, 2, "Checked By", true);
+                reportUtility.SetTextMiddle(ref sheet, row, 2, "Checked/Posted By", true);
 
                 sheet.Range[row, 4].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
                 reportUtility.SetTextMiddle(ref sheet, row, 4, "Authorized By", true);
@@ -1552,7 +1552,7 @@ namespace Library.Service.Invoices
                
                 reportUtility.SetSignatureText(ref sheet, row - 1, colParticulars - 1, header["PostedBy"].ToString());
                 sheet.Range[row, colParticulars - 1].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                reportUtility.SetTextMiddle(ref sheet, row, colParticulars-1, "Checked By", true);
+                reportUtility.SetTextMiddle(ref sheet, row, colParticulars-1, "Checked/Posted By", true);
                 
                 sheet.Range[row, 6].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
                 reportUtility.SetTextMiddle(ref sheet, row, colLast, "Authorized By", true);
@@ -1838,7 +1838,7 @@ namespace Library.Service.Invoices
 
                 reportUtility.SetSignatureText(ref sheet, row - 1, 3, header["PostedBy"].ToString());
                 sheet.Range[row, 3].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                reportUtility.SetTextMiddle(ref sheet, row, 3, "Checked By", true);
+                reportUtility.SetTextMiddle(ref sheet, row, 3, "Checked/Posted By", true);
                 sheet[row, 3].ColumnWidth = 25;
 
                 sheet.Range[row, 6].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
@@ -2194,7 +2194,7 @@ namespace Library.Service.Invoices
 
                 reportUtility.SetSignatureText(ref sheet, row - 1, 3, header["PostedBy"].ToString());
                 sheet.Range[row, 3].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                reportUtility.SetTextMiddle(ref sheet, row, 3, "Checked By", true);
+                reportUtility.SetTextMiddle(ref sheet, row, 3, "Checked/Posted By", true);
                 sheet[row, 3].ColumnWidth = 25;
 
                 sheet.Range[row, 5].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
@@ -2438,7 +2438,7 @@ namespace Library.Service.Invoices
 
                 reportUtility.SetSignatureText(ref sheet, row - 1, 2, header["PostedBy"].ToString());
                 sheet.Range[row, 2].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                reportUtility.SetTextMiddle(ref sheet, row, 2, "Checked By", true);
+                reportUtility.SetTextMiddle(ref sheet, row, 2, "Checked/Posted By", true);
 
                 sheet.Range[row, 4].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
                 reportUtility.SetTextMiddle(ref sheet, row, 4, "Authorized By", true);
@@ -3416,7 +3416,7 @@ namespace Library.Service.Invoices
 
             reportUtility.SetSignatureText(ref sheet, row - 1, 3, dsLocal.Rows[0]["PostedBy"].ToString());
             sheet.Range[row, 3].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-            reportUtility.SetTextMiddle(ref sheet, row, 3, "Checked By", true);
+            reportUtility.SetTextMiddle(ref sheet, row, 3, "Checked/Posted By", true);
 
             sheet.Range[row, colLast].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
             reportUtility.SetTextMiddle(ref sheet, row, colLast, "Authorized By", true);
@@ -3567,7 +3567,7 @@ namespace Library.Service.Invoices
             reportUtility.SetTextMiddle(ref sheet, row1, 1, "Prepared By", true);
 
             sheet.Range[row1, 3].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-            reportUtility.SetTextMiddle(ref sheet, row1, 3, "Checked By", true);
+            reportUtility.SetTextMiddle(ref sheet, row1, 3, "Checked/Posted By", true);
 
             sheet.Range[row1, 7].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
             reportUtility.SetTextMiddle(ref sheet, row1, 7, "Authorized By", true);
@@ -3938,7 +3938,7 @@ namespace Library.Service.Invoices
 
                 reportUtility.SetSignatureText(ref sheet, row - 1, 2, header["PostedBy"].ToString());
                 sheet.Range[row, 2].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                reportUtility.SetTextMiddle(ref sheet, row, 2, "Checked By", true);
+                reportUtility.SetTextMiddle(ref sheet, row, 2, "Checked/Posted By", true);
 
                 sheet.Range[row, 4].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
                 reportUtility.SetTextMiddle(ref sheet, row, 4, "Authorized By", true);
@@ -4242,7 +4242,7 @@ namespace Library.Service.Invoices
 
                 reportUtility.SetSignatureText(ref sheet, row - 1, 2, header["PostedBy"].ToString());
                 sheet.Range[row, 2].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                reportUtility.SetTextMiddle(ref sheet, row, 2, "Checked By", true);
+                reportUtility.SetTextMiddle(ref sheet, row, 2, "Checked/Posted By", true);
 
                 sheet.Range[row, 4].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
                 reportUtility.SetTextMiddle(ref sheet, row, 4, "Authorized By", true);

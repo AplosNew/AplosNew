@@ -537,7 +537,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         $scope.modelNew = obj.data;
         $scope.modelNew.Currency = null;
         $scope.GetEditSalesOrderList();
-        
+
 
         if (!baseService.isUndefinedOrNull($scope.modelNew.MasterOrderId)) {
             $scope.msg = "As this contract saved from Master Order, so no change is possible from here.";
@@ -634,6 +634,13 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
             url: 'Commercial/Contract/GetTermsAndConditionsList'
         }).then(function successCallback(response) {
             $scope.searchdata = response.data;
+            for (var i = 0; i < $scope.TermsAndConditionsList.length; i++) {
+                for (var j = 0; j < $scope.searchdata.length; j++) {
+                    if ($scope.TermsAndConditionsList[i].TermsAndConditionsId == $scope.searchdata[j].TermsAndConditionsId) {
+                        $scope.searchdata.splice(j, 1);
+                    }
+                }
+            }
         });
     }
 
@@ -688,10 +695,10 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
 
         for (var i = 0; i < $scope.searchdata.length; i++) {
             if ($scope.searchdata[i].Flag == true) {
-                if (checkExists($scope.TermsAndConditionsList, $scope.searchdata[i].Id) === false) {
+                if (checkExists($scope.TermsAndConditionsList, $scope.searchdata[i].TermsAndConditionsId) === false) {
                     var ob = {};
                     ob.Id = null;
-                    ob.TermsAndConditionsId = $scope.searchdata[i].Id;
+                    ob.TermsAndConditionsId = $scope.searchdata[i].TermsAndConditionsId;
                     ob.ContractId = $scope.modelNew.Id;
                     ob.Sequence = $scope.searchdata[i].Sequence;
                     ob.Code = $scope.searchdata[i].Code;
@@ -789,7 +796,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
     $scope.message_detailLCconfirm = null;
     $scope.confirmToCreateLC = function () {
         try {
-            
+
             if (baseService.isUndefinedOrNull($scope.modelNew.ContractNo)) {
                 throw "ContractNo is required.";
             }
@@ -804,7 +811,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         } catch (e) {
             ShowResult(e, "failure");
         }
-       
+
     };
 
     $scope.LCYes = function () {
@@ -831,7 +838,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
             $scope.modelNew.Amount = amt;
             $scope.modelNew.SOQty = qt;
 
-           
+
             if ($scope.Action === 'Save' || $scope.Action === 'Update') {
                 $http({
                     method: 'POST',
@@ -1361,7 +1368,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
             });
 
         });
-       
+
     }
 
     $scope.invoicingPartyPopUp = function () {

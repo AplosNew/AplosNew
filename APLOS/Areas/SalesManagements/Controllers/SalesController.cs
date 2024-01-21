@@ -442,6 +442,15 @@ namespace Aplos.Areas.SalesManagements.Controllers
             _salesReportService.InsuranceCoverLetter(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, salesId);
             return View();
         }
+        [Authorize, HttpGet]
+        public ActionResult ANNEXUREReport(string salesId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _salesReportService.ANNEXUREReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, salesId);
+            return View();
+        }
+        [Authorize, HttpGet]
         public ActionResult BeneficiaryCertificate(string salesId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

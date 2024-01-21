@@ -161,6 +161,10 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/voucher/NormalJournal",
             controller: "normalJournalController"
         })
+        .when("/pfesic-disbursement", {
+            templateUrl: "Accounts/voucher/PFESICDisbursement",
+            controller: "pfesiDisbursementController"
+        })
         .when("/exchange-voucher", {
             templateUrl: "Accounts/voucher/exchangevoucher",
             controller: "exchangeVoucherController"
@@ -1057,6 +1061,10 @@ function accountConfig($routeProvider) {
         .when("/payment-advice", {
             templateUrl: "Accounts/Invoice/paymentadvice",
             controller: "PaymentAdviceController"
+        })
+        .when("/petty-cash", {
+            templateUrl: "Accounts/PettyCashMaster/Aplos",
+            controller: "PettyCashMasterController"
         })
         ;
 } 

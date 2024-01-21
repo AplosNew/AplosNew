@@ -323,7 +323,7 @@ where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1
 							FORMAT(MLC.UpdatedDate,'dd-MMM-yyyy') UpdatedDate, MLC.UpdatedFromIP, MLC.CurrencyId,LB.UserName BenificiaryBank,CN.Code Currency, 
 							MLC.CustomerId, P.UserName PartyName,MLC.Version,FORMAT(mlc.LCShipmentDate,'dd-MMM-yyyy')LCShipmentDate,mlc.ShipmentModeId,sm.UserName ShipmentMode,FORMAT(mlc.AmendmentDate,'dd-MMM-yyyy')AmendmentDate
 							,mlc.PortOfLoadingId,prl.UserName PortOfLoading,MLC.Remarks,MLC.DescriptionOfGoodsAndOrServices, MLC.OpeningBankId
-							,LCC.Clause1 , LCC.Clause2 , LCC.Clause3 , LCC.Clause4 , LCC.Clause5 , LCC.Clause6, LCC.Clause7 , LCC.Clause8 , LCC.Clause9, LCC.Clause10
+							,LCC.Clause1 , LCC.Clause2 , LCC.Clause3 , LCC.Clause4 , LCC.Clause5 , LCC.Clause6, LCC.Clause7 , LCC.Clause8 , LCC.Clause9, LCC.Clause10,MLC.NegotiatingBankId
                          FROM [dbo].[MasterLC] MLC
                          LEFT JOIN MST.BankMaster OB  ON OB.Id=MLC.BenificiaryBankId
                          LEFT JOIN HKP.Bank LB ON LB.Id=OB.BankId
@@ -375,7 +375,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                                 ,so.Rate,So.UpCharge
 								,so.Qty
 								,(so.Rate*so.Qty) as Amount
-                                ,mm.UserName MaterialDescription,Article=CASE WHEN ISNULL(moi.LCArticle,'')<>'' THEN moi.LCArticle WHEN ISNULL(AAP.UserName,'')<>'' THEN AAP.UserName ELSE MMA.StandardName END,h.Code as HSNCode
+                                ,mm.UserName MaterialDescription,Article=CASE WHEN ISNULL(moi.LCArticle,'')<>'' THEN moi.LCArticle WHEN ISNULL(AA.ArticlePartyName,'')<>'' THEN AA.ArticlePartyName ELSE MMA.StandardName END,h.Code as HSNCode
                                 ,c.description as Reference,
                                 pc.UserName as CustomerName,u.UserName as UoM,
                                 pbt.UserName as ConsigneeBilltoName,
@@ -397,8 +397,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                                 LEFT JOIN MST.Destination DS ON DS.Id=SO.DestinationId
                                 left join MST.MaterialMaster as mm on mm.Id=moi.MaterialMasterId
                                 left join MST.MaterialMasterArticle as mma on mma.MaterialMasterId=mm.Id AND MOI.ArticleId=MMA.Id
-                                LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id
-                                LEFT JOIN HKP.Party AAP ON AAP.Id=AA.Partyid
+                                LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id AND AA.MasterOrderItemID=MOI.Id
                                 left join HKP.HSNCode as h on h.Id=mma.HSNCodeId
                                 left join TRN.MasterOrder as mo on mo.id=moi.MasterOrderId
                                 left join SCS.UnitOfMeasurement as u on u.Id=mo.TotalQtyUOMId
@@ -1153,10 +1152,11 @@ Order by B.UserName";
             {
                 string sql = @"SELECT CT.*,TC.Sequence,TC.Code,TC.ShortName,TC.StandardName,TC.UserName OriginUserName,TC.Description
 ,CAST((CASE WHEN TC.Type='Contract' THEN 1 ELSE 0 END) AS bit) AS IsContract
-,CAST((CASE WHEN TC.Type='LetterOfCredit' THEN 1 ELSE 0 END) AS bit) AS IsMasterLC
+,CAST((CASE WHEN TC.Type='LetterOfCredit' THEN 1 ELSE 0 END) AS bit) AS IsMasterLC,TG.GroupName [Group]
 FROM [dbo].[MasterLCTermsAndConditions] CT
 LEFT JOIN HKP.TermsAndConditions TC ON TC.Id=CT.TermsAndConditionsId
-                            WHERE CT.MasTerLCId='" + masTerLCId + "'";
+LEFT JOIN dbo.TermsandConditionGroup TG ON TG.Id=TC.GroupId
+WHERE CT.MasTerLCId='" + masTerLCId + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
