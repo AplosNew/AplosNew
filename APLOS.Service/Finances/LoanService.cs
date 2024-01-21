@@ -3301,25 +3301,25 @@ namespace Library.Service.Finances
                         throw new CustomException("Loan Type Expenses  GL not Found!");
 
 
-                    voucherDetailTo.GLGeneralInfoId = gl.ExpensesPayableGLId;
-                    voucherDetailTo.BudgetMasterId = gl.ExpensesPayableBudgetMasterId;
-                    voucherDetailTo.ActivityId = gl.ExpensesPayableActivityId;
+                    voucherDetailTo.GLGeneralInfoId = financingDetail.GLGeneralInfoId;
+                    voucherDetailTo.BudgetMasterId = financingDetail.BudgetMasterId;
+                    voucherDetailTo.ActivityId = financingDetail.ActivityId;
 
                     voucherExpenses.GLGeneralInfoId = gl.ExpensesGLId;
                     voucherExpenses.BudgetMasterId = gl.ExpensesBudgetMasterId;
                     voucherExpenses.ActivityId = gl.ExpensesActivityId;
                     if (voucherVM.SourceType == LoanTransactionType.OtherExpensesPayable.ToString())
                     {
-                        if (string.IsNullOrEmpty(gl.ChargesPayableGLId))
-                            throw new CustomException("Loan Type Charges Payable GL not Found!");
-                        if (string.IsNullOrEmpty(gl.ChargesPayableBudgetMasterId))
-                            throw new CustomException("Loan Type Charges Budget   not Found!");
-                        if (string.IsNullOrEmpty(gl.ChargesPayableActivityId))
-                            throw new CustomException("Loan Type Charges Activity   not Found!");
+                        //if (string.IsNullOrEmpty(gl.ChargesPayableGLId))
+                        //    throw new CustomException("Loan Type Charges Payable GL not Found!");
+                        //if (string.IsNullOrEmpty(gl.ChargesPayableBudgetMasterId))
+                        //    throw new CustomException("Loan Type Charges Budget   not Found!");
+                        //if (string.IsNullOrEmpty(gl.ChargesPayableActivityId))
+                        //    throw new CustomException("Loan Type Charges Activity   not Found!");
 
-                        voucherDetailTo.GLGeneralInfoId = gl.ChargesPayableGLId;
-                        voucherDetailTo.BudgetMasterId = gl.ChargesPayableBudgetMasterId;
-                        voucherDetailTo.ActivityId = gl.ChargesPayableActivityId;
+                        voucherDetailTo.GLGeneralInfoId = financingDetail.GLGeneralInfoId;
+                        voucherDetailTo.BudgetMasterId = financingDetail.BudgetMasterId;
+                        voucherDetailTo.ActivityId = financingDetail.ActivityId;
 
                         voucherExpenses.GLGeneralInfoId = voucherVM.GLGeneralInfoId;
                         voucherExpenses.BudgetMasterId = voucherVM.BudgetMasterId;
