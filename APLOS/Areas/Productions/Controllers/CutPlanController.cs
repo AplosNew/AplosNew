@@ -120,7 +120,7 @@ namespace Aplos.Areas.Productions.Controllers
             {
                 DataSet dsMaster, dsDetail, dsId;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                //con.OpenDataSetThroughAdapter("select * from [MST].[AllotedHeader] where UserName='" + data["UserName"] + "'", out DataSet dsCutPlanUserNameValidation, false, "1");
+                //con.OpenDataSetThroughAdapter("select * from [MST].[AllotedHeader] where Usn n   nm nm merName='" + data["UserName"] + "'", out DataSet dsCutPlanUserNameValidation, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM [MST].[AllotedHeader] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
@@ -138,6 +138,8 @@ namespace Aplos.Areas.Productions.Controllers
                     _Id = data["Id"].ToString();
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
+
+               
 
                 masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 

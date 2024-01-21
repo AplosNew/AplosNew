@@ -7296,7 +7296,7 @@ where MPQ.MasterPlanId='" + MasterPlanId + @"' and SKU1NameId='"+ SKU1ColorId + 
             string sql = @"select distinct CV.Id as Value,CV.UserName as Text from MST.MasterPlan MP
 left join MST.MasterPlanChild MPC ON MPC.MasterPlanId=MP.Id
 left join HKP.CharacteristicsValue CV ON CV.Id=MPC.SKU1NameId
-where MPC.MasterPlanId='" + MasterPlanId + "' and MPC.Id not in (select MasterPlanChildId from MST.AllotedChild where AllotedHeaderId in (select Id from MST.AllotedHeader where MasterPlanId='" + MasterPlanId + "'))";
+where MPC.MasterPlanId='" + MasterPlanId + "' and MPC.Id not in (select MasterPlanChildId from MST.AllotedChild where (select SUM(AllotedQty) from MST.AllotedChild where AllotedHeaderId in (select Id from MST.AllotedHeader where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = MPC.SKU1NameId)) = (Select Sum(FinalQty) from MST.MasterPlanChild where MasterPlanId = '" + MasterPlanId + "' and SKU1NameId = MPC.SKU1NameId))";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
