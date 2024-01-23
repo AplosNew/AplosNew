@@ -1801,7 +1801,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
                 #region DataSet Finding
 
-                var sql = @"select xx.*,(xx.Earned-xx.Availed-xx.RegularEncashment+xx.PAdjustment)as Closing 
+                var sql = @"select xx.*,ROUND((xx.Earned-xx.Availed-xx.RegularEncashment+xx.PAdjustment),0)as Closing 
                     
 			    from (select dd.*,
 				case when lpd.EncashWorkingDaysQty >0 then dd.EarningDays/lpd.EncashWorkingDaysQty else 
@@ -1891,9 +1891,9 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         {
             try
             {
-                var sql = @"select EmployeeId,LeaveYearId,LeaveTypeId,PlantId,CarryForward
+                var sql = @"select EmployeeId,LeaveYearId,LeaveTypeId,PlantId,Closing CarryForward
 				  from AnnualLeaveDataPast where
-                  LeaveYearId='"+LvId+"' and PlantId='"+PlantId+"'and LeaveTypeId in("+LeaveTypeId+")";
+                  LeaveYearId='" + LvId+"' and PlantId='"+PlantId+"'and LeaveTypeId in("+LeaveTypeId+")";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
