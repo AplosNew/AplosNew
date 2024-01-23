@@ -1276,7 +1276,7 @@ namespace Library.Service.SalaryDisbursement
                         where sl.PayableVoucherId<>'' AND sl.BonusDisbursementVoucherId IS NULL and sl.IsBonusDisbursed=1  
                         and sl.Id IN (" + empSystemIds + @") and sl.BonusDisbursementAdviceId='" + disbursementAdviceId + @"'
                         and spc.DisbusmentAmount!=0  
-						and ISNULL(sh.SalaryHead, '')  in ('Net Pay'))";
+						and ISNULL(SH.HeadCategory, '')  in ('Monthly Bonus Retain') )";
                     direct.Append(directsql);
                     directsql = @"
                         UPDATE  [dbo].[BonusDisbursementAdvice] SET Status=CASE WHEN (select COUNT(sl.Id)Id
@@ -1293,7 +1293,7 @@ namespace Library.Service.SalaryDisbursement
 						left join trn.Voucher v on v.Id=sl.PayableVoucherId
                         where sl.PayableVoucherId<>'' AND sl.BonusDisbursementVoucherId IS NULL and sl.IsBonusDisbursed=1 
                         and sl.BonusDisbursementAdviceId='" + disbursementAdviceId + @"'
-                        and spc.DisbusmentAmount!=0 and ISNULL(sh.SalaryHead, '')  in ('Net Pay'))>0
+                        and spc.DisbusmentAmount!=0 and ISNULL(SH.HeadCategory, '')  in ('Monthly Bonus Retain') )>0
                         THEN 'InProgress' ELSE 'Close' END WHERE Id='" + disbursementAdviceId + @"'";
                     direct.Append(directsql);
                     _sqlRepository.ExecuteSqlCommand(direct.ToString());
