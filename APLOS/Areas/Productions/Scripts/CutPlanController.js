@@ -93,7 +93,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
         , SKU1ColorId: null
     };
     $scope.allotedheaderNew = Object.assign({}, $scope.allotedheader);
-
+  
     $scope.MasterPlanList = [];
     $scope.LoadMasterPlanList = function () {
         $http({
@@ -149,7 +149,8 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
     }
 
     $scope.closeCutPlanPopUp = function () {
-        CutPlanClearFields();
+        //CutPlanClearFields();
+        CutPlanCloseFields();
         angular.element(document.querySelector('#CutPlanPopUp')).modal('hide');
     }
 
@@ -467,7 +468,7 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
     
     $scope.SaveAllotedInfo = function () {
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.ModelNewForm.$valid) {
+        if ($scope.modelForm4.$valid) {
             try {
                 $scope.SaveList = [];
                 for (var i = 0; i < $scope.CutPlanList.length; i++) {
@@ -511,6 +512,28 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
     };
 
     function CutPlanClearFields() {
+        //$scope.Action = "Save";
+        //$scope.allotedheader = {
+        //    Id: null
+        //    , MasterPlanId: null
+        //    , PackingTypeId: null
+        //    , UserName: null
+        //    , MarkerId: null
+        //    , Remarks: null
+        //    , NoOfPly: 0
+        //};
+        //$scope.allotedheaderNew = Object.assign({}, $scope.allotedheader);
+        $scope.GetSKU1ColorLists($scope.cutplanNew.Id);
+        $scope.allotedheaderNew.Id = null;
+        $scope.allotedheaderNew.MasterPlanId = null;
+        $scope.allotedheaderNew.PackingTypeId = null;
+        $scope.allotedheaderNew.UserName = null;
+        $scope.allotedheaderNew.MarkerId = null;
+        $scope.allotedheaderNew.Remarks = null;
+        $scope.allotedheaderNew.NoOfPly = null;
+    }
+
+    function CutPlanCloseFields() {
         $scope.Action = "Save";
         $scope.allotedheader = {
             Id: null
@@ -520,8 +543,9 @@ function CutPlanController(commonMessage, $scope, $rootScope, baseService, $rout
             , MarkerId: null
             , Remarks: null
             , NoOfPly: 0
+            , SKU1ColorId: null
         };
         $scope.allotedheaderNew = Object.assign({}, $scope.allotedheader);
-        //$scope.CutPlanList = [];
+        $scope.CutPlanList = [];
     }
 }

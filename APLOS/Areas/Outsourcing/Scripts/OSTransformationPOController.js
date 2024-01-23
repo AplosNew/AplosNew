@@ -34,6 +34,33 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     $scope.taxAbleAmnt = 0.00;
     $scope.JWPurchaseOrderFileLocation = virtualPath.OSTransformationPO;
 
+    $scope.loadProcessList = function (entityid) {
+        cboService.GetEntityProcessCbo(entityid, function (result) {
+            $scope.processList = result;
+            if (baseService.arrayLength(result) === 1) {
+                $scope.productNew.ProcessId = $scope.processList[0].Value;
+            }
+        });
+    };
+
+    $scope.ProductionOrderList = [];
+    $scope.PRSearchColumn = null;
+    $scope.PRSearchValue = null;
+    $scope.GetProductionOrderPopUp = function () {
+        if (!baseService.isUndefinedOrNull($scope.productNew.EntityId)) {
+            $http({
+                method: 'POST',
+                data: {
+                    'entityid': $scope.productNew.EntityId, 'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
+                },
+                url: 'Outsourcing/OSTransformationPO/GetProductionOredrList'
+            }).then(function successCallback(response) {
+                $scope.ProductionOrderList = response.data;
+                angular.element(document.querySelector('#POItemPopup')).modal('show');
+            });
+        }
+    };
+
     $http({
         method: 'GET',
         url: 'accounts/PaymentTerm/getvendorcbo'

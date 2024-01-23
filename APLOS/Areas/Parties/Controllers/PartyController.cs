@@ -1030,6 +1030,64 @@ namespace Aplos.Areas.Parties.Controllers
             return Json(_partyService.GetAllPartyPlantJournalCbo(voucherId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost,Authorize]
+        public JsonResult CreatePartyPlantContact(Dictionary<string, object> entity)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                
+                con.OpenDataSetThroughAdapter("select * from dbo.PartyPlantContact where Id='" + entity["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "PartyPlantContact", out _Id);
+
+                    entity["Id"] =_Id;
+                    AddNewRow(dsMaster.Tables[0], entity);
+                }
+                else
+                {
+                    _Id = entity["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], entity);
+                }
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Error = false, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetPartyPlantContactData(string PartyPlantId)
+        {
+            try
+            {
+                var sql = @"SELECT * FROM PartyPlantContact  Where PartyPlantId='"+ PartyPlantId + "'";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion --Party Operations
 
         [HttpPost, Authorize]
