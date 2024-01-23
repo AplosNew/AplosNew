@@ -4323,6 +4323,13 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
                     WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
+, LotNOs =Replace(STUFF((SELECT distinct ',' + LotNo   FROM ItemScanChild 
+			where SalesId = IR.InvoiceNo  FOR XML PATH('') ) , 1,1 , ''),',' , Char(13) + Char(10))
+,Cartonss =Replace(STUFF((SELECT distinct ',' + convert(varchar(50), COUNT(RefNo))
+             FROM ItemScanChild 
+			 where SalesId = Ir.Id
+			group by SalesId ,SalesMaterialId, LotNo
+			  FOR XML PATH('') ) , 1,1 , ''),',' , Char(13) + Char(10))
 ,PSI.RFIDSealNo 
 ,PSI.LineSealNo
 ,NEGADD.Address1 NegotiationBankAdd
