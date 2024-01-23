@@ -6985,7 +6985,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 160;
+            wTable.Rows[ROW].Cells[colArticle].Width = 150;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Details");
             range.ApplyCharacterFormat(FontBold);
@@ -6995,18 +6995,18 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Lot No");
             range.ApplyCharacterFormat(FontBold);
             int colLot = COL; COL++;
-            wTable.Rows[ROW].Cells[colLot].Width = 60;
+            wTable.Rows[ROW].Cells[colLot].Width = 65;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN");
             range.ApplyCharacterFormat(FontBold);
             int colHSN = COL; COL++;
-            wTable.Rows[ROW].Cells[colHSN].Width = 60;
+            wTable.Rows[ROW].Cells[colHSN].Width = 55;
 
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Cartons");
             range.ApplyCharacterFormat(FontBold);
             int colCartons = COL; COL++;
-            wTable.Rows[ROW].Cells[colCartons].Width = 50;
+            wTable.Rows[ROW].Cells[colCartons].Width = 45;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty(KGS)");
             range.ApplyCharacterFormat(FontBold);
