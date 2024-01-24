@@ -8,6 +8,7 @@
         <li role="presentation" ng-class="{ active: isSetPRM(6) }"><a ng-click="setTabPRM(6)" href="" aria-controls="doc" role="tab" data-toggle="tab">Parameter Approval Responsible Person</a></li>
         <li role="presentation" ng-class="{ active: isSetPRM(7) }"><a ng-click="setTabPRM(7)" href="" aria-controls="doc" role="tab" data-toggle="tab">Quality Action Responsible Person</a></li>
         <li role="presentation" ng-class="{ active: isSetPRM(8) }"><a ng-click="setTabPRM(8)" href="" aria-controls="doc" role="tab" data-toggle="tab">Authorized Person</a></li>
+        <li role="presentation" ng-class="{ active: isSetPRM(9) }"><a ng-click="setTabPRM(9)" href="" aria-controls="doc" role="tab" data-toggle="tab">CustomerParaSeq</a></li>
     </ul>
 </div>
 <div class="tab-content">
@@ -224,12 +225,12 @@
                                     </div>
                                 </div>
                                 @*<div class="col-sm-8">
-                <div class="select-style">
-                    <select class="form-control" ng-model="ItemNew.ParameterId" name="ActivityGroup"
-                            ng-options="item.Value as item.Text for item in ParameterItemList">
-                    </select>
-                </div>
-            </div>*@
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="ItemNew.ParameterId" name="ActivityGroup"
+                                                    ng-options="item.Value as item.Text for item in ParameterItemList">
+                                            </select>
+                                        </div>
+                                    </div>*@
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">IsAuditable</label>
@@ -975,7 +976,33 @@
             </div>
         </div>
     </div>
-</div>
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetPRM(9), active: isSetPRM(9) }">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div id="GridCustomerParaSeq" ej-grid e-datasource="QualityManagementMasterCPSList"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                        <div e-column e-field="SLNo" e-headertext="SL.No" e-width="50"></div>
+                        <div e-column e-field="IssueName" e-headertext="Issue Name" e-width="100"></div>
+                        <div e-column e-field="ParameterName" e-headertext="Parameter Name" e-width="100"></div>
+                        <div e-column e-field="UOM" e-headertext="UOM" e-width="50"></div>
+                        <div e-column e-template="#Sequence" e-headertext="Sequence" e-width="50"></div>
+                    </div>
+                </div>
+                <script type="text/template" id="Sequence">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="Sequence" ng-model="data.Sequence" ng-click="" class="form-control" maxlength="200">
+                    </div>
+                </script>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="CPSequenceSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
 <div class="modal fade site-modal in" id="BudgetCodePopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
