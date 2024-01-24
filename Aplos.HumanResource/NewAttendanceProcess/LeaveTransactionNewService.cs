@@ -676,14 +676,14 @@ UNION ALL
 										  LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
 										  Where LY.FromDate between'" + _FromDate + @"' AND '" + _ToDate + @"' 
 										  AND LY.ToDate between'" + _FromDate + @"' AND '" + _ToDate + @"'
-                                           AND A.EmployeeId='" + EmpSystemID + @"'  order by A.addeddate desc
+                                           AND A.EmployeeId='" + EmpSystemID + @"'
 										  ) A  
 LEFT JOIN (
 select BroughtForward=CASE WHEN A.Adjustment=0 THEN A.Opening ELSE A.Adjustment END,A.EmployeeId,A.LeaveTypeId,lt.UserName LeaveName,A.CarryForward from dbo.AnnualLeaveDataPast A
 										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
                                         LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
 										  Where LY.FromDate between '" + _LFromDate + @"' AND '" + _LToDate + @"' 
-										  AND LY.ToDate between '" + _LFromDate + @"' AND '" + _LToDate + @"' AND A.EmployeeId='" + EmpSystemID + @"'  order by A.addeddate desc)B ON B.EmployeeId=A.EmployeeId  AND A.LTSystemID=B.LeaveTypeId
+										  AND LY.ToDate between '" + _LFromDate + @"' AND '" + _LToDate + @"' AND A.EmployeeId='" + EmpSystemID + @"' )B ON B.EmployeeId=A.EmployeeId  AND A.LTSystemID=B.LeaveTypeId
 
 left outer join (select ltd.* from dbo.LeavePolicyDetail ltd
 																 where LPMSystemID =
