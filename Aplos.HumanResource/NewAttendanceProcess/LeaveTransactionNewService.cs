@@ -661,28 +661,29 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                                      WHERE DM.DesignationId IN (SELECT GivenDesignationId FROM dbo.EmployeeInformation WHERE SystemID='" + EmpSystemID + @"'))) AND LT.UserName NOT LIKE '%Maternity%'
 
 UNION ALL
- Select distinct '' CalanderYearID,CAST (0 AS BIT) IsExceptionAllowed,A.FromDate,A.ToDate
- ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear,DaysCanBeSanctioned=CAST (A.Opening AS decimal(18,2))
- ,CurrentAllocationDCBS=CAST (A.Opening AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal,CAST (A.Opening AS decimal(18,2)) CurrentAllocation,CAST (0 AS decimal(18,2)) PreviousYearCarryForward,B.BroughtForward,CAST (A.Opening AS decimal(18,2)) LeaveDays
+ Select A.CalanderYearID,CAST (0 AS BIT) IsExceptionAllowed,A.FromDate,A.ToDate
+ ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear,DaysCanBeSanctioned=CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2))
+ ,CurrentAllocationDCBS=CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal,CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2)) CurrentAllocation,CAST (0 AS decimal(18,2)) PreviousYearCarryForward
+ ,BroughtForward=CASE WHEN A.Opening>B.CarryForward THEN A.Opening WHEN B.BroughtForward>B.CarryForward THEN B.BroughtForward ELSE B.CarryForward END,CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2)) LeaveDays
  ,ISNULL(ltrn.ldays, 0) Applied,ISNULL(tav.av, 0) Availed,ISNULL(R.Rejected,0) Rejected,ISNULL(acApl.ldays,0) ldays,A.LeaveType,CAST (0 AS BIT) IsBroughtForwardAdd
  ,CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2)) as Earned
-,Balance=CAST (B.BroughtForward+CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2))
+,Balance=CAST (CASE WHEN A.Opening>B.CarryForward THEN A.Opening WHEN B.BroughtForward>B.CarryForward THEN B.BroughtForward ELSE B.CarryForward END +CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2))
  from (
- select top 1 '' CalanderYearID,0 IsExceptionAllowed,a.Id SystemID,A.LeaveTypeId LTSystemID,A.EmployeeId EmployeeID,lt.UserName LeaveName, lt.Description LeaveDescription,lt.LeaveType
+ select A.LeaveYearId CalanderYearID,0 IsExceptionAllowed,a.Id SystemID,A.LeaveTypeId LTSystemID,A.EmployeeId EmployeeID,lt.UserName LeaveName, lt.Description LeaveDescription,lt.LeaveType
  ,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate,A.Opening 
  from dbo.AnnualLeaveDataCurrent A
 										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
 										  LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
 										  Where LY.FromDate between'" + _FromDate + @"' AND '" + _ToDate + @"' 
 										  AND LY.ToDate between'" + _FromDate + @"' AND '" + _ToDate + @"'
-                                           AND A.EmployeeId='" + EmpSystemID + @"'  order by A.addeddate desc
+                                           AND A.EmployeeId='" + EmpSystemID + @"'
 										  ) A  
 LEFT JOIN (
-select top 1 BroughtForward=CASE WHEN A.Opening=0 THEN A.Adjustment ELSE A.Opening END,A.EmployeeId,A.LeaveTypeId,lt.UserName LeaveName from dbo.AnnualLeaveDataPast A
+select BroughtForward=CASE WHEN A.Adjustment=0 THEN A.Opening ELSE A.Adjustment END,A.EmployeeId,A.LeaveTypeId,lt.UserName LeaveName,A.CarryForward from dbo.AnnualLeaveDataPast A
 										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
                                         LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
 										  Where LY.FromDate between '" + _LFromDate + @"' AND '" + _LToDate + @"' 
-										  AND LY.ToDate between '" + _LFromDate + @"' AND '" + _LToDate + @"' AND A.EmployeeId='" + EmpSystemID + @"'  order by A.addeddate desc)B ON B.EmployeeId=A.EmployeeId  AND A.LTSystemID=B.LeaveTypeId
+										  AND LY.ToDate between '" + _LFromDate + @"' AND '" + _LToDate + @"' AND A.EmployeeId='" + EmpSystemID + @"' )B ON B.EmployeeId=A.EmployeeId  AND A.LTSystemID=B.LeaveTypeId
 
 left outer join (select ltd.* from dbo.LeavePolicyDetail ltd
 																 where LPMSystemID =
@@ -878,23 +879,24 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                               AND els.LeaveTypeId not IN (select id from LeaveType where IsESIC=1 and IsGeneral=0) AND LT.UserName NOT LIKE '%Maternity%'
 
 UNION ALL
- Select distinct '' CalanderYearID,CAST (0 AS BIT) IsExceptionAllowed,A.FromDate,A.ToDate
- ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear,DaysCanBeSanctioned=CAST (A.Opening AS decimal(18,2))
- ,CurrentAllocationDCBS=CAST (A.Opening AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal,CAST (A.Opening AS decimal(18,2)) CurrentAllocation,CAST (0 AS decimal(18,2)) PreviousYearCarryForward,B.BroughtForward,CAST (A.Opening AS decimal(18,2)) LeaveDays
+ Select A.CalanderYearID,CAST (0 AS BIT) IsExceptionAllowed,A.FromDate,A.ToDate
+ ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear,DaysCanBeSanctioned=CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2))
+ ,CurrentAllocationDCBS=CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal,CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2)) CurrentAllocation,CAST (0 AS decimal(18,2)) PreviousYearCarryForward
+ ,BroughtForward=CASE WHEN A.Opening>B.CarryForward THEN A.Opening WHEN B.BroughtForward>B.CarryForward THEN B.BroughtForward ELSE B.CarryForward END,CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2)) LeaveDays
  ,ISNULL(ltrn.ldays, 0) Applied,ISNULL(tav.av, 0) Availed,ISNULL(R.Rejected,0) Rejected,ISNULL(acApl.ldays,0) ldays,A.LeaveType,CAST (0 AS BIT) IsBroughtForwardAdd
  ,CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2)) as Earned
-,Balance=CAST (B.BroughtForward+CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2))
+,Balance=CAST (CASE WHEN A.Opening>B.CarryForward THEN A.Opening WHEN B.BroughtForward>B.CarryForward THEN B.BroughtForward ELSE B.CarryForward END +CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2))
  from (
- select '' CalanderYearID,0 IsExceptionAllowed,a.Id SystemID,A.LeaveTypeId LTSystemID,A.EmployeeId EmployeeID,lt.UserName LeaveName, lt.Description LeaveDescription,lt.LeaveType
+ select A.LeaveYearId CalanderYearID,0 IsExceptionAllowed,a.Id SystemID,A.LeaveTypeId LTSystemID,A.EmployeeId EmployeeID,lt.UserName LeaveName, lt.Description LeaveDescription,lt.LeaveType
  ,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate,A.Opening 
  from dbo.AnnualLeaveDataCurrent A
 										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
 										  LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
 										  Where LY.FromDate between'" + _FromDate+@"' AND '"+_ToDate+@"' 
-										  AND LY.ToDate between'"+_FromDate+ @"' AND '"+_ToDate+@"'
+										  AND LY.ToDate between'"+_FromDate+ @"' AND '"+_ToDate+ @"'
 										  ) A  
 LEFT JOIN (
-select BroughtForward=CASE WHEN A.Opening=0 THEN A.Adjustment ELSE A.Opening END,A.EmployeeId,A.LeaveTypeId,lt.UserName LeaveName from dbo.AnnualLeaveDataPast A
+select BroughtForward=CASE WHEN A.Adjustment=0 THEN A.Opening ELSE A.Adjustment END,A.EmployeeId,A.LeaveTypeId,lt.UserName LeaveName,A.CarryForward from dbo.AnnualLeaveDataPast A
 										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
                                         LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
 										  Where LY.FromDate between '" + _LFromDate + @"' AND '"+_LToDate+@"' 

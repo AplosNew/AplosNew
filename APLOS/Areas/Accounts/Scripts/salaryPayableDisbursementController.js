@@ -1210,7 +1210,7 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
             obj.IFSCCode = dataList[i].IFSCCode;
             obj.VoucherNo = dataList[i].VoucherNo;
             obj.PayableVoucherNo = dataList[i].PayableVoucherNo;
-            obj.NetPayment = dataList[i].Amount;
+            obj.BonusPayment = dataList[i].Amount;
             newDataList.push(obj);
             obj = {};
         }
@@ -1251,7 +1251,7 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
         $http({
             method: "POST",
             dataType: 'JSON',
-            url: 'Accounts/SalaryDisbursement/GetEmployeeSalaryDisbursementVoucherWise',
+            url: 'Accounts/SalaryDisbursement/GetEmployeeBonusDisbursementVoucherWise',
             data: parameters
         })
             .then(function successCallback(response) {
@@ -1300,8 +1300,8 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
                             "fromDate": $scope.voucherBonus.FromDate,
                             "toDate": $scope.voucherBonus.ToDate,
                             "pMode": $scope.voucherBonus.PaymentMode,
-                            "directJVList": $scope.salaryLockPayableGLData,
-                            "disbursementAdviceId": $scope.voucherBonus.DisbursementAdviceId,
+                            "directJVList": $scope.bonusLockPayableGLData,
+                            "disbursementAdviceId": $scope.voucherBonus.BonusDisbursementAdviceId,
                             "employeeListNew": $scope.EmployeeBonusListNew
                         },
                         dataType: "JSON"
@@ -1402,6 +1402,125 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
         $scope.voucherId = data.PayableVoucherId;
         $scope.message_delete_confirmation = "Are you sure to Delete?";
         angular.element(document.querySelector("#confirmDeleteBonusPopUp")).modal("show");
+    };
+    $scope.showBankPopUpBonus = function () {
+        $scope.getBankList = function (pageno) {
+
+            $scope.url = "Accounts/SalaryDisbursement/GetBankMasterList?bankACType=HouseBank&&bankId=" + $scope.voucher.BankId;
+            baseService.paginationBase($scope.url, pageno, $scope.bankParameters)
+                .then(function (result) {
+                    $scope.bankmasterList = result.Rows;
+                    $scope.bankParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, "failure");
+                }).finally(function () {
+                });
+        };
+        $scope.getBankList();
+        angular.element(document.querySelector("#bankPopUpBonus")).modal("show");
+    };
+
+    $scope.showCashPopUpBonus = function (index, entityId) {
+        $scope.getCashList = function (pageno) {
+            baseService.paginationBase("banks/cashmaster/GetCashMasterVoucher?id=&entityId=" + entityId, pageno, $scope.cashParameters)
+                .then(function (result) {
+                    $scope.cashList = result.Rows;
+                    $scope.cashParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, "failure");
+                }).finally(function () {
+                });
+        };
+        $scope.getCashList();
+        angular.element(document.querySelector("#cashPopUpBonus")).modal("show");
+    };
+    $scope.closeCashPopUpBonus = function () {
+        if ($scope.cashIndex !== -1) {
+            var cash = $scope.cashList[$scope.cashIndex];
+            if (baseService.isUndefinedOrNull(cash.GLGeneralInfoId)) {
+                ShowResult("Cash GL not found!", "failure", "cashPopUpBonus");
+                return;
+            }
+            else if ($scope.companyConfig.IsVoucherFromBudget && baseService.isUndefinedOrNull(cash.BudgetMasterId)) {
+                ShowResult("Cash Budget not found!", "failure", "cashPopUpBonus");
+                return;
+            }
+            else if (baseService.isUndefinedOrNull(cash.CurrencyId)) {
+                ShowResult("Cash Transaction Currency not found!", "failure", "cashPopUpBonus");
+                return;
+            }
+            else {
+                $scope.voucherBonus.CashMasterId = cash.Id;
+                $scope.voucherBonus.CashCurrencyId = cash.CurrencyId;
+                $scope.voucherBonus.CashName = cash.CashName;
+                $scope.voucherBonus.GLGeneralInfoId = cash.GLGeneralInfoId;
+                $scope.voucherBonus.GLGeneralInfoName = cash.GLItem;
+                $scope.voucherBonus.BudgetName = cash.BudgetName;
+                $scope.voucherBonus.BudgetMasterId = cash.BudgetMasterId;
+                $scope.voucherBonus.ActivityId = cash.ActivityId;
+                $scope.voucherBonus.ActivityName = cash.ActivityName;
+                $scope.checkCashAmountBonus();
+            }
+        }
+        $scope.hideCashPopUpBonus();
+    };
+    $scope.hideCashPopUpBonus = function () {
+        angular.element(document.querySelector("#cashPopUpBonus")).modal("hide");
+        $scope.cashIndex = -1;
+        $scope.cashSelected = null;
+    };
+    $scope.closeBankPopUpBonus = function () {
+        if ($scope.bankIndex !== -1) {
+            var bank = $scope.bankmasterList[$scope.bankIndex];
+
+            $scope.voucherBonus.AccountTitle = bank.AccountTitle;
+            $scope.voucherBonus.BankName = bank.BankCode + " - " + bank.BankName + " - " + bank.AccountTitle + " - " + bank.AccountNumber;
+            $scope.voucherBonus.BankMasterId = bank.BankMasterId;
+            $scope.voucherBonus.BankCurrencyId = bank.CurrencyId;
+
+            $scope.voucherBonus.GLGeneralInfoId = bank.GLGeneralInfoId;
+            $scope.voucherBonus.GLGeneralInfoName = bank.GLGeneralInfoName;
+            $scope.voucherBonus.BudgetMasterId = bank.BudgetMasterId;
+            $scope.voucherBonus.BudgetName = bank.BudgetName;
+            $scope.voucherBonus.ActivityId = bank.ActivityId;
+            $scope.voucherBonus.ActivityName = bank.ActivityName;
+            $scope.checkBankAmount();
+        }
+        $scope.hideBankPopUpBonus();
+    };
+    $scope.selectBankPopUpBonus = function (index, id) {
+        $scope.bankIndex = index;
+    };
+
+    $scope.hideBankPopUpBonus = function () {
+        angular.element(document.querySelector("#bankPopUpBonus")).modal("hide");
+        $scope.bankIndex = -1;
+        $scope.bankSelected = null;
+    };
+    $scope.checkBankAmountBonus = function () {
+        if (!baseService.isUndefinedOrNull($scope.voucherBonus.BankCurrencyId)) {
+            if ($scope.voucherBonus.BankCurrencyId !== $scope.companyCurrencyId) {
+                $scope.isBankAmount = true;
+                $scope.voucherBonus.BankAmount = 0;
+            }
+            else {
+                $scope.isBankAmount = false;
+                $scope.voucherBonus.BankAmount = 0;
+            }
+        }
+    };
+
+    $scope.checkCashAmountBonus = function () {
+        if (!baseService.isUndefinedOrNull($scope.voucherBonus.CashCurrencyId)) {
+            if ($scope.voucherBonus.CashCurrencyId !== $scope.companyCurrencyId) {
+                $scope.isBankAmount = true;
+                $scope.voucherBonus.BankAmount = 0;
+            }
+            else {
+                $scope.isBankAmount = false;
+                $scope.voucherBonus.BankAmount = 0;
+            }
+        }
     };
     //End Bonus Disbursement Posting
 

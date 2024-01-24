@@ -1837,7 +1837,6 @@
     <Content Include="Areas\Accounts\Scripts\InvoiceStatusController.js" />
     <Content Include="Areas\Accounts\Scripts\PaymentAdviceController.js" />
     <Content Include="Areas\Accounts\Scripts\InvestmentSettelmentController.js" />
-    <Content Include="Areas\Accounts\Scripts\bonusDisbursementPostController.js" />
     <Content Include="Areas\Accounts\Scripts\SubsequentInvestmentController.js" />
     <Content Include="Areas\Accounts\Scripts\PaymentAdviseReportController.js" />
     <Content Include="Areas\Accounts\Scripts\ChartAccountSetupController.js" />
@@ -4902,6 +4901,8 @@
     <Content Include="Areas\Accounts\Views\PFESICDisbursement.cshtml" />
     <Content Include="Areas\Accounts\Views\PettyCashMaster\Aplos.cshtml" />
     <Content Include="Areas\Outsourcing\Views\OSIssueReturn\_ProductionSummaryProcessPopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\SalaryDisbursement\_BankPopUpBonus.cshtml" />
+    <Content Include="Areas\Accounts\Views\SalaryDisbursement\_CashPopUpBonus.cshtml" />
     <Content Include="Areas\Productions\Views\CutPlanEdit\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

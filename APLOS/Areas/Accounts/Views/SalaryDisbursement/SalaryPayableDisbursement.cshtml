@@ -3,7 +3,7 @@
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSetMain(1) }"><a ng-click="setTabMain(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Salary Disbursement Posting</a></li>
-            @*<li role="presentation" ng-class="{ active: isSetMain(2) }"><a ng-click="setTabMain(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Bonus Disbursement Posting</a></li>*@
+            <li role="presentation" ng-class="{ active: isSetMain(2) }"><a ng-click="setTabMain(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Bonus Disbursement Posting</a></li>
         </ul>
     </div>
     <div class="tab-content">
@@ -12,9 +12,9 @@
         </div>
 
         @*   TAB -2  *@
-        @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetMain(2), active: isSetMain(2) }">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetMain(2), active: isSetMain(2) }">
                 @Html.Partial("~/Areas/Accounts/Views/SalaryDisbursement/BonusDisbursementPost.cshtml")
-            </div>*@
+            </div>
 
     </div>
 </div>
