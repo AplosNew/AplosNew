@@ -89,7 +89,7 @@
                     <input ng-click="clearCashPopUp()" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.PaymentSource.Cash.ToString()">
                     <span class="cr" tabindex="18"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Cash.ToString()
                 </label>
-                <label @*ng-hide="voucher.NoteType=='@Library.Model.Invoices.NoteType.VendorCreditNote.ToString()'"*@>
+                <label ng-hide="voucher.NoteType=='@Library.Model.Invoices.NoteType.VendorCreditNote.ToString()'">
                     <input ng-click="clearInvoicePopUp()" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.SettlementType.SetOff.ToString()">
                     <span class="cr" tabindex="18"><i class="cr-icon"></i></span>Invoice
                 </label>

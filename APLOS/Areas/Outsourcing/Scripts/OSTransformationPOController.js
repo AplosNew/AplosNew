@@ -17,6 +17,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
     $scope.detailDeleteUrl = $scope.path + 'DeleteDetail?Id=';
     $scope.detailGridListUrl = $scope.path + 'GetJWPOChildList?jwpoId=';
+    $scope.productionOredrMapListUrl = $scope.path + 'GetProductionOredrMapList?entityid=';
     $scope.detailGridListAllUrl = $scope.path + 'GetJWPOChildListAll';
 
     $scope.sreviceSaveUrl = $scope.path + 'ServiceChargeCreate';
@@ -51,7 +52,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             $http({
                 method: 'POST',
                 data: {
-                    'entityid': $scope.productNew.EntityId, 'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
+                    'entityid': $scope.productNew.EntityId, 'processid': $scope.productNew.ProcessId, 'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
                 },
                 url: 'Outsourcing/OSTransformationPO/GetProductionOredrList'
             }).then(function successCallback(response) {
@@ -60,7 +61,15 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             });
         }
     };
+    $scope.selectedProductionOrder = [];
+    $scope.SetPrOData = function () {
+        var gridObj = $("#GridPO").data("ejGrid");
+        $scope.selectedProductionOrder.push(gridObj.getSelectedRecords()[0]);
+    }
 
+    $scope.removeSelectedPO = function (x,index) {
+        $scope.selectedProductionOrder.splice(index, 1);
+    }
     $http({
         method: 'GET',
         url: 'accounts/PaymentTerm/getvendorcbo'
@@ -146,9 +155,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             url: $scope.pathJWCBO + 'getTransformationjobworkitemlist?ActivityId=' + $scope.detailModel.JobActivityId + '&ContractType=' + $scope.productNew.POType,
         }).then(function successCallback(response) {
             $scope.JobWorkItemMstList = response.data;
-            //$scope.detailModel.OutputMaterialUOMId = null;
-            //$scope.detailModel.ByProductApplicable = null;
-            //$scope.MaterialMstClear();
+          
         });
     }
 
@@ -203,19 +210,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.OMatUOMList = response.data;
     });
 
-    //$scope.GetArticle = function () {
-    //    $scope.ArticleList = [];
-    //    $http({
-    //        method: 'GET',
-    //        url: $scope.pathJWCBO + 'getarticlecode?JobWorkItemId=' + $scope.detailModel.JobWorkItemMasterId,
-    //    }).then(function successCallback(response) {
-    //        $scope.ArticleList = response.data;
-    //        if ($scope.ArticleList.length > 0) {
-    //            $scope.detailModel.ArticleCodeId = $scope.ArticleList[0].Value;
-
-    //        }
-    //    });
-    //}
     $scope.GetRate = function () {
         $scope.RateList = [];
         $http({
@@ -243,10 +237,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             $scope.RateList = response.data;
             if ($scope.RateList.length > 0) {
                 $scope.detailModel.RateApplyId = $scope.RateList[0].Value;
-                //$scope.detailModel.RatePerUnit = $scope.RateList[0].MinRate;
-                //$scope.detailModel.MaxRate = $scope.RateList[0].MaxRate;
-                //$scope.detailModel.ServiceId = $scope.RateList[0].ServiceId;
-                //$scope.changeService($scope.detailModel.ServiceId);
+              
             }
         });
     }
@@ -275,14 +266,9 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             $scope.CurrencyyyList = response.data;
             if ($scope.CurrencyyyList.length > 0) {
                 $scope.detailModel.CurrencyId = $scope.CurrencyyyList[0].Value;
-                //if (!baseService.isUndefinedOrNull($scope.CurrencyyyList[0].StdRejection)) {
-                //    $scope.detailModel.Rejection = $scope.CurrencyyyList[0].StdRejection;
-                //    $scope.detailModel.ValueLoss = $scope.CurrencyyyList[0].StdValueLoss;
-                //}
             }
         });
     }
-    // Material and Article
     $scope.MaterialMstList = [];
     $scope.MaterialMstPopUp = function () {
         angular.element(document.querySelector("#MaterialPopUp")).modal("show");
@@ -321,11 +307,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         angular.element(document.querySelector('#MaterialPopUp')).modal('hide');
         $scope.MaterialMstArticlePopUp();
     };
-    // # end region
-
-    // MATERIAL MASTER ARTICLE
-    // #region field
-
+   
     $scope.MaterialArticleMstList = [];
     $scope.MaterialMstArticlePopUp = function () {
         angular.element(document.querySelector("#MaterialArticlePopUp")).modal("show");
@@ -344,7 +326,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     }
 
     $scope.MaterialMstArticleClear = function () {
-        //     $scope.detailModel.ArticleCodeId = null;
         $scope.detailModel.ArticleName = null;
         $scope.detailModel.ArticleCode = null;
         $scope.detailModel.ArticleId = null;
@@ -357,16 +338,11 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     $scope.setMaterialArticleData = function (obj) {
         var data = obj.data;
         $scope.detailModel.ArticleCode = data.ArticleCode;
-        //      $scope.detailModel.ArticleCodeId = data.ArticleId;
         $scope.detailModel.ArticleName = data.StandardName;
         $scope.detailModel.ArticleId = data.ArticleId;
         angular.element(document.querySelector('#MaterialArticlePopUp')).modal('hide');
     };
-    // Material and Article
-
-
-    // SKU1
-
+  
     $scope.SKU1List = [];
     $scope.SKU1PopUp = function () {
         angular.element(document.querySelector("#SKU1PopUp")).modal("show");
@@ -386,20 +362,12 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
     $scope.SKU1Clear = function () {
         $scope.detailModel.UserName1 = null;
-        //    $scope.detailModel.Code1 = null;
-        //    $scope.detailModel.FirstCharacteristicsId = null;
         $scope.detailModel.FirstCharacteristicsValueId = null;
 
     };
-    //$scope.closeMaterialArticlePopUp = function (popupName) {
-    //    angular.element(document.querySelector("#" + popupName + "")).modal("hide");
-
-    //}
     $scope.setSKU1Data = function (obj) {
         var data = obj.data;
-        //    $scope.detailModel.Code1 = data.Code;
         $scope.detailModel.UserName1 = data.UserName;
-        //     $scope.detailModel.FirstCharacteristicsId = data.CharacteristicsId;
         $scope.detailModel.FirstCharacteristicsValueId = data.CharacteristicsValueId;
         $scope.rmchar1.CharacteristicsValueId = data.CharacteristicsValueId;
 
@@ -427,26 +395,18 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
     $scope.SKU2Clear = function () {
         $scope.detailModel.UserName2 = null;
-        //$scope.detailModel.Code2 = null;
-        //$scope.detailModel.SecondCharacteristicsId = null;
         $scope.detailModel.SecondCharacteristicsValueId = null;
 
     };
-    //$scope.closeMaterialArticlePopUp = function (popupName) {
-    //    angular.element(document.querySelector("#" + popupName + "")).modal("hide");
-
-    //}
+   
     $scope.setSKU2Data = function (obj) {
         var data = obj.data;
-        //    $scope.detailModel.Code2 = data.Code;
         $scope.detailModel.UserName2 = data.UserName;
-        //      $scope.detailModel.SecondCharacteristicsId = data.CharacteristicsId;
         $scope.detailModel.SecondCharacteristicsValueId = data.CharacteristicsValueId;
         $scope.rmchar2.CharacteristicsValueId = data.CharacteristicsValueId;
         angular.element(document.querySelector('#SKU2PopUp')).modal('hide');
     };
 
-    // SKU 3
 
     $scope.SKU3List = [];
     $scope.SKU3PopUp = function () {
@@ -467,26 +427,18 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
     $scope.SKU3Clear = function () {
         $scope.detailModel.UserName3 = null;
-        //$scope.detailModel.Code3 = null;
-        //$scope.detailModel.ThirdCharacteristicsId = null;
         $scope.detailModel.ThirdCharacteristicsValueId = null;
 
     };
-    //$scope.closeMaterialArticlePopUp = function (popupName) {
-    //    angular.element(document.querySelector("#" + popupName + "")).modal("hide");
-
-    //}
+   
     $scope.setSKU3Data = function (obj) {
         var data = obj.data;
-        //    $scope.detailModel.Code3 = data.Code;
         $scope.detailModel.UserName3 = data.UserName;
-        //     $scope.detailModel.ThirdCharacteristicsId = data.CharacteristicsId;
         $scope.detailModel.ThirdCharacteristicsValueId = data.CharacteristicsValueId;
         $scope.rmchar3.CharacteristicsValueId = data.CharacteristicsValueId;
         angular.element(document.querySelector('#SKU3PopUp')).modal('hide');
     };
 
-    //---Shahshank
 
     $scope.NotificationSettingStatus = function () {
         //debugger;
@@ -527,12 +479,9 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             }).then(function successCallback(response) {
                 $scope.checkedByList = response.data;
             });
-
         }
         else {
-
         }
-
     }
     $scope.GetCheckedByAndApprovedBy1();
     $scope.HSNCode = null;
@@ -584,8 +533,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         return $scope.tab1 === tabNum;
     };
 
-
-
     $scope.setTabAHRIndex = function (newTab) {
         $scope.ApproveRejectHold = 'HoldReject';
         $scope.getalldataPoApp();
@@ -594,8 +541,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     $scope.isSetAHRIndex = function (tabNum) {
         return $scope.tab1 === tabNum;
     };
-
-
 
     $scope.setTabIndex1 = function (newTab) {
         $scope.ApproveRejectHold = 'Approved';
@@ -606,11 +551,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         return $scope.tab1 === tabNum;
     };
 
-    //#endregion
-
-
-    //#region PO Index Grid Data Display Load Function
-
+  
     $scope.Griddata = [];
     $scope.POTypeStatus = 'Pending';
     $scope.getalldata = function () {
@@ -619,7 +560,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         }
         else {
 
-            // $scope.POTypeStatus;
         }
 
         $http({
@@ -644,17 +584,14 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $http({
             method: "GET",
             dataType: 'JSON',
-            //url: $scope.getSearchListUrl,
             url: 'Outsourcing/OSTransformationPO/GetListForHoldRejectApproved?ApproveRejectHold=' + $scope.ApproveRejectHold,
         }).then(function successCallback(response) {
             $scope.GriddataPoApp = response.data;
-            //entrydata = copy(searchdata);
         });
     };
 
 
 
-    //#region  PO  Details
     $scope.lst = [];
 
 
@@ -668,8 +605,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
             dataSource: data,
             columns: ["JobWorkActivity", "JWItemName", "MaterialSpecification", "MaterialReference", "MaterialStorage", "JWItemUOM", "MaterialMasterName", "ArticleName", "CURR", "RateApplyId", "Process", "TransactionQty", "TransactionRate", "TransactionAmount", "TaxAmount", "BaseAmount", "Rejection", "ValueLoss", "Tolerance", "ResponsiblePersonName"]
-            //columns: ["JWItemName", "JWItemUOM", "MaterialMasterName", "ArticleName", "FirstCharacteristicsValue", "SecondCharacteristicsValue", "ThirdCharacteristicsValue", "TransactionQty", "TransactionUoM", "TransactionRate", "TransactionAmount", "CurrencyName", "TotalAmount"]
-            //columns: ["MaterialGroupName", "MaterialName", "Article", "Sku1", "Sku2", "Sku3", "MaterialDetail", "TransactionQty", "TransactionUoMId", "TransactionUoM", "TransactionRate", "CurrencyName", "TotalAmount"]
         });
         e.detailsElement.find(".tabcontrol").ejTab();
     };
@@ -759,9 +694,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         , Date: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
         Time: _Time,
         EntityId: null,
-        //ProcessStartDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
-        //ProcessEndDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
-        //ContractClosingDate: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
         ProcessStartDate: null,
         ProcessEndDate: null,
         ContractClosingDate: null,
@@ -776,19 +708,14 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     $scope.SetPOType = function () {
         if ($scope.productNew.POType == "OSTransformationPO") {
             $scope.productNew.POType = "OSTransformationPO";
-            //   alert($scope.productNew.POType);
         }
         else {
             $scope.productNew.POType == "OSValueAddedPO";
-            //       alert($scope.productNew.POType);
         }
     }
 
 
     $scope.OrderSpecific = $scope.productNew.OrderSpecific;
-
-
-    // To get Entity plant wise
 
     $scope.EntityList = [];
     $scope.GetEntityPlantWise = function () {
@@ -802,8 +729,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         });
     }
     $scope.GetEntityPlantWise();
-
-
 
     $scope.productDocMap = {
         Id: null
@@ -836,10 +761,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.OrderSpecific = data;
 
     };
-    //#endregion
-
-    //#region All Dropdownlist Load Function
-    //#region Purchaser LC Intregrated to PurchaseOrder
 
     $scope.contractList = [];
     $scope.GetPopUpContract = function () {
@@ -858,24 +779,15 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     };
     $scope.OrderSpecific = $scope.productNew.OrderSpecific;
     $scope.SelectedContract = function (obj) {
-        //debugger;
-        //var data = obj.data.ContractId;
         $scope.productNew.ContractId = obj.data.ContractId;
         $scope.productNew.CustomerName = obj.data.CustomerName;
         $scope.productNew.ContractNo = obj.data.ContractNo;
         $scope.productNew.LCRef = obj.data.LCRef;
-        //console.log($scope.productNew);
         angular.element(document.querySelector('#ContractPopUp')).modal('hide');
     }
 
     $scope.ClearFields = function () {
-        //$scope.purchaseLC = {};
         $scope.productNew.ContractId = null;
-        //var DropDownListObj = $("#ddlActivityList").data("ejDropDownList");
-        //DropDownListObj.uncheckAll();
-        // $scope.productNew = { OrderSpecific: 'Yes', Id: null, Tenure: 0 };
-        //$scope.purchaseLCChargesList = [];
-        //$scope.Action = 'Save';
     };
     $scope.CloseContractPopUp = function () {
         angular.element(document.querySelector('#ContractPopUp')).modal('hide');
@@ -904,7 +816,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             url: 'Products/PurchaseOrder/GetalldataPOWithLCMap'
         }).then(function successCallback(response) {
             $scope.GriddataPOWithLC = response.data;
-            //entrydata = copy(searchdata);
         });
     };
     $scope.getalldataPOWithLC();
@@ -916,7 +827,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $http({
             method: "GET",
             dataType: 'JSON',
-            //url: $scope.getSearchListUrl,
             url: 'Products/PurchaseOrder/GetalldataPOWithoutLCMap'
         }).then(function successCallback(response) {
             $scope.GriddataPOWithOutLC = response.data;
@@ -928,8 +838,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     $scope.POTypeStatus = '';
     $scope.tab1 = 1;
     $scope.setTabPOLCMapIndex = function (newTab) {
-
-        //$scope.POTypeStatus = 'Pending';
         $scope.tab1 = newTab;
         $scope.getalldataPOWithLC();
     };
@@ -937,9 +845,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         return $scope.tab1 === tabNum;
     };
     $scope.setTabPOLCMap = function (newTab) {
-        //alert('tabCHR');
-
-        // $scope.POTypeStatus = 'CheckedHoldRej';
         $scope.tab1 = newTab;
         $scope.getalldataPOWithOutLC();
     };
@@ -980,18 +885,14 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.productNew.ContractClosingDate = x.data.TConContractClosingDate;
         $scope.productNew.Time = x.data.TConTime;
         $scope.productNew.POType = x.data.POType;
-        //if ($scope.productNew.POType == "OSTransformationPO") {
-
-        //}
-
-
-        //$scope.getJwActivityId($scope.productNew.Id);
+        $scope.loadProcessList(x.data.EntityId);
+        $scope.productNew.ProcessId = x.data.ProcessId;
         $scope.getPoChilddata();
+        $scope.getPoProductionOrderMapData();
         $scope.detailModel.OSTransformationPOId = $scope.productNew.Id;
 
         getPartyPlantEditList($scope.productNew.InvoicingPartyPlantId, $scope.productNew.InvoicingByAddress, $scope.productNew.DeliveryPartyPlantId, $scope.productNew.DeliveryByAddress, $scope.productNew.DeliveryState, $scope.productNew.DeliveryGSTIN);
         getPartyPlantEditList();
-        //$scope.GetJWPOActivityService(x.data);
         getServiceChargeList($scope.productNew.Id);
 
         $scope.productNew.OrderSpecific = x.data.OrderSpecific;
@@ -1020,26 +921,11 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             $scope.productNew.labelCheckAndApproved = 'To be checked by';
         }
 
-
         $scope.Action = 'Update';
 
         if (!$rootScope.isCollapsed) $rootScope.toggle();
-
-
     };
 
-
-    //$scope.getJwActivityId = function (OSTransformationPOId) {
-    //    $http.get('JobWork/OSTransformationPO/GetJWTransformationPurchaseOrderId?OSTransformationPOId=' + OSTransformationPOId).then(function (response) {
-    //        var DropDownListObj = $("#ddlActivityList").data("ejDropDownList");
-    //        for (var j = 0; j < response.data.length; j++) {
-    //            DropDownListObj.selectItemByValue(response.data[j].Id);
-    //        }
-    //    });
-
-
-    //};
-    // $scope.GetLCByContract();
 
     $scope.CurrencyId = null;
     $scope.a = function (args) {
@@ -1055,10 +941,8 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         var tQty = baseService.isUndefinedOrNull($scope.detailModel.TransactionQty) ? 0 : parseFloat($scope.detailModel.TransactionQty);
         var tAmount = baseService.isUndefinedOrNull($scope.detailModel.TransactionRate) ? 0 : parseFloat($scope.detailModel.TransactionRate);
         if (tQty > 0)
-            //$scope.detailModel.TransactionRate = tAmount / tQty;
             $scope.detailModel.TransactionAmount = tAmount * tQty;
         else
-            //$scope.detailModel.TransactionRate = 0;
             $scope.detailModel.TransactionAmount = 0;
         for (var i = 0; i < baseService.arrayLength($scope.taxCategoryList); i++) {
             $scope.taxCategoryList[i].TaxAmount = ((parseFloat($scope.taxCategoryList[i].Percentage) * $scope.detailModel.TransactionAmount) / 100).toFixed($rootScope.currencyPrecision);
@@ -1068,20 +952,14 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     };
 
     $scope.productNew.TaxOptionService = "Yes";
-    //  $scope.productNew.TaxOptionService = 'Yes';
 
     $scope.changeService = function (JWServiceId) {
-
-        //productNewwww.TaxOptionService
-
         if (baseService.isUndefinedOrNull(JWServiceId))
             return $scope.taxCategoryList = [];
         var hsnCodeId = $.grep($scope.serviceList, function (item) { return item.Value === JWServiceId; })[0].HSNCodeId;
         var HSNCode = $.grep($scope.serviceList, function (item) { return item.Value === JWServiceId; })[0].HSNCode;
         getTaxCategoryList(hsnCodeId, HSNCode);
         $scope.productNew.TaxOptionServiceTPO = "Yes";
-        //      $scope.productNew.TaxOptionService = "Yes";
-
     };
     function getTaxCategoryList(hsnCodeId, HSNCode) {
         $scope.taxCategoryList = [];
@@ -1096,11 +974,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                     $scope.taxCategoryList[i].HSNCode = HSNCode;
                     $scope.taxCategoryList[i].HSNCodeId = hsnCodeId;
                     $scope.taxCategoryList[i].OSTransformationPOId = $scope.productNew.Id;
-                    /*$scope.taxCategoryList[i].OSTransformationPODetailId = $scope.detailModel.Id;*/
-                    //$scope.taxCategoryList[i].OSTransformationPODetailId = $scope.detailModel.Id;
                     $scope.taxCategoryList[i].TaxAmount = ($scope.TotalAmount * $scope.taxCategoryList[i].Percentage) / 100;
-
-                    //$scope.HSNCode = HSNCode;
                 }
             }
         });
@@ -1109,7 +983,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
     function getDetailTaxCategoryList(x) {
         $scope.taxCategoryList = [];
-        //if ($scope.productNew.OrderSpecific == 'Yes') {
         $scope.detailModel = x;
         //}
         $scope.taxCategoryList = [];
@@ -1118,9 +991,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             , url: $scope.path + 'GetPODetailTaxList?jwPOId=' + $scope.productNew.Id + '&jwPoDetailId=' + x.Id
         }).then(function (response) {
             $scope.taxCategoryList = response.data;
-
             if ($scope.taxCategoryList.length == 0) {
-
                 getTaxCategoryList('', '');
             }
             else {
@@ -1136,7 +1007,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
         for (var i = 0; i < $scope.GriddataPOWithOutLC.length; i++) {
             if ($scope.GriddataPOWithOutLC[i].Id === $scope.rowID) {
-
                 if ($scope.CurrencyId === x.data.CurrencyId) {
                     $scope.GriddataPOWithOutLC[i].PurchaseLCId = x.data.Value;
                     angular.element(document.querySelector('#ContractPopUp')).modal('hide');
@@ -1156,8 +1026,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             ShowResult('Please select Purchase LC');
             return false;
         }
-
-
         $http({
             method: 'POST',
             url: "Products/PurchaseOrder/UpdatePOforLC",
@@ -1173,45 +1041,19 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                //$scope.getDataList();
                 $scope.getalldataPOWithOutLC();
 
             }
         }, function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
         });
-
-
-
-
-
     }
-    //#endregion
 
 
     $scope.invoicingPartyPopUp = function () {
-        // getPartyPlantEditList();
         angular.element(document.querySelector('#invoicingPartyPopUp')).modal('show');
     };
     $scope.closeInvoicingPartyPopUp = function () {
-
-        //$scope.dbval = $scope.StateData;
-        //$scope.UIval = $scope.productNew.InvoicingState;      
-
-        //if ($scope.inventoryMaterialList.length == 0) {
-        //    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
-        //}
-        //else if ($scope.dbval.length == 0)
-        //{
-        //    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
-        //}
-        //else if ($scope.dbval == $scope.UIval ) {            
-        //    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
-        //}
-        //else {
-        //    ShowResult('You can not change Invoicing party.Line is available', 'failure', 'invoicingPartyPopUp');
-
-        //}
 
         if ($scope.inventoryMaterialList.length || $scope.chargesList.length) {
             if (!baseService.isUndefinedOrNull($scope.productNew.ChangeInvoicingStateId)) {
@@ -1230,11 +1072,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         else
             angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
 
-
-
-
-
-
     };
     //#endregion
     $scope.getMatureDate = function (date, days) {
@@ -1245,9 +1082,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     };
 
     function getPartyPlantList() {
-
-
-        //var aa = $scope.Id;
         $scope.plantList = [];
         $http.get('Products/PurchaseOrder/GetPartyPlantCbo?partyId=' + $scope.productNew.PartyId + '&Id=' + $scope.Id).then(function (response) {
             angular.forEach(response.data, function (item) {
@@ -1273,7 +1107,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             angular.forEach(response.data, function (item) {
                 $scope.plantList.push(item);
                 if (item.Value == invoicingPartyPlantId) {
-                    //$scope.partyPlantId = item.Value;
                     $scope.productNew.InvoicingPartyPlantId = item.Value;
                     $scope.productNew.DeliveryPartyPlantId = deliveryplant;
                     $scope.productNew.InvoicingByAddress = invoAddress;
@@ -1298,30 +1131,14 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         return manualValidation("div_CCDate", $scope.invalidCCDate, msg);
     };
 
-    //#region Save Update Delete Function
-
     $scope.Save = function () {
-        //  $scope.$broadcast('show-errors-check-validity');
         try {
             $scope.dbval = $scope.StateData;
             $scope.UIval = $scope.productNew.InvoicingState;
-
-            //if ($scope.inventoryMaterialList.length === 0) {
-            //    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
-            //}
-            //else 
-            //if ($scope.dbval.length === 0) {
-            //    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
-            //}
-            //else if ($scope.dbval === $scope.UIval) {
-            //    angular.element(document.querySelector('#invoicingPartyPopUp')).modal('hide');
-            //}
             if ($scope.productNew.OrderSpecific === 'Yes' && baseService.isUndefinedOrNull($scope.productNew.ContractNo)) {
-
                 ShowResult('Please Select Contract');
                 return false;
             }
-
             else if (baseService.isUndefinedOrNull($scope.productNew.PartyName)) {
                 ShowResult('Please Select Party Name');
                 return false;
@@ -1349,14 +1166,11 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
             }
             var DropDownActivityListObj = $("#ddlActivityList").data("ejDropDownList");
-            //var activityList = DropDownActivityListObj.getSelectedValue().split(',');
-
 
             if (baseService.isUndefinedOrNull($scope.productNew.InvoicingPartyPlantId)) return ShowResult('Invoicing by is required', 'failure');
             if (baseService.isUndefinedOrNull($scope.productNew.DeliveryPartyPlantId)) return ShowResult('Delivery by is required', 'failure');
             $scope.modelValidation('div_docNo', 'productNew', 'DocRefNo');
             $scope.modelValidation('div_docDate', 'productNew', 'DocDate');
-            //$scope.modelValidation('div_entryNo', 'productNew', 'GateEntryNo');
             $scope.modelValidation('div_PODate', 'productNew', 'PODate', 'PO Entry Date');
 
             $scope.manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');
@@ -1365,8 +1179,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                 $scope.manualValidationAddRemove('div_rate  ', 'productNew', 'ToCurrencyRate');
             else
                 manualValidation('div_rate', false);
-
-            //$scope.$broadcast('show-errors-check-validity');
             if ($scope.productNewForm.$valid) {
 
                 if (new Date($scope.productNew.PODate) < new Date($scope.productNew.DocDate))
@@ -1382,7 +1194,8 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                             method: 'POST',
                             url: $scope.saveUrl,
                             data: {
-                                'data': $scope.product
+                                'data': $scope.product,
+                                'mapdata': $scope.selectedProductionOrder
                                 , 'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti
                                 , 'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti
                             },
@@ -1412,7 +1225,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                                 'data': $scope.product
                                 , 'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti
                                 , 'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti
-                                //, 'ActivityList': activityList
                             },
                             dataType: 'JSON'
                         }).then(function successCallback(response) {
@@ -1466,7 +1278,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                         ShowResult(response.data.Message, 'failure');
                     else {
                         ShowResult(response.data.Message, 'success');
-                        //$scope.getDataList();
                         ClearFields();
                     }
                     function errorCallBack(response) {
@@ -1479,10 +1290,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             ShowResult('First delete all line item.', 'failure');
     };
 
-
-
     $scope.DetailDelete = function () {
-
         $http({
             method: 'POST',
             url: $scope.detailDeleteUrl,
@@ -1499,17 +1307,14 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                 $scope.uom();
                 $scope.detailClear();
                 $scope.closeDetaiPopUp();
-
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
         });
-
     };
 
     $scope.Clear = function () {
-
         ClearFields();
         $scope.NotificationSettingStatus();
         $scope.PoChildList = [];
@@ -1517,13 +1322,8 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.Imagedata = [];
         if (!$rootScope.isCollapsed) $rootScope.toggle();
         return true;
-
     };
-    //#endregion
-
-
-    //#region Otheres Code 
-
+    
     $scope.getDataList = function () {
         baseService.init($scope.getListUrl, null, null, "DESC", 'Id', 'PartyName');
         $scope.getData = function (pageno) {
@@ -1539,8 +1339,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.getData();
     };
 
-
-    //$scope.getDataList();
     $scope.uom = function () {
         cboService.getUoMCbo(function (response) {
             $scope.uoMList = response;
@@ -1557,16 +1355,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     $scope.currencyList = [];
 
 
-    //$scope.productNew.OrderSpecific = 'No';
-    //addressService.getCountryCbo(function (result) {
-    //    $scope.countryList = result;
-    //});
-
-
-
-
-
-
     $http({
         method: 'GET',
         url: 'currencies/CompanyParallelCurrency/CboParallelCurrency'
@@ -1575,10 +1363,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.productNew.BaseCurrencyId = response.data[0].Value;
 
     });
-
-
-
-
 
     cboService.getCboTransactionCurrencyByCompany('', function (result) {
         $scope.currencyList = result;
@@ -1593,8 +1377,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             else
                 ShowResult('Cut Off date not found!', 'failure');
         });
-
-
 
 
     $scope.searchByList = [
@@ -1664,9 +1446,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.product = $scope.products[$scope.index];
         $scope.productNew = Object.assign({}, $scope.product);
         getPartyPlantList();
-        //getInventoryMaterialList($scope.productNew.Id);
         getServiceChargeList($scope.productNew.Id);
-        //$scope.getToCurrencyRate();
         if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
             var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.productNew.PaymentTermId; })[0];
             if (paymentTerm.BaseLineDate !== null)
@@ -1675,24 +1455,10 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                 else
                     $scope.IsBaseOnDueDateEnable = false;
         }
-
-
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) $rootScope.toggle();
     };
 
-
-
-    //$scope.getJwActivityId = function (OSTransformationPOId) {
-    //    $http.get('JobWork/OSTransformationPO/GetJWTransformationPurchaseOrderId?OSTransformationPOId=' + OSTransformationPOId).then(function (response) {
-    //        var DropDownListObj = $("#ddlActivityList").data("ejDropDownList");
-    //        for (var j = 0; j < response.data.length; j++) {
-    //            DropDownListObj.selectItemByValue(response.data[j].Id);
-    //        }
-    //    });
-
-
-    //};
 
     function GetMasterData() {
         var aa = $("#masterId").text();
@@ -1701,9 +1467,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         });
 
         getPartyPlantList();
-        // getInventoryMaterialList($scope.productNew.Id);
         getServiceChargeList($scope.productNew.Id);
-        //$scope.getToCurrencyRate();
         if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
             var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.productNew.PaymentTermId; })[0];
             if (paymentTerm.BaseLineDate !== null)
@@ -1717,9 +1481,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     };
 
 
-    // #region Extra Tax Add
     $scope.calculateTaxAmount = function (data) {
-        //data.TotalAmount = Math.round($scope.taxAbleAmnt * data.Percentage) / 100;
         data.TaxAmount = Math.round($scope.taxAbleAmnt * data.Percentage) / 100;
     };
     $scope.receiveTaxList = [];
@@ -1745,10 +1507,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
         };
         $scope.taxCategoryList.push(data);
-
     };
-
-    // #endregion 
 
     $scope.Clearcontract = function () {
         $scope.productNew.CustomerName = "";
@@ -1758,12 +1517,8 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     };
     function ClearFields() {
         $scope.Action = "Save";
-        //$scope.product = {};
         $scope.IsBaseOnDueDateEnable = false;
         $scope.productNew = Object.assign({}, $scope.products);
-
-        // $scope.productNew = Object.assign({}, $scope.product);
-
         $scope.inventoryMaterialList = [];
         $scope.chargesList = [];
         $scope.grossTotal = 0;
@@ -1779,10 +1534,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     };
 
     $scope.closePartyPopUp = function (x) {
-        //debugger;
-        //if ($scope.partyIndex !== -1) {
         var party = x.data;
-        // var party = $scope.partyList[$scope.partyIndex];
         $scope.productNew.PartyCode = party.Code;
         $scope.productNew.PartyName = party.UserName;
         $scope.productNew.PartyId = party.Id;
@@ -1805,15 +1557,11 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         getPartyPlantList();
         $scope.hidePartyPopUp();
         $scope.PaymentModeByPaymentTerm();
-        //}
     };
     $scope.GetCurrencyExchangeRateList = function () {
-
-        //if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
         if (!baseService.isUndefinedOrNull(!baseService.isUndefinedOrNull($scope.productNew.CurrencyId))) {
             $http({
                 method: "GET",
-                //url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $scope.voucher.PostingDate + "&currencyId=" + $scope.voucher.CurrencyId
                 url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?currencyId=" + $scope.productNew.CurrencyId
             }).then(function successCallback(response) {
                 $scope.currencyExchangeRate = response.data;
@@ -1842,9 +1590,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     };
 
 
-
     $scope.billShippAddress = function (id, flag) {
-
         if (!baseService.isUndefinedOrNull(id)) {
             var address = $.grep($scope.plantList, function (item) { return item.Value === id; })[0].Address1;
             var state = $.grep($scope.plantList, function (item) { return item.Value === id; })[0].StateName;
@@ -1882,7 +1628,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
-    // #region DetailsisSetIndex2
     $scope.detailTempModel = {
         Id: null
         , OSTransformationPOId: null
@@ -1945,7 +1690,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         , Remarks: null
         , Tolerance: null
         , ServiceId: null
-        //, JWService: null
         , EmployeeCode: null
         , ResponsiblePerson: null
         , MaterialCode: null
@@ -1958,11 +1702,9 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     $scope.detailPopUp = function () {
         $scope.productNew.TaxOptionMat = 'Yes';
         $scope.productNew.TaxOptionService = "Yes";
-        //    $scope.productNew.TaxOptionService = 'Yes';
 
         $scope.receiveTaxList = [];
         $scope.detailModel = Object.assign({}, $scope.detailTempModel);
-        //$scope.MatPlanning = Object.assign({}, $scope.MatPlanningModelTemp);
         angular.element(document.querySelector('#detailPopUp')).modal('show');
         $scope.GetJWActivityListByPOType();
     };
@@ -1985,7 +1727,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                         if (!baseService.isUndefinedOrNull($scope.GetMatMstJW[i].Value)) {
                             $scope.OMatUOMList[i] = $scope.GetMatMstJW[i];
                             $scope.detailModel.OutputMaterialUOMId = $scope.GetMatMstJW[0].Value;
-
                         }
                     }
                     if ($scope.GetMatMstJW[0].WithSKU == '1') {
@@ -2003,7 +1744,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                     $scope.OMatUOMList = [];
                     $scope.OMatUOMList[0] = $scope.GetMatMstJW[0];
                     $scope.detailModel.OutputMaterialUOMId = $scope.GetMatMstJW[0].Value;
-
                 }
 
             }
@@ -2023,14 +1763,10 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             $scope.GetJWActivityListByPOType();
             $scope.GetJWItemsToEdit();
             $scope.GetJWitemDataFromTrans();
-            //$scope.GetRate();
             $scope.GetRateToEdit();
             $scope.GetCurrencyyy();
             $scope.GetJWLocation();
             $scope.productNew.TaxOptionServiceTPO = "Yes";
-            //   $scope.detailModel.ServiceId = $scope.detailModel.ServiceId;
-            //$scope.detailModel.ValueLoss = $scope.detailModel.ValueLoss;
-
             $scope.rmchar1 = {};
             $scope.rmchar2 = {};
             $scope.rmchar3 = {};
@@ -2048,8 +1784,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
                 $scope.rmchar1.Name = $scope.detailModel.FirstCharacteristics;
                 $scope.rmchar1.FreeText = $scope.detailModel.FirstCharacteristicsValue;
-
-                //      $scope.detailModel.Code1 = $scope.detailModel.SKU1ValueCode;
                 $scope.detailModel.UserName1 = $scope.detailModel.FirstCharacteristicsValue;
                 $scope.rmchar1.ValueAssignmentLevel = $scope.detailModel.ValueAssignmentLevel;
                 $scope.SKU1disable = false;
@@ -2061,8 +1795,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
                 $scope.rmchar2.Name = $scope.detailModel.SecondCharacteristics;
                 $scope.rmchar2.FreeText = $scope.detailModel.SecondCharacteristicsValue;
-
-                //    $scope.detailModel.Code2 = $scope.detailModel.SKU2ValueCode;
                 $scope.detailModel.UserName2 = $scope.detailModel.SecondCharacteristicsValue;
                 $scope.rmchar2.ValueAssignmentLevel = $scope.detailModel.ValueAssignmentLevel;
                 $scope.SKU2disable = false;
@@ -2073,8 +1805,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
                 $scope.rmchar3.Name = $scope.detailModel.ThirdCharacteristics;
                 $scope.rmchar3.FreeText = $scope.detailModel.ThirdCharacteristicsValue;
-
-                //      $scope.detailModel.Code3 = $scope.detailModel.SKU3ValueCode;
                 $scope.detailModel.UserName3 = $scope.detailModel.ThirdCharacteristicsValue;
                 $scope.rmchar3.ValueAssignmentLevel = $scope.detailModel.ValueAssignmentLevel;
                 $scope.SKU3disable = false;
@@ -2128,7 +1858,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         activityListsel = null;
         $scope.detailModelList = [];
         try {
-
             if (type !== "BOQ" && type !== "PODETAILLIST") {
                 if (baseService.isUndefinedOrNull($scope.detailModel.JobActivityId)) {
                     ShowResult('Please select Job Work Acticity', 'failure', 'detailPopUp');
@@ -2138,17 +1867,13 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                     ShowResult('Please select Job Work Out Put Item', 'failure', 'detailPopUp');
                     return false;
                 }
-                //if (baseService.isUndefinedOrNull($scope.detailModel.MaterialName)) {
-                //    ShowResult('Please select Material', 'failure', 'detailPopUp');
-                //    return false;
-                //}
+                
                 if (!baseService.isUndefinedOrNull($scope.detailModel.MaterialName)) {
                     if (baseService.isUndefinedOrNull($scope.detailModel.ArticleName)) {
                         ShowResult('Please select Article', 'failure', 'detailPopUp');
                         return false;
                     }
                 }
-
                 if (baseService.isUndefinedOrNull($scope.detailModel.MaterialLocationId)) {
                     ShowResult('Please select Material Storage Location', 'failure', 'detailPopUp');
                     return false;
@@ -2181,14 +1906,12 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                     ShowResult('Please select Required Capacity', 'failure', 'detailPopUp');
                     return false;
                 }
-
                 if ($scope.productNew.POType == "OSTransformationPO") {
                     if (baseService.isUndefinedOrNull($scope.detailModel.ByProductApplicable)) {
                         ShowResult('Please select ByProduct Applicable', 'failure', 'detailPopUp');
                         return false;
                     }
                 }
-
                 if (baseService.isUndefinedOrNull($scope.detailModel.RateApplyId)) {
                     ShowResult('Please select Rate Apply', 'failure', 'detailPopUp');
                     return false;
@@ -2242,18 +1965,12 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                     $scope.detailModel.SecondCharacteristicsId = $scope.rmchar2.CharacteristicsId;
                     $scope.detailModel.SecondCharacteristicsValueId = $scope.rmchar2.CharacteristicsValueId;
                 }
-                //if (!baseService.isUndefinedOrNull($scope.rmchar3)) {
-                //    $scope.detailModel.ThirdCharacteristicsId = $scope.rmchar3.CharacteristicsId;
-                //    $scope.detailModel.ThirdCharacteristicsValueId = $scope.rmchar3.CharacteristicsValueId;
-                //    }
-
+                
                 if (!baseService.isUndefinedOrNull($scope.rmchar3.CharacteristicsId)) {
                     $scope.detailModel.ThirdCharacteristicsId = $scope.rmchar3.CharacteristicsId;
                     $scope.detailModel.ThirdCharacteristicsValueId = $scope.rmchar3.CharacteristicsValueId;
                 }
             }
-
-            //try {
 
             if (type === "BOQ") {
                 var DropDownActivityListObj = $("#ddlActivityList").data("ejDropDownList");
@@ -2292,7 +2009,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                         }
                     }
 
-
                     var MaterialId = $scope.detailModelList[i].MaterialMasterId;
                     var ArticleId = $scope.detailModelList[i].ArticleId;
                     var SKU1 = $scope.detailModelList[i].FirstCharacteristicsValueId;
@@ -2305,7 +2021,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                         var TransUoMId = $scope.CombinationList[0].TransactionUoMId;
                         for (var p = 0; p < $scope.detailModelList.length; p++) {
                             if ($scope.CombinationList[0].MaterialMasterId == $scope.detailModelList[p].MaterialMasterId && $scope.CombinationList[0].ArticleId == $scope.detailModelList[p].ArticleId && $scope.CombinationList[0].FirstCharacteristicsValueId == $scope.detailModelList[p].FirstCharacteristicsValueId && $scope.CombinationList[0].SecondCharacteristicsValueId == $scope.detailModelList[p].SecondCharacteristicsValueId && $scope.CombinationList[0].ThirdCharacteristicsValueId == $scope.detailModelList[p].ThirdCharacteristicsValueId) {
-
                                 if ($scope.detailModelList[p].TransactionRate != Rate) {
                                     ShowResult('Rate should be same for Material ' + $scope.detailModelList[p].UserName + ' and Article ' + $scope.detailModelList[p].StandardName + ' ', 'failure', 'ListOfPOMaterial');
                                     return false;
@@ -2319,13 +2034,8 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                                     return false;
                                 }
                             }
-
-
                         }
                     }
-
-
-
                     $scope.taxCategoryList = null;
                 }
                 $scope.materialValidationForBOQItem($scope.detailModelList);
@@ -2370,12 +2080,9 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                             ShowResult(response.data.Message, 'success');
                         }
                         else {
-                            //    ShowResult(response.data.Message, 'success', 'detailPopUp');
                             ShowResult(response.data.Message, 'success');
                         }
-
                         $scope.taxCategoryList = [];
-
                         $scope.getalldata();
                         $scope.getPoChilddata();
                         $scope.clearCharNames();
@@ -2383,7 +2090,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                         $scope.detailClear();
                         $scope.RequisitionListHide();
                         $scope.getPoChildAlldata();
-                        //    $scope.clearCharNames();
                     }
                 }), function errorCallBack(response) {
                     if (type === "PODETAILLIST") {
@@ -2409,7 +2115,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
 
         } catch (e) {
-            //ShowResult(e, 'fail', 'detailPopUp');
         }
     };
 
@@ -2434,9 +2139,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                 ShowResult(response.data.Message, 'failure', 'detailPopUp');
             else {
                 ShowResult(response.data.Message, 'success', 'detailPopUp');
-
                 $scope.taxCategoryList = [];
-
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure', 'detailPopUp');
@@ -2458,11 +2161,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     $scope.getReceiveTaxList = function (x) {
 
         getDetailTaxCategoryList(x);
-
-        //$scope.detailModel.Id = x.Id;
-
         $scope.taxAbleAmnt = x.TransactionAmount;
-
         $scope.productNew.TaxOptionMatJWTax = "Yes";
         angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
     };
@@ -2472,7 +2171,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     function checkChangeJWActivity(e) {
 
         var val = e.model.value;
-        //item level check
         var row = $filter('filter')($scope.jwItemList, { 'Id': e.model.value });
         if (!baseService.isUndefinedOrNull(row) && row.length > 0) {
             if (e.model.checkState == "check")
@@ -2484,8 +2182,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     }
     function headcheckChangeJWActivity(e) {
         if (e.model.checkState == "check") {
-
-            // var gridObj = $("#GridJWActivity").data("ejGrid");
             var filtered = $("#GridJWActivity").data("ejGrid").getFilteredRecords();
             if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
                 for (var i = 0; i < $scope.jwItemList.length; i++) {
@@ -2497,10 +2193,8 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                 for (var i = 0; i < $scope.EmployeeList.length; i++) {
                     for (var j = 0; j < filtered.length; j++) {
                         if ($scope.jwItemList[i].EmpSystemId == filtered[j].EmpSystemId)
-                            // $scope.EmployeeList[i].isSelect = true;
                             $scope.jwItemList[i].isToBeSelect = true;
                     }
-
                 }
             }
 
@@ -2534,7 +2228,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                 $($("#GridJWActivity .rowCheckbox")[i]).ejCheckBox({ "change": checkChangeJWActivity });
             }
         }
-        //header level check
     }
     $scope.dataBoundemployee = function (args) {
         $("#GridJWActivity .rowCheckbox").ejCheckBox({ "change": checkChange });
@@ -2576,7 +2269,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $http({
             method: 'POST',
             url: $scope.path + 'GetJWItemList',
-            //data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.jwItemList = response.data;
@@ -2605,7 +2297,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $http({
             method: 'POST',
             url: $scope.path + 'GetJWItemMAList?ActivityId=' + activityListsel,
-            //data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.jwItemList = response.data;
@@ -2618,19 +2309,15 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.detailModel.JWItemName = obj.data.JWItemName;
         $scope.detailModel.JWServiceName = obj.data.ServiceName;
         $scope.detailModel.ServiceId = obj.data.ServiceId;
-        //  $scope.detailModel.MaterialMasterName = obj.data.MaterialMaster;
         $scope.detailModel.JWTransformationMasterId = obj.data.JWTransformationMasterId;
-
         $scope.detailModel.JWItemUOMId = obj.data.UOMId;
         $scope.detailModel.JWItemUOM = obj.data.UOM;
         $scope.detailModel.MaterialMasterName = obj.data.MaterialMaster;
         $scope.detailModel.MaterialMasterId = obj.data.MaterialMasterId;
-
         if (!baseService.isUndefinedOrNull($scope.detailModel.MaterialMasterId)) {
 
             $scope.setRMaterialMasterData(obj.data);
             UomCboByMaterialMaster($scope.detailModel.MaterialMasterId);
-
         }
         else {
             UomCboByMaterialMaster($scope.detailModel.MaterialMasterId);
@@ -2650,9 +2337,16 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                 for (var i = 0; i < $scope.PoChildList.length; i++) {
                     $scope.PoChildList[i].JWDeliveryDate = $filter('dateFiltering')($scope.PoChildList[i].DeliveryDate, 'dd-M-yyyy');
                 }
-
             }
-
+        });
+    };
+    $scope.getPoProductionOrderMapData = function () {
+        $http({
+            method: "POST",
+            dataType: 'JSON',
+            url: $scope.productionOredrMapListUrl + $scope.productNew.EntityId + '&processid=' + $scope.productNew.ProcessId + '&osPOId=' + $scope.productNew.Id
+        }).then(function successCallback(response) {
+            $scope.selectedProductionOrder = response.data;
         });
     };
     $scope.PoChildListAll = [];
@@ -2676,13 +2370,10 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.detailModel.FirstCharacteristicsValueId = null;
         $scope.detailModel.SecondCharacteristicsValueId = null;
         $scope.detailModel.ThirdCharacteristicsValueId = null;
-
         $scope.detailModel.FirstCharacteristicsId = null;
         $scope.detailModel.SecondCharacteristicsId = null;
         $scope.detailModel.ThirdCharacteristicsId = null;
-
         $scope.clearCharNames();
-
         if ($scope.detailModel.HasAttribute) {
             $scope.materialType = null;
             $scope.getRMArticleSearchList(ob.MaterialMasterId);
@@ -2718,7 +2409,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             method: 'GET',
             url: 'Materials/MaterialMaster/getcharacteristicsbymaterialmasterid/',
             params: {
-                //        materialMasterId: id
                 materialMasterId: $scope.detailModel.MaterialMasterId
             }
         }).then(function (response) {
@@ -2731,19 +2421,8 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             if (baseService.arrayLength($scope.rmcharacteristicsList) > 0) {
                 $scope.isSearch = $scope.rmcharacteristicsList[0].FreeText !== null ? true : false;
                 $scope.rmchar1 = {
-                    //CharacteristicsId: $scope.rmcharacteristicsList[0].Value
-                    //, CharacteristicsValueId: $scope.rmcharacteristicsList[0].CharacteristicsValueId
-                    //, MaterialMasterId: $scope.rmcharacteristicsList[0].MaterialMasterId
                     Name: $scope.rmcharacteristicsList[0].Text
-                    //, IsFreeField: $scope.rmcharacteristicsList[0].IsFreeField
-                    //, IsPreDefinedField: $scope.rmcharacteristicsList[0].IsPreDefinedField
-                    //, IsMandatory: $scope.rmcharacteristicsList[0].IsMandatory
                     , ValueAssignmentLevel: $scope.rmcharacteristicsList[0].ValueAssignmentLevel
-                    //, Sequence: $scope.rmcharacteristicsList[0].Sequence
-                    //, FlagDisable: $scope.IsFreeOrNot($scope.rmcharacteristicsList[0].IsFreeField)
-
-                    //, FreeText: $scope.rmcharacteristicsList[0].FreeText
-                    //, show: true
                 };
                 $scope.detailModel.FirstCharacteristicsId = $scope.rmcharacteristicsList[0].Value;
                 $scope.SKU1disable = false;
@@ -2752,18 +2431,8 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             if (baseService.arrayLength($scope.rmcharacteristicsList) > 1) {
                 $scope.isSearch = $scope.rmcharacteristicsList[1].FreeText !== null ? true : false;
                 $scope.rmchar2 = {
-                    //CharacteristicsId: $scope.rmcharacteristicsList[1].Value
-                    //, CharacteristicsValueId: $scope.rmcharacteristicsList[1].CharacteristicsValueId
-                    //, MaterialMasterId: $scope.rmcharacteristicsList[1].MaterialMasterId
                     Name: $scope.rmcharacteristicsList[1].Text
-                    //, IsFreeField: $scope.rmcharacteristicsList[1].IsFreeField
-                    //, IsPreDefinedField: $scope.rmcharacteristicsList[1].IsPreDefinedField
-                    //, IsMandatory: $scope.rmcharacteristicsList[1].IsMandatory
                     , ValueAssignmentLevel: $scope.rmcharacteristicsList[1].ValueAssignmentLevel
-                    //, Sequence: $scope.rmcharacteristicsList[1].Sequence
-                    //, FlagDisable: $scope.IsFreeOrNot($scope.rmcharacteristicsList[1].IsFreeField)
-                    //, FreeText: $scope.rmcharacteristicsList[1].FreeText
-                    //, show: true
                 };
                 $scope.detailModel.SecondCharacteristicsId = $scope.rmcharacteristicsList[1].Value;
                 $scope.SKU2disable = false;
@@ -2772,18 +2441,8 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             if (baseService.arrayLength($scope.rmcharacteristicsList) > 2) {
                 $scope.isSearch = $scope.rmcharacteristicsList[2].FreeText !== null ? true : false;
                 $scope.rmchar3 = {
-                    //CharacteristicsId: $scope.rmcharacteristicsList[2].Value
-                    //, CharacteristicsValueId: $scope.rmcharacteristicsList[2].CharacteristicsValueId
-                    //, MaterialMasterId: $scope.rmcharacteristicsList[2].MaterialMasterId
                     Name: $scope.rmcharacteristicsList[2].Text
-                    //, IsFreeField: $scope.rmcharacteristicsList[2].IsFreeField
-                    //, IsPreDefinedField: $scope.rmcharacteristicsList[2].IsPreDefinedField
-                    //, IsMandatory: $scope.rmcharacteristicsList[2].IsMandatory
                     , ValueAssignmentLevel: $scope.rmcharacteristicsList[2].ValueAssignmentLevel
-                    //, Sequence: $scope.rmcharacteristicsList[2].Sequence
-                    //, FlagDisable: $scope.IsFreeOrNot($scope.rmcharacteristicsList[2].IsFreeField)
-                    //, FreeText: $scope.rmcharacteristicsList[2].FreeText
-                    //, show: true
                 };
                 $scope.detailModel.ThirdCharacteristicsId = $scope.rmcharacteristicsList[2].Value;
                 $scope.SKU3disable = false;
@@ -2792,10 +2451,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     };
 
     $scope.clearCharNames = function () {
-        //$scope.char1 = { CharacteristicsId: null, CharacteristicsValueId: null, MaterialMasterId: null, Name: null, IsFreeField: null, IsPreDefinedField: null, IsMandatory: null, FreeText: null, FlagDisable: null, Sequence: null, ValueAssignmentLevel: null, show: false };
-        //$scope.char2 = { CharacteristicsId: null, CharacteristicsValueId: null, MaterialMasterId: null, Name: null, IsFreeField: null, IsPreDefinedField: null, IsMandatory: null, FreeText: null, FlagDisable: null, Sequence: null, ValueAssignmentLevel: null, show: false };
-        //$scope.char3 = { CharacteristicsId: null, CharacteristicsValueId: null, MaterialMasterId: null, Name: null, IsFreeField: null, IsPreDefinedField: null, IsMandatory: null, FreeText: null, FlagDisable: null, Sequence: null, ValueAssignmentLevel: null, show: false };
-
+       
         $scope.rmchar1 = { Name: null, ValueAssignmentLevel: null };
         $scope.rmchar2 = { Name: null, ValueAssignmentLevel: null };
         $scope.rmchar3 = { Name: null, ValueAssignmentLevel: null };
@@ -2819,9 +2475,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     };
 
     $scope.getRMArticle = function (index) {
-        //$scope.itemIndex = index;
-        //if (!baseService.isUndefinedOrNull($scope.bomDetailNew.RMMaterialMasterId) && !$scope.bomNew.HasAttribute)
-        //    return ShowResult('This material has no attribute', 'failure');
         $scope.getRMArticleSearchList($scope.detailModel.MaterialMasterId);
     };
     $scope.hasArticle = false;
@@ -2858,7 +2511,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             };
             $scope.searchList = [];
             $scope.dataPlate = [];
-            //$scope.popUpUrl = 'Materials/MaterialMasterArticle/GetMaterialArticle';
             $scope.materialType = null;
             baseService.setCurrentPage('dataPlate');
             $scope.articlePopUpParameters.materialMasterId = id;
@@ -2866,7 +2518,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             $scope.loadArticleData = function (pageno) {
                 baseService.paginationBase('Materials/MaterialMasterArticle/GetMaterialArticle', pageno, $scope.articlePopUpParameters)
                     .then(function (result) {
-                        //if (baseService.arrayLength(result.Rows) === 0) return ShowResult('This material has no article', 'failure');
                         $scope.dataPlate = result.Rows;
                         $scope.articlePopUpParameters.total_count = result.Total;
                         if (baseService.arrayLength($scope.searchList) === 0)
@@ -2901,36 +2552,12 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     $scope.showradiocommon = false;
     $scope.showradiomatrix = false;
 
-    $scope.ShowHide = function () {
-        //if ($scope.bomDetailNew.WithSKU === true && $scope.bomNew.WithSKU) {
-        //    $scope.showradiodiv = true;
-        //    $scope.showradiocommon = true;
-        //    $scope.showradiomatrix = true;
-        //    $scope.matrixrad = true;
-        //}
-        //else if ($scope.bomDetailNew.WithSKU === true && $scope.bomNew.WithSKU === false) {
-        //    $scope.showradiodiv = false;
-        //    $scope.showradiocommon = true;
-        //    $scope.showradiomatrix = false;
-        //    $scope.matrixrad = true;
-        //}
-        //else {
-        //    $scope.showradiodiv = false;
-        //    $scope.showradiomatrix = false;
-        //    $scope.showradiocommon = false;
-        //    $scope.matrixrad = true;
-        //}
-    };
-
 
     //$scope.uOMList = [];
     function UomCboByMaterialMaster(materilaMasterId) {
         var mmId = []; mmId.push(materilaMasterId);
         cboService.getUomCboByMaterialMaster(JSON.stringify(mmId), function (response) {
             $scope.uOMList = response;
-            //if (baseService.isUndefinedOrNull($scope.detailModel.JWItemUOM)) {
-
-            //}
             if (baseService.arrayLength($scope.uOMList) == 1) {
                 $scope.detailModel.TransactionUoMId = $scope.uOMList[0].Value;
             }
@@ -2959,9 +2586,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     };
 
     function getPartyPlantList() {
-
-
-        //var aa = $scope.Id;
         $scope.plantList = [];
         $http.get('Products/PurchaseOrder/GetPartyPlantCbo?partyId=' + $scope.productNew.PartyId + '&Id=' + $scope.Id).then(function (response) {
             angular.forEach(response.data, function (item) {
@@ -2985,7 +2609,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         //debugger;
         $http({
             method: 'GET',
-            //url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
             url: 'Products/PurchaseOrder/PaymentModeByPaymentTerm?Id=' + $scope.productNew.PaymentTermId
         }).then(function successCallback(response) {
             $scope.PaymentModeList = response.data;
@@ -3006,12 +2629,8 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     };
     $scope.TaxOptionServiceModify = function (data) {
         $scope.productNew.TaxOptionServiceModify = data;
-
     };
-
-    // #region Extra Tax Add
     $scope.calculateTaxAmount = function (data) {
-        //data.TotalAmount = Math.round($scope.taxAbleAmnt * data.Percentage) / 100;
         data.TaxAmount = Math.round($scope.taxAbleAmnt * data.Percentage) / 100;
     };
     $scope.calculateTaxAmountForMat = function (data) {
@@ -3027,9 +2646,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             }
             if ($scope.taxCategoryList[i].Id === x.Id) {
                 $scope.taxCategoryList[i].Percentage = (parseFloat(x.TaxAmount / $scope.detailModel.TransactionAmount).toFixed(4) * 100);
-
             }
-
         }
     }
 
@@ -3045,39 +2662,23 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         }
 
         $scope.TransactionAmount = $scope.detailModel.TransactionQty * $scope.detailModel.RatePerUnit;
-        //    data.TaxAmount = (Math.round(($scope.TransactionAmount * data.Percentage) *  100 + Number.EPSILON) / 100)/100;
-
-        //(Math.round(($scope.TransactionAmount * data.Percentage) *  100 + Number.EPSILON) / 100)/100;
-
         var TaxAmt = parseFloat($scope.TransactionAmount * data.Percentage) / 100;
         data.TaxAmount = TaxAmt.toFixed(2);
     };
     $scope.checkRowValidationServiceOutPut = function (x) {
-
         for (var i = 0; i < $scope.taxCategoryList.length; i++) {
-            //if (baseService.isUndefinedOrNull($scope.detailModel.TransactionAmount) || $scope.detailModel.TransactionAmount === 0) {
-            //	ShowResult("Taxable Amount can not null or zero", 'failure', 'detailPopUp');
-            //}
             $scope.TransactionAmount = $scope.detailModel.TransactionQty * $scope.detailModel.RatePerUnit;
             if ($scope.taxCategoryList[i].Id === x.Id) {
-                //    $scope.taxCategoryList[i].Percentage = (parseFloat(x.TaxAmount / $scope.TransactionAmount).toFixed(4) * 100);
                 var Per = (parseFloat(x.TaxAmount / $scope.TransactionAmount) * 100);
                 $scope.taxCategoryList[i].Percentage = Per.toFixed(4);
-
             }
-
         }
     }
     $scope.checkRowValidationService = function (x) {
-
         for (var i = 0; i < $scope.taxCategoryList.length; i++) {
-            //if (baseService.isUndefinedOrNull($scope.detailModel.TransactionAmount) || $scope.detailModel.TransactionAmount === 0) {
-            //	ShowResult("Taxable Amount can not null or zero", 'failure', 'detailPopUp');
-            //}
             if ($scope.taxCategoryList[i].Id === x.Id) {
                 $scope.taxCategoryList[i].Percentage = (parseFloat(x.TaxAmount / $scope.serviceModel.TransactionAmount).toFixed(4) * 100);
             }
-
         }
     }
 
@@ -3088,17 +2689,14 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         data.TaxAmount = Math.round($scope.taxAbleAmnt * data.Percentage) / 100;
     };
     $scope.checkRowValidationServiceModify = function (x) {
-
         for (var i = 0; i < $scope.receiveTaxList.length; i++) {
 
             if ($scope.receiveTaxList[i].Id === x.Id) {
                 $scope.receiveTaxList[i].Percentage = (parseFloat(x.TaxAmount / $scope.taxAbleAmnt).toFixed(4) * 100);
             }
-
         }
     };
     $scope.closeServiceChargeTaxPopUp = function () { //hossain
-        ////debugger;
         $scope.detailModel = {};
         $scope.detailModel.InventoryReceiveDetailId = $scope.ServiceId;
         $scope.detailModel.InventoryReceiveDetailId = $scope.DetailId;
@@ -3144,16 +2742,12 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         };
     };
     $scope.closeReceiveTaxPopUpwindow = function () {
-
-        //getInventoryMaterialList($scope.productNew.Id);
         angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
     };
 
     $scope.updateTaxPopUp = function () {
-        //$scope.detailSave(true);
         $scope.detailModelList = [];
         $scope.detailModelList.push($scope.detailModel);
-        // $scope.detailModel.OSTransformationPOId = $scope.productNew.Id;
         if (!baseService.isUndefinedOrNull($scope.rmchar1.CharacteristicsId)) {
             $scope.detailModel.FirstCharacteristicsId = $scope.rmchar1.CharacteristicsId;
             $scope.detailModel.FirstCharacteristicsValueId = $scope.rmchar1.CharacteristicsValueId;
@@ -3167,8 +2761,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             $scope.detailModel.ThirdCharacteristicsValueId = $scope.rmchar3.CharacteristicsValueId;
         }
         try {
-
-            //if ($scope.invalid && $scope.invalid1) {
             $http({
                 method: 'POST',
                 url: $scope.TaxSaveUrl,
@@ -3184,8 +2776,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                     ShowResult(response.data.Message, 'success', 'receiveTaxPopUp');
 
                     $scope.taxCategoryList = [];
-                    //getInventoryMaterialList($scope.productNew.Id);
-                    //$scope.getDataList();
                     $scope.getalldata();
                     $scope.getPoChilddata();
                     $scope.clearCharNames();
@@ -3197,9 +2787,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure', 'receiveTaxPopUp');
             };
-            //}
         } catch (e) {
-            //ShowResult(e, 'fail', 'detailPopUp');
         }
     };
     $scope.closeServiceChargeTaxPopUpwindow = function () {
@@ -3211,17 +2799,12 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $http.get($scope.path + 'GetServiceChargeList?jwpoId=' + jwpoId)
             .then(function (response) {
                 $scope.chargesList = response.data;
-                //$scope.ServiceId = $scope.chargesList[0].Id;
                 $scope.GetServiceTaxData();
             });
     }
 
     $scope.serviceChargePopUp = function () {
         $scope.productNew.TaxOptionService = "Yes";
-        //    $scope.productNew.TaxOptionService = 'Yes';
-
-        //if (baseService.arrayLength($scope.inventoryMaterialList) === 0)
-        //    return ShowResult('Without material charges not aplicable.');
         $scope.serviceModel = Object.assign({}, $scope.serviceModelTemp);
         angular.element(document.querySelector('#serviceChargePopUp')).modal('show');
     };
@@ -3315,22 +2898,17 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.taxCategoryList = [];
         $scope.groupList = [];
         $scope.Action1 = 'Save';
-        //$scope.uom();
 
         $scope.getalldataListForBOQList();
-        //$scope.processgroupList1();
-        // $scope.GerRequisition();
-
 
     };
     $scope.GetListForMasterOrder = [];
     $scope.getalldataListForBOQList = function () {
-        //debugger;
         var gridObj = $("#GridReq").data("ejGrid");
         var DropDownActivityListObj = $("#ddlActivityList").data("ejDropDownList");
-        var activityList = null;//DropDownActivityListObj.getSelectedValue().split(',');
+        var activityList = null;
 
-        var activityListStr = "";//"'" + activityList.join("','") + "'";
+        var activityListStr = "";
         $scope.GetListForMasterOrder = [];
         $http({
             method: "GET",
@@ -3351,12 +2929,10 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
     $scope.RateDisable = false;
     $scope.getalldataListForBOQListUpdate = function (x) {
-        //debugger;
         var gridObj = $("#GridReq").data("ejGrid");
-        //var DropDownActivityListObj = $("#ddlActivityList").data("ejDropDownList");
-        var activityList = null; //DropDownActivityListObj.getSelectedValue().split(',');
+        var activityList = null; 
 
-        var activityListStr = "";  //"'" + activityList.join("','") + "'";
+        var activityListStr = "";
         $scope.GetListForMasterOrder = [];
         $http({
             method: "GET",
@@ -3376,11 +2952,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.processgroupList1();
     };
 
-
-
-
-
-
     $scope.groupList = [];
     $scope.processgroupList1 = function () {
         if ($scope.inventoryMaterialList.length > 0) {
@@ -3396,7 +2967,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         }
         $scope.Action1 = 'Save';
         angular.element(document.querySelector('#ListOfPOMaterial')).modal('show');
-
     };
 
 
@@ -3405,27 +2975,21 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         angular.element(document.querySelector('#ListOfPOMaterial')).modal('hide');
     };
 
-
     $scope.IsOwnVendor = 'OwnVendor';
     $scope.tab1 = 1;
     $scope.setOwnVendorTabIndex = function (newTab) {
-
         $scope.IsOwnVendor = 'OwnVendor';
         $scope.GetBOQItemList();
         $scope.tab1 = newTab;
-
     };
     $scope.isSetOwnVendorIndex = function (tabNum) {
         return $scope.tab1 === tabNum;
     };
 
     $scope.setTabOtherVendorIndex = function (newTab) {
-        //alert('tabCHR');
-
         $scope.IsOwnVendor = 'OtherVendor';
         $scope.GetBOQItemList();
         $scope.tab1 = newTab;
-
     };
     $scope.isSetOtherVendorIndex = function (tabNum) {
         return $scope.tab1 === tabNum;
@@ -3433,32 +2997,26 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
 
     $scope.setTabParentIndex = function (newTab) {
-
-
         $scope.IsOwnVendor = 'Parent';
         $scope.GetBOQItemList();
         $scope.tab1 = newTab;
-
     };
     $scope.isSetParentIndex = function (tabNum) {
         return $scope.tab1 === tabNum;
     };
 
     $scope.calculateAmount = function (data) {
-
         data.TransactionAmount = (data.TransactionQty * data.TransactionRate).toFixed(2);
         if (data.TransactionAmount === 'NaN')
             data.TransactionAmount = 0;
         data.TaxAmount = 0;
         if ($scope.productNew.IsNonCreditable == 1) {
-            //data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
             if (data.BaseTaxAmount === null) {
                 data.BaseTaxAmount = '0.00';
             }
             data.BaseAmount = parseFloat(data.TrnAmount + data.BaseTaxAmount);
         }
         else {
-            // data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
             data.BaseAmount = data.TransactionAmount;
         }
     };
@@ -3473,13 +3031,10 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
             data.BaseTaxAmount += item.TaxAmount;
         });
-        // data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
         if ($scope.productNew.IsNonCreditable == 1) {
-            //data.NetAmount = parseFloat(data.TrnAmount) + parseFloat(data.TaxAmount);
             data.BaseAmount = data.TrnAmount + data.BaseTaxAmount;
         }
         else {
-            // data.BaseAmount = $scope.productNew.ToCurrencyRate * data.TrnAmount;
             data.BaseAmount = data.TrnAmount;
         }
 
@@ -3531,9 +3086,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     $scope.GetListForMasterOrderTemp = [];
     $scope.ConvertedDataRow = function (data) {
         var gridObj = $("#GridReq").data("ejGrid");
-        //var x = $event;
-        //var res = x.data;
-        //debugger;
         $http({
             method: 'POST',
             url: $scope.path + 'ConverttedBOQUOMData',
@@ -3551,15 +3103,11 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             }
             gridObj.refreshContent(true);
             gridObj.refreshTemplate();
-
         });
-
     };
     $scope.GetJWPODTListChildMaterials = [];
 
     $scope.showChild = function ($event) {
-
-        //debugger;
         var x = $event;
         $scope.GetListForMasterOrder = [];
         $http({
@@ -3576,9 +3124,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     };
     $scope.GetJWPODTListChildMaterialSummary = [];
     $scope.showChildSummary = function (data) {
-
-        //debugger;
-
         $scope.GetJWPODTListChildMaterialSummary = [];
         $http({
             method: "GET",
@@ -3604,16 +3149,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                 $scope.BOQserviceCboList = response.data;
             });
     }
-    //  $scope.BOQServiceGet();
-
-    //$scope.uom = function () {
-    //    cboService.getUoMCbo(function (response) {
-    //        $scope.uoMList = response;
-    //    });
-    //}
-    //$scope.uom();
-
-
+   
     $scope.EmployeeResPersonList = [];
     $scope.ResPersonPopUp = function () {
         angular.element(document.querySelector("#EmployeePopUpResPerson")).modal("show");
@@ -3643,45 +3179,10 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.detailModel.ResponsiblePerson = null;
         $scope.detailModel.EmployeeCode = null;
         $scope.detailModel.EmployeeStatus = null;
-
     };
-    //$scope.JWPOActivityServiveList = [];
-    //$scope.GetJWPOActivityService = function (data) {
-    //    $scope.JWPOActivityServiveList = [];
-    //    $http({
-    //        method: "GET",
-    //        dataType: 'JSON',
-    //        url: $scope.path + 'GetJWPOActivityService?JWPODId=' + data.Id
-    //    }).then(function successCallback(response) { //datagatefun           
-    //        $scope.JWPOActivityServiveList = response.data;
-    //    }); 
-    //};
 
     $scope.JWPOinputList = [];
     $scope.JWPOByProductList = [];
-
-    //$scope.GetJWPOinputByProductList = function (data) {
-    //    $scope.JWPOActivityServiveList = [];
-    //    $http({
-    //        method: "GET",
-    //        dataType: 'JSON',
-    //        url: $scope.path + 'GetJwPoDetailByProduct?jwpoDetailId=' + data.Id
-    //    }).then(function successCallback(response) { //datagatefun           
-    //        $scope.JWPOByProductList = response.data;
-    //    });
-    //    $http({
-    //        method: "GET",
-    //        dataType: 'JSON',
-    //        url: $scope.path + 'GetJwTransPoDetailInputMaterial?jwpoDetailId=' + data.Id
-    //    }).then(function successCallback(response) { //datagatefun     
-
-    //        $scope.JWPOinputList = response.data;
-    //    });
-
-    //    angular.element(document.querySelector('#ByProductInputMaterialModal')).modal('show');
-
-
-    //};
 
     $scope.MatPlanningModelTemp = {
         Id: null,
@@ -3719,11 +3220,8 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
     };
     $scope.MatPlanning = Object.assign({}, $scope.MatPlanningModelTemp);
-    //PO Details save
     $scope.SaveMatPlanning = function () {
         $scope.MatPlanning.OSTransformationPOId = $scope.Transformation.Id;
-        //      $scope.$broadcast('show-errors-check-validity');
-        //     if ($scope.FarmerMasterPlotForm.$valid) {
         if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
             throw $scope.filedata.name + ' File size must be below 2 mb';
         var fileName = null;
@@ -3748,11 +3246,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                 }
                 return formData;
             },
-            //data: { 'MatPlanning': $scope.MatPlanning, 'file': $scope.filedata }
             data: { 'MatPlanning': $scope.MatPlanning, 'file': $scope.filedata }
-
-
-
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
@@ -3765,46 +3259,26 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
         }
-
-        //    }
     };
 
     $scope.BPMaterialMstList = [];
     $scope.BPMaterialArticleMstList = [];
 
-    //  JOB WORK ORDER WISE CODE
-
-    // Order Wise Requirement tab
-
-    //  $scope.MonthsList = [];
     $scope.ConfirmOrderWisePopUp = function (data) {
         $scope.MatPlanningTabId = data.Id;
         $scope.UnitId = data.OutputMaterialUOMId;
-        //$scope.TransformOrderWiseReq.Quantity = data.Quantity;
-        //$scope.PQuantity = data.Quantity;
-        /*$scope.TransformOrderWiseReq.PlanQuantity = $scope.PQuantity;*/
-        //  $scope.TransformOrderWiseReq.ArtclCode = data.ArticleCode 
-        //$scope.TransformOrderWiseReq.Material = data.MaterialName;
-        //$scope.TransformOrderWiseReq.ArtclCode = data.ArticleName;
-        //    $scope.GetTransformOrderWiseUOM();
         $scope.getTransformOrderWiseData();
         angular.element(document.querySelector("#OrderWisePopUp")).modal("show");
-
     }
-
 
     $scope.closeTransformOrderWiseReqTabPopUp = function (popupName) {
         angular.element(document.querySelector("#" + popupName + "")).modal("hide");
-
     }
-
-    // Order Wise Requirement Sales Order POP UP
 
     $scope.SOItemList = [];
     $scope.SalesOrderPopUP = function () {
         angular.element(document.querySelector("#SOItemPopup")).modal("show");
         $scope.getSalesorderData();
-
     }
     $scope.getSalesorderData = function () {
         $scope.SOItemList = [];
@@ -3823,24 +3297,14 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.TransformOrderWiseReq.Customer = data.Customer;
         $scope.TransformOrderWiseReq.MasterOrderNo = data.MasterOrderNo;
         $scope.TransformOrderWiseReq.MasterOrderItemId = data.MasterOrderItemId;
-
         $scope.TransformOrderWiseReq.MasterOrderUoM = data.MasterOrderUoM;
         $scope.TransformOrderWiseReq.Material = data.MaterialMasterName;
         $scope.TransformOrderWiseReq.Article = data.ArticleName;
-
         $scope.TransformOrderWiseReq.Quantity = data.Qty;
         $scope.TransformOrderWiseReq.ContractNo = data.ContractNo;
         $scope.TransformOrderWiseReq.MasterLCNo = data.MasterLCNo;
         angular.element(document.querySelector('#SOItemPopup')).modal('hide');
     };
-
-    //$scope.ResPersonClear = function () {
-    //    $scope.detailModel.ResponsiblePersonId = null;
-    //    $scope.detailModel.ResponsiblePerson = null;
-    //    $scope.detailModel.EmployeeCode = null;
-    //    $scope.detailModel.EmployeeStatus = null;
-
-    //};
 
     $scope.TransformOrderWiseRequirementList = [];
     $scope.AllCustomerList = [];
@@ -3965,16 +3429,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
     function ClearFieldsTransformOrderWiseChildData() {
         $scope.TransformOrderWiseReq = Object.assign({}, $scope.TransformOrderWiseReqModelTemp);
-        //$scope.TransformOrderWiseReq.Id = null;
-        //$scope.TransformOrderWiseReq.OSTransformationPODetailId = null;
-        //$scope.TransformOrderWiseReq.OrderType = null;
-        //$scope.TransformOrderWiseReq.CustomerId = null;
-        //$scope.TransformOrderWiseReq.MasterOrderNoId = null;
-        //$scope.TransformOrderWiseReq.MasterOrderItemId = null;
-        //$scope.TransformOrderWiseReq.ParticularSpecification = null;
-        //$scope.TransformOrderWiseReq.Remarks = null;
-        //$scope.TransformOrderWiseReq.PlanQuantity = $scope.PQuantity;
-        //$scope.GetTransformOrderWiseUOM();
+       
     }
 
     $scope.getTransformOrderWiseData = function () {
@@ -3988,10 +3443,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         });
     }
 
-    // MATERIAL INPUT DATA CODE
-
-    // MATERIAL INPUT tab
-
     $scope.ConfirmMaterialInputPopUp = function (data) {
         $scope.MatPlanningTabId = data.Id;
         $scope.JWInputId = data.JobWorkItemMasterId;
@@ -4002,19 +3453,14 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         angular.element(document.querySelector("#MaterialInputPopUp")).modal("show");
     }
 
-
     $scope.closeMaterialInputTabPopUp = function (popupName) {
         angular.element(document.querySelector("#" + popupName + "")).modal("hide");
-
     }
 
     $scope.MaterialInputList = [];
-    //$scope.MaterialMasterList = [];
-    //$scope.InputUOMList = [];
 
     $scope.MatInputList = [];
     $scope.getMatInputListData = function () {
-
         $http({
             method: 'GET',
             url: 'Outsourcing/JobWorkValueAddedContract/getMatInputListData?JobWorkItemId=' + $scope.JWInputId + '&ActivityId=' + $scope.JWActivityId + '&Id=' + $scope.MatPlanningTabId
@@ -4022,8 +3468,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             $scope.MatInputList = response.data;
         });
     }
-
-    // Select All Check Box 
 
     $scope.refreshTemplateMatInput = function () {
         $("#MIheadchk").ejCheckBox({ "change": CheckBoxSelectMatInput });
@@ -4033,7 +3477,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         var ChkOrUnchk = false;
         if (e.model.checkState === "check") {
             ChkOrUnchk = true;
-
         }
 
         var filtered = $("#GridMatInput").data("ejGrid").getFilteredRecords();
@@ -4061,19 +3504,13 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                     var NConsumption = parseFloat($scope.MatInputList[i].NetConsumption);
                     var VLoss = parseFloat($scope.MatInputList[i].ValueLoss);
                     var Rejection = parseFloat($scope.MatInputList[i].Rejection);
-                    //    var Res = Math.abs((NConsumption) / (100 - VLoss));
                     var Res = Math.abs(NConsumption * (parseFloat(1) + (VLoss / 100) + (Rejection / 100)));
-                    //      var Result = Math.abs(Res * 100);
                     var RoundRes = Math.round(Res * 100) / 100;
                     $scope.MatInputList[i].GrossConsumption = RoundRes;
                 }
             }
         }
     }
-
-    // Get Input Article
-
-    // #region field
 
     $scope.InpArticleMstList = [];
     $scope.InputArticlePopUp = function (RowData) {
@@ -4121,9 +3558,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.MatInputList[b].ArticleId = data.ArticleId;
         $scope.MatInputList[b].InputArticleCode = data.ArticleCode;
         $scope.MatInputList[b].InputArticleName = data.StandardName;
-        //$scope.SelectedArticleId = data.ArticleId;
-        //$scope.GetByDefaultRate($scope.a);
-        //$scope.GetLotNumberList($scope.a);
         angular.element(document.querySelector('#InpArticlePopUp')).modal('hide');
     };
 
@@ -4157,7 +3591,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
     //Save Function 
     $scope.SaveMaterialInputTab = function () {
-        //     $scope.$broadcast('show-errors-check-validity');
         var MatInputSelData = [];
         try {
             for (var i = 0; i < $scope.MatInputList.length; i++) {
@@ -4233,10 +3666,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         });
     }
 
-    // BY PRODUCT TAB
-
-    // Select All Check Box 
-
     $scope.refreshTemplateemployee = function () {
         $("#BPheadchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
     };
@@ -4245,7 +3674,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         var ChkOrUnchk = false;
         if (e.model.checkState === "check") {
             ChkOrUnchk = true;
-
         }
 
         var filtered = $("#GridByProductMaster").data("ejGrid").getFilteredRecords();
@@ -4288,8 +3716,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             $scope.ByProductMasterList = response.data;
         });
     }
-
-    // #region field By product
 
     $scope.ByProductMaterialMstList = [];
     $scope.ByProductMaterialMstPopUp = function (data) {
@@ -4335,25 +3761,16 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.ByProductMasterList[b].BPMaterialId = data.Id;
         $scope.ByProductMasterList[b].BPMaterialCode = data.Code;
         $scope.ByProductMasterList[b].ByProductMaterial = data.MaterialName;
-
         $scope.ByProductMasterList[b].BPArticleId = null;
         $scope.ByProductMasterList[b].BPArticleCode = null;
         $scope.ByProductMasterList[b].BPArticleName = null;
-
         angular.element(document.querySelector('#ByProductMaterialPopUp')).modal('hide');
     };
-    // # end region
-
-
-    // GET ARTICLE
-    // MATERIAL MASTER ARTICLE
-    // #region field
 
     $scope.ByProductMaterialArticleMstList = [];
     $scope.BPMaterialMstArticlePopUp = function (RowData) {
         angular.element(document.querySelector("#ByProductMaterialArticlePopUp")).modal("show");
         $scope.getArticleData(RowData);
-
     }
     $scope.getArticleData = function (RowData) {
         $scope.ByProductMaterialArticleMstList = [];
@@ -4395,9 +3812,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.ByProductMasterList[b].BPArticleId = data.ArticleId;
         $scope.ByProductMasterList[b].BPArticleCode = data.ArticleCode;
         $scope.ByProductMasterList[b].BPArticleName = data.StandardName;
-        //$scope.SelectedArticleId = data.ArticleId;
-        //$scope.GetByDefaultRate($scope.a);
-        //$scope.GetLotNumberList($scope.a);
         angular.element(document.querySelector('#ByProductMaterialArticlePopUp')).modal('hide');
     };
 
@@ -4415,10 +3829,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
     };
     $scope.ByProduct = Object.assign({}, $scope.ByProductModelTemp);
-
-    // Save Function for By Product(Transformation)
-
-    //Save Function 
     $scope.SaveByProductTab = function () {
         $scope.$broadcast('show-errors-check-validity');
         var checkedData = [];
@@ -4438,8 +3848,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                         else {
                             checkedData.push($scope.ByProductMasterList[i]);
                         }
-
-                        //     checkedData.push($scope.ByProductMasterList[i]);
                     }
                     else {
                         throw 'Standard Rate should be greater than zero';
@@ -4461,7 +3869,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                 }
                 else {
                     ShowResult(response.data.Message, "success");
-                    //         $scope.IssueChild = response.data.Data;
                     $scope.getByProductMasterData();
                     $scope.getByProductData();
                 }
@@ -4486,7 +3893,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
                 $scope.getByProductData();
                 $scope.getByProductMasterData();
-                //    ClearFieldsByProductChildData();
             }
 
         });
@@ -4506,66 +3912,26 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
         });
     }
-
-    //#region start Reports
     $scope.ConfirmPrintTab = function (z) {
         try {
             var x = "#" + z;
             var gridObj = $(x).data("ejGrid");
             var data = gridObj.getSelectedRecords()[0];
-            //        location.href = "Products/InventoryIssue/JobWorkIssueReport?grnId=" + data.Id;
-
             $scope.PrintTabId = data.Id;
 
             var reportFormat = "Excel";
             if (data.POType == "OSTransformationPO") {
                 window.open('Outsourcing/JobWorkValueAddedContract/GetTransformationContractReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId, '_blank');
             }
-
             if (data.POType == "OSValueAddedPO") {
                 window.open('Outsourcing/JobWorkValueAddedContract/GetValueAddedPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId, '_blank');
             }
-
-
-            //        var TabType = data.TabType;
-            //if (TabType == "Value Added") {
-            //    //     var data = args.data;
-            //    var reportFormat = "Excel";
-            //    window.open('JobWork/JobWorkValueAddedContract/GetValueAddedPrintReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId, '_blank');
-            //    $scope.getData();
-            //}
-            //if (TabType == "Transformation") {
-            //    //     var data = args.data;
-            //    var reportFormat = "Excel";
-            //    window.open('JobWork/JobWorkValueAddedContract/GetTransformationContractReport?reportFormat=' + reportFormat + '&PrintTabId=' + $scope.PrintTabId, '_blank');
-            //    $scope.getData();
-            //}
 
         } catch (e) {
 
         }
     };
 
-    //$scope.showTcontract = function () {
-    //    if ($scope.productNew.Transformation == "Yes") {
-    //        $scope.productNew.ValueAdded = null;
-    //    }
-    //    else {
-    //        $scope.productNew.Transformation = null;
-    //    }
-    //}
-
-    //$scope.showValcontract = function () {
-    //    if ($scope.productNew.ValueAdded == "Yes") {
-    //        $scope.productNew.Transformation = null;
-    //    }
-    //    else {
-    //        $scope.productNew.ValueAdded = null;
-    //    }
-    //}
-
-
-    //end
 
     $scope.calculateSvcTaxCategory = function () {
         $scope.serviceModel.TotalTaxAmount = 0;
@@ -4582,7 +3948,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         try {
 
             if (new Date($scope.productNew.PODate) < new Date($scope.productNew.DocDate)) {
-                //$scope.productNew.PODate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
                 $scope.productNew.PODate = null;
                 throw 'PO Date cannot be less than Doc Date.';
             }
@@ -4624,7 +3989,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         try {
 
             if (new Date($scope.productNew.ContractClosingDate) < new Date($scope.productNew.ProcessEndDate)) {
-                //$scope.productNew.ContractClosingDate = $filter('dateFiltering')(new Date(), 'dd-M-yyyy');
                 $scope.productNew.ContractClosingDate = null;
                 throw 'Contract Closing Date cannot be less than Process End Date.';
             }
@@ -4662,9 +4026,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             if ($scope.productNew.TaxOptionServiceTPO == "No") {
                 if ($scope.taxCategoryList.length > 0) {
                     for (var i = 0; i < $scope.taxCategoryList.length; i++) {
-                        //if (baseService.isUndefinedOrNull($scope.taxCategoryList[0].Percentage)) {
-                        //    $scope.taxCategoryList[0].Percentage = 0;
-                        //}
                         $scope.TransactionAmount = $scope.detailModel.TransactionQty * $scope.detailModel.RatePerUnit;
                         var Per = (parseFloat($scope.taxCategoryList[i].TaxAmount / $scope.TransactionAmount) * 100);
                         $scope.taxCategoryList[i].Percentage = Per.toFixed(4);
@@ -4675,9 +4036,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         }
     }
 
-    // DOCUMENT ATTACH
-
-    //#region Document Upload
     $scope.DocDownload = function (data) {
         $scope.dwonloadUrl = null;
         var str = data.UserFilename;
@@ -4696,8 +4054,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
 
     $scope.DocumentSave = function () {
         debugger;
-        //$scope.$broadcast("show-errors-check-validity");
-
         if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
             throw $scope.filedata.name + ' File size must be below 2 mb';
         var fileName = null;
@@ -4770,7 +4126,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $http({
             method: "GET",
             dataType: 'JSON',
-            //url: $scope.getSearchListUrl,
             url: 'Outsourcing/OSTransformationPO/PODocumentMapData?POID=' + $scope.productNew.Id,
         }).then(function successCallback(response) { //datagatefun
             $scope.Imagedata = response.data;
@@ -4801,15 +4156,12 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
                 }
             });
         }
-
-
     };
 
     $scope.PODocumentMapDataAll = function () {
         //debugger;
         $http({
             method: 'GET',
-            //url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
             url: 'Outsourcing/OSTransformationPO/PODocumentMapDataAll'
         }).then(function successCallback(response) {
             $scope.lst = response.data;
@@ -4819,10 +4171,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         });
     }
     $scope.PODocumentMapDataAll();
-
-    //#endregion
-
-    // BOQ Material Input data
 
     $scope.MaterialInputDisplayModelTemp = {
         Material: null,
@@ -4839,11 +4187,8 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         $scope.MaterialInputDisplay.Article = data.ArticleName;
         $scope.MaterialInputDisplay.UoM = data.TransactionUoM;
         $scope.MaterialInputDisplay.Quantity = data.Quantity;
-        //$scope.JWInputId = data.JobWorkItemMasterId;
-        //$scope.JWActivityId = data.JobActivityId;
+     
         $scope.getMatInputListBOQData();
-        //     $scope.getMaterialInputData();
-
         angular.element(document.querySelector("#BOQMaterialInputPopUp")).modal("show");
     }
 
@@ -4852,10 +4197,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         angular.element(document.querySelector("#" + popupName + "")).modal("hide");
 
     }
-
-    //   $scope.MaterialInputList = [];
-    //$scope.MaterialMasterList = [];
-    //$scope.InputUOMList = [];
 
     $scope.MaterialInputListBOQ = [];
     $scope.getMatInputListBOQData = function () {
@@ -4879,7 +4220,6 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             else {
                 ShowResult(response.data.Message, "success");
                 $scope.getMatInputListBOQData();
-                //ClearFieldsMaterialInputChildData();
             }
 
         });
