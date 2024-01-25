@@ -651,7 +651,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                                       LEFT JOIN  (SELECT DC.LeavePolicyMasterId,DM.DesignationId FROM MST.DesignationMaster DM
                                     LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId WHERE DC.PlantId='" + sPlantID + @"') AS DM ON DM.LeavePolicyMasterId=LPD.LPMSystemID
                                                       LEFT JOIN dbo.EmployeeInformation AS EI ON EI.GivenDesignationId=DM.DesignationId
-                                                      WHERE EI.SystemID='" + EmpSystemID + @"' AND EI.GroupID='CG20181' AND EI.PlantID='" + sPlantID + @"'
+                                                      WHERE EI.SystemID='" + EmpSystemID + @"' AND EI.GroupID='"+ sGroupID + @"' AND EI.PlantID='" + sPlantID + @"'
                                                        )
                                                     AND
                                                     EPLT.ESICPolicyMasterID IN (
@@ -662,16 +662,18 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
 UNION ALL
  Select A.CalanderYearID,CAST (0 AS BIT) IsExceptionAllowed,A.FromDate,A.ToDate
- ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear,DaysCanBeSanctioned=CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2))
- ,CurrentAllocationDCBS=CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal,CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2)) CurrentAllocation,CAST (0 AS decimal(18,2)) PreviousYearCarryForward
+ ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear
+ ,DaysCanBeSanctioned=CAST (A.Opening AS decimal(18,2))
+ ,CurrentAllocationDCBS=CAST (A.Opening AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal
+ ,CAST (A.Opening AS decimal(18,2)) CurrentAllocation,CAST (0 AS decimal(18,2)) PreviousYearCarryForward
  --,BroughtForward=CASE WHEN A.Opening>B.CarryForward THEN A.Opening WHEN B.BroughtForward>B.CarryForward THEN B.BroughtForward ELSE B.CarryForward END
- ,BroughtForward=CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2))
+ ,BroughtForward=CAST (A.Opening AS decimal(18,2))
  
- ,CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2)) LeaveDays
+ ,CAST (A.Opening AS decimal(18,2)) LeaveDays
  ,ISNULL(ltrn.ldays, 0) Applied,ISNULL(tav.av, 0) Availed,ISNULL(R.Rejected,0) Rejected,ISNULL(acApl.ldays,0) ldays,A.LeaveType,CAST (0 AS BIT) IsBroughtForwardAdd
  ,CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2)) as Earned
 
-,Balance=ROUND(CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END +CAST(case when ltd.EncashWorkingDaysQty >0 
+,Balance=ROUND(CAST (A.Opening +CAST(case when ltd.EncashWorkingDaysQty >0 
 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty 
 else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2)),0)
  from (
@@ -684,12 +686,12 @@ else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2)),0)
 										  AND LY.ToDate between'" + _FromDate + @"' AND '" + _ToDate + @"'
                                            AND A.EmployeeId='" + EmpSystemID + @"'
 										  ) A  
-LEFT JOIN (
-select BroughtForward=CASE WHEN A.Adjustment=0 THEN A.Opening ELSE A.Adjustment END,A.EmployeeId,A.LeaveTypeId,lt.UserName LeaveName,A.CarryForward from dbo.AnnualLeaveDataPast A
-										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
-                                        LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
-										  Where LY.FromDate between '" + _LFromDate + @"' AND '" + _LToDate + @"' 
-										  AND LY.ToDate between '" + _LFromDate + @"' AND '" + _LToDate + @"' AND A.EmployeeId='" + EmpSystemID + @"' )B ON B.EmployeeId=A.EmployeeId  AND A.LTSystemID=B.LeaveTypeId
+--LEFT JOIN (
+--select BroughtForward=CASE WHEN A.Adjustment=0 THEN A.Opening ELSE A.Adjustment END,A.EmployeeId,A.LeaveTypeId,lt.UserName LeaveName,A.CarryForward from dbo.AnnualLeaveDataPast A
+--										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+--                                        LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
+--										  Where LY.FromDate between '" + _LFromDate + @"' AND '" + _LToDate + @"' 
+--										  AND LY.ToDate between '" + _LFromDate + @"' AND '" + _LToDate + @"' AND A.EmployeeId='" + EmpSystemID + @"' )B ON B.EmployeeId=A.EmployeeId  AND A.LTSystemID=B.LeaveTypeId
 
 left outer join (select ltd.* from dbo.LeavePolicyDetail ltd
 																 where LPMSystemID =
@@ -751,7 +753,7 @@ Where A.EmployeeId='" + EmpSystemID + "'"
                     };
                     parameters.sort = "LeaveName";
                     parameters.order = "ASC";
-                    return _sqlRepository.GetGridData(parameters).Source; 
+                        return _sqlRepository.GetGridData(parameters).Source; 
                 }
                 else
                 {
@@ -885,17 +887,19 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                               AND els.LeaveTypeId not IN (select id from LeaveType where IsESIC=1 and IsGeneral=0) AND LT.UserName NOT LIKE '%Maternity%'
 
 UNION ALL
- Select A.CalanderYearID,CAST (0 AS BIT) IsExceptionAllowed,A.FromDate,A.ToDate
- ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear,DaysCanBeSanctioned=CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2))
- ,CurrentAllocationDCBS=CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal,CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2)) CurrentAllocation,CAST (0 AS decimal(18,2)) PreviousYearCarryForward
-  --,BroughtForward=CASE WHEN A.Opening>B.CarryForward THEN A.Opening WHEN B.BroughtForward>B.CarryForward THEN B.BroughtForward ELSE B.CarryForward END
- ,BroughtForward=CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2))
+Select A.CalanderYearID,CAST (0 AS BIT) IsExceptionAllowed,A.FromDate,A.ToDate
+ ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear
+ ,DaysCanBeSanctioned=CAST (A.Opening AS decimal(18,2))
+ ,CurrentAllocationDCBS=CAST (A.Opening AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal
+ ,CAST (A.Opening AS decimal(18,2)) CurrentAllocation,CAST (0 AS decimal(18,2)) PreviousYearCarryForward
+ --,BroughtForward=CASE WHEN A.Opening>B.CarryForward THEN A.Opening WHEN B.BroughtForward>B.CarryForward THEN B.BroughtForward ELSE B.CarryForward END
+ ,BroughtForward=CAST (A.Opening AS decimal(18,2))
  
- ,CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2)) LeaveDays
+ ,CAST (A.Opening AS decimal(18,2)) LeaveDays
  ,ISNULL(ltrn.ldays, 0) Applied,ISNULL(tav.av, 0) Availed,ISNULL(R.Rejected,0) Rejected,ISNULL(acApl.ldays,0) ldays,A.LeaveType,CAST (0 AS BIT) IsBroughtForwardAdd
  ,CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2)) as Earned
 
-,Balance=ROUND(CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END +CAST(case when ltd.EncashWorkingDaysQty >0 
+,Balance=ROUND(CAST (A.Opening +CAST(case when ltd.EncashWorkingDaysQty >0 
 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty 
 else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2)),0)
  from (
@@ -907,12 +911,12 @@ else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2)),0)
 										  Where LY.FromDate between'" + _FromDate+@"' AND '"+_ToDate+@"' 
 										  AND LY.ToDate between'"+_FromDate+ @"' AND '"+_ToDate+ @"'
 										  ) A  
-LEFT JOIN (
-select BroughtForward=CASE WHEN A.Adjustment=0 THEN A.Opening ELSE A.Adjustment END,A.EmployeeId,A.LeaveTypeId,lt.UserName LeaveName,A.CarryForward from dbo.AnnualLeaveDataPast A
-										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
-                                        LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
-										  Where LY.FromDate between '" + _LFromDate + @"' AND '"+_LToDate+@"' 
-										  AND LY.ToDate between '" + _LFromDate + @"' AND '"+_LToDate+@"')B ON B.EmployeeId=A.EmployeeId  AND A.LTSystemID=B.LeaveTypeId
+--LEFT JOIN (
+--select BroughtForward=CASE WHEN A.Adjustment=0 THEN A.Opening ELSE A.Adjustment END,A.EmployeeId,A.LeaveTypeId,lt.UserName LeaveName,A.CarryForward from dbo.AnnualLeaveDataPast A
+--										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+--                                        LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
+--										  Where LY.FromDate between '" + _LFromDate + @"' AND '"+_LToDate+@"' 
+--										  AND LY.ToDate between '" + _LFromDate + @"' AND '"+_LToDate+@"')B ON B.EmployeeId=A.EmployeeId  AND A.LTSystemID=B.LeaveTypeId
 
 left outer join (select ltd.* from dbo.LeavePolicyDetail ltd
 																 where LPMSystemID =
