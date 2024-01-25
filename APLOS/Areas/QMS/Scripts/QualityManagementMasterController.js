@@ -30,6 +30,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.saveUrlParameterApprovalResponsiblePerson = $scope.path + 'createParameterApprovalResponsiblePerson';
     $scope.saveUrlQualityActionResponsiblePerson = $scope.path + 'createQualityActionResponsiblePerson';
     $scope.saveUrlAuthorizedPerson = $scope.path + 'createAuthorizedPerson';
+    $scope.saveUrlCPS = $scope.path + 'createCPSequence';
 
     $scope.CriticalLevelLists = [
         {
@@ -2090,4 +2091,48 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         angular.element(document.querySelector('#AuthorizedPersonPopUp')).modal('hide');
     }
 
+    $scope.QualityManagementMasterCPSList = [];
+    $scope.LoadCPSDetails = function () {
+        $http({
+            method: 'Get',
+            url: 'QMS/QualityManagementMaster/LoadCPSDetails'
+        }).then(function successCallback(response) {
+            $scope.QualityManagementMasterCPSList = response.data;
+        }
+        )
+    }
+    $scope.LoadCPSDetails();
+
+    $scope.CPSequenceSave = function () {
+        try {
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.QualityManagementMasterCPSList.length; i++) {
+                if ($scope.QualityManagementMasterCPSList[i].Sequence !== null) {
+                    $scope.SaveList.push($scope.QualityManagementMasterCPSList[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlCPS,
+                data: {
+                    "DataList": $scope.SaveList
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadCPSDetails();
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
 }

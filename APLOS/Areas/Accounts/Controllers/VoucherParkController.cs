@@ -93,6 +93,8 @@ namespace Aplos.Areas.Accounts.Controllers
                     var bankJournalSql = @"UPDATE [TRN].BankJournal SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
                     rdBuilder.Append(bankJournalSql);
+                  
+
                 }
                 if (sourceType == SourceType.VendorInvoice.ToString()|| sourceType == SourceType.InventoryPayable.ToString()||sourceType == SourceType.CustomerInvoice.ToString())
                 {
@@ -124,6 +126,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     var InvoiceSql = @"UPDATE [TRN].Invoice SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
                     rdBuilder.Append(InvoiceSql);
+
                 }
                 if (sourceType == SourceType.InvoiceToAcceptance.ToString())
                 {
@@ -237,6 +240,17 @@ namespace Aplos.Areas.Accounts.Controllers
                 }
                 if (sourceType == SourceType.EmployeePayable.ToString())
                 {
+                    ConnectionManager.DAL.ConManager objCon1;
+                    DataSet dsMaster1 = null;
+                    string setOffsql = @"SELECT VoucherNo from trn.EmployeePayableWriteOffDetail iwd JOIN trn.EmployeePayableWriteOff iw on iw.Id=iwd.EmployeePayableWriteOffId LEFT JOIN trn.Voucher v on v.Id = iw.VoucherId
+                                            WHERE EmployeePayableId in (select Id from trn.EmployeePayable  where VoucherId = '" + voucherId + "')";
+                    objCon1 = new ConnectionManager.DAL.ConManager("1");
+                    objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
+
+                    if (dsMaster1.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Voucher Park Mode not allowed, Payment Voucher No '" + dsMaster1.Tables[0].Rows[0]["VoucherNo"].ToString() + "' have to delete first!");
+                    }
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     var bankJournalSql = @"UPDATE [TRN].EmployeePayable SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
@@ -249,12 +263,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     rdBuilder.Append(voucherSql);
                     rdBuilder.Append(bankJournalSql);
                 }
-                if (sourceType == SourceType.SalaryPayable.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                }
-                if (sourceType == SourceType.SalaryDisbursement.ToString() || sourceType == SourceType.PFESICDisbursement.ToString())
+                if (sourceType == SourceType.SalaryPayable.ToString() || sourceType == SourceType.SalaryDisbursement.ToString() || sourceType == SourceType.BonusDisbursement.ToString() || sourceType == SourceType.PFESICDisbursement.ToString())
                 {
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
@@ -350,6 +359,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
                 _unitOfWork.SaveChanges();
+                _accountsCommonService.InsertVoucherLogParked(voucherId, voucher.VoucherNo, "", "", "", "", "", "", "", "", "", "", "", "");
                 flag = false;
                 _unitOfWork.Commit();
                 return Json(new { Message = " Successfully Parked" });

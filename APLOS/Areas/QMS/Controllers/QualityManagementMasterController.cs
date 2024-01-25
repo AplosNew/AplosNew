@@ -1788,6 +1788,70 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public ActionResult LoadCPSDetails()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select CPS.Id,ROW_NUMBER() Over (order by QMP.Id) SLNo,QMP.Id QMPId,QMP.QMID,QMM.UserName IssueName,
+QMP.ParameterId,PM.UserName ParameterName,QMP.UOMId,UM.UserName UOM,CPS.Sequence from MST.QualityManagementParameterItem QMP 
+left join MST.QualityManagementMaster QMM on QMM.Id=QMP.QMID
+left join HKP.ParameterMaster PM on PM.Id=QMP.ParameterId
+left join SCS.UnitOfMeasurement UM on UM.Id=QMP.UOMId
+left join [MST].[QualityManagementCPSequence] CPS on CPS.QMPId=QMP.Id
+where CustomerParameter=1";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public ActionResult createCPSequence(List<Dictionary<string, object>> DataList)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[MST].[QualityManagementCPSequence]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        objCon.OpenDataSetThroughAdapter("select * from " + TableName + " where Sequence='" + item["Sequence"] + "'", out DataSet dsQualityManagmentSequenceValidation, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            if (dsQualityManagmentSequenceValidation.Tables[0].Rows.Count > 0)
+                            {
+                                throw new Exception("Sequence No Already Exist.");
+                            }
+                            else
+                            {
+                                bplib.clsGenID genid = new bplib.clsGenID();
+                                genid.GenID(TableName, out _Id);
+                                item["Id"] = "CPS" + _Id;
+                                AddNewRow(dsProdBooked.Tables[0], item);
+                            }
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         #endregion -- Operations
     }
 }

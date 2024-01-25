@@ -1831,12 +1831,19 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 				--)) md on md.EmployeeId=e.SystemId
                 left join AnnualLeaveDataCurrent ac on ac.EmployeeId=e.SystemId
 				and ac.LeaveYearId=ld.Id and ac.LeaveTypeId=lt.Id and ac.PlantId='" + PlantId+ @"'
-				left join
+								left join
 				(
-				select a.EmpSystemID,SUM(a.LvValue)AvailedLeave---,A.DayStatus
+select distinct a.EmpSystemID,LT.AvailedLeave---,A.DayStatus
 ,a.PlantID,dc.EmpTypeId,
 				dxc.LeavePolicyMasterId
-				from AttdnProcessData a left join EmployeeInformation ei on a.EmpSystemID=ei.SystemId
+				from AttdnProcessData a 
+				left join EmployeeInformation ei on a.EmpSystemID=ei.SystemId
+				LEFT JOIN(
+				Select Sum(LTD.LeaveDuration) AvailedLeave,LT.EmpSystemID,LT.LTSystemID from LeaveTransaction LT
+				Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
+				Where WorkDate between '" + From + @"' and '" + To + @"' AND LTSystemID in (" + LTypeId + @")
+				group by LT.EmpSystemID,LT.LTSystemID
+				) LT ON LT.EmpSystemID=a.EmpSystemID 
 				left join mst.DesignationMasterLegalDesignation ddm on ddm.LegalDesignationId = ei.LegalDesignationId
 				left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
 				left join scs.DesignationMasterConfiguration dxc on dxc.DesignationMasterId=dm.Id and dxc.PlantId=ei.PlantId
@@ -1845,9 +1852,8 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 				left join DayTypeWithValues dt on dt.HeaderId=dh.Id and dt.DayType=a.DayStatus				
 				where dt.HeaderId is not null --and a.LvValue<>0 
 				and ei.EmployeeStatus='Active' AND A.LTSystemID in (" + LTypeId + @")
-				and a.workdate between '" + From+@"' and '"+To+@"' and ei.PlantId='"+PlantId+@"'
-				group by A.EmpSystemID--,a.DayStatus
-,a.PlantID,dc.EmpTypeId,dxc.LeavePolicyMasterId) as Info
+				and a.workdate between '" + From + @"' and '" + To + @"' and ei.PlantId='" + PlantId + @"'
+				) as Info
 				on Info.EmpSystemID=e.SystemId and Info.PlantID=e.PlantId --and Info.DayStatus=lt.Code
                 left join (SELECT EmpSystemID,SUM(l.EarnValue)EarnDays,T.Id as LeaveId,ei.PlantId
 				FROM  EmployeeInformation AS ei 
@@ -1859,7 +1865,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
                 LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
                 JOIN LeaveType T ON t.Id=L.LeaveTypeId
-                where apd.workdate between '"+From+@"' and '"+To+@"'
+                where apd.workdate between '" + From+@"' and '"+To+@"'
                 and EI.PlantID='"+PlantId+ @"' and t.LeaveType='Earn'
                 group by EmpSystemID,t.Id,ei.plantid
                 ) as Masterx on Masterx.EmpSystemID=e.SystemId and e.PlantId=Masterx.PlantId and Masterx.LeaveId=lt.Id       

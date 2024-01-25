@@ -1904,7 +1904,7 @@ namespace Library.Service.Employees
                 //=====
                 bool IsDefLan = false;
 
-               
+
                 ////A opens input document.
                 WordDocument document = new WordDocument(DocFile.FullName);
 
@@ -1912,7 +1912,7 @@ namespace Library.Service.Employees
                 Dictionary<string, int> replaced = new Dictionary<string, int>();
 
                 string value = "";
-                
+
                 for (int i = 0; i < dtEmp.Columns.Count; i++)
                 {
                     string colName = "{" + dtEmp.Columns[i].ColumnName + "}";
@@ -1927,7 +1927,7 @@ namespace Library.Service.Employees
                 }
 
                 document.Replace("{Date}", GetFormatedDate(System.DateTime.Now.ToString("dd-MMM-yyyy"), language), false, true);
-               
+
 
                 string fileNames = string.Empty;
                 if (!string.IsNullOrEmpty(dtEmp.Rows[0]["EmployeeCode"].ToString()))
@@ -2095,6 +2095,33 @@ namespace Library.Service.Employees
                 }
 
                 document.Replace("{Date}", GetFormatedDate(System.DateTime.Now.ToString("dd-MMM-yyyy"), tempId), false, true);
+                WSection section = document.Sections[0];
+                if (!string.IsNullOrEmpty(dtEmp.Rows[0]["CardHolderSignature"].ToString()))
+                {
+                    var pic = dtEmp.Rows[0]["CardHolderSignature"].ToString();
+                    string picpath = ResourcesPathReader.GetCardHolderSignaturePath() + pic;
+                    //WPicture ImgwPicture = new WPicture(document);
+                    if (System.IO.File.Exists(picpath))
+                    {
+                        try
+                        {
+                            Image Img = Image.FromFile(picpath);
+                            Image newImage = resizeImage(Img, 60, 100);
+                            //wPicture.LoadImage(Image.FromFile(picpath));
+                            //TextBodyPart textBodyPart = new TextBodyPart(document);
+
+                            section.Tables[0].Rows[0].Cells[0].Paragraphs[0].AppendPicture(newImage);
+
+                            //document.Replace()
+                            //document.Replace("{emppic}", textBodyPart, true, true);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw (ex);
+                        }
+                    }
+                }
+
                 foreach (string item in replaced.Keys)
                 {
                     if (replaced[item] == 0)
@@ -2269,6 +2296,34 @@ namespace Library.Service.Employees
                 }
 
                 document.Replace("{Date}", GetFormatedDate(System.DateTime.Now.ToString("dd-MMM-yyyy"), tempId), false, true);
+
+                WSection section = document.Sections[0];
+                if (!string.IsNullOrEmpty(dtEmp.Rows[0]["CardHolderSignature"].ToString()))
+                {
+                    var pic = dtEmp.Rows[0]["CardHolderSignature"].ToString();
+                    string picpath = ResourcesPathReader.GetCardHolderSignaturePath() + pic;
+                    //WPicture ImgwPicture = new WPicture(document);
+                    if (System.IO.File.Exists(picpath))
+                    {
+                        try
+                        {
+                            Image Img = Image.FromFile(picpath);
+                            Image newImage = resizeImage(Img, 60, 100);
+                            //wPicture.LoadImage(Image.FromFile(picpath));
+                            //TextBodyPart textBodyPart = new TextBodyPart(document);
+
+                            section.Tables[0].Rows[0].Cells[0].Paragraphs[0].AppendPicture(newImage);
+
+                            //document.Replace()
+                            //document.Replace("{emppic}", textBodyPart, true, true);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw (ex);
+                        }
+                    }
+                }
+
                 foreach (string item in replaced.Keys)
                 {
                     if (replaced[item] == 0)
@@ -2567,7 +2622,7 @@ namespace Library.Service.Employees
                     var dtLangName = getLanguageName(langID);
                     langName = dtLangName.Rows[0]["UserName"].ToString();
                 }
-              
+
                 else
                 {
                     langID = tempId;
@@ -3272,7 +3327,31 @@ namespace Library.Service.Employees
 
 
                     table1.Replace("{Others}", cnDgt(totalOthers.ToString(), language), false, false);
+                    if (!string.IsNullOrEmpty(dtEmp.Rows[0]["CardHolderSignature"].ToString()))
+                    {
+                        var pic = dtEmp.Rows[0]["CardHolderSignature"].ToString();
+                        string picpath = ResourcesPathReader.GetCardHolderSignaturePath() + pic;
+                        //WPicture ImgwPicture = new WPicture(document);
+                        if (System.IO.File.Exists(picpath))
+                        {
+                            try
+                            {
+                                Image Img = Image.FromFile(picpath);
+                                Image newImage = resizeImage(Img, 60, 100);
+                                //wPicture.LoadImage(Image.FromFile(picpath));
+                                //TextBodyPart textBodyPart = new TextBodyPart(document);
 
+                                section.Tables[2].Rows[0].Cells[0].Paragraphs[0].AppendPicture(newImage);
+
+                                //document.Replace()
+                                //document.Replace("{emppic}", textBodyPart, true, true);
+                            }
+                            catch (Exception ex)
+                            {
+                                throw (ex);
+                            }
+                        }
+                    }
                     //}
                 }
                 catch (Exception ex)
@@ -3503,14 +3582,14 @@ namespace Library.Service.Employees
                 {
                     var pic = dtEmpHeaderInfo.Rows[0]["EmployeePic"].ToString();
                     string picpath = ResourcesPathReader.GetEmployeeDestinationPicPath() + pic;
-                   //WPicture ImgwPicture = new WPicture(document);
+                    //WPicture ImgwPicture = new WPicture(document);
                     if (System.IO.File.Exists(picpath))
                     {
                         try
                         {
                             Image Img = Image.FromFile(picpath);
                             Image newImage = resizeImage(Img, 139, 123);
-                           
+
                             section.Tables[0].Rows[1].Cells[2].Paragraphs[0].AppendPicture(newImage);
                             //document.Replace();
                             //document.Replace("{EmpPic}", "", true, true);
@@ -4088,7 +4167,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                             FormatTextBox(ref sheet, "Department", dtEmp.Rows[0]["Section"].ToString(), 12, ExcelKnownColors.Black);
                             if (dtEmpWorkType.Rows.Count > 0)
                             {
-                                FormatTextBox(ref sheet, "WorkType", dtEmpWorkType.Rows[0]["EmployeeWorkType"].ToString(), 12, ExcelKnownColors.Black); 
+                                FormatTextBox(ref sheet, "WorkType", dtEmpWorkType.Rows[0]["EmployeeWorkType"].ToString(), 12, ExcelKnownColors.Black);
                             }
 
                             var doj = GetFormatedDate(dtEmp.Rows[0]["DateOfJoin"].ToString(), langName);
@@ -4159,7 +4238,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                             FormatTextBox(ref sheet, "Department", dtEmp.Rows[0]["Section"].ToString(), 11, ExcelKnownColors.Black);
                             if (dtEmpWorkType.Rows.Count > 0)
                             {
-                                FormatTextBox(ref sheet, "WorkType", dtEmpWorkType.Rows[0]["EmployeeWorkType"].ToString(), 11, ExcelKnownColors.Black); 
+                                FormatTextBox(ref sheet, "WorkType", dtEmpWorkType.Rows[0]["EmployeeWorkType"].ToString(), 11, ExcelKnownColors.Black);
                             }
                             FormatTextBox(ref sheet, "DOJ", dtEmp.Rows[0]["DateOfJoin"].ToString(), 11, ExcelKnownColors.Black);
                             FormatTextBox(ref sheet, "IssueDate", Convert.ToDateTime(issuDate).ToString("dd-MMM-yyyy"), 11, ExcelKnownColors.Black);
@@ -4338,8 +4417,8 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "BloodGroup", dtEmp.Rows[0]["BloodGroup"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "PermanentAddress", dtEmp.Rows[0]["ParmanentAddress"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "PresentAddress", dtEmp.Rows[0]["PresentAddress"].ToString(), "Kalpurush", 8);
-                       
-                        
+
+
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "Plant", dtEmp.Rows[0]["PlantName"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "Name", dtEmp.Rows[0]["EmployeeName"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "FatherOrSpouse", dtEmp.Rows[0]["FatherOrSpouse"].ToString(), "Kalpurush", 8);
@@ -4348,7 +4427,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                         if (langName == "Hindi")
                         {
                             ConvertPresentationToPdf.SetText(presentation.Slides[i], "PhoneNumber", dtEmp.Rows[0]["MobileNo"].ToString(), "Kalpurush", 8);
-                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "EmergencyTelNo",dtEmp.Rows[0]["EmrCntPer1CellNo"].ToString(), "Kalpurush", 8);
+                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "EmergencyTelNo", dtEmp.Rows[0]["EmrCntPer1CellNo"].ToString(), "Kalpurush", 8);
                             ConvertPresentationToPdf.SetText(presentation.Slides[i], "ID", dtEmp.Rows[0]["EmployeeCode"].ToString(), "Kalpurush", 8);
                             ConvertPresentationToPdf.SetText(presentation.Slides[i], "NID", dtEmp.Rows[0]["NationalID"].ToString(), "Kalpurush", 8);
                         }
@@ -4361,9 +4440,9 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                         }
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "Department", dtEmp.Rows[0]["Department"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "Section", dtEmp.Rows[0]["Section"].ToString(), "Kalpurush", 8);
-                        if (dtEmpWorkType.Rows.Count>0)
+                        if (dtEmpWorkType.Rows.Count > 0)
                         {
-                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "WorkType", dtEmpWorkType.Rows[0]["EmployeeWorkType"].ToString(), "Kalpurush", 8); 
+                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "WorkType", dtEmpWorkType.Rows[0]["EmployeeWorkType"].ToString(), "Kalpurush", 8);
                         }
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "PLANTNAME", dtEmp.Rows[0]["PlantName"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "Grade", dtEmp.Rows[0]["Grade"].ToString(), "Kalpurush", 8);
@@ -4373,11 +4452,11 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "CompanyName", dtEmp.Rows[0]["CompanyName"].ToString(), "Kalpurush", 8);
 
 
-                        if (langName== "Hindi")
+                        if (langName == "Hindi")
                         {
                             ConvertPresentationToPdf.SetText(presentation.Slides[i], "DOJ", dtEmp.Rows[0]["DateOfJoin"].ToString(), "Kalpurush", 8);
                             ConvertPresentationToPdf.SetText(presentation.Slides[i], "DOB", dtEmp.Rows[0]["DateOfBirth"].ToString(), "Kalpurush", 8);
-                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "IssueDate", Convert.ToDateTime(issuDate).ToString("dd-MMM-yyyy"), "Kalpurush", 8); 
+                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "IssueDate", Convert.ToDateTime(issuDate).ToString("dd-MMM-yyyy"), "Kalpurush", 8);
                         }
                         else
                         {
@@ -4470,7 +4549,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "Plant", dr["PlantName"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "BloodGroup", dr["BloodGroup"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "PermanentAddress", dr["ParmanentAddress"].ToString(), "Kalpurush", 8);
-                    
+
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "FatherOrSpouse", dr["FatherOrSpouse"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "FatherName", dr["FatherName"].ToString(), "Kalpurush", 8);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "PresentAddress", dr["PresentAddress"].ToString(), "Kalpurush", 8);
@@ -4482,7 +4561,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "NID", dr["NationalID"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "PhoneNumber", dr["CellPhnNo"].ToString(), "Kalpurush", 8);
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "EmergencyTelNo", dr["EmrCntPer1CellNo"].ToString(), "Kalpurush", 8);
-                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "ID", dr["EmployeeCode"].ToString(), "Kalpurush", 8); 
+                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "ID", dr["EmployeeCode"].ToString(), "Kalpurush", 8);
                     }
                     else
                     {
@@ -4502,7 +4581,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                     if (langName == "Hindi")
                     {
                         ConvertPresentationToPdf.SetText(presentation.Slides[i], "DOJ", dr["DOJ"].ToString(), "Kalpurush", 8);
-                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "DOB", dr["DateOfBirth"].ToString(), "Kalpurush", 8); 
+                        ConvertPresentationToPdf.SetText(presentation.Slides[i], "DOB", dr["DateOfBirth"].ToString(), "Kalpurush", 8);
                     }
                     else
                     {
@@ -4518,7 +4597,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                         if (langName == "Hindi")
                         {
                             issuDate = Convert.ToDateTime(DateTime.Now).ToString("dd-MMM-yyyy");
-                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "IssueDate", issuDate, "Kalpurush", 8); 
+                            ConvertPresentationToPdf.SetText(presentation.Slides[i], "IssueDate", issuDate, "Kalpurush", 8);
                         }
                         else
                         {
@@ -4533,7 +4612,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
                         {
                             if (langName == "Hindi")
                             {
-                                ConvertPresentationToPdf.SetText(presentation.Slides[i], "IssueDate", Convert.ToDateTime(dr["IssueDate"].ToString()).ToString("dd-MMM-yyyy"), "Kalpurush", 8); 
+                                ConvertPresentationToPdf.SetText(presentation.Slides[i], "IssueDate", Convert.ToDateTime(dr["IssueDate"].ToString()).ToString("dd-MMM-yyyy"), "Kalpurush", 8);
                             }
                             else
                             {
@@ -5432,7 +5511,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
 
         public Dictionary<string, object> GetIdCardFilePath(string plantId, string pkId, string reportType, string tempId)
         {
-            var sql = @"SELECT Id,TemplateFileName FROM SCS.RptConfigTemplate WHERE  Language='" + pkId + "'  AND PlantId='" + plantId + "' and Type='" + reportType + "' AND Id='"+ tempId + "'";
+            var sql = @"SELECT Id,TemplateFileName FROM SCS.RptConfigTemplate WHERE  Language='" + pkId + "'  AND PlantId='" + plantId + "' and Type='" + reportType + "' AND Id='" + tempId + "'";
             return _sqlRepository.GetData(sql);
         }
 
@@ -6829,7 +6908,7 @@ LEFT JOIN HKP.LocalLanguage LDP ON LDP.DepartmentId =E.DepartmentId AND LDP.Lang
         public void UpdateBudgetCode(EmployeeInformation entity)
         {
             try
-            {   
+            {
                 var dblist = Find(entity.SystemId);
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 EmployeeBudgetCodeHistory employeeBudgetCodeHistory = new EmployeeBudgetCodeHistory

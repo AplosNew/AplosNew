@@ -3797,7 +3797,7 @@ where PELP.PONo='" + ProductionOrderId + "' and QCData.LotNumber='" + LotNumber 
                 {
                     InvFilter = " and CQH.InvoiceId='" + InvoiceId + "'";
                 }
-                strSql = @"select distinct format(getdate(),'dd-MMM-yyyy') Date,QC.ProductionOrderId,QC.LotNumber LotNo,'" + CustomerId + "' CustomerId,'" + InvoiceId + @"' InvoiceId,
+                strSql = @"select format(getdate(),'dd-MMM-yyyy') Date,QC.ProductionOrderId,QC.LotNumber LotNo,'" + CustomerId + "' CustomerId,'" + InvoiceId + @"' InvoiceId,
 CustomerName=(select UserName from hkp.Party where Id='" + CustomerId + @"'),
 Article = STUFF((select distinct ',' + MA.StandardName from trn.ProductionOrderDetail Pod
 left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId = so.Id
@@ -3837,9 +3837,10 @@ from MST.QualityManagementParameterItem QMP
 left join TRN.QualityControlDetails QCD on QCD.ItemId=QMP.Id
 left join TRN.QualityControl QC on QC.Id=QCD.QCID
 left join HKP.ParameterMaster PM on PM.Id=QMP.ParameterId
+left join [MST].[QualityManagementCPSequence] CPS on CPS.ParameterId=PM.Id
 left join SCS.UnitOfMeasurement UM on UM.Id=QMP.UOMId
 left join[TRN].[CustomerQualityReportHeader] CQH on CQH.ProductionOrderId='" + ProductionOrderId + "' and CQH.LotNo='" + LotNumber + "' " + CustFilter + " " + InvFilter + @"
-where CustomerParameter=1 and Finalreport=1 and QCD.GradeId is not null" + LotFilter + "";
+where CustomerParameter=1 and Finalreport=1 and QCD.GradeId is not null" + LotFilter + " order by CPS.Sequence";
 
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -3885,7 +3886,7 @@ where CustomerParameter=1 and Finalreport=1 and QCD.GradeId is not null" + LotFi
                 {
                     InvFilter = " and CQH.InvoiceId='" + InvoiceId + "'";
                 }
-                strSql = @"select distinct format(getdate(),'dd-MMM-yyyy') Date,CQH.ProductionOrderId,CQH.LotNo,CQH.CustomerId,CQH.InvoiceId,
+                strSql = @"select format(getdate(),'dd-MMM-yyyy') Date,CQH.ProductionOrderId,CQH.LotNo,CQH.CustomerId,CQH.InvoiceId,
 CustomerName=(select UserName from hkp.Party where Id=CQH.CustomerId),
 Article = STUFF((select distinct ',' + MA.StandardName from trn.ProductionOrderDetail Pod
 left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId = so.Id
@@ -3909,8 +3910,9 @@ CQD.Id,CQD.ParaRemarks,CQD.Value,PM.UserName Parameter,CQD.UOMId,UM.UserName UOM
 from TRN.CustomerQualityReportHeader CQH
 left Join TRN.CustomerQualityReportDetails CQD on CQD.CQRHeaderId=CQH.Id
 left join HKP.ParameterMaster PM on PM.Id=(select ParameterId from MST.QualityManagementParameterItem where id=CQD.ParameterId)
+left join [MST].[QualityManagementCPSequence] CPS on CPS.ParameterId=PM.Id
 left join SCS.UnitOfMeasurement UM on UM.Id=CQD.UOMId
-where 1=1 " + POFilter + " " + LotFilter + "" + CustFilter + " " + InvFilter + "";
+where 1=1 " + POFilter + " " + LotFilter + "" + CustFilter + " " + InvFilter + " order by CPS.Sequence";
 
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -3956,7 +3958,7 @@ where 1=1 " + POFilter + " " + LotFilter + "" + CustFilter + " " + InvFilter + "
                 {
                     InvFilter = " and CQH.InvoiceId='" + InvoiceId + "'";
                 }
-                strSql = @"select distinct format(getdate(),'dd-MMM-yyyy') Date,CQH.ProductionOrderId,CQH.LotNo,CQH.CustomerId,CQH.InvoiceId,
+                strSql = @"select format(getdate(),'dd-MMM-yyyy') Date,CQH.ProductionOrderId,CQH.LotNo,CQH.CustomerId,CQH.InvoiceId,
 CustomerName=(select UserName from hkp.Party where Id=CQH.CustomerId),
 Article = STUFF((select distinct ',' + MA.StandardName from trn.ProductionOrderDetail Pod
 left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId = so.Id
@@ -3980,8 +3982,9 @@ CQD.Id,CQD.ParaRemarks,CQD.Value,PM.UserName Parameter,CQD.UOMId,UM.UserName UOM
 from TRN.CustomerQualityReportHeader CQH
 left Join TRN.CustomerQualityReportDetails CQD on CQD.CQRHeaderId=CQH.Id
 left join HKP.ParameterMaster PM on PM.Id=(select ParameterId from MST.QualityManagementParameterItem where id=CQD.ParameterId)
+left join [MST].[QualityManagementCPSequence] CPS on CPS.ParameterId=PM.Id
 left join SCS.UnitOfMeasurement UM on UM.Id=CQD.UOMId
-where 1=1 " + POFilter + " " + LotFilter + "" + CustFilter + " " + InvFilter + "";
+where 1=1 " + POFilter + " " + LotFilter + "" + CustFilter + " " + InvFilter + " order by CPS.Sequence";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.BeginTransaction();

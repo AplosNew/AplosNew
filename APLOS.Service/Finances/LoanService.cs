@@ -24,6 +24,8 @@ using Library.Service.Extension.Accounts;
 using Library.ViewModel.Invoices;
 using Library.Model.Invoices;
 using Library.Service.Invoices;
+using Library.ViewModel.Banks;
+using Library.Service.Banks;
 
 namespace Library.Service.Finances
 {
@@ -39,6 +41,7 @@ namespace Library.Service.Finances
         private readonly IFinancingService _financingService;
         private readonly IPKGeneratorService _pkGeneratorService;
         private readonly IInvoiceTaxService _invoiceTaxService;
+        private readonly IBankChargeService _bankChargeService;
 
         public LoanService(
              IUnitOfWork unitOfWork
@@ -49,6 +52,7 @@ namespace Library.Service.Finances
             , IFinancingService financingService
             , IPKGeneratorService pkGeneratorService
             , IInvoiceTaxService invoiceTaxService
+            , IBankChargeService bankChargeService
             )
         {
             _sqlRepository = sqlRepository;
@@ -59,11 +63,12 @@ namespace Library.Service.Finances
             _financingService = financingService;
             _loanInterestPayableRepository = loanInterestPayableRepository;
             _invoiceTaxService = invoiceTaxService;
+            _bankChargeService = bankChargeService;
         }
 
         #endregion Constructor
 
-        public string InsertLoan(VoucherViewModel voucherVM, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<FinancingScheduleViewModel> financingScheduleVMList, IEnumerable<FinancingMasterOrderViewModel> financingMasterOrderlist)
+        public string InsertLoan(VoucherViewModel voucherVM, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<FinancingScheduleViewModel> financingScheduleVMList, IEnumerable<FinancingMasterOrderViewModel> financingMasterOrderlist, IEnumerable<BankChargeViewModel> bankChargeDetailVMList)
         {
             var flag = false;
             try
@@ -79,6 +84,13 @@ namespace Library.Service.Finances
                 var totalCurrencyAmountDr = 0.0M;
                 var totalAmountCr = 0.0M;
                 var totalCurrencyAmountCr = 0.0M;
+                decimal totalbankCharges = 0;
+                decimal totalbankChargesCompanyCurrencyAmount = 0;
+                if (null != bankChargeDetailVMList && bankChargeDetailVMList.Count() > 0)
+                {
+                    totalbankCharges = bankChargeDetailVMList.Sum(r => r.Amount);
+                    totalbankChargesCompanyCurrencyAmount = bankChargeDetailVMList.Sum(r => r.CompanyCurrencyAmount);
+                }
 
                 // INSERT INTO Financing TABLE
                 var financing = _financingService.InsertFinancing(new Financing
@@ -183,6 +195,55 @@ namespace Library.Service.Finances
                 {
                     PartyType = voucherVM.PartyType
                 };
+                var currentVoucherDetailId = 1;
+                if (null != bankChargeDetailVMList && bankChargeDetailVMList.Count() > 0)
+                {
+                    var currentBankChargeDetailId = 0;
+                    foreach (var bankChargeDetailVM in bankChargeDetailVMList)
+                    {
+                        currentBankChargeDetailId++;
+                        var bankCharge = _bankChargeService.InsertBankCharge(new BankCharge
+                        {
+                            BankMasterId = financing.BankMasterId,
+                            CashMasterId = financing.CashMasterId,
+                            FinancingTypeId = bankChargeDetailVM.FinancingTypeId,
+                            SourceType = financing.SourceType,
+                            Narration = voucher.Narration,
+                            Archive = financing.Archive,
+                            Amount = bankChargeDetailVM.Amount,
+                            AddedBy = financing.AddedBy,
+                            AddedDate = financing.AddedDate,
+                            AddedFromIP = financing.AddedFromIP
+                        }, currentBankChargeDetailId);
+
+                        // Get Expense GL
+                        var expenseGL = _bankChargeService.GetExpensesGL(voucher.CompanyId, bankChargeDetailVM.FinancingTypeId);
+
+                        // Insert Bank charges Debit
+                        currentVoucherDetailId++;
+                        var voucherDetailChargeDr = _voucherService.InsertVoucherDetail(voucher, new VoucherDetail
+                        {
+                            BankChargeId = bankCharge.Id,
+                            DrAmount = bankCharge.Amount,
+                            Narration = bankCharge.Narration,
+                            GLGeneralInfoId = expenseGL.ExpensesGLId,
+                            BudgetMasterId = expenseGL.ExpensesBudgetMasterId,
+                            ActivityId = expenseGL.ExpensesActivityId
+                        }, currentVoucherDetailId);
+                        _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailChargeDr, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = voucherDetailChargeDr.CurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailChargeDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                            DrAmount = bankChargeDetailVM.CompanyCurrencyAmount
+                        });
+                        totalAmountDr += voucherDetailChargeDr.DrAmount;
+                        totalCurrencyAmountDr += bankChargeDetailVM.CompanyCurrencyAmount;
+                    }
+                }
+
                 _financingService.InsertFinancingDetail(financing, investmentDetail);
 
                 if (financing.TransactionType == TransactionType.LoanGiven.ToString())
@@ -353,18 +414,18 @@ namespace Library.Service.Finances
                         {
                             if(voucherVM.CurrencyId!=existingLoanList.FirstOrDefault().CurrencyId)
                             {
-                                voucherDetailTo.DrAmount = voucherVM.Amount - Math.Round((existingLoanList.Sum(r => r.LoanSetOffAmount/r.ToCurrencyRate)),2);
+                                voucherDetailTo.DrAmount = voucherVM.Amount - Math.Round((existingLoanList.Sum(r => r.LoanSetOffAmount/r.ToCurrencyRate)),2) - totalbankCharges;
                             }
                             else
                             {
-                                voucherDetailTo.DrAmount = voucherVM.Amount - existingLoanList.Sum(r => r.LoanSetOffAmount);
+                                voucherDetailTo.DrAmount = voucherVM.Amount - existingLoanList.Sum(r => r.LoanSetOffAmount) - totalbankCharges;
                             }
                         
                         }
 
                     }
                     else
-                        voucherDetailTo.DrAmount = voucherVM.Amount;
+                        voucherDetailTo.DrAmount = voucherVM.Amount- totalbankCharges;
 
                     voucherDetailFrom.GLGeneralInfoId = investmentDetail.GLGeneralInfoId;
                     voucherDetailFrom.BudgetMasterId = investmentDetail.BudgetMasterId;
@@ -374,7 +435,7 @@ namespace Library.Service.Finances
                 }
 
 
-                var currentVoucherDetailId = 1;
+                currentVoucherDetailId++;
                 _voucherService.InsertVoucherDetail(voucher, voucherDetailFrom, currentVoucherDetailId);
                 _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailFrom, new VoucherDetailCurrency
                 {
@@ -399,9 +460,9 @@ namespace Library.Service.Finances
                         ToCurrencyId = companyCurrencyId,
                         ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailTo.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                        DrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount), 2)
+                        DrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount), 2) - totalbankChargesCompanyCurrencyAmount
                     });
-                    totalAmountDr += voucherDetailTo.DrAmount;
+                    totalAmountDr += voucherDetailTo.DrAmount - totalbankChargesCompanyCurrencyAmount;
                     totalCurrencyAmountDr += Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount), 2);
                 if (!string.IsNullOrEmpty(voucherDetailTo.BankMasterId) || !string.IsNullOrEmpty(voucherDetailTo.CashMasterId))
                     {
@@ -412,7 +473,7 @@ namespace Library.Service.Finances
                             {
                                 BankMasterId = voucherDetailTo.BankMasterId,
                                 CashMasterId = voucherDetailTo.CashMasterId,
-                                DrAmount = bankMasterTo["CurrencyId"].ToString() == voucher.CurrencyId ? voucherVM.Amount : voucherVM.CompanyCurrencyRate * voucherVM.Amount,
+                                DrAmount = bankMasterTo["CurrencyId"].ToString() == voucher.CurrencyId ? voucherVM.Amount - totalbankCharges : (voucherVM.CompanyCurrencyRate * voucherVM.Amount) - totalbankChargesCompanyCurrencyAmount,
                                 SourceType = voucherDetailTo.PaymentSource
                             });
                         }
@@ -422,7 +483,7 @@ namespace Library.Service.Finances
                             {
                                 BankMasterId = voucherDetailTo.BankMasterId,
                                 CashMasterId = voucherDetailTo.CashMasterId,
-                                DrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherVM.Amount), 2),
+                                DrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherVM.Amount), 2) - totalbankChargesCompanyCurrencyAmount,
                                 SourceType = voucherDetailTo.PaymentSource
                             });
                         }
