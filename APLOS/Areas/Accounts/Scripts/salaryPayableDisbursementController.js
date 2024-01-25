@@ -1290,7 +1290,7 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
         $scope.$broadcast("show-errors-check-validity");
         $scope.saveBtnDisable = true;
         try {
-            if ($scope.form0.$valid) {
+            if ($scope.form1.$valid) {
                 if ($scope.Action === "Park") {
                     $http({
                         method: "POST",

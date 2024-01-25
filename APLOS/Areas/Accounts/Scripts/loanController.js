@@ -362,7 +362,8 @@ function loanController(accountService, bankService, cboService, commonMessage, 
                         "voucherVM": $scope.voucher,
                         "existingLoanList": $scope.ExistingLoanList,
                         "loanRepaymentSchedulelist": $scope.loanRepaymentSchedulelist,
-                        "financingMasterOrderlist": $scope.selectedMasterOrderList
+                        "financingMasterOrderlist": $scope.selectedMasterOrderList,
+                        "bankChargeDetailVMList": $scope.bankChargesList
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -388,7 +389,8 @@ function loanController(accountService, bankService, cboService, commonMessage, 
                         "voucherVM": $scope.voucher,
                         "existingLoanList": $scope.ExistingLoanList,
                         "loanRepaymentSchedulelist": $scope.loanRepaymentSchedulelist,
-                        "financingMasterOrderlist": $scope.selectedMasterOrderList
+                        "financingMasterOrderlist": $scope.selectedMasterOrderList,
+                        "bankChargeDetailVMList": $scope.bankChargesList
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -512,6 +514,8 @@ function loanController(accountService, bankService, cboService, commonMessage, 
         $scope.selectedMasterOrderList = [];
         $("#loanDetails").children().remove();
         $scope.isReadOnly = false;
+        $scope.bankChargesList = [];
+        $scope.bankCharge = {};
     };
 
     $scope.clearSchedule = function () {
@@ -975,4 +979,57 @@ function loanController(accountService, bankService, cboService, commonMessage, 
         }
         return false;
     }
+
+    $scope.bankCharge = {
+        FinancingTypeId: null,
+        FinancingTypeName: null,
+        Amount: null,
+        CompanyCurrencyAmount: null
+    };
+
+    $scope.bankChargesList = [];
+    $scope.addCharge = function () {
+        if (manualValidation("td_FinancingType", baseService.isUndefinedOrNull($scope.bankCharge.FinancingTypeId), "Charges Type is required.")) {
+            $scope.invalidRow = true;
+        }
+        else if (manualValidation("td_FinancingTypeAmount", baseService.isUndefinedOrNull($scope.bankCharge.Amount), "Amount is required.")) {
+            $scope.invalidRow = true;
+        }
+        else if (manualValidation("td_FinancingTypeCompanyCurrencyAmount", baseService.isUndefinedOrNull($scope.bankCharge.CompanyCurrencyAmount), $scope.companyCurrencyCode + " is required.")) {
+            $scope.invalidRow = true;
+        }
+        else {
+            $scope.bankCharge.FinancingTypeName = $.grep($scope.bankChargeTypeList, function (item) {
+                return item.FinancingTypeId === $scope.bankCharge.FinancingTypeId;
+            })[0].ExpensesUserName;
+            $scope.bankChargesList.push($scope.bankCharge);
+            $scope.bankCharge = {};
+            $scope.calBaseAmount();
+        }
+    };
+
+    $scope.copyChargesAmount = function () {
+        if ($scope.voucher.CurrencyId === $scope.companyCurrencyId) {
+            $scope.bankCharge.CompanyCurrencyAmount = $scope.bankCharge.Amount;
+        }
+        else {
+            $scope.bankCharge.CompanyCurrencyAmount = Math.round(($scope.bankCharge.Amount * $scope.voucher.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
+        }
+    };
+
+    bankService.getCboBankChargeTypeList(function (result) {
+        $scope.bankChargeTypeList = result;
+    });
+
+    $scope.removeChargesRow = function (index) {
+        $scope.bankChargesList.splice(index, 1);
+    };
+    $scope.rateChangeBankCharge = function (rate) {
+        $scope.bankCharge.CompanyCurrencyAmount = $scope.bankCharge.Amount * rate;
+        if ($scope.bankChargesList.length !== null) {
+            for (var i = 0; i < $scope.bankChargesList.length; i++) {
+                $scope.bankChargesList[i].CompanyCurrencyAmount = $scope.bankChargesList[i].Amount * rate;
+            }
+        }
+    };
 }

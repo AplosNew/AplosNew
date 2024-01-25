@@ -108,7 +108,7 @@
         <div id="div_ExpectedCloseDate" class="form-group" show-errors>
             <label class="col-sm-4 control-label">Expected Close Date</label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Expected Close Date" ng-model="voucher.ExpectedCloseDate" datepicker="checkExpectedCloseDate();"  class="form-control" tabindex="5">
+                <input type="text" name="Expected Close Date" ng-model="voucher.ExpectedCloseDate" datepicker="checkExpectedCloseDate();" class="form-control" tabindex="5">
             </div>
         </div>
         <div class="form-group">
@@ -180,13 +180,13 @@
         <div class="form-group" show-errors>
             <label class="col-sm-3 control-label">Down Payment</label>
             <div class="col-sm-9 show-message">
-                <input type="text" maxlength="50" id="DownPaymentAmount" name="DownPaymentAmount" ng-model="voucher.DownPaymentAmount" ng-keyup="calTotalLoanAmount()" class="form-control text-right" tabindex="6"  autocomplete="off" n-decimals="4">
+                <input type="text" maxlength="50" id="DownPaymentAmount" name="DownPaymentAmount" ng-model="voucher.DownPaymentAmount" ng-keyup="calTotalLoanAmount()" class="form-control text-right" tabindex="6" autocomplete="off" n-decimals="4">
             </div>
         </div>
         <div class="form-group" show-errors>
             <label class="col-sm-3 control-label">Total Amount</label>
             <div class="col-sm-9 show-message">
-                <input type="text" maxlength="50" id="TotalLoanAmount" name="TotalLoanAmount" ng-model="voucher.TotalLoanAmount" class="form-control text-right" tabindex="6"  autocomplete="off" n-decimals="4" readonly>
+                <input type="text" maxlength="50" id="TotalLoanAmount" name="TotalLoanAmount" ng-model="voucher.TotalLoanAmount" class="form-control text-right" tabindex="6" autocomplete="off" n-decimals="4" readonly>
             </div>
         </div>
         <div class="form-group" show-errors>
@@ -430,13 +430,13 @@
                                 <input type="text" ng-keyup="exchangeGainLossAmountExistingLoan(x)" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ToCurrencyRate" autocomplete="off" ng-model="x.ToCurrencyRate">
                             </td>
                             <td>
-                                <input type="text" readonly n-decimals="2"  title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ConversionAmount" ng-model="x.ConversionAmount" >
+                                <input type="text" readonly n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ConversionAmount" ng-model="x.ConversionAmount">
                             </td>
                             <td>
                                 <input type="text" readonly n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ExchangeType" ng-model="x.ExchangeType">
                             </td>
                             <td>
-                                <input type="text" readonly n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ExchangeAmount" ng-model="x.ExchangeAmount" >
+                                <input type="text" readonly n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ExchangeAmount" ng-model="x.ExchangeAmount">
                             </td>
 
                             <td class="text-right">
@@ -575,6 +575,62 @@
     <div class="clearfix"></div>
     <div class="col-xs-12 col-sm-12 col-md-12 modal-table" id="loanDetails">
     </div>
+    <div class="clearfix"></div>
+    <div class="col-xs-12 col-sm-6 col-md-6 modal-table">
+        <table class="table table-responsive table-striped">
+            <caption>Charges</caption>
+            <thead>
+                <tr>
+                    <th>Charges Type</th>
+                    <th>Trn. Amount</th>
+                    <th>{{companyCurrencyCode}}</th>
+                    <th class="text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="td_FinancingType">
+                        <div class="select-style show-message">
+                            <select ng-model="bankCharge.FinancingTypeId">
+                                <option ng-repeat="option in bankChargeTypeList" value="{{option.FinancingTypeId}}">{{option.ExpensesUserName}}</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td id="td_FinancingTypeAmount">
+                        <div class="show-message">
+                            <input type="text" n-decimals="3" class="form-control text-right" ng-model="bankCharge.Amount" ng-keyup="copyChargesAmount();">
+                        </div>
+                    </td>
+                    <td id="td_FinancingTypeCompanyCurrencyAmount">
+                        <div class="show-message">
+                            <input type="text" n-decimals="3" class="form-control text-right" ng-model="bankCharge.CompanyCurrencyAmount">
+                        </div>
+                    </td>
+                    <td class="text-right">
+                        <a ng-click="addCharge();" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></a>
+                    </td>
+                </tr>
+                <tr ng-repeat="x in bankChargesList">
+                    <td>{{x.FinancingTypeName}}</td>
+                    <td class="text-right">{{x.Amount | number:3 }}</td>
+                    <td class="text-right">{{x.CompanyCurrencyAmount | number:3}}</td>
+                    <td class="text-right">
+                        <button ng-click="removeChargesRow($index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot ng-show="bankChargesList.length">
+                <tr>
+                    <td><b>Sub Total</b></td>
+                    <td class="text-right"><b>{{ bankChargesList | sumByKey : 'Amount' | number:3}}</b></td>
+                    <td class="text-right"><b>{{ bankChargesList | sumByKey : 'CompanyCurrencyAmount' | number:3 }}</b></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div class="clearfix"></div>
+    <br />
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li><button ng-click="Save();" class="btn" tabindex="23"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
