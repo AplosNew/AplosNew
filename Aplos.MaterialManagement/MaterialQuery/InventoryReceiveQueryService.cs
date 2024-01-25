@@ -3622,7 +3622,6 @@ namespace Aplos.MaterialManagement
 
 				if (isreport)
 				{
-
 					var newsql = "select * from(" + str + ") y where y.GRNNo in (" + GRNNo + @")";
 					return _sqlRepository.GetDataTable(newsql);
 
