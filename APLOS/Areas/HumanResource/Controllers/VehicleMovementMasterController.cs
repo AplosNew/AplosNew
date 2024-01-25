@@ -1177,7 +1177,7 @@ FromLocation = stuff((select ', ' + LM.UserName
                 string TableName = "[TRN].[VehicleAllocation]";
                 DataSet dsMaster;
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["VAID"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
@@ -1407,7 +1407,7 @@ where VA.TripId is not null";
 
         public JsonResult GetPendingInTrip()
         {
-            string sql = @"select distinct Row_Number() OVER(Order by VT.Id)Row_Num, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
+            string sql = @"select distinct Row_Number() OVER(Order by VT.Id)Row_Num, VA.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
 , FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber , VM.VehicleName ,VIO.Id ,  VA.Id VehicleAllocationId 
 ,stuff((select ',' + LM.UserName from HKP.LocationMaster LM
 left join TRN.VehicleMovementRequisitionChild VMC on VMC.FromLocationId = LM.Id
@@ -1438,7 +1438,7 @@ where VIO.OutReading is not null and VIO.InReading is null and VA.Id is not null
 
         public JsonResult GetPendingOutTrip()
         {
-            string sql = @"select distinct Row_Number() OVER(Order by VT.Id)Row_Num,VA.Id VAID, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
+            string sql = @"select distinct Row_Number() OVER(Order by VT.Id)Row_Num, VA.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
 , FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber , VM.VehicleName ,VIO.Id ,  VA.Id VehicleAllocationId,VMR.Id as MovementMasterId
 ,stuff((select ',' + LM.UserName from HKP.LocationMaster LM
 left join TRN.VehicleMovementRequisitionChild VMC on VMC.FromLocationId = LM.Id
