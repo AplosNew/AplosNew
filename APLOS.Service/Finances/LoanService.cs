@@ -195,7 +195,7 @@ namespace Library.Service.Finances
                 {
                     PartyType = voucherVM.PartyType
                 };
-                var currentVoucherDetailId = 1;
+                var currentVoucherDetailId = 0;
                 if (null != bankChargeDetailVMList && bankChargeDetailVMList.Count() > 0)
                 {
                     var currentBankChargeDetailId = 0;
