@@ -49,7 +49,7 @@
                     <div class="input-group">
                         <input type="text" name="BankNameBonus" ng-model="voucherBonus.BankName" class="form-control" readonly data-toggle="tooltip" data-placement="top" title="{{voucherBonus.BankName}}" tooltip>
                         <span class="input-group-btn">
-                            <button ng-click="showBankPopUp();" class="btn single-small-btn" tabindex="23"><i class="glyphicon glyphicon-search"></i></button>
+                            <button ng-click="showBankPopUpBonus();" class="btn single-small-btn" tabindex="23"><i class="glyphicon glyphicon-search"></i></button>
                         </span>
                     </div>
                 </div>
@@ -58,7 +58,7 @@
                     <div class="input-group">
                         <input type="text" name="CashName" ng-model="voucherBonus.CashName" class="form-control" readonly>
                         <span class="input-group-btn">
-                            <button ng-click="showCashPopUp(null, voucherBonus.EntityId);" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                            <button ng-click="showCashPopUpBonus(null, voucherBonus.EntityId);" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
                         </span>
                     </div>
                 </div>
@@ -100,8 +100,10 @@
 
                                 <div e-columns>
                                     <div e-column e-headertext="All" e-headertemplateid="#headerTemplateBonus" e-template="#checkDisbursementBonusProcess" e-textalign="center" e-width="30"></div>
-                                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
-                                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
+                                    <div e-column e-field="YearNo" e-headertext="Year" e-allowediting="false" e-width="60"></div>
+                                    <div e-column e-field="MonthName" e-headertext="Month" e-allowediting="false" e-width="70"></div>
+                                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="70"></div>
+                                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="100"></div>
                                     <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>
                                     <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="80"></div>
                                     <div e-column e-field="Division" e-headertext="Division" e-allowediting="false" e-width="80"></div>
@@ -117,7 +119,7 @@
                                     <div e-column e-field="BankName" e-headertext="Bank Name" e-allowediting="false" e-width="80"></div>
                                     <div e-column e-field="BankAccNo" e-headertext="BankAccNo" e-allowediting="false" e-width="80"></div>
                                     <div e-column e-field="IFSCCode" e-headertext="IFSCCode" e-allowediting="false" e-width="80"></div>
-                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Amount" e-headertext="Amount" e-width="80" e-textalign="right" style="height: 20px;"></div>
+                                    <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Amount" e-headertext="Bonus Amount" e-width="80" e-textalign="right" style="height: 20px;"></div>
 
 
                                 </div>
@@ -153,7 +155,7 @@
                                     <th>GL</th>
                                     <th>Budget</th>
                                     <th>Activity</th>
-                                    <th class="text-right">Cr</th>
+                                    <th class="text-right">Dr</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -216,8 +218,8 @@
                     <th>Doc Ref</th>
                     <th>Doc Date</th>
                     <th>Posting Date</th>
-                    <th>Month</th>
-                    <th>Year</th>
+                    <th>From</th>
+                    <th>To</th>
                     <th>Payment Bank/Cash</th>
                     <th>Amount</th>
                     <th>Status</th>
@@ -230,8 +232,8 @@
                     <td>{{x.DocRefNo}}</td>
                     <td>{{x.DocDate | dateFiltering}}</td>
                     <td>{{x.PostingDate | dateFiltering}}</td>
-                    <td>{{x.Month}}</td>
-                    <td>{{x.YearNo}}</td>
+                    <td>{{x.FromDate}}</td>
+                    <td>{{x.ToDate}}</td>
                     <td>{{x.PaymentBank}}</td>
                     <td class="text-right">{{x.DrAmount | number:2}}</td>
                     <td>{{x.IsPark?'Parked':'Posted'}}</td>
@@ -266,6 +268,7 @@
                             <div e-column e-field="Status" e-headertext="Status" e-width="80"></div>
                             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
                             <div e-column e-field="PaymentMode" e-headertext="Payment Mode" e-width="80"></div>
+                            <div e-column e-field="DisbursementAmount" e-headertext="Bonus Disbursement Amount" e-width="80" e-type="numeric" e-format="{0:0.00}" e-textalign="right"></div>
                         </div>
                     </div>
                 </div>
@@ -280,6 +283,6 @@
 <confirm-archive-generic modalid="confirmDeleteBonusPopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="deleteBonusDisbursement(voucherId)"></confirm-archive-generic>
 
 @*@Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
-@Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")
-@Html.Partial("~/Areas/Banks/Views/_CashPopUp.cshtml")
-@Html.Partial("~/Areas/Accounts/Views/SalaryDisbursement/_BankPopUp.cshtml")*@
+    @Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")*@
+@Html.Partial("~/Areas/Accounts/Views/SalaryDisbursement/_CashPopUpBonus.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/SalaryDisbursement/_BankPopUpBonus.cshtml")

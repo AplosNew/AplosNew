@@ -688,7 +688,6 @@ upanelApp.controller('RestTypeController', RestTypeController);
 upanelApp.controller('salaryCertificateReportController', salaryCertificateReportController);
 upanelApp.controller('salaryDisbursementController', salaryDisbursementController);
 upanelApp.controller('bonusDisbursementController', bonusDisbursementController);
-upanelApp.controller('bonusDisbursementPostController', bonusDisbursementPostController);
 upanelApp.controller('salaryHeadWiseAmountSettingController', salaryHeadWiseAmountSettingController);
 upanelApp.controller('SalaryHeadWiseAmountTransactionController', SalaryHeadWiseAmountTransactionController);
 upanelApp.controller('salaryJournalController', salaryJournalController);
@@ -1251,6 +1250,8 @@ upanelApp.controller("LCPendingReportController", LCPendingReportController)
 upanelApp.controller("GoodWorkCheckedController", GoodWorkCheckedController)
 upanelApp.controller("GoodWorkApproveController", GoodWorkApproveController)
 upanelApp.controller("PettyCashMasterController", PettyCashMasterController)
+upanelApp.controller("CutPlanEditController", CutPlanEditController)
+
           
 
 

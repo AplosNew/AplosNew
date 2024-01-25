@@ -4323,6 +4323,13 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
                     WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
+, LotNOs =Replace(STUFF((SELECT distinct ',' + LotNo   FROM ItemScanChild 
+			where SalesId = IR.InvoiceNo  FOR XML PATH('') ) , 1,1 , ''),',' , Char(13) + Char(10))
+,Cartonss =Replace(STUFF((SELECT distinct ',' + convert(varchar(50), COUNT(RefNo))
+             FROM ItemScanChild 
+			 where SalesId = Ir.Id
+			group by SalesId ,SalesMaterialId, LotNo
+			  FOR XML PATH('') ) , 1,1 , ''),',' , Char(13) + Char(10))
 ,PSI.RFIDSealNo 
 ,PSI.LineSealNo
 ,NEGADD.Address1 NegotiationBankAdd
@@ -6978,7 +6985,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 160;
+            wTable.Rows[ROW].Cells[colArticle].Width = 150;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Details");
             range.ApplyCharacterFormat(FontBold);
@@ -6988,18 +6995,18 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Lot No");
             range.ApplyCharacterFormat(FontBold);
             int colLot = COL; COL++;
-            wTable.Rows[ROW].Cells[colLot].Width = 60;
+            wTable.Rows[ROW].Cells[colLot].Width = 65;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN");
             range.ApplyCharacterFormat(FontBold);
             int colHSN = COL; COL++;
-            wTable.Rows[ROW].Cells[colHSN].Width = 60;
+            wTable.Rows[ROW].Cells[colHSN].Width = 55;
 
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Cartons");
             range.ApplyCharacterFormat(FontBold);
             int colCartons = COL; COL++;
-            wTable.Rows[ROW].Cells[colCartons].Width = 50;
+            wTable.Rows[ROW].Cells[colCartons].Width = 45;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty(KGS)");
             range.ApplyCharacterFormat(FontBold);
@@ -8505,7 +8512,7 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
     ,P.UserName Buyer 
     ,P.TINNO CustomerGSTNo
     ,p.VATResistrationNo AS CustomerPANNo
-    ,Addres.Address1 VendorAddress,Addres.Email
+    ,Addres.Address1 VendorAddress,ISNULL(DAddres.Email,Addres.Email)Email
     ,ISNULL(HSNC.Code,MHSN.Code) HSNCode
     ,Plant.GSTIN
     ,Plant.VATResistrationNo AS PlantPANNo
@@ -8610,6 +8617,7 @@ LEFT JOIN SCS.Currency BASECRNC ON BASECRNC.Id = cmp.BaseCurrencyId
 LEFT JOIN MST.PaymentTerm PayTerm ON PayTerm.Id = IR.PaymentTermId
 LEFT JOIN HKP.PartyPlant INVPARTYPL ON INVPARTYPL.Id = IR.InvoicingPartyPlantId
 LEFT JOIN HKP.PartyPlant DPARTYPL ON DPARTYPL.Id = IR.DeliveryPartyPlantId
+LEFT JOIN [MST].[AddressMaster] DAddres ON DAddres.Id = DPARTYPL.AddressMasterId
 LEFT JOIN HKP.Party P ON P.Id = IR.PartyId
 LEFT JOIN [MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
 LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id

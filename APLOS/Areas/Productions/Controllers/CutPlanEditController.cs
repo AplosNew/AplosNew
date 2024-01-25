@@ -24,13 +24,13 @@ using System.Linq;
 
 namespace Aplos.Areas.Productions.Controllers
 {
-    public class CutPlanController : BaseController
+    public class CutPlanEditController : BaseController
     {
         #region Constructor
        
         ProductionSummaryData _productionSummaryData = new ProductionSummaryData();
         private readonly ISqlRepository _sqlRepository;
-        public CutPlanController(ISqlRepository R)
+        public CutPlanEditController(ISqlRepository R)
         {
             _sqlRepository = R;
         }
@@ -47,80 +47,68 @@ namespace Aplos.Areas.Productions.Controllers
         #region Operation
 
         [Authorize, HttpGet]
-        public ActionResult GetMPDProcessList()
+        public ActionResult GetMasterPlanList()
         {
-            return Json(_productionSummaryData.GetMPDProcessList(), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetMasterPlanList(), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetUserNameList(string ProcessId)
+        public ActionResult GetColorLists(string MasterPlanId)
         {
-            return Json(_productionSummaryData.GetUserNameList(ProcessId), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetColorLists(MasterPlanId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetSKU1ColorLists(string MasterPlanId)
+        public ActionResult GetCutPlanSummary(string MasterPlanId,string ColorId)
         {
-            return Json(_productionSummaryData.GetSKU1ColorLists(MasterPlanId), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetCutPlanSummary(MasterPlanId, ColorId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetPackingTypeLists()
+        public ActionResult GetAllotedHeaderCountList(string MasterPlanId, string ColorId)
         {
-            return Json(_productionSummaryData.GetPackingTypeLists(), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetAllotedHeaderCountList(MasterPlanId, ColorId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetMasterPlanListForCutPlan(string ProcessId)
+        public ActionResult GetCutPlanDetailsR1List(string MasterPlanId, string ColorId)
         {
-            return Json(_productionSummaryData.GetMasterPlanListForCutPlan(ProcessId), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetCutPlanDetailsR1List(MasterPlanId, ColorId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetCutPlanList(string ProcessId, string MasterPlanId)
+        public ActionResult GetCutPlanDetailsR2List(string MasterPlanId, string ColorId)
         {
-            return Json(_productionSummaryData.GetCutPlanList(ProcessId, MasterPlanId), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetCutPlanDetailsR2List(MasterPlanId, ColorId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetMPDLineItemList(string MasterPlanId)
+        public ActionResult GetCutPlanDetailsR3List(string MasterPlanId, string ColorId)
         {
-            return Json(_productionSummaryData.GetMPDLineItemList(MasterPlanId), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetCutPlanDetailsR3List(MasterPlanId, ColorId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetMPDSKU1List(string MasterPlanId)
+        public ActionResult GetCutPlanDetailsR4List(string MasterPlanId, string ColorId)
         {
-            return Json(_productionSummaryData.GetMPDSKU1List(MasterPlanId), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public ActionResult GetMPDSKU2List(string MasterPlanId)
-        {
-            return Json(_productionSummaryData.GetMPDSKU2List(MasterPlanId), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public ActionResult GetCutPlanQtyList(string MasterPlanId, bool LineItem, bool SKU1, bool SKU2, string MinQty, string SKU1ColorId)
-        {
-            return Json(_productionSummaryData.GetCutPlanQtyList(MasterPlanId, LineItem, SKU1, SKU2, MinQty, SKU1ColorId), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetCutPlanDetailsR4List(MasterPlanId, ColorId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-        public JsonResult CreateCutPlanData(Dictionary<string, object> data, List<Dictionary<string, object>> DataList, string MasterPlanId)
+        public JsonResult CreateCutPlanEditData(Dictionary<string, object> data, List<Dictionary<string, object>> DataList, string MasterPlanId)
         {
-            SaveCutPlanData(data, DataList, out string masterId, MasterPlanId);
+            SaveCutPlanEditData(data, DataList, out string masterId, MasterPlanId);
             data["Id"] = masterId;
             return Json(new { Data = data, Message = AplosMessage.Insert });
         }
 
-        public void SaveCutPlanData(Dictionary<string, object> data, List<Dictionary<string, object>> DataList, out string masterId, string MasterPlanId)
+        public void SaveCutPlanEditData(Dictionary<string, object> data, List<Dictionary<string, object>> DataList, out string masterId, string MasterPlanId)
         {
             try
             {
                 DataSet dsMaster, dsDetail, dsId;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                //con.OpenDataSetThroughAdapter("select * from [MST].[AllotedHeader] where Usn n   nm nm merName='" + data["UserName"] + "'", out DataSet dsCutPlanUserNameValidation, false, "1");
+                //con.OpenDataSetThroughAdapter("select * from [MST].[AllotedHeader] where Usn n   nm nm merName='" + data["UserName"] + "'", out DataSet dsCutPlanEditUserNameValidation, false, "1");
                 con.OpenDataSetThroughAdapter("SELECT * FROM [MST].[AllotedHeader] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";

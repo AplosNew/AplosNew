@@ -2360,27 +2360,18 @@ namespace Library.Accounting.Accounts
 
                 parameters.CmdText = @"SELECT V.Id PayableVoucherId, V.VoucherDate, V.PostingDate, V.DocRefNo, V.VoucherTypeId, V.CurrencyId, V.DocDate, V.EntityId, C.Code AS CurrencyCode
                                     , VD.DrAmount, V.VoucherNo,ISNULL(BM.AccountTitle,CM.UserName) PaymentBank, V.IsPark, V.Narration
-									,[Month]=case when sl.MonthNo=1 then 'January'
-                                    when sl.MonthNo=2 then 'February'
-                                    when sl.MonthNo=3 then 'March'
-                                    when sl.MonthNo=4 then 'April'
-                                    when sl.MonthNo=5 then 'May'
-                                    when sl.MonthNo=6 then 'June'
-                                    when sl.MonthNo=7 then 'July'
-                                    when sl.MonthNo=8 then 'August'
-                                    when sl.MonthNo=9 then 'September'
-                                    when sl.MonthNo=10 then 'October'
-                                    when sl.MonthNo=11 then 'November'
-                                    when sl.MonthNo=12 then 'December' end,sl.MonthNo ,sl.YearNo
+									,CONCAT(DATENAME(mm, DA.FromDate), '-', DATEPART(yy, DA.FromDate))FromDate
+									,CONCAT(DATENAME(mm, DA.ToDate), '-', DATEPART(yy, DA.ToDate))ToDate
                                     FROM TRN.[Voucher] AS V
                                     LEFT JOIN SCS.Currency AS C ON C.Id = V.CurrencyId
                                     LEFT JOIN (SELECT SUM(VD.DrAmount) AS DrAmount, VD.VoucherId,VD.BankMasterId FROM [TRN].[VoucherDetail] AS VD WHERE VD.DrAmount <> 0 
 									GROUP BY VD.VoucherId,VD.BankMasterId
                                     ) AS VD ON VD.VoucherId=V.Id
-									left join (select distinct sl.BonusDisbursementVoucherId,sl.MonthNo,sl.YearNo
+									left join (select distinct sl.BonusDisbursementVoucherId,sl.BonusDisbursementAdviceId
 									from dbo.SalaryLock sl
 									where sl.BonusDisbursementVoucherId<>'' and sl.IsBonusDisbursed=1 
 									) sl on sl.BonusDisbursementVoucherId=v.Id
+									LEFT JOIN [dbo].[BonusDisbursementAdvice]  DA ON DA.Id=sl.BonusDisbursementAdviceId
 									LEFT JOIN TRN.VoucherDetail XVD ON XVD.VoucherId=V.Id AND XVD.BankMasterId<>''
 									LEFT JOIN TRN.VoucherDetail XVDC ON XVDC.VoucherId=V.Id AND  XVDC.CashMasterId<>''
 									left join MST.BankMaster BM ON BM.Id=XVD.BankMasterId
