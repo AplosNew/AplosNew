@@ -128,7 +128,7 @@ namespace Library.MaterialManagement.JobWork
                                   ,eI.EmployeeName CheckedBy
 									,eI1 .EmployeeName ApprovedBy
 									,IR.ContractId
-									,IR.OrderSpecific
+									,IR.OrderSpecific,IR.ProcessId
 									--,IR.PurchaseLCId
 									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
@@ -206,7 +206,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                              ,eI.EmployeeName CheckedBy
 									,eI1 .EmployeeName ApprovedBy
 									,IR.ContractId
-									,IR.OrderSpecific
+									,IR.OrderSpecific,IR.ProcessId
 									--,IR.PurchaseLCId
 									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
@@ -286,7 +286,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                                    ,eI.EmployeeName CheckedBy
 									,eI1 .EmployeeName ApprovedBy
 									,IR.ContractId
-									,IR.OrderSpecific
+									,IR.OrderSpecific,IR.ProcessId
 									--,IR.PurchaseLCId
 									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
@@ -369,7 +369,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                            ,eI.EmployeeName CheckedBy
 									,eI1 .EmployeeName ApprovedBy
                                     ,IR.ContractId
-									,IR.OrderSpecific
+									,IR.OrderSpecific,IR.ProcessId
 									--,IR.PurchaseLCId
                                     ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
@@ -455,7 +455,7 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                                     ,eI.EmployeeName CheckedBy
 									,eI1 .EmployeeName ApprovedBy
                                     ,IR.ContractId
-									,IR.OrderSpecific
+									,IR.OrderSpecific,IR.ProcessId
 									--,IR.PurchaseLCId
                                     ,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
@@ -2890,13 +2890,22 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                 throw ex;
             }
         }
-
-        public Dictionary<string, object> Create(Dictionary<string, object> data, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+        private string GetOSPOProductionOrderMapPK()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "OSPOProductionOrderMap", out sID);
+            return sID;
+        }
+        public Dictionary<string, object> Create(Dictionary<string, object> data, List<Dictionary<string, object>> mapdata, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
         {
             string JWPOId = "";
             DataSet dsMaster;
+            DataSet dsMapMaster;
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
             con.OpenDataSetThroughAdapter("SELECT * FROM OSTransformationPO WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+            con.OpenDataSetThroughAdapter("SELECT * FROM OSPOProductionOrderMap WHERE OSTransformationPOId='" + data["Id"] + "'", out dsMapMaster, false, "1");
+
             if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
             {
                 CheckedByStatusForNoti = "False";
@@ -2955,10 +2964,12 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                     }
 
-
+                    data["ProcessId"] = data["ProcessId"]; 
                     data["IsClosed"] = false;
 
                     AddNewRow(dsMaster.Tables[0], data);
+
+
                 }
                 else
                 {
@@ -3011,11 +3022,26 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
+                foreach (var item in mapdata)
+                {
+                    dsMapMaster.Tables[0].DefaultView.RowFilter = "OSTransformationPOId='" + dsMaster.Tables[0].Rows[0]["Id"].ToString() + "' ";
 
+                    if (dsMapMaster.Tables[0].DefaultView.Count == 0)
+                    {
+                        DataRow dr = dsMapMaster.Tables[0].NewRow();
+                        dr["Id"] = GetOSPOProductionOrderMapPK();
+
+                        dr["OSTransformationPOId"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                        dr["ProductionOrderId"] = item["POId"].ToString();
+                        //dr["Remarks"] = item["Remarks"];
+                        dsMapMaster.Tables[0].Rows.Add(dr);
+                    }
+                    
+                }
 
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+                _info.SaveDataSets(dsMaster, dsMapMaster);
                 return data;// Json(new { data = data, Message = AplosMessage.Success + " PO no <b>" + data["Id"] + "</b>" });
             }
             catch (Exception ex)
@@ -6886,22 +6912,20 @@ LEFT JOIN (SELECT A.OSTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
         }
 
 
-        public IEnumerable<object> GetProductionOredrList(string entityid, string column, string value)
+        public IEnumerable<object> GetProductionOredrList(string entityid, string processid, string column, string value)
         {
             string sql = @"select * from (SELECT Flag=CAST(0 AS BIT), so.Customer,so.Article,so.StyleNo, so.OwnStyleNo, so.Product,
-PO.Id POId,s.UserName AS POStatus,so.SONo,SO.SOQuantity SOQty,ISNULL(PO.Qty,0) AS POQuantity, So.LineItemId,SO.SOStatus
-                            FROM [TRN].[ProductionOrder] AS PO                            
-                           LEFT OUTER  JOIN (select
-                                                    pod.ProductionOrderId, sum(so.Qty) AS SOQuantity,
+                            PO.Id POId,s.UserName AS POStatus,so.SONo,SO.SOQuantity SOQty,ISNULL(PO.Qty,0) AS POQuantity, So.LineItemId,SO.SOStatus
+                            FROM [TRN].[ProductionOrder] AS PO  JOIN TRN.ProductionOrderProcessSet POP ON POP.ProductionOrderId=PO.Id                          
+                            LEFT OUTER  JOIN (select pod.ProductionOrderId, sum(so.Qty) AS SOQuantity,
                                                     LineItemId=STUFF((select distinct ','+XMOI.Id from 
 								                            trn.MasterOrderItem XMOI 	 
 								                            INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
 								                            INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
 							                            where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-											 					                              
 
 													StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
-																			trn.MasterOrderItem XMOI 	  
+																trn.MasterOrderItem XMOI 	  
 								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
 								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
 							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
@@ -6946,10 +6970,77 @@ PO.Id POId,s.UserName AS POStatus,so.SONo,SO.SOQuantity SOQty,ISNULL(PO.Qty,0) A
                                                     left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
 			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 													
-from trn.ProductionOrderDetail AS pod JOIN  trn.SalesOrder SO ON pod.SalesOrderId=so.Id group by pod.ProductionOrderId
-) AS SO ON so.ProductionOrderId=po.Id
+                            from trn.ProductionOrderDetail AS pod JOIN  trn.SalesOrder SO ON pod.SalesOrderId=so.Id group by pod.ProductionOrderId
+                            ) AS SO ON so.ProductionOrderId=po.Id
                             LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
-                            WHERE PO.entityid='"+ entityid + @"' AND S.UserName<>'Closed') AS TEMP";
+                            WHERE PO.entityid='" + entityid + "' AND POP.ProcessId='"+processid+@"' AND S.UserName<>'Closed') AS TEMP";
+
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+        public IEnumerable<object> GetProductionOredrMapList(string entityid, string processid, string osPOId)
+        {
+            string sql = @"select * from (SELECT Flag=CAST(0 AS BIT), so.Customer,so.Article,so.StyleNo, so.OwnStyleNo, so.Product,
+                            PO.Id POId,s.UserName AS POStatus,so.SONo,SO.SOQuantity SOQty,ISNULL(PO.Qty,0) AS POQuantity, So.LineItemId,SO.SOStatus
+                            FROM [TRN].[ProductionOrder] AS PO  
+                            JOIN TRN.ProductionOrderProcessSet POP ON POP.ProductionOrderId=PO.Id  
+                            JOIN  [dbo].[OSPOProductionOrderMap] MAP ON MAP.ProductionOrderId=PO.Id
+                            LEFT OUTER  JOIN (select pod.ProductionOrderId, sum(so.Qty) AS SOQuantity,
+                                                    LineItemId=STUFF((select distinct ','+XMOI.Id from 
+								                            TRN.MasterOrderItem XMOI 	 
+								                            INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                            INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                            where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+													StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+	                                                
+                                                    OwnStyleNo=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+
+                                                    SONo=STUFF((select distinct ','+sox.Id from 
+								                                trn.MasterOrderItem XMOI 	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+													SOStatus=STUFF((select distinct ','+OS.UserName from 
+								                                 HKP.OrderStatus OS 
+								                                INNER JOIN trn.SalesOrder AS sox on OS.Id=SOX.OrderStatusId
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                                                   
+                                                    Customer=STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													
+                                                     ,Article=STUFF((select distinct ', '+mm.StandardName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join mst.MaterialMasterarticle mm on mm.id=XMOI.ArticleId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													,Product=STUFF((select distinct ', '+Pm.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join mst.MaterialMaster mm on mm.id=XMOI.MaterialMasterId
+															left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+                                                    left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													
+                            from trn.ProductionOrderDetail AS pod JOIN  trn.SalesOrder SO ON pod.SalesOrderId=so.Id group by pod.ProductionOrderId
+                            ) AS SO ON so.ProductionOrderId=po.Id
+                            LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
+                            WHERE PO.entityid='" + entityid + "' AND POP.ProcessId='" + processid + "' AND  MAP.OSTransformationPOId='"+osPOId+@"' AND S.UserName<>'Closed') AS TEMP";
 
             return _sqlRepository.GetDataCollection(sql, null);
         }

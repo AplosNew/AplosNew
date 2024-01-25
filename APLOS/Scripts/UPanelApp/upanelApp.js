@@ -1250,6 +1250,8 @@ upanelApp.controller("LCPendingReportController", LCPendingReportController)
 upanelApp.controller("GoodWorkCheckedController", GoodWorkCheckedController)
 upanelApp.controller("GoodWorkApproveController", GoodWorkApproveController)
 upanelApp.controller("PettyCashMasterController", PettyCashMasterController)
+upanelApp.controller("CutPlanEditController", CutPlanEditController)
+
           
 
 

@@ -664,10 +664,16 @@ UNION ALL
  Select A.CalanderYearID,CAST (0 AS BIT) IsExceptionAllowed,A.FromDate,A.ToDate
  ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear,DaysCanBeSanctioned=CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2))
  ,CurrentAllocationDCBS=CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal,CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2)) CurrentAllocation,CAST (0 AS decimal(18,2)) PreviousYearCarryForward
- ,BroughtForward=CASE WHEN A.Opening>B.CarryForward THEN A.Opening WHEN B.BroughtForward>B.CarryForward THEN B.BroughtForward ELSE B.CarryForward END,CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2)) LeaveDays
+ --,BroughtForward=CASE WHEN A.Opening>B.CarryForward THEN A.Opening WHEN B.BroughtForward>B.CarryForward THEN B.BroughtForward ELSE B.CarryForward END
+ ,BroughtForward=CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2))
+ 
+ ,CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2)) LeaveDays
  ,ISNULL(ltrn.ldays, 0) Applied,ISNULL(tav.av, 0) Availed,ISNULL(R.Rejected,0) Rejected,ISNULL(acApl.ldays,0) ldays,A.LeaveType,CAST (0 AS BIT) IsBroughtForwardAdd
  ,CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2)) as Earned
-,Balance=CAST (CASE WHEN A.Opening>B.CarryForward THEN A.Opening WHEN B.BroughtForward>B.CarryForward THEN B.BroughtForward ELSE B.CarryForward END +CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2))
+
+,Balance=ROUND(CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END +CAST(case when ltd.EncashWorkingDaysQty >0 
+then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty 
+else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2)),0)
  from (
  select A.LeaveYearId CalanderYearID,0 IsExceptionAllowed,a.Id SystemID,A.LeaveTypeId LTSystemID,A.EmployeeId EmployeeID,lt.UserName LeaveName, lt.Description LeaveDescription,lt.LeaveType
  ,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate,A.Opening 
@@ -882,10 +888,16 @@ UNION ALL
  Select A.CalanderYearID,CAST (0 AS BIT) IsExceptionAllowed,A.FromDate,A.ToDate
  ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear,DaysCanBeSanctioned=CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2))
  ,CurrentAllocationDCBS=CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal,CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2)) CurrentAllocation,CAST (0 AS decimal(18,2)) PreviousYearCarryForward
- ,BroughtForward=CASE WHEN A.Opening>B.CarryForward THEN A.Opening WHEN B.BroughtForward>B.CarryForward THEN B.BroughtForward ELSE B.CarryForward END,CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2)) LeaveDays
+  --,BroughtForward=CASE WHEN A.Opening>B.CarryForward THEN A.Opening WHEN B.BroughtForward>B.CarryForward THEN B.BroughtForward ELSE B.CarryForward END
+ ,BroughtForward=CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2))
+ 
+ ,CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END AS decimal(18,2)) LeaveDays
  ,ISNULL(ltrn.ldays, 0) Applied,ISNULL(tav.av, 0) Availed,ISNULL(R.Rejected,0) Rejected,ISNULL(acApl.ldays,0) ldays,A.LeaveType,CAST (0 AS BIT) IsBroughtForwardAdd
  ,CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2)) as Earned
-,Balance=CAST (CASE WHEN A.Opening>B.CarryForward THEN A.Opening WHEN B.BroughtForward>B.CarryForward THEN B.BroughtForward ELSE B.CarryForward END +CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2))
+
+,Balance=ROUND(CAST (CASE WHEN B.BroughtForward>A.Opening THEN A.Opening ELSE B.BroughtForward END +CAST(case when ltd.EncashWorkingDaysQty >0 
+then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty 
+else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2)),0)
  from (
  select A.LeaveYearId CalanderYearID,0 IsExceptionAllowed,a.Id SystemID,A.LeaveTypeId LTSystemID,A.EmployeeId EmployeeID,lt.UserName LeaveName, lt.Description LeaveDescription,lt.LeaveType
  ,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate,A.Opening 

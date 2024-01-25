@@ -364,12 +364,12 @@
                                                     </script>
                                                     <script type="text/template" id="LIRatio">
                                                         <div class="col-sm-10" style="padding:0px;">
-                                                            <input type="number" name="Ratio" ng-model="data.Ratio" ng-click="" class="form-control" maxlength="100">
+                                                            <input type="number" name="Ratio" ng-model="data.Ratio" ng-change="$parent.RatioChange(this);" ng-click="" class="form-control" maxlength="100">
                                                         </div>
                                                     </script>
                                                     <script type="text/template" id="CPLIRemark">
                                                         <div class="col-sm-10" style="padding:0px;">
-                                                            <input type="text" name="Remarks" ng-model="data.Remarks" ng-change="$parent.RatioChange(this);" ng-click="" class="form-control" maxlength="100">
+                                                            <input type="text" name="Remarks" ng-model="data.Remarks"  ng-click="" class="form-control" maxlength="100">
                                                         </div>
                                                     </script>
                                                     <div class="col-md-12 col-sm-12 col-xs-12">

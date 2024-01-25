@@ -557,6 +557,7 @@
     <Compile Include="Areas\Processes\Controllers\ProcessManagementController.cs" />
     <Compile Include="Areas\Processes\Controllers\ProcessManagementRecepieController.cs" />
     <Compile Include="Areas\Processes\Controllers\ProcessTemplateController.cs" />
+    <Compile Include="Areas\Productions\Controllers\CutPlanEditController.cs" />
     <Compile Include="Areas\Productions\Controllers\CutPlanController.cs" />
     <Compile Include="Areas\Productions\Controllers\MasterPlanDetailsController.cs" />
     <Compile Include="Areas\Productions\Controllers\DailyPlanningAndProductionReportController.cs" />
@@ -1932,6 +1933,7 @@
     <Content Include="Areas\Attendances\Scripts\GoodWorkApproveController.js" />
     <Content Include="Areas\Commercial\Scripts\LCPendingReportController.js" />
     <Content Include="Areas\OrderManagements\Scripts\TermsandConditionGroupController.js" />
+    <Content Include="Areas\Productions\Scripts\CutPlanEditController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanController.js" />
     <Content Include="Areas\Productions\Scripts\MasterPlanDetailsController.js" />
     <Content Include="Areas\Productions\Scripts\MasterPlanSetUpController.js" />
@@ -4901,6 +4903,7 @@
     <Content Include="Areas\Outsourcing\Views\OSIssueReturn\_ProductionSummaryProcessPopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\_BankPopUpBonus.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\_CashPopUpBonus.cshtml" />
+    <Content Include="Areas\Productions\Views\CutPlanEdit\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
