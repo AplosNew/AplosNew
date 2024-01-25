@@ -206,6 +206,7 @@ namespace Library.Service.Finances
                         {
                             BankMasterId = financing.BankMasterId,
                             CashMasterId = financing.CashMasterId,
+                            FinancingId = financing.Id,
                             FinancingTypeId = bankChargeDetailVM.FinancingTypeId,
                             SourceType = financing.SourceType,
                             Narration = voucher.Narration,
@@ -460,9 +461,9 @@ namespace Library.Service.Finances
                         ToCurrencyId = companyCurrencyId,
                         ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailTo.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                        DrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount), 2) - totalbankChargesCompanyCurrencyAmount
+                        DrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount), 2) 
                     });
-                    totalAmountDr += voucherDetailTo.DrAmount - totalbankChargesCompanyCurrencyAmount;
+                    totalAmountDr += voucherDetailTo.DrAmount;
                     totalCurrencyAmountDr += Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount), 2);
                 if (!string.IsNullOrEmpty(voucherDetailTo.BankMasterId) || !string.IsNullOrEmpty(voucherDetailTo.CashMasterId))
                     {
