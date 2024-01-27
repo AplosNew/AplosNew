@@ -60,16 +60,24 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label">LotNumber</label>
                 <div class="col-sm-8">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="statusNew.LotNo" name="LotNo"
-                                    ng-options="item.Value as item.Text for item in LotNumberLists">
-                            </select>
-                        </div>
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="text" name="LotNo" ng-disabled="true" ng-model="statusNew.LotNo" class="form-control" maxlength="100" autocomplete="off">
                     </div>
-                @*<div class="col-sm-8">
-                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="LotNumberLists" e-value="statusNew.LotNo" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
-                </div>*@
+                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                        <button ng-click="selectLotNo();" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
             </div>
+            @*<div class="form-group">
+            <label class="col-sm-4 control-label">LotNumber</label>
+            <div class="col-sm-8">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="statusNew.LotNo" name="LotNo"
+                                ng-options="item.Value as item.Text for item in LotNumberLists">
+                        </select>
+                    </div>
+                </div>
+        </div>*@
         </div>
         <div class="col-xs-12">
             <div class="common-btn">
@@ -137,6 +145,36 @@
                     <ul class="list-inline text-right">
                         <li>
                             <button ng-click="closeInvoicePopup();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="LotNumberPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">LotNumber List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an LotNumber</p>
+                        <div style="color:black;" id="GridLotNumberPopup" ej-grid e-datasource="LotNumberLists"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleLotNumber">
+                            <div e-columns>
+                                <div e-column e-field="PONo" e-headertext="PONo" e-width="50"></div>
+                                <div e-column e-field="LotNumber" e-headertext="LotNumber" e-width="60"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeLotNumberPopup();" class="btn"><i class=""></i> Close</button>
                         </li>
                     </ul>
                 </div>

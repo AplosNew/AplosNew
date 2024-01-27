@@ -70,17 +70,39 @@ function LWQSummaryReportController(cboService, commonMessage, $scope, $rootScop
     }
     $scope.selectPONo();
 
+    //$scope.LotNumberLists = [];
+    //$scope.GetLotNumberLists = function () {
+    //    $scope.LotNumberLists = [];
+    //    $http({
+    //        method: 'GET',
+    //        url: 'QMS/LWQSummaryReport/GetLotNumberLists?POId=' + $scope.statusNew.ProductionOrderId
+    //    }).then(function successCallback(response) {
+    //        $scope.LotNumberLists = response.data;
+    //    });
+    //}
+    //$scope.GetLotNumberLists();
+
     $scope.LotNumberLists = [];
-    $scope.GetLotNumberLists = function () {
+    $scope.selectLotNo = function () {
         $scope.LotNumberLists = [];
         $http({
             method: 'GET',
             url: 'QMS/LWQSummaryReport/GetLotNumberLists?POId=' + $scope.statusNew.ProductionOrderId
         }).then(function successCallback(response) {
             $scope.LotNumberLists = response.data;
+            angular.element(document.querySelector('#LotNumberPopup')).modal('show');
         });
     }
-    $scope.GetLotNumberLists();
+
+    $scope.doubleLotNumber = function (e) {
+        $scope.statusNew.LotNo = e.data.LotNumber;
+        $scope.statusNew.ProductionOrderId = e.data.PONo;
+        angular.element(document.querySelector('#LotNumberPopup')).modal('hide');
+    }
+
+    $scope.closeLotNumberPopup = function () {
+        angular.element(document.querySelector('#LotNumberPopup')).modal('hide');
+    }
 
     $scope.View = function () {
         try {
@@ -98,7 +120,7 @@ function LWQSummaryReportController(cboService, commonMessage, $scope, $rootScop
         $scope.Action = "Save";
         $scope.statusNew = Object.assign({}, $scope.status);
         $scope.selectPONo();
-        $scope.GetLotNumberLists();
+        //$scope.GetLotNumberLists();
     }
 
     $scope.JobCardCQReportFunc = function () {

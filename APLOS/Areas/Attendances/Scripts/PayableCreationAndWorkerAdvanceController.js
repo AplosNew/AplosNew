@@ -667,7 +667,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
                 $http({
                     method: 'POST',
                     url: $scope.path + 'CreateGoodWorkPayableCreation',
-                    data: { 'data': $scope.ModelPCNew, 'goodWorkPaymentAdviseDetail': $scope.PCEmployeeList },
+                    data: { 'data': $scope.ModelPCNew, 'goodWorkPaymentAdviseDetail': $scope.PCEmployeeList,'tabName': $scope.SaveTabName},
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -690,7 +690,7 @@ function PayableCreationAndWorkerAdvanceController(cboService, commonMessage, $s
                 $http({
                     method: 'POST',
                     url: $scope.path + 'CreateGoodWorkPayableCreation',
-                    data: { 'data': $scope.ModelOTNew, 'goodWorkPaymentAdviseDetail': $scope.PCOTEmployeeList },
+                    data: { 'data': $scope.ModelOTNew, 'goodWorkPaymentAdviseDetail': $scope.PCOTEmployeeList,'tabName': $scope.SaveTabName},
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {

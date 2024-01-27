@@ -86,17 +86,17 @@ function LWQRUpdateController(cboService, commonMessage, $scope, $rootScope, bas
     }
     $scope.selectPONo();
 
-    $scope.LotNumberLists = [];
-    $scope.GetLotNumberLists = function () {
-        $scope.LotNumberLists = [];
-        $http({
-            method: 'GET',
-            url: 'QMS/LWQRUpdate/GetUpdateLotNumberLists?POId=' + $scope.statusNew.ProductionOrderId
-        }).then(function successCallback(response) {
-            $scope.LotNumberLists = response.data;
-        });
-    }
-    $scope.GetLotNumberLists();
+    //$scope.LotNumberLists = [];
+    //$scope.GetLotNumberLists = function () {
+    //    $scope.LotNumberLists = [];
+    //    $http({
+    //        method: 'GET',
+    //        url: 'QMS/LWQRUpdate/GetUpdateLotNumberLists?POId=' + $scope.statusNew.ProductionOrderId
+    //    }).then(function successCallback(response) {
+    //        $scope.LotNumberLists = response.data;
+    //    });
+    //}
+    //$scope.GetLotNumberLists();
 
     $scope.LWQRList = [];
     $scope.View = function () {
@@ -168,7 +168,7 @@ function LWQRUpdateController(cboService, commonMessage, $scope, $rootScope, bas
         $scope.commentNew = Object.assign({}, $scope.comment);
         $scope.LWQRList = [];
         $scope.selectPONo();
-        $scope.GetLotNumberLists();
+        //$scope.GetLotNumberLists();
     }
 
     function checkExists(list, id) {
@@ -293,5 +293,27 @@ function LWQRUpdateController(cboService, commonMessage, $scope, $rootScope, bas
             ShowResult(e, 'failure');
         }
     };
+
+    $scope.LotNumberLists = [];
+    $scope.selectLotNo = function () {
+        $scope.LotNumberLists = [];
+        $http({
+            method: 'GET',
+            url: 'QMS/LWQRUpdate/GetUpdateLotNumberLists?POId=' + $scope.statusNew.ProductionOrderId
+        }).then(function successCallback(response) {
+            $scope.LotNumberLists = response.data;
+            angular.element(document.querySelector('#LotNumberPopup')).modal('show');
+        });
+    }
+
+    $scope.doubleLotNumber = function (e) {
+        $scope.statusNew.LotNo = e.data.LotNumber;
+        $scope.statusNew.ProductionOrderId = e.data.PONo;
+        angular.element(document.querySelector('#LotNumberPopup')).modal('hide');
+    }
+
+    $scope.closeLotNumberPopup = function () {
+        angular.element(document.querySelector('#LotNumberPopup')).modal('hide');
+    }
 }
 
