@@ -2074,7 +2074,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
             {
                 WSection section = document.Sections[0];
 
-                DataTable dsOrderMaster, dsConditions, dsaddInfo, dsaddInfo1, dsaddInfo2, dsaddInfo3, dsaddInfo4, dsaddInfo5, dsaddInfo6, dsaddInfo7, dsaddInfo8, dsaddInfo9;
+                DataTable dsOrderMaster, dsConditions, dsaddInfo, dsaddInfo1, dsaddInfo2, dsaddInfo3, dsaddInfo4, dsaddInfo5, dsaddInfo6, dsaddInfo7, dsaddInfo8, dsaddInfo9 , dsaddInfo10;
 
                 dsOrderMaster = GetloadCommercialLocalTaxMaterialMasterBC(salesId);
                 dsConditions = TermsAndConditionSQL(salesId);
@@ -2088,6 +2088,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
                 dsaddInfo7 = GetAddinfo(salesId);
                 dsaddInfo8 = GetAddinfo(salesId);
                 dsaddInfo9 = GetAddinfo(salesId);
+                dsaddInfo10 = GetAddinfo(salesId);
                 Dictionary<string, string> columns = new Dictionary<string, string>();
 
                 foreach (DataColumn item in dsOrderMaster.Columns)
@@ -2104,6 +2105,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
                 var addInfo7 = makeaddInfoBE7(salesId, document, dsaddInfo7);   // {makeaddInfo}
                 var addInfo8 = makeaddInfoBE8(salesId, document, dsaddInfo8);   // {makeaddInfo}
                 var addInfo9 = makeaddInfoBE9(salesId, document, dsaddInfo9);   // {makeaddInfo}
+                var addInfo10 = makeaddInfoBE10(salesId, document, dsaddInfo10);   // {makeaddInfo}
                 var TermsAndCondition = makeTermsAndCondition(salesId, document, dsConditions);   // {conditions}
                 var totalQty = clsStaticInfo.dbl(dsOrderMaster.Compute("SUM(POTransactionQty)", "CustomerNo='" + dsOrderMaster.Rows[0]["CustomerNo"].ToString() + "'"));
                 var FREIGHTVALUE = totalQty * clsStaticInfo.dbl(dsOrderMaster.Rows[0]["AdditionalFrieghtValue"].ToString());
@@ -3134,6 +3136,100 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
             return 0;
         }
 
+        public double makeaddInfoBE10(string salesId, WordDocument document, DataTable dsaddInfo)
+        {
+            string replaceString = "{addInfo10}";
+
+
+            IWParagraphStyle arightAlign = document.AddParagraphStyle("addrightAlign9");
+            //Sets the formatting of the style
+            arightAlign.CharacterFormat.FontSize = 8f;
+            arightAlign.CharacterFormat.TextColor = Color.Black;
+            arightAlign.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Right;
+
+            int LasColumnIndex = 1;
+            WTable wTable = new WTable(document);
+            int ROW = 0; int COL = 0;
+            wTable.ResetCells(1, LasColumnIndex);
+            WTableRow TemplateRow = wTable.Rows[0].Clone();
+
+            #region column headers
+            document.EnsureMinimal();
+
+            WCharacterFormat FontBold = new WCharacterFormat(document);
+            WCharacterFormat DFontSize = new WCharacterFormat(document);
+            FontBold.Bold = true;
+            DFontSize.FontSize = 8f;
+
+            IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+            wTable.Rows[ROW].Cells[COL].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+            range.ApplyCharacterFormat(FontBold);
+            range.ApplyCharacterFormat(DFontSize);
+            int colTermsAndCondition = COL; COL++;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 500;
+
+            #endregion column headers
+            double totalValue = 0;
+            int sl = 0;
+            int startRow = 0;
+            for (int i = 0; i < dsaddInfo.Rows.Count; i++)
+            {
+                ROW++;
+                sl++;
+                wTable.AddRow();
+                WTableRow TROW = wTable.LastRow;
+
+                // WTableRow TROW = wTable.Rows[1].Clone();
+                for (int CE = 0; CE < TROW.Cells.Count; CE++)
+                {
+                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+                    {
+                        item.Text = "";
+                    }
+                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+                }
+                TROW.Cells[colTermsAndCondition].AddParagraph().AppendText(dsaddInfo.Rows[i]["Description"].ToString()).ApplyCharacterFormat(DFontSize);
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Left.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Right.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Top.BorderType = BorderStyle.Cleared;
+                TROW.Cells[colTermsAndCondition].CellFormat.Borders.Bottom.BorderType = BorderStyle.Cleared;
+
+            }
+            ROW++;
+
+            #region Total
+            //int TotalRow = ROW;
+            //wTable.AddRow();
+            //WTableRow _TROW = wTable.LastRow;
+
+            //range.ApplyCharacterFormat(FontBold);
+            #endregion Total
+            ROW++;
+            #region paragrpath formats
+
+            IWParagraphStyle myaddStyle9 = document.AddParagraphStyle("AddinfoStyle9");
+            //Sets the formatting of the style
+            myaddStyle9.CharacterFormat.FontSize = 8f;
+            myaddStyle9.CharacterFormat.TextColor = Color.Black;
+            myaddStyle9.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
+
+            #endregion paragrpath formats
+
+            #region merging section
+
+            //tax codes merging (horizontal)
+            ROW = 0;
+            ROW++;
+            #endregion merging section
+            TextBodyPart textBodyPart = new TextBodyPart(document);
+            textBodyPart.BodyItems.Add(wTable);
+            document.Replace(replaceString, textBodyPart, true, true);
+
+            return 0;
+        }
 
         #endregion Add Info 
 
@@ -4330,6 +4426,9 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
 			 where SalesId = Ir.Id
 			group by SalesId ,SalesMaterialId, LotNo
 			  FOR XML PATH('') ) , 1,1 , ''),',' , Char(13) + Char(10))
+,Articless=Replace(stuff((select distinct ',' + (CASE WHEN ISNULL(moi.LCArticle,'')<>'' THEN moi.LCArticle 
+WHEN ISNULL(AA.ArticlePartyName,'')<>'' THEN AA.ArticlePartyName ELSE MMA.StandardName END) FOR XML PATH('') ) , 1,1 , '')
+, ',' , Char(13) + Char(10))
 ,PSI.RFIDSealNo 
 ,PSI.LineSealNo
 ,NEGADD.Address1 NegotiationBankAdd
@@ -4341,10 +4440,12 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
 ,CONVERT(numeric(10,2) , SAI.Value) AdvanceRevceive
 ,PSI.ExportRefNo EPN
 ,NEGBNKMT.AccountNumber NegotiatingAccNo
+,NEGBNKMT.AccountTitle NegotiatingBankName
 ,FORMAT(PSI.ShipmentDate + 2,'dd-MM-yyyy')ShipmentDateNew
 ,DelCN.UserName DeliveryCountry
 , case when IR.InvoicingPartyPlantId = IR.DeliveryPartyPlantId then '' else  DPARTYPL.UserName end DelivertyPT
-
+,convert(numeric(10,2), PSI.CargoGrossWt ) ContainerGWeight
+,(convert(numeric(10,2), PSI.CargoGrossWt ) - convert(numeric(10,2), PSI.CargoNetWt)) ContainerTWeight
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
 LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -4850,16 +4951,16 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
                     WHERE SM.SalesId=IR.Id
                     FOR XML PATH('')
                     ), 1, 1, '')
-,CurrentDate1 = format(GETDATE(),'dd-MM-yyyy')
-,CurrentDate2 = format(GETDATE(),'dd-MM-yyyy')
-,CurrentDate3 = format(GETDATE(),'dd-MM-yyyy')
-,CurrentDate4 = format(GETDATE(),'dd-MM-yyyy')
-,CurrentDate5 = format(GETDATE(),'dd-MM-yyyy')
-,CurrentDate6 = format(GETDATE(),'dd-MM-yyyy')
-,CurrentDate7 = format(GETDATE(),'dd-MM-yyyy')
-,CurrentDate8 = format(GETDATE(),'dd-MM-yyyy')
-,CurrentDate9 = format(GETDATE(),'dd-MM-yyyy')
-
+,CurrentDate1 = format(PSI.ShipmentDate,'dd-MM-yyyy')
+,CurrentDate2 = format(PSI.ShipmentDate,'dd-MM-yyyy')
+,CurrentDate3 = format(PSI.ShipmentDate,'dd-MM-yyyy')
+,CurrentDate4 = format(PSI.ShipmentDate,'dd-MM-yyyy')
+,CurrentDate5 = format(PSI.ShipmentDate,'dd-MM-yyyy')
+,CurrentDate6 = format(PSI.ShipmentDate,'dd-MM-yyyy')
+,CurrentDate7 = format(PSI.ShipmentDate,'dd-MM-yyyy')
+,CurrentDate8 = format(PSI.ShipmentDate,'dd-MM-yyyy')
+,CurrentDate9 = format(PSI.ShipmentDate,'dd-MM-yyyy')
+,CurrentDate10 = format(PSI.ShipmentDate,'dd-MM-yyyy')
 ,p.UserName Customer1
 ,Addres.Address1 VendorAddress1
 ,p.UserName Customer2
@@ -4906,6 +5007,8 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
 ,IR.InvoiceNo InvoiceNo9
 ,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate9
 ,FORMAT(PSI.ShipmentDate,'dd-MMM-yyyy')ShipmentDate9
+,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate10
+,IR.InvoiceNo InvoiceNo10
 
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
