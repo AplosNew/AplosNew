@@ -462,13 +462,7 @@
                         </div>
                     </div>
                 </div>
-
-            </div>
-        </fieldset>
-
-        <fieldset class="scheduler-border">
-            <legend class="scheduler-border">Basic Info</legend>
-            <div class="row">
+                <div class="clearfix"></div>
                 <div class="col-xs-4 col-sm-4 col-md-4">
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
@@ -488,7 +482,7 @@
                         <label class="col-sm-4 control-label">Process<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <div class="select-style">
-                                <select class="form-control" ng-model="productNew.ProcessId" name="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
+                                <select class="form-control" ng-model="productNew.ProcessId" name="ProcessId" ng-options="item.Value as item.Text for item in processList" ng-disabled="selectedProductionOrder.length" required>
                                     <option value=""></option>
                                 </select>
                             </div>
@@ -500,10 +494,54 @@
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Production Order<sup>*</sup></label>
                         <div class="col-sm-8">
-                            <button ng-click="GetProductionOrderPopUp();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            <button ng-click="GetProductionOrderPopUp();" ng-disabled="productNew.Id" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                         </div>
                     </div>
                 </div>
+                <div class="clearfix"></div>
+
+                <div>
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="GridSPO" ej-grid e-datasource="selectedProductionOrder" e-allowscrolling="true"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel">
+
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
+                                <div e-column e-type="string" e-field="StyleNo" e-headertext="BuyerRef#" e-width="50"></div>
+                                <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Ref#" e-width="50"></div>
+                                <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="80"></div>
+                                <div e-column e-type="string" e-field="POId" e-headertext="PO No" e-width="80"></div>
+                                <div e-column e-type="string" e-field="POStatus" e-headertext="PO Status" e-width="80"></div>
+                                <div e-column e-type="string" e-field="SONo" e-headertext="SONo" e-width="80"></div>
+                                <div e-column e-type="string" e-field="SOStatus" e-headertext="SO Status" e-width="80"></div>
+                                <div e-column e-type="number" e-format="{0:0.00}" e-field="SOQty" e-headertext="SOQty" e-width="80" e-textalign="right"></div>
+                                <div e-column e-type="string" e-field="LineItemId" e-headertext="LineItemId" e-width="80"></div>
+                                <div e-column e-headertext=" Action " e-template="#DeleteTemplate" e-width="120"></div>
+
+                            </div>
+                            <script id="DeleteTemplate" type="text/template">
+                                <div class="common-btn" ng-disabled="productNew.Id">
+                                    <ul class="common-btn list-inline text-center">
+                                        <li>
+                                            <button  ng-click="$parent.removeSelectedPO(data,$index);" class="btn small tooltip-here"  style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
+                                                <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
+                                            </button>
+                                            
+                                        </li>
+                                    </ul>
+                                </div>
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Basic Info</legend>
+            <div class="row">
 
                 <div class="col-xs-4 col-sm-4 col-md-4">
                     <div class="form-group" id="div_docNo" show-errors>
@@ -750,58 +788,10 @@
                         </div>
                     </div>
                 </div>
-                @*<div class="col-xs-4 col-sm-4 col-md-4">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Time<sup>*</sup></label>
-                            <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
-                                <input id="Time" type="text" class="form-control input-small" ng-model="productNew.Time" style="margin-left:-36px; width:220px" tabindex="3">
-                                <span class="input-group-addon" style="float:left; width:37px"><i class="glyphicon glyphicon-time"></i></span>
-                            </div>
-                        </div>
-                    </div>*@
-                @*<div class="col-xs-4 col-sm-4 col-md-4">
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Process Start Date<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" name="Process Start Date" ng-model="productNew.ProcessStartDate" datepicker class="form-control" required tabindex="2">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-4 col-sm-4 col-md-4">
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Process End Date<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" name="Process End Date" ng-model="productNew.ProcessEndDate" ng-change="ValidateProcessEndDate();" datepicker class="form-control" required tabindex="2">
-                            </div>
-                        </div>
-                    </div>*@
+
             </div>
             <div class="row">
 
-                @*<div class="col-xs-4 col-sm-4 col-md-4">
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Contract Closing Date<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" name="Contract Closing Date" ng-model="productNew.ContractClosingDate" datepicker class="form-control" required tabindex="2">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-4 col-sm-4 col-md-4">
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Contract Status<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="productNew.ContractStatus" name="Contract Status"
-                                            required tabindex="5">
-                                        <option value=""></option>
-                                        <option value="Active">Active</option>
-                                        <option value="Pending">Pending</option>
-                                        <option value="Closed">Closed</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>*@
             </div>
 
             <div class="row">
@@ -1879,7 +1869,8 @@
                     </div>
                 </fieldset>-->
                 <fieldset class="scheduler-border" ng-show="detailModel.ServiceId">
-                    <legend class="scheduler-border"> Service Tax</legend>
+                    ax
+                    <legend class="scheduler-border">   Service Tax</legend>
                     <div class="col-md-12 modal-table table-responsive" style="padding-top: 5px;" ng-show="taxCategoryList.length>0">
                         <div class="col-xs-12 col-sm-4 col-md-4" ng-show="detailModel.ServiceId">
                             <div class="form-group">
@@ -4258,81 +4249,6 @@
                         <div class="form-elements form-horizontal" ng-form name="MatInputNewFormBOQ">
                             <input type="hidden" ng-model="MaterialInput.Id">
 
-                            @*<div class="col-md-12">
-                                    <div class="content-container-fluid" style="color:black;">
-                                        <div style="color:black;" id="GridMatInput" ej-grid e-datasource="MatInputList"
-                                             e-allowfiltering="true" e-recorddoubleclick="setMatInputdata" e-allowpaging="true" e-allowscrolling="true"
-                                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplateMatInput">
-                                            <div e-columns>
-                                                <div e-column e-headertext="" e-headertemplateid="#MatInputheaderTemplate" e-template="#MatInputcheckboxTemplate" e-textalign="center" e-width="20"></div>
-                                                <div e-column e-type="string" e-field="JWInputItem" e-headertext="JW Input Item" e-width="100"></div>
-                                                <div e-column e-type="string" e-field="InputMaterial" e-headertext="Input Material" e-width="100"></div>
-                                                <div e-column e-template="#InputArticle" e-headertext="Input Article" e-width="200" style="height: 200px;"></div>
-                                                <div e-column e-type="string" e-field="Unit" e-headertext="Unit" e-width="80"></div>
-                                                <div e-column e-template="#ItemSpecification" e-headertext="Item Specification" e-width="100"></div>
-                                                <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
-                                                <div e-column e-type="string" e-field="EmployeeName" e-headertext="Responsible Person" e-width="100"></div>
-                                                <div e-column e-template="#NetConsump" e-headertext="Net Consumption" e-width="100"></div>
-                                                <div e-column e-template="#Rejection" e-headertext="Rejection" e-width="100"></div>
-                                                <div e-column e-template="#ValLoss" e-headertext="Value Loss" e-width="100"></div>
-                                                <div e-column e-template="#GrossConsumption" e-headertext="GrossConsumption" e-width="100"></div>
-                                                <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="100"></div>
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <script type="text/template" id="MatInputcheckboxTemplate">
-                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isToBeSelect" e-value="data.isToBeSelect" />
-                                    </script>
-                                    <script type="text/x-jsrender" id="MatInputheaderTemplate">
-                                        <input type="checkbox" id="headchk" />
-                                    </script>
-                                    <script type="text/ng-template" id="ItemSpecification">
-                                        <input type="text" ng-model="data.ItemSpecification" class="form-control" maxlength="15" e-width="100">
-                                    </script>
-                                    <script type="text/ng-template" id="NetConsump">
-                                        <input type="text" ng-model="data.NetConsumption" class="form-control" maxlength="15" ng-change="$parent.GetGrossConsumption(data);" e-width="100" onkeypress="return OnlyNumber(event)">
-                                    </script>
-                                    <script type="text/ng-template" id="Rejection">
-                                        <input type="text" ng-model="data.Rejection" class="form-control" maxlength="15" e-width="100" onkeypress="return OnlyNumber(event)">
-                                    </script>
-                                    <script type="text/ng-template" id="ValLoss">
-                                        <input type="text" ng-model="data.ValueLoss" class="form-control" maxlength="15" ng-change="$parent.GetGrossConsumption(data);" e-width="100" onkeypress="return OnlyNumber(event)">
-                                    </script>
-                                    <script type="text/ng-template" id="GrossConsumption">
-                                        <input type="text" ng-model="data.GrossConsumption" class="form-control" maxlength="15" readonly e-width="100" onkeypress="return OnlyNumber(event)">
-                                    </script>
-                                    <script type="text/ng-template" id="Remarks">
-                                        <input type="text" ng-model="data.Remarks" class="form-control" maxlength="15" e-width="100">
-                                    </script>
-
-                                    <script type="text/template" id="InputArticle">
-
-                                        <div class="col-sm-10" style="padding:0px; width:200px;height:20px;">
-
-                                            <div class="input-group">
-                                                <span class="input-group-addon">{{data.InputArticleCode}}</span>
-                                                <input type="text" ng-model="data.InputArticleName" name="Material Master" required class="form-control" readonly>
-                                                <input type="hidden" ng-model="data.ArticleId" />
-                                                <span class="input-group-btn">
-                                                    <button ng-click="$parent.InputArticlePopUp(data)" ng-disabled="data.InputMaterialId==null" tabindex="48" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                    <button ng-click="$parent.InputArticleClear(data)" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                    </script>
-
-                                </div>
-
-                                <div class="common-btn">
-                                    <ul class="list-inline text-right">
-                                        <li>
-                                            <button ng-click="SaveMaterialInputTab();" class="btn"><i class=""></i> Save</button>
-                                            <button ng-click="closeMaterialInputTabPopUp('MaterialInputPopUp');" class="btn"><i class=""></i> Close</button>
-                                        </li>
-                                    </ul>
-                                </div>*@
 
                             <div class="col-xs-4 col-sm-4 col-md-4">
                                 <div class="form-group" show-errors>
@@ -4437,24 +4353,6 @@
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="selectSOItem"
                      e-allowselection="false" e-filtersettings-filterType="excel">
                     <div e-columns>
-                        @*<div e-column e-field="MasterOrderNo" e-headertext="Master OrderNo" e-width="75"></div>
-                            <div e-column e-field="BuyerOrder" e-headertext="Buyer Ord#" e-width="80"></div>
-                            <div e-column e-field="OwnOrder" e-headertext="Own Ord#" e-width="80"></div>
-                            <div e-column e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
-                            <div e-column e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
-                            <div e-column e-field="POId" e-headertext="Production OrderNo" e-width="80"></div>
-                            <div e-column e-field="SOId" e-headertext="Sales OrderNo" e-width="80"></div>
-                            <div e-column e-field="Description" e-headertext="Description" e-width="80" e-textalign="right"></div>
-                            <div e-column e-field="PlannedQty" e-headertext="SO Qty" e-width="80"></div>
-                            <div e-column e-field="TotalProductionQty" e-headertext="Booked Qty" e-width="80"></div>
-                            <div e-column e-field="RemainingQty" e-headertext="Remaining Qty" e-width="80"></div>
-                            <div e-column e-field="PONumber" e-headertext="PO Number" e-width="80"></div>
-
-                            <div e-column e-field="Customer" e-headertext="Customer" e-width="80"></div>
-                            <div e-column e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
-                            <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="80"></div>
-                            <div e-column e-field="Article" e-headertext="Article" e-width="80"></div>
-                            <div e-column e-field="ProductMasterName" e-headertext="Product" e-width="80"></div>*@
 
                         <div e-column e-field="MaterialMasterName" e-headertext="Material Master" e-width="80"></div>
                         <div e-column e-field="ArticleName" e-headertext="Article" e-width="80"></div>
@@ -4464,14 +4362,11 @@
                         <div e-column e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
                         <div e-column e-field="Description" e-headertext="Description" e-width="80" e-textalign="right"></div>
                         <div e-column e-field="Qty" e-headertext="SO Qty" e-width="80"></div>
-                        @*<div e-column e-field="TotalProductionQty" e-headertext="Booked Qty" e-width="80"></div>
-                            <div e-column e-field="RemainingQty" e-headertext="Remaining Qty" e-width="80"></div>*@
                         <div e-column e-field="MasterOrderNo" e-headertext="MasterOrderNo" e-width="75"></div>
                         <div e-column e-field="BuyerOrderNo" e-headertext="Buyer Ord" e-width="80"></div>
                         <div e-column e-field="SalesOrderId" e-headertext="Sales OrderNo" e-width="80"></div>
                         <div e-column e-field="ProductionOrderId" e-headertext="Production OrderNo" e-width="80"></div>
                         <div e-column e-field="OwnOrderNo" e-headertext="Own Ord#" e-width="80"></div>
-                        @*<div e-column e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>*@
                         <div e-column e-field="Customer" e-headertext="Customer" e-width="80"></div>
                         <div e-column e-field="ProductName" e-headertext="Product" e-width="80"></div>
                         <div e-column e-field="ContractNo" e-headertext="ContractNo" e-width="80"></div>
@@ -4492,7 +4387,6 @@
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="SetPrOData"
                          e-allowselection="true" e-filtersettings-filterType="excel">
                         <div e-columns>
-                            
                             <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
                             <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
                             <div e-column e-type="string" e-field="StyleNo" e-headertext="BuyerRef#" e-width="50"></div>
@@ -4507,7 +4401,7 @@
 
                         </div>
                     </div>
-                    
+
                 </div>
             </div>
         </div>

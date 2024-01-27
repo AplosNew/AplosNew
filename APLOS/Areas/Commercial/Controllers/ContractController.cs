@@ -2260,7 +2260,7 @@ WHERE CT.ContractId IN(" + id + ") AND TermsAndConditionsId NOT IN(SELECT TermsA
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Sl#");
             range.ApplyCharacterFormat(FontBold);
             int colSrNo = COL; COL++;
-            wTable.Rows[ROW].Cells[colSrNo].Width = 35;
+            wTable.Rows[ROW].Cells[colSrNo].Width = 30;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
             range.ApplyCharacterFormat(FontBold);
@@ -2275,12 +2275,12 @@ WHERE CT.ContractId IN(" + id + ") AND TermsAndConditionsId NOT IN(SELECT TermsA
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Del. Date");
             range.ApplyCharacterFormat(FontBold);
             int colDeliveryDate = COL; COL++;
-            wTable.Rows[ROW].Cells[colDeliveryDate].Width = 55;
+            wTable.Rows[ROW].Cells[colDeliveryDate].Width = 45;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SO#");
             range.ApplyCharacterFormat(FontBold);
             int colSONo = COL; COL++;
-            wTable.Rows[ROW].Cells[colSONo].Width = 65;
+            wTable.Rows[ROW].Cells[colSONo].Width = 45;
 
             //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Description of Material");
             //range.ApplyCharacterFormat(FontBold);
@@ -2297,7 +2297,7 @@ WHERE CT.ContractId IN(" + id + ") AND TermsAndConditionsId NOT IN(SELECT TermsA
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN");
             range.ApplyCharacterFormat(FontBold);
             int colHSN = COL; COL++;
-            wTable.Rows[ROW].Cells[colHSN].Width = 48;
+            wTable.Rows[ROW].Cells[colHSN].Width = 46;
 
 
 
@@ -2309,7 +2309,7 @@ WHERE CT.ContractId IN(" + id + ") AND TermsAndConditionsId NOT IN(SELECT TermsA
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate");
             range.ApplyCharacterFormat(FontBold);
             int colRate = COL; COL++;
-            wTable.Rows[ROW].Cells[colRate].Width = 48;
+            wTable.Rows[ROW].Cells[colRate].Width = 35;
 
             //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UpCharge");
             //range.ApplyCharacterFormat(FontBold);

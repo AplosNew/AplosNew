@@ -2,6 +2,7 @@
 using Library.Model.Enums;
 using Library.Model.Finances;
 using Library.ViewModel.Accounts;
+using Library.ViewModel.Banks;
 using Library.ViewModel.Invoices;
 using Library.ViewModel.Vouchers;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace Library.Service.Finances
 {
     public interface ILoanService
     {
-        string InsertLoan(VoucherViewModel voucherVM, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<FinancingScheduleViewModel> financingScheduleVMList, IEnumerable<FinancingMasterOrderViewModel> financingMasterOrderlist);
+        string InsertLoan(VoucherViewModel voucherVM, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<FinancingScheduleViewModel> financingScheduleVMList, IEnumerable<FinancingMasterOrderViewModel> financingMasterOrderlist, IEnumerable<BankChargeViewModel> bankChargeDetailVMList);
 
         string InsertLoanWriteOff(VoucherViewModel voucherVM, IEnumerable<FinancingScheduleViewModel> financingScheduleVMList);
         string InsertLoanWriteOffChangeBooksAmount(VoucherViewModel voucherVM, IEnumerable<FinancingScheduleViewModel> financingScheduleVMList);

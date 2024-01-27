@@ -3591,7 +3591,7 @@ namespace Aplos.MaterialManagement
 						   ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 
 							--new add
-							,'' DocRefDate,'' GrnDocDateDifference,'' GateName,'' InvoicingPartyPlant,'' DeliveryPartyPlant,EI.EmployeeName Employee
+							,REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') DocRefDate,'' GrnDocDateDifference,'' GateName,'' InvoicingPartyPlant,'' DeliveryPartyPlant,EI.EmployeeName Employee
 					from [TRN].[InventoryReceive] AS IR
 					left jOIN (select InventoryReceiveId,Sum(TransactionQty)TransactionQty,Sum(MaterialTranAmount)MaterialTranAmount
 						,Sum(TotalMaterialTranAmount)TotalMaterialTranAmount,Sum(TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount
@@ -3618,11 +3618,10 @@ namespace Aplos.MaterialManagement
 
 					group by IR.GRNDate,IR.Id,IR.GateEntryNo,p.UserName,P.Code,PP.GSTIN,IRD.TotalMaterialTranAmount,IRD.TotalMaterialBooksCurrencyAmount,IRD.TotalTaxAmount,IRD.ChargesTaxTranAmount
 					,MaterialTranAmount,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,V1.VoucherNo,ep.PostingDate,I.PostingDate,IR.DocRefNo,CU.Code,IR.PartyType,PAG.UserName
-					,PC.UserName,PSC.UserName,PG.UserName,IR.ToCurrencyRate,EI.EmployeeName";
+					,PC.UserName,PSC.UserName,PG.UserName,IR.ToCurrencyRate,EI.EmployeeName,IR.DocDate";
 
 				if (isreport)
 				{
-
 					var newsql = "select * from(" + str + ") y where y.GRNNo in (" + GRNNo + @")";
 					return _sqlRepository.GetDataTable(newsql);
 
