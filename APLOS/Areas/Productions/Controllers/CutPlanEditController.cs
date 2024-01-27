@@ -71,6 +71,12 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [Authorize, HttpGet]
+        public ActionResult GetTotalStatusList(string MasterPlanId, string ColorId)
+        {
+            return Json(_productionSummaryData.GetTotalStatusList(MasterPlanId, ColorId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public ActionResult GetCutPlanDetailsR1List(string MasterPlanId, string ColorId)
         {
             return Json(_productionSummaryData.GetCutPlanDetailsR1List(MasterPlanId, ColorId), JsonRequestBehavior.AllowGet);
@@ -95,21 +101,20 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost]
-        public JsonResult CreateCutPlanEditData(Dictionary<string, object> data, List<Dictionary<string, object>> DataList, string MasterPlanId)
+        public JsonResult CreateCutPlanEditR1Data(Dictionary<string, object> data, List<Dictionary<string, object>> DataList, string MasterPlanId)
         {
-            SaveCutPlanEditData(data, DataList, out string masterId, MasterPlanId);
+            SaveCutPlanEditR1Data(data, DataList, out string masterId, MasterPlanId);
             data["Id"] = masterId;
             return Json(new { Data = data, Message = AplosMessage.Insert });
         }
 
-        public void SaveCutPlanEditData(Dictionary<string, object> data, List<Dictionary<string, object>> DataList, out string masterId, string MasterPlanId)
+        public void SaveCutPlanEditR1Data(Dictionary<string, object> data, List<Dictionary<string, object>> DataList, out string masterId, string MasterPlanId)
         {
             try
             {
                 DataSet dsMaster, dsDetail, dsId;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                //con.OpenDataSetThroughAdapter("select * from [MST].[AllotedHeader] where Usn n   nm nm merName='" + data["UserName"] + "'", out DataSet dsCutPlanEditUserNameValidation, false, "1");
-                con.OpenDataSetThroughAdapter("SELECT * FROM [MST].[AllotedHeader] WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [MST].[AllotedHeader] WHERE Id='" + data["R1Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
@@ -123,6 +128,11 @@ namespace Aplos.Areas.Productions.Controllers
                 }
                 else
                 {
+                    data["Id"] = data["R1Id"];
+                    data["UserName"] = data["UserNameR1"];
+                    data["MarkerId"] = data["MarkerIdR1"];
+                    data["PackingTypeId"] = data["PackingTypeIdR1"];
+                    data["NoOfPly"] = data["NoOfPlyR1"];
                     _Id = data["Id"].ToString();
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
@@ -149,17 +159,278 @@ namespace Aplos.Areas.Productions.Controllers
 
                         item["Id"] = masterId + "-" + count;
                         item["AllotedHeaderId"] = masterId;
-                        item["AllotedQty"] = item["CurrentAllotedQty"];
+                        item["AllotedQty"] = item["AllotedQtyR1"];
                         AddNewRow(dsDetail.Tables[0], item);
                     }
                     else
                     {
+                        item["AllotedQty"] = item["AllotedQtyR1"];
+                        item["Ratio"] = item["Ratio1"];
                         DataRow drmo = dv[0].Row;
                         EditRow(drmo, item);
                     }
                     ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                     conC.BeginTransaction();
-                    conC.executeQuery("Update MST.MasterPlanChild set AllotedQty = AllotedQty + " + item["CurrentAllotedQty"]  +" where Id='" +item["MasterPlanChildId"] + @"'");
+                    conC.executeQuery("Update MST.MasterPlanChild set AllotedQty = 0 + " + item["AllotedQtyR1"]  +" where Id = '" +item["MasterPlanChildId"] + @"'");
+                    conC.CommitTransaction();
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsDetail);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult CreateCutPlanEditR2Data(Dictionary<string, object> data, List<Dictionary<string, object>> DataList, string MasterPlanId)
+        {
+            SaveCutPlanEditR2Data(data, DataList, out string masterId, MasterPlanId);
+            data["Id"] = masterId;
+            return Json(new { Data = data, Message = AplosMessage.Insert });
+        }
+
+        public void SaveCutPlanEditR2Data(Dictionary<string, object> data, List<Dictionary<string, object>> DataList, out string masterId, string MasterPlanId)
+        {
+            try
+            {
+                DataSet dsMaster, dsDetail, dsId;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [MST].[AllotedHeader] WHERE Id='" + data["R2Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "AllotedHeader", out _Id);
+                    data["Id"] = _Id;
+                    data["MasterPlanId"] = MasterPlanId;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    data["Id"] = data["R2Id"];
+                    data["UserName"] = data["UserNameR2"];
+                    data["MarkerId"] = data["MarkerIdR2"];
+                    data["PackingTypeId"] = data["PackingTypeIdR2"];
+                    data["NoOfPly"] = data["NoOfPlyR2"];
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+
+
+
+                masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                con.OpenDataSetThroughAdapter("SELECT * FROM [MST].[AllotedChild] WHERE AllotedHeaderId ='" + masterId + "'", out dsDetail, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT COUNT(Id)Id FROM [MST].[AllotedChild] WHERE AllotedHeaderId ='" + masterId + "'", out dsId, false, "1");
+
+                int count = Convert.ToInt32(dsId.Tables[0].Rows[0]["Id"].ToString());
+
+
+                foreach (var item in DataList)
+                {
+
+                    DataView dv = new DataView(dsDetail.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        count++;
+
+                        item["Id"] = masterId + "-" + count;
+                        item["AllotedHeaderId"] = masterId;
+                        item["AllotedQty"] = item["AllotedQtyR2"];
+                        item["Ratio"] = item["Ratio2"];
+                        AddNewRow(dsDetail.Tables[0], item);
+                    }
+                    else
+                    {
+                        item["AllotedQty"] = item["AllotedQtyR2"];
+                        item["Ratio"] = item["Ratio2"];
+                        DataRow drmo = dv[0].Row;
+                        EditRow(drmo, item);
+                    }
+                    ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                    conC.BeginTransaction();
+                    conC.executeQuery("Update MST.MasterPlanChild set AllotedQty = AllotedQty + " + item["AllotedQtyR2"] + " where Id='" + item["MasterPlanChildId"] + @"'");
+                    conC.CommitTransaction();
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsDetail);
+
+            }
+            catch (Exception ex)
+            {
+                 throw (ex);
+            }
+        }
+
+
+        [HttpPost]
+        public JsonResult CreateCutPlanEditR3Data(Dictionary<string, object> data, List<Dictionary<string, object>> DataList, string MasterPlanId)
+        {
+            SaveCutPlanEditR3Data(data, DataList, out string masterId, MasterPlanId);
+            data["Id"] = masterId;
+            return Json(new { Data = data, Message = AplosMessage.Insert });
+        }
+
+        public void SaveCutPlanEditR3Data(Dictionary<string, object> data, List<Dictionary<string, object>> DataList, out string masterId, string MasterPlanId)
+        {
+            try
+            {
+                DataSet dsMaster, dsDetail, dsId;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [MST].[AllotedHeader] WHERE Id='" + data["R3Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "AllotedHeader", out _Id);
+                    data["Id"] = _Id;
+                    data["MasterPlanId"] = MasterPlanId;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    data["Id"] = data["R3Id"];
+                    data["UserName"] = data["UserNameR3"];
+                    data["MarkerId"] = data["MarkerIdR3"];
+                    data["PackingTypeId"] = data["PackingTypeIdR3"];
+                    data["NoOfPly"] = data["NoOfPlyR3"];
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+
+
+
+                masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                con.OpenDataSetThroughAdapter("SELECT * FROM [MST].[AllotedChild] WHERE AllotedHeaderId ='" + masterId + "'", out dsDetail, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT COUNT(Id)Id FROM [MST].[AllotedChild] WHERE AllotedHeaderId ='" + masterId + "'", out dsId, false, "1");
+
+                int count = Convert.ToInt32(dsId.Tables[0].Rows[0]["Id"].ToString());
+
+
+                foreach (var item in DataList)
+                {
+
+                    DataView dv = new DataView(dsDetail.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        count++;
+
+                        item["Id"] = masterId + "-" + count;
+                        item["AllotedHeaderId"] = masterId;
+                        item["AllotedQty"] = item["AllotedQtyR3"];
+                        item["Ratio"] = item["Ratio3"];
+                        AddNewRow(dsDetail.Tables[0], item);
+                    }
+                    else
+                    {
+                        item["AllotedQty"] = item["AllotedQtyR3"];
+                        item["Ratio"] = item["Ratio3"];
+                        DataRow drmo = dv[0].Row;
+                        EditRow(drmo, item);
+                    }
+                    ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                    conC.BeginTransaction();
+                    conC.executeQuery("Update MST.MasterPlanChild set AllotedQty = AllotedQty + " + item["AllotedQtyR3"] + " where Id='" + item["MasterPlanChildId"] + @"'");
+                    conC.CommitTransaction();
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsDetail);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult CreateCutPlanEditR4Data(Dictionary<string, object> data, List<Dictionary<string, object>> DataList, string MasterPlanId)
+        {
+            SaveCutPlanEditR4Data(data, DataList, out string masterId, MasterPlanId);
+            data["Id"] = masterId;
+            return Json(new { Data = data, Message = AplosMessage.Insert });
+        }
+
+        public void SaveCutPlanEditR4Data(Dictionary<string, object> data, List<Dictionary<string, object>> DataList, out string masterId, string MasterPlanId)
+        {
+            try
+            {
+                DataSet dsMaster, dsDetail, dsId;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [MST].[AllotedHeader] WHERE Id='" + data["R4Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "AllotedHeader", out _Id);
+                    data["Id"] = _Id;
+                    data["MasterPlanId"] = MasterPlanId;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    data["Id"] = data["R4Id"];
+                    data["UserName"] = data["R4Id"];
+                    data["MarkerId"] = data["MarkerIdR4"];
+                    data["PackingTypeId"] = data["PackingTypeIdR4"];
+                    data["NoOfPly"] = data["NoOfPlyR4"];
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+
+
+
+                masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                con.OpenDataSetThroughAdapter("SELECT * FROM [MST].[AllotedChild] WHERE AllotedHeaderId ='" + masterId + "'", out dsDetail, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT COUNT(Id)Id FROM [MST].[AllotedChild] WHERE AllotedHeaderId ='" + masterId + "'", out dsId, false, "1");
+
+                int count = Convert.ToInt32(dsId.Tables[0].Rows[0]["Id"].ToString());
+
+
+                foreach (var item in DataList)
+                {
+
+                    DataView dv = new DataView(dsDetail.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        count++;
+
+                        item["Id"] = masterId + "-" + count;
+                        item["AllotedHeaderId"] = masterId;
+                        item["AllotedQty"] = item["AllotedQtyR4"];
+                        item["Ratio"] = item["Ratio4"];
+                        AddNewRow(dsDetail.Tables[0], item);
+                    }
+                    else
+                    {
+                        item["AllotedQty"] = item["AllotedQtyR4"];
+                        item["Ratio"] = item["Ratio4"];
+                        DataRow drmo = dv[0].Row;
+                        EditRow(drmo, item);
+                    }
+                    ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                    conC.BeginTransaction();
+                    conC.executeQuery("Update MST.MasterPlanChild set AllotedQty = AllotedQty + " + item["AllotedQtyR4"] + " where Id='" + item["MasterPlanChildId"] + @"'");
                     conC.CommitTransaction();
                 }
 
