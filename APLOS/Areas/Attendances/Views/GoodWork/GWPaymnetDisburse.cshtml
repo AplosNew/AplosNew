@@ -1,0 +1,87 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>&nbsp;{{title}}</h3>
+<div class="tab-design" id="tab_show">
+    <div class="form-elements form-horizontal" ng-form name="ModelNew">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-2 control-label">From Date<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <input type="text" name="FromDate" ng-model="FromDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="3">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-2 control-label">To Date<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <input type="text" name="ToDate" ng-model="ToDate" datepicker class="form-control datepicker" placeholder="dd-Mmm-yyyy" tabindex="3">
+                </div>
+            </div>
+            <ul class="col-md-6 common-btn list-inline text-left">
+                <li><button ng-click="GetLoadEmployeeInformation();" class="btn"><i class="glyphicon glyphicon-arrow-down"></i> Go</button></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">{{titleTab1}}</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">{{titleTab2}}</a></li>
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+
+            <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+                <div class="table-responsive modal-table ">
+
+                    <div id="GridChildEdit" ej-grid e-datasource="PCOTEmployeeUndisburseList" e-allowfiltering="true" e-allowpaging="true"
+                         e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-allowselection="true"
+                         e-filtersettings-filterType="excel" e-allowtextwrap="true" e-templaterefresh="refreshTemplateemployee">
+                        <div e-columns>
+                            <div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="60"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="Minute" e-headertext="Minute" e-width="60"></div>
+                            <div e-column e-field="Hour" e-headertext="Hour" e-width="60"></div>
+                            <div e-column e-field="Rate" e-headertext="Rate" e-width="60"></div>
+                            <div e-column e-field="Amount" e-headertext="Amount" e-width="60"></div>
+                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="60"></div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="checkboxTemplate">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
+                    </script>
+                    <script type="text/x-jsrender" id="headerTemplate">
+                        <input type="checkbox" id="headchk" />
+                    </script>
+                </div>
+            </div>
+
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="GoodWorkPaymentDisburseSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{PCOTAction}}</button></li>
+                </ul>
+            </div>
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div class="table-responsive modal-table ">
+                    <div id="GridChildEdit" ej-grid e-datasource="PCOTEmployeedisburseList" e-allowfiltering="true" e-allowpaging="true"
+                         e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-allowselection="true"
+                         e-filtersettings-filterType="excel" e-allowtextwrap="true" e-templaterefresh="refreshTemplateemployee">
+                        <div e-columns>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="60"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="Minute" e-headertext="Minute" e-width="60"></div>
+                            <div e-column e-field="Hour" e-headertext="Hour" e-width="60"></div>
+                            <div e-column e-field="Rate" e-headertext="Rate" e-width="60"></div>
+                            <div e-column e-field="Amount" e-headertext="Amount" e-width="60"></div>
+                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="60"></div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>
+
+
+

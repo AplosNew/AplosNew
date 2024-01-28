@@ -1931,6 +1931,7 @@
     <Content Include="Areas\Administration\Scripts\GeneralContractApprovedController.js" />
     <Content Include="Areas\Attendances\Scripts\GoodWorkCheckedController.js" />
     <Content Include="Areas\Attendances\Scripts\GoodWorkApproveController.js" />
+    <Content Include="Areas\Attendances\Scripts\GoodWorkPaymentDisburseController.js" />
     <Content Include="Areas\Commercial\Scripts\LCPendingReportController.js" />
     <Content Include="Areas\OrderManagements\Scripts\TermsandConditionGroupController.js" />
     <Content Include="Areas\Productions\Scripts\CutPlanEditController.js" />
@@ -4904,6 +4905,7 @@
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\_BankPopUpBonus.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\_CashPopUpBonus.cshtml" />
     <Content Include="Areas\Productions\Views\CutPlanEdit\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\GoodWork\GWPaymnetDisburse.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
