@@ -2094,7 +2094,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
                 foreach (DataColumn item in dsOrderMaster.Columns)
                     columns.Add("{" + item.ColumnName.ToUpper() + "}", item.ColumnName);
 
-                var MaterialTotal = makeCommercialInvoiceService(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {materialItems}
+                 var MaterialTotal = makeCommercialInvoiceService(companyGroupId, companyId, plantId, salesId, document, dsOrderMaster);   // {materialItems}
                 var addInfo = makeaddInfoBE(salesId, document, dsaddInfo);   // {makeaddInfo}
                 var addInfo1 = makeaddInfoBE1(salesId, document, dsaddInfo1);   // {makeaddInfo}
                 var addInfo2 = makeaddInfoBE2(salesId, document, dsaddInfo2);   // {makeaddInfo}
@@ -3141,7 +3141,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
             string replaceString = "{addInfo10}";
 
 
-            IWParagraphStyle arightAlign = document.AddParagraphStyle("addrightAlign9");
+            IWParagraphStyle arightAlign = document.AddParagraphStyle("addrightAlign10");
             //Sets the formatting of the style
             arightAlign.CharacterFormat.FontSize = 8f;
             arightAlign.CharacterFormat.TextColor = Color.Black;
@@ -3210,7 +3210,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
             ROW++;
             #region paragrpath formats
 
-            IWParagraphStyle myaddStyle9 = document.AddParagraphStyle("AddinfoStyle9");
+            IWParagraphStyle myaddStyle9 = document.AddParagraphStyle("AddinfoStyle10");
             //Sets the formatting of the style
             myaddStyle9.CharacterFormat.FontSize = 8f;
             myaddStyle9.CharacterFormat.TextColor = Color.Black;
