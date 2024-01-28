@@ -183,27 +183,28 @@
                                      e-recorddoubleclick="Get" e-filtersettings-filterType="excel"
                                      e-enabletouch="true" e-allowselection="true"
                                      e-scrollsettings="scroll">
-                                    <div e-columns>
-                                        <div e-column e-field="InvoiceNumber" e-headertext="Transaction Id" e-width="120"></div>
-                                        <div e-column e-field="BeneficiaryType" e-headertext="Beneficiary" e-width="50"></div>
-                                        <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="60"></div>
-                                        <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
-                                        <div e-column e-field="Amount" e-headertext="Amount" textAlign='Right' e-width="80"></div>
-                                        <div e-column e-field="ApprovalStatus" e-headertext="Status" e-width="60"></div>
-                                        <div e-column e-type="text" e-template="#file" e-headertext="File" e-width="80"></div>
-                                        <div e-column e-field="AddedByName" e-headertext="Prepared By" e-width="90"></div>
-                                        <div e-column e-field="ResponsiblePersonName" e-headertext="Checked By" e-width="90"></div>
-                                        @*<div e-column e-headertext="PDF" e-commands="PdfPrintApproved" e-isunbound=true e-textalign="center" e-width="50"></div>
-        <div e-column e-headertext="Excel" e-commands="ExcelPrintApproved" e-isunbound=true e-textalign="center" e-width="50"></div>*@
-                                    </div>
+                                        <div e-columns>
+                                            <div e-column e-field="InvoiceNumber" e-headertext="Transaction Id" e-width="120"></div>
+                                            <div e-column e-field="BeneficiaryType" e-headertext="Beneficiary" e-width="50"></div>
+                                            <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="60"></div>
+                                            <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                                            <div e-column e-field="Amount" e-headertext="Amount" textAlign='Right' e-width="80"></div>
+                                            <div e-column e-field="ApprovalStatus" e-headertext="Status" e-width="60"></div>
+                                            <div e-column e-field="AddedByName" e-headertext="Prepared By" e-width="90"></div>
+                                            <div e-column e-field="ResponsiblePersonName" e-headertext="Checked By" e-width="90"></div>
+                                            <div e-column e-field="ParkedPosted" e-headertext="Parked/Posted" e-width="90"></div>
+                                            <div e-column e-type="text" e-template="#file" e-headertext="File" e-width="80"></div>
+                                            <div e-column e-headertext="PDF" e-commands="PdfPrintChecked" e-isunbound=true e-textalign="center" e-width="50"></div>
+                                            <div e-column e-headertext="Excel" e-commands="ExcelPrintChecked" e-isunbound=true e-textalign="center" e-width="50"></div>
+                                        </div>
 
-                                </div>
-                                <script type="text/template" id="file">
-                                    <div class="text-right" style="width:100%">
-                                        <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.FileDownload(data);">{{data.FileName}}</a>
                                     </div>
-                                </script>
-                            </div>
+                                    <script type="text/template" id="file">
+                                        <div class="text-right" style="width:100%">
+                                            <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.FileDownload(data);">{{data.FileName}}</a>
+                                        </div>
+                                    </script>
+                                </div>
                             <i>**Showing top 300   order by Entry Date Desc</i>
                         </div>
 					</fieldset>
