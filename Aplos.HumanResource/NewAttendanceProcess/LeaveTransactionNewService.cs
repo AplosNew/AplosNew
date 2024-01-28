@@ -665,13 +665,18 @@ UNION ALL
  ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear
  ,DaysCanBeSanctioned=CAST (B.CarryForward AS decimal(18,2))
  ,CurrentAllocationDCBS=CAST (B.CarryForward AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal
- ,CAST (B.CarryForward AS decimal(18,2)) CurrentAllocation,CAST (0 AS decimal(18,2)) PreviousYearCarryForward
+ ,CurrentAllocation=(select (365-COUNT(d.OffDayDate))/ltd.EncashWorkingDaysQty
+		                                from scs.OffDayDetail d
+		                                inner join scs.OffDayMaster m on d.offdaymasterid=m.id and OffDayType in ('H','W') and m.PlantId='202034'
+		                                where d.PlantId='" + sPlantID + @"'
+		                                and d.OffDayDate between '" + _FromDate + @"' AND '" + _ToDate + @"') 
+,CAST (0 AS decimal(18,2)) PreviousYearCarryForward
  --,BroughtForward=CASE WHEN A.Opening>B.CarryForward THEN A.Opening WHEN B.BroughtForward>B.CarryForward THEN B.BroughtForward ELSE B.CarryForward END
  ,BroughtForward=CAST (A.Opening AS decimal(18,2))
  
  ,CAST (B.CarryForward AS decimal(18,2)) LeaveDays
  ,ISNULL(ltrn.ldays, 0) Applied,ISNULL(tav.av, 0) Availed,ISNULL(R.Rejected,0) Rejected,ISNULL(acApl.ldays,0) ldays,A.LeaveType,CAST (0 AS BIT) IsBroughtForwardAdd
- ,CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2)) as Earned
+ ,(round((CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2))) * 2, 0)/2) as Earned
 
 ,Balance=ROUND(CAST (A.Opening +CAST(case when ltd.EncashWorkingDaysQty >0 
 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty 
@@ -761,8 +766,7 @@ Where A.EmployeeId='" + EmpSystemID + "'"
                     parameters = new GridParameter
                     {
                         ExportType = "DATASET",
-                        CmdText = @"
-SELECT els.CalanderYearID, ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed
+                        CmdText = @"SELECT els.CalanderYearID, ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed
                                         ,FromDate=FORMAT(ELS.FromDate,'dd-MMM-yyyy')
 										,ToDate=FORMAT(ELS.ToDate,'dd-MMM-yyyy')
 										 ,els.Id SystemID,
@@ -891,13 +895,18 @@ UNION ALL
  ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear
  ,DaysCanBeSanctioned=CAST (B.CarryForward AS decimal(18,2))
  ,CurrentAllocationDCBS=CAST (B.CarryForward AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal
- ,CAST (B.CarryForward AS decimal(18,2)) CurrentAllocation,CAST (0 AS decimal(18,2)) PreviousYearCarryForward
+ ,CurrentAllocation=(select (365-COUNT(d.OffDayDate))/ltd.EncashWorkingDaysQty
+		                                from scs.OffDayDetail d
+		                                inner join scs.OffDayMaster m on d.offdaymasterid=m.id and OffDayType in ('H','W') and m.PlantId='202034'
+		                                where d.PlantId='" + sPlantID + @"'
+		                                and d.OffDayDate between '" + _FromDate + @"' AND '" + _ToDate + @"') 
+,CAST (0 AS decimal(18,2)) PreviousYearCarryForward
  --,BroughtForward=CASE WHEN A.Opening>B.CarryForward THEN A.Opening WHEN B.BroughtForward>B.CarryForward THEN B.BroughtForward ELSE B.CarryForward END
  ,BroughtForward=CAST (A.Opening AS decimal(18,2))
  
  ,CAST (B.CarryForward AS decimal(18,2)) LeaveDays
  ,ISNULL(ltrn.ldays, 0) Applied,ISNULL(tav.av, 0) Availed,ISNULL(R.Rejected,0) Rejected,ISNULL(acApl.ldays,0) ldays,A.LeaveType,CAST (0 AS BIT) IsBroughtForwardAdd
- ,CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2)) as Earned
+ ,(round((CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2))) * 2, 0)/2) as Earned
 
 ,Balance=ROUND(CAST (A.Opening +CAST(case when ltd.EncashWorkingDaysQty >0 
 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty 
