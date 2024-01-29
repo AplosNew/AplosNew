@@ -2300,37 +2300,6 @@ Where HeadCategory='Net Payable' ";
 
                 #region Columns
 
-
-                //sheet[ROW, COL].Text = "BonusDisbursementAdviceId";
-                //sheet[ROW, COL].ColumnWidth = 16;
-                //int ColDisbursementAdviceId = COL;
-                //COL++;
-
-                //sheet[ROW, COL].Text = "AdviceDate";
-                //sheet[ROW, COL].ColumnWidth = 16;
-                //int ColAdviceDate = COL;
-                //COL++;
-
-                //sheet[ROW, COL].Text = "Remarks";
-                //sheet[ROW, COL].ColumnWidth = 16;
-                //int ColRemarks = COL;
-                //COL++;
-
-                //sheet[ROW, COL].Text = "AddedBy";
-                //sheet[ROW, COL].ColumnWidth = 16;
-                //int ColAddedBy = COL;
-                //COL++;
-
-                //sheet[ROW, COL].Text = "Year";
-                //sheet[ROW, COL].ColumnWidth = 16;
-                //int ColYear = COL;
-                //COL++;
-
-                //sheet[ROW, COL].Text = "Month";
-                //sheet[ROW, COL].ColumnWidth = 16;
-                //int ColMonth = COL;
-                //COL++;
-
                 sheet[ROW, COL].Text = "EmployeeCode";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColEC = COL;
@@ -2386,16 +2355,6 @@ Where HeadCategory='Net Payable' ";
                 int ColEmployeeStatus = COL;
                 COL++;
 
-                //sheet[ROW, COL].Text = "PayableVoucherNo";
-                //sheet[ROW, COL].ColumnWidth = 16;
-                //int ColPblVhrNo = COL;
-                //COL++;
-
-                //sheet[ROW, COL].Text = "DisbursementVoucherNo";
-                //sheet[ROW, COL].ColumnWidth = 16;
-                //int ColDVNo = COL;
-                //COL++;
-
                 sheet[ROW, COL].Text = "PaymentMode";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColPM = COL;
@@ -2439,13 +2398,6 @@ Where HeadCategory='Net Payable' ";
                 double[] arr = new double[3];
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
-
-                    //sheet[ROW, ColDisbursementAdviceId].Text = data.Rows[i]["BonusDisbursementAdviceId"].ToString();
-                    //sheet[ROW, ColAdviceDate].DateTime = Convert.ToDateTime(data.Rows[i]["AdviceDate"].ToString());
-                    //sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
-                    //sheet[ROW, ColAddedBy].Text = data.Rows[i]["AddedBy"].ToString();
-                    //sheet[ROW, ColYear].Text = data.Rows[i]["YearNo"].ToString();
-                    //sheet[ROW, ColMonth].Text = data.Rows[i]["MonthName"].ToString();
                     sheet[ROW, ColEC].Text = data.Rows[i]["EmployeeCode"].ToString();
                     sheet[ROW, ColEN].Text = data.Rows[i]["EmployeeName"].ToString();
                     sheet[ROW, ColDesg].Text = data.Rows[i]["Designation"].ToString();
@@ -2457,8 +2409,6 @@ Where HeadCategory='Net Payable' ";
                     sheet[ROW, ColDOS].Text = data.Rows[i]["DOS"].ToString();
                     sheet[ROW, ColCurrentMonthEmployeeStatus].Text = data.Rows[i]["CurrentMonthEmployeeStatus"].ToString();
                     sheet[ROW, ColEmployeeStatus].Text = data.Rows[i]["EmployeeStatus"].ToString();
-                    //sheet[ROW, ColPblVhrNo].Text = data.Rows[i]["PayableVoucherNo"].ToString();
-                    //sheet[ROW, ColDVNo].Text = data.Rows[i]["DisbursementVoucherNo"].ToString();
                     sheet[ROW, ColPM].Text = data.Rows[i]["PaymentMode"].ToString();
                     sheet[ROW, ColBank].Text = data.Rows[i]["BankName"].ToString();
                     sheet[ROW, ColBAN].Text = data.Rows[i]["BankAccNo"].ToString();
