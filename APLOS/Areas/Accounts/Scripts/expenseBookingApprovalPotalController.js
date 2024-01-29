@@ -1,6 +1,6 @@
 ﻿"use strict";
-expenseBookingApprovalPotalController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller"];
-function expenseBookingApprovalPotalController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
+expenseBookingApprovalPotalController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller", "$window"];
+function expenseBookingApprovalPotalController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, $window) {
     $rootScope.title = "Expense Booking Approval";
     $scope.Action = "Save";
     $scope.isPartyListing = false;
@@ -336,4 +336,6 @@ function expenseBookingApprovalPotalController(cboService, commonMessage, $scope
         $scope.budgetTransactionDetailList = [];
         $scope.budgetTransactionMaster.Active = true;
     }
+
+   
 }

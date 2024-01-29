@@ -931,7 +931,7 @@ namespace Library.Service.Expenses
 										,EB.ApprovalStatus,EB.Remarks,EB.Archive,EB.AddedBy,EB.AddedDate,EB.AddedFromIP,EB.CompanyId,EB.IsPosted,EB.ResponsiblePersonId,EB.PartyId,EB.PartyPlantId
 										,EB.BeneficiaryType,EB.VoucherId,EB.AppliedBy,EB.[FileName],EB.CashMasterId
 										, C.Code AS CurrencyCode,EI.EmployeeCode+' - '+EI.EmployeeName AS [EmployeeName], EIR.EmployeeName AS ResponsiblePersonName
-                                        , EBD.Amount, P.UserName AS PartyName,EIRA.EmployeeName AddedByName,EIA.EmployeeName ApprovedBy
+                                        , EBD.Amount, P.UserName AS PartyName,EIRA.EmployeeName AddedByName,EIA.EmployeeName ApprovedBy,[ParkedPosted]=case when eb.IsPosted=1 then 'Posted' else 'Parked' End
 										FROM [TRN].[ExpenseBooking] AS EB
                                         JOIN [SCS].[Currency] AS C ON C.Id=EB.CurrencyId
 										LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=EB.EmployeeId
@@ -942,7 +942,7 @@ namespace Library.Service.Expenses
                                         left JOIN (SELECT distinct ExpenseBookingId,EmployeeId,ApprovalStatus FROM TRN.ExpenseBookingApprovalHistory WHERE  ApprovalStatus='ToBeApproved' ) 
 										EBAH ON EBAH.ExpenseBookingId=EB.Id AND EB.ApprovalStatus=EBAH.ApprovalStatus
 										LEFT JOIN dbo.EmployeeInformation EIA on EIA.SystemId=EBAH.EmployeeId
-                                        WHERE EB.Archive=0 AND EB.ResponsiblePersonId='" + identity.EmployeeId + @"' AND EB.ApprovalStatus not in ('ToBeChecked','CheckedRejected','CheckedHolded')  AND EB.IsPosted=0 AND EB.AppliedBy!='Entity'
+                                        WHERE EB.Archive=0 AND EB.ResponsiblePersonId='" + identity.EmployeeId + @"' AND EB.ApprovalStatus not in ('ToBeChecked','CheckedRejected','CheckedHolded')   AND EB.AppliedBy!='Entity'
                                         ORDER BY EB.InvoiceDate DESC ";
                 return _sqlRepository.GetDataCollection(sql);
             }

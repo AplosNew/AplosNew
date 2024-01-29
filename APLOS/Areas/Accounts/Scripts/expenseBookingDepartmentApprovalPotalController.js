@@ -444,5 +444,37 @@ function expenseBookingDepartmentApprovalPotalController(cboService, commonMessa
         $scope.dwonloadUrl = virtualPath.ExpensesDocument + '/' + data.Id + extention;
         $window.open($scope.dwonloadUrl, '_blank');
     };
+    $scope.onClickPdfPrintChecked = function (args) {
+        var gridObj = $("#BookingGridId2").data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        var reportFormat = "Pdf";
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open('Employees/EmployeeReport/GetExpensesBookingReport?reportFormat=' + reportFormat + '&expensesBookingId=' + data.Id, '_blank');
+    };
+    $scope.PdfPrintChecked = [{
 
+        type: "details", buttonOptions: {
+            text: "PDF",
+            width: "50",
+            height: "20",
+            click: $scope.onClickPdfPrintChecked
+        }
+    }];
+
+    $scope.onClickExcelPrintChecked = function (args) {
+        var gridObj = $("#BookingGridId2").data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        var reportFormat = "Excel";
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open('Employees/EmployeeReport/GetExpensesBookingReport?reportFormat=' + reportFormat + '&expensesBookingId=' + data.Id, '_blank');
+    };
+    $scope.ExcelPrintChecked = [{
+
+        type: "details", buttonOptions: {
+            text: "Excel",
+            width: "50",
+            height: "20",
+            click: $scope.onClickExcelPrintChecked
+        }
+    }];
 }
