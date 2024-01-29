@@ -665,7 +665,7 @@ UNION ALL
  ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear
  ,DaysCanBeSanctioned=CAST (B.CarryForward AS decimal(18,2))
  ,CurrentAllocationDCBS=CAST (B.CarryForward AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal
- ,CurrentAllocation=(select (365-COUNT(d.OffDayDate))/ltd.EncashWorkingDaysQty
+ ,CurrentAllocation=(select ((SELECT DATEDIFF(day,  cast(YEAR('" + _FromDate + @"') as char(4)),  cast(YEAR('" + _FromDate + @"')+1 as char(4))))-COUNT(d.OffDayDate))/ltd.EncashWorkingDaysQty
 		                                from scs.OffDayDetail d
 		                                inner join scs.OffDayMaster m on d.offdaymasterid=m.id and OffDayType in ('H','W') and m.PlantId='202034'
 		                                where d.PlantId='" + sPlantID + @"'
@@ -895,7 +895,7 @@ UNION ALL
  ,a.SystemID,A.LTSystemID,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear
  ,DaysCanBeSanctioned=CAST (B.CarryForward AS decimal(18,2))
  ,CurrentAllocationDCBS=CAST (B.CarryForward AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal
- ,CurrentAllocation=(select (365-COUNT(d.OffDayDate))/ltd.EncashWorkingDaysQty
+ ,CurrentAllocation=(select ((SELECT DATEDIFF(day,  cast(YEAR('" + _FromDate + @"') as char(4)),  cast(YEAR('" + _FromDate + @"')+1 as char(4))))-COUNT(d.OffDayDate))/ltd.EncashWorkingDaysQty
 		                                from scs.OffDayDetail d
 		                                inner join scs.OffDayMaster m on d.offdaymasterid=m.id and OffDayType in ('H','W') and m.PlantId='202034'
 		                                where d.PlantId='" + sPlantID + @"'
