@@ -7375,13 +7375,13 @@ where MPC.MasterPlanId='" + MasterPlanId + "' and MPC.SKU1NameId='" + ColorId + 
 
         public IEnumerable<object> GetCutPlanDetailsR1List(string MasterPlanId, string ColorId)
         {
-            string sql = @"select distinct R1.AllotedHeaderId R1Id,R1.Id,AH.MasterPlanId,(select UserName from HKP.CharacteristicsValue where Id=AH.SKU1ColorId) Color,
+            string sql = @"select R1.AllotedHeaderId R1Id,R1.Id,AH.MasterPlanId,(select UserName from HKP.CharacteristicsValue where Id=AH.SKU1ColorId) Color,
 AH.SKU1ColorId,(select UserName from HKP.CharacteristicsValue where Id=MPC.SKU2NameId) Size,MPC.SKU2NameId,
 MPC.FinalQty,AH.UserName UserNameR1,AH.NoOfPly NoOfPlyR1,AH.MarkerId MarkerIdR1,AH.PackingTypeId PackingTypeIdR1,R1.Ratio Ratio1,MPC.AllotedQty,R1.AllotedQty AllotedQtyR1,MPC.FinalQty-R1.AllotedQty BalanceToAllotedR1,R1.Remarks,R1.MasterPlanChildId
 from [MST].[AllotedHeader] AH
 left join [MST].[AllotedChild] R1 on R1.AllotedHeaderId=AH.Id
 left join [MST].[MasterPlanChild] MPC on MPC.Id=R1.MasterPlanChildId and MPC.MasterPlanId='" + MasterPlanId + "' and MPC.SKU1NameId='" + ColorId + @"'
-where AH.MasterPlanId='" + MasterPlanId + "' and AH.SKU1ColorId='" + ColorId + @"' and R1.AllotedHeaderId = (select top 1 Id from[MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"')";
+where AH.MasterPlanId='" + MasterPlanId + "' and AH.SKU1ColorId='" + ColorId + @"' and R1.AllotedHeaderId = (select top 1 Id from[MST].[AllotedHeader] where MasterPlanId = '" + MasterPlanId + "' and SKU1ColorId = '" + ColorId + @"') order by (select Sequence from HKP.CharacteristicsValue where Id=MPC.SKU2NameId)";
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
