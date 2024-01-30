@@ -65,7 +65,7 @@
 
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
             <div class="table-responsive modal-table ">
-                <div id="GridChildEdit" ej-grid e-datasource="PCOTEmployeedisburseList" e-allowfiltering="true" e-allowpaging="true"
+                <div id="GridDisburse" ej-grid e-datasource="PCOTEmployeedisburseList" e-allowfiltering="true" e-allowpaging="true"
                      e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-allowselection="true"
                      e-filtersettings-filterType="excel" e-allowtextwrap="true" e-templaterefresh="refreshTemplateemployee">
                     <div e-columns>
@@ -78,6 +78,9 @@
                         <div e-column e-field="Remarks" e-headertext="Remarks" e-width="60"></div>
                     </div>
                 </div>
+            </div>
+            <div class="col-md-12 text-left" style="margin-top:20px;">
+                <button type="button" class="btn single-btn" ng-click="GWPaymentDisburseReport()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Download</button>
             </div>
         </div>
     </div>

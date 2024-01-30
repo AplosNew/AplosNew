@@ -168,5 +168,31 @@ function GoodWorkPaymentDisburseController(cboService, commonMessage, $scope, $r
             ShowResult(response.data.Message, 'failure');
         });
     }
- 
+
+    $scope.GWPaymentDisburseReport = function () {
+        var dataList = [];
+        var g = $("#GridDisburse").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        if (dataList.length == 0) {
+            dataList = $scope.PCOTEmployeedisburseList;
+        }
+        $scope.fileName = "Good Work Payment Disburse Report.xlsx";
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "PCOTEmployeeDisburseList",
+            data: { 'data': dataList, 'reportFileName': $scope.fileName },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
 }
