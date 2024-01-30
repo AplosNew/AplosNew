@@ -61,6 +61,10 @@ namespace Aplos.Areas.Attendances.Controllers
         {
             return View();
         }
+        public ActionResult GWPaymnetDisburse()
+        {
+            return View();
+        }
         //Load Employee
         [HttpPost]
         public ActionResult LoadEmployeelist(Dictionary<string, string> parameters, string userGroupId, string shiftId, string workDate)
@@ -942,13 +946,13 @@ namespace Aplos.Areas.Attendances.Controllers
 								                                      LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
                                                                         WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
                                      where gw.WorkDate between '" + fromDate + @"' and '" + toDate + @"' and gw.Minute<>0 and g.Gross<>0  and SIDM.IsApproved=1
-                                     and gwd.EmpSystemId  in (select EmpSystemId
+                                     and gwd.EmpSystemId not in (select EmpSystemId
 									                                    from GoodWorkPaymentAdvise gwpa
 									                                    left join GoodWorkPaymentAdviseDetail gwpad on gwpad.PaymentAdviseId=gwpa.Id
 									                                    where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"') 
                                      group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour";
                 }
-                else
+                else if(tabName == "ExtraOT")
                 {
                     sql = @"select ei.SystemId EmpSystemId,'' Id,ei.EmployeeCode,ei.EmployeeName,format(sum(apd.OverStay),'N2') Minute
                                 ,format((sum(apd.OverStay)/60),'N2') Hour
@@ -972,6 +976,31 @@ namespace Aplos.Areas.Attendances.Controllers
 									                                )
                                 --and apd.EmpSystemID=2010692
                                 group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId ";
+                }
+                else
+                {
+                    sql = @"select ei.SystemId EmpSystemId,'' Id,ei.EmployeeCode,ei.EmployeeName,format(sum(apd.OverStay),'N2') Minute
+                                ,format((sum(apd.OverStay)/60),'N2') Hour
+                                ,format(g.Gross,'N2') Gross
+                                ,format(g.RatePerHour,'N2') Rate 
+                                ,Amount=format(g.RatePerHour*(sum(apd.OverStay)/60),'N2'),apd.GWPaymentAdviseId 
+                                ,gwpa.Remarks
+                                from [dbo].[AttdnProcessData] apd 
+                                left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID
+                                left join GoodWorkPaymentAdvise gwpa on gwpa.Id=apd.GWPaymentAdviseId
+                                LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
+								                                  LEFT JOIN(SELECT ((SID.DefineAmount/208)*2) RatePerHour,SH.SalaryHead
+								                                  ,SID.SalaryID,SID.DefineAmount Gross
+                                                                      FROM SalaryInfoDefine SID 
+								                                  LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=SID.SalaryHeadID
+                                                                    WHERE SH.HeadCategory='Gross')g ON g.SalaryID=SIDM.SystemID
+                                where apd.WorkDate between '" + fromDate + @"' and '" + toDate + @"' AND DayStatus IN('P','W','L') AND OverStay<>0 AND apd.IsOTEntitled=1 and SIDM.IsApproved=1 
+                                and apd.EmpSystemID in (select EmpSystemId
+									                                from GoodWorkPaymentAdvise gwpa
+									                                left join GoodWorkPaymentAdviseDetail gwpad on gwpad.PaymentAdviseId=gwpa.Id
+									                                where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"' and gwpad.IsDisburse<>1
+									                                )
+                                group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,gwpa.Remarks";
                 }
             }
             catch (Exception ex)
@@ -1104,7 +1133,9 @@ namespace Aplos.Areas.Attendances.Controllers
             try
             {
                 MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
-                DataSet dsMaster, dsDetail, dsGWPayable, dsExtraOT;
+                DataSet dsMaster, dsDetail;
+                DataSet dsGWPayable = null;
+                DataSet dsExtraOT = null;
                 DataSet dsDD = null;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from [dbo].[GoodWorkPaymentAdvise] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
@@ -1182,9 +1213,6 @@ namespace Aplos.Areas.Attendances.Controllers
                             drGW.EndEdit();
                         }
                     }
-
-                    clsStaticInfo _infos = new clsStaticInfo();
-                    _infos.SaveDataSets(dsGWPayable);
                 }
                 else
                 {
@@ -1193,7 +1221,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         and apd.EmpSystemID not in (select EmpSystemId                              
                         from GoodWorkPaymentAdvise gwpa                              
                         left join GoodWorkPaymentAdviseDetail gwpad on gwpad.PaymentAdviseId=gwpa.Id                              
-                        where convert( DateTime, gwpa.FromDate) between '" + data["FromDate"] + @"' and '" + data["ToDate"] + @"' and convert( DateTime, gwpa.ToDate) between '" + data["FromDate"] + @"' and '" + data["ToDate"] + @"''
+                        where convert( DateTime, gwpa.FromDate) between '" + data["FromDate"] + @"' and '" + data["ToDate"] + @"' and convert( DateTime, gwpa.ToDate) between '" + data["FromDate"] + @"' and '" + data["ToDate"] + @"'
                         )
                         AND apd.IsOTEntitled in(select D.IsOTEntitled
                         from [dbo].[AttdnProcessData] apd 
@@ -1203,11 +1231,11 @@ namespace Aplos.Areas.Attendances.Controllers
                                                             LEFT JOIN HKP.Designation D ON D.Id=M.DesignationId
 									                        where C.IsOTEntitled=1
 							                                )D on D.Id=ei.GivenDesignationId
-                        ))", out dsExtraOT, false, "1");
+                        )", out dsExtraOT, false, "1");
 
                     for (int i = 0; i < dsExtraOT.Tables[0].Rows.Count; i++)
                     {
-                        dsExtraOT.Tables[0].DefaultView.RowFilter = "EmpSystemID='" + dsExtraOT.Tables[0].Rows[i]["EmpSystemID"] + "'";
+                        dsExtraOT.Tables[0].DefaultView.RowFilter = "EmpSystemID='" + dsExtraOT.Tables[0].Rows[i]["EmpSystemID"] + "' and WorkDate='" + dsExtraOT.Tables[0].Rows[i]["WorkDate"] + "'";
 
                         if (dsExtraOT.Tables[0].DefaultView.Count > 0)
                         {
@@ -1218,12 +1246,10 @@ namespace Aplos.Areas.Attendances.Controllers
                             drGW.EndEdit();
                         }
                     }
-                    clsStaticInfo _infos = new clsStaticInfo();
-                    _infos.SaveDataSets(dsExtraOT);
                 }
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsDetail);
+                _info.SaveDataSets(dsMaster, dsDetail, dsGWPayable, dsExtraOT);
                 return Json(new { Error = false, Message = AplosMessage.Updated });
             }
             catch (Exception ex)
@@ -1624,6 +1650,102 @@ namespace Aplos.Areas.Attendances.Controllers
                                     where GW.ApprovedBy='" + identity.EmployeeId + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult CreateGoodWorkPaymentDisburse(string Id)
+        {
+            try
+            {
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+                DataSet dsGWPDisburse = null;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter(@"select * from GoodWorkPaymentAdviseDetail where EmpSystemId in (" + Id + ")", out dsGWPDisburse, false, "1");
+
+                for (int i = 0; i < dsGWPDisburse.Tables[0].Rows.Count; i++)
+                {
+                    dsGWPDisburse.Tables[0].DefaultView.RowFilter = "Id='" + dsGWPDisburse.Tables[0].Rows[i]["Id"] + "'";
+
+                    if (dsGWPDisburse.Tables[0].DefaultView.Count > 0)
+                    {
+                        DataRow drGW = dsGWPDisburse.Tables[0].DefaultView[0].Row;
+                        drGW.BeginEdit();
+
+                        drGW["IsDisburse"] = 1;
+                        drGW.EndEdit();
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsGWPDisburse);
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetGoodWorkPaymentAdviseUnDisburseOTDetailList()
+        {
+            string sql = @"select gwpad.Id,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.Remarks
+                            from GoodWorkPaymentAdviseDetail gwpad
+                            left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
+							left join GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
+                            left join (SELECT C.IsOTEntitled,D.Id FROM SCS.DesignationMasterConfiguration C
+                            LEFT JOIN MST.DesignationMaster M ON M.Id=C.DesignationMasterId
+                            LEFT JOIN HKP.Designation D ON D.Id=M.DesignationId
+							)D on D.Id=ei.GivenDesignationId
+                            where D.IsOTEntitled=1 and isdisburse<>1";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetGoodWorkPaymentAdviseDisburseOTDetailList(string fromDate,string toDate)
+        {
+            string sql = @"select gwpad.Id,ei.EmployeeCode,ei.EmployeeName,gwpad.Hour,gwpad.Hour*60 Minute,gwpad.Rate,gwpad.Amount,gwpad.Remarks
+                            from GoodWorkPaymentAdviseDetail gwpad
+                            left join EmployeeInformation ei on ei.SystemId=gwpad.EmpSystemId
+							left join GoodWorkPaymentAdvise gwpa on gwpa.Id=gwpad.PaymentAdviseId
+                            left join (SELECT C.IsOTEntitled,D.Id FROM SCS.DesignationMasterConfiguration C
+                            LEFT JOIN MST.DesignationMaster M ON M.Id=C.DesignationMasterId
+                            LEFT JOIN HKP.Designation D ON D.Id=M.DesignationId
+							)D on D.Id=ei.GivenDesignationId
+                            where gwpa.FromDate='"+ fromDate + "' and gwpa.ToDate='" + toDate + "' and D.IsOTEntitled=1 and isdisburse<>0";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetGoodWorkPaymentUndisburseReport(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                string fileName = "";
+                fileName = _accountVoucherReportService.GoodWorkPaymentUndisburseReportxlx(data, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        
+        [HttpPost, Authorize]
+        public ActionResult PCOTEmployeeDisburseList(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                string fileName = "";
+                fileName = _accountVoucherReportService.GoodWorkPaymentDisburseReportxlx(data, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         #endregion Good work check

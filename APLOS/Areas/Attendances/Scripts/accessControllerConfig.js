@@ -454,5 +454,9 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/GoodWork/GoodWorkApprove',
             controller: 'GoodWorkApproveController'
         })
+        .when('/good-work-payment-disburse', {
+            templateUrl: 'Attendances/GoodWork/GWPaymnetDisburse',
+            controller: 'GoodWorkPaymentDisburseController'
+        })
         ;
 } 
