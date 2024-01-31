@@ -46,10 +46,10 @@
                             <label class="col-sm-4 control-label">Advising Bank</label>
                             <div class="col-sm-8">
                                 @*<div class="select-style">
-                                        <select name="Lein Bank" class="form-control" ng-model="masterLC.LeinBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="5">
-                                            <option value="">--Select--</option>
-                                        </select>
-                                    </div>*@
+                    <select name="Lein Bank" class="form-control" ng-model="masterLC.LeinBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="5">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>*@
                                 <input type="text" name="Advising Bank" ng-model="masterLC.LeinBank" class="form-control" tabindex="5" maxlength="50">
                             </div>
                         </div>
@@ -76,6 +76,27 @@
                             </div>
                         </div>
                         <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Port <span style="text-transform:lowercase">Of</span> Loading<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select name="Port Of Loading" class="form-control" ng-model="masterLC.PortOfLoadingId" ng-options="item.Value as item.Text for item in portList" tabindex="14">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Final Destination<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select name="Destination" class="form-control" ng-model="masterLC.FinalDestinationId" ng-options="item.Value as item.Text for item in destinationList" tabindex="13">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Last Shipment Date<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <input type="text" name="LC Shipment Date" ng-model="masterLC.LCShipmentDate" datepicker class="form-control" required tabindex="9">
@@ -97,30 +118,37 @@
                             </div>
                         </div>
 
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Final Destination<sup>*</sup></label>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Insurance Company</label>
                             <div class="col-sm-8">
-                                <div class="select-style">
-                                    <select name="Destination" class="form-control" ng-model="masterLC.FinalDestinationId" ng-options="item.Value as item.Text for item in destinationList" tabindex="13">
-                                        <option value=""></option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Port <span style="text-transform:lowercase">Of</span> Loading<sup>*</sup></label>
-                            <div class="col-sm-8">
-                                <div class="select-style">
-                                    <select name="Port Of Loading" class="form-control" ng-model="masterLC.PortOfLoadingId" ng-options="item.Value as item.Text for item in portList" tabindex="14">
-                                        <option value=""></option>
-                                    </select>
-                                </div>
+                                <input type="text" name="Advising Bank" ng-model="masterLC.InsuranceCompany" class="form-control" tabindex="5" maxlength="50">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Description Of Goods And/Or Services</label>
+                            <label class="col-sm-4 control-label">Insurance Cover Note No</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" rows="2" ng-model="masterLC.DescriptionOfGoodsAndOrServices" maxlength="500" tabindex="7"></textarea>
+                                <input type="text" name="Advising Bank" ng-model="masterLC.InsuranceCoverNote" class="form-control" tabindex="5" maxlength="50">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">IsClose</label>
+                            <div class="col-sm-1">
+                                <div class="checkbox-site">
+                                    <label class="control-label">
+                                        <input type="checkbox" ng-model="masterLC.IsClose" ng-checked="masterLC.IsClose">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <label class="col-sm-3 control-label">Additional Info Varify</label>
+                            <div class="col-sm-4">
+                                <div class="checkbox-site">
+                                    <label class="control-label">
+                                        <input type="checkbox" ng-model="masterLC.AdditionalInfoVarify" ng-checked="masterLC.AdditionalInfoVarify">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group">
@@ -194,7 +222,12 @@
                                 </div>
                             </div>
                         </div>
-
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Description Of Goods And/Or Services</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="3" ng-model="masterLC.DescriptionOfGoodsAndOrServices" maxlength="500" tabindex="7"></textarea>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Remarks</label>
                             <div class="col-sm-8">
@@ -202,16 +235,13 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">IsClose</label>
+                            <label class="col-sm-4 control-label">Insurance Company Description</label>
                             <div class="col-sm-8">
-                                <div class="checkbox-site">
-                                    <label class="control-label">
-                                        <input type="checkbox" ng-model="masterLC.IsClose" ng-checked="masterLC.IsClose">
-                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                    </label>
-                                </div>
+                                <textarea class="form-control" rows="2" ng-model="masterLC.InsuranceCompanyDescription" tabindex="4" maxlength="250"></textarea>
                             </div>
                         </div>
+
+
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Payment Term Varify</label>
                             <div class="col-sm-1">
@@ -232,17 +262,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Additional Info Varify</label>
-                            <div class="col-sm-8">
-                                <div class="checkbox-site">
-                                    <label class="control-label">
-                                        <input type="checkbox" ng-model="masterLC.AdditionalInfoVarify" ng-checked="masterLC.AdditionalInfoVarify">
-                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
+
                     </div>
 
                 </div>

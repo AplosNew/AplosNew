@@ -5,21 +5,11 @@ function GoodWorkPaymentDisburseController(cboService, commonMessage, $scope, $r
     $rootScope.titleTab1 = 'Undisburse Data';
     $rootScope.titleTab2 = 'Disburse Data';
 
-    $scope.WorkerAdvanceList = [];
     $scope.path = 'Attendances/GoodWork/';
-    $scope.saveUrl = $scope.path + 'CreateWorkerAdvance';
-    $scope.savePCUrl = $scope.path + 'PayableCreationSave';
-    $scope.UpdateUrl = $scope.path + 'UpdateGoodWorkDetailEdit';
-    $scope.getListUrl = $scope.path + 'getlist';
-    $scope.getSeqUrl = $scope.path + 'getautosequence';
     baseService.init($scope.getListUrl);
-    //$scope.LoadEmpListUrl = $scope.path + 'LoadPCAACEmployeelist';
     $scope.Action = 'Save';
-    $scope.PCAction = 'Save';
-    $scope.PCOTAction = 'Save';
-    $scope.passwordShow = true;
     $controller("employeeBaseController", { $scope: $scope, $http: $http });
-
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -153,131 +143,56 @@ function GoodWorkPaymentDisburseController(cboService, commonMessage, $scope, $r
         });
     }
 
-
-    $scope.EmployeeMainList = [];
-    $scope.GetWorkerAdvanceDetailCenter = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + 'GetWorkerAdvanceDetailCenter?workAdvanceId=' + $scope.ModelNew.Id,
-            dataType: 'JSON'
-        }).then(function succ(resp) {
-            $scope.EmployeeMainList = resp.data;
-        });
-    }
-
-
-    $scope.PCOTEmployeeUndisburseList = [];
-    $scope.EmployeeMainList = [];
-    $scope.getEmploymeeList = function () {
-
-        if ($scope.ModelNew.FromDate === "" || $scope.ModelNew.FromDate === null || $scope.ModelNew.FromDate === undefined) {
-            ShowResult('Select Work Date', 'failure');
-            return false;
+    $scope.GWPaymentUndisburseReport = function () {
+        var dataList = [];
+        var g = $("#GridChildEdit").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        if (dataList.length == 0) {
+            dataList = $scope.PCOTEmployeeUndisburseList;
         }
-        if ($scope.ModelNew.PayDaysType === "" || $scope.ModelNew.PayDaysType === null || $scope.ModelNew.PayDaysType === undefined) {
-            ShowResult('Select From Pay Days', 'failure');
-            return false;
-        }
-        $scope.FD = $filter('dateFiltering')(new Date($scope.ModelNew.FromDate), 'dd-MM-yyyy');
-        $scope.TD = $filter('dateFiltering')(new Date($scope.ModelNew.ToDate), 'dd-MM-yyyy');
+        $scope.fileName = "Good Work Payment Undisburse Report.xlsx";
 
         $http({
             method: 'POST',
-            url: $scope.path + "LoadPCAACEmployeelist",
-            data: { 'fromDate': $scope.ModelNew.FromDate, 'toDate': $scope.ModelNew.ToDate, 'payDaysType': $scope.ModelNew.PayDaysType },
+            url: $scope.path + "GetGoodWorkPaymentUndisburseReport",
+            data: { 'data': dataList, 'reportFileName': $scope.fileName },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.PCOTEmployeeUndisburseList = response.data;
-
-            angular.element(document.querySelector("#dialogEmployeeInfo")).modal("show");
-        });
-    }
-
-    $scope.getPayDaysAmount = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "LoadPCAACEmployeelist",
-            data: { 'fromDate': $scope.ModelNew.FromDate, 'toDate': $scope.ModelNew.ToDate, 'payDaysType': $scope.ModelNew.PayDaysType },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.EmployeeList = response.data;
-            for (var i = 0; i < $scope.EmployeeList.length; i++) {
-                for (var j = 0; j < $scope.EmployeeMainList.length; j++) {
-                    if ($scope.EmployeeMainList[j].SystemId == $scope.EmployeeList[i].SystemId) {
-                        $scope.EmployeeMainList[j].PayDays = $scope.EmployeeList[i].PayDays;
-                    }
-                }
-            }
-        });
-    }
-
-
-    //*********************************** Worker Advance End********************************************************//
-
-    //***********************************Payable Creation Start*******************************************************//
-
-    $scope.PayableCreationSave = function () {
-        try {
-            $scope.FD = $filter('dateFiltering')(new Date($scope.ModelNew.FromDate), 'dd-MM-yyyy');
-            $scope.TD = $filter('dateFiltering')(new Date($scope.ModelNew.ToDate), 'dd-MM-yyyy');
-            $http({
-                method: 'POST',
-                url: $scope.savePCUrl,
-                data: { 'data': $scope.ModelPCNew, 'goodWorkPaymentDetail': $scope.PCEmployeeList },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.ClearPayableCreation();
-                    $scope.GetGoodWorkPaymentData();
-                }
-            }), function errorCallBack(response) {
+            if (response.data.Error == true) {
                 ShowResult(response.data.Message, 'failure');
             }
-        } catch (e) {
-            ShowResult(e, 'failure');
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+    $scope.GWPaymentDisburseReport = function () {
+        var dataList = [];
+        var g = $("#GridDisburse").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        if (dataList.length == 0) {
+            dataList = $scope.PCOTEmployeedisburseList;
         }
-    };
+        $scope.fileName = "Good Work Payment Disburse Report.xlsx";
 
-    $scope.GoodWorkPaymentList = [];
-    $scope.GetGoodWorkPaymentData = function () {
         $http({
-            method: 'Get',
-            url: $scope.path + "GetGoodWorkPaymentList?paymentSource=" + 'GoodWork',
+            method: 'POST',
+            url: $scope.path + "PCOTEmployeeDisburseList",
+            data: { 'data': dataList, 'reportFileName': $scope.fileName },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.GoodWorkPaymentList = response.data;
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
         });
     }
-    $scope.GetGoodWorkPaymentData();
-
-    $scope.GetGoodWorkPaymentAdvisedetail = function () {
-        $http({
-            method: 'Get',
-            url: $scope.path + "GetGoodWorkPaymentAdviseDetailList?paymentAdviseId=" + $scope.ModelPCNew.Id,
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.PCEmployeeList = response.data;
-        });
-    }
-
-
-
-    //***********************************Payable Creation Extra OT Start********************************************************//
-
-    $scope.GoodWorkOTPaymentList = [];
-    $scope.GetGoodWorkOTPaymentData = function () {
-        $http({
-            method: 'Get',
-            url: $scope.path + "GetGoodWorkPaymentList?paymentSource=" + 'Attendance',
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.GoodWorkOTPaymentList = response.data;
-        });
-    }
-    $scope.GetGoodWorkOTPaymentData();
 
 }

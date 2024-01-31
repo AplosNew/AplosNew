@@ -1667,16 +1667,16 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                     }
                 }
 
-                var sqls = @"Delete from dbo.ManualLeaveData                                 
-                                where plantId = '" + PlantId + @"' and LeaveYearId='"+YearId+"'";
+                //var sqls = @"Delete from dbo.ManualLeaveData                                 
+                //                where plantId = '" + PlantId + @"' and LeaveYearId='"+YearId+"'";
 
-                ConnectionManager.DAL.ConManager objCone = null;
-                objCone = new ConnectionManager.DAL.ConManager("1");
-                objCone.OpenConnection("1");
-                objCone.BeginTransaction();
+                //ConnectionManager.DAL.ConManager objCone = null;
+                //objCone = new ConnectionManager.DAL.ConManager("1");
+                //objCone.OpenConnection("1");
+                //objCone.BeginTransaction();
 
-                objCone.ExecuteNonQueryWrapper(sqls, true, "1");
-                objCone.CommitTransaction();
+                //objCone.ExecuteNonQueryWrapper(sqls, true, "1");
+                //objCone.CommitTransaction();
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
@@ -1801,11 +1801,10 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
                 #region DataSet Finding
 
-                var sql = @"select xx.*,ROUND((xx.Earned-xx.Availed-xx.RegularEncashment+xx.PAdjustment),0)as Closing 
+                var sql = @"select xx.*,ROUND((xx.opening+ xx.Earned-xx.Availed-xx.RegularEncashment+xx.PAdjustment),0)as Closing 
                     
 			    from (select dd.*,
-				case when lpd.EncashWorkingDaysQty >0 then dd.EarningDays/lpd.EncashWorkingDaysQty else 
-				0 END as Earned,ISNULL(ame.PAdjustment,0)PAdjustment	
+				ROUND(case when lpd.EncashWorkingDaysQty >0 then dd.EarningDays/lpd.EncashWorkingDaysQty else 0 END,0) as Earned,ISNULL(ame.PAdjustment,0)PAdjustment		
                 from (select e.SystemId as EmpId,e.EmployeeCode,ld.Id as 
                 LeaveYearId,ld.UserName as LeaveYear,p.UserName as Plant,
                 lt.UserName as LeaveType,lt.Id as LeaveTypeId,lt.Code

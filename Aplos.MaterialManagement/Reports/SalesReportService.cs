@@ -2128,6 +2128,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
 
                 for (int i = 0; i < strReplace.Count; i++)
                 {
+                    
                     string text = strReplace[i].ToUpper();
                     ReplaceInfo.Add(text, 0);
                     if (columns.ContainsKey(text.ToUpper()))
@@ -4426,9 +4427,18 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
 			 where SalesId = Ir.Id
 			group by SalesId ,SalesMaterialId, LotNo
 			  FOR XML PATH('') ) , 1,1 , ''),',' , Char(13) + Char(10))
-,Articless=Replace(stuff((select distinct ',' + (CASE WHEN ISNULL(moi.LCArticle,'')<>'' THEN moi.LCArticle 
-WHEN ISNULL(AA.ArticlePartyName,'')<>'' THEN AA.ArticlePartyName ELSE MMA.StandardName END) FOR XML PATH('') ) , 1,1 , '')
-, ',' , Char(13) + Char(10))
+
+,Articless=Replace(STUFF((select distinct ',' + CASE WHEN ISNULL(moi.LCArticle,'')<>'' THEN moi.LCArticle 
+WHEN ISNULL(AA.ArticlePartyName,'')<>'' THEN AA.ArticlePartyName ELSE MMA.StandardName END 
+from TRN.Sales IRs
+LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IRs.Id
+LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
+left join [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
+LEFT JOIN dbo.ArticleAlias AA ON AA.ArticleId=MMA.Id AND AA.MasterOrderItemID=MOI.Id
+WHERE IRs.Id = IR.Id
+			  FOR XML PATH('') ) , 1,1 , ''),',' , Char(13) + Char(10))
+
 ,PSI.RFIDSealNo 
 ,PSI.LineSealNo
 ,NEGADD.Address1 NegotiationBankAdd
@@ -4437,6 +4447,7 @@ WHEN ISNULL(AA.ArticlePartyName,'')<>'' THEN AA.ArticlePartyName ELSE MMA.Standa
 ,PSI.PortCode
 ,FORMAT(PSI.ShippingBillDate,'dd-MMM-yyyy')ShippingBillDate
 ,FORMAT(PSI.ShipmentDate,'dd-MMM-yyyy')ShipmentDate
+,FORMAT(PSI.ShipmentDate,'dd-MMM-yyyy')ShipmentDate1
 ,CONVERT(numeric(10,2) , SAI.Value) AdvanceRevceive
 ,PSI.ExportRefNo EPN
 ,NEGBNKMT.AccountNumber NegotiatingAccNo
@@ -4446,6 +4457,44 @@ WHEN ISNULL(AA.ArticlePartyName,'')<>'' THEN AA.ArticlePartyName ELSE MMA.Standa
 , case when IR.InvoicingPartyPlantId = IR.DeliveryPartyPlantId then '' else  DPARTYPL.UserName end DelivertyPT
 ,convert(numeric(10,2), PSI.CargoGrossWt ) ContainerGWeight
 ,(convert(numeric(10,2), PSI.CargoGrossWt ) - convert(numeric(10,2), PSI.CargoNetWt)) ContainerTWeight
+
+,LCInsuranceCompany=Stuff((
+                    SELECT distinct',' + LC.InsuranceCompany
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,LCInsuranceCompany1=Stuff((
+                    SELECT distinct',' + LC.InsuranceCompany
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,LCInsuranceCompanyDescription=Stuff((
+                    SELECT distinct',' + LC.InsuranceCompanyDescription
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+,LCInsuranceCoverNote=Stuff((
+                    SELECT distinct',' + LC.InsuranceCoverNote
+                    FROM dbo.MasterLC LC 
+					LEFT JOIN dbo.[Contract] C ON C.MasterLCId=LC.Id
+                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+					LEFT JOIN TRN.SalesMaterial SM ON SM.SalesOrderId=SO.Id
+                    WHERE SM.SalesId=IR.Id
+                    FOR XML PATH('')
+                    ), 1, 1, '')
+
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
 LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -4489,6 +4538,7 @@ left join hkp.BankBranch NEGBB on NEGBB.Id = NEGBNKMT.BankBranchId
 left join MST.AddressMaster NEGADD on NEGADD.Id = NEGBB.AddressMasterId
 left join SalesAdditionalInfo SAI on SAI.SalesId = IR.Id 
 left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName = 'Advance'
+
                        WHERE IR.Id ='" + SalesId + "' AND SCN.Bags<>''";
 
                 return _sqlRepository.GetDataTable(strSQL);
@@ -5009,6 +5059,27 @@ left join HKP.AdditionalInfo AI on AI.Id  = SAI.AdditionalInfoId and AI.UserName
 ,FORMAT(PSI.ShipmentDate,'dd-MMM-yyyy')ShipmentDate9
 ,REPLACE(Convert(VARCHAR(11), IR.InvoiceDate, 106), ' ', '-') AS InvoiceDate10
 ,IR.InvoiceNo InvoiceNo10
+
+,PSI.PreCarriageDocRef LRCopy1 
+,FORMAT(PSI.PreCarriageDocDate,'dd-MMM-yyyy') LRDate1
+,PSI.PreCarriageDocRef LRCopy2 
+,FORMAT(PSI.PreCarriageDocDate,'dd-MMM-yyyy') LRDate2
+,PSI.PreCarriageDocRef LRCopy3 
+,FORMAT(PSI.PreCarriageDocDate,'dd-MMM-yyyy') LRDate3
+,PSI.PreCarriageDocRef LRCopy4 
+,FORMAT(PSI.PreCarriageDocDate,'dd-MMM-yyyy') LRDate4
+,PSI.PreCarriageDocRef LRCopy5 
+,FORMAT(PSI.PreCarriageDocDate,'dd-MMM-yyyy') LRDate5
+,PSI.PreCarriageDocRef LRCopy6 
+,FORMAT(PSI.PreCarriageDocDate,'dd-MMM-yyyy') LRDate6
+,PSI.PreCarriageDocRef LRCopy7 
+,FORMAT(PSI.PreCarriageDocDate,'dd-MMM-yyyy') LRDate7
+,PSI.PreCarriageDocRef LRCopy8 
+,FORMAT(PSI.PreCarriageDocDate,'dd-MMM-yyyy') LRDate8
+,PSI.PreCarriageDocRef LRCopy9 
+,FORMAT(PSI.PreCarriageDocDate,'dd-MMM-yyyy') LRDate9
+,PSI.PreCarriageDocRef LRCopy10 
+,FORMAT(PSI.PreCarriageDocDate,'dd-MMM-yyyy') LRDate10
 
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId

@@ -1247,6 +1247,9 @@ WHERE CT.ContractId " + contractId+"";
                     dr["PaymentTermVarify"] = data.PaymentTermVarify;
                     dr["AdditionalInfoVarify"] = data.AdditionalInfoVarify;
                     dr["NegotiatingBankId"] = data.NegotiatingBankId;
+                    dr["InsuranceCompany"] = data.InsuranceCompany;
+                    dr["InsuranceCompanyDescription"] = data.InsuranceCompanyDescription;
+                    dr["InsuranceCoverNote"] = data.InsuranceCoverNote;
 
 
                     dr["AddedBy"] = identity.Name;
@@ -1288,6 +1291,10 @@ WHERE CT.ContractId " + contractId+"";
                     dr["PaymentTermVarify"] = data.PaymentTermVarify;
                     dr["AdditionalInfoVarify"] = data.AdditionalInfoVarify;
                     dr["NegotiatingBankId"] = data.NegotiatingBankId;
+                    dr["InsuranceCompany"] = data.InsuranceCompany;
+                    dr["InsuranceCompanyDescription"] = data.InsuranceCompanyDescription;
+                    dr["InsuranceCoverNote"] = data.InsuranceCoverNote;
+
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
@@ -4245,6 +4252,9 @@ WHERE CT.ContractId IN(" + id + ") AND TermsAndConditionsId NOT IN(SELECT TermsA
         public bool TermsandConditionVarify { get; set; }
         public bool PaymentTermVarify { get; set; }
         public bool AdditionalInfoVarify { get; set; }
+        public string InsuranceCompany { get; set; }
+        public string InsuranceCoverNote { get; set; }
+        public string InsuranceCompanyDescription { get; set; }
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }
         public string AddedFromIP { get; set; }

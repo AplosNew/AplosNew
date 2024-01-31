@@ -3837,7 +3837,7 @@ from MST.QualityManagementParameterItem QMP
 left join TRN.QualityControlDetails QCD on QCD.ItemId=QMP.Id
 left join TRN.QualityControl QC on QC.Id=QCD.QCID
 left join HKP.ParameterMaster PM on PM.Id=QMP.ParameterId
-left join [MST].[QualityManagementCPSequence] CPS on CPS.ParameterId=PM.Id
+left join [MST].[QualityManagementCPSequence] CPS on CPS.ParameterId=PM.Id and CPS.QMPId=CQD.ParameterId
 left join SCS.UnitOfMeasurement UM on UM.Id=QMP.UOMId
 left join[TRN].[CustomerQualityReportHeader] CQH on CQH.ProductionOrderId='" + ProductionOrderId + "' and CQH.LotNo='" + LotNumber + "' " + CustFilter + " " + InvFilter + @"
 where CustomerParameter=1 and Finalreport=1 and QCD.GradeId is not null" + LotFilter + " order by CPS.Sequence";
@@ -3910,7 +3910,7 @@ CQD.Id,CQD.ParaRemarks,CQD.Value,PM.UserName Parameter,CQD.UOMId,UM.UserName UOM
 from TRN.CustomerQualityReportHeader CQH
 left Join TRN.CustomerQualityReportDetails CQD on CQD.CQRHeaderId=CQH.Id
 left join HKP.ParameterMaster PM on PM.Id=(select ParameterId from MST.QualityManagementParameterItem where id=CQD.ParameterId)
-left join [MST].[QualityManagementCPSequence] CPS on CPS.ParameterId=PM.Id
+left join [MST].[QualityManagementCPSequence] CPS on CPS.ParameterId=PM.Id and CPS.QMPId=CQD.ParameterId
 left join SCS.UnitOfMeasurement UM on UM.Id=CQD.UOMId
 where 1=1 " + POFilter + " " + LotFilter + "" + CustFilter + " " + InvFilter + " order by CPS.Sequence";
 
@@ -3982,7 +3982,7 @@ CQD.Id,CQD.ParaRemarks,CQD.Value,PM.UserName Parameter,CQD.UOMId,UM.UserName UOM
 from TRN.CustomerQualityReportHeader CQH
 left Join TRN.CustomerQualityReportDetails CQD on CQD.CQRHeaderId=CQH.Id
 left join HKP.ParameterMaster PM on PM.Id=(select ParameterId from MST.QualityManagementParameterItem where id=CQD.ParameterId)
-left join [MST].[QualityManagementCPSequence] CPS on CPS.ParameterId=PM.Id
+left join [MST].[QualityManagementCPSequence] CPS on CPS.ParameterId=PM.Id and CPS.QMPId=CQD.ParameterId
 left join SCS.UnitOfMeasurement UM on UM.Id=CQD.UOMId
 where 1=1 " + POFilter + " " + LotFilter + "" + CustFilter + " " + InvFilter + " order by CPS.Sequence";
 
