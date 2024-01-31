@@ -4230,34 +4230,5 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         angular.element(document.querySelector("#DelMaterialInputChildBOQ")).modal("show");
     }
 
-    $scope.materialArticleList = [];
-    $scope.InputMaterialArticlelistData = {};
-    $scope.getProductionMaterialMasterWithArticle = function (data) {
-            var articleIds = "";
-        if ( $scope.selectedProductionOrder.length > 0) {
-            articleIds = "IN(";
-            articleIds += Array.prototype.map.call(selectedProductionOrder, function (item) { return "'" + item.ArticleId + "'"; }).join(",") + ")";
-        }
-        //for (var i = 0; i < $scope.selectedProductionOrder.length; i++) {
-
-        //}
-        
-        $http({
-            method: 'POST',
-            url: 'Materials/MaterialMasterArticle/GetMaterialMasterWithArticlePopUpData?type=' + $scope.materialType ,
-            data: { column: $scope.searchByMaterial, value: $scope.search },
-            dataType: 'JSON',
-        }).then(function successCallback(response) {
-            $scope.materialArticleList = response.data;
-        });
-        $scope.InputMaterialArticlelistData = data;
-        angular.element(document.querySelector('#materialarticleNewPopUp')).modal('show');
-
-    };
-    $scope.getMaterialMasterWithArticleBySearch = function () {
-        $scope.getMaterialMasterWithArticle($scope.InputMaterialArticlelistData);
-    }
-    $scope.closeMaterialMasterWithArticle = function () {
-        angular.element(document.querySelector('#materialarticleNewPopUp')).modal('show');
-    }
+ 
 }

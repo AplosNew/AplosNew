@@ -290,8 +290,19 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColOrderType].Text = data.Rows[i]["OrderType"].ToString();
                 sheet[ROW, ColMO].Number = clsStaticInfo.dbl(data.Rows[i]["MasterOrderNo"].ToString());
                 //sheet[ROW, ColMOD].DateTime = Convert.ToDateTime(data.Rows[i]["MasterOrderDate"].ToString());
+
+
                 sheet[ROW, ColCd].DateTime = Convert.ToDateTime(data.Rows[i]["CreatedDate"].ToString());
-                sheet[ROW, ColDel].DateTime = Convert.ToDateTime(data.Rows[i]["DeliveryDate"].ToString());
+
+                if (data.Rows[i]["DeliveryDate"].ToString() == "")
+                {
+                    sheet[ROW, ColDel].Text = "";
+                }
+                else
+                {
+                    sheet[ROW, ColDel].DateTime = Convert.ToDateTime(data.Rows[i]["DeliveryDate"].ToString());
+                }
+               
                 sheet[ROW, ColOwn].Text = data.Rows[i]["OwnReferenceNo"].ToString();
                 sheet[ROW, ColCont].Text = data.Rows[i]["ContractID"].ToString();
                 sheet[ROW, ColBuy].Text = data.Rows[i]["BuyerOrderNo"].ToString();
@@ -299,9 +310,34 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColOrderFromStock].Text = data.Rows[i]["OrderFromStock"].ToString();
                 sheet[ROW, ColPackingType].Text = data.Rows[i]["PackingType"].ToString();
                 sheet[ROW, ColProductionType].Text = data.Rows[i]["ProductionType"].ToString();
-                sheet[ROW, ColProdStartDate].Text = data.Rows[i]["ProdStartDate"].ToString();
-                sheet[ROW, ColProdEndDate].Text = data.Rows[i]["ProdEndDate"].ToString();
-                sheet[ROW, ColSOCompletionDate].Text = data.Rows[i]["SOCompletionDate"].ToString();
+
+                if (data.Rows[i]["ProdStartDate"].ToString() == "")
+                {
+                    sheet[ROW, ColProdStartDate].Text = "";
+                }
+                else
+                {
+                    sheet[ROW, ColProdStartDate].Text = data.Rows[i]["ProdStartDate"].ToString();
+                }
+
+                if (data.Rows[i]["ProdEndDate"].ToString() == "")
+                {
+                    sheet[ROW, ColProdEndDate].Text = "";
+                }
+                else
+                {
+                    sheet[ROW, ColProdEndDate].Text = data.Rows[i]["ProdEndDate"].ToString();
+                }
+                if (data.Rows[i]["SOCompletionDate"].ToString() == "")
+                {
+                    sheet[ROW, ColSOCompletionDate].Text = "";
+                }
+                else
+                {
+                    sheet[ROW, ColSOCompletionDate].Text = data.Rows[i]["SOCompletionDate"].ToString();
+                }
+
+                
                 sheet[ROW, ColCM].Text = data.Rows[i]["CM"].ToString();
                 sheet[ROW, ColFOB].Text = data.Rows[i]["FOB"].ToString();
                 sheet[ROW, ColPRStatus].Text = data.Rows[i]["PRStatus"].ToString();
@@ -319,7 +355,17 @@ namespace Aplos.Areas.Productions.Controllers
                     //data.Rows[i]["ExFactoryDate"].ToString();
                 }
                 
-                sheet[ROW, ColComm].Text = data.Rows[i]["CommitmentDate"].ToString();
+                
+                if (data.Rows[i]["CommitmentDate"].ToString() == "")
+                {
+                    sheet[ROW, ColComm].Text = "";
+                }
+                else
+                {
+                    sheet[ROW, ColComm].Text = data.Rows[i]["CommitmentDate"].ToString();
+                }
+
+
                 sheet[ROW, ColSOCat].Text = data.Rows[i]["SOCategory"].ToString();
                 sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rates"].ToString());
                 sheet[ROW, ColExRate].Number = clsStaticInfo.dbl(data.Rows[i]["ExchangeRate"].ToString());
@@ -332,7 +378,9 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColResponsiblePerson].Text = data.Rows[i]["ResponsiblePerson"].ToString();
                 sheet[ROW, ColOrderStatus].Text = data.Rows[i]["OrderStatus"].ToString();
                 sheet[ROW, ColLCNumber].Text = data.Rows[i]["LC Number"].ToString();
-                //sheet[ROW, ColLCShipmentDate].DateTime = Convert.ToDateTime(data.Rows[i]["LCShipmentDate"].ToString());
+                //sheet[ROW, ColLCShipmentDate].DateTime = Convert.ToDateTime(data.Rows[i]["LCShipmentDate"].ToString());   
+               
+
                 if (data.Rows[i]["LCShipmentDate"].ToString() == ""){
                     sheet[ROW, ColLCShipmentDate].Text = "";
                 }
@@ -393,7 +441,8 @@ namespace Aplos.Areas.Productions.Controllers
                             and s.WorkDate <= GetDate()
                             and sc.Booked = 0 and  (MMM.PurposeId <> 'MP7' AND MMM.PurposeId <> 'MP8' AND MMM.PurposeId <> 'MP9' AND MMM.PurposeId <> 'MP12')) as AllotedStock
                             , so.Rate as Rates, mor.ExchangeRate,E.EmployeeName ResponsiblePerson,OS.UserName OrderStatus
-                            ,MLC.LCRef [LC Number], ISNULL(REPLACE(CONVERT(VARCHAR(11), MLC.LCShipmentDate, 106), ' ', '-'),'') LCShipmentDate, ISNULL(REPLACE(CONVERT(VARCHAR(11), MLC.ExpiryDate, 106), ' ', '-'),'') [LC Expiry Date]
+                            --,MLC.LCRef [LC Number], FORMAT(MLC.LCShipmentDate,'dd-MMM-yyyy') LCShipmentDate, FORMAT(MLC.ExpiryDate,'dd-MMM-yyyy')[LC Expiry Date]
+							,MLC.LCRef [LC Number], MLC.LCShipmentDate, MLC.ExpiryDate [LC Expiry Date]
                             ,OrderFromStock = case when so.ShipmentFromStock=1 then 'Yes' else 'No' end
 							,PT.UserName PackingType,so.ProductionType,PFLB.ProdStartDate,PFLB.ProdEndDate
 							,SOCompletionDate=case when OS.UserName='Closed' then format(so.OrderStatusChangedDate,'dd-MMM-yyyy') else NULL end

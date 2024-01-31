@@ -277,7 +277,7 @@ JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id WHERE BP.Bus
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
             }
         }
-
+       
         public IEnumerable<object> GetMaterialArticlePopUpData(string column, string value)
         {
             try

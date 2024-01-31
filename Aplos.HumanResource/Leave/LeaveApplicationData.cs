@@ -1667,16 +1667,16 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                     }
                 }
 
-                var sqls = @"Delete from dbo.ManualLeaveData                                 
-                                where plantId = '" + PlantId + @"' and LeaveYearId='"+YearId+"'";
+                //var sqls = @"Delete from dbo.ManualLeaveData                                 
+                //                where plantId = '" + PlantId + @"' and LeaveYearId='"+YearId+"'";
 
-                ConnectionManager.DAL.ConManager objCone = null;
-                objCone = new ConnectionManager.DAL.ConManager("1");
-                objCone.OpenConnection("1");
-                objCone.BeginTransaction();
+                //ConnectionManager.DAL.ConManager objCone = null;
+                //objCone = new ConnectionManager.DAL.ConManager("1");
+                //objCone.OpenConnection("1");
+                //objCone.BeginTransaction();
 
-                objCone.ExecuteNonQueryWrapper(sqls, true, "1");
-                objCone.CommitTransaction();
+                //objCone.ExecuteNonQueryWrapper(sqls, true, "1");
+                //objCone.CommitTransaction();
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);

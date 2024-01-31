@@ -29,10 +29,8 @@
     </div>
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-
             <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
                 <div class="table-responsive modal-table ">
-
                     <div id="GridChildEdit" ej-grid e-datasource="PCOTEmployeeUndisburseList" e-allowfiltering="true" e-allowpaging="true"
                          e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-allowselection="true"
                          e-filtersettings-filterType="excel" e-allowtextwrap="true" e-templaterefresh="refreshTemplateemployee">
@@ -53,32 +51,37 @@
                     <script type="text/x-jsrender" id="headerTemplate">
                         <input type="checkbox" id="headchk" />
                     </script>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="GoodWorkPaymentDisburseSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                        </ul>
+                    </div>
                 </div>
-            </div>
-
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button ng-click="GoodWorkPaymentDisburseSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{PCOTAction}}</button></li>
-                </ul>
+                <div class="col-md-12 text-left" style="margin-top:20px;">
+                    <button type="button" class="btn single-btn" ng-click="GWPaymentUndisburseReport()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Download</button>
+                </div>
             </div>
         </div>
 
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
             <div class="table-responsive modal-table ">
-                    <div id="GridChildEdit" ej-grid e-datasource="PCOTEmployeedisburseList" e-allowfiltering="true" e-allowpaging="true"
-                         e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-allowselection="true"
-                         e-filtersettings-filterType="excel" e-allowtextwrap="true" e-templaterefresh="refreshTemplateemployee">
-                        <div e-columns>
-                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="60"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
-                            <div e-column e-field="Minute" e-headertext="Minute" e-width="60"></div>
-                            <div e-column e-field="Hour" e-headertext="Hour" e-width="60"></div>
-                            <div e-column e-field="Rate" e-headertext="Rate" e-width="60"></div>
-                            <div e-column e-field="Amount" e-headertext="Amount" e-width="60"></div>
-                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="60"></div>
-                        </div>
+                <div id="GridDisburse" ej-grid e-datasource="PCOTEmployeedisburseList" e-allowfiltering="true" e-allowpaging="true"
+                     e-allowsorting="true" e-enabletouch="false" e-responsive="true" e-allowselection="true"
+                     e-filtersettings-filterType="excel" e-allowtextwrap="true" e-templaterefresh="refreshTemplateemployee">
+                    <div e-columns>
+                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="60"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                        <div e-column e-field="Minute" e-headertext="Minute" e-width="60"></div>
+                        <div e-column e-field="Hour" e-headertext="Hour" e-width="60"></div>
+                        <div e-column e-field="Rate" e-headertext="Rate" e-width="60"></div>
+                        <div e-column e-field="Amount" e-headertext="Amount" e-width="60"></div>
+                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="60"></div>
                     </div>
                 </div>
+            </div>
+            <div class="col-md-12 text-left" style="margin-top:20px;">
+                <button type="button" class="btn single-btn" ng-click="GWPaymentDisburseReport()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Download</button>
+            </div>
         </div>
     </div>
 </div>

@@ -984,9 +984,10 @@ namespace Aplos.Areas.Attendances.Controllers
                                 ,format(g.Gross,'N2') Gross
                                 ,format(g.RatePerHour,'N2') Rate 
                                 ,Amount=format(g.RatePerHour*(sum(apd.OverStay)/60),'N2'),apd.GWPaymentAdviseId 
-
+                                ,gwpa.Remarks
                                 from [dbo].[AttdnProcessData] apd 
-                                left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID  
+                                left join EmployeeInformation ei on ei.SystemId=apd.EmpSystemID
+                                left join GoodWorkPaymentAdvise gwpa on gwpa.Id=apd.GWPaymentAdviseId
                                 LEFT JOIN SalaryInfoDefineMaster SIDM ON SIDM.EmpInfoSystemID = EI.SystemId
 								                                  LEFT JOIN(SELECT ((SID.DefineAmount/208)*2) RatePerHour,SH.SalaryHead
 								                                  ,SID.SalaryID,SID.DefineAmount Gross
@@ -999,7 +1000,7 @@ namespace Aplos.Areas.Attendances.Controllers
 									                                left join GoodWorkPaymentAdviseDetail gwpad on gwpad.PaymentAdviseId=gwpa.Id
 									                                where convert( DateTime, gwpa.FromDate) between '" + fromDate + @"' and '" + toDate + @"' and convert( DateTime, gwpa.ToDate) between '" + fromDate + @"' and '" + toDate + @"' and gwpad.IsDisburse<>1
 									                                )
-                                group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId ";
+                                group by ei.SystemId,ei.EmployeeCode,ei.EmployeeName,g.Gross,g.RatePerHour,apd.GWPaymentAdviseId,gwpa.Remarks";
                 }
             }
             catch (Exception ex)
@@ -1715,6 +1716,38 @@ namespace Aplos.Areas.Attendances.Controllers
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost, Authorize]
+        public ActionResult GetGoodWorkPaymentUndisburseReport(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                string fileName = "";
+                fileName = _accountVoucherReportService.GoodWorkPaymentUndisburseReportxlx(data, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        
+        [HttpPost, Authorize]
+        public ActionResult PCOTEmployeeDisburseList(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                string fileName = "";
+                fileName = _accountVoucherReportService.GoodWorkPaymentDisburseReportxlx(data, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion Good work check
         public class WorkerAdvanceTransaction
         {
