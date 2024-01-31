@@ -1560,7 +1560,7 @@
                             </div>
                         </div>
 
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
+                        @*<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Input Material Category<sup>*</sup></label>
                                 <div class="show-message">
@@ -1574,8 +1574,8 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="clearfix"></div>
+                        </div>*@
+                        @*<div class="clearfix"></div>
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Output Material Category<sup>*</sup></label>
@@ -1590,7 +1590,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div>*@
 
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group" show-errors>
@@ -1610,7 +1610,7 @@
                             </div>
                         </div>
                         <div class="clearfix"></div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+                        @*<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Order Specific<sup>*</sup></label>
                                 <div class="show-message">
@@ -1624,7 +1624,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div>*@
 
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group" show-errors>
@@ -1726,15 +1726,6 @@
                         </div>
                         <div class="clearfix"></div>
 
-                        @*<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
-                                <div class="form-group">
-                                    <label class="control-label">Remarks</label>
-                                    <div>
-                                        <textarea type="text" ng-model="detailModel.Remarks" class="form-control" tabindex="16" maxlength="250"></textarea>
-                                    </div>
-                                </div>
-                            </div>*@
-                        @*<div class="clearfix"></div>*@
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
                             <div class="form-group">
                                 <div class="inputBtnSection common-btn">
@@ -1762,112 +1753,11 @@
                             </div>
                         </div>
                         <div class="clearfix"></div>
-                        @*<div class="common-btn">
-                                <ul class="list-inline text-right">
-                                    <li> <button ng-click="SaveMatPlanning()" ng-disabled="Transformation.Id==null" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></button></li>
-                                    <li> <button ng-click="detailClear()" class="btn" tabindex="7"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                                </ul>
-                            </div>*@
                     </div>
                 </div>
 
                 <hr style="width:100%;" />
-                <!--<div class="col-xs-4 col-sm-4 col-md-4">
-                    <div class="form-group" id="div_qty">
-                        <label class="col-sm-4 control-label">Transaction Qty<sup>*</sup></label>
-                        <div class="col-sm-4 show-message" style="padding-right:0px;">
-                            <input type="text" n-decimals="2" name="Transaction Qty" maxlength="18" ng-model="detailModel.TransactionQty" class="form-control text-right" ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_qty', 'detailModel','TransactionQty');">
-                        </div>
-                        <div class="col-sm-4 show-message" style="padding-left:0px;">
-                            <div class="select-style">
-                                <select name="Transaction UoM" class="form-control" ng-model="detailModel.TransactionUoMId" ng-options="item.Value as item.Text for item in uoMList" ng-change="manualValidationAddRemove('div_uom', 'detailModel','TransactionUoMId');">
-                                    <option value=""></option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-4 col-sm-4 col-md-4">
-                    <div class="form-group" id="div_Rt">
-                        <label class="col-sm-5 control-label">Unit Rate<sup>*</sup></label>-->
-                @*<label class="col-sm-6 control-label">{{detailModel.TransactionRate| number| setDecimal:currencyPrecision}} {{detailModel.CurrencyName}}</label>*@
-                <!--<div class="col-sm-7 show-message">
-                            <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
-                                <input type="text" name="Rate" n-decimals="4" ng-model="detailModel.TransactionRate" class="form-control text-right" placeholder="0.00"
-                                       ng-keyup="calculateTaxCategoryRate();manualValidationAddRemove('div_Rt', 'detailModel','TransactionRate');" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-4 col-sm-4 col-md-4">
-                    <div class="form-group" id="div_tamnt">
-                        <label class="col-sm-5 control-label" data-placement="top" title="Cost and Manufacture">Total Amount<sup>*</sup></label>
-                        <div class="col-sm-7 show-message">
-                            <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">-->
-                @*{{currencyPrecision}}*@
-                <!--<input type="text" name="Amount" n-decimals="4" ng-model="detailModel.TransactionAmount" class="form-control text-right" placeholder=""
-                                       ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_tamnt', 'detailModel','TransactionAmount');" disabled />
-                            </div>
-                            <div class="col-sm-4" style="padding-left:0px;padding-right:0px;">
-                                <input type="text" ng-model="detailModel.CurrencyName" class="form-control" disabled />
-                            </div>
-                        </div>
-                    </div>
-                </div>-->
-                <!--<fieldset class="scheduler-border" ng-show="detailModel.MaterialMasterName">
-                <legend class="scheduler-border"> Tax</legend>
-                <div class="col-md-12 modal-table table-responsive" style="padding-top: 5px;" ng-show="taxCategoryList.length>0">
-
-                    <div class="col-xs-12 col-sm-4 col-md-4" ng-show="detailModel.MaterialMasterName">
-                        <div class="form-group">
-                            <label class="col-sm-6 control-label">If Percentage Applicable</label>
-                            <div class="col-sm-6">
-                                <div class="radio">
-                                    <label>
-                                        <input type="radio" name="TaxOptionMat" ng-model="productNew.TaxOptionServiceModify" value="Yes" ng-click="TaxOptionServiceModify('Yes');" checked="checked">-->
-                @*ng-hide="HSNCode !=null"*@
-                <!--<span class="cr"><i class="cr-icon"></i></span>Yes
-                </label>
-                <label>
-                    <input type="radio" name="TaxOptionMat" ng-model="productNew.TaxOptionServiceModify" value="No" ng-click="TaxOptionServiceModify('No');">-->
-                @*ng-hide="HSNCode !=null"*@
-                <!--<span class="cr"><i class="cr-icon"></i></span>No
-                                        </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-                        <table class="table table-striped" ng-show="detailModel.MaterialMasterName">
-                            <thead>
-                                <tr>
-                                    <th>Tax Category</th>
-                                    <th>HSN Code</th>
-                                    <th>Percentage</th>
-                                    <th>Tax Amount (BC)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr ng-repeat="x in taxCategoryList">
-                                    <td>{{x.UserName}}</td>
-                                    <td>{{x.HSNCode}}</td>
-                                    <td class="text-right">{{x.Percentage}}</td>
-                                    <td class="text-right">
-                                        <input type="text" n-decimals="{{4}}" ng-disabled="productNew.TaxOptionServiceModify==='No'" ng-model="x.Percentage" ng-keyup="calculateTaxAmountForMat(x);" class="form-control text-right" />
-                                    </td>
-                                    <td class="text-right">
-                                        <input type="text" n-decimals="{{2}}" ng-disabled="productNew.TaxOptionServiceModify==='Yes'" ng-model="x.TaxAmount" ng-keyup="checkRowValidationMat(x);" class="form-control text-right" />
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td colspan="3" class="text-right">Total Tax (BC)</td>
-                                    <td class="text-right">{{detailModel.TotalTaxAmount| setDecimal:currencyPrecision}}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </fieldset>-->
+               
                 <fieldset class="scheduler-border" ng-show="detailModel.ServiceId">
                     ax
                     <legend class="scheduler-border">   Service Tax</legend>
@@ -2670,108 +2560,7 @@
                         <div class="clearfix"></div>
                     </div>
 
-                    @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetOtherVendorIndex(2), active: isSetOtherVendorIndex(2) }">
-
-                            <div id="ReqaddId1">
-                                <div class="col-lg-12">
-                                    <div class="content-container-fluid" style="color:black;">
-
-                                        <div style="color:black;" id="GridReqeee" ej-grid e-datasource="GetListForMasterOrder"
-                                             e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-                                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
-
-                                            <div e-columns>
-
-                                                <div e-column e-field="BOQId" e-headertext="BOQ Id" e-width="100"></div>
-                                                <div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="150"></div>
-                                                <div e-column e-field="RequiredQtyApproved" e-headertext="Approved" e-width="100"></div>
-                                                <div e-column e-field="UserName" e-headertext="Material" e-width="200"></div>
-                                                <div e-column e-field="StandardName" e-headertext="Article" e-width="250"></div>
-
-                                                <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="80"></div>
-                                                <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="80"></div>
-                                                <div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="80"></div>
-                                                <div e-column e-field="UOM" e-headertext="UOM" e-width="100"></div>
-                                                <div e-column e-field="BOMQty" e-headertext="BOMQty" e-width="100" textAlign='Right'></div>
-                                                <div e-column e-field="RequiredQty" e-headertext="RequiredQty" e-width="150" textAlign='Right'></div>
-                                                <div e-column e-field="PORaisedQry" e-headertext="PORaisedQry" e-width="150" textAlign='Right'></div>
-
-
-                                                <div e-column e-field="Vendor" e-headertext="Vendor" e-width="300"></div>
-
-                                                <div e-column e-field="IncompleteMaterial" e-headertext="IncompleteMaterial" e-width="200"></div>
-                                                <div e-column e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="150"></div>
-                                                <div e-column e-field="MasterOrderItemId" e-headertext="MasterOrderItemId" e-width="150"></div>
-                                                <div e-column e-field="BuyerOrderReferenceNo" e-headertext="BuyerOrder#" e-width="120"></div>
-                                                <div e-column e-field="OwnOrderReferenceNo" e-headertext="OwnOrder#" e-width="120"></div>
-                                                <div e-column e-field="BuyerItemReferenceNo" e-headertext="BuyerItem#" e-width="120"></div>
-                                                <div e-column e-field="OwnItemReferenceNo" e-headertext="OwnItem#" e-width="120"></div>
-
-
-                                            </div>
-
-                                        </div>
-
-                                        <div id="GridT"></div>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="clearfix"></div>
-
-                        </div>
-
-                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetParentIndex(3), active: isSetParentIndex(3) }">
-
-                            <div id="ReqaddId1">
-                                <div class="col-lg-12">
-                                    <div class="content-container-fluid" style="color:black;">
-
-                                        <div style="color:black;" id="GridReq3" ej-grid e-datasource="GetListForMasterOrder"
-                                             e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-                                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
-
-                                            <div e-columns>
-
-                                                <div e-column e-field="BOQId" e-headertext="BOQ Id" e-width="100"></div>
-                                                <div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="150"></div>
-                                                <div e-column e-field="RequiredQtyApproved" e-headertext="Approved" e-width="100"></div>
-                                                <div e-column e-field="UserName" e-headertext="Material" e-width="200"></div>
-                                                <div e-column e-field="StandardName" e-headertext="Article" e-width="250"></div>
-
-                                                <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="80"></div>
-                                                <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="80"></div>
-                                                <div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="80"></div>
-                                                <div e-column e-field="UOM" e-headertext="UOM" e-width="100"></div>
-                                                <div e-column e-field="BOMQty" e-headertext="BOMQty" e-width="100" textAlign='Right'></div>
-                                                <div e-column e-field="RequiredQty" e-headertext="RequiredQty" e-width="150" textAlign='Right'></div>
-                                                <div e-column e-field="PORaisedQry" e-headertext="PORaisedQry" e-width="150" textAlign='Right'></div>
-
-
-                                                <div e-column e-field="Vendor" e-headertext="Vendor" e-width="300"></div>
-
-                                                <div e-column e-field="IncompleteMaterial" e-headertext="IncompleteMaterial" e-width="200"></div>
-                                                <div e-column e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="150"></div>
-                                                <div e-column e-field="MasterOrderItemId" e-headertext="MasterOrderItemId" e-width="150"></div>
-                                                <div e-column e-field="BuyerOrderReferenceNo" e-headertext="BuyerOrder#" e-width="120"></div>
-                                                <div e-column e-field="OwnOrderReferenceNo" e-headertext="OwnOrder#" e-width="120"></div>
-                                                <div e-column e-field="BuyerItemReferenceNo" e-headertext="BuyerItem#" e-width="120"></div>
-                                                <div e-column e-field="OwnItemReferenceNo" e-headertext="OwnItem#" e-width="120"></div>
-
-
-                                            </div>
-
-                                        </div>
-
-                                        <div id="GridT"></div>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="clearfix"></div>
-                        </div>*@
+                  
 
                 </div>
 
@@ -3282,75 +3071,6 @@
     </div>
 </div>
 
-@*<div id="ByProductInputMaterialModal" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;">
-
-        <div class="modal-dialog " style="width:95%">
-            <div class="modal-content" style="width:95%">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title" id="myModalLabel">Manpower Budget Allowance</h4>
-                </div>
-                <div class="form-element-ctrl form-horizontal">
-                    <div class="tab-design" id="tab_show">
-                        <div class="tab-design" id="tab_show">
-                            <div class="site-tab">
-                                <ul class="nav nav-tabs" role="tablist">
-                                    <li role="presentation" ng-class="{ active: isSetIndex2(1) }"><a ng-click="setTab2(1)" href="" aria-controls="assign" role="tab" data-toggle="tab">Input Material</a></li>
-                                    <li role="presentation" ng-class="{ active: isSetIndex2(2) }"><a ng-click="setTab2(2)" href="" aria-controls="assign" role="tab" data-toggle="tab">By Product</a></li>
-
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="tab-content">
-                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-                                <div class="row">
-                                    <div id="GridBOQChild" ej-grid
-                                         e-datasource="JWPOinputList"
-                                         e-allowscrolling="true"
-                                         e-pageSettings-pageSize="15"
-                                         e-allowfiltering="true"
-                                         e-allowpaging="true"
-                                         e-enabletouch="false"
-                                         e-responsive="true"
-                                         e-allowselection="true"
-                                         e-filtersettings-filterType="excel">
-                                        <div e-columns>
-                                            <div e-column e-type="string" e-field="InputItem" e-headertext="InputItem" e-allowediting="false" e-width="80"></div>
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                                <div class="row">
-                                    <div id="GridBOQChildBP" ej-grid
-                                         e-datasource="JWPOByProductList"
-                                         e-allowscrolling="true"
-                                         e-pageSettings-pageSize="15"
-                                         e-allowfiltering="true"
-                                         e-allowpaging="true"
-                                         e-enabletouch="false"
-                                         e-responsive="true"
-                                         e-allowselection="true"
-                                         e-filtersettings-filterType="excel">
-                                        <div e-columns>
-                                            <div e-column e-type="string" e-field="ByProduct" e-headertext="ByProduct" e-allowediting="false" e-width="80"></div>
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer common-btn">
-                    <button type="button" class="btn glyphicon-arrow-down" ng-click="PrintGRDes();">Download</button>
-                </div>
-
-            </div>
-        </div>
-    </div>*@
 
 
 @* Shashank Material Pop up  *@
