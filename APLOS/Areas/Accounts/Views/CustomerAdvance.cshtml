@@ -270,7 +270,7 @@
                             <input type="text" n-decimals="2" ng-disabled="x.BankCurrencyId==voucher.CurrencyId" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="BankAmount" autocomplete="off" ng-model="x.BankAmount" ng-keyup="calbankCurrecyAmount(x)">
                         </td>
                         <td>
-                            <input type="text" n-decimals="2" ng-disabled="x.BankCurrencyId!=voucher.CurrencyId" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="BaseDrAmount" autocomplete="off" ng-model="x.BaseDrAmount" ng-keyup="calBaseAmount()">
+                            <input type="text" n-decimals="2"  title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="BaseDrAmount" autocomplete="off" ng-model="x.BaseDrAmount" ng-keyup="calBaseAmount()">
                         </td>
                         <td class="text-right">
                             <button ng-click="removeBankRow($index,x)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove">

@@ -335,6 +335,7 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
             $scope.GetCurrencyExchangeRateList();
             $scope.getPartyWiseOutstandingAdvance($scope.voucher.PartyId);
             $scope.voucherDetailList = [];
+            $scope.voucherInvoiceDetailList = [];
         }
         $scope.hidePartyPopUp();
     };
@@ -1099,7 +1100,8 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
             $scope.getTDS($filter("dateFiltering")(Date.now()));
         }
         $scope.changeSearchByParty();
-
+        $scope.voucherDetailList = [];
+        $scope.voucherInvoiceDetailList = [];
     };
     $scope.searchParty = "";
     $scope.changeSearchByParty = function () {

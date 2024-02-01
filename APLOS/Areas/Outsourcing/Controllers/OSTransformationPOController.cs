@@ -29,6 +29,7 @@ using Newtonsoft.Json;
 using System.Data;
 using System.IO;
 using System.Web.Script.Serialization;
+using Aplos.MaterialManagement.MaterialQuery;
 
 #endregion Using
 
@@ -810,5 +811,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
+
+       
     }
 }
