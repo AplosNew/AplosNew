@@ -2016,14 +2016,13 @@ namespace Library.Service.Advances
                             ToCurrencyId = companyCurrencyId,
                             ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                             ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetail.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                            CrAmount = null != bankChargeDetailVMList && bankChargeDetailVMList.Count() > 0? Math.Round((voucherVM.CompanyCurrencyRate * item.Amount), 2, MidpointRounding.AwayFromZero)+ chargesBooksAmount
-                                        : Math.Round((voucherVM.CompanyCurrencyRate * voucherDetail.CrAmount), 2, MidpointRounding.AwayFromZero),
+                            CrAmount = null != bankChargeDetailVMList && bankChargeDetailVMList.Count() > 0? Math.Round((item.BaseDrAmount), 2, MidpointRounding.AwayFromZero)+ chargesBooksAmount
+                                        : Math.Round((item.BaseDrAmount), 2, MidpointRounding.AwayFromZero),
                         });
 
                         totalAmountCr += voucherDetail.CrAmount;
-                        totalCurrencyAmountCr += Math.Round((voucherVM.CompanyCurrencyRate * voucherDetail.CrAmount), 2, MidpointRounding.AwayFromZero);
-                        totalAmountDr += voucherDetail.DrAmount;
-                        totalCurrencyAmountDr += Math.Round((voucherVM.CompanyCurrencyRate * voucherDetail.DrAmount), 2, MidpointRounding.AwayFromZero);
+                        totalCurrencyAmountCr += Math.Round((item.BaseDrAmount + chargesBooksAmount), 2, MidpointRounding.AwayFromZero);
+                        
                     }
 
                     if (item.SourceType == "Loan")
@@ -2337,17 +2336,17 @@ namespace Library.Service.Advances
                             ToCurrencyId = companyCurrencyId,
                             ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                             ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(bankVoucherDetail.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                            DrAmount = bankVoucherDetail.DrAmount * voucherVM.CompanyCurrencyRate
+                            DrAmount = item.BaseDrAmount
                         });
 
-                        totalCurrencyAmountDr += Math.Round((bankVoucherDetail.DrAmount * voucherVM.CompanyCurrencyRate), 2, MidpointRounding.AwayFromZero);
+                        totalCurrencyAmountDr += Math.Round((item.BaseDrAmount), 2, MidpointRounding.AwayFromZero);
                         // INSRT INTO GLTransactionDetail
                         _voucherService.InsertGLTransactionDetail(bankVoucherDetail, new GLTransactionDetail
                         {
                             SourceType = advance.PaymentSource,
                             BankMasterId = bankVoucherDetail.BankMasterId,
                             CashMasterId = bankVoucherDetail.CashMasterId,
-                            DrAmount = bankVoucherDetail.DrAmount * voucherVM.CompanyCurrencyRate
+                            DrAmount = item.BankAmount
                         });
 
                         if (voucherVM.BankReconciliationUploadedDataId != null)

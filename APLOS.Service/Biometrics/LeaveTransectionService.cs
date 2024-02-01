@@ -650,7 +650,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         }
 
         public IEnumerable<ComboModel> LoadLeaveTypeCbo(string sPlantID, string employeeId)
-        {
+                           {
             var CompanyGroupId = _employeeinformationService.Query(t => t.SystemId == employeeId).Select(t => t.GroupID).FirstOrDefault();
 
             var esic = GetESICEligibleEmployeeFromEnum(employeeId, DateTime.Now.ToString("dd-MMM-yyyy"));
@@ -677,10 +677,8 @@ LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId 
                  SELECT DM.ESICPolicyMasterID FROM (SELECT DC.ESICPolicyMasterID,DM.DesignationId FROM MST.DesignationMaster DM
 LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId
 WHERE DC.PlantId='" + sPlantID + @"') DM
-                 WHERE DM.DesignationId IN (
-                  SELECT GivenDesignationId FROM dbo.EmployeeInformation WHERE SystemID='" + employeeId + @"'
-                  )
-                )";
+                 WHERE DM.DesignationId IN (SELECT GivenDesignationId FROM dbo.EmployeeInformation WHERE SystemID='" + employeeId + @"')
+                ) AND  LT.UserName NOT LIKE'%Maternity%'";
                 }
                 else
                 {
@@ -692,7 +690,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                                     WHERE DC.PlantId='" + sPlantID + @"') DM ON DM.LeavePolicyMasterId=LPM.SystemID
                                     LEFT JOIN EmployeeInformation EI ON EI.GivenDesignationId=DM.DesignationId
                                     LEFT JOIN ESICEligibleEmployee EE ON EE.EmpSystemID=EI.SystemId
-                                    WHERE EI.SystemID='" + employeeId + @"' AND EI.GroupID='" + CompanyGroupId + @"' AND EI.PlantID='" + sPlantID + @"' AND LT.IsGeneral = 1 AND LT.LeaveType <>'Maternity'";
+                                    WHERE EI.SystemID='" + employeeId + @"' AND EI.GroupID='" + CompanyGroupId + @"' AND EI.PlantID='" + sPlantID + @"' AND LT.IsGeneral = 1 AND LT.UserName NOT LIKE'%Maternity%'";
                 }
 
                 return _sqlRepository.GetCombo(_sql, "ID", "UserName");
