@@ -928,17 +928,17 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 decimal duration = 0.0m;
                 var halfDay = false;
 
-                if (items[0].LeaveDayType == "Full Day")
+                if (items[0].LeaveDayType == "FullDay")
                 {
                     duration = 1m;
                     halfDay = false;
                 }
-                else if (items[0].LeaveDayType == "First Half Day")
+                else if (items[0].LeaveDayType == "FirstHalfDay")
                 {
                     duration = 0.5m;
                     halfDay = true;
                 }
-                else if(items[0].LeaveDayType == "Second Half Day")
+                else if(items[0].LeaveDayType == "SecondHalfDay")
                 {
                     duration = 0.5m;
                     halfDay = true;
