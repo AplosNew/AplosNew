@@ -1333,7 +1333,7 @@ LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                 if (esic.Tables[0].Rows.Count > 0)
                 {
                     _sql = @"Select ei.SystemId,A.LTSystemID LeaveTypeId,ei.EmployeeCode,ei.EmployeeName,FORMAT(ei.DOJ,'dd-MMM-yyyy') AS DOJ,p.UserName AS PlantName,D.UserName AS Designation,
-DEPT.UserName AS Department,ct.UserName AS EmployeeCategory, A.LeaveName,A.DaysCanBeSanctioned,A.CurrentYearAllocation,A.CurrentYearAllocation CurrentAllocation,0 YearEndEncash,A.Applied AppliedLeave
+DEPT.UserName AS Department,ct.UserName AS EmployeeCategory, A.LeaveName,A.DaysCanBeSanctioned,A.CurrentAllocation CurrentYearAllocation,A.CurrentAllocation,0 YearEndEncash,A.Applied AppliedLeave
 ,A.PreviousYearCarryForward CarryForwardOpeningBalance,A.BroughtForward,A.LeaveDays,A.Applied AppliedDays,A.Availed AvailedDays,A.Rejected,A.Balance ClosingBalance
  from (SELECT els.CalanderYearID,ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed
                                         ,FromDate=FORMAT(ELS.FromDate,'dd-MMM-yyyy')
@@ -1411,28 +1411,28 @@ DEPT.UserName AS Department,ct.UserName AS EmployeeCategory, A.LeaveName,A.DaysC
                                         LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
 
-        LEFT JOIN (Select Sum(LTD.LeaveDuration) Rejected,LT.EmployeeSystemId,LT.LTSystemID  from LeaveTransaction LT
+        LEFT JOIN (Select Sum(LTD.LeaveDuration) Rejected,LT.EmpSystemId,LT.LTSystemID  from LeaveTransaction LT
                                                             Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
                                                             Where WorkDate between '" + _FromDate + @"' AND '" + _ToDate + @"' AND IsCancel=1
-                                                            group by LT.EmployeeSystemId,LT.LTSystemID)R ON R.EmployeeSystemId = els.EmployeeId  and R.LTSystemId = els.LeaveTypeId
+                                                            group by LT.EmpSystemId,LT.LTSystemID)R ON R.EmpSystemId = els.EmployeeId  and R.LTSystemId = els.LeaveTypeId
 										 left outer join (
-															Select Sum(LTD.LeaveDuration) ldays,LT.EmployeeSystemId,LT.LTSystemID  from LeaveTransaction LT
+															Select Sum(LTD.LeaveDuration) ldays,LT.EmpSystemId,LT.LTSystemID  from LeaveTransaction LT
 															Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
 															Where WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
-															group by LT.EmployeeSystemId,LT.LTSystemID
-														 )ltrn on ltrn.EmployeeSystemId = els.EmployeeId and ltrn.LTSystemId = els.LeaveTypeId
+															group by LT.EmpSystemId,LT.LTSystemID
+														 )ltrn on ltrn.EmpSystemId = els.EmployeeId and ltrn.LTSystemId = els.LeaveTypeId
 										 left outer join (														
-															Select Sum(LTD.LeaveDuration) av,LT.EmployeeSystemId,LT.LTSystemID  from LeaveTransaction LT
+															Select Sum(LTD.LeaveDuration) av,LT.EmpSystemId,LT.LTSystemID  from LeaveTransaction LT
 															Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
 															Where WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"' and LTD.IsAvailed=1
-															group by LT.EmployeeSystemId,LT.LTSystemID
-														  )tav on tav.EmployeeSystemId = els.EmployeeId and tav.LTSystemId = els.LeaveTypeId
+															group by LT.EmpSystemId,LT.LTSystemID
+														  )tav on tav.EmpSystemId = els.EmployeeId and tav.LTSystemId = els.LeaveTypeId
 
 										 left outer join (
-															select sum(m.LeaveDays) ldays,m.EmployeeSystemId,m.LTSystemID from dbo.LeaveTransaction m
+															select sum(m.LeaveDays) ldays,m.EmpSystemId,m.LTSystemID from dbo.LeaveTransaction m
 																where m.SystemID not in(select d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where IsAvailed = 1 or WorkDate<=CONVERT(date, getdate()))
-																group by EmployeeSystemId,LTSystemID
-														  )acApl  on acApl.EmployeeSystemId = els.EmployeeId and acApl.LTSystemId = els.LeaveTypeId
+																group by EmpSystemId,LTSystemID
+														  )acApl  on acApl.EmpSystemId = els.EmployeeId and acApl.LTSystemId = els.LeaveTypeId
                                          left outer join (select * from dbo.LeavePolicyDetail
 																 where LPMSystemID =
 																 (--w
@@ -1513,36 +1513,36 @@ left outer join (select ltd.* from dbo.LeavePolicyDetail ltd
 																	)--w
                                                  ) ltd on ltd.LTSystemID = A.LTSystemID
 
-LEFT JOIN (Select Sum(LTD.LeaveDuration) Rejected,LT.EmployeeSystemId,LT.LTSystemID  from LeaveTransaction LT
+LEFT JOIN (Select Sum(LTD.LeaveDuration) Rejected,LT.EmpSystemId,LT.LTSystemID  from LeaveTransaction LT
                                                             Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
                                                             Where WorkDate between '" + _FromDate + @"' AND '" + _ToDate + @"' AND IsCancel=1
-                                                            group by LT.EmployeeSystemId,LT.LTSystemID)R ON R.EmployeeSystemId = A.EmployeeId  and R.LTSystemId = A.LTSystemID
+                                                            group by LT.EmpSystemId,LT.LTSystemID)R ON R.EmpSystemId = A.EmployeeId  and R.LTSystemId = A.LTSystemID
 										 left outer join (
-															Select Sum(LTD.LeaveDuration) ldays,LT.EmployeeSystemId,LT.LTSystemID  from LeaveTransaction LT
+															Select Sum(LTD.LeaveDuration) ldays,LT.EmpSystemId,LT.LTSystemID  from LeaveTransaction LT
                                                             Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
                                                             Where WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
-                                                            group by LT.EmployeeSystemId,LT.LTSystemID
-														)ltrn on ltrn.EmployeeSystemId = A.EmployeeId and ltrn.LTSystemId = A.LTSystemID
+                                                            group by LT.EmpSystemId,LT.LTSystemID
+														)ltrn on ltrn.EmpSystemId = A.EmployeeId and ltrn.LTSystemId = A.LTSystemID
 										 left outer join (
-																select sum(c) av,EmployeeSystemId,LTSystemID from
+																select sum(c) av,EmpSystemId,LTSystemID from
 																(
-																	select m.EmployeeSystemId,m.LTSystemID,c from dbo.LeaveTransaction m
+																	select m.EmpSystemId,m.LTSystemID,c from dbo.LeaveTransaction m
 																	left outer join
 																		(
 																		Select SUM(d.LeaveDuration) c,d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where
 																			IsAvailed = 1 and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                                                                         group by LvTrnsSystemID
 																		) ltrnDt on ltrnDt.LvTrnsSystemID = m.SystemID
-																)x group by EmployeeSystemId,LTSystemID
-														)tav on tav.EmployeeSystemId = A.EmployeeId and tav.LTSystemId = A.LTSystemID
+																)x group by EmpSystemId,LTSystemID
+														)tav on tav.EmpSystemId = A.EmployeeId and tav.LTSystemId = A.LTSystemID
 										 left outer join (
-															select sum(m.LeaveDays) ldays,m.EmployeeSystemId,m.LTSystemID from dbo.LeaveTransaction m
+															select sum(m.LeaveDays) ldays,m.EmpSystemId,m.LTSystemID from dbo.LeaveTransaction m
 																where m.SystemID not in(select d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where IsAvailed = 1 or WorkDate<=CONVERT(date, getdate()))
-																group by EmployeeSystemId,LTSystemID
-														  )acApl  on acApl.EmployeeSystemId = A.EmployeeId and acApl.LTSystemId = A.LTSystemID
-left join (SELECT EmployeeSystemId,SUM(l.EarnValue)EarnDays,T.Id as LeaveId,ei.PlantId
+																group by EmpSystemId,LTSystemID
+														  )acApl  on acApl.EmpSystemId = A.EmployeeId and acApl.LTSystemId = A.LTSystemID
+left join (SELECT EmpSystemId,SUM(l.EarnValue)EarnDays,T.Id as LeaveId,ei.PlantId
 				FROM  EmployeeInformation AS ei 
-                JOIN AttdnProcessData AS apd ON apd.EmployeeSystemId=ei.SystemId
+                JOIN AttdnProcessData AS apd ON apd.EmpSystemId=ei.SystemId
                 LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
                 LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
                 LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
@@ -1551,8 +1551,8 @@ left join (SELECT EmployeeSystemId,SUM(l.EarnValue)EarnDays,T.Id as LeaveId,ei.P
                 LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
                 JOIN LeaveType T ON t.Id=L.LeaveTypeId
                 where apd.workdate between '" + _FromDate + @"' and '" + _ToDate + @"' and t.LeaveType='Earn'
-                group by EmployeeSystemId,t.Id,ei.plantid
-                ) as Masterx on Masterx.EmployeeSystemId=A.EmployeeId and Masterx.LeaveId=A.LTSystemID
+                group by EmpSystemId,t.Id,ei.plantid
+                ) as Masterx on Masterx.EmpSystemId=A.EmployeeId and Masterx.LeaveId=A.LTSystemID
 				left join (Select top(1) md.* from  ManualLeaveData md
 				JOIN LeaveType T ON t.Id=md.LeaveTypeId AND t.LeaveType='Earn'
 				Where md.EmployeeId='" + EmployeeSystemId + @"'order by md.addeddate desc
@@ -1572,7 +1572,7 @@ LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id";
                 else
                 {
 _sql= @"Select ei.SystemId,A.LTSystemID LeaveTypeId,ei.EmployeeCode,ei.EmployeeName,FORMAT(ei.DOJ,'dd-MMM-yyyy') AS DOJ,p.UserName AS PlantName,D.UserName AS Designation,
-DEPT.UserName AS Department,ct.UserName AS EmployeeCategory, A.LeaveName,A.DaysCanBeSanctioned,A.CurrentYearAllocation,A.CurrentYearAllocation CurrentAllocation,0 YearEndEncash,A.Applied AppliedLeave
+DEPT.UserName AS Department,ct.UserName AS EmployeeCategory, A.LeaveName,A.DaysCanBeSanctioned,A.CurrentAllocation CurrentYearAllocation,A.CurrentAllocation,0 YearEndEncash,A.Applied AppliedLeave
 ,A.PreviousYearCarryForward CarryForwardOpeningBalance,A.BroughtForward,A.LeaveDays,A.Applied AppliedDays,A.Availed AvailedDays,A.Rejected,A.Balance ClosingBalance
  from (SELECT els.CalanderYearID, ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed
                                         ,FromDate=FORMAT(ELS.FromDate,'dd-MMM-yyyy')
@@ -1650,33 +1650,33 @@ ELSE CONVERT(BIT,0) END  ---No
                                                         where CalanderYearId='" + calYearId + @"' and S.EmployeeId ='" + EmployeeSystemId + @"' AND lp.EncashmentBasis='CalanderYear'
 														) els
 										 left outer join dbo.LeaveType lt on lt.Id = els.LeaveTypeId
-        LEFT JOIN (Select Sum(LTD.LeaveDuration) Rejected,LT.EmployeeSystemId,LT.LTSystemID  from LeaveTransaction LT
+        LEFT JOIN (Select Sum(LTD.LeaveDuration) Rejected,LT.EmpSystemId,LT.LTSystemID  from LeaveTransaction LT
                                                             Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
                                                             Where WorkDate between '" + _FromDate + @"' AND '" + _ToDate + @"' AND IsCancel=1
-                                                            group by LT.EmployeeSystemId,LT.LTSystemID)R ON R.EmployeeSystemId = els.EmployeeId  and R.LTSystemId = els.LeaveTypeId
+                                                            group by LT.EmpSystemId,LT.LTSystemID)R ON R.EmpSystemId = els.EmployeeId  and R.LTSystemId = els.LeaveTypeId
 										 left outer join (
-															Select Sum(LTD.LeaveDuration) ldays,LT.EmployeeSystemId,LT.LTSystemID  from LeaveTransaction LT
+															Select Sum(LTD.LeaveDuration) ldays,LT.EmpSystemId,LT.LTSystemID  from LeaveTransaction LT
                                                             Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
                                                             Where WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
-                                                            group by LT.EmployeeSystemId,LT.LTSystemID
-														)ltrn on ltrn.EmployeeSystemId = els.EmployeeId and ltrn.LTSystemId = els.LeaveTypeId
+                                                            group by LT.EmpSystemId,LT.LTSystemID
+														)ltrn on ltrn.EmpSystemId = els.EmployeeId and ltrn.LTSystemId = els.LeaveTypeId
 										 left outer join (
-																select sum(c) av,EmployeeSystemId,LTSystemID from
+																select sum(c) av,EmpSystemId,LTSystemID from
 																(
-																	select m.EmployeeSystemId,m.LTSystemID,c from dbo.LeaveTransaction m
+																	select m.EmpSystemId,m.LTSystemID,c from dbo.LeaveTransaction m
 																	left outer join
 																		(
 																		Select SUM(d.LeaveDuration) c,d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where
 																			IsAvailed = 1 and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                                                                         group by LvTrnsSystemID
 																		) ltrnDt on ltrnDt.LvTrnsSystemID = m.SystemID
-																)x group by EmployeeSystemId,LTSystemID
-														)tav on tav.EmployeeSystemId = els.EmployeeId and tav.LTSystemId = els.LeaveTypeId
+																)x group by EmpSystemId,LTSystemID
+														)tav on tav.EmpSystemId = els.EmployeeId and tav.LTSystemId = els.LeaveTypeId
 										 left outer join (
-															select sum(m.LeaveDays) ldays,m.EmployeeSystemId,m.LTSystemID from dbo.LeaveTransaction m
+															select sum(m.LeaveDays) ldays,m.EmpSystemId,m.LTSystemID from dbo.LeaveTransaction m
 																where m.SystemID not in(select d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where IsAvailed = 1 or WorkDate<=CONVERT(date, getdate()))
-																group by EmployeeSystemId,LTSystemID
-														  )acApl  on acApl.EmployeeSystemId = els.EmployeeId and acApl.LTSystemId = els.LeaveTypeId
+																group by EmpSystemId,LTSystemID
+														  )acApl  on acApl.EmpSystemId = els.EmployeeId and acApl.LTSystemId = els.LeaveTypeId
                                          left outer join (select * from dbo.LeavePolicyDetail
 																 where LPMSystemID =
 																 (--w
@@ -1742,36 +1742,36 @@ left outer join (select ltd.* from dbo.LeavePolicyDetail ltd
 																	)--w
                                                  ) ltd on ltd.LTSystemID = A.LTSystemID
 
-LEFT JOIN (Select Sum(LTD.LeaveDuration) Rejected,LT.EmployeeSystemId,LT.LTSystemID  from LeaveTransaction LT
+LEFT JOIN (Select Sum(LTD.LeaveDuration) Rejected,LT.EmpSystemId,LT.LTSystemID  from LeaveTransaction LT
                                                             Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
                                                             Where WorkDate between '" + _FromDate + @"' AND '" + _ToDate + @"' AND IsCancel=1
-                                                            group by LT.EmployeeSystemId,LT.LTSystemID)R ON R.EmployeeSystemId = A.EmployeeId  and R.LTSystemId = A.LTSystemID
+                                                            group by LT.EmpSystemId,LT.LTSystemID)R ON R.EmpSystemId = A.EmployeeId  and R.LTSystemId = A.LTSystemID
 										 left outer join (
-															Select Sum(LTD.LeaveDuration) ldays,LT.EmployeeSystemId,LT.LTSystemID  from LeaveTransaction LT
+															Select Sum(LTD.LeaveDuration) ldays,LT.EmpSystemId,LT.LTSystemID  from LeaveTransaction LT
                                                             Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
                                                             Where WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
-                                                            group by LT.EmployeeSystemId,LT.LTSystemID
-														)ltrn on ltrn.EmployeeSystemId = A.EmployeeId and ltrn.LTSystemId = A.LTSystemID
+                                                            group by LT.EmpSystemId,LT.LTSystemID
+														)ltrn on ltrn.EmpSystemId = A.EmployeeId and ltrn.LTSystemId = A.LTSystemID
 										 left outer join (
-																select sum(c) av,EmployeeSystemId,LTSystemID from
+																select sum(c) av,EmpSystemId,LTSystemID from
 																(
-																	select m.EmployeeSystemId,m.LTSystemID,c from dbo.LeaveTransaction m
+																	select m.EmpSystemId,m.LTSystemID,c from dbo.LeaveTransaction m
 																	left outer join
 																		(
 																		Select SUM(d.LeaveDuration) c,d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where
 																			IsAvailed = 1 and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                                                                         group by LvTrnsSystemID
 																		) ltrnDt on ltrnDt.LvTrnsSystemID = m.SystemID
-																)x group by EmployeeSystemId,LTSystemID
-														)tav on tav.EmployeeSystemId = A.EmployeeId and tav.LTSystemId = A.LTSystemID
+																)x group by EmpSystemId,LTSystemID
+														)tav on tav.EmpSystemId = A.EmployeeId and tav.LTSystemId = A.LTSystemID
 										 left outer join (
-															select sum(m.LeaveDays) ldays,m.EmployeeSystemId,m.LTSystemID from dbo.LeaveTransaction m
+															select sum(m.LeaveDays) ldays,m.EmpSystemId,m.LTSystemID from dbo.LeaveTransaction m
 																where m.SystemID not in(select d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where IsAvailed = 1 or WorkDate<=CONVERT(date, getdate()))
-																group by EmployeeSystemId,LTSystemID
-														  )acApl  on acApl.EmployeeSystemId = A.EmployeeId and acApl.LTSystemId = A.LTSystemID
-left join (SELECT EmployeeSystemId,SUM(l.EarnValue)EarnDays,T.Id as LeaveId,ei.PlantId
+																group by EmpSystemId,LTSystemID
+														  )acApl  on acApl.EmpSystemId = A.EmployeeId and acApl.LTSystemId = A.LTSystemID
+left join (SELECT EmpSystemId,SUM(l.EarnValue)EarnDays,T.Id as LeaveId,ei.PlantId
 				FROM  EmployeeInformation AS ei 
-                JOIN AttdnProcessData AS apd ON apd.EmployeeSystemId=ei.SystemId
+                JOIN AttdnProcessData AS apd ON apd.EmpSystemId=ei.SystemId
                 LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
                 LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
                 LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
@@ -1780,8 +1780,8 @@ left join (SELECT EmployeeSystemId,SUM(l.EarnValue)EarnDays,T.Id as LeaveId,ei.P
                 LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
                 JOIN LeaveType T ON t.Id=L.LeaveTypeId
                 where apd.workdate between '" + _FromDate + @"' and '" + _ToDate + @"' and t.LeaveType='Earn'
-                group by EmployeeSystemId,t.Id,ei.plantid
-                ) as Masterx on Masterx.EmployeeSystemId=A.EmployeeId and Masterx.LeaveId=A.LTSystemID
+                group by EmpSystemId,t.Id,ei.plantid
+                ) as Masterx on Masterx.EmpSystemId=A.EmployeeId and Masterx.LeaveId=A.LTSystemID
 				left join (Select top(1) md.* from  ManualLeaveData md
 				JOIN LeaveType T ON t.Id=md.LeaveTypeId AND t.LeaveType='Earn'
 				Where md.EmployeeId='" + EmployeeSystemId + @"' order by md.addeddate desc
