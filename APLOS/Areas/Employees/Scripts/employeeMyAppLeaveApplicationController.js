@@ -70,6 +70,7 @@ function employeeMyAppLeaveApplicationController(commonMessage, $scope, $rootSco
         $scope.leaveTypelist = result;
     });
 
+
     $scope.leaveYearlist = [];
     cboService.getCboLeaveYear(function (result) {
         $scope.leaveYearlist = result;

@@ -132,6 +132,7 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(_leaveTransactionService.LoadLeaveTypeCbo(identity.PlantId, EmpsystemId), JsonRequestBehavior.AllowGet);
         }
 
+
         [HttpGet, Authorize]
         public JsonResult GetYearCbo()
         {
