@@ -16,7 +16,7 @@ using Library.Service.Leave;
 
 namespace Aplos.Controllers
 {
-    [BasicAuthenticationAttribute]
+    //[BasicAuthenticationAttribute]
     public class LeaveSystemController : ApiController
     {
         #region Constructor

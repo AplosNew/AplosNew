@@ -35,6 +35,11 @@ function journalController(accountService, cboService, commonMessage, $scope, $r
             "name": "Voucher Type",
             "value": "VoucherType"
         }
+        ,
+        {
+            "name": "Status",
+            "value": "Status"
+        }
     ];
 
     
