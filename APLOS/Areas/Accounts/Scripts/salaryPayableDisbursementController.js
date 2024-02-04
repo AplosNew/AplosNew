@@ -313,6 +313,7 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
                 $scope.empGrid = true;
                 $scope.employeeDisbursementDataList = response.data;
                 $scope.EmployeeListNew = $scope.employeeDisbursementDataList;
+                $scope.getSalaryLockPayableGL();
             }
             else {
                 ShowResult("No Data Found", 'failure');
@@ -764,7 +765,7 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
         $scope.voucher.PaymentSource = data.PaymentMode;
 
         $scope.GetemployeeDisbursement();
-        $scope.getSalaryLockPayableGL();
+        
         
         angular.element(document.querySelector('#DisbursementAdvicepopUp')).modal('hide');
     };
@@ -1057,7 +1058,7 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
         $scope.voucherBonus.PaymentSource = data.PaymentMode;
 
         $scope.GetemployeeBonusDisbursement();
-        $scope.getBonusLockPayableGL();
+        
 
         angular.element(document.querySelector('#BonusDisbursementAdvicepopUp')).modal('hide');
     };
@@ -1075,6 +1076,7 @@ function salaryPayableDisbursementController(cboService, commonMessage, $scope, 
                 $scope.empBonusGrid = true;
                 $scope.employeeBonusDisbursementDataList = response.data;
                 $scope.EmployeeBonusListNew = response.data;
+                $scope.getBonusLockPayableGL();
             }
             else {
                 ShowResult("No Data Found", 'failure');
