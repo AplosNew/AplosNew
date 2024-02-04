@@ -1334,7 +1334,7 @@ namespace Library.Service.Advances
                             , VDC.FromCurrencyId, VDC.ToCurrencyId, VDC.ToCurrencyRate, VD.DrAmount AS DrAmount, VD.CrAmount AS CrAmount, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount, [DRCR]=CASE WHEN VDC.DrAmount>0 THEN '1' ELSE '2' END
                             , VD.GLGeneralInfoId, GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode, P.EmployeeName , VD.Narration AS DetailNarration, BUD.UserName AS Budget
 							,EAR.Remarks Purpose,PA.EmployeeName ApprovedBy
-	                        , Activity = case when vd.CashMasterId<>'' then cm.UserName else 	 ACT.UserName end
+	                        ,Activity = case when vd.CashMasterId<>'' then cm.UserName when VD.BankMasterId<>'' then BM.AccountTitle else ACT.UserName end
 
                             , CM.UserName AS CashMasterName
                             FROM [TRN].[VoucherDetailCurrency] AS VDC
@@ -1355,6 +1355,7 @@ namespace Library.Service.Advances
                             LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id=BUM.BudgetId
                             LEFT JOIN [HKP].[Activity] AS ACT ON ACT.Id=VD.ActivityId
                             LEFT JOIN [MST].[CashMaster] AS CM ON CM.Id=VD.CashMasterId
+                            left join [MST].[BankMaster] BM on BM.Id=VD.BankMasterId
 							LEFT JOIN [SEC].[User] AS U ON U.UserId=V.AddedBy
 							LEFT JOIN [SEC].[User] AS UP ON UP.UserId=V.PostedBy
                             WHERE V.Archive=0 AND V.Id='" + voucherId + "' ORDER BY VD.DrAmount DESC";
