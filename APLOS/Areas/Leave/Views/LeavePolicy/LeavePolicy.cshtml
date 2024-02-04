@@ -335,6 +335,17 @@
 
                         <div class="col-sm-12">
                             <div class="form-group">
+                                <label class="col-sm-4 control-label">Min Leave at a time  </label>
+                                <div class="col-sm-4">
+                                    <input type="text" ng-model="LeavePolicyModelDetails.MinAllocationLimit" class="form-control" only-numbers maxlength="100" tabindex="2">
+                                </div>
+                                <label class="col-sm-4 control-label">Days</label>
+                            </div>
+                        </div>
+
+
+                        <div class="col-sm-12">
+                            <div class="form-group">
                                 <label class="col-sm-4 control-label">Max Leave at a time  </label>
                                 <div class="col-sm-4">
                                     <input type="text" ng-model="LeavePolicyModelDetails.MaxAllocationLimit" class="form-control" only-numbers maxlength="100" tabindex="2">
@@ -409,7 +420,7 @@
                                 <label class="col-sm-8 control-label">Can Avail Quantity</label>
                                 <div class="col-sm-4">
                                     <input type="text" ng-model="LeavePolicyModelDetails.LvCanAvailQuantity" only-numbers class="form-control" maxlength="100" tabindex="2">
-                                </div> 
+                                </div>
                             </div>
                         </div>
                         <label class="col-sm-2 control-label" style="margin-left: -30px;">(Current Year)</label>
