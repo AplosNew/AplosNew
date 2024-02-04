@@ -171,7 +171,9 @@ namespace Aplos.Areas.Products.Controllers
 							,ThreeHundredSixtyfiveDaysCount=CASE WHEN CAST(sum(ThreeHundredSixtyfiveDaysCount) AS INT)=0 THEN NULL ELSE CAST(sum(ThreeHundredSixtyfiveDaysCount) AS INT) END
 							,Total365Value=CASE WHEN CAST(sum(Total365Value) AS INT)=0 THEN NULL ELSE CAST(sum(Total365Value) AS INT) END
 							,Transaction365QtyGrt=CASE WHEN CAST(sum(Transaction365QtyGrt) AS INT)=0 THEN NULL else CAST(sum(Transaction365QtyGrt) AS INT) END 
-							,Total366Value=CASE WHEN CAST(sum(Total366Value) AS INT) =0 THEN NULL ELSE CAST(sum(Total366Value) AS INT) END 
+							--,Total366Value=CASE WHEN CAST(sum(Total366Value) AS INT) =0 THEN NULL ELSE CAST(sum(Total366Value) AS INT) END 
+							,Total366Value=CASE WHEN CAST(sum(Total366Value) AS bigint) =0 THEN NULL ELSE CAST(sum(Total366Value) AS bigint) END 
+
 							FROM
 							(
 							SELECT			               
@@ -455,7 +457,9 @@ namespace Aplos.Areas.Products.Controllers
 							,ThreeHundredSixtyfiveDaysCount=CASE WHEN CAST(sum(ThreeHundredSixtyfiveDaysCount) AS INT)=0 THEN NULL ELSE CAST(sum(ThreeHundredSixtyfiveDaysCount) AS INT) END
 							,Total365Value=CASE WHEN CAST(sum(Total365Value) AS INT)=0 THEN NULL ELSE CAST(sum(Total365Value) AS INT) END
 							,Transaction365QtyGrt=CASE WHEN CAST(sum(Transaction365QtyGrt) AS INT)=0 THEN NULL else CAST(sum(Transaction365QtyGrt) AS INT) END 
-							,Total366Value=CASE WHEN CAST(sum(Total366Value) AS INT) =0 THEN NULL ELSE CAST(sum(Total366Value) AS INT) END 
+							--,Total366Value=CASE WHEN CAST(sum(Total366Value) AS INT) =0 THEN NULL ELSE CAST(sum(Total366Value) AS INT) END 
+							,Total366Value=CASE WHEN CAST(sum(Total366Value) AS bigint) =0 THEN NULL ELSE CAST(sum(Total366Value) AS bigint) END 
+
 							FROM
 							(
 							SELECT			               
