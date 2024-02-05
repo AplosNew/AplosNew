@@ -1012,7 +1012,10 @@ namespace Aplos.Areas.Products.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-                return Json(obj.QueryGetListGRNMasterData(identity.PlantId, GRNbyPOCheckStatus, grnType), JsonRequestBehavior.AllowGet);
+                //return Json(obj.QueryGetListGRNMasterData(identity.PlantId, GRNbyPOCheckStatus, grnType), JsonRequestBehavior.AllowGet);
+                var jsondata = Json(obj.QueryGetListGRNMasterData(identity.PlantId, GRNbyPOCheckStatus, grnType), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
             }
             catch (Exception ex)
             {

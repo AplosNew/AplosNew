@@ -525,10 +525,10 @@
                                 <div class="common-btn" ng-disabled="productNew.Id">
                                     <ul class="common-btn list-inline text-center">
                                         <li>
-                                            <button  ng-click="$parent.removeSelectedPO(data,$index);" class="btn small tooltip-here"  style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
+                                            <button ng-click="$parent.removeSelectedPO(data,$index);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
                                                 <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
                                             </button>
-                                            
+
                                         </li>
                                     </ul>
                                 </div>
@@ -983,7 +983,7 @@
                                 <td class="text-right">
                                     <ul class="list-inline action-list">
                                         @*<li ng-hide="productNew.OrderSpecific==='No'"><button ng-click="detailPopUpForEdit(x)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="Edit"><i class="glyphicon glyphicon-edit"></i>&nbsp;{{MAction}}</button></li>*@
-                                        <li><button ng-click="ConfirmOrderWisePopUp(x)" ng-disabled="x.OrderSpecific=='NO' " class="btn btn-action tooltip-here" data-placement="top" title="Order Wise"><i class="glyphicon glyphicon-list"></i></button></li>
+                                        <li><button ng-click="ConfirmOrderWisePopUp(x)" ng-disabled="true" @*ng-disabled="x.OrderSpecific=='NO' "*@ class="btn btn-action tooltip-here" data-placement="top" title="Order Wise"><i class="glyphicon glyphicon-list"></i></button></li>
                                         <li><button ng-click="ConfirmMaterialInputPopUp(x)" ng-disabled="productNew.POType=='OSValueAddedPO'" class="btn btn-action tooltip-here" data-placement="top" title="Material Input"><i class="glyphicon glyphicon-list"></i></button></li>
                                         <li><button ng-click="detailPopUpForEdit(x)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="Edit"><i class="glyphicon glyphicon-edit"></i>&nbsp;{{MAction}}</button></li>
                                         <li><button ng-click="getReceiveTaxList(x)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
@@ -1391,7 +1391,7 @@
                     <input type="hidden" ng-model="ModelNewByProdcuct.Id">
                     <div ng-form name="GeneralForm">
                         <input type="hidden" ng-model="detailModel.Id">
-                        <div class="col-sm-12 col-md-4 col-lg-4 " style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+                        <div class="col-sm-12 col-md-3 col-lg-3 " style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
                             <div class="form-group" show-errors>
                                 <label class="control-label">
                                     Outsource Activity<sup>*</sup>
@@ -1405,8 +1405,32 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label class=" control-label">Article</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">{{detailModel.ArticleCode}}</span>
+                                    <input type="text" ng-model="detailModel.ArticleName" class="form-control" readonly>
+                                    <input type="hidden" ng-model="detailModel.ArticleId" />
+                                    <span class="input-group-btn">
+                                        <button ng-click="MaterialMstArticlePopUp()" @*ng-disabled="detailModel.MaterialMasterId==null"*@ tabindex="18" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="MaterialMstArticleClear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class=" control-label">Quantity<sup>*</sup></label>
+                                <div class="show-message">
+                                    <input type="text" ng-model="detailModel.TransactionQty" n-decimals="4" name="Quantity" ng-change="GetAmount();" onkeypress="return isNumber(event)" required class="form-control" tabindex="20" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class=" control-label">Material Specification<sup>*</sup></label>
+                                <div class=" show-message">
+                                    <input type="text" ng-model="detailModel.MaterialSpecification" name="Material Specification" required class="form-control" tabindex="26" maxlength="50">
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-sm-12 col-md-4 col-lg-4" style="margin-left: 0px; padding-right: 44px;">
+                        <div class="col-sm-12 col-md-3 col-lg-3" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group" show-errors>
                                 <label class="control-label">
                                     OS Output item<sup>*</sup>
@@ -1420,46 +1444,8 @@
                                     </div>
                                 </div>
                             </div>
-
-                        </div>
-                        <div class="col-sm-12 col-md-4 col-lg-4" style="margin-left: -13px; padding-right: 44px;">
-                            <div class="form-group">
-                                <label class="control-label">Material Master</label>
-                                @*<div class=" show-message">*@
-                                <div class="input-group">
-                                    <span class="input-group-addon">{{detailModel.MaterialCode}}</span>
-                                    <input type="text" ng-model="detailModel.MaterialName" class="form-control" readonly>
-                                    <input type="hidden" ng-model="detailModel.MaterialMasterId" />
-                                    <span class="input-group-btn">
-                                        <button ng-click="MaterialMstPopUp()" @*ng-disabled="detailModel.MaterialMasterId==null || detailModel.MaterialMasterId!=null"*@ class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                        <button ng-click="MaterialMstClear()" @*ng-disabled="detailModel.MaterialMasterId==null || detailModel.MaterialMasterId!=null"*@ class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                    </span>
-                                </div>
-                                @*</div>*@
-
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
-                            <div class="form-group">
-
-                                <label class=" control-label">Article</label>
-                                <div class="input-group">
-                                    <span class="input-group-addon">{{detailModel.ArticleCode}}</span>
-                                    <input type="text" ng-model="detailModel.ArticleName" class="form-control" readonly>
-                                    <input type="hidden" ng-model="detailModel.ArticleId" />
-                                    <span class="input-group-btn">
-                                        <button ng-click="MaterialMstArticlePopUp()" @*ng-disabled="detailModel.MaterialMasterId==null"*@ tabindex="18" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                        <button ng-click="MaterialMstArticleClear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" ng-hide="SKU1disable" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
-                            <div class="form-group">
-
-                                <label class=" control-label">{{rmchar1.Name}}</label>
+                            <div class="form-group" @*ng-hide="SKU1disable"*@>
+                                <label class=" control-label">SKU1@*{{rmchar1.Name}}*@</label>
                                 <div class="input-group">
                                     <input type="text" ng-model="detailModel.UserName1" class="form-control" readonly>
                                     <input type="hidden" ng-model="detailModel.FirstCharacteristicsValueId" />
@@ -1469,11 +1455,39 @@
                                     </span>
                                 </div>
                             </div>
-                        </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-5 control-label">Rate/ Unit<sup>*</sup></label>
+                                <label class="col-sm-7 control-label">Amount<sup>*</sup></label>
+                                <div class="col-sm-5 show-message" style="padding-right:0px;">
+                                    <input type="text" ng-model="detailModel.RatePerUnit" n-decimals="4" name="Rate Per Unit" ng-change="GetAmount();" onkeypress="return isNumber(event)" required class="form-control" tabindex="22" maxlength="50">
+                                </div>
+                                <div class="col-sm-7 show-message" style="padding-left:0px;">
+                                    <input type="text" ng-model="detailModel.TransactionAmount" n-decimals="4" onkeypress="return isNumber(event)" required readonly  class="form-control text-right" maxlength="24">
+                                </div>
+                            </div>
 
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" ng-hide="SKU2disable" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group">
-                                <label class=" control-label">{{rmchar2.Name}}</label>
+                                <label class=" control-label">Material Reference</label>
+                                <div class="">
+                                    <input type="text" ng-model="detailModel.MaterialReference" class="form-control" tabindex="27" maxlength="50">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3 col-lg-3" style="margin-left: -13px; padding-right: 44px;">
+                            <div class="form-group">
+                                <label class="control-label">Material Master</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">{{detailModel.MaterialCode}}</span>
+                                    <input type="text" ng-model="detailModel.MaterialName" class="form-control" readonly>
+                                    <input type="hidden" ng-model="detailModel.MaterialMasterId" />
+                                    <span class="input-group-btn">
+                                        <button ng-click="MaterialMstPopUp()" @*ng-disabled="detailModel.MaterialMasterId==null || detailModel.MaterialMasterId!=null"*@ class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="MaterialMstClear()" @*ng-disabled="detailModel.MaterialMasterId==null || detailModel.MaterialMasterId!=null"*@ class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class=" control-label">SKU2@*{{rmchar2.Name}}*@</label>
                                 <div class="input-group">
                                     <input type="text" ng-model="detailModel.UserName2" class="form-control" readonly>
                                     <input type="hidden" ng-model="detailModel.SecondCharacteristicsValueId" />
@@ -1483,162 +1497,8 @@
                                     </span>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" ng-hide="SKU3disable" style="margin-left: -13px; padding-right: 44px;">
-                            <div class="form-group">
-                                <label class=" control-label">{{rmchar3.Name}}</label>
-                                <div class="input-group">
-                                    <input type="text" ng-model="detailModel.UserName3" class="form-control" readonly>
-                                    <input type="hidden" ng-model="detailModel.ThirdCharacteristicsValueId" />
-                                    <span class="input-group-btn">
-                                        <button ng-click="SKU3PopUp()" ng-disabled="SKU3disable" tabindex="18" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                        <button ng-click="SKU3Clear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-
-                        <div class="col-xs-4 col-sm-2 col-md-2 form-element-ctrl" style="margin-left: 12px;">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">Output Material UoM<sup>*</sup></label>
-                                <div class=" show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.OutputMaterialUOMId" ng-disabled="detailModel.MaterialMasterId==null" name="Output Material UOM" required
-                                                ng-options="item.Value as item.Text for item in OMatUOMList" tabindex="19">
-                                            <option value=""></option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xs-4 col-sm-2 col-md-2 form-element-ctrl" style="padding-right: 44px; ">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">Quantity<sup>*</sup></label>
-                                <div class="show-message">
-                                    <input type="text" ng-model="detailModel.TransactionQty" n-decimals="4" name="Quantity" ng-change="GetAmount();" onkeypress="return isNumber(event)" required class="form-control" tabindex="20" maxlength="50">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style=" padding-left: 12px;">
-                            <div class="form-group" show-errors>
-                                <label class="control-label">Rate/ Unit<sup>*</sup></label>
-                                <div class="show-message">
-                                    <input type="text" ng-model="detailModel.RatePerUnit" n-decimals="4" name="Rate Per Unit" ng-change="GetAmount();" onkeypress="return isNumber(event)" required class="form-control" tabindex="22" maxlength="50">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
-                            <div class="form-group" show-errors>
-                                <label class="control-label">Transaction Amount<sup>*</sup></label>
-                                <div class="show-message">
-                                    <input type="text" ng-model="detailModel.TransactionAmount" n-decimals="4" onkeypress="return isNumber(event)" required readonly class="form-control" maxlength="24">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">OutSource Location<sup>*</sup></label>
-                                <div class=" show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.MaterialLocationId" name="Material Location" ng-change="GetJWMaterialStorage();"
-                                                ng-options="item.Value as item.Text for item in MaterialLocList" required tabindex="23">
-                                            <option value=""></option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
-                            <div class="form-group">
-                                <label class=" control-label">Material Storage Location</label>
-                                <input type="text" ng-model="detailModel.JWMaterialStorage" readonly class="form-control" maxlength="50">
-                            </div>
-                        </div>
-
-                        @*<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">Input Material Category<sup>*</sup></label>
-                                <div class="show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.MaterialType" name="Material Type"
-                                                required tabindex="24">
-                                            <option value=""></option>
-                                            <option value="InProcess">In-Process</option>
-                                            <option value="Inventory">Inventory</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>*@
-                        @*<div class="clearfix"></div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">Output Material Category<sup>*</sup></label>
-                                <div class=" show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.FinalOutputCategory" name="Final Output Category"
-                                                required tabindex="25">
-                                            <option value=""></option>
-                                            <option value="InProcess">In-Process</option>
-                                            <option value="FinalSale">Sale</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>*@
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">Material Specification<sup>*</sup></label>
-                                <div class=" show-message">
-                                    <input type="text" ng-model="detailModel.MaterialSpecification" name="Material Specification" required class="form-control" tabindex="26" maxlength="50">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
-                            <div class="form-group">
-                                <label class=" control-label">Material Reference</label>
-                                <div class="">
-                                    <input type="text" ng-model="detailModel.MaterialReference" class="form-control" tabindex="27" maxlength="50">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-                        @*<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">Order Specific<sup>*</sup></label>
-                                <div class="show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="detailModel.OrderSpecific" name="Order Specific" required
-                                                tabindex="28">
-                                            <option value=""></option>
-                                            <option value="Yes">Yes</option>
-                                            <option value="NO">No</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>*@
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">Required Capacity<sup>*</sup></label>
-                                <div class="show-message">
-                                    <input type="text" ng-model="detailModel.RequiredCapacity" name="Required Capacity" required onkeypress="return isNumber(event)" class="form-control" tabindex="29" maxlength="50">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
                             <div class="form-group">
                                 <label class=" control-label">By Product Applicable</label>
-                                @*<div class=" show-message">*@
                                 <div class="select-style">
                                     <select class="form-control" ng-model="detailModel.ByProductApplicable" ng-disabled="productNew.POType=='OSValueAddedPO'"
                                             tabindex="30">
@@ -1647,11 +1507,102 @@
                                         <option value="No">No</option>
                                     </select>
                                 </div>
-                                @*</div>*@
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class=" control-label">Service<sup>*</sup></label>
+                                <div class=" show-message">
+                                    <div class="select-style">
+                                        <select id="ddlCurrencyId" name="Service" tabindex="35" class="form-control" required ng-model="detailModel.ServiceId" ng-options="item.Value as item.Text for item in serviceCboList" ng-change="changeService(detailModel.ServiceId);"></select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="clearfix"></div>
+                        @*<div class="col-xs-3 col-sm-3 col-md-3 form-element-ctrl" ng-hide="SKU3disable" style="margin-left: -13px; padding-right: 44px;">
+                                <div class="form-group">
+                                    <label class=" control-label">{{rmchar3.Name}}</label>
+                                    <div class="input-group">
+                                        <input type="text" ng-model="detailModel.UserName3" class="form-control" readonly>
+                                        <input type="hidden" ng-model="detailModel.ThirdCharacteristicsValueId" />
+                                        <span class="input-group-btn">
+                                            <button ng-click="SKU3PopUp()" ng-disabled="SKU3disable" tabindex="18" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                            <button ng-click="SKU3Clear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>*@
+
+                    <div class="col-xs-3 col-sm-3 col-md-3 form-element-ctrl" style="padding-right: 44px; ">
+                        <div class="form-group" show-errors>
+                            <label class=" control-label">Output Material UoM<sup>*</sup></label>
+                            <div class=" show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="detailModel.OutputMaterialUOMId" ng-disabled="detailModel.MaterialMasterId==null" name="Output Material UOM" required
+                                            ng-options="item.Value as item.Text for item in OMatUOMList" tabindex="19">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class=" control-label">OutSource Location<sup>*</sup></label>
+                            <div class=" show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="detailModel.MaterialLocationId" name="Material Location" ng-change="GetJWMaterialStorage();"
+                                            ng-options="item.Value as item.Text for item in MaterialLocList" required tabindex="23">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class=" control-label">Material Storage Location</label>
+                            <input type="text" ng-model="detailModel.JWMaterialStorage" readonly class="form-control" maxlength="50">
+                        </div>
+                        
+                        <div class="form-group" show-errors>
+                            <label class=" control-label">Responsible Person<sup>*</sup></label>
+                            <div class=" show-message">
+                                <div class="input-group">
+                                    <span class="input-group-addon" ng-class="{filled:detailModel.EmployeeStatus==='Separated'}">{{detailModel.EmployeeCode}}</span>
+                                    <input type="text" ng-model="detailModel.ResponsiblePerson" name="Responsible Person" required class="form-control" readonly ng-class="{filled:detailModel.EmployeeStatus==='Separated'}">
+                                    <input type="hidden" ng-model="detailModel.ResponsiblePersonId" />
+                                    <span class="input-group-btn">
+                                        <button ng-click="ResPersonPopUp()" tabindex="36" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="ResPersonClear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                        @*<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+                                <div class="form-group" show-errors>
+                                    <label class=" control-label">Order Specific<sup>*</sup></label>
+                                    <div class="show-message">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="detailModel.OrderSpecific" name="Order Specific" required
+                                                    tabindex="28">
+                                                <option value=""></option>
+                                                <option value="Yes">Yes</option>
+                                                <option value="NO">No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>*@
+
+                        @*<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
+                            <div class="form-group" show-errors>
+                                <label class=" control-label">Required Capacity<sup>*</sup></label>
+                                <div class="show-message">
+                                    <input type="text" ng-model="detailModel.RequiredCapacity" name="Required Capacity" required onkeypress="return isNumber(event)" class="form-control" tabindex="29" maxlength="50">
+                                </div>
+                            </div>
+                        </div>*@
+
+
+                        @*<div class="clearfix"></div>
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
                             <div class="form-group" show-errors>
                                 <label class="control-label">Rate Apply<sup>*</sup></label>
@@ -1664,18 +1615,18 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div>*@
 
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
+                        @*<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Rejection(%)<sup>*</sup></label>
                                 <div class=" show-message">
                                     <input type="text" ng-model="detailModel.Rejection" name="Rejection" required onkeypress="return isNumber(event)" class="form-control" tabindex="32" maxlength="50">
                                 </div>
                             </div>
-                        </div>
+                        </div>*@
 
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
+                        @*<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Value Loss (%)<sup>*</sup></label>
                                 <div class=" show-message">
@@ -1683,48 +1634,16 @@
                                     <input type="text" ng-model="detailModel.ValueLoss" name="Value Loss" required onkeypress="return isNumber(event)" class="form-control" tabindex="33" maxlength="50">
                                 </div>
                             </div>
-                        </div>
+                        </div>*@
                         <div class="clearfix"></div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
+                        @*<div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
                             <div class="form-group" show-errors>
                                 <label class=" control-label">Tolerance(%)<sup></sup></label>
                                 <div class=" show-message">
                                     <input type="text" name="Cycle Time" tabindex="34" class="form-control" ng-model="detailModel.Tolerance" />
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 0px; padding-right: 44px;">
-                            <div class="form-group" show-errors>
-                                <label class=" control-label">Service<sup>*</sup></label>
-                                <div class=" show-message">
-                                    <div class="select-style">
-                                        <select id="ddlCurrencyId" name="Service" tabindex="35" class="form-control" required ng-model="detailModel.ServiceId" ng-options="item.Value as item.Text for item in serviceCboList" ng-change="changeService(detailModel.ServiceId);"></select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: -13px; padding-right: 44px;">
-                            <div class="form-group" show-errors>
-
-                                <label class=" control-label">Responsible Person<sup>*</sup></label>
-                                <div class=" show-message">
-                                    <div class="input-group">
-                                        <span class="input-group-addon" ng-class="{filled:detailModel.EmployeeStatus==='Separated'}">{{detailModel.EmployeeCode}}</span>
-                                        <input type="text" ng-model="detailModel.ResponsiblePerson" name="Responsible Person" required class="form-control" readonly ng-class="{filled:detailModel.EmployeeStatus==='Separated'}">
-                                        <input type="hidden" ng-model="detailModel.ResponsiblePersonId" />
-                                        <span class="input-group-btn">
-                                            <button ng-click="ResPersonPopUp()" tabindex="36" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                            <button ng-click="ResPersonClear()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                        </span>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
+                        </div>*@
 
                         <div class="col-xs-4 col-sm-4 col-md-4 form-element-ctrl" style="margin-left: 12px; margin-right: 0px; padding-right: 44px ">
                             <div class="form-group">
@@ -1757,7 +1676,7 @@
                 </div>
 
                 <hr style="width:100%;" />
-               
+
                 <fieldset class="scheduler-border" ng-show="detailModel.ServiceId">
                     ax
                     <legend class="scheduler-border">   Service Tax</legend>
@@ -2560,7 +2479,7 @@
                         <div class="clearfix"></div>
                     </div>
 
-                  
+
 
                 </div>
 
