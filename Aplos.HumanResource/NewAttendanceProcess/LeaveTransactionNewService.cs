@@ -2480,7 +2480,8 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                     {
                         // List<LeaveTransactionVM> list_balance = (List<LeaveTransactionVM>)LoadGrdAllocatedLvDetails(companyGroupId, plantId, EmpSystemID, yearId);
                         clsLeaveBalanceToDate leave = new clsLeaveBalanceToDate();
-                        List<Dictionary<string, object>> list_balance = leave.GetLeaveBalanceType(EmpSystemID, yearId);
+                       // List<Dictionary<string, object>> list_balance = leave.GetLeaveBalanceType(EmpSystemID, yearId);
+                        List<Dictionary<string, object>> list_balance = leave.GetLeaveBalanceTypeNew(EmpSystemID, yearId, plantId);
                         foreach (var item in list_balance)
                         {
                             if (item["LeaveTypeId"].ToString() == leaveTypeId)

@@ -1285,6 +1285,503 @@ LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
             }
         }//End Function
 
+        public List<Dictionary<string, object>> GetLeaveBalanceTypeNew(string EmpSystemID, string calYearId,string sPlantID)
+        {
+            try
+            {
+                string _FromDate = string.Empty;
+                string _ToDate = string.Empty;
+                string _sql = null;
+                DataSet dsCalYear = GetCalYearInfo(calYearId);
+                DataSet dsCalYearNo = GetCalYearInfo(calYearId);
+                if (dsCalYear.Tables[0].Rows.Count > 0)
+                {
+                    _FromDate = dsCalYear.Tables[0].Rows[0]["FromDate"].ToString();
+                    _ToDate = dsCalYear.Tables[0].Rows[0]["ToDate"].ToString();
+
+                }
+                else if (dsCalYearNo.Tables[0].Rows.Count > 0)
+                {
+                    calYearId = dsCalYearNo.Tables[0].Rows[0]["Id"].ToString();
+                    _FromDate = dsCalYearNo.Tables[0].Rows[0]["FromDate"].ToString();
+                    _ToDate = dsCalYearNo.Tables[0].Rows[0]["ToDate"].ToString();
+                }
+                else
+                {
+                    throw new Exception("No Year found...");
+                }
+                var esic = GetESICEligibleEmployeeFromEnum(EmpSystemID, DateTime.Now.ToString("dd-MMM-yyyy"));
+
+                var lastYear = Convert.ToDateTime(_FromDate).AddYears(-1);
+
+                var _LFromDate = Convert.ToDateTime(_FromDate).AddYears(-1);
+                var _LToDate = Convert.ToDateTime(_ToDate).AddYears(-1);
+
+                if (esic.Tables[0].Rows.Count > 0)
+                {
+                    _sql = @"SELECT els.CalanderYearID,ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed
+                                        ,FromDate=FORMAT(ELS.FromDate,'dd-MMM-yyyy')
+										,ToDate=FORMAT(ELS.ToDate,'dd-MMM-yyyy')
+										 ,els.Id SystemID,
+                                         els.LeaveTypeId,
+                                         els.EmployeeID,
+										 lt.UserName LeaveName,
+										 lt.Description LeaveDescription,
+                                         ltd.SystemID LvPolDetailsSystemID,
+                                         --ltd.IsProrataPreviousyear,
+                                         ltd.IsProratacurrentyear
+                                       ,DaysCanBeSanctioned=case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) END
+,CurrentAllocationDCBS= case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) END
+
+                                        ,els.EncashedInbetween
+                                        ,ltd.IsAvailExceptionAllowedOnSpecialAppeal,
+                                        CurrentAllocation=ISNULL(els.CurrentYearAllocation, 0),
+                                        ISNULL(els.PreviousYearCarryForward, 0) PreviousYearCarryForward,
+										 --all carry forward
+                                         --ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) BroughtForward,
+                                         BroughtForward=CASE WHEN els.IsEncashed =1 THEN ISNULL(els.CarryForward, 0)+ISNULL(els.EncashedInbetween, 0) ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END,                                        
+
+                                         LeaveDays=ISNULL(els.DaysCanBeSanctioned, 0),
+										 --applied +applied ob
+                                         ISNULL(ltrn.ldays, 0)+isnull(CurrentYearAvailedOpeningBalance,0) Applied,
+										 --(ISNULL(tav.av, 0)+ ISNULL(acApl.ldays,0)) Applied,
+                                         --0 Availed,
+										  --Availed +Availed ob
+                                         ISNULL(tav.av, 0)+isnull(CurrentYearAvailedOpeningBalance,0) Availed,
+                                            ISNULL(R.Rejected,0)Rejected,
+										 ISNULL(acApl.ldays,0) ldays,lt.LeaveType
+                                            ,ISNULL(tav.av, 0)AllFutureAppliedLeave
+                                            -----------------------------------Is Brought Forward Add to balance -----------------------------------------------------------                                       
+                                            ---,IsBroughtForwardAdd=CASE WHEN LT.LeaveType='Earn' THEN  
+                                            ,IsBroughtForwardAdd=CASE WHEN 1=1 THEN  
+                                            	CASE WHEN
+                                            	-----------------------------------DOJorDOC start -----------------------------------------------------------
+                                            								CASE WHEN ltd.LvAvailedOnDOJ=1 THEN                            										 
+                                                                        										 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  emp.DOJ )
+                                            																	      WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  emp.DOJ )
+                                            																	      WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  emp.DOJ ) END
+                                            										   WHEN  ltd.LvAvailedOnDOC=1 THEN 										   
+                                            										   							 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  	emp.DOC  )
+                                            																		  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  	emp.DOC  )
+                                            																	      WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  	emp.DOC  )
+                                            										   						END
+                                                                                   END
+                                            ---------------------------------------DOJorDOC start  end-------------------------------------------------------
+                                            	
+                                            	> GETDATE() then 
+                                            		    CONVERT(BIT,0)------No
+                                                    ELSE  CONVERT(BIT,1) END---Yes
+                                            ELSE CONVERT(BIT,0) END  ---No
+                                            ,Earned=CAST (0 AS decimal(18,2))
+,ClosingBalance=(case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) END)-ISNULL(tav.av, 0)+isnull(CurrentYearAvailedOpeningBalance,0)
+                                            ----------------------------------------------------------------------------------------------------------------------
+
+
+
+                                          FROM (
+                                                        select S.* from trn.EmployeeLeaveSummary S
+                                                        LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=s.EmployeeId
+                                                        LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                                                        LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                                                        LEFT JOIN LeavePolicyDetail AS lp ON lp.LPMSystemID=dmc.LeavePolicyMasterId AND s.LeaveTypeId=lp.LTSystemID
+                                                        where CalanderYearId='" + calYearId + @"' and S.EmployeeId ='" + EmpSystemID + @"' AND lp.EncashmentBasis='CalanderYear') els
+										 left outer join dbo.LeaveType lt on lt.Id = els.LeaveTypeId
+                                        LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
+
+
+        LEFT JOIN (Select Sum(LTD.LeaveDuration) Rejected,LT.EmpSystemID,LT.LTSystemID  from LeaveTransaction LT
+                                                            Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
+                                                            Where WorkDate between '" + _FromDate + @"' AND '" + _ToDate + @"' AND IsCancel=1
+                                                            group by LT.EmpSystemID,LT.LTSystemID)R ON R.EmpSystemID = els.EmployeeId  and R.LTSystemId = els.LeaveTypeId
+										 left outer join (
+															Select Sum(LTD.LeaveDuration) ldays,LT.EmpSystemID,LT.LTSystemID  from LeaveTransaction LT
+															Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
+															Where WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
+															group by LT.EmpSystemID,LT.LTSystemID
+														 )ltrn on ltrn.EmpSystemID = els.EmployeeId and ltrn.LTSystemId = els.LeaveTypeId
+										 left outer join (														
+															Select Sum(LTD.LeaveDuration) av,LT.EmpSystemID,LT.LTSystemID  from LeaveTransaction LT
+															Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
+															Where WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"' and LTD.IsAvailed=1
+															group by LT.EmpSystemID,LT.LTSystemID
+														  )tav on tav.EmpSystemID = els.EmployeeId and tav.LTSystemId = els.LeaveTypeId
+
+										 left outer join (
+															select sum(m.LeaveDays) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m
+																where m.SystemID not in(select d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where IsAvailed = 1 or WorkDate<=CONVERT(date, getdate()))
+																group by EmpSystemID,LTSystemID
+														  )acApl  on acApl.EmpSystemID = els.EmployeeId and acApl.LTSystemId = els.LeaveTypeId
+                                         left outer join (select * from dbo.LeavePolicyDetail
+																 where LPMSystemID =
+																 (--w
+																 select LeavePolicyMasterId from 
+																		 (SELECT DC.LeavePolicyMasterId,dm.DesignationId FROM MST.DesignationMaster DM
+																										LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId
+																						where dc.plantid='" + sPlantID + @"'
+																		 ) dm where dm.DesignationId =(select givendesignationId from dbo.EmployeeInformation where SystemId='" + EmpSystemID + @"')
+																	)--w
+                                                 ) ltd on ltd.LTSystemID = lt.Id
+                                                WHERE els.EmployeeID = '" + EmpSystemID + @"'
+                                              --AND CalanderYearID = '" + calYearId + @"'
+                                             AND els.LeaveTypeId IN ( --IN
+
+                                            SELECT LT.ID FROM dbo.ESICPolicyLeaveType AS EPLT
+                                                      LEFT JOIN dbo.LeaveType AS LT ON LT.Id = EPLT.LeaveTypeID
+                                                      WHERE
+                                                      EPLT.LeaveTypeID IN
+                                                       (
+                                                         SELECT LTSystemID FROM dbo.LeavePolicyDetail AS LPD
+                                                      LEFT JOIN  (SELECT DC.LeavePolicyMasterId,DM.DesignationId FROM MST.DesignationMaster DM
+                                    LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId WHERE DC.PlantId='" + sPlantID + @"') AS DM ON DM.LeavePolicyMasterId=LPD.LPMSystemID
+                                                      LEFT JOIN dbo.EmployeeInformation AS EI ON EI.GivenDesignationId=DM.DesignationId
+                                                      WHERE EI.SystemID='" + EmpSystemID + @"' AND EI.PlantID='" + sPlantID + @"'
+                                                       )
+                                                    AND
+                                                    EPLT.ESICPolicyMasterID IN (
+                                                     SELECT DM.ESICPolicyMasterID FROM (SELECT DC.ESICPolicyMasterID,DM.DesignationId FROM MST.DesignationMaster DM
+                                    LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId
+                                    WHERE DC.PlantId='" + sPlantID + @"') DM
+                                                     WHERE DM.DesignationId IN (SELECT GivenDesignationId FROM dbo.EmployeeInformation WHERE SystemID='" + EmpSystemID + @"'))) AND LT.UserName NOT LIKE '%Maternity%'
+
+UNION ALL
+ Select A.CalanderYearID,CAST (0 AS BIT) IsExceptionAllowed,A.FromDate,A.ToDate
+ ,a.SystemID,A.LTSystemID LeaveTypeId,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear
+ ,DaysCanBeSanctioned=CAST (B.CarryForward AS decimal(18,2))
+ ,CurrentAllocationDCBS=CAST (B.CarryForward AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal
+ ,CurrentAllocation=(select ((SELECT DATEDIFF(day,  cast(YEAR('" + _FromDate + @"') as char(4)),  cast(YEAR('" + _FromDate + @"')+1 as char(4))))-COUNT(d.OffDayDate))/ltd.EncashWorkingDaysQty
+		                                from scs.OffDayDetail d
+		                                inner join scs.OffDayMaster m on d.offdaymasterid=m.id and OffDayType in ('H','W') and m.PlantId='" + sPlantID + @"'
+		                                where d.PlantId='" + sPlantID + @"'
+		                                and d.OffDayDate between '" + _FromDate + @"' AND '" + _ToDate + @"') 
+,CAST (0 AS decimal(18,2)) PreviousYearCarryForward
+ --,BroughtForward=CASE WHEN A.Opening>B.CarryForward THEN A.Opening WHEN B.BroughtForward>B.CarryForward THEN B.BroughtForward ELSE B.CarryForward END
+ ,BroughtForward=CAST (A.Opening AS decimal(18,2))
+ 
+  ,LeaveDays=ROUND(CAST (A.Opening +CAST(case when ltd.EncashWorkingDaysQty >0 
+then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty 
+else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2)),0)
+ ,ISNULL(ltrn.ldays, 0) Applied,ISNULL(tav.av, 0) Availed,ISNULL(R.Rejected,0) Rejected,ISNULL(acApl.ldays,0) ldays,A.LeaveType,ISNULL(tav.av, 0)AllFutureAppliedLeave,CAST (0 AS BIT) IsBroughtForwardAdd
+ ,(round((CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2))) * 2, 0)/2) as Earned
+
+,ClosingBalance=ROUND(CAST (A.Opening +CAST(case when ltd.EncashWorkingDaysQty >0 
+then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty 
+else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2)),0)
+ from (
+ select A.LeaveYearId CalanderYearID,0 IsExceptionAllowed,a.Id SystemID,A.LeaveTypeId LTSystemID,A.EmployeeId EmployeeID,lt.UserName LeaveName, lt.Description LeaveDescription,lt.LeaveType
+ ,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate,A.Opening 
+ from dbo.AnnualLeaveDataCurrent A
+										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+										  LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
+										  Where LY.FromDate between'" + _FromDate + @"' AND '" + _ToDate + @"' 
+										  AND LY.ToDate between'" + _FromDate + @"' AND '" + _ToDate + @"'
+                                           AND A.EmployeeId='" + EmpSystemID + @"'
+										  ) A  
+LEFT JOIN (
+select A.EmployeeId,A.LeaveTypeId,lt.UserName LeaveName,A.CarryForward from dbo.AnnualLeaveDataPast A
+										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+                                        LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
+										 Where LY.FromDate between '" + _LFromDate + @"' AND '" + _LToDate + @"' 
+										  AND LY.ToDate between '" + _LFromDate + @"' AND '" + _LToDate + @"' AND A.EmployeeId='" + EmpSystemID + @"')B ON B.EmployeeId=A.EmployeeId  AND A.LTSystemID=B.LeaveTypeId
+
+left outer join (select ltd.* from dbo.LeavePolicyDetail ltd
+																 where LPMSystemID =
+																 (--w
+																 select LeavePolicyMasterId from 
+																		 (
+																			SELECT DC.LeavePolicyMasterId,dm.DesignationId FROM MST.DesignationMaster DM
+																			LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId where dc.plantid='" + sPlantID + @"'
+																		 ) dm where dm.DesignationId =(select givendesignationId  from dbo.EmployeeInformation where SystemId='" + EmpSystemID + @"')
+																	)--w
+                                                 ) ltd on ltd.LTSystemID = A.LTSystemID
+
+LEFT JOIN (Select Sum(LTD.LeaveDuration) Rejected,LT.EmpSystemID,LT.LTSystemID  from LeaveTransaction LT
+                                                            Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
+                                                            Where WorkDate between '" + _FromDate + @"' AND '" + _ToDate + @"' AND IsCancel=1
+                                                            group by LT.EmpSystemID,LT.LTSystemID)R ON R.EmpSystemID = A.EmployeeId  and R.LTSystemId = A.LTSystemID
+										 left outer join (
+															Select Sum(LTD.LeaveDuration) ldays,LT.EmpSystemID,LT.LTSystemID  from LeaveTransaction LT
+                                                            Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
+                                                            Where WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
+                                                            group by LT.EmpSystemID,LT.LTSystemID
+														)ltrn on ltrn.EmpSystemID = A.EmployeeId and ltrn.LTSystemId = A.LTSystemID
+										 left outer join (
+																select sum(c) av,EmpSystemID,LTSystemID from
+																(
+																	select m.EmpSystemID,m.LTSystemID,c from dbo.LeaveTransaction m
+																	left outer join
+																		(
+																		Select SUM(d.LeaveDuration) c,d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where
+																			IsAvailed = 1 and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
+                                                                        group by LvTrnsSystemID
+																		) ltrnDt on ltrnDt.LvTrnsSystemID = m.SystemID
+																)x group by EmpSystemID,LTSystemID
+														)tav on tav.EmpSystemID = A.EmployeeId and tav.LTSystemId = A.LTSystemID
+										 left outer join (
+															select sum(m.LeaveDays) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m
+																where m.SystemID not in(select d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where IsAvailed = 1 or WorkDate<=CONVERT(date, getdate()))
+																group by EmpSystemID,LTSystemID
+														  )acApl  on acApl.EmpSystemID = A.EmployeeId and acApl.LTSystemId = A.LTSystemID
+left join (SELECT EmpSystemID,SUM(l.EarnValue)EarnDays,T.Id as LeaveId,ei.PlantId
+				FROM  EmployeeInformation AS ei 
+                JOIN AttdnProcessData AS apd ON apd.EmpSystemID=ei.SystemId
+                LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
+                LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=ei.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
+                left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
+                LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
+                JOIN LeaveType T ON t.Id=L.LeaveTypeId
+                where apd.workdate between '" + _FromDate + @"' and '" + _ToDate + @"'
+                and EI.PlantID='" + sPlantID + @"' and t.LeaveType='Earn'
+                group by EmpSystemID,t.Id,ei.plantid
+                ) as Masterx on Masterx.EmpSystemID=A.EmployeeId and Masterx.PlantId='" + sPlantID + @"' and Masterx.LeaveId=A.LTSystemID
+				left join (Select top(1) md.* from  ManualLeaveData md
+				JOIN LeaveType T ON t.Id=md.LeaveTypeId AND t.LeaveType='Earn'
+				Where md.EmployeeId='" + EmpSystemID + @"'order by md.addeddate desc
+				)med on med.EmployeeId=A.EmployeeId
+Where A.EmployeeId='" + EmpSystemID + "'";
+
+                }
+                else
+                {
+                    _sql = @"SELECT els.CalanderYearID, ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed
+                                        ,FromDate=FORMAT(ELS.FromDate,'dd-MMM-yyyy')
+										,ToDate=FORMAT(ELS.ToDate,'dd-MMM-yyyy')
+										 ,els.Id SystemID,
+                                         els.LeaveTypeId,
+                                         els.EmployeeID,
+										 lt.UserName LeaveName,
+										 lt.Description LeaveDescription,
+                                         ltd.SystemID LvPolDetailsSystemID
+                                         ,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear
+                                     ,DaysCanBeSanctioned= case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) END
+,CurrentAllocationDCBS=case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) END
+										,els.EncashedInbetween
+                                         ,CAST (ISNULL(ltd.IsAvailExceptionAllowedOnSpecialAppeal,0) AS BIT)IsAvailExceptionAllowedOnSpecialAppeal,
+                                        CurrentAllocation=ISNULL(els.CurrentYearAllocation, 0),
+                                         ISNULL(els.PreviousYearCarryForward, 0) PreviousYearCarryForward,
+										 --all carry forward
+                                         --ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) BroughtForward,
+                                         BroughtForward=CASE WHEN els.IsEncashed =1 THEN ISNULL(els.CarryForward, 0)+ISNULL(els.EncashedInbetween, 0) ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END,
+            --                             BroughtForward=CASE WHEN LT.LeaveType='Earn' THEN	
+												--ISNULL(ALP.PBroughtForward, 
+												-- CASE WHEN els.IsEncashed =1 THEN ISNULL(els.CarryForward, 0)+ISNULL(els.EncashedInbetween, 0) 
+												-- ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END)													   
+										  --ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END,
+
+
+                                         ISNULL(els.DaysCanBeSanctioned, 0) LeaveDays,
+-- LeaveDays=ISNULL(CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(els.DaysCanBeSanctioned, 0) END,0),
+										 --applied +applied ob
+                                         ISNULL(ltrn.ldays, 0)+isnull(CurrentYearAvailedOpeningBalance,0) Applied,
+										 --(ISNULL(tav.av, 0)+ ISNULL(acApl.ldays,0)) Applied,
+                                         --0 Availed,
+										  --Availed +Availed ob
+                                         ISNULL(tav.av, 0)+isnull(CurrentYearAvailedOpeningBalance,0) Availed,
+                                         ISNULL(R.Rejected,0)Rejected,
+										 ISNULL(acApl.ldays,0) ldays,lt.LeaveType
+                                         ,ISNULL(tav.av, 0)AllFutureAppliedLeave
+
+-----------------------------------Is Brought Forward Add to balance -----------------------------------------------------------                                       
+---,IsBroughtForwardAdd=CASE WHEN LT.LeaveType='Earn' THEN
+,IsBroughtForwardAdd=CASE WHEN 1=1 THEN  
+	CASE WHEN
+	-----------------------------------DOJorDOC start -----------------------------------------------------------
+								CASE WHEN ltd.LvAvailedOnDOJ=1 THEN                            										 
+                            										 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  emp.DOJ )
+																	      WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  emp.DOJ )
+																	      WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  emp.DOJ ) END
+										   WHEN  ltd.LvAvailedOnDOC=1 THEN 										   
+										   							 CASE WHEN ltd.CanAvailUOM='Year' THEN DateAdd(YEAR,LvCanAvailAfter,  	emp.DOC  )
+																		  WHEN ltd.CanAvailUOM='Month' THEN DateAdd(MONTH,LvCanAvailAfter,  	emp.DOC  )
+																	      WHEN ltd.CanAvailUOM='Day' THEN DateAdd(DAY,LvCanAvailAfter,  	emp.DOC  )
+										   						END
+                                       END
+---------------------------------------DOJorDOC start  end-------------------------------------------------------
+	
+	> GETDATE() then 
+		    CONVERT(BIT,0)------No
+        ELSE  CONVERT(BIT,1) END---Yes
+ELSE CONVERT(BIT,0) END  ---No
+,Earned=CAST (0 AS decimal(18,2))
+,ClosingBalance=(case when ltd.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(ltd.LvCanAvailQuantity,0)
+																   when ltd.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(ltd.LvCanAvailQuantity,0) * Isnull(els.DaysCanBeSanctioned,0))/100
+																   else Isnull(els.DaysCanBeSanctioned,0) END)-ISNULL(tav.av, 0)+isnull(CurrentYearAvailedOpeningBalance,0)
+----------------------------------------------------------------------------------------------------------------------
+                                          FROM (    select S.* from trn.EmployeeLeaveSummary S
+                                                        LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=s.EmployeeId
+                                                        LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                                                        LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                                                        LEFT JOIN LeavePolicyDetail AS lp ON lp.LPMSystemID=dmc.LeavePolicyMasterId AND s.LeaveTypeId=lp.LTSystemID
+                                                        where CalanderYearId='" + calYearId + @"' and S.EmployeeId ='" + EmpSystemID + @"' AND lp.EncashmentBasis='CalanderYear'
+														) els
+										 left outer join dbo.LeaveType lt on lt.Id = els.LeaveTypeId
+        LEFT JOIN (Select Sum(LTD.LeaveDuration) Rejected,LT.EmpSystemID,LT.LTSystemID  from LeaveTransaction LT
+                                                            Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
+                                                            Where WorkDate between '" + _FromDate + @"' AND '" + _ToDate + @"' AND IsCancel=1
+                                                            group by LT.EmpSystemID,LT.LTSystemID)R ON R.EmpSystemID = els.EmployeeId  and R.LTSystemId = els.LeaveTypeId
+										 left outer join (
+															Select Sum(LTD.LeaveDuration) ldays,LT.EmpSystemID,LT.LTSystemID  from LeaveTransaction LT
+                                                            Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
+                                                            Where WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
+                                                            group by LT.EmpSystemID,LT.LTSystemID
+														)ltrn on ltrn.EmpSystemID = els.EmployeeId and ltrn.LTSystemId = els.LeaveTypeId
+										 left outer join (
+																select sum(c) av,EmpSystemID,LTSystemID from
+																(
+																	select m.EmpSystemID,m.LTSystemID,c from dbo.LeaveTransaction m
+																	left outer join
+																		(
+																		Select SUM(d.LeaveDuration) c,d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where
+																			IsAvailed = 1 and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
+                                                                        group by LvTrnsSystemID
+																		) ltrnDt on ltrnDt.LvTrnsSystemID = m.SystemID
+																)x group by EmpSystemID,LTSystemID
+														)tav on tav.EmpSystemID = els.EmployeeId and tav.LTSystemId = els.LeaveTypeId
+										 left outer join (
+															select sum(m.LeaveDays) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m
+																where m.SystemID not in(select d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where IsAvailed = 1 or WorkDate<=CONVERT(date, getdate()))
+																group by EmpSystemID,LTSystemID
+														  )acApl  on acApl.EmpSystemID = els.EmployeeId and acApl.LTSystemId = els.LeaveTypeId
+                                         left outer join (select * from dbo.LeavePolicyDetail
+																 where LPMSystemID =
+																 (--w
+																 select LeavePolicyMasterId from 
+																		 (
+																				SELECT DC.LeavePolicyMasterId,dm.DesignationId 
+																										FROM MST.DesignationMaster DM
+																										LEFT JOIN SCS.DesignationMasterConfiguration DC 
+																													ON DM.Id=DC.DesignationMasterId
+																						where dc.plantid='" + sPlantID + @"'
+
+																		 ) dm where dm.DesignationId =(select givendesignationId 
+																									 from dbo.EmployeeInformation 
+																									 where SystemId='" + EmpSystemID + @"')
+																	)--w
+                                                 ) ltd on ltd.LTSystemID = lt.Id
+LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
+                                                WHERE els.EmployeeID = '" + EmpSystemID + @"'
+                                              
+                                              AND els.LeaveTypeId not IN (select id from LeaveType where IsESIC=1 and IsGeneral=0) AND LT.UserName NOT LIKE '%Maternity%'
+
+UNION ALL
+ Select A.CalanderYearID,CAST (0 AS BIT) IsExceptionAllowed,A.FromDate,A.ToDate
+ ,a.SystemID,A.LTSystemID LeaveTypeId,A.EmployeeId EmployeeID,A.LeaveName, A.LeaveDescription,ltd.SystemID LvPolDetailsSystemID,ISNULL(ltd.IsProratacurrentyear,0)IsProratacurrentyear
+ ,DaysCanBeSanctioned=CAST (B.CarryForward AS decimal(18,2))
+ ,CurrentAllocationDCBS=CAST (B.CarryForward AS decimal(18,2)),0 EncashedInbetween,CAST (0 AS BIT) IsAvailExceptionAllowedOnSpecialAppeal
+ ,CurrentAllocation=(select ((SELECT DATEDIFF(day,  cast(YEAR('" + _FromDate + @"') as char(4)),  cast(YEAR('" + _FromDate + @"')+1 as char(4))))-COUNT(d.OffDayDate))/ltd.EncashWorkingDaysQty
+		                                from scs.OffDayDetail d
+		                                inner join scs.OffDayMaster m on d.offdaymasterid=m.id and OffDayType in ('H','W') and m.PlantId='" + sPlantID + @"'
+		                                where d.PlantId='" + sPlantID + @"'
+		                                and d.OffDayDate between '" + _FromDate + @"' AND '" + _ToDate + @"') 
+,CAST (0 AS decimal(18,2)) PreviousYearCarryForward
+ --,BroughtForward=CASE WHEN A.Opening>B.CarryForward THEN A.Opening WHEN B.BroughtForward>B.CarryForward THEN B.BroughtForward ELSE B.CarryForward END
+ ,BroughtForward=CAST (A.Opening AS decimal(18,2))
+ 
+  ,LeaveDays=ROUND(CAST (A.Opening +CAST(case when ltd.EncashWorkingDaysQty >0 
+then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty 
+else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2)),0)
+ ,ISNULL(ltrn.ldays, 0) Applied,ISNULL(tav.av, 0) Availed,ISNULL(R.Rejected,0) Rejected,ISNULL(acApl.ldays,0) ldays,A.LeaveType,ISNULL(tav.av, 0)AllFutureAppliedLeave,CAST (0 AS BIT) IsBroughtForwardAdd
+ ,(round((CAST(case when ltd.EncashWorkingDaysQty >0 then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty else 0 END AS decimal(18,2))) * 2, 0)/2) as Earned
+
+,ClosingBalance=ROUND(CAST (A.Opening +CAST(case when ltd.EncashWorkingDaysQty >0 
+then (isnull(Masterx.EarnDays,'0')+ isnull(med.Earned,'0'))/ltd.EncashWorkingDaysQty 
+else 0 END AS decimal(18,2))-ISNULL(tav.av, 0)AS decimal(18,2)),0)
+ from (
+ select A.LeaveYearId CalanderYearID,0 IsExceptionAllowed,a.Id SystemID,A.LeaveTypeId LTSystemID,A.EmployeeId EmployeeID,lt.UserName LeaveName, lt.Description LeaveDescription,lt.LeaveType
+ ,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate,A.Opening 
+ from dbo.AnnualLeaveDataCurrent A
+										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+										  LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
+										  Where LY.FromDate between'" + _FromDate + @"' AND '" + _ToDate + @"' 
+										  AND LY.ToDate between'" + _FromDate + @"' AND '" + _ToDate + @"'
+										  ) A  
+LEFT JOIN (
+select BroughtForward=CASE WHEN A.Adjustment=0 THEN A.Opening ELSE A.Adjustment END,A.EmployeeId,A.LeaveTypeId,lt.UserName LeaveName,A.CarryForward from dbo.AnnualLeaveDataPast A
+										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+                                        LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
+										  Where LY.FromDate between '" + _LFromDate + @"' AND '" + _LToDate + @"' 
+										  AND LY.ToDate between '" + _LFromDate + @"' AND '" + _LToDate + @"')B ON B.EmployeeId=A.EmployeeId  AND A.LTSystemID=B.LeaveTypeId
+
+left outer join (select ltd.* from dbo.LeavePolicyDetail ltd
+																 where LPMSystemID =
+																 (--w
+																 select LeavePolicyMasterId from 
+																		 (
+																			SELECT DC.LeavePolicyMasterId,dm.DesignationId FROM MST.DesignationMaster DM
+																			LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId where dc.plantid='" + sPlantID + @"'
+																		 ) dm where dm.DesignationId =(select givendesignationId  from dbo.EmployeeInformation where SystemId='" + EmpSystemID + @"')
+																	)--w
+                                                 ) ltd on ltd.LTSystemID = A.LTSystemID
+
+LEFT JOIN (Select Sum(LTD.LeaveDuration) Rejected,LT.EmpSystemID,LT.LTSystemID  from LeaveTransaction LT
+                                                            Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
+                                                            Where WorkDate between '" + _FromDate + @"' AND '" + _ToDate + @"' AND IsCancel=1
+                                                            group by LT.EmpSystemID,LT.LTSystemID)R ON R.EmpSystemID = A.EmployeeId  and R.LTSystemId = A.LTSystemID
+										 left outer join (
+															Select Sum(LTD.LeaveDuration) ldays,LT.EmpSystemID,LT.LTSystemID  from LeaveTransaction LT
+                                                            Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
+                                                            Where WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
+                                                            group by LT.EmpSystemID,LT.LTSystemID
+														)ltrn on ltrn.EmpSystemID = A.EmployeeId and ltrn.LTSystemId = A.LTSystemID
+										 left outer join (
+																select sum(c) av,EmpSystemID,LTSystemID from
+																(
+																	select m.EmpSystemID,m.LTSystemID,c from dbo.LeaveTransaction m
+																	left outer join
+																		(
+																		Select SUM(d.LeaveDuration) c,d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where
+																			IsAvailed = 1 and WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
+                                                                        group by LvTrnsSystemID
+																		) ltrnDt on ltrnDt.LvTrnsSystemID = m.SystemID
+																)x group by EmpSystemID,LTSystemID
+														)tav on tav.EmpSystemID = A.EmployeeId and tav.LTSystemId = A.LTSystemID
+										 left outer join (
+															select sum(m.LeaveDays) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m
+																where m.SystemID not in(select d.LvTrnsSystemID from dbo.LeaveTransactionDetails d where IsAvailed = 1 or WorkDate<=CONVERT(date, getdate()))
+																group by EmpSystemID,LTSystemID
+														  )acApl  on acApl.EmpSystemID = A.EmployeeId and acApl.LTSystemId = A.LTSystemID
+left join (SELECT EmpSystemID,SUM(l.EarnValue)EarnDays,T.Id as LeaveId,ei.PlantId
+				FROM  EmployeeInformation AS ei 
+                JOIN AttdnProcessData AS apd ON apd.EmpSystemID=ei.SystemId
+                LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
+                LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=ei.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
+                left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
+                LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
+                JOIN LeaveType T ON t.Id=L.LeaveTypeId
+                where apd.workdate between '" + _FromDate + @"' and '" + _ToDate + @"'
+                and EI.PlantID='" + sPlantID + @"' and t.LeaveType='Earn'
+                group by EmpSystemID,t.Id,ei.plantid
+                ) as Masterx on Masterx.EmpSystemID=A.EmployeeId and Masterx.PlantId='" + sPlantID + @"' and Masterx.LeaveId=A.LTSystemID
+				left join (Select top(1) md.* from  ManualLeaveData md
+				JOIN LeaveType T ON t.Id=md.LeaveTypeId AND t.LeaveType='Earn'
+				Where md.EmployeeId='" + EmpSystemID + @"' order by md.addeddate desc
+				)med on med.EmployeeId=A.EmployeeId
+Where A.EmployeeId='" + EmpSystemID + "'";
+
+                }
+
+                return _sqlRepository.GetDataCollection(_sql);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }//End Function
+
         public DataSet GetESICEligibleEmployeeFromEnum(string empSystemId)
         {
             GridParameter parameters = null;
@@ -1571,7 +2068,7 @@ LEFT JOIN ORG.Department DEPT ON PR.DepartmentId = DEPT.Id";
                 }
                 else
                 {
-_sql= @"Select ei.SystemId,A.LTSystemID LeaveTypeId,ei.EmployeeCode,ei.EmployeeName,FORMAT(ei.DOJ,'dd-MMM-yyyy') AS DOJ,p.UserName AS PlantName,D.UserName AS Designation,
+                    _sql = @"Select ei.SystemId,A.LTSystemID LeaveTypeId,ei.EmployeeCode,ei.EmployeeName,FORMAT(ei.DOJ,'dd-MMM-yyyy') AS DOJ,p.UserName AS PlantName,D.UserName AS Designation,
 DEPT.UserName AS Department,ct.UserName AS EmployeeCategory, A.LeaveName,A.DaysCanBeSanctioned,A.CurrentAllocation CurrentYearAllocation,A.CurrentAllocation,0 YearEndEncash,A.Applied AppliedLeave
 ,A.PreviousYearCarryForward CarryForwardOpeningBalance,A.BroughtForward,A.LeaveDays,A.Applied AppliedDays,A.Availed AvailedDays,A.Rejected,A.Balance ClosingBalance
  from (SELECT els.CalanderYearID, ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed
