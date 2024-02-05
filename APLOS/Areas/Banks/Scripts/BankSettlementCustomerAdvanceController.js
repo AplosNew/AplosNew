@@ -1185,7 +1185,7 @@ function BankSettlementCustomerAdvanceController(cboService, baseService, factor
             method: "POST",
             url: $scope.deleteUrl,
             data: {
-                "advanceId": advanceId, "voucherId": voucherId
+                "advanceId": advanceId, "voucherId": voucherId 
             },
             dataType: "JSON"
         }).then(function successCallback(response) {

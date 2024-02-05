@@ -1156,12 +1156,12 @@ function customerAdvanceController(cboService, bankService, baseService, factory
             $scope.invalidRow = false;
     };
 
-    $scope.delete = function (advanceId, voucherId) {
+    $scope.delete = function (advanceId, voucherId, advanceGroupNo) {
         $http({
             method: "POST",
             url: $scope.deleteUrl,
             data: {
-                "advanceId": advanceId, "voucherId": voucherId
+                "advanceId": advanceId, "voucherId": voucherId, "advanceGroupNo": advanceGroupNo
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
@@ -1182,9 +1182,10 @@ function customerAdvanceController(cboService, bankService, baseService, factory
     };
 
     $scope.advanceId = null;
-    $scope.confirmDelete = function (advanceId, voucherId) {
+    $scope.confirmDelete = function (advanceId, voucherId, advanceGroupNo) {
         $scope.advanceId = advanceId;
         $scope.voucherId = voucherId;
+        $scope.advanceGroupNo = advanceGroupNo;
         $scope.message_delete_confirmation = "Are you sure to Delete?";
         angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
     };

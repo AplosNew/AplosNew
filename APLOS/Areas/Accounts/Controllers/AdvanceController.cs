@@ -535,11 +535,18 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = AplosMessage.Updated });
         }
         [HttpPost]
-        public JsonResult DeleteVendorAdvance(string advanceId,string voucherId)
+        public JsonResult DeleteVendorAdvance(string advanceId,string voucherId,string advanceGroupNo)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
+            if (string.IsNullOrEmpty(advanceGroupNo))
+            {
             _advanceService.DeleteVendorAdvance(identity.CompanyId, identity.PlantId, voucherId);
+            }
+            else
+            {
+                _advanceService.DeleteMultiVendorAdvance(identity.CompanyId, identity.PlantId, voucherId, advanceGroupNo);
+
+            }
             return Json(new { Message = AplosMessage.Updated });
         }
 

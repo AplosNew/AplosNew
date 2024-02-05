@@ -4755,8 +4755,6 @@ namespace Library.Accounting.Accounts
                 sheet1.Range[xlsRow - 1, 1].CellStyle.Font.Size = 10;
                 sheet1.Range[xlsRow - 1, 1].RowHeight = 20;
                 sheet1.Range[xlsRow - 1, 1].CellStyle.Font.Bold = true;
-
-
                 
                 sheet1[xlsRow, xlsCol].Text = "Party Nature";
                 int colPartyNature = xlsCol;
