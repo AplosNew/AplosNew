@@ -490,6 +490,7 @@ namespace Library.Service.Leave
         public int CarryForwardDay { get; set; }
         public bool IsMaxAllocation { get; set; }
         public int MaxAllocationLimit { get; set; }
+        public int MinAllocationLimit { get; set; }
 
         public string CalculationBasis { get; set; }
         public string LvAvailedOnFixedOrPercentage { get; set; }

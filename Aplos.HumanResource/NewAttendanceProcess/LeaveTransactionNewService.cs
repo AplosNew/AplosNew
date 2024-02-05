@@ -2403,6 +2403,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 if (leaveData.Tables[0].Rows.Count > 0)
                 {
                     int maxDayAllowed = (int)(leaveData.Tables[0].Rows[0]["MaxAllocationLimit"]);
+                    int minDayAllowed = (int)(leaveData.Tables[0].Rows[0]["MinAllocationLimit"]);
                     bool isMaxAtaRowExp = Convert.ToBoolean(leaveData.Tables[0].Rows[0]["IsExcessAllow"].ToString());
                     bool subToApproval = Convert.ToBoolean(leaveData.Tables[0].Rows[0]["IsSubjectToApproval"].ToString());
 
@@ -2413,6 +2414,13 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                     bool _IsAvailExceptionAllowedOnSpecialAppeal = Convert.ToBoolean(leaveData.Tables[0].Rows[0]["IsAvailExceptionAllowedOnSpecialAppeal"].ToString());//IsAvailExceptionAllowedOnSpecialAppeal
 
                     decimal applied = leaveDays;
+                    if (minDayAllowed!=0)
+                    {
+                        if (applied < minDayAllowed)
+                        {
+                            throw new Exception("Minimum leave at a time should greater or equal " + minDayAllowed + "  days.");
+                        } 
+                    }
                     if (applied > maxDayAllowed && isMaxAtaRowExp == false)
                     {
                         throw new Exception("Max leave at a time cannot be greater then " + maxDayAllowed + "  day");
@@ -2472,7 +2480,8 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                     {
                         // List<LeaveTransactionVM> list_balance = (List<LeaveTransactionVM>)LoadGrdAllocatedLvDetails(companyGroupId, plantId, EmpSystemID, yearId);
                         clsLeaveBalanceToDate leave = new clsLeaveBalanceToDate();
-                        List<Dictionary<string, object>> list_balance = leave.GetLeaveBalanceType(EmpSystemID, yearId);
+                       // List<Dictionary<string, object>> list_balance = leave.GetLeaveBalanceType(EmpSystemID, yearId);
+                        List<Dictionary<string, object>> list_balance = leave.GetLeaveBalanceTypeNew(EmpSystemID, yearId, plantId);
                         foreach (var item in list_balance)
                         {
                             if (item["LeaveTypeId"].ToString() == leaveTypeId)
@@ -2508,7 +2517,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
             parameters = new GridParameter
             {
                 ExportType = "DATASET",
-                CmdText = @"SELECT ISNULL(IsExcessAllow,0) IsExcessAllow, ISNULL(IsSubjectToApproval,0)IsSubjectToApproval, ISNULL(MaxAllocationLimit,0)MaxAllocationLimit
+                CmdText = @"SELECT ISNULL(IsExcessAllow,0) IsExcessAllow, ISNULL(IsSubjectToApproval,0)IsSubjectToApproval, ISNULL(MaxAllocationLimit,0)MaxAllocationLimit, ISNULL(MinAllocationLimit,0)MinAllocationLimit
                             ,LvAvailedOnDOC IsAllowed,IsAllowedonspecialappeal,AllowedAfterDays,IsPostApplicationAllowed,isnull(IsAvailExceptionAllowedOnSpecialAppeal,0) IsAvailExceptionAllowedOnSpecialAppeal
                             FROM dbo.LeavePolicyDetail
                             WHERE  (LPMSystemID = '" + strLPMSystemID + @"') AND (LTSystemID = '" + strLvTypeId + @"')"
