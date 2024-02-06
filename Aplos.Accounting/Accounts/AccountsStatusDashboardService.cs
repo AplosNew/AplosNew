@@ -4781,6 +4781,11 @@ namespace Library.Accounting.Accounts
                 sheet1[xlsRow, xlsCol].ColumnWidth = 12;
                 xlsCol++;
 
+                sheet1[xlsRow, xlsCol].Text = "Entity";
+                int colEntity = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 12;
+                xlsCol++;
+
                 int colPartyId = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Party Id";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12;
@@ -4927,6 +4932,7 @@ namespace Library.Accounting.Accounts
                         sheet1.Range[xlsRow, colPartyCategory].Text = dtRCMPayable.Rows[i]["PartyCategory"].ToString();
                         sheet1.Range[xlsRow, colPartySubCategory].Text = dtRCMPayable.Rows[i]["PartySubCategory"].ToString();
                         sheet1.Range[xlsRow, colResponsiblePerson].Text = dtRCMPayable.Rows[i]["ResponsiblePerson"].ToString();
+                        sheet1.Range[xlsRow, colEntity].Text = dtRCMPayable.Rows[i]["Entity"].ToString();
                         sheet1.Range[xlsRow, colPartyId].Text = dtRCMPayable.Rows[i]["PartyId"].ToString();
                         sheet1.Range[xlsRow, iPartyName].Text = dtRCMPayable.Rows[i]["PartyName"].ToString();
                         
