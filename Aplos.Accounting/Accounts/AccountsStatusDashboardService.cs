@@ -1051,6 +1051,11 @@ namespace Library.Accounting.Accounts
                 sheet1[xlsRow, xlsCol].ColumnWidth = 12;
                 xlsCol++;
 
+                sheet1[xlsRow, xlsCol].Text = "Entity";
+                int colEntity = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 12;
+                xlsCol++;
+
                 int colPartyId = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Party Id";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12;
@@ -1205,6 +1210,7 @@ namespace Library.Accounting.Accounts
                         sheet1.Range[xlsRow, colPartyCategory].Text = dtRCMPayable.Rows[i]["PartyCategory"].ToString();
                         sheet1.Range[xlsRow, colPartySubCategory].Text = dtRCMPayable.Rows[i]["PartySubCategory"].ToString();
                         sheet1.Range[xlsRow, colResponsiblePerson].Text = dtRCMPayable.Rows[i]["ResponsiblePerson"].ToString();
+                        sheet1.Range[xlsRow, colEntity].Text = dtRCMPayable.Rows[i]["Entity"].ToString();
                         sheet1.Range[xlsRow, colPartyId].Text = dtRCMPayable.Rows[i]["PartyId"].ToString();
                         sheet1.Range[xlsRow, iPartyName].Text = dtRCMPayable.Rows[i]["PartyName"].ToString();
                         
@@ -1520,7 +1526,7 @@ namespace Library.Accounting.Accounts
             string strSql = "";
             strSql = @"select x.* from (
 
-                        SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+                        SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,EN.UserName Entity,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
 										,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
 										, replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate,iv.DocDate  SortDocDate
 										, C.Code CurrencyCode
@@ -1607,7 +1613,7 @@ namespace Library.Accounting.Accounts
 										--GROUP BY IV.PartyId, PP.UserName,P.UserName
 
 								   UNION ALL
-                                    SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+                                    SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,EN.UserName Entity,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
 										,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
 										,replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate ,iv.DocDate  SortDocDate
 										,C.Code CurrencyCode
@@ -1690,7 +1696,7 @@ namespace Library.Accounting.Accounts
                                         AND ISNULL(ISNULL(VDC.CrAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0)>0
 
                                         UNION ALL
-				                        SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
+				                        SELECT   P.PartyNature,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,E.EmployeeName ResponsiblePerson,EN.UserName Entity,IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
 										                        ,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
 										                        ,replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate ,iv.DocDate  SortDocDate
 										                        ,C.Code CurrencyCode,0 BaseNoOfDays, REPLACE(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') AS ActualDueDate
