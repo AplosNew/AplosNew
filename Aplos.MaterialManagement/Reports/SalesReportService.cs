@@ -1877,7 +1877,7 @@ Where  SM.SalesId='" + SalesId + @"')A ORDER BY A.Sequence";
             range.ApplyCharacterFormat(FontBold);
             range.ApplyCharacterFormat(DFontSize);
             int colTermsAndCondition = COL; COL++;
-            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 290;
+            wTable.Rows[ROW].Cells[colTermsAndCondition].Width = 280;
 
             #endregion column headers
             double totalValue = 0;

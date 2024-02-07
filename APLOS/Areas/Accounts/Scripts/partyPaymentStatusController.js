@@ -4477,7 +4477,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $http({
                 method: 'POST',
                 url: $scope.path + "GetPartyStatusDataList",
-                data: {ToDate: $scope.report.ToDate },
+                data: {'ToDate': $scope.report.ToDate },
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
@@ -4526,6 +4526,62 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             ShowResult(response.data.Message, 'failure');
         });
 
+    };
+
+    $scope.ReceiptFromCustomerList = [];
+    $scope.GetReceiptFromCustomerData = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetReceiptFromCustomerList",
+                data: { 'fromDate': $scope.reportRFC.FromDate, 'toDate': $scope.reportRFC.ToDate},
+                dataType: 'JSON'
+
+            }).then(function successCallback(response) {
+                $scope.ReceiptFromCustomerList = response.data.DATA;
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
+        catch (e) {
+        }
+    }
+
+    $scope.ReceiptFromCustomerReportExcel = function () {
+        if ($scope.reportRFC.FromDate === "" || $scope.reportRFC.FromDate === null || $scope.reportRFC.FromDate === undefined) {
+            ShowResult('Select To FromDate', 'failure');
+            return false;
+        }
+        if ($scope.reportRFC.ToDate === "" || $scope.reportRFC.ToDate === null || $scope.reportRFC.ToDate === undefined) {
+            ShowResult('Select To Date', 'failure');
+            return false;
+        }
+
+        var dataList = [];
+        var g = $("#GridRFC").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.ReceiptFromCustomerList;
+        }
+        $scope.fileName = 'Receipt From Customer.xlsx';
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetReceiptFromCustomerReport",
+            data: { 'data': dataList, 'reportFileName': $scope.fileName },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
     };
 
     //**********************#endregion Receive Payment Status **************************
