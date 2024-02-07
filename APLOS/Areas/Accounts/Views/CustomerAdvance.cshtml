@@ -131,7 +131,7 @@
         <div class="form-group" id="div_qty">
             <label class="col-sm-4 control-label">Amount<sup>*</sup></label>
             <div class="col-sm-5 show-message" style="padding-right:0px;">
-                <input ng-disabled="advance.JournalId ||advance.PaymentSource=='MultiBank'" tabindex="11" ng-model="advance.Amount" type="text" n-decimals="2" class="form-control text-right">
+                <input ng-disabled="advance.JournalId" @*||advance.PaymentSource=='MultiBank'*@ tabindex="11" ng-model="advance.Amount" type="text" n-decimals="2" class="form-control text-right">
             </div>
             <div class="col-sm-3 show-message" style="padding-left:0px;">
                 <div class="select-style">
