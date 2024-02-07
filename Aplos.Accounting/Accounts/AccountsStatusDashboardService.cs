@@ -22625,7 +22625,7 @@ group by Id) O60 ON O60.Id=IV.Id
 												,C.Code Currency
 												,I.Amount InvoiceAmount,S.InvoiceNo
 												,IWOD.Amount Received
-												,Balance=I.Amount- SUM(IWOD.Amount)   over (partition by I.Id),SR.SalesReturn CreditNote
+												,Balance=I.Amount- SUM(IWOD.Amount)   over (partition by I.Id),isnull(SR.SalesReturn,0) CreditNote
 												,VI.VoucherNo InvoiceVoucherNo,format(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate,VI.DocRefNo InvoiceDocRefNo
 												,PaymentSource=case when IWO.PaymentSource<>'' then IWO.PaymentSource when awd.AccountTitle<>'' then 'Advance' else NULL end
 												,[BankDetail]=case when bm.AccountTitle<>'' then bm.AccountTitle else awd.AccountTitle end
@@ -22678,44 +22678,89 @@ group by Id) O60 ON O60.Id=IV.Id
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(1);
-                workbook.Worksheets[0].Name = "GoodWorkPaymentDisburseReport";
+                workbook.Worksheets[0].Name = "ReceiptFromCustomerReport";
                 sheet = workbook.Worksheets[0];
                 int ROW = 5; int COL = 1;
 
                 #region columns
-                sheet[ROW, COL].Text = "Employee Code";
+                sheet[ROW, COL].Text = "Customer Code";
                 sheet[ROW, COL].ColumnWidth = 11;
-                int ColEmployeeCode = COL;
+                int ColCustomerCode = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Employee Name";
-                sheet[ROW, COL].ColumnWidth = 18;
-                int ColEmployeeName = COL;
+                sheet[ROW, COL].Text = "Customer";
+                sheet[ROW, COL].ColumnWidth = 25;
+                int ColCustomer = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Minute";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int ColMinute = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Hour";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int ColHour = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Rate";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int ColRate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Amount";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int ColAmount = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Remarks";
+                sheet[ROW, COL].Text = "Received Voucher No";
                 sheet[ROW, COL].ColumnWidth = 15;
-                int ColRemarks = COL;
+                int ColReceivedVoucherNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Received Posting Date";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColReceivedPostingDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Currency";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int ColCurrency = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Invoice Amount";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColInvoiceAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Invoice No";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColInvoiceNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Received Amount";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColReceived = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Balance";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColBalance = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Credit Note";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColCreditNote = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Invoice Voucher No";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColInvoiceVoucherNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Invoice Date";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColInvoiceDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Invoice Doc RefNo";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColInvoiceDocRefNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Payment Source";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColPaymentSource = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Bank Detail";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColBankDetail = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Cash Detail";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColCashDetail = COL;
 
                 #endregion columns
                 int endCol = COL;
@@ -22728,22 +22773,35 @@ group by Id) O60 ON O60.Id=IV.Id
                 ROW++;
 
                 int startRow = ROW;
-
                 for (int i = 0; i < data.Count; i++)
                 {
-                    sheet[ROW, ColEmployeeCode].Text = data[i]["EmployeeCode"].ToString();
-                    sheet[ROW, ColEmployeeName].Text = data[i]["EmployeeName"].ToString();
-                    sheet[ROW, ColMinute].Text = data[i]["Minute"].ToString();
-                    sheet[ROW, ColMinute].Number = clsStaticInfo.dbl(data[i]["Minute"].ToString());
-                    sheet[ROW, ColMinute].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    sheet[ROW, ColHour].Number = clsStaticInfo.dbl(data[i]["Hour"].ToString());
-                    sheet[ROW, ColHour].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data[i]["Rate"].ToString());
-                    sheet[ROW, ColRate].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    sheet[ROW, ColAmount].Number = clsStaticInfo.dbl(data[i]["Amount"].ToString());
-                    sheet[ROW, ColAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    sheet[ROW, ColRemarks].Text = data[i]["Remarks"].ToString();
-
+                    sheet[ROW, ColCustomerCode].Text = data[i]["CustomerCode"].ToString();
+                    sheet[ROW, ColCustomer].Text = data[i]["Customer"].ToString();
+                    sheet[ROW, ColReceivedVoucherNo].Text = data[i]["ReceivedVoucherNo"].ToString();
+                    sheet[ROW, ColReceivedPostingDate].Text = data[i]["ReceivedPostingDate"].ToString();
+                    sheet[ROW, ColCurrency].Text = data[i]["Currency"].ToString();
+                    sheet[ROW, ColInvoiceAmount].Number = clsStaticInfo.dbl(data[i]["InvoiceAmount"].ToString());
+                    sheet[ROW, ColInvoiceAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColInvoiceNo].Text = data[i]["InvoiceNo"].ToString();
+                    sheet[ROW, ColReceived].Number = clsStaticInfo.dbl(data[i]["Received"].ToString());
+                    sheet[ROW, ColReceived].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data[i]["Balance"].ToString());
+                    sheet[ROW, ColBalance].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColCreditNote].Number = clsStaticInfo.dbl(data[i]["CreditNote"].ToString());
+                    sheet[ROW, ColCreditNote].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColInvoiceVoucherNo].Text = data[i]["InvoiceVoucherNo"].ToString();
+                    sheet[ROW, ColInvoiceDate].Text = data[i]["InvoiceDate"].ToString();
+                    sheet[ROW, ColInvoiceDocRefNo].Text = data[i]["InvoiceDocRefNo"].ToString();
+                    sheet[ROW, ColPaymentSource].Text = data[i]["PaymentSource"].ToString();
+                    sheet[ROW, ColBankDetail].Text = data[i]["BankDetail"].ToString();
+                    if (data[i]["CashDetail"]!= null) 
+                    {
+                        sheet[ROW, ColCashDetail].Text = data[i]["CashDetail"].ToString(); 
+                    }
+                    else
+                    {
+                        sheet[ROW, ColCashDetail].Text = null;
+                    }
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
@@ -22757,10 +22815,9 @@ group by Id) O60 ON O60.Id=IV.Id
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ReportUtility reportUtility = new ReportUtility();
-                reportUtility.PlantHeader(ref sheet, endCol, "Good Work Payment Disburse Report", identity.PlantId);
+                reportUtility.PlantHeader(ref sheet, endCol, "Receipt From Customer Report", identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
