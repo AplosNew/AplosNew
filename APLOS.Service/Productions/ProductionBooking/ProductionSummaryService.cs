@@ -623,7 +623,7 @@ where wc.Active = 1 and wc.ProcessId = '" + ProcessId + "'  and wc.EntityId = '"
             }
             var sql = @"select distinct QIC.Id,QII.Id ItemId,QII.SNO,PM.UserName ItemName,QII.UOMId,U.UserName as UOM,QIC.Value,QGD.Id as GradeId,QII.Max as MaxValue,QII.Min as MinValue,
 QIC.Remarks,QIC.ActionToBeTaken,isnull(QIC.WorkCenterId,(select WorkCenterId from TRN.QualityControl where Id='" + PId + @"')) as WorkCenterId,
-isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.[QualityControlDetails] where ItemId=QII.Id order by AddedDate desc))) as ResponsiblePerson,
+isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where EmployeeStatus='Active' and SystemId = (select top 1 ResponsiblePersonId from TRN.[QualityControlDetails] where ItemId=QII.Id order by AddedDate desc))) as ResponsiblePerson,
 isnull(QIC.ResponsiblePersonId,(select top 1 ResponsiblePersonId from TRN.[QualityControlDetails] where ItemId=QII.Id order by AddedDate desc)) as ResponsiblePersonId,
 reverse(stuff(reverse((select CheckPoints +',' from QualityManagementParameterCheckPoints where ParameterId=QII.Id for xml path(''))),1,1,'')) as Checkpoints,
 QIC.QCId,QIC.Repeat,(select IsWorkCenter from MST.QualityManagementParameterItem where Id=QII.Id) as IsWorkCenter,QGD.ActionApplicable

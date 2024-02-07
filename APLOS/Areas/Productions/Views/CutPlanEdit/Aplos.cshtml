@@ -37,68 +37,13 @@
             </div>
         </div>
     </div>
-    @*<div class="row">
-            <div id="GridCutPlanSummary" ej-grid e-datasource="CutPlanSummaryList" e-recorddoubleclick=""
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true">
-                <div e-columns>
-                    <div e-column e-field="Size" e-headertext="Size" e-width="100"></div>
-                    <div e-column e-field="FinalQty" e-headertext="Order Qty" e-width="100"></div>
-                    <div e-column e-field="AllotedQty" e-headertext="Alloted Qty" e-width="100"></div>
-                    <div e-column e-field="Ratio1" e-headertext="Marker Ratio" e-width="100"></div>
-                    <div e-column e-field="AllotedQtyR1" e-headertext="Garment Plan Qty" e-width="100"></div>
-                    <div e-column e-field="BalanceToAllotedR1" e-headertext="Excess From Plan" e-width="100"></div>
-                    <div e-column e-field="Ra2" e-headertext="Marker Ratio" e-width="100"></div>
-                    <div e-column e-field="AllotedQtyR2" e-headertext="Garment Plan Qty" e-width="100"></div>
-                    <div e-column e-field="BalanceToAllotedR2" e-headertext="Excess From Plan" e-width="100"></div>
-                    <div e-column e-field="Ra3" e-headertext="Marker Ratio" e-width="100"></div>
-                    <div e-column e-field="AllotedQtyR3" e-headertext="Garment Plan Qty" e-width="100"></div>
-                    <div e-column e-field="BalanceToAllotedR3" e-headertext="Excess From Plan" e-width="100"></div>
-                    <div e-column e-field="Ra4" e-headertext="Marker Ratio" e-width="100"></div>
-                    <div e-column e-field="AllotedQtyR4" e-headertext="Garment Plan Qty" e-width="100"></div>
-                    <div e-column e-field="BalanceToAllotedR4" e-headertext="Excess From Plan" e-width="100"></div>
-                </div>
-            </div>
-        </div>*@
     <div class="row" ng-show="CutPlanEditHeaderNew.HeaderCount===1">
-        <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="col-xs-12 col-sm-3 col-md-3">
             <label class="col-sm-4 control-label">No Of Plies : </label>
             <div class="col-sm-4">
-                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR1" ng-change="NoOfPlyR1ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR1" ng-blur="NoOfPlyR1ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
             </div>
-            @*<div class="col-sm-4">
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li>
-                            <button ng-click="SaveDetailsR1();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button>
-                        </li>
-                    </ul>
-                </div>
-
-            </div>*@
             <div class="col-xs-12">
-                @*<div id="GridCutPlanDetailsR1" ej-grid e-datasource="CutPlanDetailsR1List"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                         e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                        <div e-columns>
-                            <div e-column e-type="string" e-field="Size" e-headertext="Size" e-width="100"></div>
-                            <div e-column e-type="string" e-field="FinalQty" e-headertext="Order Qty" e-width="100"></div>
-                            <div e-column e-template="#Ratio1" e-headertext="Marker Ratio" e-width="80"></div>
-                            <div e-column e-type="string" e-field="AllotedQtyR1" e-headertext="Current Alloted Qty" e-width="100"></div>
-                            <div e-column e-type="string" e-field="BalanceToAllotedR1" e-headertext="Balance To Be Alloted" e-width="100"></div>
-                            <div e-column e-type="string" e-template="#R1Remark" e-headertext="Remarks" e-width="120"></div>
-                        </div>
-                    </div>
-                    <script type="text/template" id="Ratio1">
-                        <div class="col-sm-10" style="padding:0px;">
-                            <input type="number" name="Ratio" ng-model="data.Ratio1" ng-change="$parent.Ratio1Change(this);" ng-click="" class="form-control" maxlength="100">
-                        </div>
-                    </script>
-                    <script type="text/template" id="R1Remark">
-                        <div class="col-sm-10" style="padding:0px;">
-                            <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="100">
-                        </div>
-                    </script>*@
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>
@@ -107,77 +52,38 @@
                                 <th>Order Qty</th>
                                 <th>Marker Ratio</th>
                                 <th>Current Alloted Qty</th>
-                               @* <th>Balance To Be Alloted</th>*@
-                               
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="c in CutPlanDetailsR1List">
                                 <td>{{c.Size}}</td>
                                 <td>{{c.FinalQty}}</td>
-                                <td><input type="number" name="Ratio" ng-model="c.Ratio1" ng-change="Ratio1Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio1" ng-blur="Ratio1Change(c);" ng-click="" class="form-control" maxlength="100"></td>
                                 <td>{{c.AllotedQtyR1}}</td>
-                                @*<td>{{c.BalanceToAllotedR1}}</td>*@
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
             <div class="col-md-12">
-                <label class="col-sm-4 control-label">Total Final Qty : </label>
-                <div class="col-sm-8">
-                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalFinalQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
-                </div>
-                <label class="col-sm-4 control-label"> Total Ratio : </label>
-                <div class="col-sm-8">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
                     <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
                 </div>
-                <label class="col-sm-4 control-label">Total CA Qty : </label>
-                <div class="col-sm-8">
+                <label class="col-sm-6 control-label">Total CA Qty : </label>
+                <div class="col-sm-6">
                     <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
                 </div>
             </div>
         </div>
     </div>
     <div class="row" ng-show="CutPlanEditHeaderNew.HeaderCount===2">
-        <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="col-xs-12 col-sm-3 col-md-3">
             <label class="col-sm-4 control-label">No Of Plies : </label>
             <div class="col-sm-4">
-                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR1" ng-change="NoOfPlyR1ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR1" ng-blur="NoOfPlyR1ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
             </div>
-            @*<div class="col-sm-4">
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li>
-                            <button ng-click="SaveDetailsR1();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button>
-                        </li>
-                    </ul>
-                </div>
-
-            </div>*@
             <div class="col-xs-12">
-                @*<div id="GridCutPlanDetailsR1" ej-grid e-datasource="CutPlanDetailsR1List"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                         e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                        <div e-columns>
-                            <div e-column e-type="string" e-field="Size" e-headertext="Size" e-width="100"></div>
-                            <div e-column e-type="string" e-field="FinalQty" e-headertext="Order Qty" e-width="100"></div>
-                            <div e-column e-template="#Ratio1" e-headertext="Marker Ratio" e-width="80"></div>
-                            <div e-column e-type="string" e-field="AllotedQtyR1" e-headertext="Current Alloted Qty" e-width="100"></div>
-                            <div e-column e-type="string" e-field="BalanceToAllotedR1" e-headertext="Balance To Be Alloted" e-width="100"></div>
-                            <div e-column e-type="string" e-template="#R1Remark" e-headertext="Remarks" e-width="120"></div>
-                        </div>
-                    </div>
-                    <script type="text/template" id="Ratio1">
-                        <div class="col-sm-10" style="padding:0px;">
-                            <input type="number" name="Ratio" ng-model="data.Ratio1" ng-change="$parent.Ratio1Change(this);" ng-click="" class="form-control" maxlength="100">
-                        </div>
-                    </script>
-                    <script type="text/template" id="R1Remark">
-                        <div class="col-sm-10" style="padding:0px;">
-                            <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="100">
-                        </div>
-                    </script>*@
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>
@@ -186,137 +92,72 @@
                                 <th>Order Qty</th>
                                 <th>Marker Ratio</th>
                                 <th>Current Alloted Qty</th>
-                                @*<th>Balance To Be Alloted</th>*@
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="c in CutPlanDetailsR1List">
                                 <td>{{c.Size}}</td>
                                 <td>{{c.FinalQty}}</td>
-                                <td><input type="number" name="Ratio" ng-model="c.Ratio1" ng-change="Ratio1Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio1" ng-blur="Ratio1Change(c);" ng-click="" class="form-control" maxlength="100"></td>
                                 <td>{{c.AllotedQtyR1}}</td>
-                                @*<td>{{c.BalanceToAllotedR1}}</td>*@
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
             <div class="col-md-12">
-                <label class="col-sm-4 control-label"> Total Ratio : </label>
-                <div class="col-sm-8">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
                     <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
                 </div>
-                <label class="col-sm-4 control-label">Total CA Qty : </label>
-                <div class="col-sm-8">
+                <label class="col-sm-6 control-label">Total CA Qty : </label>
+                <div class="col-sm-6">
                     <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
                 </div>
             </div>
         </div>
-        <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="col-xs-12 col-sm-3 col-md-3">
             <label class="col-sm-4 control-label">No Of Plies : </label>
             <div class="col-sm-4">
-                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR2" ng-change="NoOfPlyR2ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR2" ng-blur="NoOfPlyR2ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
             </div>
-            @*<div class="col-sm-4">
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li>
-                            <button ng-click="SaveDetailsR2();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button>
-                        </li>
-                    </ul>
-                </div>
-            </div>*@
             <div class="col-xs-12">
-                @*<div id="GridCutPlanDetailsR2" ej-grid e-datasource="CutPlanDetailsR2List"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                         e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                        <div e-columns>
-                            <div e-column e-template="#Ratio2" e-headertext="Marker Ratio" e-width="80"></div>
-                            <div e-column e-type="string" e-field="AllotedQtyR2" e-headertext="Current Alloted Qty" e-width="100"></div>
-                            <div e-column e-type="string" e-field="BalanceToAllotedR2" e-headertext="Balance To Be Alloted" e-width="100"></div>
-                            <div e-column e-type="string" e-template="#R2Remark" e-headertext="Remarks" e-width="120"></div>
-                        </div>
-                    </div>
-                    <script type="text/template" id="Ratio2">
-                        <div class="col-sm-10" style="padding:0px;">
-                            <input type="number" name="Ratio" ng-model="data.Ratio2" ng-change="$parent.Ratio2Change(this);" ng-click="" class="form-control" maxlength="100">
-                        </div>
-                    </script>
-                    <script type="text/template" id="R2Remark">
-                        <div class="col-sm-10" style="padding:0px;">
-                            <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="100">
-                        </div>
-                    </script>*@
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>Marker Ratio</th>
                                 <th>Current Alloted Qty</th>
-                                @*<th>Balance To Be Alloted</th>*@
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="c in CutPlanDetailsR2List">
-                                <td><input type="number" name="Ratio" ng-model="c.Ratio2" ng-change="Ratio2Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio2" ng-blur="Ratio2Change(c);" ng-click="" class="form-control" maxlength="100"></td>
                                 <td>{{c.AllotedQtyR2}}</td>
-                                @*<td>{{c.BalanceToAllotedR2}}</td>*@
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
             <div class="col-md-12">
-                <label class="col-sm-4 control-label"> Total Ratio : </label>
-                <div class="col-sm-8">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
                     <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio2" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
                 </div>
-                <label class="col-sm-4 control-label">Total CA Qty : </label>
-                <div class="col-sm-8">
+                <label class="col-sm-6 control-label">Total CA Qty : </label>
+                <div class="col-sm-6">
                     <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty2" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
                 </div>
             </div>
         </div>
     </div>
     <div class="row" ng-show="CutPlanEditHeaderNew.HeaderCount===3">
-        <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="col-xs-12 col-sm-3 col-md-3">
             <label class="col-sm-4 control-label">No Of Plies : </label>
             <div class="col-sm-4">
-                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR1" ng-change="NoOfPlyR1ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR1" ng-blur="NoOfPlyR1ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
             </div>
-            @*<div class="col-sm-4">
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li>
-                            <button ng-click="SaveDetailsR1();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button>
-                        </li>
-                    </ul>
-                </div>
-
-            </div>*@
             <div class="col-xs-12">
-                @*<div id="GridCutPlanDetailsR1" ej-grid e-datasource="CutPlanDetailsR1List"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                         e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                        <div e-columns>
-                            <div e-column e-type="string" e-field="Size" e-headertext="Size" e-width="100"></div>
-                            <div e-column e-type="string" e-field="FinalQty" e-headertext="Order Qty" e-width="100"></div>
-                            <div e-column e-template="#Ratio1" e-headertext="Marker Ratio" e-width="80"></div>
-                            <div e-column e-type="string" e-field="AllotedQtyR1" e-headertext="Current Alloted Qty" e-width="100"></div>
-                            <div e-column e-type="string" e-field="BalanceToAllotedR1" e-headertext="Balance To Be Alloted" e-width="100"></div>
-                            <div e-column e-type="string" e-template="#R1Remark" e-headertext="Remarks" e-width="120"></div>
-                        </div>
-                    </div>
-                    <script type="text/template" id="Ratio1">
-                        <div class="col-sm-10" style="padding:0px;">
-                            <input type="number" name="Ratio" ng-model="data.Ratio1" ng-change="$parent.Ratio1Change(this);" ng-click="" class="form-control" maxlength="100">
-                        </div>
-                    </script>
-                    <script type="text/template" id="R1Remark">
-                        <div class="col-sm-10" style="padding:0px;">
-                            <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="100">
-                        </div>
-                    </script>*@
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>
@@ -325,14 +166,13 @@
                                 <th>Order Qty</th>
                                 <th>Marker Ratio</th>
                                 <th>Current Alloted Qty</th>
-                                @*<th>Balance To Be Alloted</th>*@
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="c in CutPlanDetailsR1List">
                                 <td>{{c.Size}}</td>
                                 <td>{{c.FinalQty}}</td>
-                                <td><input type="number" name="Ratio" ng-model="c.Ratio1" ng-change="Ratio1Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio1" ng-blur="Ratio1Change(c);" ng-click="" class="form-control" maxlength="100"></td>
                                 <td>{{c.AllotedQtyR1}}</td>
                             </tr>
                         </tbody>
@@ -340,77 +180,46 @@
                 </div>
             </div>
             <div class="col-md-12">
-                <label class="col-sm-4 control-label"> Total Ratio : </label>
-                <div class="col-sm-8">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
                     <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
                 </div>
-                <label class="col-sm-4 control-label">Total CA Qty : </label>
-                <div class="col-sm-8">
+                <label class="col-sm-6 control-label">Total CA Qty : </label>
+                <div class="col-sm-6">
                     <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
                 </div>
             </div>
         </div>
-        <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="col-xs-12 col-sm-3 col-md-3">
             <label class="col-sm-4 control-label">No Of Plies : </label>
             <div class="col-sm-4">
-                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR2" ng-change="NoOfPlyR2ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR2" ng-blur="NoOfPlyR2ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
             </div>
-            @*<div class="col-sm-4">
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li>
-                            <button ng-click="SaveDetailsR2();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button>
-                        </li>
-                    </ul>
-                </div>
-            </div>*@
             <div class="col-xs-12">
-                @*<div id="GridCutPlanDetailsR2" ej-grid e-datasource="CutPlanDetailsR2List"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                         e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                        <div e-columns>
-                            <div e-column e-template="#Ratio2" e-headertext="Marker Ratio" e-width="80"></div>
-                            <div e-column e-type="string" e-field="AllotedQtyR2" e-headertext="Current Alloted Qty" e-width="100"></div>
-                            <div e-column e-type="string" e-field="BalanceToAllotedR2" e-headertext="Balance To Be Alloted" e-width="100"></div>
-                            <div e-column e-type="string" e-template="#R2Remark" e-headertext="Remarks" e-width="120"></div>
-                        </div>
-                    </div>
-                    <script type="text/template" id="Ratio2">
-                        <div class="col-sm-10" style="padding:0px;">
-                            <input type="number" name="Ratio" ng-model="data.Ratio2" ng-change="$parent.Ratio2Change(this);" ng-click="" class="form-control" maxlength="100">
-                        </div>
-                    </script>
-                    <script type="text/template" id="R2Remark">
-                        <div class="col-sm-10" style="padding:0px;">
-                            <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="100">
-                        </div>
-                    </script>*@
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>Marker Ratio</th>
                                 <th>Current Alloted Qty</th>
-                                @*<th>Balance To Be Alloted</th>*@
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="c in CutPlanDetailsR2List">
                                 <td><input type="number" name="Ratio" ng-model="c.Ratio2" ng-change="Ratio2Change(c);" ng-click="" class="form-control" maxlength="100"></td>
                                 <td>{{c.AllotedQtyR2}}</td>
-                                @*<td>{{c.BalanceToAllotedR2}}</td>*@
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
             <div class="col-md-12">
-                <label class="col-sm-4 control-label"> Total Ratio : </label>
-                <div class="col-sm-8">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
                     <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio2" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
                 </div>
-                <label class="col-sm-4 control-label">Total CA Qty : </label>
-                <div class="col-sm-8">
+                <label class="col-sm-6 control-label">Total CA Qty : </label>
+                <div class="col-sm-6">
                     <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty2" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
                 </div>
             </div>
@@ -418,63 +227,32 @@
         <div class="col-xs-12 col-sm-4 col-md-4">
             <label class="col-sm-4 control-label">No Of Plies : </label>
             <div class="col-sm-4">
-                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR3" ng-change="NoOfPlyR3ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR3" ng-blur="NoOfPlyR3ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
             </div>
-            @*<div class="col-sm-4">
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li>
-                            <button ng-click="SaveDetailsR3();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button>
-                        </li>
-                    </ul>
-                </div>
-            </div>*@
             <div class="col-xs-12">
-                @*<div id="GridCutPlanDetailsR3" ej-grid e-datasource="CutPlanDetailsR3List"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                         e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                        <div e-columns>
-                            <div e-column e-template="#Ratio3" e-headertext="Marker Ratio" e-width="80"></div>
-                            <div e-column e-type="string" e-field="AllotedQtyR3" e-headertext="Current Alloted Qty" e-width="100"></div>
-                            <div e-column e-type="string" e-field="BalanceToAllotedR3" e-headertext="Balance To Be Alloted" e-width="100"></div>
-                            <div e-column e-type="string" e-template="#R3Remark" e-headertext="Remarks" e-width="120"></div>
-                        </div>
-                    </div>
-                    <script type="text/template" id="Ratio3">
-                        <div class="col-sm-10" style="padding:0px;">
-                            <input type="number" name="Ratio" ng-model="data.Ratio3" ng-change="$parent.Ratio3Change(this);" ng-click="" class="form-control" maxlength="100">
-                        </div>
-                    </script>
-                    <script type="text/template" id="R3Remark">
-                        <div class="col-sm-10" style="padding:0px;">
-                            <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="100">
-                        </div>
-                    </script>*@
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>Marker Ratio</th>
                                 <th>Current Alloted Qty</th>
-                                @*<th>Balance To Be Alloted</th>*@
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="c in CutPlanDetailsR3List">
-                                <td><input type="number" name="Ratio" ng-model="c.Ratio3" ng-change="Ratio3Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio3" ng-blur="Ratio3Change(c);" ng-click="" class="form-control" maxlength="100"></td>
                                 <td>{{c.AllotedQtyR3}}</td>
-                                @*<td>{{c.BalanceToAllotedR3}}</td>*@
                         </tbody>
                     </table>
                 </div>
             </div>
             <div class="col-md-12">
-                <label class="col-sm-4 control-label"> Total Ratio : </label>
-                <div class="col-sm-8">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
                     <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio3" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
                 </div>
-                <label class="col-sm-4 control-label">Total CA Qty : </label>
-                <div class="col-sm-8">
+                <label class="col-sm-6 control-label">Total CA Qty : </label>
+                <div class="col-sm-6">
                     <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty3" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
                 </div>
             </div>
@@ -484,40 +262,9 @@
         <div class="col-xs-12 col-sm-3 col-md-3">
             <label class="col-sm-4 control-label">No Of Plies : </label>
             <div class="col-sm-4">
-                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR1" ng-change="NoOfPlyR1ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR1" ng-blur="NoOfPlyR1ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
             </div>
-            @*<div class="col-sm-4">
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li>
-                            <button ng-click="SaveDetailsR1();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button>
-                        </li>
-                    </ul>
-                </div>
-
-            </div>*@
             <div class="col-xs-12">
-                @*<div id="GridCutPlanDetailsR1" ej-grid e-datasource="CutPlanDetailsR1List"
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                     e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                    <div e-columns>
-                        <div e-column e-type="string" e-field="FinalQty" e-headertext="Order Qty" e-width="100"></div>
-                        <div e-column e-template="#Ratio1" e-headertext="Marker Ratio" e-width="80"></div>
-                        <div e-column e-type="string" e-field="AllotedQtyR1" e-headertext="Current Alloted Qty" e-width="100"></div>
-                        <div e-column e-type="string" e-field="BalanceToAllotedR1" e-headertext="Balance To Be Alloted" e-width="100"></div>
-                        <div e-column e-type="string" e-template="#R1Remark" e-headertext="Remarks" e-width="120"></div>
-                    </div>
-                </div>
-                <script type="text/template" id="Ratio1">
-                    <div class="col-sm-10" style="padding:0px;">
-                        <input type="number" name="Ratio" ng-model="data.Ratio1" ng-change="$parent.Ratio1Change(this);" ng-click="" class="form-control" maxlength="100">
-                    </div>
-                </script>
-                <script type="text/template" id="R1Remark">
-                    <div class="col-sm-10" style="padding:0px;">
-                        <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="100">
-                    </div>
-                </script>*@
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>
@@ -526,16 +273,14 @@
                                 <th>Order Qty</th>
                                 <th>Marker Ratio</th>
                                 <th>Current Alloted Qty</th>
-                                @*<th>Balance To Be Alloted</th>*@
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="c in CutPlanDetailsR1List">
                                 <td>{{c.Size}}</td>
                                 <td>{{c.FinalQty}}</td>
-                                <td><input type="number" name="Ratio" ng-model="c.Ratio1" ng-change="Ratio1Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio1" ng-blur="Ratio1Change(c);" ng-click="" class="form-control" maxlength="100"></td>
                                 <td>{{c.AllotedQtyR1}}</td>
-                                @*<td>{{c.BalanceToAllotedR1}}</td>*@
                             </tr>
                         </tbody>
                     </table>
@@ -555,52 +300,21 @@
         <div class="col-xs-12 col-sm-2 col-md-2">
             <label class="col-sm-6 control-label">No Of Plies : </label>
             <div class="col-sm-6">
-                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR2" ng-change="NoOfPlyR2ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR2" ng-blur="NoOfPlyR2ChangeManual()" class="form-control" maxlength="100" autocomplete="off">
             </div>
-            @*<div class="col-sm-4">
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li>
-                            <button ng-click="SaveDetailsR2();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button>
-                        </li>
-                    </ul>
-                </div>
-            </div>*@
             <div class="col-xs-12">
-                @*<div id="GridCutPlanDetailsR2" ej-grid e-datasource="CutPlanDetailsR2List"
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                     e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                    <div e-columns>
-                        <div e-column e-template="#Ratio2" e-headertext="Marker Ratio" e-width="80"></div>
-                        <div e-column e-type="string" e-field="AllotedQtyR2" e-headertext="Current Alloted Qty" e-width="100"></div>
-                        <div e-column e-type="string" e-field="BalanceToAllotedR2" e-headertext="Balance To Be Alloted" e-width="100"></div>
-                        <div e-column e-type="string" e-template="#R2Remark" e-headertext="Remarks" e-width="120"></div>
-                    </div>
-                </div>
-                <script type="text/template" id="Ratio2">
-                    <div class="col-sm-10" style="padding:0px;">
-                        <input type="number" name="Ratio" ng-model="data.Ratio2" ng-change="$parent.Ratio2Change(this);" ng-click="" class="form-control" maxlength="100">
-                    </div>
-                </script>
-                <script type="text/template" id="R2Remark">
-                    <div class="col-sm-10" style="padding:0px;">
-                        <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="100">
-                    </div>
-                </script>*@
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>Marker Ratio</th>
                                 <th>Current Alloted Qty</th>
-                                @*<th>Balance To Be Alloted</th>*@
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="c in CutPlanDetailsR2List">
-                                <td><input type="number" name="Ratio" ng-model="c.Ratio2" ng-change="Ratio2Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio2" ng-blur="Ratio2Change(c);" ng-click="" class="form-control" maxlength="100"></td>
                                 <td>{{c.AllotedQtyR2}}</td>
-                                @*<td>{{c.BalanceToAllotedR2}}</td>*@
                             </tr>
                         </tbody>
                     </table>
@@ -618,186 +332,1679 @@
             </div>
         </div>
         <div class="col-xs-12 col-sm-2 col-md-2">
-            <label class="col-sm-4 control-label">No Of Plies : </label>
-            <div class="col-sm-4">
-                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR3" ng-change="NoOfPlyR3ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR3" ng-blur="NoOfPlyR3ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
             </div>
-            @*<div class="col-sm-4">
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li>
-                            <button ng-click="SaveDetailsR3();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button>
-                        </li>
-                    </ul>
-                </div>
-            </div>*@
             <div class="col-xs-12">
-                @*<div id="GridCutPlanDetailsR3" ej-grid e-datasource="CutPlanDetailsR3List"
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                     e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                    <div e-columns>
-                        <div e-column e-template="#Ratio3" e-headertext="Marker Ratio" e-width="80"></div>
-                        <div e-column e-type="string" e-field="AllotedQtyR3" e-headertext="Current Alloted Qty" e-width="100"></div>
-                        <div e-column e-type="string" e-field="BalanceToAllotedR3" e-headertext="Balance To Be Alloted" e-width="100"></div>
-                        <div e-column e-type="string" e-template="#R3Remark" e-headertext="Remarks" e-width="120"></div>
-                    </div>
-                </div>
-                <script type="text/template" id="Ratio3">
-                    <div class="col-sm-10" style="padding:0px;">
-                        <input type="number" name="Ratio" ng-model="data.Ratio3" ng-change="$parent.Ratio3Change(this);" ng-click="" class="form-control" maxlength="100">
-                    </div>
-                </script>
-                <script type="text/template" id="R3Remark">
-                    <div class="col-sm-10" style="padding:0px;">
-                        <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="100">
-                    </div>
-                </script>*@
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>Marker Ratio</th>
                                 <th>Current Alloted Qty</th>
-                                @*<th>Balance To Be Alloted</th>*@
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="c in CutPlanDetailsR3List">
-                                <td><input type="number" name="Ratio" ng-model="c.Ratio3" ng-change="Ratio3Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio3" ng-blur="Ratio3Change(c);" ng-click="" class="form-control" maxlength="100"></td>
                                 <td>{{c.AllotedQtyR3}}</td>
-                                @*<td>{{c.BalanceToAllotedR3}}</td>*@
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
             <div class="col-md-12">
-                <label class="col-sm-8 control-label"> Total Ratio : </label>
-                <div class="col-sm-4">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
                     <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio3" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
                 </div>
-                <label class="col-sm-8 control-label">Total CAQ : </label>
-                <div class="col-sm-4">
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
                     <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty3" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
                 </div>
             </div>
         </div>
         <div class="col-xs-12 col-sm-2 col-md-2">
-            <label class="col-sm-4 control-label">No Of Plies : </label>
-            <div class="col-sm-4">
-                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR4" ng-change="NoOfPlyR4ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR4" ng-blur="NoOfPlyR4ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
             </div>
-            @*<div class="col-sm-4">
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li>
-                            <button ng-click="SaveDetailsR4();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button>
-                        </li>
-                    </ul>
-                </div>
-            </div>*@
             <div class="col-xs-12">
-                @*<div id="GridCutPlanDetailsR4" ej-grid e-datasource="CutPlanDetailsR4List"
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                     e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                    <div e-columns>
-                        <div e-column e-template="#Ratio4" e-headertext="Marker Ratio" e-width="80"></div>
-                        <div e-column e-type="string" e-field="AllotedQtyR4" e-headertext="Current Alloted Qty" e-width="100"></div>
-                        <div e-column e-type="string" e-field="BalanceToAllotedR4" e-headertext="Balance To Be Alloted" e-width="100"></div>
-                        <div e-column e-type="string" e-template="#R4Remark" e-headertext="Remarks" e-width="120"></div>
-                    </div>
-                </div>
-                <script type="text/template" id="Ratio4">
-                    <div class="col-sm-10" style="padding:0px;">
-                        <input type="number" name="Ratio" ng-model="data.Ratio4" ng-change="$parent.Ratio4Change(this);" ng-click="" class="form-control" maxlength="100">
-                    </div>
-                </script>
-                <script type="text/template" id="R4Remark">
-                    <div class="col-sm-10" style="padding:0px;">
-                        <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="100">
-                    </div>
-                </script>*@
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>Marker Ratio</th>
                                 <th>Current Alloted Qty</th>
-                                @*<th>Balance To Be Alloted</th>*@
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="c in CutPlanDetailsR4List">
-                                <td><input type="number" name="Ratio" ng-model="c.Ratio3" ng-change="Ratio4Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio4" ng-blur="Ratio4Change(c);" ng-click="" class="form-control" maxlength="100"></td>
                                 <td>{{c.AllotedQtyR4}}</td>
-                                @*<td>{{c.BalanceToAllotedR4}}</td>*@
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
             <div class="col-md-12">
-                <label class="col-sm-8 control-label"> Total Ratio : </label>
-                <div class="col-sm-4">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
                     <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio4" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
                 </div>
-                <label class="col-sm-8 control-label">Total CAQ : </label>
-                <div class="col-sm-4">
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
                     <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty4" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
                 </div>
             </div>
         </div>
+    </div>
+    <div class="row" ng-show="CutPlanEditHeaderNew.HeaderCount===5">
         <div class="col-xs-12 col-sm-3 col-md-3">
-            <label class="col-sm-4 control-label">Total Alloted and Balance Details : </label>
+            <label class="col-sm-4 control-label">No Of Plies : </label>
             <div class="col-sm-4">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR1" ng-blur="NoOfPlyR1ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
             </div>
             <div class="col-xs-12">
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Total Cut Plan Qty</th>
-                                <th>Excess Plan Qty</th>
+                                <th>Size</th>
+                                <th>Order Qty</th>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="c in CutPlanDetailsR4List">
-                                <td>{{c.AllotedQtyR4}}</td>
-                                <td>{{c.BalanceToAllotedR4}}</td>
+                            <tr ng-repeat="c in CutPlanDetailsR1List">
+                                <td>{{c.Size}}</td>
+                                <td>{{c.FinalQty}}</td>
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio1" ng-blur="Ratio1Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR1}}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
             <div class="col-md-12">
-                <label class="col-sm-8 control-label"> Total CPQ : </label>
-                <div class="col-sm-4">
-                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCPQ" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
                 </div>
-                <label class="col-sm-8 control-label">Total EPQ : </label>
-                <div class="col-sm-4">
-                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalEPQ" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR2" ng-blur="NoOfPlyR2ChangeManual()" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR2List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio2" ng-blur="Ratio2Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR2}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio2" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty2" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR3" ng-blur="NoOfPlyR3ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR3List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio3" ng-blur="Ratio3Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR3}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio3" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty3" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR4" ng-blur="NoOfPlyR4ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR4List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio4" ng-blur="Ratio4Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR4}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio4" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty4" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR5" ng-blur="NoOfPlyR5ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR5List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio5" ng-blur="Ratio5Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR5}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio5" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty5" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" ng-show="CutPlanEditHeaderNew.HeaderCount===6">
+        <div class="col-xs-12 col-sm-3 col-md-3">
+            <label class="col-sm-4 control-label">No Of Plies : </label>
+            <div class="col-sm-4">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR1" ng-blur="NoOfPlyR1ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Size</th>
+                                <th>Order Qty</th>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR1List">
+                                <td>{{c.Size}}</td>
+                                <td>{{c.FinalQty}}</td>
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio1" ng-blur="Ratio1Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR1}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR2" ng-blur="NoOfPlyR2ChangeManual()" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR2List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio2" ng-blur="Ratio2Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR2}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio2" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty2" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR3" ng-blur="NoOfPlyR3ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR3List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio3" ng-blur="Ratio3Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR3}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio3" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty3" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR4" ng-blur="NoOfPlyR4ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR4List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio4" ng-blur="Ratio4Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR4}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio4" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty4" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR5" ng-blur="NoOfPlyR5ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR5List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio5" ng-blur="Ratio5Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR5}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio5" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty5" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR6" ng-blur="NoOfPlyR6ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR6List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio6" ng-blur="Ratio6Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR5}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio6" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty6" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" ng-show="CutPlanEditHeaderNew.HeaderCount===7">
+        <div class="col-xs-12 col-sm-3 col-md-3">
+            <label class="col-sm-4 control-label">No Of Plies : </label>
+            <div class="col-sm-4">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR1" ng-blur="NoOfPlyR1ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Size</th>
+                                <th>Order Qty</th>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR1List">
+                                <td>{{c.Size}}</td>
+                                <td>{{c.FinalQty}}</td>
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio1" ng-blur="Ratio1Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR1}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR2" ng-blur="NoOfPlyR2ChangeManual()" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR2List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio2" ng-blur="Ratio2Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR2}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio2" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty2" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR3" ng-blur="NoOfPlyR3ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR3List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio3" ng-blur="Ratio3Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR3}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio3" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty3" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR4" ng-blur="NoOfPlyR4ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR4List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio4" ng-blur="Ratio4Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR4}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio4" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty4" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR5" ng-blur="NoOfPlyR5ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR5List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio5" ng-blur="Ratio5Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR5}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio5" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty5" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR6" ng-blur="NoOfPlyR6ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR6List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio6" ng-blur="Ratio6Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR6}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio6" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty6" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR7" ng-blur="NoOfPlyR7ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR7List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio7" ng-blur="Ratio7Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR7}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio7" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty7" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" ng-show="CutPlanEditHeaderNew.HeaderCount===8">
+        <div class="col-xs-12 col-sm-3 col-md-3">
+            <label class="col-sm-4 control-label">No Of Plies : </label>
+            <div class="col-sm-4">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR1" ng-blur="NoOfPlyR1ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Size</th>
+                                <th>Order Qty</th>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR1List">
+                                <td>{{c.Size}}</td>
+                                <td>{{c.FinalQty}}</td>
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio1" ng-blur="Ratio1Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR1}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR2" ng-blur="NoOfPlyR2ChangeManual()" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR2List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio2" ng-blur="Ratio2Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR2}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio2" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty2" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR3" ng-blur="NoOfPlyR3ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR3List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio3" ng-blur="Ratio3Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR3}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio3" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty3" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR4" ng-blur="NoOfPlyR4ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR4List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio4" ng-blur="Ratio4Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR4}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio4" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty4" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR5" ng-blur="NoOfPlyR5ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR5List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio5" ng-blur="Ratio5Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR5}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio5" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty5" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR6" ng-blur="NoOfPlyR6ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetails6List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio6" ng-blur="Ratio6Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR6}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio6" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty6" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR7" ng-blur="NoOfPlyR7ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR7List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio7" ng-blur="Ratio7Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR7}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio7" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty7" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR8" ng-blur="NoOfPlyR8ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR8List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio8" ng-blur="Ratio8Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR8}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio8" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty8" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" ng-show="CutPlanEditHeaderNew.HeaderCount===9">
+        <div class="col-xs-12 col-sm-3 col-md-3">
+            <label class="col-sm-4 control-label">No Of Plies : </label>
+            <div class="col-sm-4">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR1" ng-blur="NoOfPlyR1ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Size</th>
+                                <th>Order Qty</th>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR1List">
+                                <td>{{c.Size}}</td>
+                                <td>{{c.FinalQty}}</td>
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio1" ng-blur="Ratio1Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR1}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR2" ng-blur="NoOfPlyR2ChangeManual()" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR2List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio2" ng-blur="Ratio2Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR2}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio2" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty2" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR3" ng-blur="NoOfPlyR3ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR3List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio3" ng-blur="Ratio3Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR3}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio3" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty3" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR4" ng-blur="NoOfPlyR4ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR4List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio4" ng-blur="Ratio4Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR4}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio4" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty4" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR5" ng-blur="NoOfPlyR5ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR5List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio5" ng-blur="Ratio5Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR5}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio5" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty5" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR6" ng-blur="NoOfPlyR6ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetails6List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio6" ng-blur="Ratio6Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR6}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio6" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty6" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR7" ng-blur="NoOfPlyR7ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR7List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio7" ng-blur="Ratio7Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR7}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio7" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty7" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR8" ng-blur="NoOfPlyR8ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR8List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio8" ng-blur="Ratio8Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR8}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio8" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty8" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR9" ng-blur="NoOfPlyR9ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR9List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio9" ng-blur="Ratio9Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR9}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio9" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty9" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" ng-show="CutPlanEditHeaderNew.HeaderCount===10">
+        <div class="col-xs-12 col-sm-3 col-md-3">
+            <label class="col-sm-4 control-label">No Of Plies : </label>
+            <div class="col-sm-4">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR1" ng-blur="NoOfPlyR1ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Size</th>
+                                <th>Order Qty</th>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR1List">
+                                <td>{{c.Size}}</td>
+                                <td>{{c.FinalQty}}</td>
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio1" ng-blur="Ratio1Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR1}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR2" ng-blur="NoOfPlyR2ChangeManual()" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR2List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio2" ng-blur="Ratio2Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR2}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio2" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty2" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR3" ng-blur="NoOfPlyR3ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR3List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio3" ng-blur="Ratio3Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR3}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio3" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty3" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR4" ng-blur="NoOfPlyR4ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR4List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio4" ng-blur="Ratio4Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR4}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio4" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty4" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR5" ng-blur="NoOfPlyR5ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR5List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio5" ng-blur="Ratio5Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR5}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio5" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty5" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR6" ng-blur="NoOfPlyR6ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetails6List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio6" ng-blur="Ratio6Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR6}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio6" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty6" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR7" ng-blur="NoOfPlyR7ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR7List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio7" ng-blur="Ratio7Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR7}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio7" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty7" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR8" ng-blur="NoOfPlyR8ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR8List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio8" ng-blur="Ratio8Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR8}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio8" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty8" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR9" ng-blur="NoOfPlyR9ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR9List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio9" ng-blur="Ratio9Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR9}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio9" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty9" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <label class="col-sm-6 control-label">No Of Plies : </label>
+            <div class="col-sm-6">
+                <input type="text" ng-model="CutPlanEditHeaderNew.NoOfPlyR10" ng-blur="NoOfPlyR10ChangeManual();" class="form-control" maxlength="100" autocomplete="off">
+            </div>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marker Ratio</th>
+                                <th>Current Alloted Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsR10List">
+                                <td><input type="number" name="Ratio" ng-model="c.Ratio10" ng-blur="Ratio10Change(c);" ng-click="" class="form-control" maxlength="100"></td>
+                                <td>{{c.AllotedQtyR10}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label class="col-sm-6 control-label"> Total Ratio : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalRatio10" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total CAQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCAQty10" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
                 </div>
             </div>
         </div>
     </div>
     <div class="row">
-        <div class="col-xs-12 col-sm-4 col-md-4">
-            <label class="col-sm-4 control-label">Total FQty : </label>
-            <div class="col-sm-8">
-                <input type="text" ng-model="CutPlanEditHeaderNew.TotalFinalQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+        <div class="col-xs-12 col-sm-3 col-md-3">
+            <label class="col-sm-10 control-label">Total Final,Alloted and Balance Details : </label>
+            <label class="col-sm-2 control-label"></label>
+            <div class="col-xs-12">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Size</th>
+                                <th>Final Qty</th>
+                                <th>Total Cut Plan Qty</th>
+                                <th>Excess Plan Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="c in CutPlanDetailsBalanceList">
+                                <td>{{c.Size}}</td>
+                                <td>{{c.FinalQty}}</td>
+                                <td>{{c.AllotedQty}}</td>
+                                <td>{{c.BalanceQty}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
-        <div class="col-xs-12 col-sm-4 col-md-4">
-            <label class="col-sm-4 control-label"> Total Alloted Qty : </label>
-            <div class="col-sm-8">
-                <input type="text" ng-model="CutPlanEditHeaderNew.TotalAllotedQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-4 col-md-4">
-            <label class="col-sm-4 control-label">Total Balance Qty : </label>
-            <div class="col-sm-8">
-                <input type="text" ng-model="CutPlanEditHeaderNew.TotalBalanceQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+            <div class="col-xs-12">
+                <label class="col-sm-6 control-label"> Total Final Qty : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalFinalQty" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label"> Total CPQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalCPQ" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-sm-6 control-label">Total EPQ : </label>
+                <div class="col-sm-6">
+                    <input type="text" ng-model="CutPlanEditHeaderNew.TotalEPQ" ng-disabled="true" class="form-control" maxlength="100" autocomplete="off">
+                </div>
             </div>
         </div>
     </div>
